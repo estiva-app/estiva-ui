@@ -6,11 +6,13 @@
   "type": "module",
   "license": "UNLICENSED",
   "files": [
+    "src",
     "tailwind-preset.js",
     "tokens.css",
     "README.md"
   ],
   "exports": {
+    ".": "./src/index.ts",
     "./tailwind-preset": "./tailwind-preset.js",
     "./tokens.css": "./tokens.css",
     "./package.json": "./package.json"
@@ -23,6 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
+    "@tabler/icons-react": "^3.41.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^3.4.0"
@@ -30,6 +33,7 @@
   "devDependencies": {
     "@storybook/addon-docs": "^10.5.10",
     "@storybook/react-vite": "^10.5.10",
+    "@tabler/icons-react": "^3.41.1",
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -43,5 +47,9 @@
     "typescript": "~5.9.3",
     "vite": "^8.0.1",
     "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.5.0"
   }
 }
