@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
+@import '../tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Docs-page example blocks sit on the theme's own canvas (--bg-base) instead
+ * of the docs chrome's block background, so a component is judged against
+ * what it will actually sit on.
+ */
+.docs-story {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}
+.docs-story > div {
+  background-color: transparent;
+}

@@ -1,0 +1,30 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Introduction" />
+
+# @estiva/ui
+
+The shared foundation of every Estiva app's interface: the **design tokens**
+(colours, type, radius, shadows) and, built on them, a **small set of
+primitives** — avatars, chips, buttons, inputs.
+
+**Tokens are the contract. Components are a convenience.** An app must not
+diverge from the token names; it may fork any component, freely, and owes
+nothing back.
+
+Start with **Design Tokens**. Use the **Theme** toolbar to see the same names
+under each app's values: `light` and `dark` are Peek's, `ship` is Ship's.
+
+## What lives here, and what does not
+
+- Here: anything that could be used unchanged by an app that has documents
+  and no conversations. Its stories need no app data.
+- Not here: anything that knows what a topic, an issue, a huddle or a folder
+  is. That is the app's, and stays in the app's own Storybook.
+
+## Where it comes from
+
+The names and the `light` / `dark` values are Peek's, verbatim; Peek is the
+visual reference and must render unchanged after consuming this package.
+`ship` is Ship's palette, ruled by its designer. The primitives are extracted
+from Peek one at a time, each screenshot-compared before and after.

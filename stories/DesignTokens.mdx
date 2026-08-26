@@ -1,0 +1,59 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+import {
+  ColorGrid,
+  SemanticGrid,
+  TypeRamp,
+  RadiusGrid,
+  ShadowGrid,
+  BG,
+  TEXT,
+  BORDER,
+  ACCENT,
+  SEMANTIC,
+  TYPE,
+  RADIUS,
+  SHADOW,
+} from './Swatches'
+
+<Meta title="Docs/Design Tokens" />
+
+# Design Tokens
+
+Every Estiva component references these tokens, never raw hex. Each swatch
+reads a live CSS variable, so it shows the theme selected in the **Theme**
+toolbar: `light` and `dark` are Peek's values, `ship` is Ship's. The names are
+the ones you use in code: a colour token `bg-surface` is the Tailwind class
+`bg-bg-surface`; a type token `body-2` is `text-body-2`.
+
+> Source of truth: `tailwind-preset.js` (the names, plus the type / radius /
+> shadow scales) and `tokens.css` (the values, one block per theme).
+> `npm test` checks that every theme defines every name, and no other.
+
+## Colour
+
+<ColorGrid title="Background" tokens={BG} />
+<ColorGrid title="Text" tokens={TEXT} />
+<ColorGrid title="Border" tokens={BORDER} />
+<ColorGrid title="Accent" tokens={ACCENT} />
+<SemanticGrid pairs={SEMANTIC} />
+
+Each semantic pair shows **default** (left) and **muted** (right) — muted is the
+tint used for chips, banners and notification chrome.
+
+## Typography
+
+Font family is **Geist**. The ramp pairs headings, body, and component-specific
+sizes. Component tokens (`btn-*`, `input-*`, `chip`) are deliberately explicit —
+in shared components prefer arbitrary values (`text-[12px] leading-[12px]`),
+because tailwind-merge silently drops a custom size class that is followed by a
+`text-{colour}` class.
+
+<TypeRamp tokens={TYPE} />
+
+## Radius
+
+<RadiusGrid tokens={RADIUS} />
+
+## Shadow
+
+<ShadowGrid tokens={SHADOW} />

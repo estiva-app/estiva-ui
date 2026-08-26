@@ -1,0 +1,66 @@
+import type { Decorator, Preview } from '@storybook/react-vite'
+import { useEffect } from 'react'
+import { addons } from 'storybook/preview-api'
+import { GLOBALS_UPDATED } from 'storybook/internal/core-events'
+import { themes } from 'storybook/theming'
+import './preview.css'
+
+/**
+ * The three themes in tokens.css, from the toolbar.
+ *
+ * Selected the way the apps select them: `data-theme` on <html>, plus the
+ * `.dark` class for `dark` (Peek's way, and what its `dark:` variants key
+ * on). `light` is no attribute and no class — the `:root` base.
+ */
+const THEMES = ['light', 'dark', 'ship'] as const
+type Theme = (typeof THEMES)[number]
+const DEFAULT_THEME: Theme = 'light'
+
+const applyTheme = (theme?: string) => {
+  const chosen = (THEMES as readonly string[]).includes(theme ?? '') ? (theme as Theme) : DEFAULT_THEME
+  const html = document.documentElement
+  if (chosen === 'light') delete html.dataset.theme
+  else html.dataset.theme = chosen
+  html.classList.toggle('dark', chosen === 'dark')
+}
+
+// Drive the theme from the toolbar for EVERY page, including MDX docs pages,
+// which do not run story decorators.
+try {
+  addons.getChannel().on(GLOBALS_UPDATED, ({ globals }: { globals: { theme?: string } }) => {
+    applyTheme(globals?.theme)
+  })
+} catch {
+  /* channel not ready at import — the decorator still covers story pages */
+}
+applyTheme(DEFAULT_THEME)
+
+const withTheme: Decorator = (Story, context) => {
+  const theme = (context.parameters.forceTheme as string) ?? context.globals.theme ?? DEFAULT_THEME
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
+  return <Story />
+}
+
+const preview: Preview = {
+  tags: ['autodocs'],
+  globalTypes: {
+    theme: {
+      description: 'Theme',
+      toolbar: { title: 'Theme', icon: 'mirror', items: [...THEMES], dynamicTitle: true },
+    },
+  },
+  initialGlobals: { theme: DEFAULT_THEME },
+  parameters: {
+    layout: 'centered',
+    controls: { expanded: true },
+    docs: { theme: themes.dark },
+    options: {
+      storySort: { order: ['Docs', ['Introduction', 'Design Tokens'], 'Primitives', 'Inputs', 'Feedback', 'Overlays'] },
+    },
+  },
+  decorators: [withTheme],
+}
+
+export default preview

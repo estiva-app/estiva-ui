@@ -1,0 +1,161 @@
+/*
+  Estiva's design tokens — the VALUES behind the names in tailwind-preset.js,
+  one block per theme. Import once, before anything that uses them:
+
+    @import '@estiva/ui/tokens.css';
+
+  Select a theme with `data-theme="<name>"` on <html>; `dark` also answers to
+  the `.dark` class, which is how Peek selects it and what its `dark:`
+  variants key on. No attribute at all is `light`.
+
+  Every block defines every token (tokens.test.ts checks). A theme that left
+  one out would inherit it from `:root` and silently show light values.
+
+  Peek layers its own Signal theme (`.signal`) over `dark` in its own CSS,
+  with tokens that are Peek's alone (highlight, washes, glows, private,
+  logo); those are product, not the contract, and do not live here.
+*/
+
+/* ─── light ─── Peek's base theme (peek/src/index.css :root, 2026-08-28). */
+:root {
+  /* bg */
+  --bg-base:     #F4F4F5;
+  --bg-surface:  #FFFFFF;
+  --bg-elevated: #FAFAFA;
+  --bg-inset:    #F4F4F5;
+  --bg-hover:    #E9E9EB;
+  --bg-selected: #E4E4E7;
+  --bg-active:   #D4D4D8;
+  --bg-disabled: #F4F4F5;
+
+  /* text */
+  --text-primary:   #18181B;
+  --text-secondary: #52525B;
+  --text-muted:     #A1A1AA;
+  --text-disabled:  #D4D4D8;
+  --text-inverse:   #FAFAFA;
+
+  /* border */
+  --border-subtle:  #F4F4F5;
+  --border-default: #E4E4E7;
+  --border-strong:  #D4D4D8;
+  --border-focus:   #8B5CF6;
+
+  /* accent */
+  --accent-primary: #8B5CF6;
+  --accent-hover:   #7C3AED;
+  --accent-muted:   #EDE9FE;
+
+  /* semantic */
+  --info-default:    #3B82F6;
+  --info-muted:      #DBEAFE;
+  --warning-default: #F59E0B;
+  --warning-muted:   #FEF3C7;
+  --success-default: #0EA06F;
+  --success-muted:   #D1FAE5;
+  --error-default:   #EF4444;
+  --error-muted:     #FEE2E2;
+
+  /* shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
+}
+
+/* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
+.dark,
+:root[data-theme='dark'] {
+  /* bg */
+  --bg-base:     #09090B;
+  --bg-surface:  #141416;
+  --bg-elevated: #1C1C1F;
+  --bg-inset:    #27272A;
+  --bg-hover:    #232326;
+  --bg-selected: #1F1F22;
+  --bg-active:   #2D2D31;
+  --bg-disabled: #1C1C1F;
+
+  /* text */
+  --text-primary:   #FAFAFA;
+  --text-secondary: #AEAEB6; /* nudged up from #A1A1AA (2026-07-23) — brighter bodies, still clearly below primary */
+  --text-muted:     #71717A;
+  --text-disabled:  #52525B;
+  --text-inverse:   #18181B;
+
+  /* border */
+  --border-subtle:  #1F1F22;
+  --border-default: #2D2D31;
+  --border-strong:  #52525B;
+  --border-focus:   #A78BFA;
+
+  /* accent */
+  --accent-primary: #A78BFA;
+  --accent-hover:   #8B5CF6;
+  --accent-muted:   #2E2554;
+
+  /* semantic */
+  --info-default:    #60A5FA;
+  --info-muted:      #172554;
+  --warning-default: #FBBF24;
+  --warning-muted:   #4A3728;
+  --success-default: #34D399;
+  --success-muted:   #0E392B;
+  --error-default:   #F87171;
+  --error-muted:     #4A2828;
+
+  /* shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.30);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.40), 0 2px 4px -2px rgba(0,0,0,0.30);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.50), 0 4px 6px -4px rgba(0,0,0,0.40);
+}
+
+/* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
+:root[data-theme='ship'] {
+  color-scheme: dark;
+
+  /* bg */
+  --bg-base:     #0e0f13;
+  --bg-surface:  #16181f;
+  --bg-elevated: #1c1f28;
+  /* Lighter than the surfaces it sits on, as dark has it (its inset is the
+     lightest background): a neutral Chip and a search field are bg-inset. */
+  --bg-inset:    #1f2330;
+  /* Translucent, so a hover reads on every surface. */
+  --bg-hover:    rgba(255, 255, 255, 0.05);
+  --bg-selected: rgba(75, 88, 212, 0.16);
+  --bg-active:   rgba(255, 255, 255, 0.08);
+  --bg-disabled: #16181f;
+
+  /* text */
+  --text-primary:   #e6e8ee;
+  --text-secondary: #b3b9c7;
+  --text-muted:     #8b91a1;
+  --text-disabled:  #5b6070;
+  --text-inverse:   #0e0f13;
+
+  /* border — subtle is one step above bg-elevated, so a divider on a menu is a line */
+  --border-subtle:  #232734;
+  --border-default: #272b36;
+  --border-strong:  #3a3f4d;
+  --border-focus:   #4b58d4;
+
+  /* accent — blue with a touch of purple; light text on it reads at 4.9:1 */
+  --accent-primary: #4b58d4;
+  --accent-hover:   #5c69dc;
+  --accent-muted:   #1c2144;
+
+  /* semantic */
+  --info-default:    #5b7be8;
+  --info-muted:      #1a2342;
+  --warning-default: #e0b04a;
+  --warning-muted:   #3a2f14;
+  --success-default: #46c08a;
+  --success-muted:   #123326;
+  --error-default:   #e5697a;
+  --error-muted:     #3a1c22;
+
+  /* shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
