@@ -1,3 +1,5 @@
+import plugin from 'tailwindcss/plugin'
+
 /**
  * The Estiva Tailwind preset — the token NAMES every Estiva app shares.
  *
@@ -18,12 +20,17 @@
  *
  * `darkMode: 'class'` is here because Peek's `dark:` variants key on the
  * `.dark` class, and `tokens.css` answers to both that class and
- * `data-theme="dark"`.
+ * `data-theme="dark"`. The `signal:` variant is here for the same reason:
+ * `signal` is a theme in `tokens.css`, and a shared component may carry
+ * the few Signal-only touches Peek gives it (a semibold primary, a mono
+ * chip label) without the consuming app knowing — an app that never
+ * applies `.signal` never sees them.
  *
  * @type {import('tailwindcss').Config}
  */
 export default {
   darkMode: 'class',
+  plugins: [plugin(({ addVariant }) => addVariant('signal', '.signal &'))],
   theme: {
     extend: {
       fontFamily: {

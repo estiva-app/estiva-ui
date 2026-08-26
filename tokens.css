@@ -184,7 +184,10 @@
   --text-secondary: #b3b9c7;
   --text-muted:     #8b91a1;
   --text-disabled:  #5b6070;
-  --text-inverse:   #0e0f13;
+  /* Light, not dark: "inverse" is the text on the accent, and Ship's accent is
+     dark enough that light text is the readable one (4.9:1). Katerina's
+     ruling for the primary button, 2026-08-27. */
+  --text-inverse:   #e6e8ee;
 
   /* border — subtle is one step above bg-elevated, so a divider on a menu is a line */
   --border-subtle:  #232734;

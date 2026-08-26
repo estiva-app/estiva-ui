@@ -4,4 +4,8 @@
  * components (see README, "Using it").
  */
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
+export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'
+export { Chip, type ChipProps, type ChipType } from './Chip'
+export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
+export { Tooltip, WithTooltip, type TooltipProps, type WithTooltipProps } from './Tooltip'
 export { cn } from './cn'
