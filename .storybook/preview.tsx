@@ -6,22 +6,25 @@ import { themes } from 'storybook/theming'
 import './preview.css'
 
 /**
- * The three themes in tokens.css, from the toolbar.
+ * The two themes the apps render, from the toolbar: `signal` is Peek's,
+ * `ship` is Ship's (Katerina, 2026-08-28: the reference shows what the apps
+ * show). `light` and `dark` exist in tokens.css as the bases Peek's own
+ * Storybook and Estiva ID use, and are not offered here.
  *
  * Selected the way the apps select them: `data-theme` on <html>, plus the
- * `.dark` class for `dark` (Peek's way, and what its `dark:` variants key
- * on). `light` is no attribute and no class — the `:root` base.
+ * `.dark.signal` classes for Signal (Peek's way — Signal layers over dark,
+ * and its `dark:` variants key on the class).
  */
-const THEMES = ['light', 'dark', 'ship'] as const
+const THEMES = ['signal', 'ship'] as const
 type Theme = (typeof THEMES)[number]
-const DEFAULT_THEME: Theme = 'light'
+const DEFAULT_THEME: Theme = 'signal'
 
 const applyTheme = (theme?: string) => {
   const chosen = (THEMES as readonly string[]).includes(theme ?? '') ? (theme as Theme) : DEFAULT_THEME
   const html = document.documentElement
-  if (chosen === 'light') delete html.dataset.theme
-  else html.dataset.theme = chosen
-  html.classList.toggle('dark', chosen === 'dark')
+  html.dataset.theme = chosen
+  html.classList.toggle('dark', chosen === 'signal')
+  html.classList.toggle('signal', chosen === 'signal')
 }
 
 // Drive the theme from the toolbar for EVERY page, including MDX docs pages,

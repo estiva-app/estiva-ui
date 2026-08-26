@@ -9,8 +9,9 @@ every Estiva app — Peek, Ship, and whatever comes next.
 
 - `tailwind-preset.js` — the token *names*, as a Tailwind preset: colours,
   type ramp, radii, shadows, the skeleton animation. Peek's, verbatim.
-- `tokens.css` — the token *values*, one block per theme: `light`, `dark`
-  (Peek's), `ship` (Ship's own palette). Same names in every block.
+- `tokens.css` — the token *values*, one block per theme: `signal` (what
+  Peek renders), `ship` (what Ship renders), and the `light` / `dark` bases.
+  Same names in every block.
 - Primitives — arriving one at a time (see Storybook). Each has stories that
   need no app data; if a story needs a fixture, the component is not a
   primitive and does not belong here.
@@ -33,7 +34,7 @@ export default {
 ```
 
 ```html
-<html data-theme="ship">   <!-- or "dark"; nothing = light. `.dark` on <html> also selects dark. -->
+<html data-theme="ship">   <!-- or "signal" / "dark"; nothing = light. Peek uses the classes: <html class="dark signal">. -->
 ```
 
 Until the package is published (SHA-1), consume it as a local path:
@@ -84,22 +85,23 @@ never use is absent, not disabled. Primitives expose what that needs: a
 
 ## Themes
 
-| Theme   | Selected by                              | Whose            |
-|---------|------------------------------------------|------------------|
-| `light` | nothing                                  | Peek's base      |
-| `dark`  | `data-theme="dark"` or `.dark`           | Peek's           |
-| `ship`  | `data-theme="ship"`                      | Ship's           |
+| Theme    | Selected by                                    | Whose                          |
+|----------|------------------------------------------------|--------------------------------|
+| `signal` | `data-theme="signal"` or `.dark.signal`        | Peek — what it renders         |
+| `ship`   | `data-theme="ship"`                            | Ship — what it renders         |
+| `dark`   | `data-theme="dark"` or `.dark`                 | Peek's base under Signal       |
+| `light`  | nothing                                        | the `:root` base; Estiva ID    |
 
-Peek layers its Signal theme (`.signal`) over `dark` in its own CSS, with
-tokens that are Peek's alone (highlight, washes, glows, private, logo).
-Those are product, not the contract, and stay in Peek.
+Peek's Signal-only extras (washes, glows, the summary highlight, the huddle
+register, the wordmark, the mono stack) are product, not the contract, and
+stay in Peek's own `.signal` block.
 
 ## Working on it
 
 ```
 npm install
 npm test            # every theme defines every token the preset names, and no other
-npm run storybook   # http://localhost:6008 — Design Tokens, and each primitive
+npm run storybook   # http://localhost:6008 — Design Tokens, and each primitive, in signal and ship
 ```
 
 Extracting a primitive from Peek must not change how Peek renders:
