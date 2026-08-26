@@ -1,4 +1,4 @@
-# @estiva/ui
+# @estiva-app/ui
 
 Estiva's design tokens, and a small set of primitives built on them, for
 every Estiva app — Peek, Ship, and whatever comes next.
@@ -20,7 +20,7 @@ every Estiva app — Peek, Ship, and whatever comes next.
 
 ```js
 // tailwind.config.js
-import estiva from '@estiva/ui/tailwind-preset'
+import estiva from '@estiva-app/ui/tailwind-preset'
 export default {
   presets: [estiva],
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -30,15 +30,31 @@ export default {
 
 ```css
 /* your entry CSS, before anything that uses a token */
-@import '@estiva/ui/tokens.css';
+@import '@estiva-app/ui/tokens.css';
 ```
 
 ```html
 <html data-theme="ship">   <!-- or "signal" / "dark"; nothing = light. Peek uses the classes: <html class="dark signal">. -->
 ```
 
-Until the package is published (SHA-1), consume it as a local path:
-`"@estiva/ui": "file:../estiva-ui"`.
+Install it:
+
+```bash
+npm install @estiva-app/ui
+```
+
+**Spread `estivaContent` into your `content`.** Tailwind does not merge
+`content` from a preset — measured, see the comment in `tailwind-preset.js` —
+so without this every class used only by these components is purged, and the
+result is a build that succeeds with components rendering at the wrong size:
+
+```js
+import estiva, { estivaContent } from '@estiva-app/ui/tailwind-preset'
+export default {
+  presets: [estiva],
+  content: [...estivaContent, './index.html', './src/**/*.{ts,tsx}'],
+}
+```
 
 ## The rules
 

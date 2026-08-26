@@ -1,0 +1,54 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: check-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      # The published entry point must not drag React in. Bundling a peer would
+      # put a second React in a consuming app, which breaks hooks at runtime and
+      # is invisible at build time.
+      - name: React stays external to the bundle
+        run: |
+          if grep -qE "function (useState|useRef|useEffect)\(" dist/index.js; then
+            echo "::error::React looks bundled into dist/index.js — it must stay a peer"
+            exit 1
+          fi
+
+      # Tailwind purges any class it cannot find, so a consumer that does not
+      # scan this package renders correct markup at the wrong size, with nothing
+      # reporting it. The globs are what make that impossible to forget; if they
+      # stop resolving, the failure is silent everywhere else.
+      - name: The exported Tailwind content globs resolve to real files
+        run: |
+          node --input-type=module -e "
+            import { globSync } from 'node:fs'
+            import { fileURLToPath } from 'node:url'
+            // Same two globs tailwind-preset.js exports. They are duplicated here
+            // rather than imported because the preset imports tailwindcss/plugin,
+            // which bare Node ESM will not resolve — Tailwind's own loader does.
+            const own = (g) => fileURLToPath(new URL(g, 'file://' + process.cwd() + '/'))
+            for (const g of [own('dist/*.js'), own('src/*.tsx')]) {
+              const hits = globSync(g)
+              if (hits.length === 0) { console.error('::error::no files match ' + g); process.exit(1) }
+              console.log(g, '->', hits.length, 'files')
+            }
+          "
