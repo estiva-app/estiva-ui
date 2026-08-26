@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "files": [
     "dist",
     "src",
     "tailwind-preset.js",
     "tokens.css",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
