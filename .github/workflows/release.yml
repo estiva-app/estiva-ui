@@ -1,0 +1,49 @@
+name: release
+
+# `git tag v0.1.1 && git push origin v0.1.1` publishes.
+#
+# **Before the first CI release, two things must be true**, and neither is in
+# this file (see estiva-docs ADR 0002 §4c):
+#
+#   1. The package exists on npm. A trusted publisher is configured *on* a
+#      package, so the very first publish of a new name is a manual act from a
+#      maintainer's machine with an interactive 2FA challenge.
+#   2. A trusted publisher is registered at npmjs.com for this package —
+#      provider GitHub Actions, org `estiva-app`, repo `estiva-ui`, workflow
+#      `release.yml`.
+#
+# There is deliberately no NPM_TOKEN. npm is restricting 2FA-bypass tokens and
+# removes their publish capability entirely in January 2027; OIDC is both the
+# replacement and the better posture — nothing standing is stored in GitHub.
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: The tag agrees with package.json
+        run: |
+          ACTUAL=$(node -p "require('./package.json').version")
+          if [ "v$ACTUAL" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME}, package.json $ACTUAL"
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm publish

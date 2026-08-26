@@ -1,7 +1,13 @@
 /**
- * @estiva/ui — the primitives. Shipped as source: the consuming app compiles
- * these files with its own Vite and TypeScript, exactly like its own
- * components (see README, "Using it").
+ * @estiva-app/ui — the primitives.
+ *
+ * Shipped **built**: `dist/index.js` (esbuild, one bundle, React external) plus
+ * `.d.ts` from `tsc`. Not source — a package of `.ts` is compiled with the
+ * *consumer's* tsconfig, and Ship's `noUnusedLocals` alone is enough to fail a
+ * build over a library it does not own. See estiva-docs ADR 0002 §4a.
+ *
+ * `src/` still ships in the tarball, so stepping into a component lands on the
+ * TypeScript that produced it.
  */
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'

@@ -1,0 +1,15 @@
+{
+  "$comment": "Declarations only. build.mjs emits the JavaScript; this emits the types, from src alone — stories and the token test are not part of the package.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.stories.tsx"]
+}

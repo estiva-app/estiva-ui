@@ -1,4 +1,33 @@
+import { fileURLToPath } from 'node:url'
 import plugin from 'tailwindcss/plugin'
+
+/**
+ * The globs a consumer must add to its own `content`, exported so nobody has to
+ * write a path into this package by hand.
+ *
+ * **Spread these — do not rely on the preset carrying them.** Tailwind does not
+ * merge `content` from a preset: measured on 2026-08-26 against Peek, with the
+ * preset exporting exactly these absolute paths in its own `content`, the class
+ * `max-h-72` — used by `Select` and by nothing in Peek — was still absent from
+ * the built stylesheet. Moving the identical string into Peek's own `content`
+ * put it there. The preset is not a place this can be fixed.
+ *
+ * Why it matters: Tailwind purges every class it cannot find, so the failure is
+ * a build that succeeds, tests that pass and tokens that are present, with
+ * components rendering at the wrong size. Nothing reports it.
+ *
+ * The paths are absolute and derived from this file's own location, because a
+ * `content` entry resolves against the consumer's working directory and the
+ * consumer has no reliable relative path to us.
+ *
+ *   import estiva, { estivaContent } from '@estiva-app/ui/tailwind-preset'
+ *   export default {
+ *     presets: [estiva],
+ *     content: [...estivaContent, './index.html', './src/**\/*.{ts,tsx}'],
+ *   }
+ */
+const own = (glob) => fileURLToPath(new URL(glob, import.meta.url))
+export const estivaContent = [own('./dist/*.js'), own('./src/*.{ts,tsx}')]
 
 /**
  * The Estiva Tailwind preset — the token NAMES every Estiva app shares.
@@ -15,8 +44,11 @@ import plugin from 'tailwindcss/plugin'
  *
  * Consume with:
  *
- *   import estiva from '@estiva/ui/tailwind-preset'
- *   export default { presets: [estiva], content: [...], theme: { extend: { ...your own } } }
+ *   import estiva from '@estiva-app/ui/tailwind-preset'
+ *   export default { presets: [estiva], content: [...your app's], theme: { extend: { ...your own } } }
+ *
+ * A consumer lists only its own files: the preset already contributes this
+ * package's, and Tailwind concatenates the two.
  *
  * `darkMode: 'class'` is here because Peek's `dark:` variants key on the
  * `.dark` class, and `tokens.css` answers to both that class and
@@ -29,6 +61,7 @@ import plugin from 'tailwindcss/plugin'
  * @type {import('tailwindcss').Config}
  */
 export default {
+
   darkMode: 'class',
   plugins: [plugin(({ addVariant }) => addVariant('signal', '.signal &'))],
   theme: {

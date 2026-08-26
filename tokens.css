@@ -2,7 +2,7 @@
   Estiva's design tokens — the VALUES behind the names in tailwind-preset.js,
   one block per theme. Import once, before anything that uses them:
 
-    @import '@estiva/ui/tokens.css';
+    @import '@estiva-app/ui/tokens.css';
 
   Select a theme with `data-theme="<name>"` on <html>. `dark` and `signal`
   also answer to the `.dark` / `.signal` classes, which is how Peek selects
