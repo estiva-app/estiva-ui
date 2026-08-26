@@ -109,6 +109,9 @@ export default {
         'sm':  'var(--shadow-sm)',
         'md':  'var(--shadow-md)',
         'lg':  'var(--shadow-lg)',
+        // The ring a focused control wears where a theme wants one: Signal's
+        // glow. Every theme defines it; the shared inputs use it under `signal:`.
+        'focus-ring': 'var(--focus-ring)',
       },
       keyframes: {
         'skeleton-in': {

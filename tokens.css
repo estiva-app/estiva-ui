@@ -63,6 +63,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
+  --focus-ring: 0 0 0 3px rgba(139, 92, 246, 0.16);
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -110,6 +111,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.30);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.40), 0 2px 4px -2px rgba(0,0,0,0.30);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.50), 0 4px 6px -4px rgba(0,0,0,0.40);
+  --focus-ring: 0 0 0 3px rgba(167, 139, 250, 0.16);
 }
 
 
@@ -160,6 +162,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px -8px rgba(0, 0, 0, 0.55);
   --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 16px rgba(0, 0, 0, 0.45), 0 22px 60px -16px rgba(0, 0, 0, 0.75);
   --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 28px rgba(0, 0, 0, 0.5), 0 36px 90px -16px rgba(0, 0, 0, 0.8);
+  /* the glow a focused control wears — Peek's, verbatim */
+  --focus-ring:   0 0 0 3px rgba(86, 200, 255, 0.12), 0 0 28px -8px rgba(86, 200, 255, 0.4);
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -189,10 +193,12 @@
      ruling for the primary button, 2026-08-27. */
   --text-inverse:   #e6e8ee;
 
-  /* border — subtle is one step above bg-elevated, so a divider on a menu is a line */
-  --border-subtle:  #232734;
-  --border-default: #272b36;
-  --border-strong:  #3a3f4d;
+  /* borders (alpha hairlines, as Signal's — Katerina, 2026-08-28: Ship's
+     inputs should carry the same border as Signal's; an alpha line reads on
+     every surface, the inset field included) */
+  --border-subtle:  rgba(255, 255, 255, 0.065);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong:  rgba(255, 255, 255, 0.22);
   --border-focus:   #4b58d4;
 
   /* accent — blue with a touch of purple; light text on it reads at 4.9:1 */
@@ -214,4 +220,6 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  /* defined, as every theme must; Ship's controls show focus with the border alone */
+  --focus-ring: 0 0 0 3px rgba(75, 88, 212, 0.16);
 }
