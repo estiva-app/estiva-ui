@@ -37,9 +37,7 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
     <DialogShell
       title={title}
       onClose={onClose}
-      /* The size is an arbitrary value (the body-2 token): this list merges
-         with a colour, and tw-merge drops a token size beside a colour. */
-      bodyClassName="flex flex-col gap-3 text-[14px] leading-[1.4] text-text-primary"
+      bodyClassName="flex flex-col gap-3 text-body-2 text-text-primary"
       footer={
         <>
           <Button variant="muted" onClick={onClose} disabled={busy}>
