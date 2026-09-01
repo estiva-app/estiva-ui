@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconPencil, IconPin, IconTrash } from '@tabler/icons-react'
-import { Avatar } from './Avatar'
+import { IconCopy, IconPencil, IconTrash } from '@tabler/icons-react'
 import { Divider } from './Divider'
 import { Menu, MenuItem, MenuRow, MenuSection } from './Menu'
 import { SectionLabel } from './SectionLabel'
@@ -31,23 +30,6 @@ export const Items: Story = {
       <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="⌘ C" onClick={() => {}} />
       <Divider className="my-1" />
       <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
-    </Menu>
-  ),
-}
-
-/** Every shape a row takes — bare, icon, shortcut, submenu chevron, a face with a second line, the chosen value, destructive, truncating. */
-export const ItemVariants: Story = {
-  render: (args) => (
-    <Menu {...args} className="static w-72">
-      <MenuItem label="Bare" onClick={() => {}} />
-      <MenuItem label="With an icon" leading={<IconPin size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
-      <MenuItem label="With a shortcut" shortcut="⌘ K" onClick={() => {}} />
-      <MenuItem label="Icon and shortcut" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="⌘ C" onClick={() => {}} />
-      <MenuItem label="Opens another menu" submenu onClick={() => {}} />
-      <MenuItem label="Ana Duarte" description="Product designer" leading={<Avatar name="Ana Duarte" size={32} />} trailing={<span className="text-[12px] leading-[120%] text-text-muted">↩</span>} onClick={() => {}} />
-      <MenuItem label="The chosen value" selected onClick={() => {}} />
-      <MenuItem label="Destructive" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
-      <MenuItem label="A very long label that runs out of room and truncates" onClick={() => {}} />
     </Menu>
   ),
 }
