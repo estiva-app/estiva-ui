@@ -22,7 +22,17 @@ export interface InputChipProps {
 
 export function InputChip({ label, leading, onRemove, className }: InputChipProps) {
   return (
-    <div className={cn('inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-full pl-1 pr-1 py-0.5 max-h-[24px]', className)}>
+    <div
+      className={cn(
+        'inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-full py-0.5 max-h-[24px]',
+        // The padding follows the contents (Katerina, 2026-09-01): a round
+        // face sits 2px from the edge, a bare label needs 8px of air; the ✕
+        // brings its own box, so 4px behind it — 8px when there isn't one.
+        leading ? 'pl-[2px]' : 'pl-2',
+        onRemove ? 'pr-1' : 'pr-2',
+        className,
+      )}
+    >
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
       <span className="text-caption font-medium text-text-primary">{label}</span>
       {onRemove && (
