@@ -116,8 +116,10 @@ export const ManyOptions: Story = {
 export const CorneredBottomRight: Story = {
   parameters: { layout: 'fullscreen' },
   render: (args) => (
-    <div className="relative h-[560px]">
-      <div className="absolute bottom-6 right-2 w-[240px]">
+    <div className="h-[560px]">
+      {/* `fixed`, escaping the meta decorator's 360px column: the point is the
+          REAL viewport corner, where both clamps have to earn their keep. */}
+      <div className="fixed bottom-6 right-2 w-[240px]">
         <Demo
           {...args}
           size="small"
