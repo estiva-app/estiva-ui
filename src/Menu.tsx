@@ -147,7 +147,7 @@ export function EnterHint({ label = 'Enter' }: { label?: string }) {
   return (
     <span className="flex shrink-0 items-center gap-2 text-text-muted">
       <span className="text-[12px] leading-[120%]">↩</span>
-      <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:tracking-[0.04em]">{label}</span>
+      <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{label}</span>
     </span>
   )
 }
