@@ -169,3 +169,32 @@ export const LongPeopleList: Story = {
   ),
 }
 
+
+/**
+ * A long label in a labelled property row (Katerina, 2026-09-01): the trigger
+ * used to size to its content and shove the row past its card. `min-w-0
+ * max-w-full` lets the flex row shrink it, so the label truncates instead.
+ */
+export const LongLabelInPropertyRow: Story = {
+  render: (args) => (
+    <div className="w-[300px] rounded-lg border border-border-subtle p-3">
+      <div className="flex items-center gap-2">
+        <span className="w-[68px] shrink-0 text-xs text-text-secondary">Lead</span>
+        <Demo
+          {...args}
+          size="small"
+          className="w-auto"
+          initial="claude"
+          options={[
+            { value: '', label: 'Unassigned' },
+            {
+              value: 'claude',
+              label: 'Claude (steered by Katerina Kelepouri)',
+              leading: <Avatar name="Claude K" size={16} />,
+            },
+          ]}
+        />
+      </div>
+    </div>
+  ),
+}

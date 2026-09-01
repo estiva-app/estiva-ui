@@ -221,7 +221,15 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
         onClick={() => (open ? close(false) : openMenu())}
         onKeyDown={onKeyDown}
         className={cn(
-          'flex w-full items-center justify-between gap-2 rounded-lg border bg-bg-inset text-left',
+          /*
+           * `min-w-0 max-w-full`: a trigger must never outgrow its container
+           * (Katerina, 2026-09-01 — a long label stretched the files panel's
+           * Lead row past its card). In a flex row the default min-width:auto
+           * forbids shrinking below the label's width, which is what kept
+           * `truncate` from ever engaging; in a block container max-w-full is
+           * the cap. Full-width callers are unaffected.
+           */
+          'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-inset text-left',
           'border-border-default text-text-primary outline-none transition-colors',
           'hover:border-border-strong disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
