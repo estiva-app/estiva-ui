@@ -55,7 +55,7 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       )}
       {...props}
     >
-      <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} className="gap-2" />
+      <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} />
       <IconChevronDown size={14} stroke={1.5} className="shrink-0 text-text-muted" />
     </button>
   )

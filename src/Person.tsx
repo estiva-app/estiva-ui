@@ -28,7 +28,10 @@ export interface PersonProps {
 
 export function Person({ name, picture, fallback = '—', size = 20, className }: PersonProps) {
   return (
-    <span className={cn('flex min-w-0 items-center gap-1.5', className)}>
+    // gap-2: the face-to-name distance is one rule (8px) wherever a person
+    // appears — Katerina, 2026-09-01, set on Person so PersonTrigger and every
+    // row agree by construction.
+    <span className={cn('flex min-w-0 items-center gap-2', className)}>
       <Avatar name={name} src={picture} size={size} />
       <span className={cn('truncate', !name && 'text-text-muted')}>{name ?? fallback}</span>
     </span>
