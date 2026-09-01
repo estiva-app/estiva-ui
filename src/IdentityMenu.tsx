@@ -68,7 +68,10 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
         // first and turn the toggle into a close-then-reopen flicker.
         onMouseDown={(event) => event.stopPropagation()}
         onClick={() => setOpen((value) => !value)}
-        aria-label="Account menu"
+        // The row shape is named by its own text — the person. Only the bare
+        // face needs a label; naming the row would override the person's name
+        // as the accessible name (Ship's tests find the trigger by it).
+        aria-label={compact ? 'Account menu' : undefined}
       />
 
       {open && (
