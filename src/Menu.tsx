@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, type ComponentPropsWithRef, type CSSProperties, type ReactNode } from 'react'
 import { IconChevronRight } from '@tabler/icons-react'
 import { createPortal } from 'react-dom'
 import { cn } from './cn'
@@ -72,9 +72,8 @@ export function Menu({ onClose, position, children, className }: MenuProps) {
   return position ? createPortal(node, document.body) : node
 }
 
-export interface MenuItemProps {
+export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
   label: string
-  onClick?: () => void
   /** A second line under the label — a role, an address — 12px, secondary, truncating. */
   description?: string
   /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar — Peek's mention rows lead with a face. */
@@ -90,7 +89,7 @@ export interface MenuItemProps {
   selected?: boolean
 }
 
-export function MenuItem({ label, onClick, description, leading, trailing, shortcut, submenu, destructive, selected }: MenuItemProps) {
+export function MenuItem({ label, description, leading, trailing, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
   const edge =
     trailing ??
     (shortcut ? (
@@ -104,11 +103,12 @@ export function MenuItem({ label, onClick, description, leading, trailing, short
     <button
       type="button"
       role="menuitem"
-      onClick={onClick}
       className={cn(
         'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-bg-hover',
         selected && 'bg-bg-hover',
+        className,
       )}
+      {...props}
     >
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
       {/* Sizes are arbitrary values (the body-2 and caption tokens): these
