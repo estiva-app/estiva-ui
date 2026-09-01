@@ -155,10 +155,10 @@ export function EnterHint({ label = 'Enter' }: { label?: string }) {
 /** A section heading inside a menu: the 32px row with a SectionLabel, read
  *  secondary — a heading inside a menu labels the rows, it is not one of
  *  them (Katerina, 2026-09-01). */
-export function MenuSection({ label, children }: { label: string; children: ReactNode }) {
+export function MenuSection({ label, children, className }: { label: string; children: ReactNode; /** On the heading row — a surface whose rows are px-3 aligns its heading with px-3. */ className?: string }) {
   return (
     <div className="flex flex-col">
-      <div className="flex h-8 items-center px-2">
+      <div className={cn('flex h-8 items-center px-2', className)}>
         <SectionLabel className="text-text-secondary">{label}</SectionLabel>
       </div>
       {children}
