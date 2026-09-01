@@ -61,7 +61,7 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
           <span className="flex items-baseline">
             {tab.label}
             {tab.count !== undefined ? (
-              <span className="ml-1 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
+              <span className="ml-2.5 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
             ) : null}
           </span>
         </button>
