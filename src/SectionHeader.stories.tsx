@@ -8,7 +8,8 @@ const meta = {
   title: 'Navigation/SectionHeader',
   component: SectionHeader,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
-  args: { title: 'Starred' },
+  args: { title: 'Starred', showActions: 'hover' },
+  argTypes: { showActions: { control: 'inline-radio', options: ['hover', 'always'] } },
 } satisfies Meta<typeof SectionHeader>
 
 export default meta
@@ -51,6 +52,15 @@ export const WithActions: Story = {
 export const ActionsOnly: Story = {
   args: {
     title: 'Pinned',
+    actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
+  },
+}
+
+/** The actions held on screen — `showActions="always"` — for a section whose affordance should not hide. */
+export const PersistentActions: Story = {
+  args: {
+    title: 'Pinned',
+    showActions: 'always',
     actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
   },
 }

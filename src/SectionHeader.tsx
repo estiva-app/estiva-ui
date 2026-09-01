@@ -30,12 +30,14 @@ export interface SectionHeaderProps {
   chevron?: boolean
   isExpanded?: boolean
   onToggle?: () => void
-  /** Revealed on hover, right-aligned, in the order given. */
+  /** Right-aligned, in the order given. */
   actions?: SectionAction[]
+  /** `hover` reveals the actions only while the row is hovered (Peek's Desk behaviour); `always` keeps them. */
+  showActions?: 'hover' | 'always'
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, actions, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, actions, showActions = 'hover', className }: SectionHeaderProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -61,7 +63,7 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
         <SectionLabel>{title}</SectionLabel>
       </div>
 
-      {isHovered && actions && actions.length > 0 && (
+      {(showActions === 'always' || isHovered) && actions && actions.length > 0 && (
         <div className="flex items-center gap-1">
           {actions.map((action) => (
             <IconButton
