@@ -61,7 +61,10 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
         // dropped (the tailwind-merge pitfall).
         const text = cn(
           'truncate',
-          item.mono && 'font-mono text-[12px] leading-[120%]',
+          // A mono crumb is a ref — the identity. It never gives up width to a
+          // long name beside it (the LongName story always claimed "the ref
+          // stays"; flexbox was squeezing it anyway until this line).
+          item.mono && 'shrink-0 font-mono text-[12px] leading-[120%]',
           item.muted || (last && item.mono) ? 'text-text-muted' : last ? 'text-text-primary' : 'text-text-secondary',
         )
         const setLabelRef = (el: HTMLElement | null) => {
