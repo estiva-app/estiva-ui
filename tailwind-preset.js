@@ -119,6 +119,7 @@ export default {
         'text-muted':     'var(--text-muted)',
         'text-disabled':  'var(--text-disabled)',
         'text-inverse':   'var(--text-inverse)',
+        'text-interactive': 'var(--text-interactive)',
         // border
         'border-subtle':  'var(--border-subtle)',
         'border-default': 'var(--border-default)',

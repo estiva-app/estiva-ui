@@ -48,6 +48,7 @@
   --accent-primary: #8B5CF6;
   --accent-hover:   #7C3AED;
   --accent-muted:   #EDE9FE;
+  --text-interactive: #8B5CF6;
 
   /* semantic */
   --info-default:    #3B82F6;
@@ -96,6 +97,7 @@
   --accent-primary: #A78BFA;
   --accent-hover:   #8B5CF6;
   --accent-muted:   #2E2554;
+  --text-interactive: #A78BFA;
 
   /* semantic */
   --info-default:    #60A5FA;
@@ -147,6 +149,7 @@
   --accent-primary: #56c8ff;
   --accent-hover:   #8ad6ff;
   --accent-muted:   rgba(86, 200, 255, 0.11);
+  --text-interactive: #8ad6ff;
 
   /* semantic (amber is the attention color) */
   --info-default:    #8ad6ff;
@@ -205,6 +208,7 @@
   --accent-primary: #4b58d4;
   --accent-hover:   #5c69dc;
   --accent-muted:   #1c2144;
+  --text-interactive: #4b58d4;
 
   /* semantic */
   --info-default:    #5b7be8;

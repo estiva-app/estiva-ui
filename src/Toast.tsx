@@ -39,7 +39,7 @@ const SURFACE_BY_TYPE: Record<ToastType, string> = {
 
 const ICON_BY_TYPE: Record<ToastType, string> = {
   success: 'signal:text-success-default signal:drop-shadow-[0_0_5px_rgba(63,222,140,0.7)]',
-  brand: 'signal:text-[color:var(--text-interactive)] signal:drop-shadow-[0_0_5px_rgba(86,200,255,0.6)]',
+  brand: 'signal:text-text-interactive signal:drop-shadow-[0_0_5px_rgba(86,200,255,0.6)]',
   neutral: 'signal:text-text-secondary',
 }
 
