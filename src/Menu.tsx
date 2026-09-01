@@ -28,8 +28,8 @@ import { SectionLabel } from './SectionLabel'
  */
 export interface MenuProps {
   onClose: () => void
-  /** Viewport coordinates; the menu is portalled and right-aligned to them. */
-  position?: { top: number; right: number }
+  /** Viewport coordinates; the menu is portalled, hung from `top`, and aligned to whichever edge is given (Peek anchors both ways). */
+  position?: { top: number; right: number } | { top: number; left: number }
   children: ReactNode
   className?: string
 }
@@ -52,7 +52,7 @@ export function Menu({ onClose, position, children, className }: MenuProps) {
     }
   }, [onClose])
 
-  const style: CSSProperties | undefined = position ? { top: position.top, right: position.right } : undefined
+  const style: CSSProperties | undefined = position ? { top: position.top, ...('left' in position ? { left: position.left } : { right: position.right }) } : undefined
   const node = (
     <div
       ref={ref}
