@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react'
+import type { ComponentPropsWithRef } from 'react'
 import { IconChevronDown } from '@tabler/icons-react'
 import { cn } from './cn'
 import { Avatar } from './Avatar'
@@ -19,7 +19,7 @@ import { Person, type PersonProps } from './Person'
  */
 export interface PersonTriggerProps
   extends Omit<PersonProps, 'className'>,
-    Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+    Omit<ComponentPropsWithRef<'button'>, 'children'> {
   /** Whether what it opens is open — the row shape holds its hover fill while so. */
   open?: boolean
   /** Face only — Peek's top-bar shape. Defaults the face to 36px; the row shape to 22px. */

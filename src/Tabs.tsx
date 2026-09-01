@@ -45,11 +45,13 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
           aria-selected={active === tab.id}
           onClick={() => onChange(tab.id)}
           className={cn(
-            'flex cursor-pointer items-center gap-1.5 transition-colors',
+            'flex cursor-pointer items-center transition-colors',
             // Arbitrary sizes (the body-2 and caption tokens): the colour branch below
             // follows them through cn(), and tw-merge drops a custom text-{size}
             // once a text-{colour} lands after it. Measured: tabs rendered 16px.
-            size === 'default' ? 'rounded-md px-2 py-1 text-[14px] leading-[140%]' : 'rounded px-1.5 py-0.5 text-[12px] leading-[120%]',
+            // gap: default is Ship's 6px; small keeps Peek's original 4px, or
+            // "small is Peek's geometry" stops being true.
+            size === 'default' ? 'gap-1.5 rounded-md px-2 py-1 text-[14px] leading-[140%]' : 'gap-1 rounded px-1.5 py-0.5 text-[12px] leading-[120%]',
             active === tab.id ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover',
           )}
         >
