@@ -54,10 +54,16 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
           )}
         >
           {tab.icon}
-          {tab.label}
-          {tab.count !== undefined ? (
-            <span className="ml-1 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
-          ) : null}
+          {/* Label and count share a baseline: a smaller text centred as a box
+              (items-center) floats above the label's baseline — the digits
+              read as riding high. Baseline alignment is what makes two sizes
+              sit on one line. */}
+          <span className="flex items-baseline">
+            {tab.label}
+            {tab.count !== undefined ? (
+              <span className="ml-1 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
+            ) : null}
+          </span>
         </button>
       ))}
     </div>
