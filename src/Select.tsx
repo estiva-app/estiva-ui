@@ -233,7 +233,10 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
            */
           'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-inset text-left',
           'border-border-default text-text-primary outline-none transition-colors',
-          'hover:border-border-strong disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
+          // The focused border survives a hover: hover alone strengthens the
+          // hairline, but hover while focused must not grey the focus colour —
+          // the stacked variant outranks plain hover by specificity.
+          'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
           size === 'default' && 'px-3 py-2 text-[14px] leading-[1.4] font-normal',
