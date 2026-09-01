@@ -1,4 +1,5 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { IconChevronRight } from '@tabler/icons-react'
 import { createPortal } from 'react-dom'
 import { cn } from './cn'
 import { SectionLabel } from './SectionLabel'
@@ -74,15 +75,31 @@ export function Menu({ onClose, position, children, className }: MenuProps) {
 export interface MenuItemProps {
   label: string
   onClick?: () => void
-  /** 16px, stroke 1.5, secondary — as Peek draws them. */
-  icon?: ReactNode
+  /** A second line under the label — a role, an address — 12px, secondary, truncating. */
+  description?: string
+  /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar — Peek's mention rows lead with a face. */
+  leading?: ReactNode
+  /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
+  trailing?: ReactNode
+  /** A keyboard hint, drawn as the kbd chip. */
   shortcut?: string
+  /** The row opens another menu: draws the chevron at the right edge. */
+  submenu?: boolean
   destructive?: boolean
   /** The row the menu currently points at (a submenu's chosen value). */
   selected?: boolean
 }
 
-export function MenuItem({ label, onClick, icon, shortcut, destructive, selected }: MenuItemProps) {
+export function MenuItem({ label, onClick, description, leading, trailing, shortcut, submenu, destructive, selected }: MenuItemProps) {
+  const edge =
+    trailing ??
+    (shortcut ? (
+      <kbd className="inline-flex shrink-0 items-center justify-center rounded-sm border border-border-strong bg-bg-inset px-1 py-px text-caption text-text-secondary">
+        {shortcut}
+      </kbd>
+    ) : submenu ? (
+      <IconChevronRight size={16} stroke={1.5} className="shrink-0 text-text-muted" />
+    ) : null)
   return (
     <button
       type="button"
@@ -93,18 +110,17 @@ export function MenuItem({ label, onClick, icon, shortcut, destructive, selected
         selected && 'bg-bg-hover',
       )}
     >
-      {icon && <span className="flex shrink-0 items-center">{icon}</span>}
-      {/* The size is an arbitrary value (the body-2 token): this list merges
-          with a colour either way, and tw-merge drops a token size beside a
+      {leading && <span className="flex shrink-0 items-center">{leading}</span>}
+      {/* Sizes are arbitrary values (the body-2 and caption tokens): these
+          lists merge with a colour, and tw-merge drops a token size beside a
           colour. Ship's copy said `text-sm`, which was never the ramp. */}
-      <span className={cn('flex-1 truncate text-[14px] leading-[140%]', destructive ? 'text-error-default' : 'text-text-primary')}>
-        {label}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className={cn('truncate text-[14px] leading-[140%]', destructive ? 'text-error-default' : 'text-text-primary')}>
+          {label}
+        </span>
+        {description && <span className="truncate text-[12px] leading-[120%] text-text-secondary">{description}</span>}
       </span>
-      {shortcut && (
-        <kbd className="inline-flex shrink-0 items-center justify-center rounded-sm border border-border-strong bg-bg-inset px-1 py-px text-caption text-text-secondary">
-          {shortcut}
-        </kbd>
-      )}
+      {edge && <span className="flex shrink-0 items-center">{edge}</span>}
     </button>
   )
 }
