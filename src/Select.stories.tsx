@@ -105,3 +105,67 @@ export const LongLabels: Story = {
 export const ManyOptions: Story = {
   render: (args) => <Demo {...args} initial="p3" options={Array.from({ length: 20 }, (_, i) => ({ value: `p${i}`, label: `Project ${i + 1}` }))} />,
 }
+
+/**
+ * The files-panel bug, reproduced (Katerina, 2026-09-01): a trigger in the
+ * bottom-right corner with a long people list. The menu used to run off the
+ * right edge, past the bottom, and close itself on its own scroll. Now it
+ * clamps to the viewport, opens upward when the room below is worse, and
+ * scrolls — open it and try the wheel and the arrow keys.
+ */
+export const CorneredBottomRight: Story = {
+  parameters: { layout: 'fullscreen' },
+  render: (args) => (
+    <div className="relative h-[560px]">
+      <div className="absolute bottom-6 right-2 w-[240px]">
+        <Demo
+          {...args}
+          size="small"
+          initial=""
+          placeholder="Unassigned"
+          options={[
+            { value: '', label: 'Unassigned' },
+            ...[
+              'Claude (steered by Katerina Kelepouri)',
+              'Claude (steered by Miky)',
+              'Handle probe',
+              'Katerina Kelepouri',
+              'Miky',
+              'PC (steered by Katerina Kelepouri)',
+              'PEEK-72 renamed',
+              'Relay Operator',
+              'Amie Miles',
+              'Alice Johnson',
+              'Daniel Stanton',
+              'Greg Bothman',
+            ].map((name, i) => ({
+              value: `p${i}`,
+              label: name,
+              leading: <Avatar name={name} size={16} />,
+            })),
+          ]}
+        />
+      </div>
+    </div>
+  ),
+}
+
+/** The same list from a trigger high on screen — stays below, capped, scrollable. */
+export const LongPeopleList: Story = {
+  render: (args) => (
+    <Demo
+      {...args}
+      initial=""
+      placeholder="Unassigned"
+      options={[
+        { value: '', label: 'Unassigned' },
+        ...Array.from({ length: 18 }, (_, i) => ({
+          value: `p${i}`,
+          label: `Person ${i + 1}`,
+          leading: <Avatar name={`Person ${i + 1}`} size={16} />,
+        })),
+      ]}
+    />
+  ),
+}
+
