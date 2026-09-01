@@ -46,7 +46,9 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
   useLayoutEffect(() => {
     measure()
     const nav = navRef.current
-    if (!nav) return
+    // jsdom has neither layout nor ResizeObserver; without this guard a
+    // consumer app cannot render a page with a trail in its tests.
+    if (!nav || typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(measure)
     observer.observe(nav)
     return () => observer.disconnect()
