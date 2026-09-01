@@ -127,7 +127,9 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
   // moved `activeIndex` into rows the capped menu never showed.
   useEffect(() => {
     if (!open) return
-    document.getElementById(`${id}-${activeIndex}`)?.scrollIntoView({ block: 'nearest' })
+    // Optional call: jsdom implements neither scrolling nor this method, and
+    // a consumer's component tests should not crash for a scroll nicety.
+    document.getElementById(`${id}-${activeIndex}`)?.scrollIntoView?.({ block: 'nearest' })
   }, [open, activeIndex, id])
 
   // Outside click and Escape — the two exits every menu has. `mousedown`
