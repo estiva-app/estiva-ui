@@ -74,15 +74,18 @@ permission. A library people are afraid to deviate from becomes a tax.
 If the colour you need has no token, the token is missing: add it here, in
 every theme, rather than reaching for hex in an app.
 
-### The tailwind-merge pitfall
+### The tailwind-merge pitfall — retired for `cn()` users
 
-A custom text-size class (`text-btn-small`, `text-caption`, `text-h2`…) is
-**silently dropped** by `tailwind-merge` when a `text-{colour}` class follows
-it in the same merged list. In shared components, spell sizes as arbitrary
-values — `text-[12px] leading-[12px]` — and keep the token classes for plain
-`className` strings that never go through `cn()`. The bug appears in the
-consuming app and its cause is in the package, which is why this rule lives
-here.
+Stock `tailwind-merge` **silently drops** a custom text-size class
+(`text-btn-small`, `text-caption`, `text-h2`…) when a `text-{colour}` class
+sits in the same merged list — it cannot classify the size, files it as a
+colour, and lets the real colour knock it out. Since 2026-09-01 the
+package's `cn()` is taught the preset's type ramp (`src/cn.ts`; `cn.test.ts`
+pins the list to the preset), so **token size classes are safe in merged
+lists** and are what new code should write. The trap still exists for anyone
+merging with their own un-extended config — both apps re-export this `cn`,
+so don't. Older components still spell sizes as arbitrary values; they
+render identically and migrate to tokens as they are touched.
 
 ### Menus and popovers — five rules
 
