@@ -31,14 +31,17 @@ export const hueFor = (key: string) => {
   return HUES[Math.abs(h) % HUES.length]
 }
 
-/** Peek's rule: the first letter of the first two words. */
-export const initialsFor = (name: string) =>
-  name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
+/**
+ * Peek's rule, sharpened: the first letter of the first two words — counting
+ * only words that begin with a letter or digit, so "Claude (steered by
+ * Katerina Kelepouri)" shows "C", never "C(" (Katerina, 2026-09-01: a name
+ * carrying such symbols gets a single letter rather than one of them).
+ */
+export const initialsFor = (name: string) => {
+  const words = name.split(/s+/).filter((w) => /^[p{L}p{N}]/u.test(w))
+  const initials = words.slice(0, 2).map((w) => w[0]).join('') || name.trim().charAt(0)
+  return initials.toUpperCase()
+}
 
 export interface AvatarProps {
   /** The picture URL, resolved by the caller. A picture that fails to load falls back to the initials. */
