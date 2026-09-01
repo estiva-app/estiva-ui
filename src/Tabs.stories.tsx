@@ -22,16 +22,16 @@ export const WithCounts: Story = {
   args: { tabs: [], active: 'active', onChange: () => {} },
   render: () => (
     <Demo
-      initial="active"
+      initial="all"
       tabs={[
-        { id: 'active', label: 'Active', count: 5 },
-        { id: 'archived', label: 'Archived', count: 2 },
+        { id: 'all', label: 'All', count: 12 },
+        { id: 'archived', label: 'Archived', count: 4 },
       ]}
     />
   ),
 }
 
-/** A count of 0 is still drawn — "Assigned to me 0" is an answer, not an absence. */
+/** A count of 0 is still drawn — "Flagged 0" is an answer, not an absence. */
 export const WithAZero: Story = {
   args: { tabs: [], active: 'all', onChange: () => {} },
   render: () => (
@@ -39,8 +39,8 @@ export const WithAZero: Story = {
       initial="all"
       tabs={[
         { id: 'all', label: 'All', count: 31 },
-        { id: 'open', label: 'Open', count: 21 },
-        { id: 'mine', label: 'Assigned to me', count: 0 },
+        { id: 'unread', label: 'Unread', count: 21 },
+        { id: 'flagged', label: 'Flagged', count: 0 },
       ]}
     />
   ),
@@ -51,10 +51,10 @@ export const NoCounts: Story = {
   args: { tabs: [], active: 'table', onChange: () => {} },
   render: () => (
     <Demo
-      initial="table"
+      initial="list"
       tabs={[
-        { id: 'table', label: 'Table' },
-        { id: 'board', label: 'Board' },
+        { id: 'list', label: 'List' },
+        { id: 'grid', label: 'Grid' },
       ]}
     />
   ),
@@ -74,17 +74,17 @@ export const WithAnIcon: Story = {
   ),
 }
 
-/** `small` is Peek's TopicTabs geometry, 12px. */
+/** `small` is the 12px geometry. */
 export const Small: Story = {
   args: { tabs: [], active: 'conversations', onChange: () => {} },
   render: () => (
     <Demo
       size="small"
-      initial="conversations"
+      initial="overview"
       tabs={[
-        { id: 'conversations', label: 'Conversations' },
-        { id: 'huddles', label: 'Huddles', icon: <IconLock size={16} stroke={1.5} /> },
-        { id: 'timeline', label: 'Timeline' },
+        { id: 'overview', label: 'Overview' },
+        { id: 'private', label: 'Private', icon: <IconLock size={16} stroke={1.5} /> },
+        { id: 'activity', label: 'Activity' },
       ]}
     />
   ),

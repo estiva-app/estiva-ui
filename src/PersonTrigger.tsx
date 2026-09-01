@@ -46,13 +46,16 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       aria-haspopup="menu"
       aria-expanded={open}
       className={cn(
-        'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
+        // The size is an arbitrary value (the body-2 token): this list goes through
+        // cn(), and tw-merge silently drops a custom text-{size} once a
+        // text-{colour} follows it. Measured: the name rendered 16px.
+        'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-[14px] leading-[140%] text-text-primary transition-colors hover:bg-bg-hover',
         open && 'bg-bg-hover',
         className,
       )}
       {...props}
     >
-      <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} />
+      <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} className="gap-2" />
       <IconChevronDown size={14} stroke={1.5} className="shrink-0 text-text-muted" />
     </button>
   )

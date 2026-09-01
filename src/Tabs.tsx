@@ -46,14 +46,17 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
           onClick={() => onChange(tab.id)}
           className={cn(
             'flex cursor-pointer items-center gap-1.5 transition-colors',
-            size === 'default' ? 'rounded-md px-2 py-1 text-body-2' : 'rounded px-1.5 py-0.5 text-caption',
+            // Arbitrary sizes (the body-2 and caption tokens): the colour branch below
+            // follows them through cn(), and tw-merge drops a custom text-{size}
+            // once a text-{colour} lands after it. Measured: tabs rendered 16px.
+            size === 'default' ? 'rounded-md px-2 py-1 text-[14px] leading-[140%]' : 'rounded px-1.5 py-0.5 text-[12px] leading-[120%]',
             active === tab.id ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover',
           )}
         >
           {tab.icon}
           {tab.label}
           {tab.count !== undefined ? (
-            <span className="font-mono text-caption tabular-nums text-text-muted">{tab.count}</span>
+            <span className="ml-1 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
           ) : null}
         </button>
       ))}

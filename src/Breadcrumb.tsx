@@ -53,7 +53,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
   }, [measure, items])
 
   return (
-    <nav ref={navRef} aria-label="Breadcrumb" className={cn('flex min-w-0 items-center gap-1.5 text-body-2', className)}>
+    <nav ref={navRef} aria-label="Breadcrumb" className={cn('flex min-w-0 items-center gap-1.5 text-[14px] leading-[140%]', className)}>
       {items.map((item, index) => {
         const last = index === items.length - 1
         // The mono size is an arbitrary value (the caption token) because this

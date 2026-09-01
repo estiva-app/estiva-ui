@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>
 export const Neutral: Story = {}
 
 export const Success: Story = {
-  args: { type: 'success', label: 'Marked as resolved' },
+  args: { type: 'success', label: 'Upload complete' },
 }
 
 export const Brand: Story = {
@@ -51,8 +51,8 @@ export const AllTypes: Story = {
     <div className="flex flex-col items-start gap-2">
       {(['success', 'brand', 'neutral'] as const).map((type) => (
         <div key={type} className="flex items-center gap-2">
-          <Toast type={type} label="Marked as resolved" />
-          <Toast type={type} label="Marked as resolved" actionLabel="Undo" onAction={() => {}} />
+          <Toast type={type} label="Changes saved" />
+          <Toast type={type} label="Changes saved" actionLabel="Undo" onAction={() => {}} />
         </div>
       ))}
     </div>
