@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Chip } from './Chip'
 import { Person } from './Person'
 import { Property } from './Property'
+import { Select } from './Select'
 
 /** A labelled property — the 68px label column is what lines the values up. */
 const meta = {
@@ -42,6 +44,45 @@ export const Stacked: Story = {
     layout: 'stacked',
     children: <Person name="Ravi Mehta" size={20} className="text-[14px] leading-[140%] text-text-primary" />,
   },
+}
+
+function ControlsDemo() {
+  const [status, setStatus] = useState('doing')
+  const [owner, setOwner] = useState('ana')
+  return (
+    <div className="flex flex-col gap-4">
+      <Property label="Status" layout="stacked">
+        <Select
+          ariaLabel="Status"
+          value={status}
+          onChange={setStatus}
+          options={[
+            { value: 'todo', label: 'To do' },
+            { value: 'doing', label: 'In progress' },
+            { value: 'done', label: 'Done' },
+          ]}
+        />
+      </Property>
+      <Property label="Owner">
+        <Select
+          ariaLabel="Owner"
+          size="small"
+          value={owner}
+          onChange={setOwner}
+          options={[
+            { value: 'ana', label: 'Ana Duarte' },
+            { value: 'ravi', label: 'Ravi Mehta' },
+          ]}
+        />
+      </Property>
+    </div>
+  )
+}
+
+/** The property holding a control — a full-width Select under a stacked label (the rail), a small one in a row. */
+export const WithControls: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => <ControlsDemo />,
 }
 
 /** No value: the em dash, muted — the same mark Person uses for the unnamed. */

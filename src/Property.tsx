@@ -26,7 +26,10 @@ export interface PropertyProps {
 export function Property({ label, layout = 'row', children, className }: PropertyProps) {
   if (layout === 'stacked') {
     return (
-      <div className={cn('flex flex-col gap-1.5', className)}>
+      // gap-3 — the one label-above-content distance (Katerina, 2026-09-01):
+      // Peek's topic-details sections already sit at 12px, Ship's rail was
+      // 6px, and unifying means the bigger, calmer one.
+      <div className={cn('flex flex-col gap-3', className)}>
         <span className="text-menu uppercase tracking-[0.08em] text-text-secondary">{label}</span>
         {children}
       </div>

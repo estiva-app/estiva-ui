@@ -46,3 +46,11 @@ export const WithActions: Story = {
     ],
   },
 }
+
+/** Actions without the collapse — a fixed section that still offers Add on hover. */
+export const ActionsOnly: Story = {
+  args: {
+    title: 'Pinned',
+    actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
+  },
+}
