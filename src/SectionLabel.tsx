@@ -2,25 +2,23 @@ import type { ReactNode } from 'react'
 import { cn } from './cn'
 
 /**
- * THE micro-label (2026-09-01): every section title — sidebar sections, menu
- * headings, panel sections, the rail's stacked property labels — renders
- * through this span, so a style change is one edit.
+ * THE section-title label — every section heading (sidebar sections, menu
+ * headings, panel titles) renders through this span, so a style change is
+ * one edit. Peek's original, verbatim: 12px / 12px / 500, primary text
+ * (Peek's ruling 2026-07-23: labels stay primary), the mono uppercase
+ * micro-label under Signal. Metrics as arbitrary values for the tw-merge
+ * reason the README records.
  *
- * Merged by Katerina's ruling (2026-09-01): the app carried two
- * near-identical micro-labels — this one at 12px (mono 10px under Signal)
- * and the rail's 9px uppercase `menu`-token label — and near-twins drift.
- * One label now, at the menu token's metrics: 9px / 115% / 500, uppercase,
- * tracked. Signal keeps only its mono voice; size and case are shared.
- *
- * Primary text by default (Peek's ruling 2026-07-23: labels stay primary);
- * pass a colour class where a quieter label is wanted — the rail's stacked
- * label reads secondary.
+ * Deliberately NOT the same thing as Property's stacked field label (the
+ * 9px `menu`-token one): they were merged for a day and unmerged by
+ * Katerina's ruling (2026-09-01) — a section title and a field label are
+ * different voices, at different sizes, on purpose.
  */
 export function SectionLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <span
       className={cn(
-        'text-[9px] leading-[115%] font-medium uppercase tracking-[0.08em] text-text-primary signal:font-mono',
+        'text-[12px] leading-[12px] font-medium text-text-primary signal:font-mono signal:text-[10px] signal:uppercase signal:tracking-[0.14em]',
         className,
       )}
     >

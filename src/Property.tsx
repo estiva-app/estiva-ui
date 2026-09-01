@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
-import { SectionLabel } from './SectionLabel'
 
 /**
  * A labelled property row — "Status", "Lead", and whatever else a page
@@ -13,8 +12,9 @@ import { SectionLabel } from './SectionLabel'
  *   column of their own; `text-secondary` rather than muted because a
  *   property label is content, not a placeholder.
  * - `stacked` — Ship's rail: the label above a full-width control. The label
- *   is the merged SectionLabel (9px / 115% / 500, uppercase, tracked —
- *   Katerina, 2026-09-01), read secondary because it labels a value.
+ *   is the `menu` token (9px / 115% / 500), uppercase and letter-spaced —
+ *   its own voice, deliberately not SectionLabel's (unmerged, Katerina
+ *   2026-09-01). A literal string, not merged, so the token size survives.
  */
 export interface PropertyProps {
   label: string
@@ -30,7 +30,7 @@ export function Property({ label, layout = 'row', children, className }: Propert
       // Peek's topic-details sections already sit at 12px, Ship's rail was
       // 6px, and unifying means the bigger, calmer one.
       <div className={cn('flex flex-col gap-3', className)}>
-        <SectionLabel className="text-text-secondary">{label}</SectionLabel>
+        <span className="text-menu uppercase tracking-[0.08em] text-text-secondary">{label}</span>
         {children}
       </div>
     )
