@@ -1,51 +1,97 @@
-import { useState, useRef, useMemo, useEffect, useLayoutEffect } from 'react'
+import { useState, useRef, useMemo, useEffect, useLayoutEffect, type KeyboardEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { IconX } from '@tabler/icons-react'
-import { Avatar } from './Avatar'
+import { cn } from './cn'
 import { MenuItem } from './Menu'
 
 /**
- * The people picker: chips for the chosen, a typeahead for the rest — Peek's
- * PersonChipInput (2026-09-01), with the product handed in instead of looked
- * up. Peek's version read the people directory from its own data layer; here
- * the caller passes `options`, each an id, a name, an optional second line
- * (a role, an address) and an optional picture URL — resolved by the caller,
- * exactly as Avatar takes its `src`.
- *
- * Suggestions appear only once the user types — focusing (or auto-focus on
- * dialog open) must not drop the full directory over the dialog. Backspace
- * on an empty query removes the last chip; Escape clears the query when
- * there is one and bubbles when there is not, so the surface around it
- * (dialog, launcher) can act.
+ * The chip a `ChipInput` is made of: a 24px pill with an optional 16px
+ * leading (a face, an icon), a 12px label, and the ✕ that removes it.
+ * Exported on its own (Katerina, 2026-09-01) under a name that promises
+ * nothing about people — a chip like this may one day hold a label, a file,
+ * a filter.
  */
-export interface PersonChipOption {
-  id: string
-  name: string
-  /** The suggestion row's second line — a role, an address. Also searched. */
-  description?: string
-  /** Resolved by the caller. Absent draws the initials. */
-  picture?: string
+export interface InputChipProps {
+  label: string
+  /** Before the label, 16px — an Avatar, an icon. */
+  leading?: ReactNode
+  /** Draws the ✕; absent, the chip is display-only. */
+  onRemove?: () => void
+  className?: string
 }
 
-export interface PersonChipInputProps {
-  value: PersonChipOption[]
-  onChange: (next: PersonChipOption[]) => void
+export function InputChip({ label, leading, onRemove, className }: InputChipProps) {
+  return (
+    <div className={cn('inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-full pl-1 pr-1 py-0.5 max-h-[24px]', className)}>
+      {leading && <span className="flex shrink-0 items-center">{leading}</span>}
+      <span className="text-caption font-medium text-text-primary">{label}</span>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="size-4 flex items-center justify-center rounded-full hover:bg-bg-hover text-text-secondary"
+          aria-label={`Remove ${label}`}
+        >
+          <IconX size={10} stroke={1.5} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+/**
+ * A multi-select input: chips for the chosen, a typeahead for the rest —
+ * Peek's PersonChipInput (2026-09-01), generalised on the way in. Peek's
+ * version knew it was picking people: it read the directory from Peek's own
+ * data layer and drew every face itself. Here the caller hands in `options`,
+ * and — when the entries have faces or icons — the two leading slots: 16px
+ * in a chip, 32px in a suggestion row. Nothing in this file knows what is
+ * being picked.
+ *
+ * Suggestions appear only once the user types — focusing (or auto-focus on
+ * dialog open) must not drop the full directory over the surface below.
+ * Backspace on an empty query removes the last chip; Escape clears the query
+ * when there is one and bubbles when there is not, so the surface around it
+ * (dialog, launcher) can act.
+ *
+ * Generic over the option type: the objects handed back through `onChange`
+ * are the caller's own, extra fields and all — no re-mapping on the way out.
+ */
+export interface ChipInputOption {
+  id: string
+  label: string
+  /** The suggestion row's second line — a role, an address. Also searched. */
+  description?: string
+}
+
+export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
+  value: T[]
+  onChange: (next: T[]) => void
   /** The directory the typeahead searches. */
-  options: PersonChipOption[]
+  options: T[]
   placeholder?: string
   autoFocus?: boolean
   /** Option ids excluded from the suggestion list (e.g., the current user). */
   excludeIds?: string[]
+  /** Before a chip's label, 16px — a face, an icon. */
+  chipLeading?: (option: T) => ReactNode
+  /** Before a suggestion row's label, 32px. */
+  rowLeading?: (option: T) => ReactNode
 }
 
-export function PersonChipInput({
+export function ChipInput<T extends ChipInputOption = ChipInputOption>({
   value,
   onChange,
   options,
-  placeholder = 'Search people…',
+  placeholder = 'Search…',
   autoFocus,
   excludeIds = [],
-}: PersonChipInputProps) {
+  chipLeading,
+  rowLeading,
+}: ChipInputProps<T>) {
   const [query, setQuery] = useState('')
   const [highlight, setHighlight] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
@@ -54,14 +100,14 @@ export function PersonChipInput({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const matches = useMemo(() => {
-    const selectedIds = new Set(value.map((p) => p.id))
+    const selectedIds = new Set(value.map((o) => o.id))
     const excludedIds = new Set(excludeIds)
     const q = query.trim().toLowerCase()
-    return options.filter((p) => {
-      if (selectedIds.has(p.id)) return false
-      if (excludedIds.has(p.id)) return false
+    return options.filter((o) => {
+      if (selectedIds.has(o.id)) return false
+      if (excludedIds.has(o.id)) return false
       if (!q) return true
-      return p.name.toLowerCase().includes(q) || (p.description ?? '').toLowerCase().includes(q)
+      return o.label.toLowerCase().includes(q) || (o.description ?? '').toLowerCase().includes(q)
     })
   }, [query, value, excludeIds, options])
 
@@ -85,21 +131,21 @@ export function PersonChipInput({
     }
   }, [showDropdown, value.length])
 
-  function addPerson(person: PersonChipOption) {
-    onChange([...value, person])
+  function addOption(option: T) {
+    onChange([...value, option])
     setQuery('')
     inputRef.current?.focus()
   }
 
-  function removePerson(personId: string) {
-    onChange(value.filter((p) => p.id !== personId))
+  function removeOption(id: string) {
+    onChange(value.filter((o) => o.id !== id))
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Backspace' && query === '' && value.length > 0) {
       // Consumed: removing a chip must not double as the surface's "back".
       e.preventDefault()
-      removePerson(value[value.length - 1].id)
+      removeOption(value[value.length - 1].id)
       return
     }
     if (e.key === 'ArrowDown') {
@@ -115,7 +161,7 @@ export function PersonChipInput({
     if (e.key === 'Enter') {
       e.preventDefault()
       const target = matches[highlight]
-      if (target) addPerson(target)
+      if (target) addOption(target)
       return
     }
     if (e.key === 'Escape') {
@@ -135,25 +181,8 @@ export function PersonChipInput({
         className="bg-bg-inset border border-border-default hover:border-border-strong focus-within:border-border-focus focus-within:hover:border-border-focus rounded-lg px-3 py-1.5 flex flex-wrap items-center gap-1.5 transition-colors min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring"
         onClick={() => inputRef.current?.focus()}
       >
-        {value.map((p) => (
-          <div
-            key={p.id}
-            className="inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-full pl-1 pr-1 py-0.5 max-h-[24px]"
-          >
-            <Avatar size={16} name={p.name} src={p.picture} alt={p.name} className="rounded-full" />
-            <span className="text-[12px] leading-[1.2] font-medium text-text-primary">{p.name}</span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                removePerson(p.id)
-              }}
-              className="size-4 flex items-center justify-center rounded-full hover:bg-bg-hover text-text-secondary"
-              aria-label={`Remove ${p.name}`}
-            >
-              <IconX size={10} stroke={1.5} />
-            </button>
-          </div>
+        {value.map((o) => (
+          <InputChip key={o.id} label={o.label} leading={chipLeading?.(o)} onRemove={() => removeOption(o.id)} />
         ))}
 
         <input
@@ -168,7 +197,7 @@ export function PersonChipInput({
             setTimeout(() => setIsFocused(false), 150)
           }}
           placeholder={value.length === 0 ? placeholder : ''}
-          className="flex-1 min-w-[120px] bg-transparent text-[14px] leading-[1.4] text-text-primary placeholder:text-text-muted outline-none border-none"
+          className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
         />
       </div>
 
@@ -181,19 +210,19 @@ export function PersonChipInput({
             width: anchorRect.width,
           }}
         >
-          {matches.map((p, i) => (
+          {matches.map((o, i) => (
             <MenuItem
-              key={p.id}
+              key={o.id}
               size="tall"
               className="h-12 rounded-none"
-              leading={<Avatar size={32} name={p.name} src={p.picture} alt={p.name} />}
-              label={p.name}
-              description={p.description}
+              leading={rowLeading?.(o)}
+              label={o.label}
+              description={o.description}
               selected={i === highlight}
               onMouseEnter={() => setHighlight(i)}
               onMouseDown={(e) => {
                 e.preventDefault()
-                addPerson(p)
+                addOption(o)
               }}
             />
           ))}
