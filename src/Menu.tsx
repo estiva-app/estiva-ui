@@ -77,9 +77,9 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   /** Replaces the label/description block — for rows whose middle is richer
    *  than text (the launcher's form rows). Leading/trailing still apply. */
   children?: ReactNode
-  /** `tall` is the picker row — 48px minimum, px-3, gap-3, room for a 32px
-   *  face or icon tile and the description line. `default` is the command
-   *  row. */
+  /** `tall` is the picker row — content height with a 40px floor, px-3,
+   *  gap-3, room for a 32px face or icon tile and the description line.
+   *  `default` is the command row. */
   size?: 'default' | 'tall'
   /** A second line under the label — a role, an address — 12px, secondary, truncating. */
   description?: string
@@ -112,7 +112,11 @@ export function MenuItem({ label, children, size = 'default', description, leadi
       role="menuitem"
       className={cn(
         'flex w-full cursor-pointer items-center rounded-lg text-left hover:bg-bg-hover transition-colors',
-        size === 'tall' ? 'min-h-12 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
+        // tall: as tall as its content, never shorter than 40px (Katerina,
+        // 2026-09-01) — a single-line picker row sits at 40, a row with a
+        // 32px face and a role line comes out at its natural 48. One rule,
+        // not a hand-picked height per file.
+        size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
         selected && 'bg-bg-hover',
         className,
       )}
@@ -148,12 +152,14 @@ export function EnterHint({ label = 'Enter' }: { label?: string }) {
   )
 }
 
-/** A section heading inside a menu: the 32px row with a SectionLabel. */
+/** A section heading inside a menu: the 32px row with a SectionLabel, read
+ *  secondary — a heading inside a menu labels the rows, it is not one of
+ *  them (Katerina, 2026-09-01). */
 export function MenuSection({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col">
       <div className="flex h-8 items-center px-2">
-        <SectionLabel>{label}</SectionLabel>
+        <SectionLabel className="text-text-secondary">{label}</SectionLabel>
       </div>
       {children}
     </div>
