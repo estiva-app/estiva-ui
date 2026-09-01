@@ -9,6 +9,7 @@
     "src",
     "tailwind-preset.js",
     "tokens.css",
+    "base.css",
     "README.md",
     "LICENSE"
   ],
@@ -19,7 +20,8 @@
     },
     "./tailwind-preset": "./tailwind-preset.js",
     "./tokens.css": "./tokens.css",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./base.css": "./base.css"
   },
   "scripts": {
     "build": "node build.mjs && tsc -p tsconfig.build.json",

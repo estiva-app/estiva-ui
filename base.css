@@ -1,0 +1,43 @@
+/*
+  Shared app chrome that is not a token — the styling every Estiva app repeats
+  and a new app should not have to know about.
+
+  First occupant: the scrollbar (Katerina, 2026-09-01). Peek and Ship carried
+  this exact block in their own index.css, character for character, and the
+  library's Storybook carried nothing — so a menu that scrolls looked right in
+  both apps and wrong in the place components are reviewed. Colours come from
+  the theme's own tokens, so it follows whichever theme block is active.
+
+  Import it next to tokens.css:
+
+      @import '@estiva-app/ui/tokens.css';
+      @import '@estiva-app/ui/base.css';
+*/
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Chrome / Safari / Edge */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
