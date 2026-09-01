@@ -38,7 +38,7 @@ export const hueFor = (key: string) => {
  * carrying such symbols gets a single letter rather than one of them).
  */
 export const initialsFor = (name: string) => {
-  const words = name.split(/s+/).filter((w) => /^[p{L}p{N}]/u.test(w))
+  const words = name.split(/\s+/).filter((w) => /^[\p{L}\p{N}]/u.test(w))
   const initials = words.slice(0, 2).map((w) => w[0]).join('') || name.trim().charAt(0)
   return initials.toUpperCase()
 }
