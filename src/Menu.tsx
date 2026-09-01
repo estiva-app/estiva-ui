@@ -73,7 +73,14 @@ export function Menu({ onClose, position, children, className }: MenuProps) {
 }
 
 export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
-  label: string
+  label?: string
+  /** Replaces the label/description block — for rows whose middle is richer
+   *  than text (the launcher's form rows). Leading/trailing still apply. */
+  children?: ReactNode
+  /** `tall` is the picker row — 48px minimum, px-3, gap-3, room for a 32px
+   *  face or icon tile and the description line. `default` is the command
+   *  row. */
+  size?: 'default' | 'tall'
   /** A second line under the label — a role, an address — 12px, secondary, truncating. */
   description?: string
   /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar — Peek's mention rows lead with a face. */
@@ -89,7 +96,7 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   selected?: boolean
 }
 
-export function MenuItem({ label, description, leading, trailing, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+export function MenuItem({ label, children, size = 'default', description, leading, trailing, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
   const edge =
     trailing ??
     (shortcut ? (
@@ -104,7 +111,8 @@ export function MenuItem({ label, description, leading, trailing, shortcut, subm
       type="button"
       role="menuitem"
       className={cn(
-        'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-bg-hover',
+        'flex w-full cursor-pointer items-center rounded-lg text-left hover:bg-bg-hover transition-colors',
+        size === 'tall' ? 'min-h-12 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
         selected && 'bg-bg-hover',
         className,
       )}
@@ -114,14 +122,29 @@ export function MenuItem({ label, description, leading, trailing, shortcut, subm
       {/* Sizes are arbitrary values (the body-2 and caption tokens): these
           lists merge with a colour, and tw-merge drops a token size beside a
           colour. Ship's copy said `text-sm`, which was never the ramp. */}
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className={cn('truncate text-[14px] leading-[140%]', destructive ? 'text-error-default' : 'text-text-primary')}>
-          {label}
+      {children ?? (
+        <span className={cn('flex min-w-0 flex-1 flex-col', size === 'tall' && 'gap-[2px]')}>
+          <span className={cn('truncate text-[14px] leading-[140%]', destructive ? 'text-error-default' : 'text-text-primary')}>
+            {label}
+          </span>
+          {description && <span className="truncate text-[12px] leading-[120%] text-text-secondary">{description}</span>}
         </span>
-        {description && <span className="truncate text-[12px] leading-[120%] text-text-secondary">{description}</span>}
-      </span>
+      )}
       {edge && <span className="flex shrink-0 items-center">{edge}</span>}
     </button>
+  )
+}
+
+/**
+ * The keyboard hint a picker row shows while highlighted — "↩ Enter",
+ * "↩ #topic" — hand-rolled in five files before this (2026-09-01).
+ */
+export function EnterHint({ label = 'Enter' }: { label?: string }) {
+  return (
+    <span className="flex shrink-0 items-center gap-2 text-text-muted">
+      <span className="text-[12px] leading-[120%]">↩</span>
+      <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:tracking-[0.04em]">{label}</span>
+    </span>
   )
 }
 

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconPin, IconTrash } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
-import { Menu, MenuItem } from './Menu'
+import { EnterHint, Menu, MenuItem } from './Menu'
 
 /**
  * One row of a menu. Anatomy: `leading` (a 16px icon or an Avatar) · label
@@ -83,4 +83,16 @@ export const AllVariants: Story = {
       <MenuItem label="A very long label that runs out of room and truncates" onClick={() => {}} />
     </>
   ),
+}
+
+/** The tall picker row — 48px, px-3, a 32px face or tile, the description line, and the hint while highlighted. TopicMenu, MentionMenu, the files menu and the launcher all draw this row. */
+export const Tall: Story = {
+  args: {
+    size: 'tall',
+    label: 'Ana Duarte',
+    description: 'Product designer',
+    leading: <Avatar name="Ana Duarte" size={32} />,
+    selected: true,
+    trailing: <EnterHint />,
+  },
 }
