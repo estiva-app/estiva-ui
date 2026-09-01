@@ -18,9 +18,10 @@ const LABELS: ChipInputOption[] = [
   { id: 'd', label: 'Slate' },
 ]
 
-/** The person flavour: faces in the chips and the rows, from the two leading slots. */
+/** The person flavour: faces in the chips and the rows, from the two leading
+ *  slots — the Avatar at its own corners, never forced into a circle. */
 const personLeading = {
-  chipLeading: (o: ChipInputOption) => <Avatar size={16} name={o.label} alt={o.label} className="rounded-full" />,
+  chipLeading: (o: ChipInputOption) => <Avatar size={16} name={o.label} alt={o.label} />,
   rowLeading: (o: ChipInputOption) => <Avatar size={32} name={o.label} alt={o.label} />,
 }
 
@@ -90,7 +91,7 @@ export const TheChipItself: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex items-center gap-2">
-      <InputChip label="Ana Duarte" leading={<Avatar size={16} name="Ana Duarte" alt="Ana Duarte" className="rounded-full" />} onRemove={() => {}} />
+      <InputChip label="Ana Duarte" leading={<Avatar size={16} name="Ana Duarte" alt="Ana Duarte" />} onRemove={() => {}} />
       <InputChip label="Amber" onRemove={() => {}} />
       <InputChip label="Display only" />
     </div>

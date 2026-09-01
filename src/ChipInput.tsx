@@ -24,9 +24,12 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-full py-0.5 max-h-[24px]',
-        // The padding follows the contents (Katerina, 2026-09-01): a round
-        // face sits 2px from the edge, a bare label needs 8px of air; the ✕
+        // Curved, not a pill (Katerina, 2026-09-01): the Avatar keeps its own
+        // rounded-sm corners — never a forced circle — and the chip's corner
+        // follows concentrically: 4px face + 2px inset = rounded-md.
+        'inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-md py-0.5 max-h-[24px]',
+        // The padding follows the contents (Katerina, 2026-09-01): a face
+        // sits 2px from the edge, a bare label needs 8px of air; the ✕
         // brings its own box, so 4px behind it — 8px when there isn't one.
         leading ? 'pl-[2px]' : 'pl-2',
         onRemove ? 'pr-1' : 'pr-2',
