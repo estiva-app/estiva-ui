@@ -12,16 +12,23 @@ import { IconButton } from './IconButton'
  * says what it is to assistive tech.
  */
 export interface DialogShellProps {
+  /** Labels the dialog for assistive tech, and renders as the header text
+   *  unless `headerContent` replaces it. */
   title: string
   onClose: () => void
-  footer: ReactNode
+  /** Replaces the title text in the header — a back button beside the title,
+   *  a count chip after it. The close button stays. */
+  headerContent?: ReactNode
+  /** Absent: no footer row, and the body keeps the card's own bottom edge
+   *  (a roster that simply ends). */
+  footer?: ReactNode
   children: ReactNode
   /** Extra classes on the body (e.g. `flex flex-col gap-6`, or a max height with `overflow-y-auto`). */
   bodyClassName?: string
   width?: number
 }
 
-export function DialogShell({ title, onClose, footer, children, bodyClassName, width = 502 }: DialogShellProps) {
+export function DialogShell({ title, onClose, headerContent, footer, children, bodyClassName, width = 502 }: DialogShellProps) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -46,17 +53,17 @@ export function DialogShell({ title, onClose, footer, children, bodyClassName, w
         >
           {/* Header */}
           <div className="h-12 flex items-center justify-between pl-5 pr-4 border-b border-border-subtle shrink-0">
-            <span className="text-h4 text-text-primary">{title}</span>
+            {headerContent ?? <span className="text-h4 text-text-primary">{title}</span>}
             <IconButton tooltip="Close" aria-label="Close" onClick={onClose}>
               <IconX size={16} stroke={1.5} />
             </IconButton>
           </div>
 
           {/* Body */}
-          <div className={cn('pl-5 pr-4 py-4 border-b border-border-subtle', bodyClassName)}>{children}</div>
+          <div className={cn('pl-5 pr-4 py-4', footer != null && 'border-b border-border-subtle', bodyClassName)}>{children}</div>
 
           {/* Footer */}
-          <div className="h-12 flex items-center justify-end gap-2 pl-5 pr-4 shrink-0">{footer}</div>
+          {footer != null && <div className="h-12 flex items-center justify-end gap-2 pl-5 pr-4 shrink-0">{footer}</div>}
         </div>
       </div>
     </>,
