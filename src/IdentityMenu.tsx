@@ -47,13 +47,62 @@ export interface IdentityMenuProps {
   className?: string
 }
 
-export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className }: IdentityMenuProps) {
-  const [open, setOpen] = useState(false)
-  const close = () => setOpen(false)
+export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 'className'> {
+  onClose: () => void
+  /** On the Menu surface — the stories pass `static` to stand it in flow. */
+  className?: string
+}
+
+/** The menu alone — what `IdentityMenu` opens. Exported so the stories show
+ *  the designed artifact rather than a closed trigger, and for any surface
+ *  that wants the panel without the trigger. */
+export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, className }: IdentityPanelProps) {
   const act = (action: () => void) => () => {
-    close()
+    onClose()
     action()
   }
+  return (
+    <Menu onClose={onClose} className={cn('w-72', className)}>
+      <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
+        <MenuRow>
+          <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
+        </MenuRow>
+        <Note>
+          {signedIn
+            ? 'Your Estiva ID. The same person you are in every Estiva app.'
+            : 'A key held by this browser only. Nobody else knows who you are.'}
+        </Note>
+        {me.email && <Note>{me.email} · known to Estiva, never published to the relay</Note>}
+      </MenuSection>
+
+      {relayUrl && (
+        <>
+          <Divider className="mx-0 my-2" />
+          <MenuSection label="Workspace">
+            <MenuRow>
+              <span className="break-all font-mono text-caption text-text-primary">{relayUrl}</span>
+            </MenuRow>
+            <Note>Everyone on this relay shares this workspace, in every app.</Note>
+          </MenuSection>
+        </>
+      )}
+
+      {(signedIn && idBase) || onCopyKey || (idBase && onSignOut) ? <Divider className="mx-0 my-2" /> : null}
+
+      {signedIn && idBase && (
+        <MenuItem
+          label="Edit your profile in Estiva ID"
+          onClick={act(() => window.open(idBase, '_blank', 'noopener,noreferrer'))}
+        />
+      )}
+      {onCopyKey && <MenuItem label="Copy public key" onClick={act(onCopyKey)} />}
+      {idBase && onSignOut && <MenuItem label="Sign out" onClick={act(onSignOut)} />}
+    </Menu>
+  )
+}
+
+export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className }: IdentityMenuProps) {
+  const [open, setOpen] = useState(false)
 
   return (
     <div className={cn('relative', className)}>
@@ -75,42 +124,15 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
       />
 
       {open && (
-        <Menu onClose={close} className="w-72">
-          <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
-            <MenuRow>
-              <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
-            </MenuRow>
-            <Note>
-              {signedIn
-                ? 'Your Estiva ID. The same person you are in every Estiva app.'
-                : 'A key held by this browser only. Nobody else knows who you are.'}
-            </Note>
-            {me.email && <Note>{me.email} · known to Estiva, never published to the relay</Note>}
-          </MenuSection>
-
-          {relayUrl && (
-            <>
-              <Divider className="mx-0 my-2" />
-              <MenuSection label="Workspace">
-                <MenuRow>
-                  <span className="break-all font-mono text-caption text-text-primary">{relayUrl}</span>
-                </MenuRow>
-                <Note>Everyone on this relay shares this workspace, in every app.</Note>
-              </MenuSection>
-            </>
-          )}
-
-          {(signedIn && idBase) || onCopyKey || (idBase && onSignOut) ? <Divider className="mx-0 my-2" /> : null}
-
-          {signedIn && idBase && (
-            <MenuItem
-              label="Edit your profile in Estiva ID"
-              onClick={act(() => window.open(idBase, '_blank', 'noopener,noreferrer'))}
-            />
-          )}
-          {onCopyKey && <MenuItem label="Copy public key" onClick={act(onCopyKey)} />}
-          {idBase && onSignOut && <MenuItem label="Sign out" onClick={act(onSignOut)} />}
-        </Menu>
+        <IdentityPanel
+          me={me}
+          signedIn={signedIn}
+          relayUrl={relayUrl}
+          idBase={idBase}
+          onCopyKey={onCopyKey}
+          onSignOut={onSignOut}
+          onClose={() => setOpen(false)}
+        />
       )}
     </div>
   )

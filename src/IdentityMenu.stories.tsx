@@ -1,29 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IdentityMenu } from './IdentityMenu'
+import { IdentityPanel } from './IdentityMenu'
 
+/**
+ * The menu itself, standing in flow (`static` beats the anchoring, as the
+ * Menu stories do it) — no trigger, no bar chrome: the trigger's shapes are
+ * PersonTrigger's own stories. In an app, `IdentityMenu` bundles that
+ * trigger with this panel.
+ */
 const meta = {
   title: 'Navigation/IdentityMenu',
-  component: IdentityMenu,
+  component: IdentityPanel,
   args: {
     me: {},
     signedIn: false,
     relayUrl: 'http://localhost:3000',
     onCopyKey: () => {},
     onSignOut: () => {},
+    onClose: () => {},
+    className: 'static',
   },
-  decorators: [
-    (Story) => (
-      <div className="flex h-[52px] w-[520px] items-center justify-end border-b border-border-default bg-bg-surface pr-[26px]">
-        <Story />
-      </div>
-    ),
-  ],
-} satisfies Meta<typeof IdentityMenu>
+  argTypes: { onClose: { control: false }, className: { control: false } },
+} satisfies Meta<typeof IdentityPanel>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** A browser-held key: silhouette + "Anonymous". Click to open the menu. */
+/** A browser-held key: silhouette, "Acting as", and the honest sentence. */
 export const Anonymous: Story = {}
 
 /** Signed in through Estiva ID, in a build that offers sign-in. */
@@ -32,29 +34,6 @@ export const SignedIn: Story = {
     me: { name: 'Ana Duarte', email: 'ana@example.com' },
     signedIn: true,
     idBase: 'https://id.estiva.app',
-  },
-}
-
-/** A `kind:0` with a picture. */
-export const WithPicture: Story = {
-  args: {
-    me: {
-      name: 'Ravi Mehta',
-      picture:
-        'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="%236c8cff"/></svg>',
-    },
-    signedIn: true,
-    idBase: 'https://id.estiva.app',
-  },
-}
-
-/** The face alone — Peek's top-bar shape. The menu is the same menu. */
-export const CompactTrigger: Story = {
-  args: {
-    me: { name: 'Ana Duarte', email: 'ana@example.com' },
-    signedIn: true,
-    idBase: 'https://id.estiva.app',
-    compact: true,
   },
 }
 
