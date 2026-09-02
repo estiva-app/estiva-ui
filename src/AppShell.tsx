@@ -63,7 +63,14 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-bg-base text-text-primary">
+    /* `relative overflow-hidden` is the seal the floating manner already has,
+       and it takes both halves: an absolutely positioned descendant with no
+       positioned ancestor belongs to the *viewport*, so a scroll container
+       never clips it and the document itself gains its position as scroll
+       range — the whole page scrolls, navigation and top bar included.
+       `relative` claims such strays for the shell; `overflow-hidden` clips
+       them at its edge. Either alone seals nothing. */
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-bg-base text-text-primary">
       {bar}
       <div className="flex min-h-0 flex-1">
         {nav}

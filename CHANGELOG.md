@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.1 — 2026-09-03
+
+### Fixed
+
+- **The solid `AppShell` seals the document the way the floating one always
+  has.** An absolutely positioned descendant with no positioned ancestor —
+  Tailwind's `sr-only` is the everyday case — belongs to the *viewport*, so
+  no scroll container on the page clips it, and the document gains its
+  static position as scroll range: the whole page scrolls, navigation and
+  top bar included. The floating frame's root already carried
+  `relative overflow-hidden`; the solid frame's root now does too.
+  `relative` claims such strays for the shell, `overflow-hidden` clips them
+  at its edge — either alone seals nothing.
+
+  Surfaced in Ship: a screen-reader-only table header sitting below the
+  first screen of a long project description made the entire project page
+  scrollable by exactly that distance.
+
 ## 0.4.0 — 2026-09-02
 
 ### Fixed
