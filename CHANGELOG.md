@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.0 — 2026-09-02
+
+### Added
+
+- **`EditableText` gains `displayNode`** — what to *draw* when not editing,
+  for a value that is structured rather than a line of prose. A node rather
+  than a string, because a heading and a bullet are elements.
+
+  `display` stays the string and stays what decides emptiness, so a blank
+  field still shows its placeholder instead of an empty element, and `value`
+  is still what the editor opens with and what a commit compares against —
+  **what is edited is unchanged.**
+
+  `whitespace-pre-wrap` is dropped when it is set: structured content carries
+  its own line breaks, and preserving the source's as well doubles every one.
+
+  Added for Estiva Ship's issue description, which is rich text under SPEC
+  §13. Nothing here knows that — the app renders its own body and hands the
+  result in, which is the same seam `display` already had.
+
 ## 0.2.0 — 2026-09-02
 
 The library grows from 13 primitives to the whole interface kit: 37
