@@ -1,6 +1,56 @@
 # Changelog
 
-## 0.4.1 — 2026-09-03
+## 0.5.0 — 2026-09-03
+
+### Added
+
+- **The Menu shell owns its placement.** The two ways a menu goes wrong are
+  both placement — it opens inside a stacking context or scroll container
+  and something covers or clips it, or it opens near an edge and runs off
+  screen — and both shipped in one day (the identity menu under a `z-20`
+  panel header; a highlight submenu cut by the right edge). `Menu` now takes
+  an `anchor` element (plus `align`): it portals to the body and places
+  itself with the same measured geometry `Select` has used since its own
+  cut-off — under the trigger, flipped above when the room below is worse,
+  clamped inside the viewport, closed by resize or page scroll. It stands at
+  its full height whenever the room is there; only a menu taller than the
+  screen scrolls (the 288px cap is Select's own, for option lists). `position` (caller-computed coordinates) is
+  still honoured but now clamped on screen (`clampBox`). The in-flow mode
+  remains for stories and static surfaces only.
+
+- **`MenuSub` — the submenu, in the shell.** Two Peek menus hand-rolled the
+  same hover-timed submenu; the copy dropped the ref its edge-flip measured,
+  so it measured nothing and always opened rightward, off the screen. The
+  shell's version portals, measures real rects (`fitSubmenu`), flips left at
+  the right edge, and slides up at the bottom one. Hover timing kept: opens
+  at once, closes 150ms after the pointer leaves row and panel both.
+
+- **`fit.ts`** — `fitMenu` (moved from `Select`, unchanged), `clampBox`,
+  `fitSubmenu`: the pure viewport geometry, one module, unit-tested, and
+  exported — a surface too bespoke for the Menu chrome (a hover preview
+  card, say) places itself with the same functions instead of hand-rolling
+  the flip.
+
+- **`closeOnLeave` on `Menu`** — the hover-flow menus (a card's quick-menu
+  ⋯) dismiss when the pointer leaves. The 150ms grace period is shared with
+  any open `MenuSub` panel through context, so crossing into a portalled
+  submenu never counts as leaving — the one hover region the old inline
+  submenus had for free, kept.
+
+### Changed
+
+- **The last two unclamped axes are clamped.** `WithTooltip` flipped and
+  clamped horizontally but not vertically — a `top` tooltip near the
+  viewport's top edge left the screen; it now flips and clamps both ways.
+  `ChipInput`'s suggestion list hung blindly below its input; it goes
+  through `fitMenu` (rows are a fixed 48px, so no second render pass) and
+  flips upward when the input sits low.
+
+- **`IdentityMenu` hangs its panel from the trigger through the portal.**
+  In-flow, the panel inherited the floating top bar's `z-10` stacking
+  context and anything at `z-20` painted over it. Same place on screen,
+  nothing can cover it. `IdentityPanel` grew an optional `anchor` for this;
+  without it the stories' in-flow rendering is unchanged.
 
 ### Fixed
 

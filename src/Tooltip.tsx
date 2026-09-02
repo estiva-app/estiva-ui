@@ -47,7 +47,13 @@ export function WithTooltip({ label, placement = 'top', wrapperClassName, childr
     if (!trigger || !tip) return
     const triggerRect = trigger.getBoundingClientRect()
     const tipRect = tip.getBoundingClientRect()
-    const top = placement === 'bottom' ? triggerRect.bottom + GAP : triggerRect.top - tipRect.height - GAP
+    let top = placement === 'bottom' ? triggerRect.bottom + GAP : triggerRect.top - tipRect.height - GAP
+    // The vertical axis flips and clamps like the horizontal one always has
+    // (2026-09-03): a `top` tooltip on a control near the viewport's top edge
+    // was the one floating surface left that could leave the screen.
+    if (placement === 'top' && top < VIEWPORT_PAD) top = triggerRect.bottom + GAP
+    else if (placement === 'bottom' && top + tipRect.height > window.innerHeight - VIEWPORT_PAD) top = triggerRect.top - tipRect.height - GAP
+    top = Math.max(VIEWPORT_PAD, Math.min(top, window.innerHeight - tipRect.height - VIEWPORT_PAD))
     let left = triggerRect.left + triggerRect.width / 2 - tipRect.width / 2
     left = Math.max(VIEWPORT_PAD, Math.min(left, window.innerWidth - tipRect.width - VIEWPORT_PAD))
     setStyle({ position: 'fixed', top, left, zIndex: 9999, pointerEvents: 'none', visibility: 'visible' })

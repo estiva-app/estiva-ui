@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconPencil, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconHighlight, IconPencil, IconTrash } from '@tabler/icons-react'
 import { Divider } from './Divider'
-import { Menu, MenuItem, MenuRow, MenuSection } from './Menu'
+import { Menu, MenuItem, MenuRow, MenuSection, MenuSub } from './Menu'
 import { SectionLabel } from './SectionLabel'
 
 /**
@@ -47,6 +47,29 @@ export const Sections: Story = {
         <MenuItem label="Everything" onClick={() => {}} />
         <MenuItem label="Unread only" onClick={() => {}} />
       </MenuSection>
+    </Menu>
+  ),
+}
+
+/**
+ * A row that opens another menu beside it — hover it. The panel portals to
+ * the body and fits the viewport: right of the row with room, flipped left
+ * at the screen edge, never cut off. Live rather than pinned, because the
+ * placement IS the designed behaviour.
+ */
+export const WithASubmenu: Story = {
+  render: (args) => (
+    <Menu {...args}>
+      <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
+      <MenuSub label="Mark as Highlight" leading={<IconHighlight size={16} stroke={1.5} className="text-text-secondary" />}>
+        <MenuItem label="Insight" onClick={() => {}} />
+        <MenuItem label="Concern" onClick={() => {}} />
+        <MenuItem label="Conclusion" onClick={() => {}} />
+        <MenuItem label="Question" onClick={() => {}} />
+        <MenuItem label="Summary" onClick={() => {}} />
+      </MenuSub>
+      <Divider className="my-1" />
+      <MenuItem label="Delete" destructive onClick={() => {}} />
     </Menu>
   ),
 }
