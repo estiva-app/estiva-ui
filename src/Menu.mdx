@@ -1,0 +1,101 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as MenuStories from './Menu.stories'
+
+<Meta of={MenuStories} />
+
+# Menu
+
+The shell every menu shares: an elevated container — hairline border, 8px
+radius, 8px padding, the large shadow — and the two exits every menu owes,
+**Escape and a click outside, owned here and never by the caller**. Rows are
+**MenuItem**, headings are **MenuSection**, a non-interactive line at row
+geometry is **MenuRow**, and **EnterHint** is the "↩ Enter" a picker row
+shows while highlighted.
+
+## When
+
+- A click-opened list of actions: a `…` more-menu, an account menu, a
+  right-click's worth of verbs. Rows are the default `MenuItem` — 14px
+  label, optional `leading` icon, `shortcut` kbd chip, `destructive` in the
+  error colour.
+- A picker fed by typing: @-mentions, a people picker, a command list.
+  Those rows are `MenuItem size="tall"` — content height with a 40px floor,
+  room for a 32px face via `leading` and a `description` line — with an
+  `EnterHint` on the highlighted row.
+- Grouped choices where one is current: `MenuSection` over rows, `selected`
+  on the chosen one.
+
+## When not
+
+- Picking one value for a form field → **Select**. It is the same shell
+  behaviour plus a trigger that shows the value.
+- Rows that toggle checkboxes and stay open → that is a **listbox**, not a
+  menu; a Checkbox inside a `menuitem` button is invalid HTML. Build it as
+  a list in a DialogShell.
+- A strip of icon actions (reactions, formatting) → a toolbar of
+  **IconButton**s.
+- Anything with a title and a footer → **DialogShell**.
+- Who-you-are and where-you-are (the avatar in the top bar) →
+  **IdentityMenu**, already built on this shell.
+
+## How
+
+Menus are controlled: the caller keeps `open` state, renders the menu only
+while true, and hands it `onClose`. Escape and outside-click then work
+without the caller writing either.
+
+```tsx
+import { Menu, MenuItem } from '@estiva-app/ui'
+
+{open && (
+  <Menu onClose={() => setOpen(false)}>
+    <MenuItem label="Rename" onClick={rename} />
+    <MenuItem label="Delete" destructive onClick={confirmDelete} />
+  </Menu>
+)}
+```
+
+Two anchorings:
+
+- **Default** — the menu hangs below its trigger, right-aligned; the
+  wrapper around trigger and menu must be `relative`.
+- **`position={{ top, left }}` or `{ top, right }`** — the menu portals to
+  the body at fixed viewport coordinates, for triggers inside containers
+  that scroll or clip.
+
+### The trigger trap
+
+The outside-click exit listens on `mousedown`. A trigger that toggles on
+`click` will therefore see its own press close the menu and the click
+reopen it — a flicker that reads as "the menu ignores me". The trigger
+swallows the mousedown, exactly as IdentityMenu's does:
+
+```tsx
+<button
+  onMouseDown={(event) => event.stopPropagation()}
+  onClick={() => setOpen((value) => !value)}
+/>
+```
+
+### What stays the caller's
+
+Hover-opening, and submenus. A hover-opened menu owes the five popover
+rules (see the README — stay open over the menu, close on leave, guard the
+parent's hover); the shell gives only the two click-opened exits, so the
+hover choreography is the caller's. The one submenu in production
+(Peek's conversation more-menu) keeps its hover logic in the app — if a
+second menu needs a submenu, the shell learns it then.
+
+### Alignment
+
+A menu whose rows are `px-3` (tall picker rows) aligns its headings by
+passing `className="px-3"` to `MenuSection` — the heading row is `px-2` by
+default, matching the default rows.
+
+<Canvas of={MenuStories.Items} />
+
+<Canvas of={MenuStories.Sections} />
+
+## Props
+
+<Controls of={MenuStories.Items} />
