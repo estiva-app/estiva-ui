@@ -45,6 +45,13 @@ export interface IdentityMenuProps {
   /** Face-only trigger — Peek's top-bar shape (36px). */
   compact?: boolean
   className?: string
+  /**
+   * App-specific rows, drawn as their own group between the workspace
+   * section and the actions (Peek's Read state readout, say). A function
+   * receives `close`, so a row can shut the menu before opening what it
+   * opens.
+   */
+  children?: ReactNode | ((close: () => void) => ReactNode)
 }
 
 export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 'className'> {
@@ -56,11 +63,12 @@ export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 
 /** The menu alone — what `IdentityMenu` opens. Exported so the stories show
  *  the designed artifact rather than a closed trigger, and for any surface
  *  that wants the panel without the trigger. */
-export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, className }: IdentityPanelProps) {
+export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, className, children }: IdentityPanelProps) {
   const act = (action: () => void) => () => {
     onClose()
     action()
   }
+  const appRows = typeof children === 'function' ? children(onClose) : children
   return (
     <Menu onClose={onClose} className={cn('w-72', className)}>
       <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
@@ -87,6 +95,13 @@ export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSig
         </>
       )}
 
+      {appRows && (
+        <>
+          <Divider className="mx-0 my-2" />
+          {appRows}
+        </>
+      )}
+
       {(signedIn && idBase) || onCopyKey || (idBase && onSignOut) ? <Divider className="mx-0 my-2" /> : null}
 
       {signedIn && idBase && (
@@ -101,7 +116,7 @@ export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSig
   )
 }
 
-export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className }: IdentityMenuProps) {
+export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className, children }: IdentityMenuProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -132,7 +147,9 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
           onCopyKey={onCopyKey}
           onSignOut={onSignOut}
           onClose={() => setOpen(false)}
-        />
+        >
+          {children}
+        </IdentityPanel>
       )}
     </div>
   )
