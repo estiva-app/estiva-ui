@@ -1,0 +1,51 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as TooltipStories from './Tooltip.stories'
+
+<Meta of={TooltipStories} />
+
+# Tooltip
+
+A 30px elevated pill with a caption, and **WithTooltip**, the wrapper that
+shows it above or below a trigger on hover — portalled, fixed to the
+viewport, kept 8px inside its edges.
+
+<Canvas of={TooltipStories.OnHoverTop} />
+
+## When
+
+- The reason a control is disabled — a disabled control explains itself
+  ("Available after sign-in"); this is the rule that an action appears
+  only where it can succeed.
+- The word for an icon-only control — alongside its `aria-label`, never
+  instead of it (IconButton wires this for you via its `tooltip` prop).
+- The full text behind a truncation.
+
+<Canvas of={TooltipStories.OnADisabledControl} />
+
+## When not
+
+- Anything the person must read to proceed → put it in the surface, not
+  behind a hover.
+- Anything interactive inside → **Menu** or **DialogShell**; a tooltip is
+  `pointer-events: none` by design.
+
+## How
+
+```tsx
+import { WithTooltip } from '@estiva-app/ui'
+
+<WithTooltip label="Available after sign-in">
+  <Button disabled>Publish</Button>
+</WithTooltip>
+```
+
+- Wrap a **control, never a block** — the wrapper is `inline-flex` and
+  shrinks nothing, so a wrapped block collapses to its content width.
+- A truncating label keeps truncating if you pass
+  `wrapperClassName="min-w-0 shrink"`.
+- It shows on **hover only** — there is no focus or touch trigger. Don't
+  put anything behind it that a keyboard user must reach.
+
+## Props
+
+<Controls of={TooltipStories.Default} />

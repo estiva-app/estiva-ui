@@ -1,0 +1,59 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as EditableTextStories from './EditableText.stories'
+
+<Meta of={EditableTextStories} />
+
+# EditableText
+
+Text you click to edit. It reads as text until clicked; then it is a
+field. A commit that fails keeps the field open with the text in it, so an
+edit is never silently lost.
+
+<Canvas of={EditableTextStories.Title} />
+
+## When
+
+- A title or description edited where it is shown — no dialog, no separate
+  form.
+- A reader who cannot write gets `readOnly` — the value without the edit
+  affordance, because an action appears only where it can succeed.
+
+## When not
+
+- A field in a form or dialog → **TextInput** / **Textarea** in a
+  **Field**.
+- Composing something new → the field, not an edit-in-place of nothing.
+
+## How
+
+```tsx
+import { EditableText } from '@estiva-app/ui'
+
+<EditableText
+  value={title}
+  placeholder="Untitled"
+  label="Title"
+  onCommit={async (next) => save(next)}
+/>
+```
+
+- `onCommit` resolves `true` to close; `false` (or a throw) keeps the
+  field open — you have already told the person why. An unchanged value is
+  not committed at all.
+- `label` is required — it is the field's accessible name.
+- `display` shows something other than what is edited (a value carrying
+  raw references, rendered richer when read) without losing the original
+  on commit.
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| click the text | opens the field, selects the value |
+| Enter | commits (`multiline`: Shift+Enter is a new line) |
+| Escape | cancels, restores the value |
+| blur | commits |
+
+## Props
+
+<Controls of={EditableTextStories.Title} />

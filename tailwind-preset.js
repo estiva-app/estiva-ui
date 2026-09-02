@@ -83,9 +83,9 @@ export default {
         'body-2-strong': ['14px', { lineHeight: '140%', letterSpacing: '0', fontWeight: '500' }],
         caption: ['12px', { lineHeight: '120%', letterSpacing: '0', fontWeight: '400' }],
         menu:    ['9px',  { lineHeight: '115%', letterSpacing: '0', fontWeight: '500' }],
-        // Component-specific. In shared components prefer explicit arbitrary
-        // values (`text-[12px] leading-[12px]`): tailwind-merge silently drops
-        // a custom text-size class that is followed by a `text-{color}` class.
+        // Component-specific. The package's cn() names this ramp for
+        // tailwind-merge (src/cn.ts, pinned by cn.test.ts), so the token
+        // classes survive merged lists — add a size here, add it there too.
         'btn-default': ['14px', { lineHeight: '14px', letterSpacing: '0', fontWeight: '500' }],
         'btn-small':   ['12px', { lineHeight: '12px', letterSpacing: '0', fontWeight: '500' }],
         'input-label':  ['12px', { lineHeight: '115%', letterSpacing: '0', fontWeight: '500' }],
@@ -119,6 +119,7 @@ export default {
         'text-muted':     'var(--text-muted)',
         'text-disabled':  'var(--text-disabled)',
         'text-inverse':   'var(--text-inverse)',
+        'text-interactive': 'var(--text-interactive)',
         // border
         'border-subtle':  'var(--border-subtle)',
         'border-default': 'var(--border-default)',

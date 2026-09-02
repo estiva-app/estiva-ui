@@ -1,0 +1,43 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ChipStories from './Chip.stories'
+
+<Meta of={ChipStories} />
+
+# Chip
+
+A 20px pill for a small piece of standing information — a status, a count,
+a category — in one of six colour types. The semantic four sit on their
+muted tints; the label is the `chip` type token, 11px / 500.
+
+<Canvas of={ChipStories.AllTypes} />
+
+## When
+
+- **`neutral`** — a count or tag with no verdict attached.
+- **`brand`** — the accent's voice: a highlight, a "you are here".
+- **`info` / `warning` / `success` / `error`** — a state with a meaning;
+  the colour is the message, the label makes it legible.
+
+## When not
+
+- Something clickable → **Button** (small) or **MenuItem** — a Chip is not
+  a control.
+- A removable token in a multi-select → **InputChip** (see ChipInput).
+- A count beside a tab label → **Tabs** draws its own mono number, not a
+  Chip.
+
+## How
+
+```tsx
+import { Chip } from '@estiva-app/ui'
+
+<Chip type="success" label="Done" />
+```
+
+- `leadingIcon` / `trailingIcon` take a 12px icon; the slots centre it, so
+  it never rides the text baseline.
+- A count alone works too — `label="3"`, no icon.
+
+## Props
+
+<Controls of={ChipStories.Neutral} />

@@ -27,13 +27,15 @@ export function Tooltip({ label, className }: TooltipProps) {
 export interface WithTooltipProps {
   label: string
   placement?: 'top' | 'bottom'
+  /** Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it. */
+  wrapperClassName?: string
   children: ReactNode
 }
 
 const GAP = 6
 const VIEWPORT_PAD = 8
 
-export function WithTooltip({ label, placement = 'top', children }: WithTooltipProps) {
+export function WithTooltip({ label, placement = 'top', wrapperClassName, children }: WithTooltipProps) {
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -56,7 +58,7 @@ export function WithTooltip({ label, placement = 'top', children }: WithTooltipP
   }, [show, reposition])
 
   return (
-    <div ref={ref} className="inline-flex shrink-0" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+    <div ref={ref} className={cn('inline-flex shrink-0', wrapperClassName)} onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
       {children}
       {show &&
         createPortal(

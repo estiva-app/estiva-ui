@@ -1,0 +1,39 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SearchInputStories from './SearchInput.stories'
+
+<Meta of={SearchInputStories} />
+
+# SearchInput
+
+An inset field with a hairline border that strengthens on focus, and an
+optional keyboard hint at the right edge.
+
+<Canvas of={SearchInputStories.WithShortcut} />
+
+## When
+
+- Filtering a list, live, above the list it filters.
+- As a **launcher affordance**: keep the input `pointer-events-none` and
+  open your command surface from a click on the surround — the component
+  is the same either way, and `shortcut` shows the way in ("⌘ K").
+
+## When not
+
+- General text entry → **TextInput**.
+- Picking entries from a directory → **ChipInput** or **Select**.
+
+## How
+
+```tsx
+import { SearchInput } from '@estiva-app/ui'
+
+<SearchInput value={query} onChange={(e) => setQuery(e.target.value)} shortcut="⌘ K" />
+```
+
+- The default placeholder is "Search…" — override it with your own.
+- Every native input prop passes through; give it an `aria-label`
+  ("Search") since the placeholder is not a name.
+
+## Props
+
+<Controls of={SearchInputStories.Default} />

@@ -1,0 +1,51 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PersonTriggerStories from './PersonTrigger.stories'
+
+<Meta of={PersonTriggerStories} />
+
+# PersonTrigger
+
+The person, as the button that opens a menu. Two shapes, one component:
+the **row** — face · name · 14px chevron on a 32px button with a hover
+fill — and **`compact`** — the face alone, 36px, no chevron and no hover
+fill, because the face fills the whole control.
+
+<Canvas of={PersonTriggerStories.Row} />
+
+<Canvas of={PersonTriggerStories.Compact} />
+
+## When
+
+- The account trigger in a top bar — either shape.
+- Any control whose meaning is "this person, opened".
+- What it opens is not its business: pair it with **IdentityMenu** for the
+  ready-made account menu, or your own **Menu**.
+
+## When not
+
+- Showing a person without opening anything → **Person**.
+- Choosing a person from a list → **Select** or **ChipInput**.
+
+## How
+
+```tsx
+import { PersonTrigger } from '@estiva-app/ui'
+
+<PersonTrigger name={me.name} picture={me.picture} open={open}
+  onMouseDown={(e) => e.stopPropagation()} onClick={() => setOpen((v) => !v)} />
+```
+
+- `open` holds the row's hover fill while the menu is up, and feeds
+  `aria-expanded`.
+- **The accessible name**: the row shape is named by the visible name —
+  do **not** add an `aria-label`, it would override the person. The
+  `compact` face has no visible text, so there an `aria-label` is
+  required.
+- A toggle trigger must swallow its `mousedown` (as above) or the menu's
+  outside-click dismiss turns each press into close-then-reopen — the
+  trap is spelled out on the Menu page.
+- It takes a `ref` and every native button prop — anchor your menu on it.
+
+## Props
+
+<Controls of={PersonTriggerStories.Row} />

@@ -1,0 +1,39 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as SkeletonStories from './Skeleton.stories'
+
+<Meta of={SkeletonStories} />
+
+# Skeleton
+
+The loading placeholder, in generic parts: **SkeletonBar** (the pulsing
+block), **SkeletonRow** (a 32px row — a 16px square and a bar, like a row
+with a face and a name), and **SkeletonList** (rows of varied widths, so
+the placeholder does not read as a pattern).
+
+<Canvas of={SkeletonStories.List} />
+
+## When
+
+- Data is on its way and the shape of what arrives is known — show that
+  shape.
+- A placeholder shaped like your own card is yours to build **from the
+  bar**; the parts here stay ignorant of what they stand for.
+
+## When not
+
+- Nothing is coming → **EmptyState**.
+- A click is being processed → the control's own busy state, not a
+  skeleton.
+
+## How
+
+```tsx
+import { SkeletonList, SkeletonBar } from '@estiva-app/ui'
+
+{loading ? <SkeletonList rows={6} /> : <YourList items={items} />}
+```
+
+- **SkeletonList reveals after 150ms** (`animate-skeleton-in`) — a fast
+  load never flashes a skeleton. Building your own placeholder from the
+  bar? Put that class on its container for the same manner.
+- The list is `aria-hidden` — a placeholder has nothing to read.

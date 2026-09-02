@@ -1,0 +1,42 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SectionLabelStories from './SectionLabel.stories'
+
+<Meta of={SectionLabelStories} />
+
+# SectionLabel
+
+**The** section-title span. Every section heading — sidebar sections, menu
+headings, panel titles — renders through it, so a change of voice is one
+edit. 12px / 500, primary text; some themes restyle it (the toolbar shows
+how).
+
+<Canvas of={SectionLabelStories.HeadingAList} />
+
+## When
+
+- Titling a group of rows in a sidebar, a panel, a rail.
+- Inside a menu it arrives via **MenuSection** — don't place it there by
+  hand.
+
+## When not
+
+- A heading that also collapses or carries actions → **SectionHeader**.
+- The label above a stacked control → **Property** `stacked` — a field
+  label is a different voice, at a different size, on purpose.
+- Page-level headings → the `h*` type tokens.
+
+## How
+
+```tsx
+import { SectionLabel } from '@estiva-app/ui'
+
+<SectionLabel>Pinned</SectionLabel>
+```
+
+It is a bare span: the caller owns the row it sits in and the spacing
+around it. Read it `secondary` (via `className`) where it labels rather
+than leads — menu headings do.
+
+## Props
+
+<Controls of={SectionLabelStories.Default} />

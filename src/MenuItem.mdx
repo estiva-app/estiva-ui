@@ -1,0 +1,55 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as MenuItemStories from './MenuItem.stories'
+
+<Meta of={MenuItemStories} />
+
+# MenuItem
+
+The row of a menu: label, and around it everything a row can carry — a
+`leading` icon or face, a `description` second line, a `shortcut` kbd
+chip, a `submenu` chevron, a `trailing` anything (which wins over the
+other two), `destructive` in the error colour, `selected` as the fill.
+
+<Canvas of={MenuItemStories.AllVariants} />
+
+## When
+
+- Every actionable row inside a **Menu**.
+- **`size="tall"`** is the picker row: content height with a 40px floor,
+  `px-3`, room for a 32px face and the description line — one rule, not a
+  hand-picked height per surface. ChipInput's suggestions are these.
+- `children` replaces the label/description block for rows whose middle
+  is richer than text; `leading` and `trailing` still apply.
+
+<Canvas of={MenuItemStories.Tall} />
+
+## When not
+
+- Outside a menu — it renders `role="menuitem"` and belongs inside a
+  `role="menu"` container.
+- Picking a form value → **Select**'s own options.
+- A row that toggles a checkbox → not a menu at all; see the Menu page.
+
+## How
+
+```tsx
+import { Menu, MenuItem } from '@estiva-app/ui'
+import { IconPencil } from '@tabler/icons-react'
+
+<MenuItem
+  label="Rename"
+  leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />}
+  shortcut="⌘ R"
+  onClick={rename}
+/>
+```
+
+- It is a native button underneath — every prop passes through, ref
+  included, so a typeahead can drive the highlight with `selected` +
+  `onMouseEnter` and add on `onMouseDown`.
+- A destructive row's `leading` icon takes the error colour itself
+  (`text-error-default`) — the row colours only its label.
+
+## Props
+
+<Controls of={MenuItemStories.Default} />

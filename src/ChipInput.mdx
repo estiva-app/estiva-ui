@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ChipInputStories from './ChipInput.stories'
+
+<Meta of={ChipInputStories} />
+
+# ChipInput
+
+A multi-select input: chips for the chosen, a typeahead for the rest.
+Nothing in it knows what is being picked — people, labels, files — the
+caller hands in `options` and, when the entries have faces, the two
+leading slots.
+
+<Canvas of={ChipInputStories.WithChips} />
+
+## When
+
+- Choosing several entries from a directory: members for a group,
+  recipients, tags.
+- **InputChip** is exported on its own for the display-only case — chosen
+  things shown somewhere no editing happens.
+
+<Canvas of={ChipInputStories.TheChipItself} />
+
+## When not
+
+- One value → **Select**.
+- Free text that becomes an entry — it only picks from `options`; if
+  typing must create things, that is your surface's logic around it.
+
+## How
+
+```tsx
+import { ChipInput } from '@estiva-app/ui'
+
+<ChipInput
+  value={chosen}
+  onChange={setChosen}
+  options={directory}
+  chipLeading={(o) => <Avatar name={o.label} src={o.picture} size={16} />}
+  rowLeading={(o) => <Avatar name={o.label} src={o.picture} size={32} />}
+  excludeIds={[viewer.id]}
+/>
+```
+
+- An option is `{ id, label, description? }` — the description is the
+  suggestion row's second line, and is searched too. The component is
+  **generic over your option type**: `onChange` hands back your own
+  objects, extra fields and all, no re-mapping.
+- `chipLeading` is 16px in a chip; `rowLeading` is 32px in a suggestion
+  row. The chip's padding follows its contents — a face sits 2px from the
+  edge, a bare label gets 8px.
+- Suggestions appear **only once the user types** — focusing must not drop
+  the whole directory over the surface below.
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| typing | filters; suggestions appear |
+| ↑ / ↓ | move the highlight |
+| Enter | adds the highlighted entry |
+| Backspace, empty query | removes the last chip — consumed, never the surface's "back" |
+| Escape, with a query | clears the query — consumed |
+| Escape, idle | bubbles, so the dialog or launcher around it can act |
+
+## Props
+
+<Controls of={ChipInputStories.TypeToSearch} />

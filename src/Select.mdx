@@ -1,0 +1,71 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SelectStories from './Select.stories'
+
+<Meta of={SelectStories} />
+
+# Select
+
+One value for a form field: a button that shows the choice and opens a
+portalled listbox under itself. The list keeps itself on screen — clamped
+to the viewport's sides, height capped to the room it actually has,
+opening upward when the room below is worse — so it works in cramped
+corners and scrolling panels.
+
+<Canvas of={SelectStories.Default} />
+
+## When
+
+- A field with one answer out of a known set: a status, a stage, a person.
+- Options may carry a `leading` node — a face beside a name — shown in the
+  trigger and the list alike.
+- Two sizes; `small` for dense rows and rails (it sits well inside
+  **Property**).
+
+<Canvas of={SelectStories.WithLeading} />
+
+## When not
+
+- A list of actions → **Menu** — a Select changes a value, it does not do
+  things.
+- Several values → **ChipInput**.
+- Switching views of one thing → **Tabs**.
+- `disabled` explains nothing by itself — wrap it in a **WithTooltip**
+  that gives the reason.
+
+## How
+
+```tsx
+import { Select } from '@estiva-app/ui'
+
+<Select
+  value={status}
+  onChange={setStatus}
+  options={[
+    { value: 'open', label: 'Open' },
+    { value: 'done', label: 'Done' },
+  ]}
+  ariaLabel="Status"
+/>
+```
+
+- The trigger truncates long labels instead of stretching its row — give
+  it room with your layout, not with `white-space` tricks.
+- Its geometry is pure and tested (`fitMenu`): 288px cap, 120px floor —
+  scrollable beats invisible.
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Enter / Space / click, closed | opens the list |
+| ↑ / ↓ | move the active option, kept scrolled into view |
+| Home / End | jump to the first / last option |
+| Enter / Space, open | picks the active option |
+| Escape | closes, returns focus to the trigger |
+| Tab | closes |
+| click outside | closes |
+| page scroll or resize | closes (the list is fixed where the trigger was) — the list's **own** scroll never dismisses it |
+
+## Props
+
+<Controls of={SelectStories.Default} />

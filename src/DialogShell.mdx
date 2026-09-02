@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as DialogShellStories from './DialogShell.stories'
+
+<Meta of={DialogShellStories} />
+
+# DialogShell
+
+The dialog, minus what it says: the portal, the backdrop, a 502px card,
+a 48px header with the title and a close button, a body, and a 48px
+footer for the buttons. A dialog is just what goes in the three slots.
+
+<Canvas of={DialogShellStories.Default} />
+
+## When
+
+- Anything with a title, a body, and buttons: a form, a picker, a roster.
+- `footer` absent removes the footer row entirely — a list that simply
+  ends keeps the card's own bottom edge.
+- `headerContent` replaces the title text — a back button beside the
+  title, a count chip after it. The close button stays.
+
+## When not
+
+- A short list of verbs from a trigger → **Menu**.
+- "Are you sure?" → **ConfirmDialog** — it is this shell with the question
+  already wired.
+- Telling someone what happened → **Toast**.
+
+## How
+
+```tsx
+import { DialogShell, Button } from '@estiva-app/ui'
+
+{open && (
+  <DialogShell
+    title="New document"
+    onClose={() => setOpen(false)}
+    footer={
+      <>
+        <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <Button variant="primary" onClick={submit}>Create</Button>
+      </>
+    }
+  >
+    …fields…
+  </DialogShell>
+)}
+```
+
+- Render it only while open — mounting is opening.
+- `bodyClassName` shapes the body (`flex flex-col gap-6`, or a max height
+  with `overflow-y-auto` for long lists). Rows in a height-capped flex
+  body need `shrink-0`, or overflow crushes them.
+- The card names itself to assistive tech (`role="dialog"`, labelled by
+  `title`). Focus is not trapped or moved — give the first field
+  `autoFocus` where typing is the point.
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Escape | closes |
+| backdrop click | closes |
+| close button | closes (it is an IconButton with its label) |
+
+## Props
+
+<Controls of={DialogShellStories.Default} />

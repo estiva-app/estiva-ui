@@ -1,0 +1,39 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as TextInputStories from './TextInput.stories'
+
+<Meta of={TextInputStories} />
+
+# TextInput
+
+The single-line field: inset surface, 8px radius, 14px text, the focus
+border in every theme.
+
+<Canvas of={TextInputStories.Filled} />
+
+## When
+
+- One line of text in a form or dialog — a name, a title, a URL. Label it
+  with a **Field**.
+
+## When not
+
+- Several lines → **Textarea**.
+- Filtering a list → **SearchInput**.
+- Editing text where it is displayed → **EditableText**.
+
+## How
+
+```tsx
+import { TextInput } from '@estiva-app/ui'
+
+<TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled" />
+```
+
+- It is a native `<input>` with a ref — every native prop passes through.
+- Name it: a Field's label is visual, so give the input an `aria-label`
+  too.
+- `disabled` gets the disabled surface and text; say why with a tooltip.
+
+## Props
+
+<Controls of={TextInputStories.Empty} />

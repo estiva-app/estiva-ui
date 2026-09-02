@@ -1,0 +1,41 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as EmptyStateStories from './EmptyState.stories'
+
+<Meta of={EmptyStateStories} />
+
+# EmptyState
+
+A 16px icon over a centred line of secondary text, for the place where
+content will be once there is some.
+
+<Canvas of={EmptyStateStories.Default} />
+
+## When
+
+- A list, panel or view with nothing in it yet. The message says **what
+  would fill it** — "No comments yet. Start the thread." — not just that
+  it is empty.
+- `icon` swaps the default speech bubble for one that matches the
+  subject.
+
+## When not
+
+- Data is still on its way → **Skeleton**; empty and loading are
+  different truths.
+- Something went wrong → say that, in your surface's own error treatment
+  — an empty state that hides a failure misleads.
+
+## How
+
+```tsx
+import { EmptyState } from '@estiva-app/ui'
+
+<EmptyState message="No documents yet. Create the first one." />
+```
+
+The message is the caller's — a shared component has no words of its own
+for what is missing.
+
+## Props
+
+<Controls of={EmptyStateStories.Default} />

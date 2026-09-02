@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as IconButtonStories from './IconButton.stories'
+
+<Meta of={IconButtonStories} />
+
+# IconButton
+
+A square button around a 16px icon: 4px padding, 8px radius, three
+variants. For the actions a surface repeats too often to label every time.
+
+<Canvas of={IconButtonStories.AllVariants} />
+
+## When
+
+- Toolbars and row-hover actions — edit, copy, dismiss, more.
+- A dialog's close.
+- `tooltip` names it on hover; `primary` exists for the rare icon action
+  that is the point of its surface.
+
+## When not
+
+- The action deserves a visible label → **Button** (words are cheaper than
+  a guessed icon).
+- Inside a menu → **MenuItem** with `leading`.
+- A strip of these is a toolbar — right; but the moment rows toggle and
+  persist state, see **Checkbox**.
+
+## How
+
+```tsx
+import { IconButton } from '@estiva-app/ui'
+import { IconPencil } from '@tabler/icons-react'
+
+<IconButton aria-label="Edit" tooltip="Edit" onClick={edit}>
+  <IconPencil size={16} stroke={1.5} />
+</IconButton>
+```
+
+- **`aria-label` is required** — nothing visible names an icon-only
+  control. The `tooltip` shows sighted hover users the same word; it does
+  not replace the label.
+- The icon is 16px at stroke 1.5.
+- `type` defaults to `"button"`; every native prop passes through.
+
+## Props
+
+<Controls of={IconButtonStories.Muted} />

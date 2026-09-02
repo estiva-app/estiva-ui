@@ -1,0 +1,53 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as NavItemStories from './NavItem.stories'
+
+<Meta of={NavItemStories} />
+
+# NavItem
+
+One row of a sidebar: an optional 16px icon, a label, and an optional
+count — a muted mono number whose tooltip says what it counts.
+
+<Canvas of={NavItemStories.WithIconAndCount} />
+
+## When
+
+- The entries of a **Sidebar** — top-level places, and the rows of a
+  labelled group.
+- `active` marks where the route is: the selected tab's neutral fill, and
+  `aria-current="page"` for assistive tech.
+- A count is a number of **one** thing, and `countLabel` says which ("18
+  open", "5 active"). A `0` or an absent count draws nothing — that is
+  this row's rule; a *tab* draws its zero, and both rulings stand.
+
+<Canvas of={NavItemStories.ZeroDrawsNothing} />
+
+## When not
+
+- An icon rail's tile → **RailItem**.
+- Switching views inside a page → **Tabs**.
+- A row in a popover → **MenuItem**.
+
+## How
+
+```tsx
+import { NavItem } from '@estiva-app/ui'
+
+<NavItem
+  href="#/documents"
+  label="Documents"
+  icon={<IconListDetails size={16} stroke={1.5} />}
+  count={openCount}
+  countLabel={`${openCount} open`}
+  active={current === 'documents'}
+/>
+```
+
+- It renders a plain anchor. A router app keeps a thin wrapper: compute
+  `active` from the location, intercept the click, navigate — every
+  anchor prop passes through.
+- The label truncates; the count never gives up its width.
+
+## Props
+
+<Controls of={NavItemStories.Default} />

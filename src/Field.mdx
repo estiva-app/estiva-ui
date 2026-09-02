@@ -1,0 +1,39 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as FieldStories from './Field.stories'
+
+<Meta of={FieldStories} />
+
+# Field
+
+A label over a control — the form row. The label is the `input-label`
+token; `required` marks it with the error-coloured asterisk.
+
+<Canvas of={FieldStories.Required} />
+
+## When
+
+- Any labelled control in a form or dialog: a TextInput, a Textarea, a
+  Select, a ChipInput.
+
+## When not
+
+- Displaying a label–value pair → **Property**; Field is for editing.
+- It carries no helper or error text of its own — validation display is
+  the caller's, under the control.
+
+## How
+
+```tsx
+import { Field, TextInput } from '@estiva-app/ui'
+
+<Field label="Name" required>
+  <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+</Field>
+```
+
+The label is visual, not wired: also give the control its accessible name
+(`aria-label`, or an `id`/`htmlFor` pair of your own) so the two agree.
+
+## Props
+
+<Controls of={FieldStories.Default} />

@@ -1,0 +1,51 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ConfirmDialogStories from './ConfirmDialog.stories'
+
+<Meta of={ConfirmDialogStories} />
+
+# ConfirmDialog
+
+A question with two answers, asked before something a person would want
+back. Built on DialogShell; the body is plain sentences in `body-2`.
+
+<Canvas of={ConfirmDialogStories.Destructive} />
+
+## When
+
+- Before a deletion, an archive, a handover — anything hard to undo. The
+  confirm button is `destructive` when the action is.
+- A non-destructive but consequential step confirms with `primary`.
+
+## When not
+
+- Gathering input first → **DialogShell** with a form.
+- Telling someone what already happened → **Toast**.
+- Guarding something trivially reversible — don't; an undo beats a
+  question.
+
+## How
+
+```tsx
+import { ConfirmDialog } from '@estiva-app/ui'
+
+{confirming && (
+  <ConfirmDialog
+    title="Delete this?"
+    confirmLabel="Delete"
+    destructive
+    onConfirm={() => remove()}
+    onClose={() => setConfirming(false)}
+  >
+    <p>This removes it for everyone. There is no undo.</p>
+  </ConfirmDialog>
+)}
+```
+
+- While `onConfirm` runs, both buttons wait. Resolving `false` keeps the
+  dialog open — your surface has said why; a resolved `void`/`true`
+  closes it.
+- Escape and the backdrop click cancel, via the shell.
+
+## Props
+
+<Controls of={ConfirmDialogStories.Destructive} />

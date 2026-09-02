@@ -1,0 +1,57 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ButtonStories from './Button.stories'
+
+<Meta of={ButtonStories} />
+
+# Button
+
+The push-button for an action: a verb, clicked once — "Create", "Save",
+"Delete project". Four variants on one geometry: 32px default / 24px small,
+6px radius, medium weight.
+
+<Canvas of={ButtonStories.AllVariants} />
+
+## When
+
+- **`primary`** — the one action the surface exists for. At most one per
+  surface. It reads in `text-inverse` on the accent; the theme decides what
+  both of those are.
+- **`outlined`** — a real alternative standing beside the primary ("Cancel"
+  next to "Save"), or a lone action that needs an edge to be found at all.
+- **`muted`** — the default, and most buttons. Anything that should not
+  compete for attention: dialog dismissals, secondary page actions.
+- **`destructive`** — "Delete …" and its kind: the muted button in the
+  error colour. A destructive action is a button like any other, not a
+  dotted link — it is guarded by a ConfirmDialog, not by being hard to see.
+
+## When not
+
+- An icon with no label → **IconButton**.
+- Going somewhere rather than doing something → **Tabs**, **Breadcrumb**,
+  or a plain link.
+- Choosing a value → **Select**. Acting from a popover list → **MenuItem**.
+- A control the person may never be allowed to use is **absent, not
+  disabled**. `disabled` is for *momentarily* unavailable — and it says why,
+  with a Tooltip ("Available after sign-in").
+
+## How
+
+```tsx
+import { Button } from '@estiva-app/ui'
+import { IconPlus } from '@tabler/icons-react'
+
+<Button variant="primary" leadingIcon={<IconPlus stroke={1.5} className="size-4" />} onClick={create}>
+  New document
+</Button>
+```
+
+- `leadingIcon` is 16px at stroke 1.5 (14px, `size-3.5`, on `small`); the
+  button balances its own padding around it.
+- `type` defaults to `"button"` — inside a form it submits only when you
+  say `type="submit"`.
+- It is a native `<button>`, and every native prop passes through; the
+  visible label is the accessible name, so no `aria-label` is needed.
+
+## Props
+
+<Controls of={ButtonStories.Primary} />
