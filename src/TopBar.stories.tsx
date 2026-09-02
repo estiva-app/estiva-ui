@@ -27,7 +27,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const face = <PersonTrigger compact name="Ana Duarte" aria-label="Account" size={36} />
+const face = <PersonTrigger name="Ana Duarte" />
 const menuButton = (
   <IconButton tooltip="Toggle menu" tooltipPlacement="bottom" aria-label="Toggle menu">
     <IconMenu2 size={16} stroke={1.5} />

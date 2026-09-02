@@ -32,7 +32,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const identity = <PersonTrigger compact name="Ana Duarte" aria-label="Account" size={36} />
+const identity = <PersonTrigger name="Ana Duarte" />
 const menuButton = (
   <IconButton tooltip="Toggle menu" tooltipPlacement="bottom" aria-label="Toggle menu">
     <IconMenu2 size={16} stroke={1.5} />
@@ -59,7 +59,7 @@ export const Solid: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="⌘ K" className="w-[290px]" />} identity={identity} nav={sidebar}>
       <div className="flex h-full items-center justify-center">
-        <EmptyState message="No documents yet. Create the first one." />
+        <EmptyState message="Nothing here yet." />
       </div>
     </AppShell>
   ),
@@ -70,7 +70,7 @@ export const SolidWithBanner: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} banner={<Banner tone="ok">Public key copied.</Banner>}>
       <div className="flex h-full items-center justify-center">
-        <EmptyState message="No documents yet. Create the first one." />
+        <EmptyState message="Nothing here yet." />
       </div>
     </AppShell>
   ),

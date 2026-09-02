@@ -46,7 +46,7 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
   variant="floating"
   menu={menuButton}
   logo="Estiva"
-  identity={<IdentityMenu compact me={me} signedIn={signedIn} />}
+  identity={<IdentityMenu me={me} signedIn={signedIn} />}
   banner={notice && <Banner tone={notice.tone}>{notice.text}</Banner>}
   nav={<Rail>…</Rail>}
 >
