@@ -75,11 +75,22 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | Data is on its way | **Skeleton** — shaped like what will arrive |
 | Nothing to show | **EmptyState** — says what would fill it |
 | It happened, briefly | **Toast**, via `useToast` inside a `ToastProvider` |
+| The whole surface has something to say | **Banner** — the strip under the top bar |
+
+## The frame
+
+| You need | Reach for |
+|---|---|
+| The classic frame: bar, navigation, content | **AppShell** |
+| The 52px bar alone | **TopBar** — `solid` in flow, or `floating` over the content |
+| A 240px navigation column | **Sidebar**, filled with **NavItem** rows |
+| A 64px icon strip | **Rail**, filled with **RailItem** tiles |
+| The burger and the logo | the TopBar's `menu` and `brand` slots — collapsing stays yours |
 
 ## Deliberately not in the package
 
 - Anything that knows your **product's objects** — its documents, threads,
   files, tickets. Build it in your app, out of these parts, and keep its
   stories in your app's own Storybook.
-- The application frame — top bar, sidebar, page layouts — not here yet;
-  it is the next batch.
+- Page layouts — panels inside the content, split views, side rails —
+  not here yet; they are the next batch.
