@@ -1,0 +1,59 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as TopBarStories from './TopBar.stories'
+
+<Meta of={TopBarStories} />
+
+# TopBar
+
+The 52px top bar: `menu` and `brand` on the left, a `search` slot in the
+centre, the identity cluster on the right. Two manners — **`solid`**, in
+flow with a hairline and a surface, and **`floating`**, an overlay with
+neither, whose bar ignores the pointer so the content underneath stays
+reachable.
+
+<Canvas of={TopBarStories.Solid} />
+
+<Canvas of={TopBarStories.Floating} />
+
+## When
+
+- **`solid`** — the frame's first row, above a banner and the sidebar
+  (AppShell wires exactly this).
+- **`floating`** — an app whose content runs to the top edge; the bar
+  floats over it and only its clusters catch clicks.
+- `menu` is the burger, in an app whose navigation collapses — the
+  collapsing itself stays the caller's. `brand` sits beside it: the app's
+  name as text, or a logo mark.
+- The `search` slot holds its place even while empty, so a search field
+  drops in later without moving anything.
+
+## When not
+
+- Page-level headers inside the content → not this; this is the frame's
+  bar, once per app.
+- Anything the bar would need to know — who you are, what is searched —
+  stays outside: pass composed slots.
+
+## How
+
+```tsx
+import { TopBar, IdentityMenu, SearchInput } from '@estiva-app/ui'
+
+<TopBar
+  brand="Estiva"
+  search={<SearchInput shortcut="⌘ K" className="w-[290px]" />}
+  right={<IdentityMenu compact me={me} signedIn={signedIn} />}
+/>
+```
+
+- Geometry is fixed: 52px, `pl-5 pr-[26px]`, right cluster `gap-[6px]` —
+  don't restyle it per app.
+- In `floating`, a launcher-affordance search is the caller's trick: keep
+  the input `pointer-events-none` and open the launcher from a wrapper's
+  `mousedown` (see SearchInput's page).
+- The frame is desktop-only for now — there is no narrow-screen
+  behaviour; the burger collapses panels, it does not open a drawer.
+
+## Props
+
+<Controls of={TopBarStories.Solid} />
