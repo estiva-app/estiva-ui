@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.4.0 — 2026-09-02
+
+### Fixed
+
+- **`Field`'s label now names its control** (SHA-17). It rendered a `<label>`
+  with no `htmlFor` and the control as its *sibling*, so there was neither an
+  explicit nor an implicit association: a screen reader announced an unlabelled
+  edit box, and clicking the label focused nothing.
+
+  It surfaced in a consumer's test — `getByLabelText(/title/i)` failing with
+  *"Found a label with the text of: /title/i, however no form control was found
+  associated to that label"* — and that consumer queried by role instead. The
+  guard belongs here.
+
+  `Field` generates an id with `useId` and provides it through context;
+  `TextInput` and `Textarea` adopt it. `Select` was already reachable, because
+  it takes an `ariaLabel` its callers pass.
+
+### Added
+
+- **`Field` takes `htmlFor`**, for when something outside has to name the
+  control — a form library, or an `aria-describedby` elsewhere.
+
+- **`useFieldControlId` is exported**, so a new primitive that renders a
+  labelable element can join in with one line.
+
+### Changed
+
+- **Inside a `Field`, the Field's id wins over an `id` on the control.** Only
+  one of the two places can set both halves of the association; letting the
+  control win leaves the label pointing at the generated id and reproduces the
+  defect above. Pass `htmlFor` to the `Field` instead. Outside a Field nothing
+  changes — the control keeps its own id.
+
+### Notes for consumers
+
+The automatic alternative — nesting the control inside the `<label>` — labels
+anything by construction and needs no cooperation from the control. It is not
+used here: a control that is both nested in a label and named by its `htmlFor`
+can take two activations from one click, which is a real hazard for a checkbox
+and this library has one.
+
+These are the package's first DOM tests. `environment: 'jsdom'` is set per-file
+rather than globally, because setting it globally broke `tokens.test.ts`, which
+reads `tokens.css` through `import.meta.url`.
+
 ## 0.3.0 — 2026-09-02
 
 ### Added

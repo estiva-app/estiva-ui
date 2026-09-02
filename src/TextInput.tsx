@@ -1,5 +1,6 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from './cn'
+import { useFieldControlId } from './Field'
 
 /**
  * Peek's TextInput (2026-08-28): the inset field with a 8px radius, 14px
@@ -10,10 +11,13 @@ import { cn } from './cn'
  */
 export type TextInputProps = InputHTMLAttributes<HTMLInputElement>
 
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInput({ className, type = 'text', ...props }, ref) {
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInput({ className, type = 'text', id, ...props }, ref) {
+  // A surrounding Field names this control (SHA-17); an explicit id still wins.
+  const controlId = useFieldControlId(id)
   return (
     <input
       ref={ref}
+      id={controlId}
       type={type}
       className={cn(
         'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg px-3 py-2',
