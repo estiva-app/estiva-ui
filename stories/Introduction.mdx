@@ -4,9 +4,9 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 # @estiva-app/ui
 
-The shared foundation of every Estiva app — Peek, Ship, and whatever comes
-next: the **design tokens** (colour, type, radius, shadow) and a **small
-set of primitives** built on them.
+The shared foundation of every Estiva app's interface: the **design tokens**
+(colour, type, radius, shadow) and a **small set of primitives** built on
+them.
 
 **Tokens are the contract. Components are a convenience.** An app must not
 diverge from the token names. It may fork any component, freely, and owes
@@ -24,22 +24,13 @@ on the package's ticket, and never bend your view around a component.
 4. Every component's own page says **when** to use it, when **not** — with
    the alternative named — and **how**, with its stories live on the page.
 
-Use the **Theme** toolbar anywhere in this Storybook: the same names render
-under each app's values — `signal` is what Peek renders, `ship` what Ship
-renders.
+Use the **Theme** toolbar anywhere in this Storybook to see every page
+under each of the package's themes: the same token names, a different look.
 
-## What lives here, and what does not
+## What belongs here
 
-- Here: anything an app with documents and no conversations could use
-  unchanged. Its stories need no app data.
-- Not here: anything that knows what a topic, an issue, a huddle or a
-  folder is. That belongs to the app, in the app's own Storybook.
-
-## Where it comes from
-
-The token names and the `signal` values are Peek's, verbatim — Peek is the
-visual reference and must render unchanged after consuming this package.
-`ship` is Ship's palette, ruled by its designer. Primitives are extracted
-from production one at a time, screenshot-compared before and after — and
-shared never means averaged: each surface keeps its own measurements unless
-a unification is explicitly ruled.
+- In the package: components that know nothing about any product — built
+  from tokens, generic over their content, with stories that need no app
+  data.
+- In your app: anything that knows your product's objects. Build it there,
+  out of these parts, and keep its stories in your app's own Storybook.

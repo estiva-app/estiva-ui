@@ -24,10 +24,6 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
   error colour. A destructive action is a button like any other, not a
   dotted link — it is guarded by a ConfirmDialog, not by being hard to see.
 
-**Words:** the label is a verb phrase, sentence case — "Create issue",
-"Save changes". A destructive label names its object — "Delete project",
-never a bare "Delete".
-
 ## When not
 
 - An icon with no label → **IconButton**.
@@ -45,7 +41,7 @@ import { Button } from '@estiva-app/ui'
 import { IconPlus } from '@tabler/icons-react'
 
 <Button variant="primary" leadingIcon={<IconPlus stroke={1.5} className="size-4" />} onClick={create}>
-  New issue
+  New document
 </Button>
 ```
 
@@ -59,8 +55,3 @@ import { IconPlus } from '@tabler/icons-react'
 ## Props
 
 <Controls of={ButtonStories.Primary} />
-
----
-
-*Provenance: Peek's Button, verbatim (2026-08-28); Ship added `destructive`
-and the `type="button"` default.*

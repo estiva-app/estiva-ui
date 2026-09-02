@@ -28,7 +28,7 @@ import { SectionLabel } from './SectionLabel'
  */
 export interface MenuProps {
   onClose: () => void
-  /** Viewport coordinates; the menu is portalled, hung from `top`, and aligned to whichever edge is given (Peek anchors both ways). */
+  /** Viewport coordinates; the menu is portalled, hung from `top`, and aligned to whichever edge is given. */
   position?: { top: number; right: number } | { top: number; left: number }
   children: ReactNode
   className?: string
@@ -83,7 +83,7 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   size?: 'default' | 'tall'
   /** A second line under the label — a role, an address — 12px, secondary, truncating. */
   description?: string
-  /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar — Peek's mention rows lead with a face. */
+  /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face. */
   leading?: ReactNode
   /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
   trailing?: ReactNode

@@ -97,9 +97,8 @@ swallows the mousedown, exactly as IdentityMenu's does:
 Hover-opening, and submenus. A hover-opened menu owes the five popover
 rules (see the README — stay open over the menu, close on leave, guard the
 parent's hover); the shell gives only the two click-opened exits, so the
-hover choreography is the caller's. The one submenu in production
-(Peek's conversation more-menu) keeps its hover logic in the app — if a
-second menu needs a submenu, the shell learns it then.
+hover choreography is the caller's. Submenus likewise stay caller-owned —
+if a second menu needs one, the shell learns it then.
 
 ### Alignment
 
@@ -110,9 +109,3 @@ default, matching the default rows.
 ## Props
 
 <Controls of={MenuStories.Items} />
-
----
-
-*Provenance: Ship's shell, extracted 2026-09-01 for every menu in every
-app; the tall row's 40px floor and the secondary headings are rulings of
-2026-09-01.*
