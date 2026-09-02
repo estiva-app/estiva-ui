@@ -1,0 +1,52 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SectionHeaderStories from './SectionHeader.stories'
+
+<Meta of={SectionHeaderStories} />
+
+# SectionHeader
+
+The 32px row a section starts with: a SectionLabel, an optional collapse
+chevron that makes the whole row the toggle, and actions that appear on
+hover as IconButtons with tooltips.
+
+<Canvas of={SectionHeaderStories.WithActions} />
+
+## When
+
+- A sidebar or panel section that collapses, or that carries its own
+  actions — add, sort, filter.
+- `showActions="always"` keeps the actions visible — for touch, or for a
+  section whose actions are the point.
+
+<Canvas of={SectionHeaderStories.Collapsible} />
+
+## When not
+
+- A title with no chevron and no actions → **SectionLabel** alone.
+- A heading inside a menu → **MenuSection**.
+- Page-level headings → the `h*` type tokens.
+
+## How
+
+```tsx
+import { SectionHeader } from '@estiva-app/ui'
+import { IconPlus } from '@tabler/icons-react'
+
+<SectionHeader
+  title="Sections"
+  chevron
+  isExpanded={expanded}
+  onToggle={() => setExpanded((v) => !v)}
+  actions={[{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: add }]}
+/>
+```
+
+- An action is `{ icon, tooltip, onClick }` — the tooltip doubles as the
+  action's accessible name, and an action's click never also toggles the
+  section.
+- With `chevron`, the whole row is the toggle — no separate hit target to
+  find.
+
+## Props
+
+<Controls of={SectionHeaderStories.Plain} />

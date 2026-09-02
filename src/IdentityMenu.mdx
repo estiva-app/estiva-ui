@@ -1,0 +1,62 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as IdentityMenuStories from './IdentityMenu.stories'
+
+<Meta of={IdentityMenuStories} />
+
+# IdentityMenu
+
+Who you are, and where you are: the identity trigger for a top bar, and
+the menu it opens — ready-made, because every app needs one and it is
+built of nothing but shared parts.
+
+<Canvas of={IdentityMenuStories.SignedIn} />
+
+## When
+
+- The account control of any app. The trigger is a face and a name —
+  never a key — or, `compact`, the face alone at 36px.
+- Anonymous is the silhouette and the word "Anonymous": the truth of the
+  situation rather than hex posing as a name.
+- **Every section hides when the app cannot fill it** — no `relayUrl`, no
+  workspace section; no `onCopyKey`, no copy item; no `idBase`, no
+  sign-in surface. Only offer actions that can succeed. The MinimalApp
+  story is the floor: identity alone.
+
+<Canvas of={IdentityMenuStories.MinimalApp} />
+
+## When not
+
+- Any other menu → **Menu**.
+- Showing a person who is not the viewer → **Person**.
+- A trigger that opens something of your own → **PersonTrigger** plus
+  your menu.
+
+## How
+
+```tsx
+import { IdentityMenu } from '@estiva-app/ui'
+
+<IdentityMenu
+  me={{ name: me.name, picture: me.picture, email: me.email }}
+  signedIn={signedIn}
+  relayUrl={relayUrl}
+  idBase={ID_BASE}
+  onSignOut={signOut}
+/>
+```
+
+- App-specific rows go through `children`, drawn as their own group
+  between the workspace section and the actions. Pass a function to
+  receive `close`, so a row can shut the menu before opening what it
+  opens.
+- Items are text only — no icons in this menu, by ruling.
+- **IdentityPanel** is exported alone for a surface that wants the panel
+  without the trigger; the stories render it, so the designed artifact is
+  what you review.
+- The trigger's toggle, `aria-expanded`, and the accessible-name rules
+  (the row is named by the person; only the bare compact face takes an
+  `aria-label`) are wired inside — bring nothing.
+
+## Props
+
+<Controls of={IdentityMenuStories.SignedIn} />

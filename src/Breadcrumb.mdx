@@ -1,0 +1,52 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as BreadcrumbStories from './Breadcrumb.stories'
+
+<Meta of={BreadcrumbStories} />
+
+# Breadcrumb
+
+A trail: where you are, and the way back up. Crumbs, muted slashes
+between them, and a tooltip on any crumb that has had to truncate.
+
+<Canvas of={BreadcrumbStories.OnAnItem} />
+
+## When
+
+- The top of a detail page: parents first, the current place last.
+- A crumb with an `href` is a link — even the last one, when a page ends
+  its trail on somewhere to go. The last item without one is "you are
+  here" (`aria-current="page"`).
+- `mono` sets a crumb in the mono face for a ref or an id — and a mono
+  crumb **never gives up width** to a long name beside it; the name
+  truncates, the ref stays whole.
+
+<Canvas of={BreadcrumbStories.LongName} />
+
+## When not
+
+- Switching between sibling views of one thing → **Tabs**.
+- Just a page title → the `h*` type tokens; a one-item trail says
+  nothing.
+
+## How
+
+```tsx
+import { Breadcrumb } from '@estiva-app/ui'
+
+<Breadcrumb
+  items={[
+    { label: 'Documents', href: '#/documents' },
+    { label: 'Quarterly plan', href: '#/documents/12' },
+    { label: 'DOC-12', mono: true },
+  ]}
+/>
+```
+
+- Truncation is re-measured as the trail resizes; the tooltip appears and
+  disappears with the room the trail actually has. Give the trail a
+  `min-w-0` container so it can truncate at all.
+- The separators are `aria-hidden` — the trail reads as its places.
+
+## Props
+
+<Controls of={BreadcrumbStories.OnAnItem} />

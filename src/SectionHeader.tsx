@@ -18,7 +18,7 @@ import { SectionLabel } from './SectionLabel'
  * order.
  */
 export interface SectionAction {
-  /** 16px, stroke 1.5 — as Peek draws them. */
+  /** 16px, stroke 1.5. */
   icon: ReactNode
   tooltip: string
   onClick: () => void
@@ -32,7 +32,7 @@ export interface SectionHeaderProps {
   onToggle?: () => void
   /** Right-aligned, in the order given. */
   actions?: SectionAction[]
-  /** `hover` reveals the actions only while the row is hovered (Peek's Desk behaviour); `always` keeps them. */
+  /** `hover` reveals the actions only while the row is hovered; `always` keeps them. */
   showActions?: 'hover' | 'always'
   className?: string
 }

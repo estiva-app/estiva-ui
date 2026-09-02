@@ -27,7 +27,7 @@ export interface Identity {
   /** From `kind:0`. Absent means anonymous. */
   name?: string
   picture?: string
-  /** Known to Estiva ID, never published to the relay (PEEK-50). */
+  /** Known to Estiva ID, never published to the relay. */
   email?: string
 }
 
@@ -42,14 +42,13 @@ export interface IdentityMenuProps {
   /** "Copy public key" appears only when the app can supply one. */
   onCopyKey?: () => void
   onSignOut?: () => void
-  /** Face-only trigger — Peek's top-bar shape (36px). */
+  /** Face-only trigger, 36px — no chevron, no name beside it. */
   compact?: boolean
   className?: string
   /**
    * App-specific rows, drawn as their own group between the workspace
-   * section and the actions (Peek's Read state readout, say). A function
-   * receives `close`, so a row can shut the menu before opening what it
-   * opens.
+   * section and the actions. A function receives `close`, so a row can
+   * shut the menu before opening what it opens.
    */
   children?: ReactNode | ((close: () => void) => ReactNode)
 }

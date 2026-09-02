@@ -21,7 +21,7 @@ export interface TabDef<T extends string> {
   label: string
   /** Shown as a muted mono number after the label. Absent draws nothing; 0 is drawn. */
   count?: number
-  /** 16px, stroke 1.5 — as Peek draws them. */
+  /** 16px, stroke 1.5. */
   icon?: ReactNode
 }
 
@@ -29,7 +29,7 @@ export interface TabsProps<T extends string> {
   tabs: TabDef<T>[]
   active: T
   onChange: (id: T) => void
-  /** `default` 14px (Ship's); `small` 12px (Peek's TopicTabs as it ships). */
+  /** `default` 14px; `small` 12px, the denser geometry. */
   size?: 'default' | 'small'
   className?: string
 }

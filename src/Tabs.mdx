@@ -1,0 +1,53 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as TabsStories from './Tabs.stories'
+
+<Meta of={TabsStories} />
+
+# Tabs
+
+A row of tabs for switching between views of one thing. The selected tab
+is a neutral fill, not the accent — selection is a place, not a highlight.
+
+<Canvas of={TabsStories.WithCounts} />
+
+## When
+
+- Views of the same subject: all / unread / flagged, list / grid.
+- A tab's `count` is a muted mono number after the label, sharing its
+  baseline — the one way a number sits beside a label. A count of `0` is
+  still drawn ("Assigned to me · 0" is an answer); an absent count draws
+  nothing.
+- Two sizes: `default` (14px) and `small` (12px, the denser geometry).
+
+<Canvas of={TabsStories.WithAZero} />
+
+## When not
+
+- Going to a different place → links and **Breadcrumb**.
+- Choosing a value that gets saved → **Select**.
+- Actions → **Button**s; a tab never *does*, it *shows*.
+
+## How
+
+```tsx
+import { Tabs } from '@estiva-app/ui'
+
+<Tabs
+  tabs={[
+    { id: 'all', label: 'All', count: total },
+    { id: 'unread', label: 'Unread', count: unread },
+  ]}
+  active={tab}
+  onChange={setTab}
+/>
+```
+
+- Generic over the id type — `onChange` hands back your union, not a
+  string.
+- It renders `role="tablist"` / `role="tab"` with `aria-selected`;
+  switching is by click (there is no arrow-key roving), and wiring the
+  panels — what shows for the active tab — is the caller's.
+
+## Props
+
+<Controls of={TabsStories.NoCounts} />
