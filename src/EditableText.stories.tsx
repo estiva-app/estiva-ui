@@ -9,7 +9,7 @@ const meta = {
     value: 'Team charter',
     placeholder: 'Add a title',
     label: 'Title',
-    onCommit: () => true,
+    onCommit: () => true as boolean,
     className: 'text-[16px] leading-[1.4] font-medium',
   },
   argTypes: { onCommit: { control: false } },
