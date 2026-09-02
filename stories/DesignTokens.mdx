@@ -1,59 +1,45 @@
 import { Meta } from '@storybook/addon-docs/blocks'
-import {
-  ColorGrid,
-  SemanticGrid,
-  TypeRamp,
-  RadiusGrid,
-  ShadowGrid,
-  BG,
-  TEXT,
-  BORDER,
-  ACCENT,
-  SEMANTIC,
-  TYPE,
-  RADIUS,
-  SHADOW,
-} from './Swatches'
+import { Palette, TypeSpecimens, Radii, Shadows } from './Swatches'
 
 <Meta title="Docs/Design Tokens" />
 
 # Design Tokens
 
-Every Estiva component references these tokens, never raw hex. Each swatch
-reads a live CSS variable, so it shows the theme selected in the **Theme**
-toolbar: `signal` is what Peek renders, `ship` what Ship renders. The names are
-the ones you use in code: a colour token `bg-surface` is the Tailwind class
-`bg-bg-surface`; a type token `body-2` is `text-body-2`.
+The vocabulary every Estiva surface is written in — never raw hex. Every
+swatch reads its live CSS variable, so the **Theme** toolbar switches this
+whole page: `signal` is what Peek renders, `ship` what Ship renders.
 
-> Source of truth: `tailwind-preset.js` (the names, plus the type / radius /
-> shadow scales) and `tokens.css` (the values, one block per theme).
-> `npm test` checks that every theme defines every name, and no other.
+The name is the class: colour token `surface` in the Background row is
+`bg-bg-surface`, text colour `secondary` is `text-text-secondary`, type
+token `body-2` is `text-body-2`. The names live in `tailwind-preset.js`,
+the values in `tokens.css` (one block per theme), and `npm test` proves
+every theme defines every name — and no other.
 
 ## Colour
 
-<ColorGrid title="Background" tokens={BG} />
-<ColorGrid title="Text" tokens={TEXT} />
-<ColorGrid title="Border" tokens={BORDER} />
-<ColorGrid title="Accent" tokens={ACCENT} />
-<SemanticGrid pairs={SEMANTIC} />
+<Palette />
 
-Each semantic pair shows **default** (left) and **muted** (right) — muted is the
-tint used for chips, banners and notification chrome.
+Text tokens are shown doing their job — `inverse` sits on the accent, where
+it lives. Semantic pairs show **default** left, **muted** right; muted is
+the tint for chips, banners and notification chrome.
 
-## Typography
+## Type
 
-Font family is **Geist**. The ramp pairs headings, body, and component-specific
-sizes. Component tokens (`btn-*`, `input-*`, `chip`) are deliberately explicit —
-in shared components prefer arbitrary values (`text-[12px] leading-[12px]`),
-because tailwind-merge silently drops a custom size class that is followed by a
-`text-{colour}` class.
+Geist, throughout. Token size classes are safe in `cn()` merges — the
+package's `cn` is taught this ramp (the README's tailwind-merge note has
+the history).
 
-<TypeRamp tokens={TYPE} />
+<TypeSpecimens />
 
 ## Radius
 
-<RadiusGrid tokens={RADIUS} />
+<Radii />
 
 ## Shadow
 
-<ShadowGrid tokens={SHADOW} />
+<Shadows />
+
+---
+
+*If the colour you need has no token, the token is missing: add it here, in
+every theme — never hex in an app.*
