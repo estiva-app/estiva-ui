@@ -1,0 +1,110 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Getting started" />
+
+# Getting started
+
+Wiring a new Estiva app to the package, in six steps. After these, every
+component on these pages works in your app — right theme, right sizes,
+right scrollbars.
+
+## 1 · Install
+
+```bash
+npm install @estiva-app/ui
+```
+
+Peers you provide: `react` / `react-dom` 19, `tailwindcss` 3.4, and
+`@tabler/icons-react` — the icon set every component and example draws from.
+
+## 2 · The Tailwind preset — and the content spread
+
+```js
+// tailwind.config.js
+import estiva, { estivaContent } from '@estiva-app/ui/tailwind-preset'
+
+export default {
+  presets: [estiva],
+  content: [...estivaContent, './index.html', './src/**/*.{ts,tsx}'],
+}
+```
+
+The spread is not optional. Tailwind does not merge `content` from a
+preset, so without it every class only these components use is purged —
+the build succeeds, and components render at the wrong size.
+
+## 3 · The stylesheets
+
+```css
+/* your entry CSS, before anything that uses a token */
+@import '@estiva-app/ui/tokens.css';
+@import '@estiva-app/ui/base.css';
+```
+
+`tokens.css` is the token values, one block per theme. `base.css` is the
+shared chrome that is not a token — the thin, token-coloured scrollbar
+every Estiva app shows.
+
+## 4 · Pick a theme
+
+```html
+<html data-theme="ship">
+```
+
+| Theme | Selected by | Whose |
+|---|---|---|
+| `signal` | `data-theme="signal"` (Peek itself uses the classes `dark signal`) | Peek |
+| `ship` | `data-theme="ship"` | Ship |
+| `dark` | `data-theme="dark"` | the base under Signal |
+| `light` | nothing | the `:root` base; Estiva ID |
+
+A new app starts on one of these. Its own look, when it earns one, is **one
+new block in `tokens.css`** defining every token — the package's test holds
+every theme to the full set, so nothing can half-exist.
+
+## 5 · Merge classes with the package `cn()`
+
+```tsx
+import { cn } from '@estiva-app/ui'
+```
+
+It is tailwind-merge taught this preset's type ramp: token size classes
+(`text-body-2`, `text-caption`) survive merging next to a text colour.
+Stock `twMerge` silently drops them — don't bring your own.
+
+## 6 · First screen
+
+```tsx
+import { Button, Field, TextInput, ToastProvider, useToast } from '@estiva-app/ui'
+
+function NewThing() {
+  const { showToast } = useToast()
+  return (
+    <div className="flex max-w-sm flex-col gap-4 p-6">
+      <Field label="Name" required>
+        <TextInput placeholder="What is it called?" />
+      </Field>
+      <Button variant="primary" onClick={() => showToast({ label: 'Created' })}>
+        Create
+      </Button>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <NewThing />
+    </ToastProvider>
+  )
+}
+```
+
+## Where next
+
+- **[Choosing a component](?path=/docs/docs-choosing-a-component--docs)** —
+  what to reach for, by what you need.
+- Each component's page: when, when not — with the alternative named — and
+  how.
+- The README's rules travel with the package: fork freely; tokens, never
+  raw hex; the five popover rules; only offer actions that can succeed.

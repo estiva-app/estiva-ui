@@ -1,0 +1,86 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Choosing a component" />
+
+# Choosing a component
+
+Find what you need; take the row. When nothing fits, build it in your app —
+and if what you built knows no topic, issue or file, propose it for the
+package. A component that nearly fits is **forked, not fought**: fork
+freely, owe nothing back, mention it on the package's ticket.
+
+## An action
+
+| You need | Reach for |
+|---|---|
+| A labeled action — a verb, clicked once | **Button** — `primary` at most once per surface |
+| An icon-only action | **IconButton** — it requires an `aria-label` |
+| An action in a popover list | **MenuItem**, inside a **Menu** |
+| A destructive action | **Button** `destructive`, guarded by a **ConfirmDialog** |
+
+## A choice
+
+| You need | Reach for | Not |
+|---|---|---|
+| One value for a form field | **Select** | a Menu — Select's trigger shows the value |
+| Several values, typed then removable | **ChipInput** | checkboxes in a Menu |
+| Yes or no | **Checkbox** | a toggle we don't have |
+| Switching between views of one thing | **Tabs** | a row of Buttons |
+| View options behind a `…` | **Menu**, `selected` on the current row | Select |
+| Rows of checkboxes that stay open | a list in a **DialogShell** | a Menu — a Checkbox inside a `menuitem` is invalid HTML |
+
+## Typing
+
+| You need | Reach for |
+|---|---|
+| One line | **TextInput** |
+| Several lines | **Textarea** |
+| Typing that filters a list | **SearchInput** |
+| A title edited in place | **EditableText** |
+| Label and required-mark around any control | **Field** |
+
+## People
+
+| You need | Reach for |
+|---|---|
+| One face | **Avatar** |
+| Several faces, overlapping | **AvatarGroup** |
+| Face and name in a row | **Person** |
+| The face that opens a menu | **PersonTrigger** |
+| Who you are, where you are, sign out | **IdentityMenu** — the account menu, ready-made |
+
+## Floating surfaces
+
+| You need | Reach for |
+|---|---|
+| A list of verbs from a trigger | **Menu** — Escape and outside-click come with it |
+| A hint on hover | **Tooltip** / **WithTooltip** |
+| Anything with a title, body and footer | **DialogShell** |
+| "Are you sure?" | **ConfirmDialog** |
+
+## Structure and wayfinding
+
+| You need | Reach for |
+|---|---|
+| Label–value rows (a details rail) | **Property** — `row` and `stacked` |
+| A section heading, chevron, hover actions | **SectionHeader** |
+| The uppercase micro-label | **SectionLabel** |
+| A hairline | **Divider** |
+| Where am I, and the way back up | **Breadcrumb** |
+
+## Feedback
+
+| You need | Reach for |
+|---|---|
+| Data is on its way | **Skeleton** — shaped like what will arrive |
+| Nothing to show | **EmptyState** — says what would fill it |
+| It happened, briefly | **Toast**, via `useToast` inside a `ToastProvider` |
+
+## Deliberately not in the package
+
+- Anything that knows a **topic, issue, message or file** — the app's own,
+  in the app's Storybook.
+- **Banner** and **ProgressBar** — still app-local in Ship; Banner is
+  slated for the frame batch.
+- The app frame itself — top bar, sidebar, navigation — arriving as the
+  next batch, with the layouts after it.

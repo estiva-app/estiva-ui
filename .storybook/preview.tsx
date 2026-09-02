@@ -112,7 +112,7 @@ const preview: Preview = {
     controls: { expanded: true },
     docs: { theme: themes.dark },
     options: {
-      storySort: { order: ['Docs', ['Introduction', 'Design Tokens'], 'Primitives', 'Inputs', 'Feedback', 'Overlays'] },
+      storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Feedback', 'Overlays'] },
     },
   },
   decorators: [withTheme],
