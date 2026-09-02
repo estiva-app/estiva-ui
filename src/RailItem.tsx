@@ -27,7 +27,7 @@ export function RailItem({ href, icon, label, active = false, className, ...prop
     <a
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={cn('group flex w-full flex-col items-center gap-0.5 px-2 py-0.5', className)}
+      className={cn('group flex w-full shrink-0 flex-col items-center gap-0.5 px-2 py-0.5', className)}
       {...props}
     >
       <div

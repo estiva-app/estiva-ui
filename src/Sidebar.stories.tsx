@@ -24,7 +24,7 @@ export const Composed: Story = {
     <Sidebar {...args}>
       <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" active />
       <NavItem href="#" label="Item two" icon={placeholder} count={5} countLabel="5 active" />
-      <div className="mt-2 flex h-8 items-center px-2">
+      <div className="mt-2 flex h-8 shrink-0 items-center px-2">
         <SectionLabel>Group</SectionLabel>
       </div>
       <NavItem href="#" label="Item three" count={7} countLabel="7 open" />
@@ -39,7 +39,7 @@ export const Scrolls: Story = {
   render: (args) => (
     <Sidebar {...args}>
       <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" />
-      <div className="mt-2 flex h-8 items-center px-2">
+      <div className="mt-2 flex h-8 shrink-0 items-center px-2">
         <SectionLabel>Group</SectionLabel>
       </div>
       {Array.from({ length: 16 }, (_, i) => (

@@ -32,7 +32,10 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-body-2 transition-colors',
+        // shrink-0: the row keeps its 32px inside an overflowing flex column
+        // — without it the list compresses instead of scrolling (the missing-
+        // shrink-0 family; Katerina, 2026-09-02).
+        'flex h-8 min-w-0 shrink-0 items-center gap-2 rounded-md px-2 text-body-2 transition-colors',
         active ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
         className,
       )}
