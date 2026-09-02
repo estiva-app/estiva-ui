@@ -26,7 +26,7 @@ const meta = {
     nav: { control: false },
     children: { control: false },
   },
-  decorators: [(Story) => <div className="h-[480px] overflow-hidden">{Story()}</div>],
+  decorators: [(Story) => <div className="h-screen overflow-hidden">{Story()}</div>],
 } satisfies Meta<typeof AppShell>
 
 export default meta

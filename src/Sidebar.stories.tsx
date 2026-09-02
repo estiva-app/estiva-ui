@@ -12,7 +12,7 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: { children: null },
   argTypes: { children: { control: false } },
-  decorators: [(Story) => <div className="flex h-96 bg-bg-base">{Story()}</div>],
+  decorators: [(Story) => <div className="flex h-screen bg-bg-base">{Story()}</div>],
 } satisfies Meta<typeof Sidebar>
 
 export default meta
