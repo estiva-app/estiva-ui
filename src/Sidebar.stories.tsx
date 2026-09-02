@@ -42,7 +42,7 @@ export const Scrolls: Story = {
       <div className="mt-2 flex h-8 shrink-0 items-center px-2">
         <SectionLabel>Group</SectionLabel>
       </div>
-      {Array.from({ length: 16 }, (_, i) => (
+      {Array.from({ length: 40 }, (_, i) => (
         <NavItem key={i} href="#" label={`Item ${i + 2}`} active={i === 2} count={((i * 7) % 9) + 1} countLabel={`${((i * 7) % 9) + 1} open`} />
       ))}
     </Sidebar>
