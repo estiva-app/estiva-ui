@@ -50,9 +50,9 @@ const sidebar = (
 
 const rail = (
   <Rail>
-    <RailItem href="#" label="Item one" icon={placeholder} active />
-    <RailItem href="#" label="Item two" icon={placeholder} />
-    <RailItem href="#" label="Item three" icon={placeholder} />
+    <RailItem href="#" label="Item" icon={placeholder} active />
+    <RailItem href="#" label="Item" icon={placeholder} />
+    <RailItem href="#" label="Item" icon={placeholder} />
   </Rail>
 )
 
