@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
 import { cn } from './cn'
 
 /**
@@ -32,11 +32,30 @@ export interface EditableTextProps {
    * — which is the failure a naive `value={stripped}` would cause.
    */
   display?: string
+  /**
+   * What to *draw* when not editing, when the value is structured rather than
+   * a line of prose.
+   *
+   * A node, not a string, because a heading and a bullet are elements. Added
+   * for a rich text field (SPEC §13): the app renders the parsed body and
+   * hands the result in.
+   *
+   * `display` stays the **string**, and stays what decides emptiness — so a
+   * blank field still shows its placeholder rather than an empty element. Like
+   * `display`, this overrides the display branch only: `value` is what the
+   * editor opens with and what a commit compares against, so what is edited is
+   * unchanged.
+   *
+   * `whitespace-pre-wrap` is dropped when this is set. Structured content
+   * carries its own line breaks, and preserving the source's as well doubles
+   * every one of them.
+   */
+  displayNode?: ReactNode
   /** Show the value only — no edit affordance. For a reader who cannot write. */
   readOnly?: boolean
 }
 
-export function EditableText({ value, display, placeholder, onCommit, multiline = false, className, label, readOnly = false }: EditableTextProps) {
+export function EditableText({ value, display, displayNode, placeholder, onCommit, multiline = false, className, label, readOnly = false }: EditableTextProps) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
   const [busy, setBusy] = useState(false)
@@ -97,9 +116,9 @@ export function EditableText({ value, display, placeholder, onCommit, multiline 
     return (
       <div
         aria-label={label}
-        className={cn('w-full px-2 py-1', multiline && 'whitespace-pre-wrap', (display ?? value) ? 'text-text-primary' : 'text-text-muted', className)}
+        className={cn('w-full px-2 py-1', multiline && !displayNode && 'whitespace-pre-wrap', (display ?? value) ? 'text-text-primary' : 'text-text-muted', className)}
       >
-        {(display ?? value) || placeholder}
+        {(display ?? value) ? (displayNode ?? (display ?? value)) : placeholder}
       </div>
     )
   }
@@ -139,12 +158,12 @@ export function EditableText({ value, display, placeholder, onCommit, multiline 
       aria-label={`Edit ${label.toLowerCase()}`}
       className={cn(
         'w-full rounded-md border border-transparent px-2 py-1 text-left transition-colors hover:border-border-default',
-        multiline && 'whitespace-pre-wrap',
+        multiline && !displayNode && 'whitespace-pre-wrap',
         (display ?? value) ? 'text-text-primary' : 'text-text-muted',
         className,
       )}
     >
-      {(display ?? value) || placeholder}
+      {(display ?? value) ? (displayNode ?? (display ?? value)) : placeholder}
     </button>
   )
 }
