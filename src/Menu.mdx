@@ -12,6 +12,8 @@ radius, 8px padding, the large shadow — and the two exits every menu owes,
 geometry is **MenuRow**, and **EnterHint** is the "↩ Enter" a picker row
 shows while highlighted.
 
+<Canvas of={MenuStories.Items} />
+
 ## When
 
 - A click-opened list of actions: a `…` more-menu, an account menu, a
@@ -24,6 +26,8 @@ shows while highlighted.
   `EnterHint` on the highlighted row.
 - Grouped choices where one is current: `MenuSection` over rows, `selected`
   on the chosen one.
+
+<Canvas of={MenuStories.Sections} />
 
 ## When not
 
@@ -63,6 +67,17 @@ Two anchorings:
   the body at fixed viewport coordinates, for triggers inside containers
   that scroll or clip.
 
+## Keys
+
+| Input | What happens |
+|---|---|
+| Escape | closes — the shell's listener, not the caller's |
+| `mousedown` outside | closes; the trigger swallows its own (see below) |
+| click inside the menu | stays open — the shell stops propagation |
+| Tab / Shift-Tab | moves focus through the rows (native buttons) |
+| Enter / Space on a focused row | activates it |
+| Arrow keys | nothing — a typeahead picker owns its own highlight |
+
 ### The trigger trap
 
 The outside-click exit listens on `mousedown`. A trigger that toggles on
@@ -92,10 +107,12 @@ A menu whose rows are `px-3` (tall picker rows) aligns its headings by
 passing `className="px-3"` to `MenuSection` — the heading row is `px-2` by
 default, matching the default rows.
 
-<Canvas of={MenuStories.Items} />
-
-<Canvas of={MenuStories.Sections} />
-
 ## Props
 
 <Controls of={MenuStories.Items} />
+
+---
+
+*Provenance: Ship's shell, extracted 2026-09-01 for every menu in every
+app; the tall row's 40px floor and the secondary headings are rulings of
+2026-09-01.*

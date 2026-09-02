@@ -9,6 +9,8 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 "Delete project". Four variants on one geometry: 32px default / 24px small,
 6px radius, medium weight.
 
+<Canvas of={ButtonStories.AllVariants} />
+
 ## When
 
 - **`primary`** — the one action the surface exists for. At most one per
@@ -21,6 +23,10 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 - **`destructive`** — "Delete …" and its kind: the muted button in the
   error colour. A destructive action is a button like any other, not a
   dotted link — it is guarded by a ConfirmDialog, not by being hard to see.
+
+**Words:** the label is a verb phrase, sentence case — "Create issue",
+"Save changes". A destructive label names its object — "Delete project",
+never a bare "Delete".
 
 ## When not
 
@@ -47,10 +53,14 @@ import { IconPlus } from '@tabler/icons-react'
   button balances its own padding around it.
 - `type` defaults to `"button"` — inside a form it submits only when you
   say `type="submit"`.
-- Every native `<button>` prop passes through.
-
-<Canvas of={ButtonStories.AllVariants} />
+- It is a native `<button>`, and every native prop passes through; the
+  visible label is the accessible name, so no `aria-label` is needed.
 
 ## Props
 
 <Controls of={ButtonStories.Primary} />
+
+---
+
+*Provenance: Peek's Button, verbatim (2026-08-28); Ship added `destructive`
+and the `type="button"` default.*
