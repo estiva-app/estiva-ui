@@ -1,0 +1,54 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as AppShellStories from './AppShell.stories'
+
+<Meta of={AppShellStories} />
+
+# AppShell
+
+The four regions of a framed app: a solid **TopBar**, a **Banner** slot,
+navigation, and the main column — sidebar and main scrolling
+independently, so a long list never scrolls the navigation away. Layout
+only: no data, no routes.
+
+<Canvas of={AppShellStories.Complete} />
+
+## When
+
+- An app framed the classic way: bar on top, navigation on the left,
+  content beside it.
+- The `sidebar` slot takes a **Sidebar** or a **Rail** alike.
+- `banner` sits full-width between the bar and the columns.
+
+<Canvas of={AppShellStories.WithABanner} />
+
+## When not
+
+- An app whose content runs edge to edge under a **floating TopBar** —
+  that frame is the app's own composition; take the TopBar and build the
+  rest.
+- Panels *inside* the main column — lists beside conversations, side
+  rails — are layout components, not the shell's business.
+
+## How
+
+```tsx
+import { AppShell, Banner, IdentityMenu, Sidebar } from '@estiva-app/ui'
+
+<AppShell
+  brand="Estiva"
+  identity={<IdentityMenu compact me={me} signedIn={signedIn} />}
+  banner={notice && <Banner tone={notice.tone}>{notice.text}</Banner>}
+  sidebar={<Sidebar>…</Sidebar>}
+>
+  {page}
+</AppShell>
+```
+
+- Give it a height: it fills `h-full` and manages `min-h-0` internally so
+  the two columns scroll apart.
+- `menu` and `search` pass through to the TopBar's slots.
+- Desktop only for now — no narrow-screen behaviour is provided.
+
+## Props
+
+<Controls of={AppShellStories.Complete} />
