@@ -1,0 +1,54 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ToastStories from './Toast.stories'
+
+<Meta of={ToastStories} />
+
+# Toast
+
+A pill that says what just happened — three types, an optional leading
+check, an optional action — and **ToastProvider**/**useToast**, which own
+the positioning (bottom-left), the portal, and the auto-dismiss.
+
+<Canvas of={ToastStories.AllTypes} />
+
+## When
+
+- Confirming an action's outcome, briefly: "Created", "Link copied",
+  "Changes saved".
+- `actionLabel` + `onAction` add the one follow-up worth offering — an
+  "Undo", a "View".
+- `neutral` states, `success` celebrates, `brand` speaks with the
+  accent's voice.
+
+<Canvas of={ToastStories.WithAction} />
+
+## When not
+
+- Something the person must read or act on → put it in the surface; a
+  toast dismisses itself.
+- A question before the action → **ConfirmDialog**.
+- Standing status → a Chip or your surface's own chrome.
+
+## How
+
+```tsx
+import { ToastProvider, useToast } from '@estiva-app/ui'
+
+// once, at the root
+<ToastProvider>{app}</ToastProvider>
+
+// anywhere below it
+const { showToast } = useToast()
+showToast({ label: 'Link copied', type: 'success' })
+```
+
+- **One toast at a time** — a new one replaces the standing one; nothing
+  queues.
+- Auto-dismiss is 5s; `durationMs: 0` keeps one up until replaced or
+  dismissed (`dismissToast`).
+- `useToast` outside a provider throws — mount the provider at the root,
+  once.
+
+## Props
+
+<Controls of={ToastStories.Neutral} />
