@@ -20,7 +20,7 @@ export { ChipInput, InputChip, type ChipInputOption, type ChipInputProps, type I
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'
 export { Tooltip, WithTooltip, type TooltipProps, type WithTooltipProps } from './Tooltip'
-export { Field, type FieldProps } from './Field'
+export { Field, useFieldControlId, type FieldProps } from './Field'
 export { Select, type SelectOption, type SelectProps } from './Select'
 export { TextInput, type TextInputProps } from './TextInput'
 export { Textarea, type TextareaProps } from './Textarea'
