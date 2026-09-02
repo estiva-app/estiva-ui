@@ -1,0 +1,36 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as TextareaStories from './Textarea.stories'
+
+<Meta of={TextareaStories} />
+
+# Textarea
+
+TextInput's look on a multi-line field that does not resize.
+
+<Canvas of={TextareaStories.Filled} />
+
+## When
+
+- Several lines in a form or dialog — a description, a message body. Label
+  it with a **Field**.
+
+## When not
+
+- One line → **TextInput**.
+- Editing text where it is displayed → **EditableText** with `multiline`.
+
+## How
+
+```tsx
+import { Textarea } from '@estiva-app/ui'
+
+<Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} />
+```
+
+- Resizing is off by design — size it with `rows` or your layout.
+- Native `<textarea>` with a ref; every native prop passes through; give
+  it an accessible name.
+
+## Props
+
+<Controls of={TextareaStories.Empty} />

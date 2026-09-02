@@ -1,0 +1,44 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CheckboxStories from './Checkbox.stories'
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+A 16px square that fills with the accent when checked. Controlled only —
+the parent owns the state.
+
+<Canvas of={CheckboxStories.Toggles} />
+
+## When
+
+- A yes/no the person sets: an option in a form, an include/exclude in a
+  list.
+- Inside a clickable row: pass **no `onChange`** and the square goes inert
+  — the row's own click does the toggling, and the checkbox just shows the
+  state.
+
+<Canvas of={CheckboxStories.InsideARow} />
+
+## When not
+
+- One choice out of several → **Select** (a value) or **Tabs** (a view).
+- Inside a **Menu** — a checkbox inside a `menuitem` is invalid HTML;
+  a checkable list lives in a DialogShell.
+
+## How
+
+```tsx
+import { Checkbox } from '@estiva-app/ui'
+
+<Checkbox checked={done} onChange={setDone} aria-label="Mark as done" />
+```
+
+- It renders as a button with the `checkbox` role, so it works standalone
+  or inside clickable rows; its click never bubbles to the row.
+- Give it an `aria-label` unless visible text right beside it names it.
+- Space or Enter toggles it, as any button.
+
+## Props
+
+<Controls of={CheckboxStories.Unchecked} />
