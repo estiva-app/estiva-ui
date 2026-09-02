@@ -50,7 +50,7 @@ export interface AvatarProps {
   name?: string
   /** Alt text for the picture; the name when absent. Also the initials' source when there is no name. */
   alt?: string
-  /** Pixels. Peek's scale: 16 · 24 · 32 · 36 (default). */
+  /** Pixels. The scale: 16 · 24 · 32 · 36 (default). */
   size?: number
   className?: string
 }

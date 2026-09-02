@@ -1,0 +1,51 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PropertyStories from './Property.stories'
+
+<Meta of={PropertyStories} />
+
+# Property
+
+A labelled property — "Status", "Lead", and whatever else a surface
+declares. Two layouts, one component.
+
+<Canvas of={PropertyStories.APanel} />
+
+## When
+
+- **`row`** — a details panel: a 68px `caption` label column that lines
+  the values up into a column of their own. The label reads `secondary` —
+  a property label is content, not a placeholder.
+- **`stacked`** — a rail or form-like column: the label above a
+  full-width control, in the 9px `menu` token, uppercase and
+  letter-spaced, 12px above its content.
+- An empty value is a muted em dash — show the property, not a blank.
+
+<Canvas of={PropertyStories.Stacked} />
+
+## When not
+
+- A **section title** → **SectionLabel** / **SectionHeader**. The stacked
+  label is deliberately not a SectionLabel — a field label and a section
+  title are different voices at different sizes.
+- A labelled **input** in a form → **Field** (label, required mark).
+
+## How
+
+```tsx
+import { Property } from '@estiva-app/ui'
+
+<Property label="Status">
+  <Chip type="success" label="Done" />
+</Property>
+
+<Property label="Assignee" layout="stacked">
+  <Select value={assignee} options={people} onChange={setAssignee} />
+</Property>
+```
+
+Any control sits inside — a Chip, a Person, a Select, plain text (the
+WithControls story shows the pairings).
+
+## Props
+
+<Controls of={PropertyStories.Row} />

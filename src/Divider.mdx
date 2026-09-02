@@ -1,0 +1,41 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as DividerStories from './Divider.stories'
+
+<Meta of={DividerStories} />
+
+# Divider
+
+A hairline in `border-subtle`. Horizontal it is inset 12px each side;
+`orientation="vertical"` stands it up to its row's height, no inset. It
+carries the `separator` role for assistive tech.
+
+<Canvas of={DividerStories.Default} />
+
+## When
+
+- Between groups in a **Menu** (`className="my-1"` gives it its breathing
+  room there).
+- Between sections of a panel or rail.
+- Vertical: between clusters in a toolbar or a dense row.
+
+<Canvas of={DividerStories.Vertical} />
+
+## When not
+
+- Between every row of a list — spacing does that; a hairline per row is
+  noise.
+- To title what follows → **SectionLabel** or **SectionHeader**; a heading
+  separates better than a line.
+
+## How
+
+```tsx
+import { Divider } from '@estiva-app/ui'
+
+<Divider />
+<Divider orientation="vertical" />
+```
+
+## Props
+
+<Controls of={DividerStories.Default} />

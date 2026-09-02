@@ -1,0 +1,44 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PersonStories from './Person.stories'
+
+<Meta of={PersonStories} />
+
+# Person
+
+A face beside a name — the inline mention of a human. The gap between face
+and name is one rule, 8px, wherever a person appears.
+
+<Canvas of={PersonStories.Sizes} />
+
+## When
+
+- A person named inline: an assignee, an author, a participant, a value in
+  a property row.
+- Someone with no published name shows the `fallback` — an em dash by
+  default, the same mark an empty property uses. Pass `"Anonymous"` where
+  the unnamed person is the viewer themself.
+
+## When not
+
+- The face alone → **Avatar**.
+- The person as a button that opens a menu → **PersonTrigger**.
+- A person as a row of a picker → **MenuItem** with an Avatar in `leading`
+  and a `description`.
+
+## How
+
+```tsx
+import { Person } from '@estiva-app/ui'
+
+<Person name={p.name} picture={p.picture} size={20} />
+```
+
+- Hand it strings — a name and a picture URL. It takes no key on purpose:
+  a component that accepted one would eventually show one.
+- It sets no text size of its own; the words inherit the caller's, so face
+  and words are always set together (the Sizes story shows the pairings).
+- The name truncates; give the container `min-w-0` room to let it.
+
+## Props
+
+<Controls of={PersonStories.Named} />

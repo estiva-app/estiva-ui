@@ -1,0 +1,39 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as AvatarGroupStories from './AvatarGroup.stories'
+
+<Meta of={AvatarGroupStories} />
+
+# AvatarGroup
+
+Up to three overlapping 24px faces with a surface-coloured ring — the
+member stack for anywhere a group is shown at a glance.
+
+<Canvas of={AvatarGroupStories.OverflowShowsThree} />
+
+## When
+
+- A compact "who's in this" — a members pill, a row's participants, a
+  card's crew. More than three members still draws three; the caller says
+  the count elsewhere if it matters.
+
+## When not
+
+- One person → **Avatar**.
+- Names need to be readable → a list of **Person** rows.
+
+## How
+
+```tsx
+import { AvatarGroup } from '@estiva-app/ui'
+
+<AvatarGroup members={people.map((p) => ({ name: p.name, picture: p.picture }))} />
+```
+
+- A member is a `name` plus an optional `picture` URL, resolved by the
+  caller — exactly as Avatar takes its `src`. No picture draws initials.
+- The ring rides on the Avatar itself (one box); don't wrap each face in a
+  clipping window — a window minus a border crops the initials.
+
+## Props
+
+<Controls of={AvatarGroupStories.ThreeMembers} />

@@ -22,7 +22,7 @@ export interface PersonTriggerProps
     Omit<ComponentPropsWithRef<'button'>, 'children'> {
   /** Whether what it opens is open — the row shape holds its hover fill while so. */
   open?: boolean
-  /** Face only — Peek's top-bar shape. Defaults the face to 36px; the row shape to 22px. */
+  /** Face only — no chevron, no hover fill. Defaults the face to 36px; the row shape to 22px. */
   compact?: boolean
 }
 
