@@ -10,25 +10,28 @@ const meta = {
   component: RailItem,
   args: { label: 'Item', href: '#', active: false, icon: placeholder },
   argTypes: { icon: { control: false } },
-  decorators: [(Story) => <div className="w-16">{Story()}</div>],
 } satisfies Meta<typeof RailItem>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+const tile = [(Story: () => React.ReactNode) => <div className="w-16">{Story()}</div>]
+
+export const Default: Story = { decorators: tile }
 
 /** Active fills the tile — and some themes give the icon their interactive colour. */
-export const Active: Story = { args: { active: true } }
+export const Active: Story = { args: { active: true }, decorators: tile }
 
-/** Three tiles standing in the Rail shell, one current. */
+/** The Rail shell as it stands in a frame: on the left, full height, tiles at the top. */
 export const InTheRail: Story = {
-  parameters: { controls: { disable: true } },
+  parameters: { layout: 'fullscreen', controls: { disable: true } },
   render: () => (
-    <Rail>
-      <RailItem href="#" label="Item" icon={placeholder} active />
-      <RailItem href="#" label="Item" icon={placeholder} />
-      <RailItem href="#" label="Item" icon={placeholder} />
-    </Rail>
+    <div className="flex h-screen bg-bg-base">
+      <Rail>
+        <RailItem href="#" label="Item" icon={placeholder} active />
+        <RailItem href="#" label="Item" icon={placeholder} />
+        <RailItem href="#" label="Item" icon={placeholder} />
+      </Rail>
+    </div>
   ),
 }
