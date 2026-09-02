@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconBox, IconListDetails } from '@tabler/icons-react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { NavItem } from './NavItem'
 import { SectionLabel } from './SectionLabel'
 import { Sidebar } from './Sidebar'
+
+const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 const meta = {
   title: 'Frame/Sidebar',
@@ -20,47 +22,28 @@ type Story = StoryObj<typeof meta>
 export const Composed: Story = {
   render: (args) => (
     <Sidebar {...args}>
-      <NavItem href="#" label="Documents" icon={<IconListDetails size={16} stroke={1.5} />} count={18} countLabel="18 open" active />
-      <NavItem href="#" label="Collections" icon={<IconBox size={16} stroke={1.5} />} count={5} countLabel="5 active" />
+      <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" active />
+      <NavItem href="#" label="Item two" icon={placeholder} count={5} countLabel="5 active" />
       <div className="mt-2 flex h-8 items-center px-2">
-        <SectionLabel>Collections</SectionLabel>
+        <SectionLabel>Group</SectionLabel>
       </div>
-      <NavItem href="#" label="Quarterly plan" count={7} countLabel="7 open" />
-      <NavItem href="#" label="Design system" count={2} countLabel="2 open" />
-      <NavItem href="#" label="Archive sweep" />
+      <NavItem href="#" label="Item three" count={7} countLabel="7 open" />
+      <NavItem href="#" label="Item four" count={2} countLabel="2 open" />
+      <NavItem href="#" label="Item five" />
     </Sidebar>
   ),
 }
-
-const MANY_COLLECTIONS = [
-  'Annual report',
-  'Brand refresh',
-  'Customer voices',
-  'Design system',
-  'Field notes',
-  'Hiring plan',
-  'Launch checklist',
-  'Market study',
-  'Onboarding flow',
-  'Partnerships',
-  'Pricing review',
-  'Quarterly plan',
-  'Research backlog',
-  'Roadmap drafts',
-  'Support playbook',
-  'Website rewrite',
-]
 
 /** The column scrolls on its own — a long list never scrolls the frame away. */
 export const Scrolls: Story = {
   render: (args) => (
     <Sidebar {...args}>
-      <NavItem href="#" label="Documents" icon={<IconListDetails size={16} stroke={1.5} />} count={18} countLabel="18 open" />
+      <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" />
       <div className="mt-2 flex h-8 items-center px-2">
-        <SectionLabel>Collections</SectionLabel>
+        <SectionLabel>Group</SectionLabel>
       </div>
-      {MANY_COLLECTIONS.map((name, i) => (
-        <NavItem key={name} href="#" label={name} active={i === 3} count={((i * 7) % 9) + 1} countLabel={`${((i * 7) % 9) + 1} open`} />
+      {Array.from({ length: 16 }, (_, i) => (
+        <NavItem key={i} href="#" label={`Item ${i + 2}`} active={i === 2} count={((i * 7) % 9) + 1} countLabel={`${((i * 7) % 9) + 1} open`} />
       ))}
     </Sidebar>
   ),

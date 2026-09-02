@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconHome, IconInbox, IconUsers } from '@tabler/icons-react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { Rail } from './Rail'
 import { RailItem } from './RailItem'
+
+const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 const meta = {
   title: 'Frame/RailItem',
   component: RailItem,
-  args: { label: 'Home', href: '#', active: false, icon: <IconHome size={16} stroke={1.5} /> },
+  args: { label: 'Item', href: '#', active: false, icon: placeholder },
   argTypes: { icon: { control: false } },
   decorators: [(Story) => <div className="w-16">{Story()}</div>],
 } satisfies Meta<typeof RailItem>
@@ -24,9 +26,9 @@ export const InTheRail: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <Rail>
-      <RailItem href="#" label="Home" icon={<IconHome size={16} stroke={1.5} />} active />
-      <RailItem href="#" label="Inbox" icon={<IconInbox size={16} stroke={1.5} />} />
-      <RailItem href="#" label="People" icon={<IconUsers size={16} stroke={1.5} />} />
+      <RailItem href="#" label="Item one" icon={placeholder} active />
+      <RailItem href="#" label="Item two" icon={placeholder} />
+      <RailItem href="#" label="Item three" icon={placeholder} />
     </Rail>
   ),
 }

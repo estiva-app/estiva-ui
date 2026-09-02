@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconBox, IconListDetails, IconHome, IconInbox, IconMenu2, IconUsers } from '@tabler/icons-react'
+import { IconMenu2, IconSquareRounded } from '@tabler/icons-react'
 import { AppShell } from './AppShell'
 import { Banner } from './Banner'
 import { EmptyState } from './EmptyState'
@@ -39,18 +39,20 @@ const menuButton = (
   </IconButton>
 )
 
+const placeholder = <IconSquareRounded size={16} stroke={1.5} />
+
 const sidebar = (
   <Sidebar>
-    <NavItem href="#" label="Documents" icon={<IconListDetails size={16} stroke={1.5} />} count={18} countLabel="18 open" active />
-    <NavItem href="#" label="Collections" icon={<IconBox size={16} stroke={1.5} />} count={5} countLabel="5 active" />
+    <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" active />
+    <NavItem href="#" label="Item two" icon={placeholder} count={5} countLabel="5 active" />
   </Sidebar>
 )
 
 const rail = (
   <Rail>
-    <RailItem href="#" label="Home" icon={<IconHome size={16} stroke={1.5} />} active />
-    <RailItem href="#" label="Inbox" icon={<IconInbox size={16} stroke={1.5} />} />
-    <RailItem href="#" label="People" icon={<IconUsers size={16} stroke={1.5} />} />
+    <RailItem href="#" label="Item one" icon={placeholder} active />
+    <RailItem href="#" label="Item two" icon={placeholder} />
+    <RailItem href="#" label="Item three" icon={placeholder} />
   </Rail>
 )
 
