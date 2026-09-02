@@ -1,0 +1,50 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as RailItemStories from './RailItem.stories'
+
+<Meta of={RailItemStories} />
+
+# RailItem
+
+One tile of an icon rail: the icon in its hover tile, a 9px label under
+it. **Rail** is its shell — the 64px strip the tiles stand in, with no
+border and no surface of its own.
+
+<Canvas of={RailItemStories.InTheRail} />
+
+## When
+
+- An app whose navigation is a narrow icon strip beside the content, with
+  a handful of top-level places.
+- `active` fills the tile (and some themes give the icon their
+  interactive colour), plus `aria-current="page"`.
+- The rail pairs with the **floating TopBar**: the burger in the bar's
+  `menu` slot collapses it, the app's mark rides in `brand` beside the
+  burger. Collapsing is the caller's — the rail only gets given less room
+  (or none) to stand in.
+
+## When not
+
+- Entries that need readable labels or counts → **NavItem** in a
+  **Sidebar**.
+- More places than a handful — a rail without room stops being glanceable;
+  use the Sidebar.
+
+## How
+
+```tsx
+import { Rail, RailItem } from '@estiva-app/ui'
+
+<Rail>
+  <RailItem href="#/desk" label="Desk" icon={<IconNote size={16} stroke={1.5} />} active={at('desk')} />
+  <RailItem href="#/people" label="People" icon={<IconUsers size={16} stroke={1.5} />} active={at('people')} />
+</Rail>
+```
+
+- Both render plain anchors and a `nav` region. A router app keeps a thin
+  wrapper per item: compute `active` from the location, intercept the
+  click, navigate.
+- Icons are 16px at stroke 1.5.
+
+## Props
+
+<Controls of={RailItemStories.Default} />
