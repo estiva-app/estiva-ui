@@ -1,0 +1,45 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as BannerStories from './Banner.stories'
+
+<Meta of={BannerStories} />
+
+# Banner
+
+The strip under the header where the app says something happened: one
+line, one of four tones, gone when there is nothing to say.
+
+<Canvas of={BannerStories.AllTones} />
+
+## When
+
+- The outcome or state of the whole surface: "Public key copied.", the
+  reason the last read failed, a read-only notice.
+- **`ok`** confirms, **`info`** informs, **`warning`** cautions,
+  **`error`** reports a failure — and only `error` announces itself
+  (`role="alert"`); the others are polite (`role="status"`).
+- It sits full-width between the top bar and the columns — AppShell's
+  `banner` slot is exactly this place.
+
+## When not
+
+- Feedback about one action, briefly → **Toast**.
+- A standing property of one thing → **Chip** on that thing.
+- A notice inside the content flow with its own action — that is a
+  different component (not in the package yet).
+
+## How
+
+```tsx
+import { Banner } from '@estiva-app/ui'
+
+{notice && <Banner tone={notice.tone}>{notice.text}</Banner>}
+```
+
+- Render it only while there is something to say — an empty strip is not
+  a state.
+- One line of plain text, `body-2`. If it needs a button or a second
+  line, it has outgrown this component.
+
+## Props
+
+<Controls of={BannerStories.Ok} />
