@@ -4,28 +4,42 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 # @estiva-app/ui
 
-The shared foundation of every Estiva app's interface: the **design tokens**
-(colours, type, radius, shadows) and, built on them, a **small set of
-primitives** — avatars, chips, buttons, inputs.
+The shared foundation of every Estiva app — Peek, Ship, and whatever comes
+next: the **design tokens** (colour, type, radius, shadow) and a **small
+set of primitives** built on them.
 
 **Tokens are the contract. Components are a convenience.** An app must not
-diverge from the token names; it may fork any component, freely, and owes
-nothing back.
+diverge from the token names. It may fork any component, freely, and owes
+nothing back — a fork is information about the seam, not a failure; say so
+on the package's ticket, and never bend your view around a component.
 
-Start with **Design Tokens**. Use the **Theme** toolbar to see the same names
-under each app's values: `signal` is what Peek renders, `ship` what Ship
+## Start here
+
+1. **[Getting started](?path=/docs/docs-getting-started--docs)** — wire a
+   new app to the package, in six steps.
+2. **[Choosing a component](?path=/docs/docs-choosing-a-component--docs)**
+   — what to reach for, by what you need.
+3. **[Design Tokens](?path=/docs/docs-design-tokens--docs)** — the
+   vocabulary everything here is written in.
+4. Every component's own page says **when** to use it, when **not** — with
+   the alternative named — and **how**, with its stories live on the page.
+
+Use the **Theme** toolbar anywhere in this Storybook: the same names render
+under each app's values — `signal` is what Peek renders, `ship` what Ship
 renders.
 
 ## What lives here, and what does not
 
-- Here: anything that could be used unchanged by an app that has documents
-  and no conversations. Its stories need no app data.
-- Not here: anything that knows what a topic, an issue, a huddle or a folder
-  is. That is the app's, and stays in the app's own Storybook.
+- Here: anything an app with documents and no conversations could use
+  unchanged. Its stories need no app data.
+- Not here: anything that knows what a topic, an issue, a huddle or a
+  folder is. That belongs to the app, in the app's own Storybook.
 
 ## Where it comes from
 
-The names and the `signal` values are Peek's, verbatim; Peek is the visual
-reference and must render unchanged after consuming this package. `ship` is
-Ship's palette, ruled by its designer. The primitives are extracted
-from Peek one at a time, each screenshot-compared before and after.
+The token names and the `signal` values are Peek's, verbatim — Peek is the
+visual reference and must render unchanged after consuming this package.
+`ship` is Ship's palette, ruled by its designer. Primitives are extracted
+from production one at a time, screenshot-compared before and after — and
+shared never means averaged: each surface keeps its own measurements unless
+a unification is explicitly ruled.
