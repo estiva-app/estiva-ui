@@ -32,12 +32,35 @@ export const Composed: Story = {
   ),
 }
 
+const MANY_COLLECTIONS = [
+  'Annual report',
+  'Brand refresh',
+  'Customer voices',
+  'Design system',
+  'Field notes',
+  'Hiring plan',
+  'Launch checklist',
+  'Market study',
+  'Onboarding flow',
+  'Partnerships',
+  'Pricing review',
+  'Quarterly plan',
+  'Research backlog',
+  'Roadmap drafts',
+  'Support playbook',
+  'Website rewrite',
+]
+
 /** The column scrolls on its own — a long list never scrolls the frame away. */
 export const Scrolls: Story = {
   render: (args) => (
     <Sidebar {...args}>
-      {Array.from({ length: 24 }, (_, i) => (
-        <NavItem key={i} href="#" label={`Entry ${i + 1}`} active={i === 2} />
+      <NavItem href="#" label="Documents" icon={<IconListDetails size={16} stroke={1.5} />} count={18} countLabel="18 open" />
+      <div className="mt-2 flex h-8 items-center px-2">
+        <SectionLabel>Collections</SectionLabel>
+      </div>
+      {MANY_COLLECTIONS.map((name, i) => (
+        <NavItem key={name} href="#" label={name} active={i === 3} count={((i * 7) % 9) + 1} countLabel={`${((i * 7) % 9) + 1} open`} />
       ))}
     </Sidebar>
   ),

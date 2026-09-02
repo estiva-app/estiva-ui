@@ -5,50 +5,62 @@ import * as AppShellStories from './AppShell.stories'
 
 # AppShell
 
-The four regions of a framed app: a solid **TopBar**, a **Banner** slot,
-navigation, and the main column — sidebar and main scrolling
-independently, so a long list never scrolls the navigation away. Layout
-only: no data, no routes.
+The frame of an app, in the two manners that pair: **`solid`** — the
+structured frame, a solid TopBar over a Sidebar and the content beside
+it — and **`floating`** — the TopBar floating over the top edge, a Rail
+standing on the background, and the content living in the rounded card.
+Layout only: no data, no routes.
 
-<Canvas of={AppShellStories.Complete} />
+<Canvas of={AppShellStories.Solid} />
+
+<Canvas of={AppShellStories.Floating} />
 
 ## When
 
-- An app framed the classic way: bar on top, navigation on the left,
-  content beside it.
-- The `sidebar` slot takes a **Sidebar** or a **Rail** alike.
-- `banner` sits full-width between the bar and the columns.
+- **`solid` + Sidebar** — a place-by-place app: labelled entries, counts,
+  groups. Sidebar and main scroll independently, so a long list never
+  scrolls the navigation away.
+- **`floating` + Rail** — an app with a handful of top-level places and
+  its content in one card; the `menu` button in the bar collapses the
+  rail (the collapsing stays the app's).
+- The **banner belongs to the content area**: it draws at the top of the
+  main column — inside the card, in the floating manner — never across
+  the navigation.
 
-<Canvas of={AppShellStories.WithABanner} />
+<Canvas of={AppShellStories.FloatingWithBanner} />
 
 ## When not
 
-- An app whose content runs edge to edge under a **floating TopBar** —
-  that frame is the app's own composition; take the TopBar and build the
-  rest.
-- Panels *inside* the main column — lists beside conversations, side
-  rails — are layout components, not the shell's business.
+- Panels *inside* the content — lists beside conversations, side rails —
+  are layout components, not the shell's business.
+- Mixing the pairs (a rail in the solid frame, a sidebar in the floating
+  one) is possible but is a new design, not a port — take it to the
+  designer first.
 
 ## How
 
 ```tsx
-import { AppShell, Banner, IdentityMenu, Sidebar } from '@estiva-app/ui'
+import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
 
 <AppShell
-  brand="Estiva"
+  variant="floating"
+  menu={menuButton}
+  logo="Estiva"
   identity={<IdentityMenu compact me={me} signedIn={signedIn} />}
   banner={notice && <Banner tone={notice.tone}>{notice.text}</Banner>}
-  sidebar={<Sidebar>…</Sidebar>}
+  nav={<Rail>…</Rail>}
 >
   {page}
 </AppShell>
 ```
 
 - Give it a height: it fills `h-full` and manages `min-h-0` internally so
-  the two columns scroll apart.
-- `menu` and `search` pass through to the TopBar's slots.
+  navigation and content scroll apart.
+- `menu`, `logo` and `search` pass through to the TopBar's slots.
+- In the floating manner the card owns `overflow-hidden` — your content
+  manages its own scrolling inside it.
 - Desktop only for now — no narrow-screen behaviour is provided.
 
 ## Props
 
-<Controls of={AppShellStories.Complete} />
+<Controls of={AppShellStories.Solid} />

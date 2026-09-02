@@ -79,13 +79,17 @@ fork freely, owe nothing back, mention it on the package's ticket.
 
 ## The frame
 
+Two frames, two pairs: the **solid** TopBar goes with the **Sidebar**;
+the **floating** TopBar goes with the **Rail** and the content card.
+
 | You need | Reach for |
 |---|---|
-| The classic frame: bar, navigation, content | **AppShell** |
+| The structured frame: solid bar, sidebar, content | **AppShell** `solid` |
+| The floating frame: bar over the content, rail, rounded card | **AppShell** `floating` |
 | The 52px bar alone | **TopBar** — `solid` in flow, or `floating` over the content |
 | A 240px navigation column | **Sidebar**, filled with **NavItem** rows |
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
-| The burger and the logo | the TopBar's `menu` and `brand` slots — collapsing stays yours |
+| The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
 
 ## Deliberately not in the package
 
