@@ -33,6 +33,11 @@ export const OverflowShowsThree: Story = {
   },
 }
 
+/** The smaller face, for a dense row — a reply line's authors, say. */
+export const Small: Story = {
+  args: { size: 18 },
+}
+
 /**
  * Inside a members pill with the total count — the shape a conversation
  * header draws over the stack. The pill is the caller's; this is the group

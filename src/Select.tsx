@@ -38,38 +38,11 @@ export interface SelectProps {
   className?: string
 }
 
-/**
- * Where a menu of this size goes, given its anchor and the viewport — pure,
- * so the geometry is testable without a browser.
- *
- * Left is clamped inside the viewport with an 8px margin. Height is capped
- * at 288px (the old `max-h-72`) but never taller than the space it opens
- * into; when the room below the anchor is smaller than both the content and
- * the room above, the menu opens UPWARD (anchored to the trigger's top via
- * `bottom`). The 120px floor keeps a menu usable even in a cramped corner —
- * scrollable beats invisible.
- */
-export function fitMenu({
-  anchor,
-  menu,
-  viewport,
-}: {
-  anchor: { left: number; top: number; bottom: number }
-  menu: { width: number; contentHeight: number }
-  viewport: { width: number; height: number }
-}): { left: number; top?: number; bottom?: number; maxHeight: number } {
-  const MARGIN = 8
-  const GAP = 4
-  const CAP = 288
-  const left = Math.max(MARGIN, Math.min(anchor.left, viewport.width - menu.width - MARGIN))
-  const below = viewport.height - anchor.bottom - GAP - MARGIN
-  const above = anchor.top - GAP - MARGIN
-  const openUp = below < Math.min(menu.contentHeight, CAP) && above > below
-  const maxHeight = Math.max(Math.min(CAP, openUp ? above : below), 120)
-  return openUp
-    ? { left, bottom: viewport.height - anchor.top + GAP, maxHeight }
-    : { left, top: anchor.bottom + GAP, maxHeight }
-}
+// The geometry lives in fit.ts now (2026-09-03) — shared with the Menu
+// shell, so a cut-off surface is fixed once. Re-exported because this is
+// where it grew up and its test still names it by this address.
+import { fitMenu } from './fit'
+export { fitMenu }
 
 export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, className }: SelectProps) {
   const id = useId()
@@ -119,6 +92,9 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
         anchor: { left: rect.left, top: rect.top, bottom: rect.bottom },
         menu: { width: menuRef.current.offsetWidth, contentHeight: menuRef.current.scrollHeight },
         viewport: { width: window.innerWidth, height: window.innerHeight },
+        // The option list keeps its classic height (the old max-h-72); a menu
+        // panel passes no cap and stands as tall as the room it opens into.
+        cap: 288,
       }),
     )
   }, [rect, options.length])

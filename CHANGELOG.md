@@ -1,5 +1,93 @@
 # Changelog
 
+## 0.5.0 — 2026-09-03
+
+### Added
+
+- **The Menu shell owns its placement.** The two ways a menu goes wrong are
+  both placement — it opens inside a stacking context or scroll container
+  and something covers or clips it, or it opens near an edge and runs off
+  screen — and both shipped in one day (the identity menu under a `z-20`
+  panel header; a highlight submenu cut by the right edge). `Menu` now takes
+  an `anchor` element (plus `align`): it portals to the body and places
+  itself with the same measured geometry `Select` has used since its own
+  cut-off — under the trigger, flipped above when the room below is worse,
+  clamped inside the viewport, closed by resize or page scroll. It stands at
+  its full height whenever the room is there; only a menu taller than the
+  screen scrolls (the 288px cap is Select's own, for option lists). `position` (caller-computed coordinates) is
+  still honoured but now clamped on screen (`clampBox`). The in-flow mode
+  remains for stories and static surfaces only.
+
+- **`MenuSub` — the submenu, in the shell.** Two Peek menus hand-rolled the
+  same hover-timed submenu; the copy dropped the ref its edge-flip measured,
+  so it measured nothing and always opened rightward, off the screen. The
+  shell's version portals, measures real rects (`fitSubmenu`), flips left at
+  the right edge, and slides up at the bottom one. Hover timing kept: opens
+  at once, closes 150ms after the pointer leaves row and panel both.
+
+- **`AvatarGroup` takes a `size`.** It was fixed at 24px, so a denser row —
+  a reply line's authors — hand-drew its own stack instead, and drifted while
+  it did (four faces where the shared rule is three, and its own ring). The
+  overlap and the ring scale with the size, which reproduces both hand-drawn
+  stacks exactly: 8px overlap and a 2px ring at 24, 6px and 1.5px at 18.
+
+- **`fit.ts`** — `fitMenu` (moved from `Select`, unchanged), `clampBox`,
+  `fitSubmenu`: the pure viewport geometry, one module, unit-tested, and
+  exported — a surface too bespoke for the Menu chrome (a hover preview
+  card, say) places itself with the same functions instead of hand-rolling
+  the flip.
+
+- **`closeOnLeave` on `Menu`** — the hover-flow menus (a card's quick-menu
+  ⋯) dismiss when the pointer leaves. The 150ms grace period is shared with
+  any open `MenuSub` panel through context, so crossing into a portalled
+  submenu never counts as leaving — the one hover region the old inline
+  submenus had for free, kept.
+
+### Changed
+
+- **Initials sit on the tile's centre, not above it.** Centring a flex child
+  centres its *line box*, and a line box reserves room under the baseline for
+  descenders — which capitals never use — so every set of initials floated
+  high. It also inherited whatever line-height surrounded it, so one face sat
+  differently in a members pill than in a message row. Measured over six
+  letter pairs at 18/24/36px: 0.64px high on average before, 0.06px after.
+  (Per-letter variation remains — a "Y" carries its mass up top — but that is
+  the letterform, not the box.)
+
+- **A stacked face is the size it says it is.** `AvatarGroup` drew its
+  separating ring as a `border`, which box-sizing takes out of the inside: a
+  24px avatar showed 20px of face, an 18px one only 14px. The ring is a
+  shadow now, drawn outside, costing the face nothing.
+
+- **The last two unclamped axes are clamped.** `WithTooltip` flipped and
+  clamped horizontally but not vertically — a `top` tooltip near the
+  viewport's top edge left the screen; it now flips and clamps both ways.
+  `ChipInput`'s suggestion list hung blindly below its input; it goes
+  through `fitMenu` (rows are a fixed 48px, so no second render pass) and
+  flips upward when the input sits low.
+
+- **`IdentityMenu` hangs its panel from the trigger through the portal.**
+  In-flow, the panel inherited the floating top bar's `z-10` stacking
+  context and anything at `z-20` painted over it. Same place on screen,
+  nothing can cover it. `IdentityPanel` grew an optional `anchor` for this;
+  without it the stories' in-flow rendering is unchanged.
+
+### Fixed
+
+- **The solid `AppShell` seals the document the way the floating one always
+  has.** An absolutely positioned descendant with no positioned ancestor —
+  Tailwind's `sr-only` is the everyday case — belongs to the *viewport*, so
+  no scroll container on the page clips it, and the document gains its
+  static position as scroll range: the whole page scrolls, navigation and
+  top bar included. The floating frame's root already carried
+  `relative overflow-hidden`; the solid frame's root now does too.
+  `relative` claims such strays for the shell, `overflow-hidden` clips them
+  at its edge — either alone seals nothing.
+
+  Surfaced in Ship: a screen-reader-only table header sitting below the
+  first screen of a long project description made the entire project page
+  scrollable by exactly that distance.
+
 ## 0.4.0 — 2026-09-02
 
 ### Fixed

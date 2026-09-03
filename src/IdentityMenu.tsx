@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { cn } from './cn'
 import { Divider } from './Divider'
 import { Menu, MenuItem, MenuRow, MenuSection } from './Menu'
@@ -55,6 +55,11 @@ export interface IdentityMenuProps {
 
 export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 'className'> {
   onClose: () => void
+  /** The trigger to hang from — the panel portals to the body and fits the
+   *  viewport, so no header, sidebar or scroll container can cover it (the
+   *  z-10 floating top bar trapped the old in-flow panel under a z-20 panel
+   *  header, 2026-09-03). Absent, the panel stands in flow — the stories. */
+  anchor?: HTMLElement | null
   /** On the Menu surface — the stories pass `static` to stand it in flow. */
   className?: string
 }
@@ -62,14 +67,14 @@ export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 
 /** The menu alone — what `IdentityMenu` opens. Exported so the stories show
  *  the designed artifact rather than a closed trigger, and for any surface
  *  that wants the panel without the trigger. */
-export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, className, children }: IdentityPanelProps) {
+export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, anchor, className, children }: IdentityPanelProps) {
   const act = (action: () => void) => () => {
     onClose()
     action()
   }
   const appRows = typeof children === 'function' ? children(onClose) : children
   return (
-    <Menu onClose={onClose} className={cn('w-72', className)}>
+    <Menu onClose={onClose} anchor={anchor} align="right" className={cn('w-72', className)}>
       <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
         <MenuRow>
           <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
@@ -117,9 +122,13 @@ export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSig
 
 export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className, children }: IdentityMenuProps) {
   const [open, setOpen] = useState(false)
+  /* The wrapper is the anchor: the panel hangs its right edge from this
+     div's, exactly where the old in-flow `absolute right-0` put it — but
+     portalled, so nothing z-indexed in the app can cover it. */
+  const anchorRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className={cn('relative', className)}>
+    <div ref={anchorRef} className={cn('relative', className)}>
       <PersonTrigger
         name={me.name}
         picture={me.picture}
@@ -146,6 +155,7 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
           onCopyKey={onCopyKey}
           onSignOut={onSignOut}
           onClose={() => setOpen(false)}
+          anchor={anchorRef.current}
         >
           {children}
         </IdentityPanel>

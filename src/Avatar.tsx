@@ -65,7 +65,20 @@ export function Avatar({ src, name, alt = '', size = 36, className }: AvatarProp
         <img src={picture} alt={alt || name || ''} className="w-full h-full object-cover" onError={() => setBroken(true)} />
       ) : label ? (
         <div
-          className="w-full h-full flex items-center justify-center font-semibold"
+          /*
+            `leading-none` is load-bearing (2026-09-03). Centring a flex child
+            centres its LINE BOX, and a line box reserves room under the
+            baseline for descenders — which capitals never use — so initials
+            floated above the middle of every tile. It also inherited whatever
+            line-height surrounded it, so the same face sat differently in a
+            members pill and in a replies row. Measured over six letter pairs
+            at 18/24/36px: mean 0.64px high before, 0.06px after.
+
+            Per-letter variation stays (a "Y" carries its mass up top, a "ZB"
+            more than an "AJ") — that is the letterform, not the box, and it
+            is not something a rule here can flatten.
+          */
+          className="w-full h-full flex items-center justify-center font-semibold leading-none"
           style={{
             color: '#08121c',
             fontSize: Math.round(size * 0.36),

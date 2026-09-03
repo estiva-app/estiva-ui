@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect, useLayoutEffect, type KeyboardEve
 import { createPortal } from 'react-dom'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
+import { fitMenu } from './fit'
 import { MenuItem } from './Menu'
 
 /**
@@ -216,10 +217,21 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
 
       {showDropdown && anchorRect && createPortal(
         <div
-          className="fixed z-[60] max-h-[240px] overflow-y-auto bg-bg-elevated border border-border-default rounded-lg shadow-lg"
+          className="fixed z-[60] overflow-y-auto bg-bg-elevated border border-border-default rounded-lg shadow-lg"
+          /*
+            Placed by fitMenu (2026-09-03), not hung blindly below: an input
+            low on the screen flips its list upward instead of running the
+            tail past the bottom edge. The rows are a fixed 48px, so the
+            content height is arithmetic and needs no second render pass;
+            the 240px cap is the old max-h-[240px].
+          */
           style={{
-            top: anchorRect.bottom + 4,
-            left: anchorRect.left,
+            ...fitMenu({
+              anchor: { left: anchorRect.left, top: anchorRect.top, bottom: anchorRect.bottom },
+              menu: { width: anchorRect.width, contentHeight: matches.length * 48 },
+              viewport: { width: window.innerWidth, height: window.innerHeight },
+              cap: 240,
+            }),
             width: anchorRect.width,
           }}
         >

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { fitMenu } from './Select'
 
+/** Select's calls carry its option-list cap (the old max-h-72); the cap is
+ *  the caller's now, so these pin it alongside the geometry. */
+const fitSelect = (args: Omit<Parameters<typeof fitMenu>[0], 'cap'>) => fitMenu({ ...args, cap: 288 })
+
 /**
  * The Select menu's viewport geometry (Katerina, 2026-09-01): the files-panel
  * picker was cut off at the right edge, its tail ran past the bottom of the
@@ -11,7 +15,7 @@ const viewport = { width: 1280, height: 800 }
 
 describe('fitMenu', () => {
   it('leaves a comfortable menu exactly where the trigger put it', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 200, bottom: 232 },
       menu: { width: 240, contentHeight: 180 },
       viewport,
@@ -23,7 +27,7 @@ describe('fitMenu', () => {
   })
 
   it('clamps a menu that would run off the right edge (the files-panel cut)', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 1200, top: 200, bottom: 232 },
       menu: { width: 340, contentHeight: 180 },
       viewport,
@@ -33,7 +37,7 @@ describe('fitMenu', () => {
   })
 
   it('never pushes a menu past the LEFT edge either', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: -20, top: 200, bottom: 232 },
       menu: { width: 240, contentHeight: 180 },
       viewport,
@@ -42,7 +46,7 @@ describe('fitMenu', () => {
   })
 
   it('caps height to the room below, so the last option is never off screen', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 560, bottom: 592 },
       menu: { width: 240, contentHeight: 200 },
       viewport,
@@ -56,7 +60,7 @@ describe('fitMenu', () => {
   })
 
   it('opens upward when the room above is better (the low trigger)', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 700, bottom: 732 },
       menu: { width: 240, contentHeight: 400 },
       viewport,
@@ -67,7 +71,7 @@ describe('fitMenu', () => {
   })
 
   it('stays below when the room below is bad but the room above is worse', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 60, bottom: 92 },
       menu: { width: 240, contentHeight: 400 },
       viewport,
@@ -78,7 +82,7 @@ describe('fitMenu', () => {
   })
 
   it('keeps a 120px floor in a cramped corner — scrollable beats invisible', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 740, bottom: 772 },
       menu: { width: 240, contentHeight: 400 },
       viewport: { width: 1280, height: 800 },
@@ -87,7 +91,7 @@ describe('fitMenu', () => {
   })
 
   it('caps a long list at 288 with plenty of room — the old max-h-72', () => {
-    const fit = fitMenu({
+    const fit = fitSelect({
       anchor: { left: 100, top: 100, bottom: 132 },
       menu: { width: 240, contentHeight: 900 },
       viewport,
