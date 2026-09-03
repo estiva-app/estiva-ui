@@ -25,6 +25,12 @@
   the right edge, and slides up at the bottom one. Hover timing kept: opens
   at once, closes 150ms after the pointer leaves row and panel both.
 
+- **`AvatarGroup` takes a `size`.** It was fixed at 24px, so a denser row —
+  a reply line's authors — hand-drew its own stack instead, and drifted while
+  it did (four faces where the shared rule is three, and its own ring). The
+  overlap and the ring scale with the size, which reproduces both hand-drawn
+  stacks exactly: 8px overlap and a 2px ring at 24, 6px and 1.5px at 18.
+
 - **`fit.ts`** — `fitMenu` (moved from `Select`, unchanged), `clampBox`,
   `fitSubmenu`: the pure viewport geometry, one module, unit-tested, and
   exported — a surface too bespoke for the Menu chrome (a hover preview
@@ -38,6 +44,20 @@
   submenus had for free, kept.
 
 ### Changed
+
+- **Initials sit on the tile's centre, not above it.** Centring a flex child
+  centres its *line box*, and a line box reserves room under the baseline for
+  descenders — which capitals never use — so every set of initials floated
+  high. It also inherited whatever line-height surrounded it, so one face sat
+  differently in a members pill than in a message row. Measured over six
+  letter pairs at 18/24/36px: 0.64px high on average before, 0.06px after.
+  (Per-letter variation remains — a "Y" carries its mass up top — but that is
+  the letterform, not the box.)
+
+- **A stacked face is the size it says it is.** `AvatarGroup` drew its
+  separating ring as a `border`, which box-sizing takes out of the inside: a
+  24px avatar showed 20px of face, an 18px one only 14px. The ring is a
+  shadow now, drawn outside, costing the face nothing.
 
 - **The last two unclamped axes are clamped.** `WithTooltip` flipped and
   clamped horizontally but not vertically — a `top` tooltip near the
