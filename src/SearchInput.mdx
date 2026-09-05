@@ -15,7 +15,7 @@ optional keyboard hint at the right edge.
 - Filtering a list, live, above the list it filters.
 - As a **launcher affordance**: keep the input `pointer-events-none` and
   open your command surface from a click on the surround — the component
-  is the same either way, and `shortcut` shows the way in ("⌘ K").
+  is the same either way, and `shortcut` shows the way in ("Ctrl+K").
 
 ## When not
 
@@ -27,7 +27,7 @@ optional keyboard hint at the right edge.
 ```tsx
 import { SearchInput } from '@estiva-app/ui'
 
-<SearchInput value={query} onChange={(e) => setQuery(e.target.value)} shortcut="⌘ K" />
+<SearchInput value={query} onChange={(e) => setQuery(e.target.value)} shortcut="Ctrl+K" />
 ```
 
 - The default placeholder is "Search…" — override it with your own.

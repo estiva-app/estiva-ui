@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from './cn'
+import { Kbd } from './Kbd'
 
 /**
  * Peek's Tooltip and WithTooltip (2026-08-28), verbatim, in one file.
@@ -13,19 +14,26 @@ import { cn } from './cn'
  */
 export interface TooltipProps {
   label: string
+  /** The key that does the same thing, drawn as the `Kbd` chip after the label.
+   *  Pass it already formatted for the platform — this renders, it does not
+   *  decide whether the modifier is a glyph or a word. */
+  shortcut?: string
   className?: string
 }
 
-export function Tooltip({ label, className }: TooltipProps) {
+export function Tooltip({ label, shortcut, className }: TooltipProps) {
   return (
-    <div role="tooltip" className={cn('bg-bg-elevated border border-border-default rounded-lg h-[30px] flex items-center justify-center px-2 shadow-lg', className)}>
+    <div role="tooltip" className={cn('bg-bg-elevated border border-border-default rounded-lg h-[30px] flex items-center justify-center gap-1.5 px-2 shadow-lg', className)}>
       <span className="text-caption text-text-primary whitespace-nowrap">{label}</span>
+      {shortcut && <Kbd>{shortcut}</Kbd>}
     </div>
   )
 }
 
 export interface WithTooltipProps {
   label: string
+  /** Passed straight to the surface — see `TooltipProps.shortcut`. */
+  shortcut?: string
   placement?: 'top' | 'bottom'
   /** Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it. */
   wrapperClassName?: string
@@ -35,7 +43,7 @@ export interface WithTooltipProps {
 const GAP = 6
 const VIEWPORT_PAD = 8
 
-export function WithTooltip({ label, placement = 'top', wrapperClassName, children }: WithTooltipProps) {
+export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassName, children }: WithTooltipProps) {
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -69,7 +77,7 @@ export function WithTooltip({ label, placement = 'top', wrapperClassName, childr
       {show &&
         createPortal(
           <div ref={tooltipRef} style={style}>
-            <Tooltip label={label} />
+            <Tooltip label={label} shortcut={shortcut} />
           </div>,
           document.body,
         )}

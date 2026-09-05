@@ -63,7 +63,15 @@ export const estivaContent = [own('./dist/*.js'), own('./src/*.{ts,tsx}')]
 export default {
 
   darkMode: 'class',
-  plugins: [plugin(({ addVariant }) => addVariant('signal', '.signal &'))],
+  // `signal` is Peek's shipped theme (a class); `ship` is Ship's (an attribute,
+  // see tokens.css). Both exist so a treatment can be given to the two apps
+  // without changing the plain light/dark themes the docs render in.
+  plugins: [
+    plugin(({ addVariant }) => {
+      addVariant('signal', '.signal &')
+      addVariant('ship', "[data-theme='ship'] &")
+    }),
+  ],
   theme: {
     extend: {
       fontFamily: {

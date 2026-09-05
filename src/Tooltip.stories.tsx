@@ -14,6 +14,21 @@ type Story = StoryObj<typeof meta>
 /** The static tooltip surface. */
 export const Default: Story = {}
 
+/** With a key hint — drawn as the `Kbd` chip after the label. */
+export const WithShortcut: Story = { args: { label: 'Bold', shortcut: 'Cmd+B' } }
+
+/** With and without, so the difference is one glance. */
+export const ShortcutComparison: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col items-start gap-2">
+      <Tooltip label="Comment" />
+      <Tooltip label="Bold" shortcut="Cmd+B" />
+      <Tooltip label="Heading" shortcut="Ctrl+Alt+1" />
+    </div>
+  ),
+}
+
 /** Hover the button — WithTooltip portals the tooltip above the trigger. */
 export const OnHoverTop: Story = {
   parameters: { controls: { disable: true } },

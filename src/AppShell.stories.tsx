@@ -59,7 +59,7 @@ const rail = (
 /** The structured frame: solid bar, sidebar, content beside it. */
 export const Solid: Story = {
   render: (args) => (
-    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="⌘ K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
       <div className="flex h-full items-center justify-center">
         <EmptyState message="Nothing here yet." />
       </div>
@@ -86,7 +86,7 @@ export const Floating: Story = {
       variant="floating"
       menu={menuButton}
       logo="Estiva"
-      search={<SearchInput shortcut="⌘ K" className="w-[290px]" />}
+      search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />}
       identity={identity}
       nav={rail}
     >

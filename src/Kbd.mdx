@@ -1,0 +1,77 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as KbdStories from './Kbd.stories'
+
+<Meta of={KbdStories} />
+
+# Kbd
+
+The small chip that names the key which does the same thing. A bordered
+`kbd` on the inset fill, `caption` type in secondary ink, sized to its
+content and never shrinking.
+
+<Canvas of={KbdStories.Row} />
+
+## When
+
+- **At the right edge of a menu row** — `MenuItem`'s `shortcut` draws one for
+  you; pass the string, not the element.
+- **Inside a tooltip** — `Tooltip` and `WithTooltip` take a `shortcut` for the
+  same reason: an icon button whose only other affordance is a key.
+  `IconButton` forwards its own `tooltipShortcut` there.
+- **At the right edge of a search field** — `SearchInput`'s `shortcut`, for
+  the key that puts the cursor in it.
+- **In a shortcuts sheet**, where the key is the content rather than a hint.
+
+## Naming the key
+
+The label is a word, never a symbol — `Cmd+K`, `Enter`, `Esc`, `Backspace`.
+Two reasons, and they cost nothing to obey:
+
+1. A symbol is often wrong. `⌘` on a Windows machine names a key that is not
+   there.
+2. **The symbols are not in the font.** Geist Mono has no `⌘`, `⌫` or `↩`, so
+   the browser silently borrows each one from another face — measured at 10px,
+   every character the font owns advances exactly 6px, while `↩` comes back
+   8.63px and `⌫` 12.81px. One borrowed glyph in a row of chips makes that
+   chip wider and its ink a different shape.
+
+**`↑` and `↓` are the exception** — they are in Geist Mono at the same 6px, and
+an arrow is what is printed on the key. Their horizontal partners are not:
+Geist Mono owns `←` and `→` but draws them 10px wide, so a chip holding one
+comes out wider than the chips beside it. Measure before adding a symbol to
+this list; the font's coverage is not uniform.
+
+And a trigger is the character you would actually type. Peek's resolution
+block fires on `->`, so its row says `->` — there is no `→` key to press.
+
+## When not
+
+- A status, count or category → **Chip**. This one means *press this*.
+- A run of code inside prose → the consumer's own `code` styling; a keyboard
+  hint and a code span are different ideas that happen to both be monospace-ish.
+- Anything clickable → **Button**. A key hint is a label, not a control.
+
+## How
+
+```tsx
+import { Kbd } from '@estiva-app/ui'
+
+<Kbd>Cmd+K</Kbd>
+```
+
+Most callers never reach for it directly — they pass a string:
+
+```tsx
+<MenuItem label="Heading" shortcut="#" />
+<Tooltip label="Bold" shortcut="Cmd+B" />
+```
+
+<Canvas of={KbdStories.InContext} />
+
+It renders what it is given and formats nothing. A modifier is called Cmd on
+Apple platforms and Ctrl elsewhere, and only the caller knows which it is
+looking at — so decide there and pass the finished label.
+
+## Props
+
+<Controls of={KbdStories.Default} />

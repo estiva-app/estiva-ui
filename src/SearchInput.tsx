@@ -1,5 +1,6 @@
 import { type InputHTMLAttributes } from 'react'
 import { cn } from './cn'
+import { Kbd } from './Kbd'
 
 /**
  * Peek's SearchInput (2026-09-01), verbatim: an inset field with a hairline
@@ -15,7 +16,7 @@ import { cn } from './cn'
  * command launcher. The component is the same either way.
  */
 export interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
-  /** A keyboard hint drawn at the right edge, e.g. "⌘ K". */
+  /** A keyboard hint drawn at the right edge, e.g. "Ctrl+K". */
   shortcut?: string
   className?: string
 }
@@ -35,11 +36,7 @@ export function SearchInput({ shortcut, className, placeholder = 'Search…', ..
         placeholder={placeholder}
         {...props}
       />
-      {shortcut && (
-        <div className="flex items-center justify-center px-1 py-px rounded-sm bg-bg-inset border border-border-strong shrink-0 signal:bg-[rgba(255,255,255,.05)] signal:border-b-2">
-          <span className="text-caption text-text-secondary whitespace-nowrap signal:font-mono signal:text-[10px]">{shortcut}</span>
-        </div>
-      )}
+      {shortcut && <Kbd>{shortcut}</Kbd>}
     </div>
   )
 }
