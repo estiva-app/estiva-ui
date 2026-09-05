@@ -9,8 +9,15 @@ The shell every menu shares: an elevated container — hairline border, 8px
 radius, 8px padding, the large shadow — and the two exits every menu owes,
 **Escape and a click outside, owned here and never by the caller**. Rows are
 **MenuItem**, headings are **MenuSection**, a non-interactive line at row
-geometry is **MenuRow**, and **EnterHint** is the "↩ Enter" a picker row
+geometry is **MenuRow**, and **EnterHint** is the `↩ Enter` chip a picker row
 shows while highlighted.
+
+**MenuPanel** is the container on its own, without the behaviour — for the
+one case that cannot have it: a type-ahead popup inside a text editor, where
+the editor's own plugin already owns the keyboard and the placement, and a
+second Escape handler fights it. `Menu` renders `MenuPanel`, so the surface
+has one definition either way. If your surface opens from a trigger, you want
+`Menu`; reach for `MenuPanel` only when something else is already driving.
 
 <Canvas of={MenuStories.Items} />
 

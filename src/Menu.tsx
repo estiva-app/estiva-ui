@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { IconChevronRight } from '@tabler/icons-react'
 import { createPortal } from 'react-dom'
 import { cn } from './cn'
+import { Kbd } from './Kbd'
 import { clampBox, fitMenu, fitSubmenu } from './fit'
 import { SectionLabel } from './SectionLabel'
 
@@ -69,6 +70,38 @@ export interface MenuProps {
  *  a `closeOnLeave` menu survives the pointer crossing into a portalled
  *  submenu panel — the one hover region the old inline submenus had for free. */
 const MenuHoverContext = createContext<{ hold: () => void; release: () => void } | null>(null)
+
+/**
+ * The menu's surface, with none of its behaviour — an elevated box with a
+ * hairline border, 8px radius, 8px padding and the large shadow.
+ *
+ * Split out of `Menu` on 2026-09-05. `Menu` owns Escape, outside-click and
+ * placement, and that is right for a menu opened from a trigger — but a
+ * type-ahead popup inside a text editor cannot have them: the editor's
+ * suggestion plugin already owns the keyboard and positions the popup, and a
+ * second Escape handler fights it. So Peek's `@`, `/` and `[` menus each drew
+ * this box by hand, and the three had already drifted apart.
+ *
+ * `Menu` renders this, so there is still exactly one definition of the
+ * surface — change it here and every menu in every app follows.
+ *
+ * Width, height and internal rhythm belong to the caller: a picker that lists
+ * people is not the width of one that lists verbs.
+ */
+export interface MenuPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
+  children: ReactNode
+}
+
+export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
+  return (
+    <div
+      className={cn('flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg', className)}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
 
 export function Menu({ onClose, anchor, align = 'left', position, closeOnLeave = false, children, className }: MenuProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -152,12 +185,12 @@ export function Menu({ onClose, anchor, align = 'left', position, closeOnLeave =
     : undefined
   const node = (
     <MenuHoverContext.Provider value={{ hold, release }}>
-      <div
+      <MenuPanel
         ref={ref}
         role="menu"
         data-interactive
         className={cn(
-          'z-50 flex min-w-[180px] flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg',
+          'z-50 min-w-[180px]',
           portalled ? 'fixed overflow-y-auto' : 'absolute right-0 top-full mt-1',
           className,
         )}
@@ -167,7 +200,7 @@ export function Menu({ onClose, anchor, align = 'left', position, closeOnLeave =
         onMouseLeave={closeOnLeave ? release : undefined}
       >
         {children}
-      </div>
+      </MenuPanel>
     </MenuHoverContext.Provider>
   )
   return portalled ? createPortal(node, document.body) : node
@@ -237,17 +270,17 @@ export function MenuSub({ label, leading, selected, children, className }: MenuS
       <MenuItem label={label} leading={leading} selected={selected} submenu />
       {open &&
         createPortal(
-          <div
+          <MenuPanel
             ref={panelRef}
             role="menu"
             data-interactive
-            className={cn('fixed z-50 flex w-[160px] flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg', className)}
+            className={cn('fixed z-50 w-[160px]', className)}
             style={placed ?? { left: 0, top: 0, visibility: 'hidden' }}
             onMouseEnter={enter}
             onMouseLeave={leave}
           >
             {children}
-          </div>,
+          </MenuPanel>,
           document.body,
         )}
     </div>
@@ -269,6 +302,23 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   leading?: ReactNode
   /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
   trailing?: ReactNode
+  /**
+   * Shown at the right edge **only while this row is the one you are pointing
+   * at or have arrowed onto** — an `EnterHint`, typically.
+   *
+   * Pass it unconditionally. Do not do `trailing={active ? <EnterHint/> : undefined}`:
+   * that mounts the hint, and a mount is instant while the row's own fill is a
+   * 150ms fade, so the hint lands ahead of the highlight on the way in and
+   * vanishes ahead of it on the way out (measured 2026-09-05 — ~7 frames of a
+   * chip sitting on an unhighlighted row, and two rows lit at once when
+   * sweeping). This slot is always in the DOM and revealed by the *same*
+   * `:hover` / `selected` the fill uses, on the same duration and curve, so
+   * the two cannot come apart — and the row does not reflow when it appears.
+   *
+   * It cross-fades with `trailing`/`shortcut`/`submenu` rather than displacing
+   * them, and reserves the wider of the two, so nothing moves either way.
+   */
+  hint?: ReactNode
   /** A keyboard hint, drawn as the kbd chip. */
   shortcut?: string
   /** The row opens another menu: draws the chevron at the right edge. */
@@ -278,13 +328,11 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   selected?: boolean
 }
 
-export function MenuItem({ label, children, size = 'default', description, leading, trailing, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+export function MenuItem({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
   const edge =
     trailing ??
     (shortcut ? (
-      <kbd className="inline-flex shrink-0 items-center justify-center rounded-sm border border-border-strong bg-bg-inset px-1 py-px text-caption text-text-secondary">
-        {shortcut}
-      </kbd>
+      <Kbd>{shortcut}</Kbd>
     ) : submenu ? (
       <IconChevronRight size={16} stroke={1.5} className="shrink-0 text-text-muted" />
     ) : null)
@@ -293,7 +341,21 @@ export function MenuItem({ label, children, size = 'default', description, leadi
       type="button"
       role="menuitem"
       className={cn(
-        'flex w-full cursor-pointer items-center rounded-lg text-left hover:bg-bg-hover transition-colors',
+        // shrink-0: a menu is a flex column that scrolls at its max height,
+        // and a flex child shrinks before its container does — so every row
+        // in an overflowing menu was squashed to its `min-h`, and a row given
+        // an explicit height silently lost it (Peek's `[` menu: h-12 rows
+        // measured 40px). The same fix NavItem took on 2026-09-02.
+        // `group`: the `hint` slot reveals itself from this row's own :hover,
+        // so the hint and the fill are one CSS state change, not two engines.
+        //
+        // No transition on the fill (Katerina, 2026-09-05). It faded over
+        // 150ms, and anything appearing with it had to fade too or arrive
+        // ahead of it — which, sweeping a pointer down a list, read as the
+        // hint flickering in and out. Both are instant now: they still change
+        // on exactly the same :hover, so they cannot come apart, and a row
+        // lights and unlights crisply as the pointer crosses it.
+        'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left hover:bg-bg-hover',
         // tall: as tall as its content, never shorter than 40px (Katerina,
         // 2026-09-01) — a single-line picker row sits at 40, a row with a
         // 32px face and a role line comes out at its natural 48. One rule,
@@ -316,20 +378,52 @@ export function MenuItem({ label, children, size = 'default', description, leadi
           {description && <span className="truncate text-[12px] leading-[120%] text-text-secondary">{description}</span>}
         </span>
       )}
-      {edge && <span className="flex shrink-0 items-center">{edge}</span>}
+      {(edge || hint) && (
+        // One grid cell holding both, right-aligned: the slot is as wide as
+        // the wider of the two and never changes, so revealing the hint moves
+        // nothing. No transition here either — the hint switches on the same
+        // :hover / `selected` as the fill, in the same frame.
+        <span className="grid shrink-0 items-center justify-items-end [&>*]:col-start-1 [&>*]:row-start-1">
+          {edge && (
+            <span className={cn('flex items-center', hint && 'group-hover:opacity-0', hint && selected && 'opacity-0')}>
+              {edge}
+            </span>
+          )}
+          {hint && (
+            <span className={cn('flex items-center opacity-0 group-hover:opacity-100', selected && 'opacity-100')}>
+              {hint}
+            </span>
+          )}
+        </span>
+      )}
     </button>
   )
 }
 
 /**
- * The keyboard hint a picker row shows while highlighted — "↩ Enter",
- * "↩ #topic" — hand-rolled in five files before this (2026-09-01).
+ * The keyboard hint a picker row shows while highlighted — hand-rolled in
+ * five files before this (2026-09-01), and drawn as its own thing until
+ * 2026-09-05, when it became the `Kbd` chip every other key hint uses. A
+ * picker row and a menu row sit in the same menu; they named the same key
+ * two ways.
+ *
+ * `target` is what pressing it gives you, when that is worth saying — the
+ * topic picker's "↩ Enter #topic". It sits after the chip, in the picker's
+ * own 9px voice, because it is not a key.
+ *
+ * Katerina, 2026-09-05, told the measurement and asked again: the chip keeps
+ * the `↩` character. It is not in Geist Mono — the browser borrows it, so it
+ * advances 8.63px where the font's own characters advance 6 — and that is a
+ * knowing trade for the glyph, not an oversight. If the width ever has to go,
+ * Tabler's IconCornerDownLeft draws the same shape.
  */
-export function EnterHint({ label = 'Enter' }: { label?: string }) {
+export function EnterHint({ target }: { target?: string }) {
   return (
-    <span className="flex shrink-0 items-center gap-2 text-text-muted">
-      <span className="text-[12px] leading-[120%]">↩</span>
-      <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{label}</span>
+    <span className="flex shrink-0 items-center gap-1.5 text-text-muted">
+      <Kbd>↩ Enter</Kbd>
+      {target && (
+        <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{target}</span>
+      )}
     </span>
   )
 }
