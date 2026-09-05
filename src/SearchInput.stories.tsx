@@ -15,10 +15,10 @@ export const Default: Story = {}
 
 /** The keyboard hint at the right edge. */
 export const WithShortcut: Story = {
-  args: { shortcut: '⌘ K' },
+  args: { shortcut: 'Ctrl+K' },
 }
 
 /** The default placeholder says only "Search…" — the app names what is searched. */
 export const OwnPlaceholder: Story = {
-  args: { placeholder: 'Search documents…', shortcut: '⌘ K' },
+  args: { placeholder: 'Search documents…', shortcut: 'Ctrl+K' },
 }

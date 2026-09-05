@@ -19,6 +19,11 @@ viewport, kept 8px inside its edges.
 - The word for an icon-only control — alongside its `aria-label`, never
   instead of it (IconButton wires this for you via its `tooltip` prop).
 - The full text behind a truncation.
+- **The key that does the same thing** — pass `shortcut` and it is drawn as
+  the `Kbd` chip after the label. For an icon-only control whose only other
+  affordance is a keyboard shortcut, the tooltip is the only place to say so.
+
+<Canvas of={TooltipStories.ShortcutComparison} />
 
 <Canvas of={TooltipStories.OnADisabledControl} />
 
@@ -45,6 +50,10 @@ import { WithTooltip } from '@estiva-app/ui'
   `wrapperClassName="min-w-0 shrink"`.
 - It shows on **hover only** — there is no focus or touch trigger. Don't
   put anything behind it that a keyboard user must reach.
+- `shortcut` renders, it does not format. A modifier is called Cmd on Apple
+  platforms and Ctrl elsewhere, and only the caller knows which it is
+  looking at — so pass the finished label. `IconButton` forwards its own
+  `tooltipShortcut` here.
 
 ## Props
 

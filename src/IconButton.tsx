@@ -13,6 +13,9 @@ export type IconButtonVariant = 'muted' | 'outlined' | 'primary'
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: IconButtonVariant
   tooltip?: string
+  /** A key hint drawn as the `Kbd` chip inside the tooltip — for a button
+   *  whose only other affordance is a keyboard shortcut. */
+  tooltipShortcut?: string
   tooltipPlacement?: 'top' | 'bottom'
   /** The icon: 16px, stroke 1.5. */
   children: ReactNode
@@ -24,6 +27,7 @@ export function IconButton({
   children,
   disabled,
   tooltip,
+  tooltipShortcut,
   tooltipPlacement,
   type = 'button',
   ...props
@@ -51,7 +55,7 @@ export function IconButton({
 
   if (tooltip) {
     return (
-      <WithTooltip label={tooltip} placement={tooltipPlacement}>
+      <WithTooltip label={tooltip} shortcut={tooltipShortcut} placement={tooltipPlacement}>
         {button}
       </WithTooltip>
     )

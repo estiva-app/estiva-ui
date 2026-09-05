@@ -54,7 +54,7 @@ const Behind = ({ children }: { children: ReactNode }) => (
 export const Solid: Story = {
   render: (args) => (
     <Below>
-      <TopBar {...args} logo="Estiva" search={<SearchInput shortcut="⌘ K" className="w-[290px]" />} right={face} />
+      <TopBar {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} right={face} />
     </Below>
   ),
 }
@@ -72,7 +72,7 @@ export const SolidNoSearch: Story = {
 export const Floating: Story = {
   render: (args) => (
     <Behind>
-      <TopBar {...args} variant="floating" menu={menuButton} search={<SearchInput shortcut="⌘ K" className="w-[290px]" />} right={face} />
+      <TopBar {...args} variant="floating" menu={menuButton} search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} right={face} />
     </Behind>
   ),
 }

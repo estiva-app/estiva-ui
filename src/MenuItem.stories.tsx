@@ -40,7 +40,7 @@ export const WithAnIcon: Story = {
 }
 
 export const WithAShortcut: Story = {
-  args: { label: 'Copy link', leading: <IconCopy size={16} stroke={1.5} className="text-text-secondary" />, shortcut: '⌘ C' },
+  args: { label: 'Copy link', leading: <IconCopy size={16} stroke={1.5} className="text-text-secondary" />, shortcut: 'Ctrl+C' },
 }
 
 /** The row opens another menu. */
@@ -54,7 +54,7 @@ export const APerson: Story = {
     label: 'Ana Duarte',
     description: 'Product designer',
     leading: <Avatar name="Ana Duarte" size={32} />,
-    trailing: <span className="text-[12px] leading-[120%] text-text-muted">↩</span>,
+    trailing: <EnterHint />,
   },
 }
 
@@ -74,10 +74,10 @@ export const AllVariants: Story = {
     <>
       <MenuItem label="Bare" onClick={() => {}} />
       <MenuItem label="With an icon" leading={<IconPin size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
-      <MenuItem label="With a shortcut" shortcut="⌘ K" onClick={() => {}} />
-      <MenuItem label="Icon and shortcut" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="⌘ C" onClick={() => {}} />
+      <MenuItem label="With a shortcut" shortcut="Ctrl+K" onClick={() => {}} />
+      <MenuItem label="Icon and shortcut" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="Ctrl+C" onClick={() => {}} />
       <MenuItem label="Opens another menu" submenu onClick={() => {}} />
-      <MenuItem label="Ana Duarte" description="Product designer" leading={<Avatar name="Ana Duarte" size={32} />} trailing={<span className="text-[12px] leading-[120%] text-text-muted">↩</span>} onClick={() => {}} />
+      <MenuItem label="Ana Duarte" description="Product designer" leading={<Avatar name="Ana Duarte" size={32} />} trailing={<EnterHint />} onClick={() => {}} />
       <MenuItem label="The chosen value" selected onClick={() => {}} />
       <MenuItem label="Destructive" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
       <MenuItem label="A very long label that runs out of room and truncates" onClick={() => {}} />
