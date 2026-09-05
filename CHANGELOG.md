@@ -1,5 +1,97 @@
 # Changelog
 
+## 0.6.0 — 2026-09-05
+
+### Added
+
+- **`Kbd` — the keyboard hint, extracted.** It already existed, drawn inline
+  inside `MenuItem` for its `shortcut` prop. `Tooltip` needed the same chip —
+  an icon button whose only other affordance is a key has nowhere else to say
+  so — and a hint rendered two ways in two files is a hint that drifts. One
+  definition now, three users: `MenuItem`, `Tooltip` and `SearchInput`.
+  Exported, because a shortcuts sheet is a fourth.
+
+- **`Tooltip` and `WithTooltip` take a `shortcut`.** Drawn as the `Kbd` chip
+  after the label, with the gap the pair needs. Absent, nothing changes — every
+  tooltip written to date renders exactly as before.
+
+  It renders and does not format: a modifier is called Cmd on Apple platforms
+  and Ctrl everywhere else — a word either way, never a glyph — and only the
+  caller knows which platform it is looking at, so the finished label is
+  passed in.
+
+- **`IconButton` takes a `tooltipShortcut`.** Forwarded to `WithTooltip`, for
+  the icon-only control whose only other affordance is a key. It does nothing
+  without a `tooltip`, since there is no surface to draw it on.
+
+- **`MenuPanel` — the menu's surface without its behaviour.** `Menu` owns
+  Escape, outside-click and placement, which is right for a menu opened from
+  a trigger and impossible for a type-ahead popup inside a text editor: the
+  editor's suggestion plugin already owns the keyboard and positions the
+  popup, so a second Escape handler fights it. Peek's `@`, `/` and `[` menus
+  each drew the box by hand for that reason, and the three had drifted.
+  `Menu` and `MenuSub` render `MenuPanel` too, so the surface still has
+  exactly one definition.
+
+- **`MenuItem` takes a `hint`** — what the row shows at its right edge *only*
+  while it is the row you are pointing at or have arrowed onto. Pass it
+  unconditionally; it replaces `trailing={active ? <EnterHint/> : undefined}`.
+
+  That pattern could not be made to work, and this is why. The row's fill was
+  CSS (`transition-colors`, 150ms); a React mount is instant. Measured, the
+  hint was fully drawn at 6ms on a row whose fill had not started, and on the
+  way out it vanished while the row stayed lit for another 150ms — so sweeping
+  a pointer down a menu left two rows lit and chips popping between them.
+
+  `hint` is always in the DOM and switched by the *same* `:hover` / `selected`
+  that drives the fill. Measured across an interrupted 50ms-per-row sweep,
+  the two are now identical on every frame. It shares a grid cell with
+  `trailing`/`shortcut`/`submenu`, sized to the wider of the two, so the row
+  also stops reflowing when the hint appears — labels used to lose 62–105px
+  and re-truncate mid-hover.
+
+### Changed
+
+- **`EnterHint` is the `Kbd` chip.** It drew its own thing — a bare `↩` and a
+  9px word — so a picker row and a menu row named the same key two ways in
+  the same menu. Its `label` prop is now `target`, and it means what it
+  always described: what pressing the key gives you (`↩ Enter #topic`), drawn
+  after the chip rather than replacing its word. Callers passing `label` must
+  rename; there is one in Peek and none in Ship.
+
+- **`SearchInput`'s shortcut hint is the shared `Kbd`.** It used to draw its
+  own chip; the chip it drew is the one `Kbd` was modelled on, so nothing
+  moves in Signal. Under any other theme the hint now picks up the same
+  treatment as every other key hint instead of its own.
+
+- **A `ship` variant in the preset, beside `signal`.** Peek's theme is a class
+  and Ship's is an attribute (`[data-theme='ship']`), so a rule written for
+  `.signal &` reached only one of the two apps — the keycap treatment stopped
+  at Peek's border. `ship:` now exists for the same job, and `Kbd` carries
+  both.
+
+- **Every `⌘` is gone from the stories and the docs**, replaced by the word.
+  The glyph was wrong on Windows, and it is not in Geist Mono — it fell back
+  to a system face and sat oddly beside the letter next to it.
+
+- **A menu row's hover fill is instant.** It faded over 150ms, which meant
+  anything appearing with it had to fade too — and a chip fading in and out
+  under a moving pointer reads as flicker (Katerina, 2026-09-05, watching a
+  fast sweep). Both the fill and the `hint` switch in one frame now. They
+  still change on exactly the same `:hover`, so they cannot come apart.
+
+### Fixed
+
+- **A menu that overflows no longer squashes what is inside it.** `MenuItem`
+  and the horizontal `Divider` are flex children of a column that scrolls at
+  its max height, and a flex child shrinks before its container does — so
+  past the fold every row collapsed to its `min-h` and every hairline to
+  nothing. Both take `shrink-0` now, the same fix `NavItem` took in 0.4.0.
+
+  Measured in Peek: rows given an explicit `h-12` were rendering 40px, and
+  the `/` menu's two dividers had been 0px tall since it was built — designed
+  in, never once visible. Nothing changes for a menu that fits.
+
 ## 0.5.0 — 2026-09-03
 
 ### Added
