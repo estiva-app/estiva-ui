@@ -14,8 +14,10 @@
  * to the source rather than to work around it here.
  *
  * Everything a consumer already has is external: React and the icons are peers,
- * clsx and tailwind-merge are dependencies npm installs. Bundling any of them
- * would ship a second React into somebody's app.
+ * clsx, tailwind-merge and @base-ui/react are dependencies npm installs. Bundling
+ * any of them would ship a second React into somebody's app. One external entry
+ * covers a package's subpaths too: measured with esbuild 0.28, '@base-ui/react'
+ * leaves '@base-ui/react/button' external, so no wildcard is needed.
  */
 import { build } from 'esbuild'
 
@@ -28,7 +30,7 @@ await build({
   target: 'es2022',
   jsx: 'automatic',
   sourcemap: true,
-  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', 'clsx', 'tailwind-merge'],
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', 'clsx', 'tailwind-merge', '@base-ui/react'],
   logLevel: 'warning',
 })
 
