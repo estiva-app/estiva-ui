@@ -44,6 +44,7 @@ This is Estiva's design package: the tokens every Estiva app must use and the co
 - A hover-only affordance is CSS (`group-hover`, `:hover`), never a React mount; a mount cannot stay in step with a transition.
 - Sizes and spacing in the class list, never computed in JavaScript, unless the value depends on data (an avatar's pixel size).
 - Where the caller owes something for accessibility (an `aria-label` on an icon-only button, a `label` on a field), the prop is required, not optional.
+- A class map (a `Record<Variant, string>` of class lists) is named so the lint can see it: `typeStyles`, `TONE_STYLES`; a name ending in `Styles` / `_STYLES` or `Classes` / `_CLASSES`. The lint reads `className`, `cn()` and `clsx()` by default and nothing else; a map named any other way is invisible to `no-unknown-classes`.
 
 ---
 
@@ -82,7 +83,7 @@ Vetoed: microcopy sections, provenance footnotes, do/don't image pairs, maturity
 - `tokens.test.ts`: every theme defines every token the preset names, and no other. Never weaken it.
 - `cn.test.ts`: the ramp `cn()` knows matches the preset. Add a size, add it there.
 - Per component: what the docs page claims. If the Keys table says Escape closes, a test presses Escape. If the props table says `disabled` keeps focus, a test tabs to it.
-- Every story runs through axe in CI (Storybook test runner; added in stage 0 of the migration). A story that fails axe does not merge; "it is decorative" is written as `aria-hidden`, not as an exception.
+- Every story runs through axe, in both themes, as the `storybook-signal` and `storybook-ship` Vitest projects (`npm run test:a11y`; CI runs it on every push, in its own job). A story that fails axe does not merge; "it is decorative" is written as `aria-hidden`, not as an exception. Where an exception exists it is one rule on one story or meta (`parameters.a11y.config.rules`), with the measured reason beside it and the stage that clears it; `test: 'todo'` is not used, because it silences every rule at once.
 
 ---
 
@@ -111,7 +112,7 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 ## 10. Review and merge
 
 - Katerina reviews every component **visually, in the package Storybook on `:6008`, in both themes**, and answers in numbered lists. Nothing merges before that review.
-- One PR per stage of the migration plan, never one per component: the question a review answers is whether the set still looks right together.
+- One branch and one PR for the whole migration plan (`base-ui-migration`; D15, 2026-09-06). A stage is a run of commits on it, reviewed in `:6008` as it lands. Never one PR per component: the question a review answers is whether the set still looks right together.
 - The definition of done, all of it, for every component in the PR:
   1. behaviour from Base UI or a specialist; no portal, Escape, arrow-key or focus code of our own;
   2. class list verbatim, tokens only; computed-style diff empty;
@@ -137,6 +138,8 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 | Stale Storybook | the review sees old code | restart after config or re-export changes |
 | Windows lockfile | CI's Linux `npm ci` fails | regenerate in a container |
 | Recalled facts | wrong in both directions | read the source, measure the pixel |
+| Class map named freely | the lint never reads it | end the name in `Styles` or `Classes` |
+| Windows `npm install` | drops Linux optional entries, adds peer flags | regenerate the lock in a container (§9) |
 
 ---
 
@@ -144,12 +147,12 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 
 ```
 npm run storybook     # :6008, both themes in the toolbar
-npm test              # tokens, cn, components
+npm test              # tokens, cn, components (the `unit` Vitest project)
+npm run test:a11y     # every story through axe, both themes (Vitest browser projects; `npx playwright install chromium` once)
+npm run lint          # eslint-plugin-better-tailwindcss: no-unknown-classes, no-restricted-classes (ramp, palette, raw colours)
 npm run build         # esbuild bundle + tsc declarations
-npm run lint          # eslint-plugin-better-tailwindcss: no-unknown-classes, no-conflicting-classes, no-restricted-classes  (stage 0)
-npm run test:a11y     # storybook test-runner with axe, every story                                                       (stage 0)
 ```
 
-The two marked "stage 0" are added by the first migration PR on this branch; until they exist, the CSS-build check in the apps' `UI-RULES.md` is the manual substitute.
+`no-conflicting-classes` is not on: the plugin supports it on Tailwind 4 only. The screenshot baselines are in `../peek/.verify-shots/base-ui-before-ui-signal`, `-ui-ship`, `-peek` and `-ship`, taken 2026-09-06 on 0.6.0 before anything moved; `shots-themed.mjs` beside them shoots this Storybook in a named theme.
 
 The order of work and Katerina's rulings live outside this repository, in `K:\Estiva\migration docs\` (`PLAN.md`, `DECISIONS.md`); a ruling there outranks anything here.
