@@ -74,6 +74,11 @@ permission. A library people are afraid to deviate from becomes a tax.
 If the colour you need has no token, the token is missing: add it here, in
 every theme, rather than reaching for hex in an app.
 
+A transparent colour is a token too. A wash, an outline, a glow or the scrim
+lives in `tokens.css`, not in an opacity modifier on another token:
+`bg-bg-inset/40` compiles to nothing, because the tokens are plain `var()`
+values.
+
 ### The tailwind-merge pitfall — retired for `cn()` users
 
 Stock `tailwind-merge` **silently drops** a custom text-size class

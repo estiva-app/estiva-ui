@@ -29,7 +29,7 @@ This is Estiva's design package: the tokens every Estiva app must use and the co
 - Colour, size, radius and shadow come from the preset's names and nothing else. The names are doubled in the class: the token `bg-surface` is the class **`bg-bg-surface`**, `text-primary` is **`text-text-primary`**. `bg-surface` compiles to nothing and is dropped silently; Ship shipped a transparent sign-in screen that way.
 - No Tailwind default ramp or palette: never `text-sm`, `text-xs`, `bg-gray-100`, `text-white`.
 - No hex, no `rgba(...)` beside a variable that holds the same colour. A colour with no token is a missing token: add it to `tokens.css` in **every** theme block (`tokens.test.ts` fails otherwise) and to the preset.
-- **No opacity modifiers on token colours** (`bg-bg-inset/40`): the tokens are plain `var()` values and the modifier compiles to nothing. Use the `-muted` token.
+- **No opacity modifiers on token colours** (`bg-bg-inset/40`): the tokens are plain `var()` values, the modifier compiles to nothing, and the lint rejects it. A designed transparent colour (a wash, an outline, a glow, the scrim) is a token of its own, defined in every theme block (D16). If the one you need is missing, add it; do not approximate it with a modifier or a `-muted` colour.
 - Merge classes with this package's `cn()` only. It is `tailwind-merge` taught the type ramp, so `text-body-2` survives beside `text-text-primary`. Stock `twMerge` drops it. Older components still spell sizes as `text-[14px]`; that is no longer necessary and is migrated to the token as each is touched.
 - Deliberate exceptions carry a comment saying why. An undocumented raw value is a defect.
 
@@ -131,7 +131,7 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 |---|---|---|
 | Doubled prefix | `bg-surface` compiles to nothing | `bg-bg-surface`; the lint's `no-unknown-classes` |
 | `tailwind-merge` and the ramp | a token size beside a colour is dropped | use this package's `cn()` |
-| Opacity modifier on a token | `bg-bg-inset/40` compiles to nothing | `-muted` token |
+| Opacity modifier on a token | `bg-bg-inset/40` compiles to nothing | a transparent token (D16); the lint rejects the modifier |
 | Tailwind `content` | a preset's `content` is not merged; classes purge | consumers spread `estivaContent` |
 | Missing `shrink-0` | a hairline renders `0px` in a flex column | `shrink-0` on every fixed-size child |
 | Hover hint as a React mount | out of step with the fade | CSS only |

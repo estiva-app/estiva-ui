@@ -31,8 +31,9 @@ import { parser as typescriptParser } from 'typescript-eslint'
  * `no-conflicting-classes` is not enabled: the plugin supports it on
  * Tailwind 4 only (its README, 2026-09-06), and this package is on 3.4.
  *
- * Opacity modifiers on token colours (`bg-bg-inset/40`) are not banned here
- * yet; that is PLAN.md stage 0.6, which is Katerina's ruling.
+ * Opacity modifiers on token colours (`bg-bg-inset/40`) are rejected too: the
+ * tokens are plain `var()` values, so the modifier compiles to nothing, and a
+ * transparent colour is a token of its own (D16).
  *
  * Only the class rules run. The TypeScript rule sets are a separate decision,
  * so that the commit that adds the lint changes no component.
@@ -77,6 +78,10 @@ export default defineConfig([
             {
               pattern: '^(?:[a-z0-9-]+:)*[a-z-]+-\\[[^\\]]*(?:#[0-9a-fA-F]{3}|rgba?\\(|hsla?\\(|oklch\\()',
               message: 'A raw colour is a missing token: add it to tokens.css in every theme block and to the preset, or say why not in an eslint-disable comment.',
+            },
+            {
+              pattern: '^(?:[a-z0-9-]+:)*(?:text|bg|border|ring|outline|fill|stroke|decoration|divide|placeholder|from|via|to|accent|caret|shadow)-(?:bg|text|border|accent|info|warning|success|error)-[a-z-]+/\\d{1,3}$',
+              message: 'An opacity modifier on a token colour compiles to nothing. A transparent colour is a token of its own (D16): add it to tokens.css in every theme block and to the preset.',
             },
           ],
         },
