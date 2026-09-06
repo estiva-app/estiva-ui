@@ -14,9 +14,10 @@ the parent owns the state.
 
 - A yes/no the person sets: an option in a form, an include/exclude in a
   list.
-- Inside a clickable row: pass **no `onChange`** and the square goes inert
-  — the row's own click does the toggling, and the checkbox just shows the
-  state.
+- Inside a clickable row: pass **no `onChange`**. The square then only
+  draws the state: it is hidden from assistive technology and takes no
+  focus, so the row is one control. The row says the state itself —
+  `aria-pressed` on a button row, `aria-selected` on an option in a list.
 
 <Canvas of={CheckboxStories.InsideARow} />
 
@@ -34,10 +35,18 @@ import { Checkbox } from '@estiva-app/ui'
 <Checkbox checked={done} onChange={setDone} aria-label="Mark as done" />
 ```
 
-- It renders as a button with the `checkbox` role, so it works standalone
-  or inside clickable rows; its click never bubbles to the row.
+- Built on Base UI Checkbox, rendered as a `<button>` with
+  `role="checkbox"` and `aria-checked`, and a hidden `<input>` beside it
+  for forms. Its click never reaches the row around it.
 - Give it an `aria-label` unless visible text right beside it names it.
-- Space or Enter toggles it, as any button.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Onto the box. |
+| Space | Toggles it. |
+| Enter | Nothing. As on a native checkbox, Enter is the form's key. |
 
 ## Props
 

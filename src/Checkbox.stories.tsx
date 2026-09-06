@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { fn } from 'storybook/test'
 import { useState } from 'react'
 import { Checkbox } from './Checkbox'
 
 const meta = {
   title: 'Inputs/Checkbox',
   component: Checkbox,
-  args: { checked: false, 'aria-label': 'Example' },
+  // `onChange` makes it the control; without one it is the picture of a
+  // state (the "inside a row" story), and these stories are about the control.
+  args: { checked: false, 'aria-label': 'Example', onChange: fn() },
   argTypes: { onChange: { control: false } },
 } satisfies Meta<typeof Checkbox>
 
@@ -28,23 +31,23 @@ export const Toggles: Story = {
 
 /**
  * Inside a clickable row the row owns the toggle: the checkbox gets no
- * `onChange` and goes inert, so the whole row is one target rather than two
- * fighting ones.
+ * `onChange`, draws the state, and is hidden from assistive technology, so
+ * the whole row is one control. The row says the state itself — here
+ * `aria-pressed`, on an option in a list `aria-selected`.
  */
 export const InsideARow: Story = {
-  // axe nested-interactive is off here: a checkbox inside a row that is itself a button
-  // is two controls in one. The anatomy is settled at the Checkbox port (PLAN.md stage 1).
-  parameters: { controls: { disable: true }, a11y: { config: { rules: [{ id: 'nested-interactive', enabled: false }] } } },
+  parameters: { controls: { disable: true } },
   render: () => {
     const [checked, setChecked] = useState(true)
     return (
       <button
         type="button"
+        aria-pressed={checked}
         onClick={() => setChecked((v) => !v)}
         className="flex w-64 items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-bg-hover"
       >
-        <Checkbox checked={checked} aria-label="Row state" />
-        <span className="text-[14px] leading-[1.4] text-text-primary">The row is the control</span>
+        <Checkbox checked={checked} />
+        <span className="text-body-2 text-text-primary">The row is the control</span>
       </button>
     )
   },
