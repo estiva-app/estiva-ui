@@ -1,51 +1,10 @@
-import { Meta } from '@storybook/addon-docs/blocks'
-import { Palette, TypeSpecimens, Radii, Shadows } from './Swatches'
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks'
+import { TokensPage } from './TokensPage'
 
 <Meta title="Docs/Design Tokens" />
 
-# Design Tokens
-
-The vocabulary every Estiva surface is written in — never raw hex. Every
-swatch reads its live CSS variable, so the **Theme** toolbar switches this
-whole page between the package's themes.
-
-The name is the class: colour token `surface` in the Background row is
-`bg-bg-surface`, text colour `secondary` is `text-text-secondary`, type
-token `body-2` is `text-body-2`. The names live in `tailwind-preset.js`,
-the values in `tokens.css` (one block per theme), and `npm test` proves
-every theme defines every name — and no other.
-
-## Colour
-
-<Palette />
-
-Text tokens are shown doing their job — `inverse` sits on the accent, where
-it lives. Semantic pairs show **default** left, **muted** right; muted is
-the tint for chips, banners and notification chrome.
-
-The transparent colours are tokens too, so that nobody writes an opacity
-modifier on another token (`bg-bg-inset/40` compiles to nothing): `wash` is
-the faint white a key face wears (`bg-bg-wash`), the **Outline** row is the
-thin borders Signal draws around chips (`border-info-outline`), and `scrim`
-is the dialog backdrop (`bg-scrim`). The glows sit under Shadow.
-
-## Type
-
-Geist, throughout. Token size classes are safe in `cn()` merges — the
-package's `cn` is taught this ramp (the README's tailwind-merge note has
-the history).
-
-<TypeSpecimens />
-
-## Radius
-
-<Radii />
-
-## Shadow
-
-<Shadows />
-
----
-
-*If the colour you need has no token, the token is missing: add it here, in
-every theme — never hex in an app.*
+{/* Unstyled: the docs container sets 16px Nunito Sans on every div outside it,
+    at the same specificity as a token class, so the page draws its own type. */}
+<Unstyled>
+  <TokensPage />
+</Unstyled>
