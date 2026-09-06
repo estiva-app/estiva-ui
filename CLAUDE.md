@@ -153,6 +153,6 @@ npm run lint          # eslint-plugin-better-tailwindcss: no-unknown-classes, no
 npm run build         # esbuild bundle + tsc declarations
 ```
 
-`no-conflicting-classes` is not on: the plugin supports it on Tailwind 4 only. The screenshot baselines are in `../peek/.verify-shots/base-ui-before-ui-signal`, `-ui-ship`, `-peek` and `-ship`, taken 2026-09-06 on 0.6.0 before anything moved; `shots-themed.mjs` beside them shoots this Storybook in a named theme.
+The sidebar's test widget in `:6008` runs the same stories through the same plugin, in the toolbar's default theme only: it can hold one project per `.storybook` folder, so the second theme is the command line's. `no-conflicting-classes` is not on: the plugin supports it on Tailwind 4 only. The screenshot baselines are in `../peek/.verify-shots/base-ui-before-ui-signal`, `-ui-ship`, `-peek` and `-ship`, taken 2026-09-06 on 0.6.0 before anything moved; `shots-themed.mjs` beside them shoots this Storybook in a named theme.
 
 The order of work and Katerina's rulings live outside this repository, in `K:\Estiva\migration docs\` (`PLAN.md`, `DECISIONS.md`); a ruling there outranks anything here.

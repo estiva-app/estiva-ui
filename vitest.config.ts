@@ -26,13 +26,22 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
  * colours. No Storybook needs to run for this; `storybookUrl` only makes a
  * failure's link open the right one.
  *
- * `npm test` runs the first; `npm run test:a11y` the other two. The stage-0
- * plan named `@storybook/test-runner` for the a11y run; under Storybook 10.6
- * it cannot load its own config file (Storybook's loader calls
+ * `npm test` runs the first; `npm run test:a11y` the other two.
+ *
+ * Inside Storybook, the sidebar's test widget starts its own Vitest. It
+ * renames every storybookTest project to `storybook:<configDir>` and runs
+ * that one name, so two theme projects on the one `.storybook` collide and
+ * Vitest refuses to start (seen 2026-09-06: "Project name ... is not
+ * unique", and Storybook went down with it). Under the widget
+ * (VITEST_STORYBOOK=true, set by the addon) this file therefore defines one
+ * project, in the toolbar's default theme; the command line gets both.
+ *
+ * The stage-0 plan named `@storybook/test-runner` for the a11y run; under
+ * Storybook 10.6 it cannot load its own config file (Storybook's loader calls
  * `module.register()`, which Jest 30 forbids), and this plugin is what
  * Storybook recommends in its place.
  */
-const THEMES = ['signal', 'ship'] as const
+const THEMES: readonly ('signal' | 'ship')[] = process.env.VITEST_STORYBOOK ? ['signal'] : ['signal', 'ship']
 
 export default defineConfig({
   plugins: [react()],
