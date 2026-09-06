@@ -21,16 +21,14 @@ export interface ChipProps {
   className?: string
 }
 
-/* eslint-disable better-tailwindcss/no-restricted-classes -- the outlines and the warning glow are Signal-only translucent values, ported verbatim (D6, port rule); token candidates under PLAN.md stage 0.6 */
 const typeStyles: Record<ChipType, string> = {
   neutral: 'bg-bg-inset text-text-primary',
-  brand: 'bg-accent-muted text-accent-primary signal:border signal:border-[rgba(86,200,255,0.3)]',
-  info: 'bg-info-muted text-info-default signal:border signal:border-[rgba(86,200,255,0.3)]',
-  warning: 'bg-warning-muted text-warning-default signal:border signal:border-[rgba(255,176,32,0.3)] signal:shadow-[shadow:0_0_5px_rgba(255,176,32,0.4)]',
-  success: 'bg-success-muted text-success-default signal:border signal:border-[rgba(63,222,140,0.3)]',
-  error: 'bg-error-muted text-error-default signal:border signal:border-[rgba(255,107,107,0.3)]',
+  brand: 'bg-accent-muted text-accent-primary signal:border signal:border-accent-outline',
+  info: 'bg-info-muted text-info-default signal:border signal:border-info-outline',
+  warning: 'bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning',
+  success: 'bg-success-muted text-success-default signal:border signal:border-success-outline',
+  error: 'bg-error-muted text-error-default signal:border signal:border-error-outline',
 }
-/* eslint-enable better-tailwindcss/no-restricted-classes */
 
 export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, className }: ChipProps) {
   return (

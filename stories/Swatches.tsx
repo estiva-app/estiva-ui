@@ -91,6 +91,20 @@ export function Palette() {
           </SwatchCol>
         ))}
       </Row>
+      <Row label="Outline">
+        {OUTLINE.map((t) => (
+          <SwatchCol key={t.var} name={t.name} value={resolveVar(t.var)}>
+            <div className="h-10 w-full rounded-lg bg-bg-surface" style={{ border: `2px solid var(${t.var})` }} />
+          </SwatchCol>
+        ))}
+      </Row>
+      <Row label="Overlay">
+        {OVERLAY.map((t) => (
+          <SwatchCol key={t.var} name={t.name} value={resolveVar(t.var)}>
+            <div className={BOX} style={{ background: `var(${t.var})` }} />
+          </SwatchCol>
+        ))}
+      </Row>
       <Row label="Semantic">
         {SEMANTIC.map((p) => (
           <SwatchCol key={p.name} name={p.name} value={`${resolveVar(p.defaultVar)} · ${resolveVar(p.mutedVar)}`} wide>
@@ -167,7 +181,20 @@ const BG: Token[] = [
   { name: 'selected', var: '--bg-selected' },
   { name: 'active', var: '--bg-active' },
   { name: 'disabled', var: '--bg-disabled' },
+  { name: 'wash', var: '--bg-wash' },
 ]
+
+/** The faint borders a chip wears under Signal; the class is `border-info-outline`. */
+const OUTLINE: Token[] = [
+  { name: 'accent', var: '--accent-outline' },
+  { name: 'info', var: '--info-outline' },
+  { name: 'warning', var: '--warning-outline' },
+  { name: 'success', var: '--success-outline' },
+  { name: 'error', var: '--error-outline' },
+]
+
+/** The dialog backdrop; the class is `bg-scrim`. */
+const OVERLAY: Token[] = [{ name: 'scrim', var: '--scrim' }]
 
 const TEXT: Token[] = [
   { name: 'primary', var: '--text-primary' },
@@ -253,4 +280,9 @@ const SHADOW: ShadowToken[] = [
   { token: 'shadow-sm', cls: 'shadow-sm' },
   { token: 'shadow-md', cls: 'shadow-md' },
   { token: 'shadow-lg', cls: 'shadow-lg' },
+  { token: 'focus-ring', cls: 'shadow-focus-ring' },
+  { token: 'glow-warning', cls: 'shadow-glow-warning' },
+  { token: 'highlight-inset', cls: 'shadow-highlight-inset' },
+  { token: 'drop-shadow-glow-success', cls: 'drop-shadow-glow-success' },
+  { token: 'drop-shadow-glow-accent', cls: 'drop-shadow-glow-accent' },
 ]

@@ -12,6 +12,14 @@ pulse, as they always have).
   component with a Base UI counterpart moves onto it in the stages that
   follow (D6). External to the bundle, like `clsx` and `tailwind-merge`, so
   a consumer installs one copy through npm.
+- **Eleven tokens for transparent colours (D16).** `bg-wash`, the five
+  `*-outline` borders, `glow-warning`, `glow-success`, `glow-accent`,
+  `highlight-inset` and `scrim`, in every theme. Kbd, Chip, Toast, AppShell
+  and DialogShell spell their wash, outlines, glows, highlight and backdrop
+  with them instead of hand-written `rgba(...)` values and `bg-black/50`.
+  The signal values are what those components drew before, and the
+  screenshots agree. `cn()` now knows the preset's shadow keys as well, so
+  two shadow tokens in one merged list conflict the way two sizes do.
 - **The guide pages ship.** `stories/` is in `files`, so Introduction,
   Getting started, Choosing a component and Design Tokens reach
   `node_modules/@estiva-app/ui/stories/`. The 37 component pages under

@@ -23,6 +23,12 @@ Text tokens are shown doing their job — `inverse` sits on the accent, where
 it lives. Semantic pairs show **default** left, **muted** right; muted is
 the tint for chips, banners and notification chrome.
 
+The transparent colours are tokens too, so that nobody writes an opacity
+modifier on another token (`bg-bg-inset/40` compiles to nothing): `wash` is
+the faint white a key face wears (`bg-bg-wash`), the **Outline** row is the
+thin borders Signal draws around chips (`border-info-outline`), and `scrim`
+is the dialog backdrop (`bg-scrim`). The glows sit under Shadow.
+
 ## Type
 
 Geist, throughout. Token size classes are safe in `cn()` merges — the

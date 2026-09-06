@@ -146,6 +146,15 @@ export default {
         'success-muted':   'var(--success-muted)',
         'error-default':   'var(--error-default)',
         'error-muted':     'var(--error-muted)',
+        // transparent colours (D16): a designed wash, outline or scrim, per theme.
+        // Never an opacity modifier on another token: `bg-bg-inset/40` compiles to nothing.
+        'bg-wash':         'var(--bg-wash)',
+        'accent-outline':  'var(--accent-outline)',
+        'info-outline':    'var(--info-outline)',
+        'warning-outline': 'var(--warning-outline)',
+        'success-outline': 'var(--success-outline)',
+        'error-outline':   'var(--error-outline)',
+        'scrim':           'var(--scrim)',
       },
       boxShadow: {
         'sm':  'var(--shadow-sm)',
@@ -154,6 +163,14 @@ export default {
         // The ring a focused control wears where a theme wants one: Signal's
         // glow. Every theme defines it; the shared inputs use it under `signal:`.
         'focus-ring': 'var(--focus-ring)',
+        // Signal's glow and inner highlight (D16); the components use them under `signal:`.
+        'glow-warning':    'var(--glow-warning)',
+        'highlight-inset': 'var(--highlight-inset)',
+      },
+      dropShadow: {
+        // The icon glows (D16), as `drop-shadow-glow-*`; a filter, so they follow the icon's shape.
+        'glow-success': 'var(--glow-success)',
+        'glow-accent':  'var(--glow-accent)',
       },
       keyframes: {
         'skeleton-in': {

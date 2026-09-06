@@ -37,13 +37,11 @@ const SURFACE_STYLES: Record<ToastType, string> = {
   neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
 }
 
-/* eslint-disable better-tailwindcss/no-restricted-classes -- the icon glows are Signal-only translucent values, ported verbatim (D6, port rule); token candidates under PLAN.md stage 0.6 */
 const ICON_STYLES: Record<ToastType, string> = {
-  success: 'signal:text-success-default signal:drop-shadow-[0_0_5px_rgba(63,222,140,0.7)]',
-  brand: 'signal:text-text-interactive signal:drop-shadow-[0_0_5px_rgba(86,200,255,0.6)]',
+  success: 'signal:text-success-default signal:drop-shadow-glow-success',
+  brand: 'signal:text-text-interactive signal:drop-shadow-glow-accent',
   neutral: 'signal:text-text-secondary',
 }
-/* eslint-enable better-tailwindcss/no-restricted-classes */
 
 const ACTION_BORDER_STYLES: Record<ToastType, string> = {
   success: 'signal:border signal:border-border-default signal:hover:border-border-strong',

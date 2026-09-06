@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import preset from '../tailwind-preset.js'
-import { cn, _fontSizeTokens } from './cn'
+import { cn, _boxShadowTokens, _dropShadowTokens, _fontSizeTokens } from './cn'
 
 describe('cn knows the type ramp', () => {
   it('lists exactly the preset fontSize keys', () => {
@@ -23,5 +23,24 @@ describe('cn knows the type ramp', () => {
 
   it('leaves non-ramp text utilities alone', () => {
     expect(cn('text-left text-body-2 text-text-primary')).toBe('text-left text-body-2 text-text-primary')
+  })
+})
+
+describe('cn knows the shadow tokens', () => {
+  it('lists exactly the preset boxShadow and dropShadow keys', () => {
+    const extend = (preset as { theme: { extend: { boxShadow: Record<string, unknown>; dropShadow: Record<string, unknown> } } }).theme.extend
+    expect([..._boxShadowTokens].sort()).toEqual(Object.keys(extend.boxShadow).sort())
+    expect([..._dropShadowTokens].sort()).toEqual(Object.keys(extend.dropShadow).sort())
+  })
+
+  it('treats a shadow token as a shadow: two of them conflict, the last wins', () => {
+    expect(cn('shadow-glow-warning', 'shadow-md')).toBe('shadow-md')
+    expect(cn('shadow-focus-ring', 'shadow-glow-warning')).toBe('shadow-glow-warning')
+    expect(cn('drop-shadow-glow-success', 'drop-shadow-glow-accent')).toBe('drop-shadow-glow-accent')
+  })
+
+  it('keeps a shadow token beside a colour, and under a variant', () => {
+    expect(cn('signal:shadow-glow-warning text-text-primary')).toBe('signal:shadow-glow-warning text-text-primary')
+    expect(cn('signal:border-warning-outline', 'text-warning-default')).toBe('signal:border-warning-outline text-warning-default')
   })
 })

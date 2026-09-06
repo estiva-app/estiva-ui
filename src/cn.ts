@@ -21,8 +21,24 @@ const FONT_SIZE_TOKENS = [
   'btn-default', 'btn-small', 'input-label', 'input-value', 'input-helper', 'chip',
 ]
 
+/**
+ * The preset's box-shadow and drop-shadow keys, for the same reason: stock
+ * tailwind-merge files an unknown `shadow-x` under shadow-COLOUR, so
+ * `shadow-focus-ring` beside `shadow-glow-warning` lost one of them, and
+ * `shadow-glow-warning` beside `shadow-md` kept both (measured 2026-09-06).
+ * `cn.test.ts` pins these to the preset too.
+ */
+const BOX_SHADOW_TOKENS = ['sm', 'md', 'lg', 'focus-ring', 'glow-warning', 'highlight-inset']
+const DROP_SHADOW_TOKENS = ['glow-success', 'glow-accent']
+
 const twMerge = extendTailwindMerge({
-  extend: { classGroups: { 'font-size': [{ text: FONT_SIZE_TOKENS }] } },
+  extend: {
+    classGroups: {
+      'font-size': [{ text: FONT_SIZE_TOKENS }],
+      shadow: [{ shadow: BOX_SHADOW_TOKENS }],
+      'drop-shadow': [{ 'drop-shadow': DROP_SHADOW_TOKENS }],
+    },
+  },
 })
 
 /** Merge class names, last-one-wins on conflicting Tailwind utilities. */
@@ -30,4 +46,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export { FONT_SIZE_TOKENS as _fontSizeTokens }
+export { FONT_SIZE_TOKENS as _fontSizeTokens, BOX_SHADOW_TOKENS as _boxShadowTokens, DROP_SHADOW_TOKENS as _dropShadowTokens }
