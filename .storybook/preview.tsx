@@ -110,6 +110,9 @@ const preview: Preview = {
   parameters: {
     layout: 'centered',
     controls: { expanded: true },
+    // Every story is an accessibility test: the panel shows axe's findings and
+    // `npm run test:a11y` fails on them, in the addon's own vocabulary.
+    a11y: { test: 'error' },
     docs: { theme: themes.dark },
     options: {
       storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Feedback', 'Overlays', 'Navigation', 'Frame'] },

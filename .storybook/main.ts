@@ -17,6 +17,12 @@ const config: StorybookConfig = {
       name: '@storybook/addon-docs',
       options: { mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm] } } },
     },
+    // addon-a11y: axe on every story, in the panel while working; CI runs the
+    // same checks headless through the test runner (`npm run test:a11y`).
+    '@storybook/addon-a11y',
+    // addon-vitest: the sidebar's test widget, over the same Vitest projects
+    // vitest.config.ts defines (one axe run per theme).
+    '@storybook/addon-vitest',
   ],
 }
 
