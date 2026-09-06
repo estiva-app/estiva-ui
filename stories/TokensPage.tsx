@@ -213,20 +213,19 @@ function Specimen({ token, tick }: { token: TypeToken; tick: number }) {
     setSpec(`${cs.fontSize} / ${cs.lineHeight} · ${cs.fontWeight}${tracking}`)
   }, [token.cls, tick])
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_9rem_13rem_12rem] items-baseline gap-4 border-t border-border-subtle py-1.5 first:border-t-0">
+    <div className="grid grid-cols-[minmax(0,1fr)_9rem_13rem] items-baseline gap-4 border-t border-border-subtle py-1.5 first:border-t-0">
       <div ref={ref} className={`${token.cls} truncate text-text-primary`}>
         The quick brown fox jumps
       </div>
       <code className="truncate font-mono text-caption text-text-secondary">{token.cls}</code>
       <code className="truncate font-mono text-caption text-text-secondary">{spec}</code>
-      <Users names={usedBy(token.key, 'text')} />
     </div>
   )
 }
 
 function ColumnHeads({ first, cols }: { first: string; cols: string[] }) {
   return (
-    <div className={`grid items-center gap-4 pb-2 ${first === 'Specimen' ? 'grid-cols-[minmax(0,1fr)_9rem_13rem_12rem]' : 'grid-cols-[48px_9rem_13rem_12rem_minmax(0,1fr)]'}`}>
+    <div className={`grid items-center gap-4 pb-2 ${first === 'Specimen' ? 'grid-cols-[minmax(0,1fr)_9rem_13rem]' : 'grid-cols-[48px_9rem_13rem_12rem_minmax(0,1fr)]'}`}>
       {first === 'Specimen' ? null : <span />}
       {[first, ...cols].map((c) => (
         <span key={c} className="text-caption text-text-secondary">{c}</span>
@@ -246,7 +245,7 @@ export function TokensPage() {
         <p className="mt-2 max-w-[640px] text-body-2 text-text-secondary">
           Every colour, size, radius and shadow an Estiva surface may use, by name. The name is the class: the background token
           <code className="font-mono text-caption"> surface </code>is<code className="font-mono text-caption"> bg-bg-surface</code>. Values are
-          live for the theme in the toolbar. <em>Used by</em> lists the package's own components; the apps are not counted.
+          live for the theme in the toolbar. <em>Used by</em> lists the package's own components that spell the token; the apps are not counted.
         </p>
       </header>
 
@@ -264,13 +263,13 @@ export function TokensPage() {
       <div className="mt-14">
         {TYPE_GROUPS.map((g, i) => (
           <Section key={g.label} label={`Type · ${g.label}`} blurb={g.blurb}>
-            {i === 0 ? <ColumnHeads first="Specimen" cols={['Class', 'Size / line height · weight', 'Used by']} /> : null}
+            {i === 0 ? <ColumnHeads first="Specimen" cols={['Class', 'Size / line height · weight']} /> : null}
             {g.tokens.map((t) => (
               <Specimen key={t.key} token={t} tick={tick} />
             ))}
           </Section>
         ))}
-        <p className="mt-3 text-caption text-text-secondary">Geist throughout; Geist Mono for code. A component that still spells a size in pixels does not count as a user until it moves to the token.</p>
+        <p className="mt-3 text-caption text-text-secondary">Geist throughout; Geist Mono for code.</p>
       </div>
 
       <div className="mt-14">
