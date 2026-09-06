@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased — the Base UI migration, stage 1 (2026-09-07)
+
+Two components move onto Base UI parts. Nothing renders differently: every
+Tabs and Checkbox story matches the stage-0 baseline to the pixel in both
+themes, and every Peek and Ship story rendered against the linked package
+matches its own 0.6.0 baseline, except where D16 already explains the
+difference (below).
+
+### Changed
+
+- **`Tabs` is built on Base UI Tabs.** Same props, same classes. New: the
+  keyboard. The selected tab is the row's one Tab stop; ← and → select the
+  previous and next tab and wrap at the ends; Home and End select the first
+  and last. `onChange` fires only for a person's choice. `className` now
+  lands on an outer box around the row (Base UI's Root); no caller passes
+  one today. The two sizes are spelled with the type tokens (`text-body-2`,
+  `text-caption`) instead of pixel values. Callers: Peek `TopicTabs`; Ship
+  `IssuesView`, `ProjectsView`, `ProjectView`.
+- **`Checkbox` is built on Base UI Checkbox.** With `onChange` it is the
+  control, rendered as a `<button role="checkbox">` with a hidden input
+  beside it; Space toggles, Enter no longer does (it is the form's key, as
+  on a native checkbox); its click never reaches the row. **Without
+  `onChange` it is now a picture, not a control**: hidden from assistive
+  technology, no focus, no role. A row that owns the toggle must say the
+  state itself (`aria-pressed`, or `aria-selected` on an option). Caller:
+  Peek `AddToOpenWorkDialog`, whose rows are options with `aria-selected`
+  already; its `aria-label` on the inert square is now ignored. Pixels
+  unchanged.
+
+### For whoever changes the package
+
+- The `nested-interactive` exception on the Checkbox "Inside a row" story
+  is gone; axe passes it in both themes.
+- Two things the link into the apps taught, both in `CLAUDE.md`: stop an
+  app's Storybook and Vite servers before `npm ci` there, or the restore
+  fails half-way on a locked file; and an app's Vitest cannot run against a
+  symlinked package once the package reaches React through a dependency
+  (two copies of React), so a caller test runs against `npm pack`'s tarball
+  instead. Ship's Tabs test passes that way.
+- Seen through the link, not caused by this stage: Ship's dialog backdrops
+  differ by one colour level (D16's scrim, the rounding already explained),
+  and Peek's "urgent" chips draw Peek's own `--glow-warning` (8px, 0.8)
+  instead of the package's (5px, 0.4), because Peek's `index.css` defines
+  three `--glow-*` variables with the names D16 chose. `PLAN.md` Finding
+  12, for Katerina.
+
 ## Unreleased — the Base UI migration, stage 0 (2026-09-06)
 
 Nothing renders differently. Every package story, both themes, matches the

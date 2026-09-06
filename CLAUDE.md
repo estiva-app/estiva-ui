@@ -22,6 +22,21 @@ This is Estiva's design package: the tokens every Estiva app must use and the co
 4. **Grep the two apps for every caller** before changing a prop: `grep -rn "<ComponentName" ../peek/src ../ship/web/src`. A prop's name and type are frozen during a port; additions are allowed, renames are a breaking change and name every caller in the changelog.
 5. **Never guess.** Read the source or measure it. A number, a class or a behaviour that was recalled rather than read has been wrong before, in both directions.
 
+### A port, step by step (Tabs, stage 1, 2026-09-07)
+
+Every later port repeats this; none interprets it.
+
+1. **Read Base UI's part.** `node_modules/@base-ui/react/tabs/*/*.d.ts` and the `.js` beside it: Root, List, Tab, Panel, Indicator; what each renders, which data attributes it sets, what `onValueChange` reports and when. Read shadcn's Base UI file for its structure (Root > List > Tab), keep nothing else.
+2. **Read ours in full**: `src/Tabs.tsx`, `Tabs.stories.tsx`, `Tabs.mdx`. Note the class list, the props, and what the page says it lacks ("no arrow-key roving").
+3. **Grep the callers**: `grep -rn "<Tabs" ../peek/src ../ship/web/src` — four callers and one test. Note what each passes (`className`: nobody).
+4. **Write it.** Root carries the caller's `className` and the controlled `value`/`onValueChange`; List carries the row's classes; Tab carries the old class list, keyed to Base UI's state through `className={(state) => cn(...)}` — the ternary that read `active === tab.id` now reads `state.active`. Sizes spelled in pixels become the type tokens.
+5. **Pin the page's claims in a test** (`Tabs.test.tsx`: jsdom, Testing Library, user-event; plain matchers, this package has no jest-dom). The Keys table is written from the tests, after they pass.
+6. **Update the page**: How, then the Keys table, then Controls.
+7. **Check**: `npm run lint`, `npm run typecheck`, `npm test`; shoot both themes (`node ../peek/.verify-shots/shots-themed.mjs <dir> 6008 signal`, then `ship`), diff against the last baseline. Every non-empty diff gets a measurement, not a guess: Checkbox's 1px came from an empty `<span>` hanging on a text line differently from an empty `<button>`, found by putting both beside each other in the story and reading their boxes.
+8. **Axe on the stories you touched**, one theme at a time: `npx vitest run --project storybook-signal src/Tabs.stories.tsx`, then `--project storybook-ship`. The two projects race on one cache directory when run together. Remove the story's exception in the same commit.
+9. **Link into the apps** (§8): build, `npm install K:/Estiva/estiva-ui --no-save` in `../peek` and `../ship/web`, stop and restart their Storybooks, shoot every app story before (on the published package, on the checkout as it is now — the old baseline may predate app commits) and after, diff, explain. A caller's test runs against `npm pack`'s tarball, not the link (§11). Restore: stop every server in that checkout, `npm ci`, start them again.
+10. **Commit per component.** The message names the behaviour that changed, the proof, and every caller. The changelog entry does the same in the reader's words.
+
 ---
 
 ## 3. Tokens
@@ -92,7 +107,7 @@ Vetoed: microcopy sections, provenance footnotes, do/don't image pairs, maturity
 A port must not change a pixel in the app the design came from. The proof is:
 
 1. **Screenshot diff** of every story in this package, both themes, against the baseline kept under `.verify-shots/` in the `peek` checkout beside this one (its README explains the tooling).
-2. **Screenshot diff of every app story that contains the component**, with the package linked into the app (`npm install K:/Estiva/estiva-ui --no-save` in `ship/web` or `peek`), against that app's baseline. `git status` in the app stays clean; `npm ci` restores it.
+2. **Screenshot diff of every app story that contains the component**, with the package linked into the app (`npm install K:/Estiva/estiva-ui --no-save` in `ship/web` or `peek`), against that app's baseline. `git status` in the app stays clean; `npm ci` restores it, **after every Storybook and Vite server in that checkout is stopped** — a running one holds a native binary open and `npm ci` dies half-way, leaving no `node_modules/@estiva-app`. The link serves the browser only: an app's Vitest resolves React twice through a symlink once the package reaches React via a dependency (Base UI). A caller's test runs against `npm pack`'s tarball, installed the same way.
 3. **Computed-style diff** where a screenshot cannot tell (line height, letter spacing, a 1px radius): the `.verify-*.mjs` scripts drive Chrome and compare `getComputedStyle` on the same theme both sides.
 4. **Restart Storybook** after any change to the preset, the Tailwind config, or a file replaced by a re-export. A stale Storybook has cost a review round.
 
@@ -140,6 +155,10 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 | Recalled facts | wrong in both directions | read the source, measure the pixel |
 | Class map named freely | the lint never reads it | end the name in `Styles` or `Classes` |
 | Windows `npm install` | drops Linux optional entries, adds peer flags | regenerate the lock in a container (§9) |
+| `npm ci` in an app while its Storybook or Vite runs | EPERM half-way; `node_modules` gutted | stop every server in that checkout first |
+| An app's Vitest on the symlinked package | two Reacts; "Cannot read properties of null (reading 'useRef')" | run caller tests on the `npm pack` tarball |
+| Two axe projects in one run | they race on one cache dir; "Failed to fetch dynamically imported module" | one `--project` per run (clear `node_modules/.cache/storybook/*/sb-vitest` if it already happened) |
+| An empty `<span>` for an empty `<button>` | 1px higher on a text line (the same in a flex row) | keep the element the design was drawn with, or measure both |
 
 ---
 
