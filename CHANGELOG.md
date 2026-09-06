@@ -2,11 +2,12 @@
 
 ## Unreleased — the Base UI migration, stage 1 (2026-09-07)
 
-Two components move onto Base UI parts. Nothing renders differently: every
-Tabs and Checkbox story matches the stage-0 baseline to the pixel in both
-themes, and every Peek and Ship story rendered against the linked package
-matches its own 0.6.0 baseline, except where D16 already explains the
-difference (below).
+Two components move onto Base UI parts. Nothing renders differently, with
+one ruled exception: every Tabs and Checkbox story matches the stage-0
+baseline to the pixel in both themes, except the unchecked Checkbox on a
+line of text, which now sits where the checked one does (below); and every
+Peek and Ship story rendered against the linked package matches its own
+0.6.0 baseline, except where D16 already explains the difference (below).
 
 ### Changed
 
@@ -19,15 +20,21 @@ difference (below).
   `text-caption`) instead of pixel values. Callers: Peek `TopicTabs`; Ship
   `IssuesView`, `ProjectsView`, `ProjectView`.
 - **`Checkbox` is built on Base UI Checkbox.** With `onChange` it is the
-  control, rendered as a `<button role="checkbox">` with a hidden input
-  beside it; Space toggles, Enter no longer does (it is the form's key, as
-  on a native checkbox); its click never reaches the row. **Without
+  control as Base UI renders it, a `<span role="checkbox">` with a hidden
+  input beside it; Space toggles, Enter no longer does (it is the form's
+  key, as on a native checkbox); its click never reaches the row. **Without
   `onChange` it is now a picture, not a control**: hidden from assistive
   technology, no focus, no role. A row that owns the toggle must say the
   state itself (`aria-pressed`, or `aria-selected` on an option). Caller:
   Peek `AddToOpenWorkDialog`, whose rows are options with `aria-selected`
-  already; its `aria-label` on the inert square is now ignored. Pixels
-  unchanged.
+  already; its `aria-label` on the inert square is now ignored.
+- **The Checkbox no longer moves when it toggles.** An empty box and a box
+  with the tick hung on a line of text one pixel apart, on 0.6.0 as well, so
+  every click moved the square (Katerina, 2026-09-07: "it should be
+  fixed"). The tick is now always in the box and hidden when unchecked. The
+  unchecked square sits where the checked one always did, one pixel lower
+  than before on a line of text; in a flex row, where every caller puts it,
+  nothing moved.
 
 ### For whoever changes the package
 

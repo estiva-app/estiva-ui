@@ -35,10 +35,12 @@ import { Checkbox } from '@estiva-app/ui'
 <Checkbox checked={done} onChange={setDone} aria-label="Mark as done" />
 ```
 
-- Built on Base UI Checkbox, rendered as a `<button>` with
+- Built on Base UI Checkbox, as Base UI renders it: a `<span>` with
   `role="checkbox"` and `aria-checked`, and a hidden `<input>` beside it
   for forms. Its click never reaches the row around it.
 - Give it an `aria-label` unless visible text right beside it names it.
+- It does not move when it toggles: the tick is always in the box, hidden
+  when unchecked, so both states hang on a line of text the same way.
 
 ## Keys
 

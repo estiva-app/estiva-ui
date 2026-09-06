@@ -49,7 +49,7 @@ describe('Checkbox', () => {
     const onChange = vi.fn()
     render(<Checkbox checked={false} disabled onChange={onChange} aria-label="Done" />)
     const box = screen.getByRole('checkbox', { name: 'Done' })
-    expect(box.hasAttribute('disabled')).toBe(true)
+    expect(box.getAttribute('aria-disabled')).toBe('true')
     await user.click(box)
     expect(onChange).not.toHaveBeenCalled()
   })
