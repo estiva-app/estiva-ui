@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
+import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { cn } from './cn'
 
 /**
  * A row of tabs. Ship's Tabs (2026-09-01), which was Peek's TopicTabs with
- * the topic-specific ids taken out.
+ * the topic-specific ids taken out; on Base UI Tabs since stage 1 of the
+ * migration (2026-09-06), which is where the keyboard comes from: one Tab
+ * stop for the row, arrow keys between the tabs.
  *
  * A selected tab is a neutral fill (bg-active), not the accent tint —
  * Katerina's ruling (2026-08-27), extended to every app (2026-09-01). Two
@@ -31,43 +34,51 @@ export interface TabsProps<T extends string> {
   onChange: (id: T) => void
   /** `default` 14px; `small` 12px, the denser geometry. */
   size?: 'default' | 'small'
+  /** Lands on the outer box, around the row. */
   className?: string
 }
 
 export function Tabs<T extends string>({ tabs, active, onChange, size = 'default', className }: TabsProps<T>) {
   return (
-    <div role="tablist" className={cn('flex items-center gap-2', className)}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          role="tab"
-          aria-selected={active === tab.id}
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            'flex cursor-pointer items-center transition-colors',
-            // Arbitrary sizes (the body-2 and caption tokens): the colour branch below
-            // follows them through cn(), and tw-merge drops a custom text-{size}
-            // once a text-{colour} lands after it. Measured: tabs rendered 16px.
-            // gap: default is Ship's 6px; small keeps Peek's original 4px, or
-            // "small is Peek's geometry" stops being true.
-            size === 'default' ? 'gap-1.5 rounded-md px-2 py-1 text-[14px] leading-[140%]' : 'gap-1 rounded px-1.5 py-0.5 text-[12px] leading-[120%]',
-            active === tab.id ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover',
-          )}
-        >
-          {tab.icon}
-          {/* Label and count share a baseline: a smaller text centred as a box
-              (items-center) floats above the label's baseline — the digits
-              read as riding high. Baseline alignment is what makes two sizes
-              sit on one line. */}
-          <span className="flex items-baseline">
-            {tab.label}
-            {tab.count !== undefined ? (
-              <span className="ml-2.5 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
-            ) : null}
-          </span>
-        </button>
-      ))}
-    </div>
+    <BaseTabs.Root
+      value={active}
+      onValueChange={(value, details) => {
+        // Only a person's choice reaches the caller. Base UI also reports its
+        // own fallbacks (an `active` that matches no tab), and those carry
+        // `null`, which is not a T.
+        if (details.reason === 'none') onChange(value as T)
+      }}
+      className={className}
+    >
+      <BaseTabs.List activateOnFocus className="flex items-center gap-2">
+        {tabs.map((tab) => (
+          <BaseTabs.Tab
+            key={tab.id}
+            value={tab.id}
+            className={(state) =>
+              cn(
+                'flex cursor-pointer items-center transition-colors',
+                // gap: default is Ship's 6px; small keeps Peek's original 4px, or
+                // "small is Peek's geometry" stops being true.
+                size === 'default' ? 'gap-1.5 rounded-md px-2 py-1 text-body-2' : 'gap-1 rounded px-1.5 py-0.5 text-caption',
+                state.active ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover',
+              )
+            }
+          >
+            {tab.icon}
+            {/* Label and count share a baseline: a smaller text centred as a box
+                (items-center) floats above the label's baseline — the digits
+                read as riding high. Baseline alignment is what makes two sizes
+                sit on one line. */}
+            <span className="flex items-baseline">
+              {tab.label}
+              {tab.count !== undefined ? (
+                <span className="ml-2.5 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
+              ) : null}
+            </span>
+          </BaseTabs.Tab>
+        ))}
+      </BaseTabs.List>
+    </BaseTabs.Root>
   )
 }
