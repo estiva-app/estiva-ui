@@ -186,7 +186,7 @@ export const LongLabelInPropertyRow: Story = {
   render: (args) => (
     <div className="w-[300px] rounded-lg border border-border-subtle p-3">
       <div className="flex items-center gap-2">
-        <span className="w-[68px] shrink-0 text-xs text-text-secondary">Lead</span>
+        <span className="w-[68px] shrink-0 text-caption text-text-secondary">Lead</span>
         <Demo
           {...args}
           size="small"

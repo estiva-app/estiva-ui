@@ -39,7 +39,7 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
 
   return createPortal(
     <>
-      {/* Backdrop */}
+      {/* eslint-disable-next-line better-tailwindcss/no-restricted-classes -- Backdrop. The scrim has no token: the suite draws it at three opacities (audit 2026-09-05, finding 12); a scrim token is a design ruling, taken with PLAN.md stage 0.6 */}
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
 
       {/* Dialog */}

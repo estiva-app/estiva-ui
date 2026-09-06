@@ -21,6 +21,7 @@ export interface ChipProps {
   className?: string
 }
 
+/* eslint-disable better-tailwindcss/no-restricted-classes -- the outlines and the warning glow are Signal-only translucent values, ported verbatim (D6, port rule); token candidates under PLAN.md stage 0.6 */
 const typeStyles: Record<ChipType, string> = {
   neutral: 'bg-bg-inset text-text-primary',
   brand: 'bg-accent-muted text-accent-primary signal:border signal:border-[rgba(86,200,255,0.3)]',
@@ -29,6 +30,7 @@ const typeStyles: Record<ChipType, string> = {
   success: 'bg-success-muted text-success-default signal:border signal:border-[rgba(63,222,140,0.3)]',
   error: 'bg-error-muted text-error-default signal:border signal:border-[rgba(255,107,107,0.3)]',
 }
+/* eslint-enable better-tailwindcss/no-restricted-classes */
 
 export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, className }: ChipProps) {
   return (

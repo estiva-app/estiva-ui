@@ -51,6 +51,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
           <div
             className={cn(
               'flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-bg-surface',
+              // eslint-disable-next-line better-tailwindcss/no-restricted-classes -- the inner highlight is a Signal-only translucent value, ported verbatim (D6, port rule); token candidate under PLAN.md stage 0.6
               'signal:border signal:border-border-subtle signal:shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]',
             )}
           >
