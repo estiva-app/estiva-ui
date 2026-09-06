@@ -39,6 +39,12 @@ pulse, as they always have).
   value. Class maps are named `*Styles` / `*_STYLES` so the lint reads them;
   Banner's and Toast's were renamed. Nine Signal-only translucent values
   ported verbatim from Peek, and the scrim, are named as exceptions.
+- **The Design Tokens page is rebuilt.** One row per token: swatch, name,
+  class, live value, and which components use it, read from their source
+  when the page builds. Type specimens render in their own token and
+  measure themselves. It sits inside Storybook's `Unstyled` block: the docs
+  container used to set 16px on every specimen, so the whole ramp looked
+  like one size.
 - `isolation: isolate` on the Storybook roots, Base UI's one layout
   requirement. The apps set theirs at adoption.
 
