@@ -1,5 +1,39 @@
 # Changelog
 
+## Unreleased — the Base UI migration, stage 0 (2026-09-06)
+
+Nothing renders differently. Every package story, both themes, matches the
+0.6.0 baseline to the pixel (the three skeleton stories differ by their
+pulse, as they always have).
+
+### Added
+
+- **`@base-ui/react` is a dependency.** Nothing is built on it yet; every
+  component with a Base UI counterpart moves onto it in the stages that
+  follow (D6). External to the bundle, like `clsx` and `tailwind-merge`, so
+  a consumer installs one copy through npm.
+- **The guide pages ship.** `stories/` is in `files`, so Introduction,
+  Getting started, Choosing a component and Design Tokens reach
+  `node_modules/@estiva-app/ui/stories/`. The 37 component pages under
+  `src/` already did.
+
+### For whoever changes the package
+
+- `npm run test:a11y` renders every story in Chromium, once per theme, and
+  runs axe on it; a violation fails. Its first run found the IconButton
+  stories without an accessible name (fixed), ChipInput's unnamed input and
+  the Checkbox row anatomy (cleared by their ports), and token contrast
+  below AA in both themes (a ruling, `PLAN.md` stage 0.10). Each open one is
+  a single rule switched off on a single story, with the measurement beside
+  it.
+- `npm run lint` is the token contract: no class Tailwind does not
+  generate, no Tailwind ramp or palette, no raw colour in an arbitrary
+  value. Class maps are named `*Styles` / `*_STYLES` so the lint reads them;
+  Banner's and Toast's were renamed. Nine Signal-only translucent values
+  ported verbatim from Peek, and the scrim, are named as exceptions.
+- `isolation: isolate` on the Storybook roots, Base UI's one layout
+  requirement. The apps set theirs at adoption.
+
 ## 0.6.0 — 2026-09-05
 
 ### Added
