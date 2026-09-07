@@ -72,6 +72,8 @@
   --warning-outline: rgba(245, 158, 11, 0.3);
   --success-outline: rgba(14, 160, 111, 0.3);
   --error-outline:   rgba(239, 68, 68, 0.3);
+  --accent-wash:     rgba(139, 92, 246, 0.11);
+  --success-wash:    rgba(14, 160, 111, 0.11);
   --glow-warning:    0 0 5px rgba(245, 158, 11, 0.4);
   --glow-success:    0 0 5px rgba(14, 160, 111, 0.7);
   --glow-accent:     0 0 5px rgba(139, 92, 246, 0.6);
@@ -133,6 +135,8 @@
   --warning-outline: rgba(251, 191, 36, 0.3);
   --success-outline: rgba(52, 211, 153, 0.3);
   --error-outline:   rgba(248, 113, 113, 0.3);
+  --accent-wash:     rgba(167, 139, 250, 0.11);
+  --success-wash:    rgba(52, 211, 153, 0.11);
   --glow-warning:    0 0 5px rgba(251, 191, 36, 0.4);
   --glow-success:    0 0 5px rgba(52, 211, 153, 0.7);
   --glow-accent:     0 0 5px rgba(167, 139, 250, 0.6);
@@ -198,6 +202,8 @@
   --warning-outline: rgba(255, 176, 32, 0.3);
   --success-outline: rgba(63, 222, 140, 0.3);
   --error-outline:   rgba(255, 107, 107, 0.3);
+  --accent-wash:     rgba(86, 200, 255, 0.11);
+  --success-wash:    rgba(63, 222, 140, 0.11);
   --glow-warning:    0 0 5px rgba(255, 176, 32, 0.4);
   --glow-success:    0 0 5px rgba(63, 222, 140, 0.7);
   --glow-accent:     0 0 5px rgba(86, 200, 255, 0.6);
@@ -269,6 +275,8 @@
   --warning-outline: rgba(224, 176, 74, 0.3);
   --success-outline: rgba(70, 192, 138, 0.3);
   --error-outline:   rgba(229, 105, 122, 0.3);
+  --accent-wash:     rgba(75, 88, 212, 0.11);
+  --success-wash:    rgba(70, 192, 138, 0.11);
   --glow-warning:    0 0 5px rgba(224, 176, 74, 0.4);
   --glow-success:    0 0 5px rgba(70, 192, 138, 0.7);
   --glow-accent:     0 0 5px rgba(75, 88, 212, 0.6);
