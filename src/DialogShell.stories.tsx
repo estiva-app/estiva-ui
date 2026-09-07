@@ -63,7 +63,11 @@ export const Confirmation: Story = {
   },
 }
 
-/** Open it, then close it with the ✕, the backdrop, or Escape. */
+/**
+ * Open it, then close it with the ✕, the backdrop, or Escape. Tab around while
+ * it is open: focus cannot leave the card, and when the dialog closes it
+ * returns to the button that opened it. Neither was true before stage 3.
+ */
 export const OpenAndClose: Story = {
   args: { footer: null, children: null },
   render: (args) => {
@@ -89,6 +93,46 @@ export const OpenAndClose: Story = {
             }
           >
             <p className="text-body-2 text-text-primary">Escape closes this too.</p>
+          </DialogShell>
+        )}
+      </div>
+    )
+  },
+}
+
+/**
+ * `alert` — a question that has to be answered. A press on the backdrop does
+ * nothing; Escape and the ✕ still close it. This is what `ConfirmDialog` is
+ * (Katerina, D20). Open it and try clicking the dark area: compare with the
+ * story above, where the same click closes the dialog.
+ */
+export const Alert: Story = {
+  args: { footer: null, children: null },
+  render: (args) => {
+    const [open, setOpen] = useState(false)
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Button variant="primary" onClick={() => setOpen(true)}>
+          Open alert dialog
+        </Button>
+        {open && (
+          <DialogShell
+            {...args}
+            alert
+            title="Delete this?"
+            onClose={() => setOpen(false)}
+            footer={
+              <>
+                <Button variant="muted" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" onClick={() => setOpen(false)}>
+                  Delete
+                </Button>
+              </>
+            }
+          >
+            <p className="text-body-2 text-text-primary">A press outside will not dismiss this one.</p>
           </DialogShell>
         )}
       </div>

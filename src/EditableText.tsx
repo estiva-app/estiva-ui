@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
+import { Field as BaseField } from '@base-ui/react/field'
+import { Input } from '@base-ui/react/input'
 import { cn } from './cn'
 
 /**
  * Text you click to edit — Ship's EditableText (2026-09-01), verbatim. Its
  * own comment always called it a package candidate: nothing here knows what
  * is being edited.
+ *
+ * The editing state is Base UI's `Input` — or `Field.Control` as a
+ * `<textarea>` when multiline — since stage 3 of the migration (2026-09-07).
+ * The read state, the draft, and every rule about committing stay here:
+ * Base UI has no opinion about what an edit means, and this component is
+ * nothing but that opinion.
  *
  * Reads as text until clicked; then it is a field. Enter commits (Shift+Enter
  * is a new line when multiline), Escape cancels, blur commits. A commit that
@@ -125,11 +133,11 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
 
   if (editing) {
     return multiline ? (
-      <textarea
+      <BaseField.Control
         ref={fieldRef as RefObject<HTMLTextAreaElement>}
+        render={<textarea rows={4} />}
         aria-label={label}
         value={draft}
-        rows={4}
         disabled={busy}
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={onKeyDown}
@@ -137,7 +145,7 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
         className={fieldClass}
       />
     ) : (
-      <input
+      <Input
         ref={fieldRef as RefObject<HTMLInputElement>}
         aria-label={label}
         value={draft}

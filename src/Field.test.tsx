@@ -14,6 +14,10 @@
  * associated to that label". That message is the bug stated precisely, and the
  * consumer worked around it by querying by role. The guard belongs here, where
  * the next primitive added under Field will meet it.
+ *
+ * **Stage 3 (2026-09-07) moved the association to Base UI's `Field`**, so the
+ * context and the `useFieldControlId` opt-in are gone. The guard is the same
+ * and matters more, because the mechanism is no longer ours to read.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
@@ -47,9 +51,9 @@ describe('Field', () => {
   })
 
   it('points the label at the control it wraps, not at some other field', () => {
-    // Two Fields on one form is the case a single hardcoded id gets wrong, and
-    // `useId` is what makes it right. Asserted because "it works with one
-    // field" is the version of this that ships broken.
+    // Two Fields on one form is the case a single hardcoded id gets wrong.
+    // Asserted because "it works with one field" is the version of this that
+    // ships broken.
     const { container } = render(
       <form>
         <Field label="Title">
@@ -68,16 +72,13 @@ describe('Field', () => {
     expect(screen.getByLabelText('Description')).toBe(container.querySelector(`#${CSS.escape(ids[1]!)}`))
   })
 
-  it('wins over an id the caller put on the control, rather than breaking the pair', () => {
-    // The first version of this asserted the opposite — that a control keeps
-    // its own id inside a Field — and it failed with this ticket's own error
-    // message, because the label went on pointing at the generated id. Two
-    // halves of one association cannot be set from two places.
-    //
-    // So the Field wins, and `htmlFor` below is how a caller chooses. Silently
-    // overriding an id is a smaller surprise than silently unlabelling a
-    // control, and only one of the two is invisible until somebody uses a
-    // screen reader.
+  it('keeps the pair when the caller names the control itself', () => {
+    // This reverses on Base UI, and the new behaviour is the better one. Ours
+    // made the *Field* win — the control's own id was overridden — because two
+    // halves of one association cannot be set from two places and only the
+    // Field could set both. Base UI sets both from the control's id instead,
+    // so a caller who needs a particular id keeps it and the label follows.
+    // What the test guards is unchanged: the pair holds either way.
     render(
       <Field label="Title">
         <TextInput id="chosen-by-the-caller" defaultValue="" />
@@ -85,24 +86,21 @@ describe('Field', () => {
     )
     const input = screen.getByLabelText('Title')
     expect(input.tagName).toBe('INPUT')
-    expect(input.id).not.toBe('chosen-by-the-caller')
+    expect(input.id).toBe('chosen-by-the-caller')
   })
 
-  it('lets the Field be told the id instead, for the same reason', () => {
-    render(
-      <Field label="Title" htmlFor="named-outside">
-        <TextInput defaultValue="" />
-      </Field>,
-    )
-    expect(screen.getByLabelText('Title').id).toBe('named-outside')
-  })
-
-  it('leaves a control outside a Field alone', () => {
-    // `useFieldControlId` returns undefined outside a provider, so nothing
-    // acquires a stray id — a control with an id it did not ask for is its own
-    // small bug.
+  it('gives a control outside a Field an id of its own, and nothing else', () => {
+    // Also reversed, and worth stating rather than deleting. Ours left a lone
+    // control untouched; Base UI's `Input` always generates an id, because it
+    // cannot know whether a `Field` will describe it. The id is inert — no
+    // label, no `aria-describedby` points at it — so nothing reads differently;
+    // an app that asserted on the absence of `id` is the only thing this
+    // reaches, and neither app does.
     const { container } = render(<TextInput defaultValue="" />)
-    expect(container.querySelector('input')?.getAttribute('id')).toBeNull()
+    const input = container.querySelector('input')!
+    expect(input.getAttribute('id')).toBeTruthy()
+    expect(input.getAttribute('aria-labelledby')).toBeNull()
+    expect(input.getAttribute('aria-describedby')).toBeNull()
   })
 
   it('still marks a required field, which was the only thing it did before', () => {
@@ -113,5 +111,46 @@ describe('Field', () => {
     )
     expect(screen.getByText('*')).toBeTruthy()
     expect(screen.getByLabelText(/Title/).tagName).toBe('INPUT')
+  })
+
+  it('announces the helper line, which the hand-built spans never did', () => {
+    render(
+      <Field label="Folder link" helper="Leave empty and the project gets a Folder of its own.">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    const input = screen.getByLabelText('Folder link')
+    const describedBy = input.getAttribute('aria-describedby')
+    expect(describedBy).toBeTruthy()
+    expect(document.getElementById(describedBy!)?.textContent).toBe('Leave empty and the project gets a Folder of its own.')
+  })
+
+  it('replaces the helper with the error, and marks the control invalid', () => {
+    // Both at once asks the reader to work out which one is live, and the two
+    // callers this prop came from both wrote `error ?? helper`. `aria-invalid`
+    // is Base UI's now — Ship passed it by hand beside every one of these.
+    render(
+      <Field label="Folder link" helper="Leave empty and the project gets a Folder of its own." error="That is not a Folder link.">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    const input = screen.getByLabelText('Folder link')
+    expect(input.getAttribute('aria-invalid')).toBe('true')
+    expect(screen.queryByText('Leave empty and the project gets a Folder of its own.')).toBeNull()
+    const describedBy = input.getAttribute('aria-describedby')
+    expect(document.getElementById(describedBy!)?.textContent).toBe('That is not a Folder link.')
+  })
+
+  it('renders no line, and no wrapper, when there is neither', () => {
+    // The port must not move a pixel for the callers that predate these props,
+    // so the control stays a direct child of the Field exactly as before.
+    const { container } = render(
+      <Field label="Title">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    const root = container.firstElementChild!
+    expect(root.children).toHaveLength(2)
+    expect(root.children[1].tagName).toBe('INPUT')
   })
 })

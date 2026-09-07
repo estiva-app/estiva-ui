@@ -1,4 +1,5 @@
 import { type InputHTMLAttributes } from 'react'
+import { Input } from '@base-ui/react/input'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
 
@@ -14,6 +15,11 @@ import { Kbd } from './Kbd'
  * In Peek's top bar this is a launcher affordance rather than a live field:
  * the input is `pointer-events-none` and clicking the surround opens the
  * command launcher. The component is the same either way.
+ *
+ * On Base UI's `Input` since stage 3 of the migration (2026-09-07), so a
+ * search field inside a `Field` is labelled by it without the caller wiring
+ * an id. The surround stays ours: the border, the focus-within rule and the
+ * `Kbd` hint are this component's, not the input's.
  */
 export interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
   /** A keyboard hint drawn at the right edge, e.g. "Ctrl+K". */
@@ -31,7 +37,7 @@ export function SearchInput({ shortcut, className, placeholder = 'Search…', ..
         className,
       )}
     >
-      <input
+      <Input
         className="flex-1 min-w-0 bg-transparent text-input-value text-text-primary placeholder:text-text-muted outline-none"
         placeholder={placeholder}
         {...props}

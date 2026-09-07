@@ -1,5 +1,91 @@
 # Changelog
 
+## Unreleased — stage 3, forms and dialogs
+
+Six components onto Base UI, and the one gap this library had written down
+about itself is closed: **dialogs trap focus and give it back**.
+
+### Changed
+
+- **`DialogShell` is Base UI's `Dialog`.** Focus is trapped inside the card
+  and returns to whatever opened it when it closes; the rest of the page is
+  marked `inert` while it is open. `DialogShell.mdx` said "focus is not
+  trapped or moved" until today — that sentence was true, and it is why this
+  stage exists. The portal, the backdrop, the outside press and Escape are
+  Base UI's now, so the `keydown` listener this component kept on `document`
+  is gone. **The DOM shape is unchanged on purpose** — backdrop, then a
+  full-screen flex layer centring the card — because Base UI positions
+  nothing for a dialog and keeping the layer is what keeps the pixels.
+
+  New prop **`alert`**: a press on the backdrop stops closing it, and the
+  card announces itself as `role="alertdialog"`. Escape and the ✕ still
+  close it.
+
+- **`ConfirmDialog` is Base UI's `AlertDialog`**, through that prop.
+  **A press on the backdrop no longer cancels it** (Katerina, D20,
+  2026-09-07): a destructive question is answered rather than clicked away.
+  This is the one behaviour stage 3 changes deliberately, and the only one a
+  person can notice without a keyboard. No caller changes.
+
+- **`Field` is Base UI's `Field`.** The label names the control by
+  construction, for its own `Input` and `Checkbox`, for our `TextInput`,
+  `Textarea` and `SearchInput`, and for anything rendered through
+  `Field.Control`. Two behaviours reversed and both are improvements:
+  **an `id` set on the control is now kept** and the label follows it
+  (the Field used to override it), and **a control rendered outside a Field
+  now carries a generated id of its own** (it used to carry none). The id is
+  inert — nothing points at it — and neither app asserts on its absence.
+
+- **`TextInput` and `SearchInput` render Base UI's `Input`;
+  `Textarea` and `EditableText`'s multiline state render `Field.Control`
+  as a `<textarea>`.** Class lists verbatim. `EditableText`'s read state,
+  its draft, and every rule about when a commit happens stay ours — Base UI
+  has no opinion about what an edit means.
+
+- **`Banner` takes an optional `onDismiss`** (Katerina, D21): an ✕ at the
+  right-hand end, with `dismissLabel` naming it. Without it the strip is
+  byte-for-byte what it was. With it the row is 40px rather than 36px,
+  because the button is taller than the line of text.
+
+### Added
+
+- **`Field` gains `helper` and `error`.** The line under the control, which
+  Ship built by hand in two dialogs (`COMPONENTS-SHIP.md` F14) and Peek in
+  four (`COMPONENTS-PEEK.md` F14) — always the same two class lists, and
+  never announced. An error **replaces** the helper rather than joining it,
+  which is what those callers did, and setting it marks the control invalid,
+  so a caller no longer passes `aria-invalid` beside it.
+
+- **`glow-accent` and `glow-success` are box shadows as well as drop
+  shadows** (`shadow-glow-accent`, `shadow-glow-success`). They arrived as
+  `dropShadow` only, for D16's icon glows; a glow on a *surface* is a box
+  shadow, and Peek's composer had been writing its send button's as an
+  arbitrary value for want of the utility (`ADOPTION.md` P22). `cn()` knows
+  both, and `cn.test.ts` pins the pair to the preset.
+
+### Removed
+
+- **`useFieldControlId` is gone.** It was the opt-in every control had to
+  call to be named by a surrounding `Field`, and Base UI does that job now.
+  **Callers affected: none** — read from both apps on 2026-09-07, nothing
+  outside this package ever imported it. It was exported, so this is a
+  breaking change on paper; a consumer with a control of its own should
+  render it through `Field.Control` instead.
+
+### Callers
+
+- **Ship**: `NewProjectDialog` and `PairFolderDialog` can drop their
+  hand-built helper and error lines — the `flex flex-col gap-1.5` wrapper,
+  the `text-caption` span and the `aria-invalid` they pass — for `helper`
+  and `error` (`ADOPTION.md` S7). Nothing forces it; the old markup still
+  renders.
+- **Peek**: the same in `MembersDialog`, `TopicDetailsDialog` and
+  `TopicProjectPanel` (`ADOPTION.md` P16), and `ComposeBox`'s send button
+  can trade `signal:shadow-[shadow:var(--glow-accent)]` for
+  `signal:shadow-glow-accent` (P22).
+- **Both**: any `ConfirmDialog` stops closing on a backdrop press. Nothing
+  to change; worth knowing before someone reports it.
+
 ## 0.9.0 — 2026-09-07
 
 ### Added
