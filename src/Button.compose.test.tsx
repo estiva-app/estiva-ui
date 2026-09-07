@@ -70,6 +70,37 @@ describe('a Base UI part can be one of our buttons', () => {
     expect((onOpenChange.mock.calls[0][1] as { reason?: string })?.reason).toBe('close-press')
   })
 
+  it('Dialog.Close renders as an IconButton THAT CARRIES A TOOLTIP', async () => {
+    /*
+     * The half stage 3 could not close. With the hand-written tooltip an
+     * IconButton with a `tooltip` returned `WithTooltip`'s wrapper `<div>` as
+     * its root, so `Close` composed onto the wrapper and the ✕ was never the
+     * part. On Base UI's Tooltip the trigger IS the button, so it is.
+     */
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    render(
+      <Dialog.Root open onOpenChange={onOpenChange}>
+        <Dialog.Portal>
+          <Dialog.Popup aria-label="A dialog">
+            <Dialog.Close
+              render={
+                <IconButton aria-label="Close" tooltip="Close">
+                  <IconSquareRounded size={16} stroke={1.5} />
+                </IconButton>
+              }
+            />
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    )
+    const close = screen.getByRole('button', { name: 'Close' })
+    expect(close.tagName).toBe('BUTTON')
+    expect(close.className).toContain('rounded-lg')
+    await user.click(close)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+    expect((onOpenChange.mock.calls[0][1] as { reason?: string })?.reason).toBe('close-press')
+  })
   it('Dialog.Trigger renders as a Button and opens the dialog', async () => {
     const user = userEvent.setup()
     render(

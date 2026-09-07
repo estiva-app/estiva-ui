@@ -53,11 +53,13 @@ import { IconPlus } from '@tabler/icons-react'
   passes through; the visible label is the accessible name, so no
   `aria-label` is needed.
 - `disabledReason="Sign in first"` disables it, keeps it reachable by
-  Tab, and shows the reason as a tooltip on hover. Say why, every time;
-  a bare `disabled` is for the moment between a click and its answer. The
-  reason shows on hover only for now; it will also show on keyboard focus
-  when Tooltip moves onto Base UI (stage 4). With a reason the button sits
-  in the tooltip's `inline-flex` wrapper.
+  Tab, and shows the reason as a tooltip. Say why, every time; a bare
+  `disabled` is for the moment between a click and its answer. **The
+  reason shows on keyboard focus as well as on hover**, which is what
+  makes it worth writing: a reason only a mouse can read is not offered
+  to everyone. The button itself is the tooltip's trigger, so it wears no
+  wrapper — what a caller gets is the `<button>`, and a `Menu.Trigger` or
+  a `Dialog.Close` can be it.
 
 ## Keys
 

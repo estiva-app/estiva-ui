@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
-import { WithTooltip } from './Tooltip'
+import { TooltipTrigger } from './Tooltip'
 
 /**
  * Peek's Button (2026-08-28), verbatim, plus what Ship added and Peek should
@@ -76,7 +76,13 @@ export function Button({
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
-          state.disabled && 'bg-bg-disabled text-text-disabled pointer-events-none',
+          state.disabled && 'bg-bg-disabled text-text-disabled',
+          // `pointer-events-none` only where the button is truly out of reach.
+          // With a `disabledReason` the button IS the tooltip's trigger, and a
+          // trigger the pointer cannot land on never opens one — Base UI already
+          // swallows the click (`focusableWhenDisabled` gives `aria-disabled`
+          // and a prevented `onClick`), so nothing else needs it.
+          state.disabled && !disabledReason && 'pointer-events-none',
           state.disabled && variant === 'outlined' && 'border border-border-default',
           className,
         )
@@ -87,5 +93,5 @@ export function Button({
       {children}
     </BaseButton>
   )
-  return disabledReason ? <WithTooltip label={disabledReason}>{button}</WithTooltip> : button
+  return disabledReason ? <TooltipTrigger label={disabledReason}>{button}</TooltipTrigger> : button
 }

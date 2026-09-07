@@ -1,5 +1,91 @@
 # Changelog
 
+## Unreleased — stage 4, everything that floats
+
+Tooltip first, because it was in the way of everything else.
+
+### Changed
+
+- **`Tooltip` and `WithTooltip` are Base UI's `Tooltip`.** The gap this
+  library had written down about itself is closed: **a tooltip shows on
+  keyboard focus**, not on hover alone. `Tooltip.mdx` said "it shows on hover
+  only — there is no focus or touch trigger" until today, which meant the
+  reason a disabled control gives — the whole point of `disabledReason` —
+  could not be read without a mouse. Gone with it: the `createPortal`, the
+  `getBoundingClientRect` arithmetic and the two clamps this file kept
+  against the viewport's edges. Floating UI places, flips and clamps it now,
+  and the measured geometry is unchanged — 6px from the trigger, centred on
+  it, 8px clear of every screen edge, flipped to the other side when that
+  edge is close.
+
+- **A tooltip waits 300ms, and a toolbar only pauses once** (Katerina, D23,
+  2026-09-07). It used to appear the instant the pointer arrived, which
+  flashed a pill per button when sweeping a row. Mount one
+  **`TooltipProvider`** (new export) at the top of an app and every tooltip
+  below it shares that delay: the first waits, the neighbours open as the
+  pointer reaches them while the group stays warm. Measured in Chrome: 325ms,
+  then 22ms, then 19ms across three buttons. Without the provider each
+  tooltip still waits its own 300ms — nothing breaks, the row simply pauses
+  on every button.
+
+- **It fades and moves** (Katerina, D26, 2026-09-07): 120ms in, 80ms out,
+  travelling 4px away from the trigger — from below when it stands above a
+  control, from above when it hangs beneath one. It had no animation at all,
+  and could not have had one: Base UI is what keeps the pill in the DOM until
+  the transition finishes. Moving between triggers inside a warm group skips
+  it, so a toolbar sweep does not flicker. `prefers-reduced-motion` removes
+  it.
+
+- **`Button` and `IconButton` no longer wrap themselves to carry a tooltip.**
+  The button *is* the trigger, so the component's root is the `<button>`.
+  This was the loose end stage 3 finished on: an `IconButton` with a
+  `tooltip` returned `WithTooltip`'s wrapper `<div>` as its root, so a
+  `Dialog.Close` or a `Menu.Trigger` composed onto the wrapper and not the
+  button. **Measured consequence, and it is a fix rather than a cost:** with
+  the wrapper gone an IconButton that carries a tooltip sits at exactly the
+  same height as one that does not. It used to sit **1px higher** — the
+  wrapper was `inline-flex`, which takes its baseline from its first flex
+  item rather than from its own last line box. Inside a flex row, which is
+  where both apps put them, the wrapper never made a difference and nothing
+  moves. The two IconButton stories are the whole of this stage's screenshot
+  diff.
+
+- **A disabled control with a `disabledReason` keeps its pointer events.** It
+  had `pointer-events-none`, which was harmless while the wrapper caught the
+  hover and fatal once the button became the trigger — a trigger the pointer
+  cannot land on never opens a tooltip. Base UI already swallows the click
+  (`focusableWhenDisabled` gives `aria-disabled` and a prevented `onClick`),
+  so nothing else needed it. A plainly disabled control, with no reason to
+  give, keeps `pointer-events-none` as before.
+
+- **`DialogShell`'s ✕ is a `Dialog.Close`**, which is what the wrapper was
+  blocking. The dialog now closes through its own state machine whichever way
+  it is closed — the ✕, Escape, a press outside — instead of one of the three
+  going around it, and Base UI reports which.
+
+### Added
+
+- **`TooltipProvider`** — one shared delay for every tooltip below it. See
+  above; an app mounts one at its root.
+- `Tooltip` takes the props of the `<div>` it renders, so it can be what
+  `Tooltip.Popup` renders and stay the single definition of the pill.
+- `Tooltip.test.tsx`, which the component never had: 14 tests pinning what
+  the page claims, including the two exits it now has (Escape, and a click on
+  the trigger) and the focus behaviour that replaced the stated gap.
+- A **toolbar** story, where the shared delay is visible.
+
+### Callers
+
+Nothing to change to keep working. Two things worth doing, both in
+`ADOPTION.md`:
+
+- Mount a `TooltipProvider` at each app's root, or tooltips pause one per
+  button instead of once per row (**B6**).
+- Nothing is written to get the 300ms wait, the fade or the focus
+  behaviour — they arrive with the release (**B7**).
+- `peek/src/components/ui/WithTooltip.tsx` re-exports the package's and needs
+  no edit.
+
 ## Unreleased — stage 3, forms and dialogs
 
 Six components onto Base UI, and the one gap this library had written down

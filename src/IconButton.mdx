@@ -43,8 +43,12 @@ import { IconPencil } from '@tabler/icons-react'
 - `type` defaults to `"button"`; it is a native `<button>` on Base UI's
   Button, and every native prop passes through.
 - `disabledReason="Read only"` disables it, keeps it reachable by Tab,
-  and shows the reason in place of the tooltip (on hover for now; on
-  keyboard focus too once Tooltip moves onto Base UI, stage 4).
+  and shows the reason in place of the tooltip — **on keyboard focus as
+  well as on hover**.
+- `tooltip` costs no wrapper: the button is the tooltip's trigger, so
+  this component's root is the `<button>` whether it carries one or not,
+  and both sit at the same height. A `Dialog.Close` or a `Menu.Trigger`
+  can be an IconButton that has a tooltip.
 
 ## Keys
 

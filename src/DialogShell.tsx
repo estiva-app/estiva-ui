@@ -107,9 +107,25 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
                   {title}
                 </Parts.Title>
               )}
-              <IconButton tooltip="Close" aria-label="Close" onClick={onClose}>
-                <IconX size={16} stroke={1.5} />
-              </IconButton>
+              {/*
+                The ✕ IS the `Close` part now, rather than a button that calls
+                `onClose` beside one (stage 4, 2026-09-07). Stage 3 could not do
+                this: an `IconButton` carrying a `tooltip` returned the tooltip
+                wrapper `<div>` as its root, so the part composed onto the
+                wrapper and not the button. Porting Tooltip removed the wrapper
+                — the trigger is the button itself — and the composition works.
+
+                What it buys: the dialog closes through its own state machine,
+                so the ✕, Escape and the outside press are one path with one
+                reason attached, instead of one of the three going around.
+              */}
+              <Parts.Close
+                render={
+                  <IconButton tooltip="Close" aria-label="Close">
+                    <IconX size={16} stroke={1.5} />
+                  </IconButton>
+                }
+              />
             </div>
 
             {/* Body */}

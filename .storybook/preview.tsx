@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { addons } from 'storybook/preview-api'
 import { GLOBALS_UPDATED, SET_GLOBALS } from 'storybook/internal/core-events'
 import { themes } from 'storybook/theming'
+import { TooltipProvider } from '../src/Tooltip'
 import './preview.css'
 
 /**
@@ -95,7 +96,14 @@ const withTheme: Decorator = (Story, context) => {
   useEffect(() => {
     applyTheme(theme)
   }, [theme])
-  return <Story />
+  /* One provider over every story, as an app mounts one over its whole tree:
+     the tooltips in a toolbar then share a delay and the neighbours open
+     instantly (D23). Without it each would wait its own 300ms. */
+  return (
+    <TooltipProvider>
+      <Story />
+    </TooltipProvider>
+  )
 }
 
 const preview: Preview = {

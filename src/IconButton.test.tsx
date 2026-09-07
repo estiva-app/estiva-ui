@@ -37,7 +37,8 @@ describe('IconButton', () => {
     )
     expect(screen.queryByRole('tooltip')).toBeNull()
     await user.hover(screen.getByRole('button', { name: 'Edit' }))
-    expect(screen.getByRole('tooltip').textContent).toBe('EditE')
+    // 300ms before it opens (D23) - it used to be instant.
+    expect((await screen.findByRole('tooltip')).textContent).toBe('EditE')
   })
 
   it('disabledReason: disabled, reachable by Tab, the reason replaces the tooltip', async () => {
@@ -55,8 +56,10 @@ describe('IconButton', () => {
     expect(onClick).not.toHaveBeenCalled()
     await user.tab()
     expect(document.activeElement).toBe(button)
+    // Already open, in fact: the Tab above focused it, and focus opens
+    // with no delay at all.
     await user.hover(button)
-    expect(screen.getByRole('tooltip').textContent).toBe('Read only')
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Read only')
   })
 
   it('Space and Enter are the action, and nothing while disabled with a reason', async () => {
