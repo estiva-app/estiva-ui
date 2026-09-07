@@ -1,21 +1,27 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
+import { WithTooltip } from './Tooltip'
 
 /**
  * Peek's Button (2026-08-28), verbatim, plus what Ship added and Peek should
  * adopt: a `destructive` variant — the muted button in the error colour, for
  * "Delete project" and its kind; a destructive action is a button like any
  * other, not a dotted link — and `type="button"` by default, so a button
- * inside a form submits it only when asked to.
+ * inside a form submits it only when asked to. On Base UI's Button since
+ * stage 2 of the migration (2026-09-07).
  *
  * Three variants and two sizes: 32px default / 24px small, 6px radius, 500
- * weight. Sizes are spelled as arbitrary values for the reason the README
- * records: tailwind-merge drops a custom `text-{size}` that is followed by a
- * `text-{colour}`.
+ * weight. The sizes are the `btn-default` and `btn-small` type tokens.
  *
  * The primary reads in `text-inverse` on the accent — a theme decides what
  * that is (dark on Peek's light accents, light on Ship's dark one). Under
  * Signal it is also semibold, as Peek has it.
+ *
+ * `disabledReason` is the package's own rule, "only offer actions that can
+ * succeed", done once: the button is disabled, stays reachable by keyboard
+ * (Base UI's `focusableWhenDisabled`), and shows the reason as a tooltip on
+ * hover. Ship wrote that wrapper by hand six times.
  */
 export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive'
 export type ButtonSize = 'default' | 'small'
@@ -25,6 +31,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize
   /** 16px, stroke 1.5 on the default size; 14px on small. */
   leadingIcon?: ReactNode
+  /** Why the action cannot succeed right now. Disables the button, keeps it
+   *  reachable by keyboard, and shows the reason as a tooltip on hover. */
+  disabledReason?: string
   children: ReactNode
 }
 
@@ -35,33 +44,38 @@ export function Button({
   className,
   children,
   disabled,
+  disabledReason,
   type = 'button',
   ...props
 }: ButtonProps) {
   const hasLeadingIcon = !!leadingIcon
-  return (
-    <button
+  const button = (
+    <BaseButton
       type={type}
-      className={cn(
-        'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
-        size === 'default' && 'h-8 text-[14px] leading-[14px]',
-        size === 'small' && 'h-6 text-[12px] leading-[12px]',
-        // Extra right padding beside a leading icon, for optical balance.
-        size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
-        size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
-        !disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
-        !disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
-        !disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
-        !disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
-        disabled && 'bg-bg-disabled text-text-disabled pointer-events-none',
-        disabled && variant === 'outlined' && 'border border-border-default',
-        className,
-      )}
-      disabled={disabled}
+      disabled={disabled || !!disabledReason}
+      focusableWhenDisabled={!!disabledReason}
+      className={(state) =>
+        cn(
+          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
+          size === 'default' && 'h-8 text-btn-default',
+          size === 'small' && 'h-6 text-btn-small',
+          // Extra right padding beside a leading icon, for optical balance.
+          size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
+          size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
+          !state.disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+          !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
+          !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
+          !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
+          state.disabled && 'bg-bg-disabled text-text-disabled pointer-events-none',
+          state.disabled && variant === 'outlined' && 'border border-border-default',
+          className,
+        )
+      }
       {...props}
     >
       {leadingIcon}
       {children}
-    </button>
+    </BaseButton>
   )
+  return disabledReason ? <WithTooltip label={disabledReason}>{button}</WithTooltip> : button
 }

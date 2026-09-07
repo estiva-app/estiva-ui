@@ -32,7 +32,7 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 - Choosing a value → **Select**. Acting from a popover list → **MenuItem**.
 - A control the person may never be allowed to use is **absent, not
   disabled**. `disabled` is for *momentarily* unavailable — and it says why,
-  with a Tooltip ("Available after sign-in").
+  with `disabledReason` ("Available after sign-in").
 
 ## How
 
@@ -49,8 +49,22 @@ import { IconPlus } from '@tabler/icons-react'
   button balances its own padding around it.
 - `type` defaults to `"button"` — inside a form it submits only when you
   say `type="submit"`.
-- It is a native `<button>`, and every native prop passes through; the
-  visible label is the accessible name, so no `aria-label` is needed.
+- It is a native `<button>` on Base UI's Button, and every native prop
+  passes through; the visible label is the accessible name, so no
+  `aria-label` is needed.
+- `disabledReason="Sign in first"` disables it, keeps it reachable by
+  Tab, and shows the reason as a tooltip on hover. Say why, every time;
+  a bare `disabled` is for the moment between a click and its answer. The
+  reason shows on hover only for now; it will also show on keyboard focus
+  when Tooltip moves onto Base UI (stage 4). With a reason the button sits
+  in the tooltip's `inline-flex` wrapper.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Onto the button, also when it is disabled with a reason; never when it is plain `disabled`. |
+| Space / Enter | The action. Nothing while disabled. |
 
 ## Props
 
