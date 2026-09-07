@@ -146,6 +146,39 @@ Tooltip first, because it was in the way of everything else.
   the page claims, including the two exits it now has (Escape, and a click on
   the trigger) and the focus behaviour that replaced the stated gap.
 - A **toolbar** story, where the shared delay is visible.
+- **`Popover`** — a floating panel from a trigger: the same elevated surface
+  a `Menu` draws, with none of a menu's semantics. **It exists because
+  `Menu` was being used for this.** Peek's selection toolbar puts a text
+  field inside one and its debug panel fills one with toggle rows; since the
+  menus moved onto Base UI a `Menu` gives its contents roving focus and
+  typeahead, which is wrong for both and would fight the field outright.
+  Beyond those two it is what Peek's thirteen hand-written overlays become
+  (`COMPONENTS-PEEK.md` F5).
+
+  **The API is `Menu`'s, deliberately** — the same `onClose`, the same three
+  anchorings, the same `trigger` — so moving a surface across is a change of
+  one word. What differs is inside: it announces itself as a dialog, Tab
+  walks its contents in order, and **a field keeps the focus its `autoFocus`
+  asked for**, which is the whole point. Measured in Chrome: 4px under its
+  trigger, the URL field focused on open, typing reaching it, and **zero**
+  elements with a menu role anywhere in the panel.
+
+- **`PreviewCard`** — more of a thing, on hover. **It exists because Peek's
+  Screener preview is this, hand-written**: its own `createPortal`, its own
+  "prefer the right, flip left if it would run off screen" arithmetic
+  against `window.innerWidth`, and its own clamp against the bottom edge.
+  Measured against the same numbers: it opens 12px to the right of the row,
+  360px wide, and flips when that side has no room.
+
+  It opens 400ms after the pointer rests and closes 200ms after it leaves —
+  long enough not to flash a card at every row while crossing a list, and
+  long enough to cross the gap into the card. **`content` renders only while
+  the card is open**, so a preview that fetches does not fetch once per row
+  on screen. Not a tooltip: a tooltip is a word for a control and cannot be
+  pointed at; this holds content and can.
+
+- Both draw `MenuPanel`, so the elevated box still has one definition — and
+  both have a page, stories and tests (`Popover.test.tsx`, 9).
 - `Menu.test.tsx`, which the shell never had: 11 tests, including the rows
   working on a bare `MenuPanel` and the trigger press that must not reopen
   the menu.

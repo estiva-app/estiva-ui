@@ -1,0 +1,77 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PopoverStories from './Popover.stories'
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+A floating panel from a trigger: the same elevated surface a **Menu** draws,
+with none of a menu's semantics. Its contents are contents — Tab walks them
+in order, nothing is a menu item, and typing goes where you are typing.
+
+<Canvas of={PopoverStories.Default} />
+
+## When
+
+- A small form beside its trigger: rename, a date, a link address.
+- A row of controls over a text selection — a formatting toolbar.
+- A panel of settings or toggles.
+- Anything you would have reached for `Menu` for because you wanted the box.
+
+<Canvas of={PopoverStories.AToolbar} />
+
+## When not
+
+- A list of actions → **Menu**. That is what the arrow keys, the typeahead
+  and `role="menuitem"` are for, and a Popover has none of them.
+- One value from a known set → **Select**.
+- A word for a control → **WithTooltip** — it cannot be pointed at, which
+  is the difference.
+- More of a thing on hover → **PreviewCard**.
+- A title, a body and a footer, with the page behind it out of reach →
+  **DialogShell**.
+
+## How
+
+Controlled, exactly like `Menu`: the caller keeps the open state, renders the
+panel only while true, and hands it `onClose`. Escape and the press outside
+then work without the caller writing either.
+
+```tsx
+import { Popover } from '@estiva-app/ui'
+
+{open && (
+  <Popover anchor={buttonRef.current} onClose={() => setOpen(false)} ariaLabel="Rename this">
+    <TextInput autoFocus value={name} onChange={onChange} aria-label="Name" />
+  </Popover>
+)}
+```
+
+- The three anchorings are `Menu`'s and behave identically: an `anchor`
+  element or rect, `position` coordinates, or neither — under the element it
+  sits in, right-aligned. All three portal.
+- **A trigger that toggles needs `trigger`** when there is no `anchor`
+  element to recognise it by, or its own press will not close the panel.
+  Same trap, same fix, same reason as `Menu`'s.
+- **A field inside keeps its `autoFocus`.** Base UI does not move focus that
+  has already landed in the panel, which is what makes a link editor
+  possible.
+- `ariaLabel` names the panel. A panel with a visible heading can point at it
+  with `aria-labelledby` instead.
+- Width, padding and internal rhythm are yours, through `className` — the
+  panel is a surface, not a layout.
+
+<Canvas of={PopoverStories.FromATrigger} />
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Tab / Shift-Tab | walks the contents, in order |
+| Escape | closes, and gives focus back to what opened it |
+| a press outside | closes |
+| a press on the trigger it hangs from | closes it once — not a press outside |
+
+## Props
+
+<Controls of={PopoverStories.FromATrigger} />

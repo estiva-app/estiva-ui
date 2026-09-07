@@ -1,0 +1,74 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PreviewCardStories from './PreviewCard.stories'
+
+<Meta of={PreviewCardStories} />
+
+# PreviewCard
+
+More of a thing, on hover. A row that shows only a snippet gets a card beside
+it with the rest — faces, text, a link, whatever the caller draws.
+
+<Canvas of={PreviewCardStories.Default} />
+
+## When
+
+- A list row that is a summary of something longer: a conversation, a
+  request, a document.
+- A name or an avatar that could say who the person is.
+- Anything worth reading before deciding to open it.
+
+<Canvas of={PreviewCardStories.Loading} />
+
+## When not
+
+- A word for an icon-only control → **WithTooltip**. The real difference is
+  not length: a tooltip is `pointer-events: none` and cannot be reached,
+  and this can. If the thing you are showing has anything in it worth
+  pointing at, it is a preview card.
+- A list of actions → **Menu**.
+- Content that needs a click to appear, or that has controls in it →
+  **Popover**.
+- Something the person must read to proceed → put it in the page.
+
+## How
+
+```tsx
+import { PreviewCard } from '@estiva-app/ui'
+
+<PreviewCard content={<ConversationPreview id={row.id} />} wrapperClassName="block w-full">
+  <ListRow …/>
+</PreviewCard>
+```
+
+- `content` renders **only while the card is open**, so a preview that
+  fetches does not fetch for every row on screen.
+- It opens **400ms** after the pointer comes to rest and closes **200ms**
+  after it leaves — long enough not to flash a card at every row while
+  crossing a list, and long enough to cross the gap into the card.
+- It prefers the **right** of the trigger and flips when that side has no
+  room, staying 12px from the trigger and 8px clear of every screen edge.
+  Pass `side` to prefer another.
+- Width, padding and max height are yours through `className`; the default
+  is 360px wide and capped at 300px or the room available, whichever is
+  smaller. A preview of a conversation is not the size of a preview of a
+  person.
+- The trigger wrapper is `inline-flex`; a full-width row wants
+  `wrapperClassName="block w-full"`.
+
+<Canvas of={PreviewCardStories.OnARow} />
+
+## Keys
+
+A preview card is a pointer affordance and has no keyboard trigger: nothing
+in it may be the only route to anything. Escape closes an open one.
+
+| Input | What happens |
+|---|---|
+| pointer rests on the trigger | opens after 400ms |
+| pointer moves into the card | it stays up |
+| pointer leaves both | closes after 200ms |
+| Escape | closes |
+
+## Props
+
+<Controls of={PreviewCardStories.OnARow} />
