@@ -49,6 +49,24 @@ about itself is closed: **dialogs trap focus and give it back**.
 
 ### Added
 
+- **`Button` and `IconButton` accept a `ref`.** They typed their props as
+  `ButtonHTMLAttributes`, which has no `ref`, so a caller could not take one
+  — and a Base UI part composes through `render`, which needs one. React 19
+  already handed `ref` to a function component as an ordinary prop, so it was
+  riding in on the spread and reaching the element all along; **the type was
+  the only thing stopping anyone**. `PersonTrigger` already had it.
+
+  This is stage 4’s prerequisite, done early at Katerina’s asking: a
+  `Menu.Trigger` or a `Dialog.Close` **is** one of these buttons rather than
+  wrapping one. Both compositions are pinned in `Button.compose.test.tsx`.
+
+  **One thing it does not yet unlock**, and it was measured rather than
+  assumed: `DialogShell`’s ✕ still calls `onClose` by hand rather than being
+  a `Dialog.Close`. An `IconButton` with a `tooltip` returns `WithTooltip`’s
+  wrapper `<div>` as its root, so the part would compose onto the wrapper and
+  not the button. **It needs `WithTooltip` on Base UI’s `Tooltip` first**,
+  which is stage 4.
+
 - **`Field` gains `helper` and `error`.** The line under the control, which
   Ship built by hand in two dialogs (`COMPONENTS-SHIP.md` F14) and Peek in
   four (`COMPONENTS-PEEK.md` F14) — always the same two class lists, and

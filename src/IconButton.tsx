@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
 import { WithTooltip } from './Tooltip'
@@ -15,7 +15,8 @@ import { WithTooltip } from './Tooltip'
  */
 export type IconButtonVariant = 'muted' | 'outlined' | 'primary'
 
-export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+/** `ComponentPropsWithRef` so a `ref` reaches the element — see Button. */
+export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: IconButtonVariant
   tooltip?: string
   /** A key hint drawn as the `Kbd` chip inside the tooltip — for a button
