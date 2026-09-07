@@ -51,7 +51,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
           <div
             className={cn(
               'flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-bg-surface',
-              'signal:border signal:border-border-subtle signal:shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]',
+              'signal:border signal:border-border-subtle signal:shadow-highlight-inset',
             )}
           >
             {banner}

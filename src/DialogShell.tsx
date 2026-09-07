@@ -40,7 +40,7 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
   return createPortal(
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-scrim" onClick={onClose} />
 
       {/* Dialog */}
       <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">

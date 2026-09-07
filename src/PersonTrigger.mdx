@@ -44,7 +44,15 @@ import { PersonTrigger } from '@estiva-app/ui'
 - A toggle trigger must swallow its `mousedown` (as above) or the menu's
   outside-click dismiss turns each press into close-then-reopen — the
   trap is spelled out on the Menu page.
-- It takes a `ref` and every native button prop — anchor your menu on it.
+- It is a native `<button>` on Base UI's Button: it takes a `ref` and
+  every native button prop — anchor your menu on it.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Onto it. |
+| Space / Enter | Your `onClick`: open what it opens. |
 
 ## Props
 

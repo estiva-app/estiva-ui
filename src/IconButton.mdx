@@ -40,7 +40,18 @@ import { IconPencil } from '@tabler/icons-react'
   control. The `tooltip` shows sighted hover users the same word; it does
   not replace the label.
 - The icon is 16px at stroke 1.5.
-- `type` defaults to `"button"`; every native prop passes through.
+- `type` defaults to `"button"`; it is a native `<button>` on Base UI's
+  Button, and every native prop passes through.
+- `disabledReason="Read only"` disables it, keeps it reachable by Tab,
+  and shows the reason in place of the tooltip (on hover for now; on
+  keyboard focus too once Tooltip moves onto Base UI, stage 4).
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Onto the button, also when it is disabled with a reason; never when it is plain `disabled`. |
+| Space / Enter | The action. Nothing while disabled. |
 
 ## Props
 

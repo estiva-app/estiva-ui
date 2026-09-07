@@ -1,20 +1,80 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { playwright } from '@vitest/browser-playwright'
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
+
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /**
- * Added with SHA-17, for the plugin rather than for the environment.
+ * Two kinds of test, as Vitest projects.
  *
- * The three tests that came before it are pure logic — initials, fit, class
- * merging — and needed no DOM, which is why there was no config at all.
+ * **`unit`** — tokens, cn and the component tests, as they ran before the
+ * migration (SHA-17 added the React plugin for the component tests). The
+ * environment stays Node: `environment: 'jsdom'` globally broke
+ * `tokens.test.ts` at once, because it reads `tokens.css` through
+ * `new URL('./tokens.css', import.meta.url)` and under jsdom that is an http
+ * URL, which `readFileSync` refuses. A DOM test asks for jsdom in its own
+ * docblock instead, one line in the file that needs it.
  *
- * **The environment stays Node.** Setting `environment: 'jsdom'` globally broke
- * `tokens.test.ts` immediately: it reads `tokens.css` through
- * `new URL('./tokens.css', import.meta.url)`, and under jsdom `import.meta.url`
- * is an http URL, so `readFileSync` refuses it with "The URL must be of scheme
- * file". A DOM test asks for jsdom in its own docblock instead, which is one
- * line in the file that needs it rather than a default every future logic test
- * has to survive.
+ * **`storybook-signal` / `storybook-ship`** — every story rendered in a real
+ * Chromium by Storybook's Vitest plugin, once per product theme, with
+ * `@storybook/addon-a11y` running axe on each render and failing the story
+ * on a violation (`parameters.a11y.test: 'error'`, set in preview.tsx). One
+ * project per theme because axe's contrast checks read the theme's actual
+ * colours. No Storybook needs to run for this; `storybookUrl` only makes a
+ * failure's link open the right one.
+ *
+ * `npm test` runs the first; `npm run test:a11y` the other two.
+ *
+ * Inside Storybook, the sidebar's test widget starts its own Vitest. It
+ * renames every storybookTest project to `storybook:<configDir>` and runs
+ * that one name, so two theme projects on the one `.storybook` collide and
+ * Vitest refuses to start (seen 2026-09-06: "Project name ... is not
+ * unique", and Storybook went down with it). Under the widget
+ * (VITEST_STORYBOOK=true, set by the addon) this file therefore defines one
+ * project, in the toolbar's default theme; the command line gets both.
+ *
+ * The stage-0 plan named `@storybook/test-runner` for the a11y run; under
+ * Storybook 10.6 it cannot load its own config file (Storybook's loader calls
+ * `module.register()`, which Jest 30 forbids), and this plugin is what
+ * Storybook recommends in its place.
  */
+const THEMES: readonly ('signal' | 'ship')[] = process.env.VITEST_STORYBOOK ? ['signal'] : ['signal', 'ship']
+
 export default defineConfig({
   plugins: [react()],
+  test: {
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['**/*.test.{ts,tsx}'],
+          exclude: ['**/node_modules/**', 'dist/**', 'storybook-static/**'],
+        },
+      },
+      ...THEMES.map((theme) => ({
+        extends: true as const,
+        plugins: [
+          storybookTest({
+            configDir: path.join(dirname, '.storybook'),
+            storybookScript: 'npm run storybook',
+            storybookUrl: 'http://localhost:6008',
+            initialGlobals: { theme },
+          }),
+        ],
+        test: {
+          name: `storybook-${theme}`,
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({}),
+            instances: [{ browser: 'chromium' as const }],
+          },
+        },
+      })),
+    ],
+  },
 })

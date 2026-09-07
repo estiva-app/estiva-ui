@@ -65,6 +65,18 @@
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
   --focus-ring: 0 0 0 3px rgba(139, 92, 246, 0.16);
+  /* Transparent colours (D16): designed per theme, never an opacity modifier. */
+  --bg-wash:         rgba(0, 0, 0, 0.04);
+  --accent-outline:  rgba(139, 92, 246, 0.3);
+  --info-outline:    rgba(59, 130, 246, 0.3);
+  --warning-outline: rgba(245, 158, 11, 0.3);
+  --success-outline: rgba(14, 160, 111, 0.3);
+  --error-outline:   rgba(239, 68, 68, 0.3);
+  --glow-warning:    0 0 5px rgba(245, 158, 11, 0.4);
+  --glow-success:    0 0 5px rgba(14, 160, 111, 0.7);
+  --glow-accent:     0 0 5px rgba(139, 92, 246, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -114,6 +126,18 @@
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.40), 0 2px 4px -2px rgba(0,0,0,0.30);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.50), 0 4px 6px -4px rgba(0,0,0,0.40);
   --focus-ring: 0 0 0 3px rgba(167, 139, 250, 0.16);
+  /* Transparent colours (D16): designed per theme, never an opacity modifier. */
+  --bg-wash:         rgba(255, 255, 255, 0.05);
+  --accent-outline:  rgba(167, 139, 250, 0.3);
+  --info-outline:    rgba(96, 165, 250, 0.3);
+  --warning-outline: rgba(251, 191, 36, 0.3);
+  --success-outline: rgba(52, 211, 153, 0.3);
+  --error-outline:   rgba(248, 113, 113, 0.3);
+  --glow-warning:    0 0 5px rgba(251, 191, 36, 0.4);
+  --glow-success:    0 0 5px rgba(52, 211, 153, 0.7);
+  --glow-accent:     0 0 5px rgba(167, 139, 250, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
 }
 
 
@@ -167,6 +191,18 @@
   --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 28px rgba(0, 0, 0, 0.5), 0 36px 90px -16px rgba(0, 0, 0, 0.8);
   /* the glow a focused control wears — Peek's, verbatim */
   --focus-ring:   0 0 0 3px rgba(86, 200, 255, 0.12), 0 0 28px -8px rgba(86, 200, 255, 0.4);
+  /* Transparent colours (D16): designed per theme, never an opacity modifier. */
+  --bg-wash:         rgba(255, 255, 255, 0.05);
+  --accent-outline:  rgba(86, 200, 255, 0.3);
+  --info-outline:    rgba(86, 200, 255, 0.3); /* the accent blue: what the info chip has always drawn */
+  --warning-outline: rgba(255, 176, 32, 0.3);
+  --success-outline: rgba(63, 222, 140, 0.3);
+  --error-outline:   rgba(255, 107, 107, 0.3);
+  --glow-warning:    0 0 5px rgba(255, 176, 32, 0.4);
+  --glow-success:    0 0 5px rgba(63, 222, 140, 0.7);
+  --glow-accent:     0 0 5px rgba(86, 200, 255, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -226,4 +262,16 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
   /* defined, as every theme must; Ship's controls show focus with the border alone */
   --focus-ring: 0 0 0 3px rgba(75, 88, 212, 0.16);
+  /* Transparent colours (D16): designed per theme, never an opacity modifier. */
+  --bg-wash:         rgba(255, 255, 255, 0.05);
+  --accent-outline:  rgba(75, 88, 212, 0.3);
+  --info-outline:    rgba(91, 123, 232, 0.3);
+  --warning-outline: rgba(224, 176, 74, 0.3);
+  --success-outline: rgba(70, 192, 138, 0.3);
+  --error-outline:   rgba(229, 105, 122, 0.3);
+  --glow-warning:    0 0 5px rgba(224, 176, 74, 0.4);
+  --glow-success:    0 0 5px rgba(70, 192, 138, 0.7);
+  --glow-accent:     0 0 5px rgba(75, 88, 212, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
 }

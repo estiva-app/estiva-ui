@@ -27,3 +27,15 @@ body {
 .docs-story > div {
   background-color: transparent;
 }
+
+/*
+ * Base UI's one layout requirement (its quick start, read 2026-09-06): the
+ * application root forms its own stacking context, so a portalled popup,
+ * which lands on <body> after the root, paints above everything inside the
+ * root whatever z-index the content uses. Storybook's roots are these two;
+ * each app sets its own on the day it adopts the migrated package.
+ */
+#storybook-root,
+#storybook-docs {
+  isolation: isolate;
+}

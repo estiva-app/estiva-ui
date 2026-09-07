@@ -1,5 +1,158 @@
 # Changelog
 
+## Unreleased — the Base UI migration, stage 2 (2026-09-07)
+
+The button family moves onto Base UI's Button: `Button`, `IconButton`,
+`PersonTrigger`. Nothing renders differently: every story of the three
+matches the stage-1 state to the pixel in both themes, and every Peek and
+Ship story on the linked package matches 0.6.0 bar the two differences D16
+and D17 already explain. Ship's 305 tests and Peek's 988 pass against the
+packed tarball.
+
+### Added
+
+- **`disabledReason` on `Button` and `IconButton`.** "Only offer actions
+  that can succeed", done once: the button is disabled, stays reachable by
+  Tab, and shows the reason as a tooltip on hover (in place of an
+  IconButton's own tooltip). Ship wrote that wrapper by hand six times; each
+  can now be `<Button disabledReason={reason}>`. The reason shows on hover
+  only until Tooltip moves onto Base UI at stage 4; the pages say so. A
+  button with a reason sits inside the tooltip's `inline-flex` wrapper, as
+  Ship's hand-written ones already did.
+
+### Changed
+
+- **`Button`, `IconButton` and `PersonTrigger` are built on Base UI's
+  Button.** Same props, same classes, `type="button"` still the default,
+  every native prop and a ref still pass through. Button's two sizes are
+  spelled with the `btn-default` and `btn-small` type tokens and
+  PersonTrigger's row with `body-2`, the same values as the pixel sizes
+  they replace. Callers: 53 Button sites and 40 IconButton sites across
+  Peek and Ship, and `IdentityMenu` for PersonTrigger; nothing to change.
+
+### For whoever changes the package
+
+- PersonTrigger's row is named "AD Ana Duarte" by assistive technology,
+  because the face's initials are text. Seen, not changed; the Avatar port
+  (stage 6) settles it.
+
+## Unreleased — the Base UI migration, stage 1 (2026-09-07)
+
+Two components move onto Base UI parts. Nothing renders differently, with
+one ruled exception: every Tabs and Checkbox story matches the stage-0
+baseline to the pixel in both themes, except the unchecked Checkbox on a
+line of text, which now sits where the checked one does (below); and every
+Peek and Ship story rendered against the linked package matches its own
+0.6.0 baseline, except where D16 already explains the difference (below).
+
+### Changed
+
+- **`Tabs` is built on Base UI Tabs.** Same props, same classes. New: the
+  keyboard. The selected tab is the row's one Tab stop; ← and → select the
+  previous and next tab and wrap at the ends; Home and End select the first
+  and last. `onChange` fires only for a person's choice. `className` now
+  lands on an outer box around the row (Base UI's Root); no caller passes
+  one today. The two sizes are spelled with the type tokens (`text-body-2`,
+  `text-caption`) instead of pixel values. Callers: Peek `TopicTabs`; Ship
+  `IssuesView`, `ProjectsView`, `ProjectView`.
+- **`Checkbox` is built on Base UI Checkbox.** With `onChange` it is the
+  control as Base UI renders it, a `<span role="checkbox">` with a hidden
+  input beside it; Space toggles, Enter no longer does (it is the form's
+  key, as on a native checkbox); its click never reaches the row. **Without
+  `onChange` it is now a picture, not a control**: hidden from assistive
+  technology, no focus, no role. A row that owns the toggle must say the
+  state itself (`aria-pressed`, or `aria-selected` on an option). Caller:
+  Peek `AddToOpenWorkDialog`, whose rows are options with `aria-selected`
+  already; its `aria-label` on the inert square is now ignored.
+- **The Checkbox no longer moves when it toggles.** An empty box and a box
+  with the tick hung on a line of text one pixel apart, on 0.6.0 as well, so
+  every click moved the square (Katerina, 2026-09-07: "it should be
+  fixed"). The tick is now always in the box and hidden when unchecked. The
+  unchecked square sits where the checked one always did, one pixel lower
+  than before on a line of text; in a flex row, where every caller puts it,
+  nothing moved.
+
+### For whoever changes the package
+
+- The `nested-interactive` exception on the Checkbox "Inside a row" story
+  is gone; axe passes it in both themes.
+- Two things the link into the apps taught, both in `CLAUDE.md`: stop an
+  app's Storybook and Vite servers before `npm ci` there, or the restore
+  fails half-way on a locked file; and an app's Vitest cannot run against a
+  symlinked package once the package reaches React through a dependency
+  (two copies of React), so a caller test runs against `npm pack`'s tarball
+  instead. Ship's Tabs test passes that way.
+- Seen through the link, not caused by this stage: Ship's dialog backdrops
+  differ by one colour level (D16's scrim, the rounding already explained),
+  and Peek's "urgent" chips draw Peek's own `--glow-warning` (8px, 0.8)
+  instead of the package's (5px, 0.4), because Peek's `index.css` defines
+  three `--glow-*` variables with the names D16 chose. `PLAN.md` Finding
+  12, for Katerina.
+
+## Unreleased — the Base UI migration, stage 0 (2026-09-06)
+
+Nothing renders differently. Every package story, both themes, matches the
+0.6.0 baseline to the pixel (the three skeleton stories differ by their
+pulse, as they always have).
+
+### Added
+
+- **`@base-ui/react` is a dependency.** Nothing is built on it yet; every
+  component with a Base UI counterpart moves onto it in the stages that
+  follow (D6). External to the bundle, like `clsx` and `tailwind-merge`, so
+  a consumer installs one copy through npm.
+- **Eleven tokens for transparent colours (D16).** `bg-wash`, the five
+  `*-outline` borders, `glow-warning`, `glow-success`, `glow-accent`,
+  `highlight-inset` and `scrim`, in every theme. Kbd, Chip, Toast, AppShell
+  and DialogShell spell their wash, outlines, glows, highlight and backdrop
+  with them instead of hand-written `rgba(...)` values and `bg-black/50`.
+  The signal values are what those components drew before, and the
+  screenshots agree. `cn()` now knows the preset's shadow keys as well, so
+  two shadow tokens in one merged list conflict the way two sizes do.
+- **The guide pages ship.** `stories/` is in `files`, so Introduction,
+  Getting started, Choosing a component and Design Tokens reach
+  `node_modules/@estiva-app/ui/stories/`. The 37 component pages under
+  `src/` already did.
+
+### For whoever changes the package
+
+- `npm run test:a11y` renders every story in Chromium, once per theme, and
+  runs axe on it; a violation fails. Its first run found the IconButton
+  stories without an accessible name (fixed), ChipInput's unnamed input and
+  the Checkbox row anatomy (cleared by their ports), and token contrast
+  below AA in both themes (a ruling, `PLAN.md` stage 0.10). Each open one is
+  a single rule switched off on a single story, with the measurement beside
+  it.
+- `npm run lint` is the token contract: no class Tailwind does not
+  generate, no Tailwind ramp or palette, no raw colour in an arbitrary
+  value. Class maps are named `*Styles` / `*_STYLES` so the lint reads them;
+  Banner's and Toast's were renamed. Nine Signal-only translucent values
+  ported verbatim from Peek, and the scrim, are named as exceptions.
+- **The Design Tokens page is rebuilt.** One row per colour and shadow
+  token: swatch, name, class, live value, and which components use it, read
+  from their source when the page builds. Type specimens render in their own
+  token and measure themselves; they carry no "used by", because most
+  components still spell their sizes in pixels and the column would be half
+  true. It sits inside Storybook's `Unstyled` block: the docs
+  container used to set 16px on every specimen, so the whole ramp looked
+  like one size.
+- `isolation: isolate` on the Storybook roots, Base UI's one layout
+  requirement. The apps set theirs at adoption.
+
+## 0.7.0 — 2026-09-07
+
+Published by Jan from `main`, before the migration branch above merges.
+
+### Added
+
+- **`Reaction`.** An emoji, how many people chose it, and whether you are
+  one of them: Chip's pill at Button `small`'s height, `pressed` as the
+  accent's muted tint and edge, `aria-pressed` for assistive technology,
+  `aria-label` required because the emoji is decorative. Both apps had
+  built their own; this is the one they will adopt. It is a plain
+  `<button>` for now; it moves onto Base UI's `Toggle` with the rest of the
+  tier (`PLAN.md` §16, stage 6).
+
 ## 0.6.0 — 2026-09-05
 
 ### Added

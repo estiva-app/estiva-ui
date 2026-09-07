@@ -19,7 +19,7 @@ export interface BannerProps {
   className?: string
 }
 
-const TONE: Record<BannerTone, string> = {
+const TONE_STYLES: Record<BannerTone, string> = {
   ok: 'bg-success-muted text-success-default',
   error: 'bg-error-muted text-error-default',
   info: 'bg-info-muted text-info-default',
@@ -28,7 +28,7 @@ const TONE: Record<BannerTone, string> = {
 
 export function Banner({ tone, children, className }: BannerProps) {
   return (
-    <div role={tone === 'error' ? 'alert' : 'status'} className={cn('px-4 py-2 text-body-2', TONE[tone], className)}>
+    <div role={tone === 'error' ? 'alert' : 'status'} className={cn('px-4 py-2 text-body-2', TONE_STYLES[tone], className)}>
       {children}
     </div>
   )

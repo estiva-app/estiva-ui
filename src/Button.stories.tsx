@@ -23,8 +23,11 @@ export const Muted: Story = { args: { variant: 'muted' } }
 export const Destructive: Story = { args: { variant: 'destructive', children: 'Delete project' } }
 export const Small: Story = { args: { variant: 'primary', size: 'small' } }
 export const WithLeadingIcon: Story = { args: { variant: 'primary', leadingIcon: <IconPlus stroke={1.5} className="size-4" /> } }
-/** Disabled is for a control that is momentarily unavailable — say why, with a tooltip. A control someone may never use is absent, not disabled. */
+/** Disabled is for a control that is momentarily unavailable — say why, with `disabledReason`. A control someone may never use is absent, not disabled. */
 export const Disabled: Story = { args: { variant: 'primary', disabled: true } }
+
+/** Disabled with its reason: hover to read it; Tab still reaches the button. */
+export const WithAReason: Story = { args: { variant: 'primary', disabledReason: 'Sign in to add items' } }
 
 /** Every variant × size × icon × disabled combination on one canvas. */
 export const AllVariants: Story = {

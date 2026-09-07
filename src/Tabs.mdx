@@ -43,10 +43,19 @@ import { Tabs } from '@estiva-app/ui'
 ```
 
 - Generic over the id type — `onChange` hands back your union, not a
-  string.
-- It renders `role="tablist"` / `role="tab"` with `aria-selected`;
-  switching is by click (there is no arrow-key roving), and wiring the
-  panels — what shows for the active tab — is the caller's.
+  string, and only for a person's choice.
+- Built on Base UI Tabs: `role="tablist"` / `role="tab"` with
+  `aria-selected`, one Tab stop for the row, arrow keys between the tabs.
+  Wiring the panels — what shows for the active tab — is the caller's.
+- `className` lands on the outer box, around the row.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Into the row, onto the selected tab; out of it on the next press. |
+| ← → | Select the previous / next tab. The ends wrap. |
+| Home / End | Select the first / last tab. |
 
 ## Props
 

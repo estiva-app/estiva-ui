@@ -20,6 +20,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      # The token contract as a machine rule: no class Tailwind does not
+      # generate, no Tailwind ramp or palette, no raw colour (eslint.config.js).
+      - run: npm run lint
       - run: npm test
       - run: npm run build
 
@@ -52,3 +55,19 @@ jobs:
               console.log(g, '->', hits.length, 'files')
             }
           "
+
+  # Every story rendered in Chromium and run through axe, once per product
+  # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
+  # A story with a violation is a failing test. Its own job, so the browser
+  # download runs beside the build rather than after it.
+  a11y:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:a11y
