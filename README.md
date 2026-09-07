@@ -15,6 +15,13 @@ every Estiva app — Peek, Ship, and whatever comes next.
 - Primitives — arriving one at a time (see Storybook). Each has stories that
   need no app data; if a story needs a fixture, the component is not a
   primitive and does not belong here.
+- Behaviour comes from [Base UI](https://base-ui.com) (`@base-ui/react`, a
+  dependency installed with the package): keyboard, focus, roles, forms.
+  The components move onto it one stage at a time; `Tabs`, `Checkbox`,
+  `Button`, `IconButton` and `PersonTrigger` are on it (2026-09-07), the
+  rest follow the plan in `K:\Estiva\migration docs\PLAN.md`, whose §16
+  lists every component, its Base UI part, and what it gains. Nothing
+  changes how a component looks.
 
 ## Using it
 
@@ -103,9 +110,10 @@ the last two; a hover-opened one owes all five.
 ### Only offer actions that can succeed
 
 An action appears only where it works. A control that cannot succeed right
-now is disabled *with its reason* (a tooltip), and a control someone may
-never use is absent, not disabled. Primitives expose what that needs: a
-`disabled` that can explain itself, never a button that fails.
+now is disabled *with its reason*, and a control someone may never use is
+absent, not disabled. `Button` and `IconButton` carry it as
+`disabledReason="Sign in first"`: disabled, still reachable by Tab, the
+reason shown as a tooltip. Never a button that fails.
 
 ## Themes
 
@@ -124,9 +132,13 @@ stay in Peek's own `.signal` block.
 
 ```
 npm install
-npm test            # every theme defines every token the preset names, and no other
+npm test            # tokens (every theme defines every token the preset names, and no other), cn(), and each component's page claims
+npm run lint        # the token contract: no class Tailwind does not generate, no ramp, no raw colour
+npm run typecheck
 npm run storybook   # http://localhost:6008 — Design Tokens, and each primitive, in signal and ship
 ```
 
-Extracting a primitive from Peek must not change how Peek renders:
-screenshot-compare before and after, in Peek's own Storybook.
+A change must not change how an app renders: screenshot-compare before and
+after, in both themes here and in the apps' own Storybooks. `CLAUDE.md` has
+the whole contract: what a component, a story, a page and a port are held
+to, and how a change is proved.
