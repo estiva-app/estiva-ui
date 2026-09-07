@@ -1,6 +1,31 @@
 # Changelog
 
-## Unreleased — the Base UI migration, stage 2 (2026-09-07)
+## 0.8.0 — 2026-09-07
+
+**The first of the three releases D19 asks for**: the apps take the Base UI
+migration in three steps rather than one at the end, and this is step one.
+Stages 0 to 2 — the rig and the rules, D16's transparent-colour tokens, the
+Design Tokens page, then `Tabs`, `Checkbox`, `Button`, `IconButton` and
+`PersonTrigger` onto their Base UI parts, with the new `disabledReason`.
+
+`0.7.0` was published by Jan from `main` while this branch was open, and is
+merged into it, so everything in `0.7.0` is here too.
+
+**Nothing renders differently**, with two ruled exceptions, both visible in
+the stage sections below: D16's scrim rounding, and the unchecked checkbox,
+whose tick now sits in the box at rest so the control stops moving a pixel
+when it is clicked.
+
+**What a caller must do**, in full, is `migration docs/ADOPTION.md`. In
+short: bump the version, and set `isolation: isolate` on the app's root
+element, which is Base UI's one layout requirement. No prop changed at any
+of the three stages — Ship's 305 tests and Peek's 988 pass against this
+build with no caller change — so nothing else is forced. What the release
+*offers* is `disabledReason`, which replaces six hand-written wrappers in
+Ship, and eleven tokens for transparent colours that an opacity modifier
+could never express.
+
+### Stage 2 — the button family (2026-09-07)
 
 The button family moves onto Base UI's Button: `Button`, `IconButton`,
 `PersonTrigger`. Nothing renders differently: every story of the three
@@ -9,7 +34,7 @@ Ship story on the linked package matches 0.6.0 bar the two differences D16
 and D17 already explain. Ship's 305 tests and Peek's 988 pass against the
 packed tarball.
 
-### Added
+#### Added
 
 - **`disabledReason` on `Button` and `IconButton`.** "Only offer actions
   that can succeed", done once: the button is disabled, stays reachable by
@@ -20,7 +45,7 @@ packed tarball.
   button with a reason sits inside the tooltip's `inline-flex` wrapper, as
   Ship's hand-written ones already did.
 
-### Changed
+#### Changed
 
 - **`Button`, `IconButton` and `PersonTrigger` are built on Base UI's
   Button.** Same props, same classes, `type="button"` still the default,
@@ -30,13 +55,13 @@ packed tarball.
   they replace. Callers: 53 Button sites and 40 IconButton sites across
   Peek and Ship, and `IdentityMenu` for PersonTrigger; nothing to change.
 
-### For whoever changes the package
+#### For whoever changes the package
 
 - PersonTrigger's row is named "AD Ana Duarte" by assistive technology,
   because the face's initials are text. Seen, not changed; the Avatar port
   (stage 6) settles it.
 
-## Unreleased — the Base UI migration, stage 1 (2026-09-07)
+### Stage 1 — the pilot: Tabs and Checkbox (2026-09-07)
 
 Two components move onto Base UI parts. Nothing renders differently, with
 one ruled exception: every Tabs and Checkbox story matches the stage-0
@@ -45,7 +70,7 @@ line of text, which now sits where the checked one does (below); and every
 Peek and Ship story rendered against the linked package matches its own
 0.6.0 baseline, except where D16 already explains the difference (below).
 
-### Changed
+#### Changed
 
 - **`Tabs` is built on Base UI Tabs.** Same props, same classes. New: the
   keyboard. The selected tab is the row's one Tab stop; ← and → select the
@@ -72,7 +97,7 @@ Peek and Ship story rendered against the linked package matches its own
   than before on a line of text; in a flex row, where every caller puts it,
   nothing moved.
 
-### For whoever changes the package
+#### For whoever changes the package
 
 - The `nested-interactive` exception on the Checkbox "Inside a row" story
   is gone; axe passes it in both themes.
@@ -89,13 +114,13 @@ Peek and Ship story rendered against the linked package matches its own
   three `--glow-*` variables with the names D16 chose. `PLAN.md` Finding
   12, for Katerina.
 
-## Unreleased — the Base UI migration, stage 0 (2026-09-06)
+### Stage 0 — the rules and the rig (2026-09-06)
 
 Nothing renders differently. Every package story, both themes, matches the
 0.6.0 baseline to the pixel (the three skeleton stories differ by their
 pulse, as they always have).
 
-### Added
+#### Added
 
 - **`@base-ui/react` is a dependency.** Nothing is built on it yet; every
   component with a Base UI counterpart moves onto it in the stages that
@@ -114,7 +139,7 @@ pulse, as they always have).
   `node_modules/@estiva-app/ui/stories/`. The 37 component pages under
   `src/` already did.
 
-### For whoever changes the package
+#### For whoever changes the package
 
 - `npm run test:a11y` renders every story in Chromium, once per theme, and
   runs axe on it; a violation fails. Its first run found the IconButton
