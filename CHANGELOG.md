@@ -139,6 +139,20 @@ pulse, as they always have).
 - `isolation: isolate` on the Storybook roots, Base UI's one layout
   requirement. The apps set theirs at adoption.
 
+## 0.7.0 — 2026-09-07
+
+Published by Jan from `main`, before the migration branch above merges.
+
+### Added
+
+- **`Reaction`.** An emoji, how many people chose it, and whether you are
+  one of them: Chip's pill at Button `small`'s height, `pressed` as the
+  accent's muted tint and edge, `aria-pressed` for assistive technology,
+  `aria-label` required because the emoji is decorative. Both apps had
+  built their own; this is the one they will adopt. It is a plain
+  `<button>` for now; it moves onto Base UI's `Toggle` with the rest of the
+  tier (`PLAN.md` §16, stage 6).
+
 ## 0.6.0 — 2026-09-05
 
 ### Added
