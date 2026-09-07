@@ -36,6 +36,33 @@ Tooltip first, because it was in the way of everything else.
   it, so a toolbar sweep does not flicker. `prefers-reduced-motion` removes
   it.
 
+- **`Select` is Base UI's `Select`.** Deleted with the port: `createPortal`,
+  the whole `onKeyDown` switch, the outside-click, resize and page-scroll
+  listeners, the `aria-activedescendant` bookkeeping, the `scrollIntoView`
+  that kept the highlight visible, and the index this component counted to
+  know which option was active. **Not one pixel moved**: 187 of 190 stories
+  identical in signal and 188 of 190 in ship, the rest being Skeleton's
+  shimmer. The open list was measured by hand, since a closed trigger is all
+  a screenshot sees — 4px under the trigger, as wide as it, capped at 288px
+  and scrolling inside that; in a bottom-right corner it flips above the
+  trigger and slides left, still at its full height and fully on screen.
+
+  **It keeps opening below the trigger** (Katerina, D24). Base UI would
+  rather lay the list *over* it so the chosen option covers the trigger's
+  own text, the way macOS does; that is off, because all fourteen call
+  sites open below one today.
+
+  **Gained, and nothing here implements any of it: typeahead** — type the
+  first letters of an option and the list jumps to it — a highlight that is
+  one `data-highlighted` attribute for pointer and keyboard alike rather
+  than an index, and a value that can belong to a form.
+
+- **A Select's list follows its trigger when the page scrolls.** It used to
+  close, and had to: the list was `fixed` to where the trigger *had been*,
+  so closing was the only way it could avoid being left behind. It now
+  tracks, and disappears if the trigger scrolls out of sight rather than
+  floating over whatever has scrolled into its place. The list's own scroll
+  never dismissed it and still does not.
 - **`Button` and `IconButton` no longer wrap themselves to carry a tooltip.**
   The button *is* the trigger, so the component's root is the `<button>`.
   This was the loose end stage 3 finished on: an `IconButton` with a
@@ -73,6 +100,19 @@ Tooltip first, because it was in the way of everything else.
   the page claims, including the two exits it now has (Escape, and a click on
   the trigger) and the focus behaviour that replaced the stated gap.
 - A **toolbar** story, where the shared delay is visible.
+- `Select.test.tsx`, which the component never had: 11 tests for what the
+  page claims, including the typeahead it just gained and the two
+  assertions Ship makes on it, repeated here so a break shows up in this
+  repository rather than in Ship's adoption PR.
+
+### Removed
+
+- **`Select.fit.test.ts`** — eight assertions about the pure geometry this
+  component grew and then shared with the Menu shell. The geometry is
+  Floating UI's now, so there is nothing of ours left to assert. What it
+  covered is measured in a browser instead, because jsdom lays nothing out:
+  a jsdom test claiming to check placement checks nothing. (`fit.ts` itself
+  goes when the Menu shell follows.)
 
 ### Callers
 
@@ -81,6 +121,15 @@ Nothing to change to keep working. Two things worth doing, both in
 
 - Mount a `TooltipProvider` at each app's root, or tooltips pause one per
   button instead of once per row (**B6**).
+- **A Select's trigger is a `combobox`, not a `button`** — the correct ARIA
+  pattern for the control, and Base UI's doing. No product code changes;
+  **sixteen test assertions do**, read from the two apps rather than
+  guessed: Ship's `App.test.tsx` (5), `components/ui/ui.test.tsx` (3),
+  `components/dialogs.test.tsx` (2) and `components/rails.test.tsx` (1),
+  and Peek's `components/ui/ForeignObjectWidget.test.tsx` (5). Each is a
+  `getByRole('button', { name: … })` on a Select trigger and becomes
+  `getByRole('combobox', …)`. Peek already has one
+  `queryByRole('combobox')` assertion, and it still holds (**B8**).
 - Nothing is written to get the 300ms wait, the fade or the focus
   behaviour — they arrive with the release (**B7**).
 - `peek/src/components/ui/WithTooltip.tsx` re-exports the package's and needs
