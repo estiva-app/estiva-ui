@@ -53,6 +53,18 @@ import { ConfirmDialog } from '@estiva-app/ui'
 - Focus is trapped in the card and returns to whatever opened it, as for
   every dialog since stage 3.
 
+## Keys
+
+Different from `DialogShell`'s in one row, and it is the row that matters.
+
+| Input | What happens |
+|---|---|
+| Escape | cancels |
+| backdrop click | **nothing** — the question has to be answered (D20) |
+| close button | cancels |
+| Tab / Shift+Tab | cycles the controls inside the card, and cannot leave it |
+| on close | focus returns to whatever opened it |
+
 ## Props
 
 <Controls of={ConfirmDialogStories.Destructive} />

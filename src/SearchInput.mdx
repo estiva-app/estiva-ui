@@ -31,8 +31,12 @@ import { SearchInput } from '@estiva-app/ui'
 ```
 
 - The default placeholder is "Search…" — override it with your own.
-- Every native input prop passes through; give it an `aria-label`
-  ("Search") since the placeholder is not a name.
+- Every native input prop passes through. The field inside is Base UI's
+  `Input` since stage 3; the border, the focus-within rule and the `Kbd`
+  hint are this component's.
+- **Give it an `aria-label` ("Search")** — the placeholder is not a name,
+  and this usually stands alone in a top bar rather than in a `Field`.
+  Inside one, the label names it and you add nothing.
 
 ## Props
 

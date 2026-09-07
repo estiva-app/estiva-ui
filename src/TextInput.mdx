@@ -30,8 +30,14 @@ import { TextInput } from '@estiva-app/ui'
 ```
 
 - It is a native `<input>` with a ref — every native prop passes through.
-- Name it: a Field's label is visual, so give the input an `aria-label`
-  too.
+  Base UI's `Input` since stage 3, which is what finds a surrounding
+  `Field`.
+- **Inside a `Field`, the label names it. Add nothing.** This page said the
+  opposite until stage 3 — "a Field's label is visual, so give the input an
+  `aria-label` too" — and that advice was already stale at SHA-17. An
+  `aria-label` there is now ignored, because the label wins.
+- **Outside a `Field`, name it yourself** with `aria-label`: a placeholder
+  is not a name.
 - `disabled` gets the disabled surface and text; say why with a tooltip.
 
 ## Props

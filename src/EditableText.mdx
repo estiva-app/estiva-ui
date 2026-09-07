@@ -40,7 +40,12 @@ import { EditableText } from '@estiva-app/ui'
 - `onCommit` resolves `true` to close; `false` (or a throw) keeps the
   field open — you have already told the person why. An unchanged value is
   not committed at all.
-- `label` is required — it is the field's accessible name.
+- `label` is required — it is the field's accessible name. This one is
+  spelled rather than taken from a `Field`: the component is a line of text
+  that becomes a field, and it is used where there is no label to read.
+- The editing state is Base UI's `Input` since stage 3, or `Field.Control`
+  as a `<textarea>` when `multiline`. **Everything below is ours**, because
+  Base UI has no inline-edit part and no opinion about what an edit means.
 - `display` shows something other than what is edited (a value carrying
   raw references, rendered richer when read) without losing the original
   on commit.
