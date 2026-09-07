@@ -59,6 +59,32 @@ describe('IconButton', () => {
     expect(screen.getByRole('tooltip').textContent).toBe('Read only')
   })
 
+  it('Space and Enter are the action, and nothing while disabled with a reason', async () => {
+    const user = userEvent.setup()
+    const onClick = vi.fn()
+    const { unmount } = render(
+      <IconButton aria-label="Edit" onClick={onClick}>
+        {icon}
+      </IconButton>,
+    )
+    await user.tab()
+    await user.keyboard('{Enter}')
+    await user.keyboard(' ')
+    expect(onClick).toHaveBeenCalledTimes(2)
+    unmount()
+
+    const held = vi.fn()
+    render(
+      <IconButton aria-label="Edit" disabledReason="Read only" onClick={held}>
+        {icon}
+      </IconButton>,
+    )
+    await user.tab()
+    await user.keyboard('{Enter}')
+    await user.keyboard(' ')
+    expect(held).not.toHaveBeenCalled()
+  })
+
   it('disabled without a reason: a real disabled button, out of the Tab order', async () => {
     const user = userEvent.setup()
     render(

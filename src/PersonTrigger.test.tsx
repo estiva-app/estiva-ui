@@ -26,6 +26,17 @@ describe('PersonTrigger', () => {
     expect(button.getAttribute('aria-expanded')).toBe('true')
   })
 
+  it('Tab reaches it; Space and Enter are the click', async () => {
+    const user = userEvent.setup()
+    const onClick = vi.fn()
+    render(<PersonTrigger name="Ana Duarte" onClick={onClick} />)
+    await user.tab()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: /Ana Duarte$/ }))
+    await user.keyboard('{Enter}')
+    await user.keyboard(' ')
+    expect(onClick).toHaveBeenCalledTimes(2)
+  })
+
   it('the compact face takes the label it is given, and a ref and handlers reach the button', async () => {
     const user = userEvent.setup()
     const ref = createRef<HTMLButtonElement>()

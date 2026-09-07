@@ -81,6 +81,29 @@ describe('Button', () => {
     expect(document.activeElement).toBe(button)
   })
 
+  it('Space and Enter are the action, and nothing while disabled with a reason', async () => {
+    const user = userEvent.setup()
+    const onClick = vi.fn()
+    const { unmount } = render(<Button onClick={onClick}>Go</Button>)
+    await user.tab()
+    await user.keyboard('{Enter}')
+    await user.keyboard(' ')
+    expect(onClick).toHaveBeenCalledTimes(2)
+    unmount()
+
+    const held = vi.fn()
+    render(
+      <Button disabledReason="Not now" onClick={held}>
+        Go
+      </Button>,
+    )
+    await user.tab()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Go' }))
+    await user.keyboard('{Enter}')
+    await user.keyboard(' ')
+    expect(held).not.toHaveBeenCalled()
+  })
+
   it('passes native props through', () => {
     render(
       <Button form="f1" aria-pressed="true" data-x="y" className="mt-2">
