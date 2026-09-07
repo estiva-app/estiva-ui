@@ -154,6 +154,11 @@ export default {
         'warning-outline': 'var(--warning-outline)',
         'success-outline': 'var(--success-outline)',
         'error-outline':   'var(--error-outline)',
+        // The same hues as the outlines, at a fill's strength rather than an
+        // edge's: `-outline` is 30%, `-wash` is 11%. Peek tinted rows with its
+        // own copies of these before they moved here.
+        'accent-wash':     'var(--accent-wash)',
+        'success-wash':    'var(--success-wash)',
         'scrim':           'var(--scrim)',
       },
       boxShadow: {

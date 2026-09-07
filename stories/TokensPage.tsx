@@ -88,9 +88,9 @@ const FAMILIES: Family[] = [
   },
   {
     label: 'Accent',
-    blurb: 'The brand colour: the primary button, the checked box, the brand chip. Muted is its wash, outline its thin border.',
+    blurb: 'The brand colour: the primary button, the checked box, the brand chip. Muted is its opaque wash, wash the translucent one a row tints with on hover, outline its thin border.',
     utilities: COLOUR_UTILITIES,
-    tokens: [colour('accent', 'primary', 'fill'), colour('accent', 'hover', 'fill'), colour('accent', 'muted', 'fill'), colour('accent', 'outline', 'outline')],
+    tokens: [colour('accent', 'primary', 'fill'), colour('accent', 'hover', 'fill'), colour('accent', 'muted', 'fill'), colour('accent', 'wash', 'fill'), colour('accent', 'outline', 'outline')],
   },
   {
     label: 'Tones',
@@ -100,6 +100,10 @@ const FAMILIES: Family[] = [
       colour(tone, 'default', 'text'),
       colour(tone, 'muted', 'fill'),
       colour(tone, 'outline', 'outline'),
+      // Only success has a translucent wash so far, because only success needed
+      // one: it is the tint on a resolved thread. The others gain one when a
+      // component asks, not before.
+      ...(tone === 'success' ? [colour(tone, 'wash', 'fill')] : []),
     ]),
   },
   {

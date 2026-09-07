@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Two hue washes: `accent-wash` and `success-wash`.** The same colours as
+  `accent-outline` and `success-outline`, at a fill's strength rather than an
+  edge's: the outlines are the theme's hue at 30%, these are the same hue at
+  11%. Every theme gets them by the rule the outlines already follow, so the
+  signal values are `rgba(86, 200, 255, 0.11)` and `rgba(63, 222, 140, 0.11)`,
+  and ship's are its own accent and success at the same 11%.
+
+  They come from Peek, which had defined its own `--accent-wash` and
+  `--success-wash` under `.signal` and tinted rows with them through arbitrary
+  values. Two of Peek's four did not move: `--accent-wash-2`, a border at 22%,
+  becomes the existing `accent-outline` at 30% (Katerina, 2026-09-07), and
+  `--warning-wash` was used by nothing but a swatch in Peek's own theme story,
+  so it is deleted rather than adopted.
+
+  The token count the contract test pins goes from 44 to 46.
+
 ## 0.8.0 — 2026-09-07
 
 **The first of the three releases D19 asks for**: the apps take the Base UI
