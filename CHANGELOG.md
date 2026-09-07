@@ -65,6 +65,12 @@ about itself is closed: **dialogs trap focus and give it back**.
 
 ### Removed
 
+- **`Field`'s `htmlFor` prop is gone.** It existed to name the generated id
+  from outside, and there is no generated id to name any more: an `id` set on
+  the control is kept, and the label follows it, which is the same job done
+  from the side that can actually see the control. **Callers affected: none**
+  — the only use was this package's own test.
+
 - **`useFieldControlId` is gone.** It was the opt-in every control had to
   call to be named by a surrounding `Field`, and Base UI does that job now.
   **Callers affected: none** — read from both apps on 2026-09-07, nothing

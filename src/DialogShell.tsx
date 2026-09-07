@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { Dialog } from '@base-ui/react/dialog'
 import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { IconX } from '@tabler/icons-react'
@@ -58,6 +58,7 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
   // chrome below is written once. AlertDialog re-exports Dialog's Backdrop,
   // Popup, Portal and Title types, which is why this substitutes cleanly.
   const Parts = alert ? AlertDialog : Dialog
+  const popupRef = useRef<HTMLDivElement>(null)
   return (
     <Parts.Root
       open
@@ -72,11 +73,31 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
         {/* Dialog */}
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
           <Parts.Popup
+            ref={popupRef}
+            /*
+              Focus the card, not the first control in it.
+
+              Base UI's default is the first tabbable element, which here is the
+              ✕ in the header — so every dialog opened with a visible ring on
+              its close button, which the screenshot diff caught as a 28px
+              square nobody had asked for. Focusing the card arms the trap and
+              lets a screen reader read the dialog, with no control lit up.
+
+              A field with `autoFocus` still wins: React focuses it while the
+              popup mounts, and Base UI does not move focus that has already
+              landed inside. Both dialogs in Ship rely on that.
+            */
+            initialFocus={popupRef}
             /* The header names it when the header is the title. When
                `headerContent` replaces that text there is nothing to point at,
                so the name is spelled instead — as this component always did. */
             aria-label={headerContent != null ? title : undefined}
-            className="bg-bg-elevated border border-border-subtle rounded-lg shadow-lg pointer-events-auto flex flex-col overflow-hidden"
+            /* `outline-none` because the card is a programmatic focus target,
+               not something a keyboard user tabs to: without it Chrome rings
+               the whole 502px card on open, which the diff caught the moment
+               `initialFocus` moved off the ✕. The controls inside keep their
+               own focus styling. */
+            className="bg-bg-elevated border border-border-subtle rounded-lg shadow-lg pointer-events-auto flex flex-col overflow-hidden outline-none"
             style={{ width }}
           >
             {/* Header */}

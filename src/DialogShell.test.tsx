@@ -91,6 +91,30 @@ describe('DialogShell', () => {
     }
   })
 
+  it('focuses the card, not the ✕', async () => {
+    // Base UI's default is the first tabbable element, which here is the close
+    // button — so every dialog opened with a ring on its ✕. The screenshot
+    // diff caught it as a 28px square, and this is the guard so it cannot come
+    // back quietly.
+    render(<Shell onClose={() => {}} />)
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByRole('dialog'))
+    })
+  })
+
+  it('still lets a field with autoFocus take it', async () => {
+    // The two dialogs in Ship rely on this, and pinning the card as the initial
+    // focus is exactly the change that could have broken it.
+    render(
+      <DialogShell title="Rename topic" onClose={() => {}}>
+        <TextInput aria-label="Name" autoFocus defaultValue="" />
+      </DialogShell>,
+    )
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByLabelText('Name'))
+    })
+  })
+
   it('returns focus to whatever opened it', async () => {
     const user = userEvent.setup()
     function Opener() {
