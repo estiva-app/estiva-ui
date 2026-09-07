@@ -1,0 +1,49 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ReactionStories from './Reaction.stories'
+
+<Meta of={ReactionStories} />
+
+# Reaction
+
+An emoji, how many people chose it, and whether you are one of them. A
+24px pill that toggles — Chip's shape at a control's height.
+
+<Canvas of={ReactionStories.Row} />
+
+## When
+
+- Under a message, in a row of them. `pressed` is **you are one of the
+  reactors**: the accent's muted tint and an accent edge, so a glance
+  separates "two people, one of them me" from "two people".
+- Any emoji at all. Another app may publish one outside your set, and a
+  reaction you cannot name is still one you must draw.
+
+<Canvas of={ReactionStories.Pressed} />
+
+## When not
+
+- Standing information nobody can toggle — a status, a category → **Chip**
+  (a Chip is not a control).
+- Adding a reaction that is not there yet: that is a picker, and a strip of
+  icon actions is a toolbar of **IconButton**s.
+- An action with a verb for a label → **Button**.
+
+## How
+
+```tsx
+import { Reaction } from '@estiva-app/ui'
+
+<Reaction emoji="👍" count={2} pressed aria-label="Makes sense, 2" onClick={toggle} />
+```
+
+- **`aria-label` is required.** The emoji is `aria-hidden` — a glyph read
+  aloud is noise, and its spoken name differs per screen reader — so the
+  count is the only visible text and the control would otherwise be
+  announced as "2". Pass the meaning and the count.
+- It is a real `<button>` with `aria-pressed`, so "mine" reaches assistive
+  tech as a toggle rather than as a colour. Every native prop passes
+  through; `type` defaults to `"button"`.
+
+## Props
+
+<Controls of={ReactionStories.Default} />
