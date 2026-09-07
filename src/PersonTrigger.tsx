@@ -1,11 +1,13 @@
 import type { ComponentPropsWithRef } from 'react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import { IconChevronDown } from '@tabler/icons-react'
 import { cn } from './cn'
 import { Avatar } from './Avatar'
 import { Person, type PersonProps } from './Person'
 
 /**
- * The person, as the button that opens the account menu.
+ * The person, as the button that opens the account menu. On Base UI's Button
+ * since stage 2 of the migration (2026-09-07).
  *
  * Two shapes, one component (Katerina, 2026-09-01):
  *
@@ -29,7 +31,7 @@ export interface PersonTriggerProps
 export function PersonTrigger({ name, picture, fallback, size, open = false, compact = false, className, ...props }: PersonTriggerProps) {
   if (compact) {
     return (
-      <button
+      <BaseButton
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -37,19 +39,16 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
         {...props}
       >
         <Avatar name={name} src={picture} size={size ?? 36} />
-      </button>
+      </BaseButton>
     )
   }
   return (
-    <button
+    <BaseButton
       type="button"
       aria-haspopup="menu"
       aria-expanded={open}
       className={cn(
-        // The size is an arbitrary value (the body-2 token): this list goes through
-        // cn(), and tw-merge silently drops a custom text-{size} once a
-        // text-{colour} follows it. Measured: the name rendered 16px.
-        'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-[14px] leading-[140%] text-text-primary transition-colors hover:bg-bg-hover',
+        'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
         open && 'bg-bg-hover',
         className,
       )}
@@ -57,6 +56,6 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
     >
       <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} />
       <IconChevronDown size={14} stroke={1.5} className="shrink-0 text-text-muted" />
-    </button>
+    </BaseButton>
   )
 }
