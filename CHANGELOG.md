@@ -1,5 +1,41 @@
 # Changelog
 
+## Unreleased — the Base UI migration, stage 2 (2026-09-07)
+
+The button family moves onto Base UI's Button: `Button`, `IconButton`,
+`PersonTrigger`. Nothing renders differently: every story of the three
+matches the stage-1 state to the pixel in both themes, and every Peek and
+Ship story on the linked package matches 0.6.0 bar the two differences D16
+and D17 already explain. Ship's 305 tests and Peek's 988 pass against the
+packed tarball.
+
+### Added
+
+- **`disabledReason` on `Button` and `IconButton`.** "Only offer actions
+  that can succeed", done once: the button is disabled, stays reachable by
+  Tab, and shows the reason as a tooltip on hover (in place of an
+  IconButton's own tooltip). Ship wrote that wrapper by hand six times; each
+  can now be `<Button disabledReason={reason}>`. The reason shows on hover
+  only until Tooltip moves onto Base UI at stage 4; the pages say so. A
+  button with a reason sits inside the tooltip's `inline-flex` wrapper, as
+  Ship's hand-written ones already did.
+
+### Changed
+
+- **`Button`, `IconButton` and `PersonTrigger` are built on Base UI's
+  Button.** Same props, same classes, `type="button"` still the default,
+  every native prop and a ref still pass through. Button's two sizes are
+  spelled with the `btn-default` and `btn-small` type tokens and
+  PersonTrigger's row with `body-2`, the same values as the pixel sizes
+  they replace. Callers: 53 Button sites and 40 IconButton sites across
+  Peek and Ship, and `IdentityMenu` for PersonTrigger; nothing to change.
+
+### For whoever changes the package
+
+- PersonTrigger's row is named "AD Ana Duarte" by assistive technology,
+  because the face's initials are text. Seen, not changed; the Avatar port
+  (stage 6) settles it.
+
 ## Unreleased — the Base UI migration, stage 1 (2026-09-07)
 
 Two components move onto Base UI parts. Nothing renders differently, with
