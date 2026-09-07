@@ -23,6 +23,8 @@ export const Primary: Story = { args: { variant: 'primary' } }
 export const Disabled: Story = { args: { variant: 'primary', disabled: true } }
 /** Hover to see the portalled tooltip (top or bottom placement). */
 export const WithTooltip: Story = { args: { tooltip: 'Settings', tooltipPlacement: 'top' } }
+/** Disabled with its reason in place of the tooltip; Tab still reaches it. */
+export const WithAReason: Story = { args: { tooltip: 'Settings', disabledReason: 'Sign in to change settings' } }
 
 /** Every variant × enabled/disabled. */
 export const AllVariants: Story = {
