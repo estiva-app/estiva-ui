@@ -122,6 +122,8 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 - Consumers install from npm; the local link is for verification only and never what a PR asserts.
 - A lockfile generated on Windows drops other platforms' optional dependencies. Regenerate consumer-facing lockfiles in a Linux container (`docker run --rm -v <tmp>:/app -w /app node:24 npm install --package-lock-only`).
 
+- An entry that names something a caller must change (a prop now ignored, a wrapper made redundant, a variable an app must drop) also adds a row to `K:\Estiva\migration docs\ADOPTION.md`, in the same session. That file is where the apps' adoption work waits; a changelog paragraph is not.
+
 ---
 
 ## 10. Review and merge
