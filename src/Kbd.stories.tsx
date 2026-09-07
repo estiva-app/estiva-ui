@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Kbd } from './Kbd'
-import { Menu, MenuItem, MenuSection } from './Menu'
+import { MenuItem, MenuPanel, MenuSection } from './Menu'
 import { Tooltip } from './Tooltip'
 
 const meta = {
@@ -41,13 +41,13 @@ export const InContext: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex items-start gap-6">
-      <Menu onClose={() => {}} className="static w-[220px]">
+      <MenuPanel className="w-[220px]">
         <MenuSection label="Format">
           <MenuItem label="Heading" shortcut="#" />
           <MenuItem label="Quote" shortcut=">" />
           <MenuItem label="Numbered list" shortcut="1." />
         </MenuSection>
-      </Menu>
+      </MenuPanel>
       <div className="flex flex-col gap-2">
         <Tooltip label="Bold" shortcut="Cmd+B" />
         <Tooltip label="Italic" shortcut="Ctrl+I" />

@@ -6,8 +6,10 @@ import * as MenuStories from './Menu.stories'
 # Menu
 
 The shell every menu shares: an elevated container — hairline border, 8px
-radius, 8px padding, the large shadow — and the two exits every menu owes,
-**Escape and a click outside, owned here and never by the caller**. Rows are
+radius, 8px padding, the large shadow — and the behaviour every menu owes,
+**owned here and never by the caller**: Escape, a click outside, and since
+stage 4 the keyboard — ↑ ↓ walk the rows, Home and End jump, typing a row's
+first letters goes to it. Rows are
 **MenuItem**, headings are **MenuSection**, a non-interactive line at row
 geometry is **MenuRow**, and **EnterHint** is the `↩ Enter` chip a picker row
 shows while highlighted.
@@ -66,46 +68,71 @@ import { Menu, MenuItem } from '@estiva-app/ui'
 )}
 ```
 
-Two anchorings:
+Three anchorings. **All of them portal to the body**, so nothing in an app
+can clip or cover a menu — which the old in-flow mode could not promise, and
+is how the identity menu once ended up under a z-indexed panel header.
 
-- **Default** — the menu hangs below its trigger, right-aligned; the
-  wrapper around trigger and menu must be `relative`.
-- **`position={{ top, left }}` or `{ top, right }`** — the menu portals to
-  the body at fixed viewport coordinates, for triggers inside containers
-  that scroll or clip.
+- **`anchor={el}`** — the trigger element, or a rect a click handler already
+  measured. The menu hangs 4px under it, flips above when the room below is
+  worse, and stays on screen. `align="right"` hangs the menu's right edge
+  from the anchor's.
+- **`position={{ top, left }}` or `{ top, right }`** — viewport coordinates
+  the caller computed. That corner is honoured, and can no longer land off
+  screen. `right` is measured from the right-hand edge of the window.
+- **Neither** — the menu hangs from the element it sits in, right-aligned,
+  4px below: what `absolute right-0 top-full mt-1` drew. The wrapper should
+  still be the one you want it measured against.
+
+<Canvas of={MenuStories.FromATrigger} />
 
 ## Keys
 
 | Input | What happens |
 |---|---|
-| Escape | closes — the shell's listener, not the caller's |
-| `mousedown` outside | closes; the trigger swallows its own (see below) |
-| click inside the menu | stays open — the shell stops propagation |
-| Tab / Shift-Tab | moves focus through the rows (native buttons) |
-| Enter / Space on a focused row | activates it |
-| Arrow keys | nothing — a typeahead picker owns its own highlight |
+| ↑ / ↓ | move between rows, and wrap at the ends |
+| Home / End | first row / last row |
+| typing a row's first letters | jumps to that row |
+| Enter / Space on the highlighted row | activates it, and closes the menu |
+| → on a submenu row | opens the submenu; ← closes it |
+| Escape | closes, and gives focus back to what opened it |
+| a press outside | closes |
+| a press on the trigger the menu hangs from | closes it once — not a press outside (see below) |
 
-### The trigger trap
+Focus moves into the menu when it opens and returns when it closes. None of
+that existed before stage 4: a menu was a portalled box of buttons you
+tabbed through, and the page said the arrow keys did nothing.
 
-The outside-click exit listens on `mousedown`. A trigger that toggles on
-`click` will therefore see its own press close the menu and the click
-reopen it — a flicker that reads as "the menu ignores me". The trigger
-swallows the mousedown, exactly as IdentityMenu's does:
+### The trigger trap, and how it changed
+
+A trigger that toggles on `click` used to see its own press dismiss the menu
+and the click reopen it — a flicker that reads as "the menu ignores me". The
+old fix was `onMouseDown` with `stopPropagation`, because the dismiss was a
+`mousedown` listener on `document`. **That no longer helps**: Base UI
+dismisses on a captured `pointerdown`, which stopping propagation in the
+bubble phase cannot reach.
+
+The shell handles it instead: a press inside the `anchor` is that control's
+own toggle, not a press outside, and is ignored. **A `position` menu has no
+anchor element, so it passes `trigger`:**
 
 ```tsx
-<button
-  onMouseDown={(event) => event.stopPropagation()}
-  onClick={() => setOpen((value) => !value)}
+<Menu
+  position={{ top: rect.bottom + 4, left: rect.left }}
+  trigger={buttonRef.current}
+  onClose={() => setOpen(false)}
 />
 ```
 
-### What stays the caller's
+### Hover-opened menus
 
-Hover-opening, and submenus. A hover-opened menu owes the five popover
-rules (see the README — stay open over the menu, close on leave, guard the
-parent's hover); the shell gives only the two click-opened exits, so the
-hover choreography is the caller's. Submenus likewise stay caller-owned —
-if a second menu needs one, the shell learns it then.
+`closeOnLeave` closes the menu 150ms after the pointer leaves it — the
+quick-menu cards dismiss this way. The grace period is shared with any open
+`MenuSub` panel, so crossing the diagonal from a row into its submenu never
+counts as leaving.
+
+`MenuSub` is hover-timed the same way and opens on → as well. Where it goes
+is Floating UI's: right of the row when it fits, flipped left at the screen
+edge.
 
 ### Alignment
 
@@ -115,4 +142,4 @@ default, matching the default rows.
 
 ## Props
 
-<Controls of={MenuStories.Items} />
+<Controls of={MenuStories.FromATrigger} />

@@ -1,7 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { cn } from './cn'
 import { Divider } from './Divider'
-import { Menu, MenuItem, MenuRow, MenuSection } from './Menu'
+import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection } from './Menu'
 import { Person } from './Person'
 import { PersonTrigger } from './PersonTrigger'
 
@@ -67,14 +67,34 @@ export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 
 /** The menu alone — what `IdentityMenu` opens. Exported so the stories show
  *  the designed artifact rather than a closed trigger, and for any surface
  *  that wants the panel without the trigger. */
-export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, anchor, className, children }: IdentityPanelProps) {
+export function IdentityPanel({ onClose, anchor, className, ...rest }: IdentityPanelProps) {
+  return (
+    <Menu onClose={onClose} anchor={anchor} align="right" className={cn('w-72', className)}>
+      <IdentityRows {...rest} onClose={onClose} />
+    </Menu>
+  )
+}
+
+/**
+ * The panel's contents, without the menu around them.
+ *
+ * Split out at stage 4 for the same reason `MenuPanel` was split out of
+ * `Menu`: a real menu portals and places itself against a trigger, so it
+ * cannot stand in a docs page, and the canvases must still show the artifact
+ * (Katerina, D25). The stories draw these rows on a `MenuPanel`; the app gets
+ * them inside a `Menu`. One definition either way.
+ *
+ * Not exported from the package — `IdentityMenu` and `IdentityPanel` are the
+ * API; this is how they are built.
+ */
+export function IdentityRows({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, children }: Omit<IdentityPanelProps, 'anchor' | 'className'>) {
   const act = (action: () => void) => () => {
     onClose()
     action()
   }
   const appRows = typeof children === 'function' ? children(onClose) : children
   return (
-    <Menu onClose={onClose} anchor={anchor} align="right" className={cn('w-72', className)}>
+    <>
       <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
         <MenuRow>
           <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
@@ -116,7 +136,17 @@ export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSig
       )}
       {onCopyKey && <MenuItem label="Copy public key" onClick={act(onCopyKey)} />}
       {idBase && onSignOut && <MenuItem label="Sign out" onClick={act(onSignOut)} />}
-    </Menu>
+    </>
+  )
+}
+
+/** The panel drawn as a plain surface, for the docs canvases — the same rows,
+ *  with none of the menu's behaviour or placement (D25). */
+export function IdentityPanelSurface({ className, ...rest }: Omit<IdentityPanelProps, 'anchor'>) {
+  return (
+    <MenuPanel className={cn('w-72', className)}>
+      <IdentityRows {...rest} />
+    </MenuPanel>
   )
 }
 
@@ -136,9 +166,6 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
         compact={compact}
         size={compact ? 36 : undefined}
         open={open}
-        // Swallowed so the menu's outside-mousedown dismiss does not fire
-        // first and turn the toggle into a close-then-reopen flicker.
-        onMouseDown={(event) => event.stopPropagation()}
         onClick={() => setOpen((value) => !value)}
         // The row shape is named by its own text — the person. Only the bare
         // face needs a label; naming the row would override the person's name

@@ -1,14 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconPin, IconTrash } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
-import { EnterHint, Menu, MenuItem } from './Menu'
+import { EnterHint, MenuItem, MenuPanel } from './Menu'
 
 /**
  * One row of a menu. Anatomy: `leading` (a 16px icon or an Avatar) · label
  * with an optional `description` line · one thing at the right edge —
  * `trailing` (any hint), else `shortcut` (the kbd chip), else the `submenu`
- * chevron. Stories sit inside a pinned-open Menu so the row is seen on the
- * surface it lives on.
+ * chevron. Stories sit on a `MenuPanel` — the menu's surface, drawn without
+ * its behaviour — so the row is seen where it lives. A live menu portals and
+ * places itself, so it cannot stand in the page (Katerina, D25); **Menu →
+ * FromATrigger** is where the keyboard and the placement are.
  */
 const meta = {
   title: 'Overlays/MenuItem',
@@ -16,9 +18,9 @@ const meta = {
   decorators: [
     (Story) => (
       <div className="flex min-h-[120px] w-full items-center justify-center">
-        <Menu onClose={() => {}} className="static w-72">
+        <MenuPanel className="w-72">
           <Story />
-        </Menu>
+        </MenuPanel>
       </div>
     ),
   ],

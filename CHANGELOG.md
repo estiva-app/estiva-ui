@@ -57,6 +57,52 @@ Tooltip first, because it was in the way of everything else.
   one `data-highlighted` attribute for pointer and keyboard alike rather
   than an index, and a value that can belong to a form.
 
+- **The `Menu` family is Base UI's `Menu`** — `Menu`, `MenuSub`, `MenuItem`,
+  `MenuSection`, and `IdentityMenu` with them. **The arrow keys walk the
+  rows**, which is the first thing a keyboard user notices and the thing the
+  page said did nothing: ↑ ↓ move and wrap, Home and End jump, typing a
+  row's first letters goes to it, → opens a submenu and ← closes it, and
+  focus moves into the menu on open and back to the trigger on close.
+
+  Deleted with the port: the `createPortal`, the `mousedown` listener on
+  `document`, the Escape listener beside it, the resize and scroll
+  listeners, the provisional hidden render the shell did in order to measure
+  itself, and `MenuSub`'s whole hand-rolled edge-flip. All three anchorings
+  are kept and **all three now portal** — the in-flow one did not, which is
+  exactly how the identity menu ended up under a z-indexed panel header.
+  Measured against a trigger: 4px below it, left edges flush; in-flow: 4px
+  below the wrapper, right edges flush, which is what `absolute right-0
+  top-full mt-1` drew.
+
+- **`IdentityMenu`'s arrow keys walk the actions only** (Katerina, D22),
+  measured: ↓ goes Edit your profile → Copy public key → Sign out → wraps,
+  stepping over the identity block, the workspace line and the notes. The
+  identity and workspace sections are `Menu.Group`s labelled by their
+  headings, so they are announced as named groups rather than as menu items
+  that are not items.
+
+- **New prop `Menu.trigger`**, and it replaces a trick that has stopped
+  working. A trigger that toggles on `click` used to see its own press
+  dismiss the menu and the click reopen it; the fix was `onMouseDown` with
+  `stopPropagation`, because the dismiss was a `mousedown` listener on
+  `document`. Base UI dismisses on a **captured `pointerdown`**, which
+  stopping propagation in the bubble phase cannot reach — measured: the
+  identity menu could no longer be closed by clicking its own face. The
+  shell now treats a press inside the `anchor` as that control's toggle
+  rather than a press outside; a `position` menu has no anchor element, so
+  it passes `trigger`. `IdentityMenu`'s `stopPropagation` is deleted.
+
+- **`MenuItem` and `MenuSection` still work with no `Menu` around them.**
+  Peek's `@`, `/` and `[` pickers and its compose menu draw a bare
+  `MenuPanel`, because a popup inside a text editor cannot have a menu's
+  keyboard — the editor's suggestion plugin already owns it. A Base UI
+  `Menu.Item` outside a `Menu.Root` has no context to read, so those rows
+  stay the plain buttons they have always been and only rows inside a real
+  menu become the part. Four Peek files depend on this; it is pinned by
+  tests.
+
+- **A `MenuItem` is still a `<button>`.** Base UI's part draws a `<div>`;
+  `render` plus `nativeButton` keeps the element the design was drawn with.
 - **A Select's list follows its trigger when the page scrolls.** It used to
   close, and had to: the list was `fixed` to where the trigger *had been*,
   so closing was the only way it could avoid being left behind. It now
@@ -100,6 +146,12 @@ Tooltip first, because it was in the way of everything else.
   the page claims, including the two exits it now has (Escape, and a click on
   the trigger) and the focus behaviour that replaced the stated gap.
 - A **toolbar** story, where the shared delay is visible.
+- `Menu.test.tsx`, which the shell never had: 11 tests, including the rows
+  working on a bare `MenuPanel` and the trigger press that must not reopen
+  the menu.
+- Menu stories: **`FromATrigger`** (the live menu, its submenu and the whole
+  keyboard), **`InFlow`** (the anchoring two app callers use and no story
+  covered), and `IdentityMenu`'s **`FromItsTrigger`**.
 - `Select.test.tsx`, which the component never had: 11 tests for what the
   page claims, including the typeahead it just gained and the two
   assertions Ship makes on it, repeated here so a break shows up in this
@@ -107,6 +159,14 @@ Tooltip first, because it was in the way of everything else.
 
 ### Removed
 
+- **`clampBox` and `fitSubmenu`, and all three geometry helpers stop being
+  exported.** Floating UI places every floating surface now, so nothing
+  calls the first two. **`fitMenu` survives, for one caller: `ChipInput`**,
+  whose suggestion list is still hand-placed — so `fit.ts` is *not* deleted
+  at this stage, and `PLAN.md` §6 was wrong to say it could be. It had four
+  callers, not three. It goes at stage 5 with `ChipInput`.
+  `Menu.fit.test.ts` becomes `fit.test.ts`, keeping the `fitMenu` cases as
+  `ChipInput` uses them and dropping the rest.
 - **`Select.fit.test.ts`** — eight assertions about the pure geometry this
   component grew and then shared with the Menu shell. The geometry is
   Floating UI's now, so there is nothing of ours left to assert. What it
@@ -121,6 +181,19 @@ Nothing to change to keep working. Two things worth doing, both in
 
 - Mount a `TooltipProvider` at each app's root, or tooltips pause one per
   button instead of once per row (**B6**).
+- **A `position` menu whose trigger toggles it must pass `trigger`** — one
+  prop, the trigger element it already has — or clicking that trigger while
+  the menu is open will no longer close it. Read from Peek:
+  `ConversationHeader` and `PersonRow` (both through `TopicMoreMenu`),
+  `ScreenerLaterMenu`, and `DebugMenu`, which already holds the element.
+  `SelectionToolbar` opens from a text selection and needs nothing. A menu
+  with an `anchor` needs nothing either (**B9**).
+- **The `onMouseDown` / `stopPropagation` guards beside those triggers are
+  now dead code** and can go with the same edit. They are harmless if left.
+- **Two Peek surfaces use `Menu` as a floating panel rather than as a
+  menu**, and should move to `Popover`: `SelectionToolbar`, which puts a
+  `TextInput` inside one, and `DebugMenu`, which fills one with toggle rows.
+  Neither wants roving focus or typeahead over its contents (**P26**).
 - **A Select's trigger is a `combobox`, not a `button`** — the correct ARIA
   pattern for the control, and Base UI's doing. No product code changes;
   **sixteen test assertions do**, read from the two apps rather than

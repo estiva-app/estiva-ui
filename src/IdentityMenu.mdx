@@ -51,11 +51,28 @@ import { IdentityMenu } from '@estiva-app/ui'
   opens.
 - Items are text only — no icons in this menu, by ruling.
 - **IdentityPanel** is exported alone for a surface that wants the panel
-  without the trigger; the stories render it, so the designed artifact is
-  what you review.
+  without the trigger.
 - The trigger's toggle, `aria-expanded`, and the accessible-name rules
   (the row is named by the person; only the bare compact face takes an
   `aria-label`) are wired inside — bring nothing.
+
+## Keys
+
+Since stage 4 the panel is a Base UI `Menu`, and **the arrow keys walk the
+actions only** (Katerina, D22): they step over the identity block, the
+workspace line and the notes, because those are not things you can do.
+
+| Input | What happens |
+|---|---|
+| click / Enter / Space on the face | opens the menu |
+| ↑ / ↓ | move between the actions — Edit your profile, Copy public key, Sign out, and any row the app adds — and wrap |
+| Enter on an action | runs it, and closes the menu |
+| Escape | closes, and gives focus back to the face |
+| a press on the face while open | closes it |
+
+The identity and workspace sections are `Menu.Group`s labelled by their
+headings, so a screen reader announces them as named groups rather than as
+menu items that are not items.
 
 ## Props
 

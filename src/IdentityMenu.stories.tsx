@@ -1,15 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IdentityPanel } from './IdentityMenu'
+import { IdentityMenu, IdentityPanelSurface } from './IdentityMenu'
 
 /**
- * The menu itself, standing in flow (`static` beats the anchoring, as the
- * Menu stories do it) — no trigger, no bar chrome: the trigger's shapes are
+ * The panel itself — no trigger, no bar chrome: the trigger's shapes are
  * PersonTrigger's own stories. In an app, `IdentityMenu` bundles that
  * trigger with this panel.
+ *
+ * Drawn here on a `MenuPanel`, the menu's surface without its behaviour: a
+ * real menu portals and places itself against a trigger, so it cannot stand
+ * in a docs page, and the canvas must still show the artifact (Katerina,
+ * D25). The rows are the same ones the app gets.
+ *
+ * Since stage 4 the live panel is a Base UI `Menu`: **the arrow keys walk
+ * the actions and step over the identity block, the workspace line and the
+ * notes** (Katerina, D22). Those sections are `Menu.Group`s with the heading
+ * as their label, so they are announced as named groups rather than as menu
+ * items that are not items.
  */
 const meta = {
   title: 'Navigation/IdentityMenu',
-  component: IdentityPanel,
+  component: IdentityPanelSurface,
   args: {
     me: {},
     signedIn: false,
@@ -17,10 +27,9 @@ const meta = {
     onCopyKey: () => {},
     onSignOut: () => {},
     onClose: () => {},
-    className: 'static',
   },
   argTypes: { onClose: { control: false }, className: { control: false } },
-} satisfies Meta<typeof IdentityPanel>
+} satisfies Meta<typeof IdentityPanelSurface>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -53,4 +62,26 @@ export const MinimalApp: Story = {
     relayUrl: undefined,
     onCopyKey: undefined,
   },
+}
+
+/**
+ * The whole thing, live: the trigger in the top bar and the menu it opens.
+ * Click the face, then try the keyboard — ↑ and ↓ walk **the actions only**,
+ * stepping over the identity block, the workspace line and the notes (D22);
+ * Escape closes it and gives focus back to the trigger.
+ */
+export const FromItsTrigger: Story = {
+  parameters: { controls: { disable: true }, layout: 'padded' },
+  render: () => (
+    <div className="flex h-[420px] w-full justify-end p-4">
+      <IdentityMenu
+        me={{ name: 'Ana Duarte', email: 'ana@example.com' }}
+        signedIn
+        idBase="https://id.estiva.app"
+        relayUrl="http://localhost:3000"
+        onCopyKey={() => {}}
+        onSignOut={() => {}}
+      />
+    </div>
+  ),
 }
