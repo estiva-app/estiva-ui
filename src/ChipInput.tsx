@@ -94,6 +94,8 @@ export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
   chipLeading?: (option: T) => ReactNode
   /** Before a suggestion row's label, 32px. */
   rowLeading?: (option: T) => ReactNode
+  /** Set by a `Field` with `required`; a caller inside one owes nothing. */
+  'aria-required'?: boolean | 'true' | 'false'
 }
 
 export function ChipInput<T extends ChipInputOption = ChipInputOption>({
@@ -105,6 +107,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
   excludeIds = [],
   chipLeading,
   rowLeading,
+  ...aria
 }: ChipInputProps<T>) {
   const [query, setQuery] = useState('')
   const [highlight, setHighlight] = useState(0)
@@ -211,6 +214,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
             setTimeout(() => setIsFocused(false), 150)
           }}
           placeholder={value.length === 0 ? placeholder : ''}
+          aria-required={aria['aria-required']}
           className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
         />
       </div>

@@ -24,6 +24,10 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { Field } from './Field'
 import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
+import { Select } from './Select'
+import { SearchInput } from './SearchInput'
+import { ChipInput } from './ChipInput'
+import { Checkbox } from './Checkbox'
 
 // Testing Library registers its own cleanup only when vitest runs with
 // `globals: true`, and this package does not — so the first two tests passed,
@@ -103,14 +107,61 @@ describe('Field', () => {
     expect(input.getAttribute('aria-describedby')).toBeNull()
   })
 
-  it('still marks a required field, which was the only thing it did before', () => {
+  /**
+   * The asterisk is a picture of `required`; `aria-required` is the word for
+   * it. Drawing the mark and telling nobody was all this prop did until
+   * 2026-09-08 — measured, the control carried neither attribute.
+   */
+  it('marks a required field, in the mark and in the control', () => {
     render(
       <Field label="Title" required>
         <TextInput defaultValue="" />
       </Field>,
     )
     expect(screen.getByText('*')).toBeTruthy()
-    expect(screen.getByLabelText(/Title/).tagName).toBe('INPUT')
+    const control = screen.getByLabelText(/Title/)
+    expect(control.tagName).toBe('INPUT')
+    expect(control.getAttribute('aria-required')).toBe('true')
+  })
+
+  it('leaves a control that already says so alone', () => {
+    render(
+      <Field label="Title" required>
+        <TextInput defaultValue="" aria-required={false} />
+      </Field>,
+    )
+    expect(screen.getByLabelText(/Title/).getAttribute('aria-required')).toBe('false')
+  })
+
+  /**
+   * Every control the package offers, because a promise that holds for two of
+   * them is not a promise. `Select`, `ChipInput` and `Checkbox` take fixed
+   * prop lists rather than spreading what they are given, so each had to be
+   * told — measured 2026-09-08: all three dropped it silently.
+   */
+  it.each([
+    ['TextInput', <TextInput key="t" defaultValue="" />, 'input'],
+    ['Textarea', <Textarea key="a" defaultValue="" />, 'textarea'],
+    ['SearchInput', <SearchInput key="s" />, 'input'],
+    ['Select', <Select key="e" value="a" onChange={() => {}} options={[{ value: 'a', label: 'A' }]} />, '[role="combobox"]'],
+    ['ChipInput', <ChipInput key="c" value={[]} onChange={() => {}} options={[]} />, 'input'],
+    ['Checkbox', <Checkbox key="k" checked={false} onChange={() => {}} />, '[role="checkbox"]'],
+  ])('marks a required %s', (_name, control, selector) => {
+    const { container } = render(
+      <Field label="Title" required>
+        {control}
+      </Field>,
+    )
+    expect(container.querySelector(selector)?.getAttribute('aria-required')).toBe('true')
+  })
+
+  it('does not mark a field that is not required', () => {
+    render(
+      <Field label="Title">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    expect(screen.getByLabelText(/Title/).hasAttribute('aria-required')).toBe(false)
   })
 
   it('announces the helper line, which the hand-built spans never did', () => {

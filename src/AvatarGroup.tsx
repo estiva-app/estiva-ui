@@ -57,7 +57,10 @@ export function AvatarGroup({ members, size = 24 }: AvatarGroupProps) {
           className="relative flex rounded-sm"
           style={{ marginRight: -overlap, boxShadow: `0 0 0 ${ring}px var(--bg-surface)` }}
         >
-          <Avatar size={size} name={member.name} src={member.picture} alt={member.name} />
+          {/* Each face says whose it is: a stack stands on its own, with no
+              name beside it to borrow. It read as its initials before —
+              "AD BC CD" — which is the drawing, not the person. */}
+          <Avatar size={size} name={member.name} src={member.picture} label={member.name} />
         </span>
       ))}
     </div>

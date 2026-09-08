@@ -52,17 +52,36 @@ export interface AvatarProps {
   alt?: string
   /** Pixels. The scale: 16 · 24 · 32 · 36 (default). */
   size?: number
+  /**
+   * **Say the person's name out loud**, for a face that stands on its own —
+   * `PersonTrigger`'s compact shape, a stack of members.
+   *
+   * A face is silent by default, because almost every face in the suite sits
+   * beside the name it belongs to: `Person`, a `MenuItem`'s `leading`, a row.
+   * A picture that spoke there would double the name — measured 2026-09-08,
+   * before this existed: a `Person` in a button announced **"AD Ana Duarte"**,
+   * and with a picture **"Ana Duarte Ana Duarte"**. The initials are a drawing
+   * of a name, not text, and a screen reader was reading them as text.
+   */
+  label?: string
   className?: string
 }
 
-export function Avatar({ src, name, alt = '', size = 36, className }: AvatarProps) {
+export function Avatar({ src, name, alt = '', size = 36, label: spoken, className }: AvatarProps) {
   const [broken, setBroken] = useState(false)
   const label = name || alt
   const picture = src && !broken ? src : undefined
   return (
-    <div className={cn('rounded-sm overflow-hidden shrink-0 bg-bg-inset', className)} style={{ width: size, height: size }}>
+    <div
+      /* Named or silent, never half of either: with a `label` the tile is one
+         image with one name, and everything inside it is that image's pixels;
+         without one it is not in the accessibility tree at all. */
+      {...(spoken ? { role: 'img', 'aria-label': spoken } : { 'aria-hidden': true })}
+      className={cn('rounded-sm overflow-hidden shrink-0 bg-bg-inset', className)}
+      style={{ width: size, height: size }}
+    >
       {picture ? (
-        <img src={picture} alt={alt || name || ''} className="w-full h-full object-cover" onError={() => setBroken(true)} />
+        <img src={picture} alt="" className="w-full h-full object-cover" onError={() => setBroken(true)} />
       ) : label ? (
         <div
           /*
@@ -80,6 +99,9 @@ export function Avatar({ src, name, alt = '', size = 36, className }: AvatarProp
           */
           className="w-full h-full flex items-center justify-center font-semibold leading-none"
           style={{
+            // The one ink colour that reads on all eight hues, which are a
+            // palette rather than tokens (see the note at the top) — so its
+            // ink cannot be a token either.
             color: '#08121c',
             fontSize: Math.round(size * 0.36),
             background: `linear-gradient(160deg, color-mix(in srgb, ${hueFor(label)} 92%, #fff) 0%, color-mix(in srgb, ${hueFor(label)} 70%, #0b0d11) 100%)`,

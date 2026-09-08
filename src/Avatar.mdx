@@ -42,6 +42,23 @@ import { Avatar } from '@estiva-app/ui'
   rounder geometry wraps the Avatar concentrically — it does not override
   the Avatar's own radius.
 
+### What it says out loud
+
+**A face is silent by default**, and that is the important half: almost every
+face in the suite sits beside the name it belongs to — in a `Person`, in a
+`MenuItem`'s `leading`, in a row — and a picture that spoke there would say the
+name twice. It used to. Measured 2026-09-08, before this was true: a `Person`
+inside a button announced **"AD Ana Duarte"** (the initials read as text), and
+with a picture **"Ana Duarte Ana Duarte"**.
+
+**`label` names a face that stands on its own** — the compact `PersonTrigger`,
+a stack of members — and the tile becomes one image with one name.
+
+```tsx
+<Avatar name={person.name} />                     {/* beside a name: silent */}
+<Avatar name={person.name} label={person.name} /> {/* alone: says who it is */}
+```
+
 <Canvas of={AvatarStories.Palette} />
 
 ## Props

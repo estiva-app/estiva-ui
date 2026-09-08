@@ -30,6 +30,8 @@ export interface CheckboxProps {
   onChange?: (checked: boolean) => void
   disabled?: boolean
   'aria-label'?: string
+  /** Set by a `Field` with `required`; a caller inside one owes nothing. */
+  'aria-required'?: boolean | 'true' | 'false'
   className?: string
 }
 
@@ -61,6 +63,7 @@ export function Checkbox({ checked, onChange, disabled = false, className, ...ar
       checked={checked}
       disabled={disabled}
       aria-label={aria['aria-label']}
+      aria-required={aria['aria-required']}
       onCheckedChange={(next) => onChange(next)}
       onClick={(e) => e.stopPropagation()}
       className={(state) => squareClasses(state.checked, state.disabled, true, className)}

@@ -122,8 +122,13 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
 
   if (readOnly) {
     return (
+      /*
+        No `aria-label` here. It sat on a bare `<div>`, which has no role, and
+        ARIA does not let an author name a generic element — so the name was
+        written and never read. Read-only, this is a line of text: whatever
+        names the region around it (a `Field`, a `Property`) names this too.
+      */
       <div
-        aria-label={label}
         className={cn('w-full px-2 py-1', multiline && !displayNode && 'whitespace-pre-wrap', (display ?? value) ? 'text-text-primary' : 'text-text-muted', className)}
       >
         {(display ?? value) ? (displayNode ?? (display ?? value)) : placeholder}
@@ -162,7 +167,12 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
     <button
       type="button"
       onClick={open}
-      title="Click to edit"
+      /*
+        No `title`. It was the one native browser tooltip left in the package —
+        its own timing, its own look, no theme — saying "Click to edit" beside
+        an `aria-label` that already says it. The hover border is the
+        affordance, and anything that needs a designed hint uses `WithTooltip`.
+      */
       aria-label={`Edit ${label.toLowerCase()}`}
       className={cn(
         'w-full rounded-md border border-transparent px-2 py-1 text-left transition-colors hover:border-border-default',

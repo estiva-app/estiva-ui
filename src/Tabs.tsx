@@ -34,11 +34,21 @@ export interface TabsProps<T extends string> {
   onChange: (id: T) => void
   /** `default` 14px; `small` 12px, the denser geometry. */
   size?: 'default' | 'small'
+  /**
+   * Names the row for assistive tech — "Views", "Filters".
+   *
+   * A `tablist` with no name is announced as a bare "tab list", which says
+   * nothing and says the same nothing twice on a page with two of them
+   * (measured 2026-09-08: no name, and no way to give one). Where a visible
+   * heading already names it, point at that with `aria-labelledby` instead.
+   */
+  'aria-label'?: string
+  'aria-labelledby'?: string
   /** Lands on the outer box, around the row. */
   className?: string
 }
 
-export function Tabs<T extends string>({ tabs, active, onChange, size = 'default', className }: TabsProps<T>) {
+export function Tabs<T extends string>({ tabs, active, onChange, size = 'default', className, ...aria }: TabsProps<T>) {
   return (
     <BaseTabs.Root
       value={active}
@@ -50,7 +60,12 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
       }}
       className={className}
     >
-      <BaseTabs.List activateOnFocus className="flex items-center gap-2">
+      <BaseTabs.List
+        activateOnFocus
+        aria-label={aria['aria-label']}
+        aria-labelledby={aria['aria-labelledby']}
+        className="flex items-center gap-2"
+      >
         {tabs.map((tab) => (
           <BaseTabs.Tab
             key={tab.id}

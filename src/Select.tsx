@@ -43,6 +43,8 @@ export interface SelectProps {
   options: SelectOption[]
   size?: 'default' | 'small'
   ariaLabel?: string
+  /** Set by a `Field` with `required`; a caller inside one owes nothing. */
+  'aria-required'?: boolean | 'true' | 'false'
   placeholder?: string
   disabled?: boolean
   className?: string
@@ -53,7 +55,7 @@ export interface SelectProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, className }: SelectProps) {
+export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, className, ...aria }: SelectProps) {
   const selected = options.find((o) => o.value === value)
   return (
     <BaseSelect.Root
@@ -66,6 +68,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
     >
       <BaseSelect.Trigger
         aria-label={ariaLabel}
+        aria-required={aria['aria-required']}
         className={cn(
           /*
            * `min-w-0 max-w-full`: a trigger must never outgrow its container

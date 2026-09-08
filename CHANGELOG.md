@@ -1,5 +1,92 @@
 # Changelog
 
+## Unreleased — the review of stages 0 to 3
+
+Everything the earlier stages built, read again and driven in a browser. The
+code was right; what was wrong was almost all in what the components *say* —
+to a screen reader, and on their own pages.
+
+### Fixed
+
+- **A face said the wrong thing, everywhere one appears.** The initials are a
+  drawing of a name, and they were being read as text. Measured with the same
+  algorithm an app's own tests use:
+
+  | | Announced as | Now |
+  |---|---|---|
+  | a button holding a `Person` | "AD Ana Duarte" | "Ana Duarte" |
+  | the same, with a picture | "Ana Duarte Ana Duarte" | "Ana Duarte" |
+  | a `MenuItem` led by a face | "ADAna Duarte" | "Ana Duarte" |
+  | `PersonTrigger`, the row | "AD Ana Duarte" | "Ana Duarte" |
+  | `PersonTrigger`, `compact` | **"AD"** | "Ana Duarte" |
+  | `AvatarGroup` | "AD BC CD" | "Ana Duarte", "Ben Carter", … |
+
+  **`Avatar` is silent by default now** — almost every face in the suite sits
+  beside the name it belongs to, and a picture that spoke there said the name
+  twice — and takes **`label`** to name a face that stands on its own.
+  `PersonTrigger`'s compact shape takes its own name from the person, so the
+  icon-only control that owed a name no longer owes one; a caller can still
+  name what it *opens* instead, as `IdentityMenu` does.
+
+- **The compact `PersonTrigger` had no visible focus at all.** It carried
+  `focus:outline-none` with nothing put in its place — measured `outline:
+  solid 2px rgba(0,0,0,0)`, no shadow — on the account trigger in Peek's top
+  bar. It wears the ring `Button`, `IconButton` and a `Tab` already wear.
+
+- **`Field`'s `required` drew the asterisk and told nobody.** The control
+  carried neither `required` nor `aria-required`, so the one thing the mark
+  means never reached a reader who could not see it. The Field marks the
+  control itself (`aria-required`, not the native attribute, which would also
+  switch on a validation bubble no app here uses). It reaches **every control
+  the package offers**: `Select`, `ChipInput` and `Checkbox` take fixed prop
+  lists and dropped it silently until each was told.
+
+- **A `Tabs` row could not be named.** Its `tablist` had no name and no way to
+  give one, so two rows on a page were announced as two identical "tab
+  lists". `aria-label` / `aria-labelledby` now reach the list.
+
+- **`EditableText` dropped a native `title` and an `aria-label` that was never
+  read.** The `title="Click to edit"` was the last browser tooltip in the
+  package — its own timing, its own look, no theme — beside an `aria-label`
+  that already said it. The read-only branch's `aria-label` sat on a bare
+  `<div>`, which ARIA does not let an author name.
+
+### Added
+
+- **`Rail` has a page and stories**, which it never had while being a public
+  export: four canvases, and the two things a caller needs to know — it is a
+  `<nav>` landmark and owes a name where an app has two, and it deliberately
+  does not scroll.
+- **Tests for the two stage-3 components that had none.** `ConfirmDialog` (9):
+  the alert role, D20's backdrop that must not close it, Escape and the ✕ that
+  must, a refused action that keeps it open, and the buttons that wait.
+  `EditableText` (13): every sentence on its page, since Base UI supplies the
+  field and *nothing else* — Enter commits trimmed, Escape restores, blur
+  commits, an unchanged value is not committed, a refusal and a throw both
+  keep the text, and Shift+Enter is a new line only when multiline.
+- `Avatar.name.test.tsx` (10) — the table above, pinned.
+- The keyboard tests `Menu` never had, and `Field`'s `required` across all six
+  controls.
+
+### Changed
+
+- `Field`'s label is merged with `cn()` like every other class list. It was a
+  template literal, under a comment saying the type token must never be merged
+  — which stopped being true when `cn()` was taught the ramp.
+- `PersonTrigger.mdx` no longer tells callers to swallow `mousedown`: `Menu`
+  owns its trigger since stage 4, and the trap that advice worked around is
+  gone with it.
+
+### Callers
+
+- **Nothing to change, and two app tests get easier.** A query for a person's
+  name — Ship's `getByRole('button', { name: /Ana Duarte/ })` — matched the
+  old "AD Ana Duarte" only because it is a regular expression. An exact name
+  now works. Nothing in either app queries by `title` or by the initials
+  (**B12**).
+- A `Field` with `required` now marks its control, so an app test may assert
+  `aria-required` where it could not before. Nothing needs to.
+
 ## Unreleased — stage 4, everything that floats
 
 Tooltip first, because it was in the way of everything else.

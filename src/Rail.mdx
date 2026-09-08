@@ -1,0 +1,63 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as RailStories from './Rail.stories'
+
+<Meta of={RailStories} />
+
+# Rail
+
+The 64px strip of icon tiles down the left of an app. It is the container and
+nothing else: **RailItem** is the tile, and where a tile goes is the app's.
+
+<Canvas of={RailStories.Default} />
+
+## When
+
+- The top level of an app's navigation, when there are few enough places to
+  fit down one strip: five or six, each with a shape you can learn.
+- Beside a **Sidebar**, when an app has both — the rail picks the area and the
+  sidebar picks the thing inside it.
+
+<Canvas of={RailStories.BesideAColumn} />
+
+## When not
+
+- A list of named places → **Sidebar**. A rail's label is 9px; a name that
+  needs more than a word needs a row.
+- More entries than fit down a screen → fewer entries. The rail does not
+  scroll, on purpose.
+- A strip of *actions* rather than places → a toolbar of **IconButton**s.
+
+<Canvas of={RailStories.ManyItems} />
+
+## How
+
+```tsx
+import { Rail, RailItem } from '@estiva-app/ui'
+
+<Rail aria-label="Areas">
+  <RailItem href="/inbox" label="Inbox" icon={<IconInbox size={16} stroke={1.5} />} active />
+  <RailItem href="/people" label="People" icon={<IconUsers size={16} stroke={1.5} />} />
+</Rail>
+```
+
+- It renders a `<nav>`, so **it is a landmark** and owes a name. `aria-label`
+  defaults to "Navigation", which is right when there is one; name it when an
+  app has a rail *and* a sidebar, or a screen reader offers two navigations
+  called the same thing.
+- **No border, no surface.** It stands on the app background and the column
+  beside it draws the edge, so a frame keeps one hairline rather than two.
+- **Collapsing is the caller's.** The rail does not know about a burger; it is
+  given less room, or none.
+- Desktop only. A narrow screen gets the app's own answer, not a squeezed rail.
+
+<Canvas of={RailStories.OneItem} />
+
+## Keys
+
+The rail has no keyboard of its own: its tiles are links, and Tab walks them in
+order like any other list of links. `RailItem` marks the current one
+`aria-current="page"`.
+
+## Props
+
+<Controls of={RailStories.Default} />

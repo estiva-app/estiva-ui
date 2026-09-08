@@ -47,6 +47,12 @@ import { Field, TextInput } from '@estiva-app/ui'
   those was.
 - With neither, the control stays a direct child of the field, so nothing
   that predates the two props moved a pixel.
+- **`required` marks the control as well as the label.** The asterisk is a
+  picture of the requirement; `aria-required` on the control is the word for
+  it, and the control had neither until 2026-09-08 — measured. Base UI's
+  `Field` has no `required` of its own, so the Field puts it there. A control
+  that says so already is left alone, and a `children` of several elements
+  keeps the asterisk and owes its own.
 
 ## Props
 

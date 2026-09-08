@@ -29,23 +29,29 @@ fill, because the face fills the whole control.
 ## How
 
 ```tsx
-import { PersonTrigger } from '@estiva-app/ui'
+import { Menu, PersonTrigger } from '@estiva-app/ui'
 
-<PersonTrigger name={me.name} picture={me.picture} open={open}
-  onMouseDown={(e) => e.stopPropagation()} onClick={() => setOpen((v) => !v)} />
+<Menu trigger={<PersonTrigger name={me.name} picture={me.picture} />}>
+  …
+</Menu>
 ```
 
-- `open` holds the row's hover fill while the menu is up, and feeds
-  `aria-expanded`.
-- **The accessible name**: the row shape is named by the visible name —
-  do **not** add an `aria-label`, it would override the person. The
-  `compact` face has no visible text, so there an `aria-label` is
-  required.
-- A toggle trigger must swallow its `mousedown` (as above) or the menu's
-  outside-click dismiss turns each press into close-then-reopen — the
-  trap is spelled out on the Menu page.
-- It is a native `<button>` on Base UI's Button: it takes a `ref` and
-  every native button prop — anchor your menu on it.
+- **Hand it to the menu and write nothing else.** Since stage 4 a `Menu` owns
+  its trigger, so the open state, the toggle, `aria-expanded`, the placement
+  and the focus return are all its. The `onMouseDown` + `stopPropagation`
+  guard this page used to show is gone with the trap it worked around.
+- `open` is still there for a caller driving something that is not a `Menu`;
+  it holds the row's hover fill and feeds `aria-expanded`. Under a `Menu` it
+  is unnecessary — the trigger carries `data-popup-open`, which holds the
+  same fill.
+- **The accessible name comes from the person, in both shapes.** The row is
+  named by its visible name, and the `compact` face — which has no visible
+  text — takes the same name through an `aria-label` of its own, so nothing
+  is owed. Until 2026-09-08 that face announced **"AD"**: the initials, read
+  as text. Pass an `aria-label` only to name what it *opens* rather than who
+  it shows; `IdentityMenu`'s compact shape says "Account menu".
+- It is a native `<button>` on Base UI's Button: it takes a `ref` and every
+  native button prop.
 
 ## Keys
 

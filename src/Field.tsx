@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
 import { Field as BaseField } from '@base-ui/react/field'
+import { cn } from './cn'
 
 /**
  * Peek's Field (2026-08-28): a label over a control, 8px apart, with a red
@@ -26,9 +27,21 @@ import { Field as BaseField } from '@base-ui/react/field'
  * The line is announced: Base UI wires `aria-describedby` for the helper and
  * `aria-invalid` + the error's id for the error, which the hand-built spans
  * never did.
+ *
+ * `required` is announced too, since 2026-09-08. It drew the asterisk and
+ * nothing else — measured, the control carried neither `required` nor
+ * `aria-required`, so the one thing the mark means never reached anybody who
+ * could not see it. Base UI's `Field` has no `required` of its own, so this
+ * puts `aria-required` on the control itself.
  */
 export interface FieldProps {
   label: string
+  /**
+   * Draws the asterisk **and** marks the control `aria-required`, so the mark
+   * means something to a reader who cannot see it. It reaches a single control
+   * element; a `children` of several elements keeps the asterisk and owes its
+   * own `aria-required`.
+   */
   required?: boolean
   /**
    * A hint under the control — what the format is, what happens if it is left
@@ -46,9 +59,26 @@ export interface FieldProps {
 
 export function Field({ label, required = false, helper, error, children }: FieldProps) {
   const line = error ?? helper
+  /*
+    The asterisk is a picture of `required`; this is the word for it. Base UI's
+    `Field` has no `required` to propagate, so the control is marked here —
+    `aria-required` rather than the native attribute, because the native one
+    also switches on the browser's own validation bubble, which no field in
+    either app uses. A control that already says so keeps what it says.
+  */
+  const control =
+    required && isValidElement(children)
+      ? cloneElement(children as ReactElement<{ 'aria-required'?: boolean | 'true' | 'false' }>, {
+          'aria-required': (children as ReactElement<{ 'aria-required'?: boolean | 'true' | 'false' }>).props['aria-required'] ?? true,
+        })
+      : children
   return (
     <BaseField.Root invalid={!!error} className="flex flex-col gap-2">
-      <BaseField.Label className={`text-input-label text-text-primary${required ? ' flex items-center' : ''}`}>
+      {/* `cn`, like everywhere else. It was a template literal, with a comment
+          saying the type token must never be merged — which stopped being true
+          when `cn()` was taught the ramp: `input-label` is in it, and
+          `cn.test.ts` pins that. */}
+      <BaseField.Label className={cn('text-input-label text-text-primary', required && 'flex items-center')}>
         {label}
         {required && <span className="text-error-default ml-0.5">*</span>}
       </BaseField.Label>
@@ -58,10 +88,10 @@ export function Field({ label, required = false, helper, error, children }: Fiel
         line, this is the 6px stack Ship and Peek were both writing by hand.
       */}
       {line == null ? (
-        children
+        control
       ) : (
         <div className="flex flex-col gap-1.5">
-          {children}
+          {control}
           {error != null ? (
             <BaseField.Error match className="text-caption text-error-default">
               {error}
