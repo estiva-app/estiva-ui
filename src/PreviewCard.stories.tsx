@@ -66,7 +66,7 @@ export const Loading: Story = {
   ),
 }
 
-/** Live: rest the pointer on the row. The card opens after 400ms beside it,
+/** Live: rest the pointer on the row. The card opens after 350ms beside it,
  *  flips to the other side when that one has no room, and stays up while you
  *  cross into it. */
 export const OnARow: Story = {

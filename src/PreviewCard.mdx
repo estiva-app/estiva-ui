@@ -42,7 +42,7 @@ import { PreviewCard } from '@estiva-app/ui'
 
 - `content` renders **only while the card is open**, so a preview that
   fetches does not fetch for every row on screen.
-- It opens **400ms** after the pointer comes to rest and closes **200ms**
+- It opens **350ms** after the pointer comes to rest — Peek's own number — and closes **200ms**
   after it leaves — long enough not to flash a card at every row while
   crossing a list, and long enough to cross the gap into the card.
 - It prefers the **right** of the trigger and flips when that side has no
@@ -64,7 +64,7 @@ in it may be the only route to anything. Escape closes an open one.
 
 | Input | What happens |
 |---|---|
-| pointer rests on the trigger | opens after 400ms |
+| pointer rests on the trigger | opens after 350ms |
 | pointer moves into the card | it stays up |
 | pointer leaves both | closes after 200ms |
 | Escape | closes |

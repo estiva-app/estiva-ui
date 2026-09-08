@@ -45,10 +45,16 @@ export interface PreviewCardProps {
  *  viewport margin, shared with every other floating surface. */
 const GAP = 12
 const VIEWPORT_PAD = 8
-/** Long enough not to flash a card at every row while a pointer crosses a
- *  list, short enough to feel like an answer. */
-const OPEN_DELAY = 400
-/** The diagonal from the row to the card has to survive. */
+/** 350ms, which is Peek's number: `ScreenerItem`'s `HOVER_DELAY_MS`. Long
+ *  enough not to flash a card at every row while a pointer crosses a list,
+ *  short enough to feel like an answer. Taken rather than invented, because
+ *  this component exists to replace that one. */
+const OPEN_DELAY = 350
+/** The diagonal from the row to the card has to survive. Peek's has no grace
+ *  at all — it closes on `mouseleave` — because its card is
+ *  `pointer-events: none` and there is nothing to cross to. Which also means
+ *  **the `overflow-y-auto` on its 300px-capped card can never be scrolled**;
+ *  here the card can be reached, so it can. */
 const CLOSE_DELAY = 200
 
 export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, wrapperClassName }: PreviewCardProps) {
