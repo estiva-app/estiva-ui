@@ -3,6 +3,7 @@ import { IconChevronRight } from '@tabler/icons-react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
 import { triggerDisabled } from './triggerDisabled'
+import { ScrollArea } from './ScrollArea'
 import { Kbd } from './Kbd'
 import { SectionLabel } from './SectionLabel'
 
@@ -207,10 +208,17 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
                room. Select's 288 was never this component's — the identity
                panel got it by accident once and grew a scrollbar at full
                height. */
-            className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
+            className={cn('min-w-[180px] p-0 outline-none', className)}
             render={<MenuPanel />}
           >
-            <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
+            {/* The panel's padding and its height cap move onto the scrolling
+                box: the cap has to sit on the box that scrolls, or the box
+                grows to its content and nothing scrolls (measured, 2026-09-08).
+                The bar sits at the panel's edge; the divider rule moves with
+                the rows. A menu that fits draws exactly as before. */}
+            <ScrollArea viewportClassName="flex max-h-[var(--available-height)] flex-col p-2 [&>[role=separator]]:mx-0">
+              <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
+            </ScrollArea>
           </BaseMenu.Popup>
         </BaseMenu.Positioner>
       </BaseMenu.Portal>

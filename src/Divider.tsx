@@ -8,10 +8,39 @@ import { cn } from './cn'
  */
 export interface DividerProps {
   orientation?: 'horizontal' | 'vertical'
+  /**
+   * Words in the middle of the line — "New since you last read this", a
+   * date. Horizontal only; the line splits around the label.
+   */
+  label?: string
+  /**
+   * `warning` for a line that asks for attention: the label in the warning
+   * colour, the lines in its wash. Peek and Ship both drew their "new since
+   * you last read" rule in the accent, which measures 3.3:1 on Ship's
+   * background and could not be read (Katerina, 2026-09-08); the warning
+   * colour measures 9.6:1 there. Default: the muted text, `border-subtle`
+   * lines, for a date.
+   */
+  tone?: 'default' | 'warning'
   className?: string
 }
 
-export function Divider({ orientation = 'horizontal', className }: DividerProps) {
+export function Divider({ orientation = 'horizontal', label, tone = 'default', className }: DividerProps) {
+  if (label && orientation === 'horizontal') {
+    const line = tone === 'warning' ? 'bg-warning-muted' : 'bg-border-subtle'
+    return (
+      <div
+        role="separator"
+        aria-orientation="horizontal"
+        aria-label={label}
+        className={cn('flex shrink-0 items-center gap-2 mx-3', className)}
+      >
+        <span aria-hidden="true" className={cn('h-px flex-1', line)} />
+        <span className={cn('shrink-0 text-caption', tone === 'warning' ? 'text-warning-default' : 'text-text-muted')}>{label}</span>
+        <span aria-hidden="true" className={cn('h-px flex-1', line)} />
+      </div>
+    )
+  }
   return (
     <div
       role="separator"

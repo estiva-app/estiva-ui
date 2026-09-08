@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { ScrollArea } from './ScrollArea'
 import { TopBar } from './TopBar'
 
 /**
@@ -76,7 +77,12 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
         {nav}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {banner}
-          <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+          {/* The content column scrolls in a ScrollArea (Katerina, 2026-09-08):
+              the bar takes no width, so a page that grows a scrollbar keeps
+              its right-hand padding where it was. */}
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <ScrollArea className="min-h-0 flex-1">{children}</ScrollArea>
+          </main>
         </div>
       </div>
     </div>

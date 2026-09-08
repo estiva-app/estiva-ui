@@ -2,6 +2,7 @@ import { IconCheck, IconChevronDown } from '@tabler/icons-react'
 import { Select as BaseSelect } from '@base-ui/react/select'
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { ScrollArea } from './ScrollArea'
 
 /**
  * Peek's Select (2026-08-28), verbatim, plus what Ship added: an option may
@@ -125,8 +126,13 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
                clamped it — the two numbers `fitMenu` used to compute here. The
                288px is the old `max-h-72`, now a ceiling on that room rather
                than a height applied blind. */
-            className="max-h-[min(288px,var(--available-height))] min-w-[var(--anchor-width)] overflow-y-auto rounded-lg border border-border-default bg-bg-elevated p-1 shadow-lg"
+            className="min-w-[var(--anchor-width)] rounded-lg border border-border-default bg-bg-elevated shadow-lg"
           >
+            {/* The list scrolls in a ScrollArea: the bar takes no width, so a
+                long list is exactly as wide as a short one (Katerina,
+                2026-09-08). The padding and the height cap are the box's —
+                the cap has to sit on the box that scrolls. */}
+            <ScrollArea viewportClassName="flex max-h-[min(288px,var(--available-height))] flex-col p-1">
             {options.map((option) => (
               <BaseSelect.Item
                 key={option.value}
@@ -146,6 +152,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
                 />
               </BaseSelect.Item>
             ))}
+            </ScrollArea>
           </BaseSelect.Popup>
         </BaseSelect.Positioner>
       </BaseSelect.Portal>

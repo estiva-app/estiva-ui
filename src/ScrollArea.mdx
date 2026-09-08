@@ -1,0 +1,59 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ScrollAreaStories from './ScrollArea.stories'
+
+<Meta of={ScrollAreaStories} />
+
+# ScrollArea
+
+A region that scrolls without taking width for its scrollbar. The bar is
+drawn over the content and shows while the pointer is over the region or
+the content is moving; nothing moves when it appears.
+
+<Canvas of={ScrollAreaStories.Default} />
+
+## When
+
+- Any box that can hold more than fits: a menu or a dropdown list, a panel,
+  a sidebar, the page's content column, a rail.
+- `orientation="horizontal"` for a row wider than its box — a table, a
+  board; `"both"` when a thing can run over either way.
+
+<Canvas of={ScrollAreaStories.Horizontal} />
+
+## When not
+
+- A box that never overflows. A ScrollArea around it changes nothing, and
+  is one more element.
+- The page itself. The browser owns that bar.
+
+## How
+
+```tsx
+import { ScrollArea } from '@estiva-app/ui'
+
+<ScrollArea className="h-[240px]" viewportClassName="p-2">
+  {rows}
+</ScrollArea>
+```
+
+- `className` sizes and places the region; `viewportClassName` styles the
+  scrolling box inside it — padding, gap, the layout of the content.
+- The region needs a height (or a `max-h-*`) to have anything to scroll.
+- The native scrollbar is hidden by Base UI; a native `overflow-y-auto` on
+  the same element would draw a second one.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| ↑ ↓ | scroll the viewport when it has focus, as any scrolling box |
+| Page Up / Down, Home, End | as any scrolling box |
+
+## Gaps, stated
+
+- The bar has no arrows and no click-on-track paging; the wheel, the keys
+  and dragging the thumb are the ways to move.
+
+## Props
+
+<Controls of={ScrollAreaStories.Default} />

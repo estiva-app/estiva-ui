@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { PreviewCard as BasePreviewCard } from '@base-ui/react/preview-card'
 import { cn } from './cn'
+import { ScrollArea } from './ScrollArea'
 import { MenuPanel } from './Menu'
 
 /**
@@ -79,10 +80,12 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
           className="z-50 data-[anchor-hidden]:hidden"
         >
           <BasePreviewCard.Popup
-            className={cn('w-[360px] max-h-[min(300px,var(--available-height))] gap-3 overflow-y-auto p-3 outline-none [&>*]:shrink-0', className)}
+            className={cn('w-[360px] p-0 outline-none', className)}
             render={<MenuPanel />}
           >
-            {content}
+            <ScrollArea viewportClassName="flex max-h-[min(300px,var(--available-height))] flex-col gap-3 p-3 [&>*]:shrink-0">
+              {content}
+            </ScrollArea>
           </BasePreviewCard.Popup>
         </BasePreviewCard.Positioner>
       </BasePreviewCard.Portal>

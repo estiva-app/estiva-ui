@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { ScrollArea } from './ScrollArea'
 
 /**
  * The navigation column: 240px, a hairline on its right, the surface
@@ -21,12 +22,14 @@ export function Sidebar({ 'aria-label': ariaLabel = 'Workspace', children, class
   return (
     <nav
       aria-label={ariaLabel}
-      className={cn(
-        'flex w-60 shrink-0 flex-col gap-px overflow-y-auto border-r border-border-default bg-bg-surface px-2.5 py-3',
-        className,
-      )}
+      className={cn('flex w-60 shrink-0 flex-col border-r border-border-default bg-bg-surface', className)}
     >
-      {children}
+      {/* The rows scroll in a ScrollArea: the bar takes no width, so the
+          column's padding reads the same with a long list as with a short
+          one (Katerina, 2026-09-08). The padding and the gap are the box's. */}
+      <ScrollArea className="min-h-0 flex-1" viewportClassName="flex flex-col gap-px px-2.5 py-3">
+        {children}
+      </ScrollArea>
     </nav>
   )
 }

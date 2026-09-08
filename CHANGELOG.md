@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.11.0 — 2026-09-08
+
+Three things from Katerina's first look at Ship on `0.10.0`, the same night.
+
+### Added
+
+- **`ScrollArea`** — a region that scrolls without taking width for its
+  scrollbar, on Base UI's `ScrollArea`. A native bar is part of the layout:
+  the moment content overflows, the text column narrows and the right-hand
+  padding looks wider than the left, in every scrolling surface of both apps
+  (Katerina, 2026-09-08). The bar is drawn over the content instead — 6px,
+  `border-strong`, showing while the pointer is over the region or the
+  content moves, faded otherwise — so nothing shifts when it appears.
+  Measured in Chrome: with forty rows overflowing a 280px box, the viewport
+  keeps its full width; with four rows, no bar is drawn and the box is
+  pixel-identical to a plain one.
+
+  **Every scrolling surface in the package sits on it**: the `Menu` and
+  `Popover` panels, the `Select` list, the `PreviewCard` card, the
+  `Sidebar` column and the `AppShell` content column. The padding each drew
+  on its box moved onto the scrolling viewport, so a surface that fits draws
+  exactly as before and the bar sits at the panel's edge when it does not.
+  In a `Select` of twenty options the arrow keys keep the highlight in view
+  and the list stays the trigger's width.
+- **`Divider` takes a `label`**: words in the middle of the line — a date
+  between two days of messages, or where "new since you last read this"
+  begins. `tone="warning"` for the second: the label in the warning colour,
+  the lines in its wash. Both apps drew that rule by hand in the accent,
+  which measures 3.3:1 on Ship's background and could not be read; the
+  warning colour measures 9.6:1 there (Katerina, 2026-09-08). The line is
+  named by its label for assistive tech.
+
+### Changed
+
+- **A pressed `Reaction`'s count reads in the text colour under the ship
+  theme.** The accent on its own wash measures 2.70:1 there (Finding 4) and
+  the number was the thing that vanished. The accent keeps the edge and the
+  fill; signal keeps Peek's blue-on-wash, which reads.
+
+### Callers
+
+- Nothing to change to keep working. What is offered: a `ScrollArea` for
+  each scrolling surface an app draws itself (Ship: the two detail columns,
+  the two rails, the table and the board — ADOPTION S20), and
+  `<Divider label tone="warning">` for the unread rule (S21).
+- An app that styles native scrollbars in its `index.css` keeps that for the
+  page's own bar; the package's surfaces no longer show a native one.
+
 ## 0.10.1 — 2026-09-08
 
 Three defects, all found the same night by Ship's adoption of
