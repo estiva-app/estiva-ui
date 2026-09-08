@@ -1,11 +1,70 @@
 # Changelog
 
-## Unreleased — Toolbar and ReactionPicker
+## 0.10.0 — 2026-09-08
+
+**The second of the three releases D19 asks for.** Stages 3 and 4 of the
+Base UI migration, the end-to-end review of stages 0 to 3, and two components
+Katerina asked for on the way — `Toolbar` and `ReactionPicker`. `PLAN.md` had
+them as two releases, `0.10.0` and `0.11.0`; nothing was published between
+them, so they are one (D33).
+
+**What renders differently, all of it ruled:** a tooltip waits 300ms, then
+fades in while travelling 4px (D23, D26); a toolbar draws the package's
+elevated box, so Peek's two hand-drawn strips become one box (D29); the
+compact `PersonTrigger` has a visible focus ring again. Everything else
+matches the previous baseline to the pixel in both themes; the only recurring
+difference is `Skeleton`'s pulse, which is the shot tooling's own noise floor.
+
+**What a caller must do** is `migration docs/ADOPTION.md`, rows B4 to B16,
+S7, S14, S15, P16, P22, P26 and P27. The one change that breaks a build is
+`Menu`: it owns its trigger now, and eight call sites across the two apps
+delete their open state, anchor arithmetic and `onClose` and pass `trigger`
+instead (B9). Sixteen test assertions change from `button` to `combobox` for
+a `Select`'s trigger (B8). Each app mounts one `TooltipProvider` at its root
+(B6). The rest arrives with the version bump and nothing is written to get
+it.
+
+### Two small fixes for links (2026-09-08)
+
+Both found while fixing Ship's SHI-20, where every sidebar click reloaded
+the whole app, and held back until stage 4 landed (ADOPTION S14, S15).
+
+#### Added
+
+- **`Breadcrumb`'s `Crumb` takes `onClick`.** A crumb is a plain anchor, so
+  in a router app a click on it reloaded the page — and Ship's breadcrumbs
+  were the last links doing so, after SHI-20 moved every other link onto
+  `linkTo`. The prop is spread onto the anchor and nothing else; the `href`
+  stays a real address so the link can still be copied or opened in a new
+  tab. Called only on a crumb with an `href`, since a crumb without one is
+  not a link. Pinned in `Breadcrumb.test.tsx`, which is new — the page had
+  four claims and no test.
+
+#### Changed
+
+- **`Sidebar`'s page repeats `NavItem`'s navigation rule.** `NavItem.mdx`
+  said it — a router app keeps a thin wrapper that intercepts the click —
+  but `Sidebar.mdx` is the page someone reads while assembling a sidebar,
+  and it said nothing, with an example still on hash links. Peek followed
+  the rule; Ship did not, and shipped a sidebar whose every click rebooted
+  the app. The examples on the three pages now use real paths, and the
+  paragraph is there.
+
+#### Callers
+
+- Ship `views/IssueView.tsx` and `views/ProjectView.tsx` pass `linkTo(href)`'s
+  `onClick` per crumb, and the breadcrumb reload goes (**S15**). Peek's trail
+  is elsewhere and is not affected.
+- Nothing else changes: `onClick` is optional, and a crumb without it
+  behaves exactly as before.
+
+
+### Toolbar and ReactionPicker (2026-09-08)
 
 Two components Katerina asked for on 2026-09-08, pulled forward from stage 6,
 and two answers to what she found reading stage 4's stories.
 
-### Added
+#### Added
 
 - **`Toolbar`** — a strip of controls that behaves as **one** control: Tab in,
   arrow keys along, Tab out — **on the elevated box a floating strip needs**.
@@ -62,7 +121,7 @@ and two answers to what she found reading stage 4's stories.
     owes a `label`, because the emoji is `aria-hidden` here for the same
     reason it is on `Reaction`.
 
-### Changed
+#### Changed
 
 - **`Popover` takes `side`, and every panel holding a `Toolbar` asks for
   `top`** (Katerina, D30). A strip of controls acts on what is under it, so it
@@ -86,7 +145,7 @@ and two answers to what she found reading stage 4's stories.
   that stopped being true when `cn()` was taught the ramp, and `cn.test.ts`
   pins it.
 
-### Removed
+#### Removed
 
 - **`DialogShell`'s `Confirmation` and `Alert` stories — both of them.** Each
   hand-built what `ConfirmDialog` *is*: the same "Delete this?", the same
@@ -119,7 +178,7 @@ and two answers to what she found reading stage 4's stories.
   menu? Do we have it?"*). What it draws is a card with a `Toolbar` of actions,
   one of which opens the picker above itself.
 
-### Callers
+#### Callers
 
 - **Nothing breaks.** Both components are new and `Popover`'s `side` defaults
   to what it did before.
@@ -130,13 +189,13 @@ and two answers to what she found reading stage 4's stories.
   reaction row, Peek's composer strip and the editor's formatting strip
   (**B15**).
 
-## Unreleased — the review of stages 0 to 3
+### The review of stages 0 to 3 (2026-09-08)
 
 Everything the earlier stages built, read again and driven in a browser. The
 code was right; what was wrong was almost all in what the components *say* —
 to a screen reader, and on their own pages.
 
-### Fixed
+#### Fixed
 
 - **A face said the wrong thing, everywhere one appears.** The initials are a
   drawing of a name, and they were being read as text. Measured with the same
@@ -181,7 +240,7 @@ to a screen reader, and on their own pages.
   that already said it. The read-only branch's `aria-label` sat on a bare
   `<div>`, which ARIA does not let an author name.
 
-### Added
+#### Added
 
 - **`Rail` has a page and stories**, which it never had while being a public
   export: four canvases, and the two things a caller needs to know — it is a
@@ -198,7 +257,7 @@ to a screen reader, and on their own pages.
 - The keyboard tests `Menu` never had, and `Field`'s `required` across all six
   controls.
 
-### Changed
+#### Changed
 
 - `Field`'s label is merged with `cn()` like every other class list. It was a
   template literal, under a comment saying the type token must never be merged
@@ -207,7 +266,7 @@ to a screen reader, and on their own pages.
   owns its trigger since stage 4, and the trap that advice worked around is
   gone with it.
 
-### Callers
+#### Callers
 
 - **Nothing to change, and two app tests get easier.** A query for a person's
   name — Ship's `getByRole('button', { name: /Ana Duarte/ })` — matched the
@@ -217,11 +276,11 @@ to a screen reader, and on their own pages.
 - A `Field` with `required` now marks its control, so an app test may assert
   `aria-required` where it could not before. Nothing needs to.
 
-## Unreleased — stage 4, everything that floats
+### Stage 4 — everything that floats (2026-09-07, reviewed 2026-09-08)
 
 Tooltip first, because it was in the way of everything else.
 
-### Changed
+#### Changed
 
 - **`Tooltip` and `WithTooltip` are Base UI's `Tooltip`.** The gap this
   library had written down about itself is closed: **a tooltip shows on
@@ -408,7 +467,7 @@ Tooltip first, because it was in the way of everything else.
   it is closed — the ✕, Escape, a press outside — instead of one of the three
   going around it, and Base UI reports which.
 
-### Added
+#### Added
 
 - **`TooltipProvider`** — one shared delay for every tooltip below it. See
   above; an app mounts one at its root.
@@ -479,7 +538,7 @@ Tooltip first, because it was in the way of everything else.
   assertions Ship makes on it, repeated here so a break shows up in this
   repository rather than in Ship's adoption PR.
 
-### Removed
+#### Removed
 
 - **`clampBox` and `fitSubmenu`, and all three geometry helpers stop being
   exported.** Floating UI places every floating surface now, so nothing
@@ -499,7 +558,7 @@ Tooltip first, because it was in the way of everything else.
   the breaking entry above. Every one of them existed because the caller
   owned the open state; the trigger does now.
 
-### Callers
+#### Callers
 
 **This release breaks every `Menu` call site**, and each one shrinks. The
 eight are read from the two apps, not estimated:
@@ -540,12 +599,12 @@ captured `pointerdown`. **`ADOPTION.md` B9** is the row.
 - `peek/src/components/ui/WithTooltip.tsx` re-exports the package's and needs
   no edit.
 
-## Unreleased — stage 3, forms and dialogs
+### Stage 3 — forms and dialogs (2026-09-07)
 
 Six components onto Base UI, and the one gap this library had written down
 about itself is closed: **dialogs trap focus and give it back**.
 
-### Changed
+#### Changed
 
 - **`DialogShell` is Base UI's `Dialog`.** Focus is trapped inside the card
   and returns to whatever opened it when it closes; the rest of the page is
@@ -587,7 +646,7 @@ about itself is closed: **dialogs trap focus and give it back**.
   byte-for-byte what it was. With it the row is 40px rather than 36px,
   because the button is taller than the line of text.
 
-### Added
+#### Added
 
 - **`Button` and `IconButton` accept a `ref`.** They typed their props as
   `ButtonHTMLAttributes`, which has no `ref`, so a caller could not take one
@@ -621,7 +680,7 @@ about itself is closed: **dialogs trap focus and give it back**.
   arbitrary value for want of the utility (`ADOPTION.md` P22). `cn()` knows
   both, and `cn.test.ts` pins the pair to the preset.
 
-### Removed
+#### Removed
 
 - **`Field`'s `htmlFor` prop is gone.** It existed to name the generated id
   from outside, and there is no generated id to name any more: an `id` set on
@@ -636,7 +695,7 @@ about itself is closed: **dialogs trap focus and give it back**.
   breaking change on paper; a consumer with a control of its own should
   render it through `Field.Control` instead.
 
-### Callers
+#### Callers
 
 - **Ship**: `NewProjectDialog` and `PairFolderDialog` can drop their
   hand-built helper and error lines — the `flex flex-col gap-1.5` wrapper,
