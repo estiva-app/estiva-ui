@@ -1,0 +1,98 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PreviewCardStories from './PreviewCard.stories'
+
+<Meta of={PreviewCardStories} />
+
+# PreviewCard
+
+**More of a thing, on hover.**
+
+A list shows one line per thing, because a list has to. This is where the rest
+of that thing goes: rest the pointer on a row and a card opens beside it,
+holding whatever the row had no room for. It closes when the pointer leaves,
+and — unlike a tooltip — you can move into it, so what it holds can be long,
+can scroll, and can be read at your own pace.
+
+It is a **read**, not a control. Nothing in a preview card may be the only way
+to reach anything: there is no keyboard trigger, so a person who does not use a
+pointer never sees it.
+
+<Canvas of={PreviewCardStories.Default} />
+
+## When
+
+- **A row is a summary and the thing has more to it.** The row stays one line;
+  the card carries the rest. This is the case it exists for.
+- **A reference could say what it refers to** — a name, a code, a short id —
+  without a trip to another page.
+- **The reader would otherwise click, look, and come back.** If a preview
+  saves that round trip, it earns its place.
+
+## When not
+
+- **A word for a control** → **WithTooltip**. The test is not length, it is
+  whether the content is worth pointing at: a label is a tooltip, something you
+  might read, scroll or copy is this.
+- **Anything the reader must have** → put it in the page. A hover is not a
+  route; it does not exist for a keyboard.
+- **Content with controls in it** → **Popover**, opened by a click, so the
+  controls can be reached and stayed with.
+- **A list of actions** → **Menu**.
+
+## How
+
+```tsx
+import { PreviewCard } from '@estiva-app/ui'
+
+<PreviewCard content={<ItemDetail id={row.id} />} wrapperClassName="block w-full">
+  <ListRow …/>
+</PreviewCard>
+```
+
+- **`content` renders only while the card is open.** A preview that fetches
+  therefore fetches for the row being pointed at, not once per row on screen.
+- **It opens 350ms after the pointer comes to rest** and closes 200ms after it
+  leaves. The wait stops a card flashing at every row as a pointer crosses a
+  list; the 200ms is what lets you cross the gap into the card.
+- **It prefers the right of the trigger and flips** when that side has no room,
+  staying 12px from the trigger and 8px clear of every screen edge. `side`
+  changes the preference, not the promise.
+- **Width, padding and height are yours** through `className`. The default is
+  360px wide, capped at 300px or the room available, whichever is smaller — a
+  preview of one kind of thing is not the size of a preview of another.
+- The trigger wrapper is `inline-flex`; a full-width row wants
+  `wrapperClassName="block w-full"`.
+
+<Canvas of={PreviewCardStories.FlippedAtAnEdge} />
+
+### It can scroll, and that is the point
+
+A card taller than its cap scrolls, and the reader can reach the scrollbar
+because the pointer can enter the card. That is the difference from a tooltip,
+stated as a behaviour rather than as a rule.
+
+<Canvas of={PreviewCardStories.Scrolling} />
+
+### While it is loading
+
+Draw a **skeleton**, not a spinner. A preview has a known shape, so the
+skeleton says "this is what is coming"; a spinner only says "wait". It also
+holds the card at the size it is about to be, so nothing jumps when the content
+lands.
+
+<Canvas of={PreviewCardStories.Loading} />
+
+## Keys
+
+There is no keyboard trigger, by design — see above.
+
+| Input | What happens |
+|---|---|
+| pointer rests on the trigger | opens after 350ms |
+| pointer moves into the card | it stays up, and can be scrolled |
+| pointer leaves both | closes after 200ms |
+| Escape | closes |
+
+## Props
+
+<Controls of={PreviewCardStories.OnARow} />

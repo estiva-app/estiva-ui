@@ -1,20 +1,25 @@
 import { forwardRef, type TextareaHTMLAttributes } from 'react'
+import { Field as BaseField } from '@base-ui/react/field'
 import { cn } from './cn'
-import { useFieldControlId } from './Field'
 
 /**
  * Peek's Textarea (2026-08-28), verbatim: TextInput's look on a textarea
- * that does not resize. Plus a disabled look (Ship's addition).
+ * that does not resize. Plus a disabled look (Ship's addition). On Base UI's
+ * `Field.Control` since stage 3 of the migration (2026-09-07).
+ *
+ * Base UI has an `Input` part but no textarea, so this is `Field.Control`
+ * rendering a `<textarea>` — the same part `Input` is built on, told which
+ * element to be. It finds a surrounding `Field` on its own, which is what
+ * retired `useFieldControlId`; outside one it renders a plain textarea, as
+ * before.
  */
 export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea({ className, id, ...props }, ref) {
-  // A surrounding Field names this control (SHA-17); an explicit id still wins.
-  const controlId = useFieldControlId(id)
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea({ className, ...props }, ref) {
   return (
-    <textarea
-      ref={ref}
-      id={controlId}
+    <BaseField.Control
+      ref={ref as React.Ref<HTMLElement>}
+      render={<textarea />}
       className={cn(
         'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg px-3 py-2',
         'text-[14px] leading-[1.4] font-normal text-text-primary placeholder:text-text-muted',
@@ -23,7 +28,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         'signal:transition-shadow signal:focus:shadow-focus-ring',
         className,
       )}
-      {...props}
+      {...(props as object)}
     />
   )
 })

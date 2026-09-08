@@ -108,6 +108,21 @@ describe('Tabs', () => {
     expect(screen.getAllByRole('tab').map((t) => t.getAttribute('aria-selected'))).toEqual(['false', 'false', 'false'])
   })
 
+  /** A `tablist` with no name is announced as a bare "tab list" — and says the
+   *  same nothing twice on a page with two of them. There was no way to give
+   *  one until 2026-09-08. */
+  it('names the row when the caller gives it a name', () => {
+    render(<Tabs tabs={THREE} active="one" onChange={() => {}} aria-label="Views" />)
+    expect(screen.getByRole('tablist', { name: 'Views' })).toBeTruthy()
+  })
+
+  it('and has no name when nobody gives it one, rather than a wrong one', () => {
+    render(<Tabs tabs={THREE} active="one" onChange={() => {}} />)
+    const list = screen.getByRole('tablist')
+    expect(list.getAttribute('aria-label')).toBeNull()
+    expect(list.getAttribute('aria-labelledby')).toBeNull()
+  })
+
   it('puts className on the outer box, around the row', () => {
     const { container } = render(<Tabs tabs={THREE} active="one" onChange={() => {}} className="mt-4" />)
     const outer = container.firstElementChild as HTMLElement

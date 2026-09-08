@@ -72,7 +72,8 @@ describe('Button', () => {
     expect(button.hasAttribute('disabled')).toBe(false)
     expect(screen.queryByRole('tooltip')).toBeNull()
     await user.hover(button)
-    expect(screen.getByRole('tooltip').textContent).toBe('Sign in first')
+    // 300ms before it opens (D23) - it used to be instant.
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Sign in first')
     await user.unhover(button)
     expect(screen.queryByRole('tooltip')).toBeNull()
     await user.click(button)

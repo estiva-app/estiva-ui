@@ -5,3 +5,7 @@ storybook-static
 dist/
 *.tgz
 tsconfig.tsbuildinfo
+
+# Ad-hoc measuring scripts: they drive a running Storybook and belong to
+# whoever is measuring, not to the repository.
+.verify-*.mjs

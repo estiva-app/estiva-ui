@@ -1,0 +1,104 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ToolbarStories from './Toolbar.stories'
+
+<Meta of={ToolbarStories} />
+
+# Toolbar
+
+A strip of controls that behaves as **one** control: Tab in, arrow keys along,
+Tab out — on the elevated box a floating strip needs.
+
+<Canvas of={ToolbarStories.Default} />
+
+## When
+
+- **Any row of icon buttons that act on the same thing** — a formatting strip,
+  a card's actions, a set of view switches. This is the case it exists for.
+- A row that mixes buttons with a field, like a link editor: the field is
+  **ToolbarInput** and keeps the arrow keys for its caret.
+- Groups of those, divided by **ToolbarSeparator**.
+
+<Canvas of={ToolbarStories.Grouped} />
+
+## When not
+
+- A list of verbs you open, choose from, and close → **Menu**.
+- Two answers to a question — Cancel and Save — → plain **Button**s. They are
+  separate answers and each deserves its own Tab stop.
+- Reactions to choose from → **ReactionPicker**, which is this with the
+  emoji row already drawn.
+- One value from a set → **Select**.
+
+## How
+
+```tsx
+import { Toolbar, ToolbarButton, ToolbarSeparator } from '@estiva-app/ui'
+
+<Toolbar aria-label="Formatting">
+  <ToolbarButton aria-label="Bold" tooltip="Bold" tooltipShortcut="Cmd+B" onClick={bold}>
+    <IconBold size={16} stroke={1.5} />
+  </ToolbarButton>
+  <ToolbarSeparator />
+  <ToolbarButton aria-label="Link" tooltip="Link" onClick={link}>
+    <IconLink size={16} stroke={1.5} />
+  </ToolbarButton>
+</Toolbar>
+```
+
+- **`aria-label` is required.** A toolbar with no name is announced as a bare
+  "toolbar", which says nothing — and says the same nothing twice on a page
+  with two.
+- **`ToolbarButton` is this package's `IconButton`**, joined to the walk: the
+  same square, the same variants, the same `tooltip`, `tooltipShortcut` and
+  `disabledReason`. It still owes an `aria-label`, because it is still an
+  icon-only control. **It must be inside a `Toolbar`** — Base UI throws
+  otherwise, since a part with no strip has no walk to join. A control *beside*
+  a strip is an `IconButton`.
+- **It draws the box** — see below — and `surface={false}` drops it.
+- **A disabled control keeps its place in the walk.** A strip whose controls
+  come and go from the arrow keys as their state changes is a strip you cannot
+  learn, and a `disabledReason` you cannot reach is a reason nobody reads.
+- **`orientation="vertical"`** walks with ↑ and ↓ instead.
+
+<Canvas of={ToolbarStories.WithAField} />
+
+<Canvas of={ToolbarStories.WithADisabledControl} />
+
+### The box
+
+A toolbar floats over what it acts on — a card, a paragraph, an image — so it
+draws the elevated surface that separates it from that: **the same `MenuPanel`
+a `Menu` draws**, because a floating strip and a floating list are the same
+box. Peek had built this twice and the two had already drifted: one
+`rounded-sm` with `shadow-sm`, the other `rounded-lg` with `shadow-lg`.
+
+`surface={false}` for a strip inside something that draws that box already — a
+`Popover`, a dialog, a card's own panel.
+
+**A `Popover` holding a toolbar asks for `side="top"`.** A strip acts on what
+is under it, so it stands over that rather than on top of it. That is a
+preference: Base UI measures the room and flips when there is none, which is
+why the placement is its job and not arithmetic of ours.
+
+<Canvas of={ToolbarStories.OnAnExistingSurface} />
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Tab | onto the strip — once, wherever the walk left it |
+| ← / → | move between controls, and wrap at the ends (↑ / ↓ when vertical) |
+| Enter / Space | the focused control's own action |
+| Tab again | leaves the strip entirely |
+| ← / → **inside a `ToolbarInput`** | the caret's, not the strip's — Tab resumes the walk |
+
+**Home and End do nothing**, and that is Base UI's choice rather than an
+oversight: its composite implements them behind a flag `Toolbar.Root` does not
+pass. The arrows wrap, which reaches both ends in one press of a strip this
+size. A test pins it, so the day it changes this page is wrong on purpose.
+
+<Canvas of={ToolbarStories.Vertical} />
+
+## Props
+
+<Controls of={ToolbarStories.Default} />

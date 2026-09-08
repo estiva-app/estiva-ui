@@ -1,13 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type CSSProperties, type ReactNode } from 'react'
+import { createContext, useContext, type ComponentPropsWithRef, type ReactElement, type ReactNode, type RefObject } from 'react'
 import { IconChevronRight } from '@tabler/icons-react'
-import { createPortal } from 'react-dom'
+import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
-import { clampBox, fitMenu, fitSubmenu } from './fit'
 import { SectionLabel } from './SectionLabel'
 
 /**
  * THE menu shell (2026-09-01) — extracted once, for every menu in every app.
+ * On Base UI's `Menu` since stage 4 of the migration (2026-09-07).
  *
  * Peek has no single Menu file; its topic menu, conversation menus, files
  * menu and the top bar's account menu each hand-roll the same thing, and
@@ -20,67 +20,55 @@ import { SectionLabel } from './SectionLabel'
  * hairline border, 8px radius, 8px padding and the large shadow; items that
  * are 8px-radius rows, `px-2 py-1.5`, hover fill, 14px text, destructive
  * ones in the error colour; section headings as a SectionLabel in a 32px
- * row; and the two exits every menu has — Escape and a click outside —
- * owned by the menu, never copied into a caller.
+ * row; and the two exits every menu has — Escape and a click outside.
  *
- * Where it goes is owned here too (2026-09-03), because the two ways a menu
- * goes wrong are both placement: it opens inside a stacking context or a
- * scroll container and something covers or clips it, or it opens near an
- * edge and runs off the screen. Both shipped — the identity menu vanished
- * under a z-indexed panel header, a submenu was cut by the right edge — so
- * the shell now portals to the body (nothing in an app can cover the body's
- * last child at z-50) and fits itself to the viewport (fit.ts, the same
- * measured geometry Select uses). A caller hands over a trigger, not
- * coordinates.
+ * **What stage 4 changed, and it is the first thing a keyboard user notices:
+ * the arrow keys walk the rows.** ↑ and ↓ move between items and wrap, Home
+ * and End jump to the ends, typing a row's first letters jumps to it, and
+ * focus moves into the menu when it opens and back out when it closes. None
+ * of that existed; a menu was a portalled box of buttons you tabbed through.
  *
- * Three anchorings, in order of preference:
- * - `anchor` (an element, usually the trigger): portalled, measured, and
- *   placed by `fitMenu` — under the anchor, flipped above when the room
- *   below is worse, clamped inside the viewport, height-capped with its own
- *   scrollbar. `align="right"` hangs the menu's right edge from the
- *   anchor's. Closes on resize and on any page scroll, because both move
- *   the anchor out from under it.
- * - `position` (viewport coordinates the caller computed): portalled and
- *   clamped (`clampBox`) — the caller's corner survives, but can no longer
- *   land off screen.
- * - neither: in-flow under a `relative` wrapper, right-aligned. For stories
- *   and static surfaces only — inside an app this mode inherits every
- *   ancestor's stacking context and clip, which is how the identity menu
- *   got covered.
+ * Deleted with the port: the `createPortal`, the `mousedown` listener on
+ * `document`, the Escape listener beside it, the resize and scroll listeners,
+ * the provisional hidden render this component did in order to measure
+ * itself, and `fit.ts` — the shared geometry the shell and Select both used.
+ * Floating UI places, flips and clamps all of it.
+ *
+ * The three anchorings are unchanged, and all three now portal (the third
+ * did not, which is exactly how the identity menu got covered by a z-indexed
+ * panel header in the first place):
+ * - `anchor` (an element, or a rect a click handler measured): the menu hangs
+ *   under it, flips above when the room below is worse, and stays on screen.
+ *   `align="right"` hangs the menu's right edge from the anchor's.
+ * - `position` (viewport coordinates the caller computed): the corner the
+ *   caller chose, as a virtual anchor, so it still cannot land off screen.
+ * - neither: under the element the menu sits in, right-aligned — what
+ *   `absolute right-0 top-full mt-1` drew, but portalled, so no ancestor's
+ *   stacking context or overflow can clip it.
  */
-export interface MenuProps {
-  onClose: () => void
-  /** The trigger — an element, or the rect a click handler already measured.
-   *  The menu portals to the body and places itself against it. */
-  anchor?: HTMLElement | DOMRect | null
-  /** With `anchor`: which of the menu's edges hangs from the anchor's. Default left. */
-  align?: 'left' | 'right'
-  /** Viewport coordinates; the menu is portalled, hung from `top`, aligned to whichever edge is given, and clamped on screen. */
-  position?: { top: number; right: number } | { top: number; left: number }
-  /** Close 150ms after the pointer leaves the menu — the hover-flow menus
-   *  (quick-menu cards) dismiss this way. The grace period is shared with any
-   *  open MenuSub panel, so crossing into a portalled submenu never counts as
-   *  leaving. */
-  closeOnLeave?: boolean
-  children: ReactNode
-  className?: string
-}
-
-/** MenuSub reports its hover into the enclosing Menu's leave-grace timer, so
- *  a `closeOnLeave` menu survives the pointer crossing into a portalled
- *  submenu panel — the one hover region the old inline submenus had for free. */
-const MenuHoverContext = createContext<{ hold: () => void; release: () => void } | null>(null)
+/**
+ * Whether a row is inside a `Menu`.
+ *
+ * It is load-bearing: `MenuItem` and `MenuSection` are also used
+ * inside a bare `MenuPanel`, with no `Menu` around them — Peek's `@`, `/` and
+ * `[` pickers and its compose menu all do that, because a popup inside a text
+ * editor cannot have a menu's keyboard: the editor's suggestion plugin already
+ * owns it. A Base UI `Menu.Item` outside a `Menu.Root` has no context to read,
+ * so those rows stay exactly the buttons they have always been, and only rows
+ * inside a real menu become the part.
+ */
+const MenuContext = createContext<{ openOnHover: boolean } | null>(null)
 
 /**
  * The menu's surface, with none of its behaviour — an elevated box with a
  * hairline border, 8px radius, 8px padding and the large shadow.
  *
- * Split out of `Menu` on 2026-09-05. `Menu` owns Escape, outside-click and
- * placement, and that is right for a menu opened from a trigger — but a
- * type-ahead popup inside a text editor cannot have them: the editor's
- * suggestion plugin already owns the keyboard and positions the popup, and a
- * second Escape handler fights it. So Peek's `@`, `/` and `[` menus each drew
- * this box by hand, and the three had already drifted apart.
+ * Split out of `Menu` on 2026-09-05. `Menu` owns Escape, outside-click,
+ * placement and now the keyboard, and that is right for a menu opened from a
+ * trigger — but a type-ahead popup inside a text editor cannot have them: the
+ * editor's suggestion plugin already owns the keyboard and positions the
+ * popup, and a second Escape handler fights it. So Peek's `@`, `/` and `[`
+ * menus each drew this box by hand, and the three had already drifted apart.
  *
  * `Menu` renders this, so there is still exactly one definition of the
  * surface — change it here and every menu in every app follows.
@@ -89,13 +77,31 @@ const MenuHoverContext = createContext<{ hold: () => void; release: () => void }
  * people is not the width of one that lists verbs.
  */
 export interface MenuPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
-  children: ReactNode
+  /** Optional only because Base UI fills it in when this is a `render`
+   *  target: `Menu.Popup` supplies the children. Every other caller passes
+   *  them. */
+  children?: ReactNode
 }
 
 export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
   return (
     <div
-      className={cn('flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg', className)}
+      className={cn(
+        'flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg',
+        /*
+         * A divider in a menu runs the width of the rows it separates.
+         *
+         * `Divider` is inset 12px each side, which is right in a page and
+         * wrong here: measured in a 180px menu, the rule started 21px from the
+         * panel's edge where the rows start at 9px — 12px narrower on each side
+         * than the things it divides. `IdentityMenu` was already cancelling it
+         * by hand with `mx-0`, which is the sign it belonged here (Katerina,
+         * 2026-09-08). Direct children only, so a divider a caller puts inside
+         * a row keeps its own spacing.
+         */
+        '[&>[role=separator]]:mx-0',
+        className,
+      )}
       {...props}
     >
       {children}
@@ -103,107 +109,107 @@ export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
   )
 }
 
-export function Menu({ onClose, anchor, align = 'left', position, closeOnLeave = false, children, className }: MenuProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const hold = useCallback(() => clearTimeout(leaveTimer.current), [])
-  const release = useCallback(() => {
-    if (!closeOnLeave) return
-    clearTimeout(leaveTimer.current)
-    leaveTimer.current = setTimeout(onClose, 150)
-  }, [closeOnLeave, onClose])
-  useEffect(() => () => clearTimeout(leaveTimer.current), [])
-  const portalled = Boolean(anchor || position)
-  /** Where the menu actually goes — measured against the viewport after a
-   *  hidden provisional render, so it is never covered and never cut off. */
-  const [placed, setPlaced] = useState<{ left: number; top?: number; bottom?: number; maxHeight: number } | null>(null)
+export interface MenuProps {
+  /**
+   * The control that opens the menu. Any element that forwards its ref and
+   * spreads its props — this package's `Button`, `IconButton` and
+   * `PersonTrigger` all do.
+   *
+   * The menu owns it, and that is the point: Base UI can only do the toggle,
+   * the placement, the focus return, the first-item highlight and the whole
+   * hover choreography if it knows which element opened it.
+   */
+  trigger: ReactElement
+  /** Which of the menu's edges hangs from the trigger's. Default left. */
+  align?: 'left' | 'right'
+  /**
+   * Open on hover, and close shortly after the pointer leaves — for a control
+   * that only appears while the pointer is on a card.
+   *
+   * Base UI owns the whole choreography, including the diagonal from a row
+   * out to a submenu panel. The shell used to hand-write this and got it
+   * wrong in two directions.
+   */
+  openOnHover?: boolean
+  /** Controlled, for a caller that must know or must force it. Leave both
+   *  off and the menu keeps its own state. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /** Base UI's imperative handle. `actions.current?.close()` shuts the menu —
+   *  for a row that must close it before opening what it opens. A `MenuItem`
+   *  closes the menu by itself, so this is only for content that is not one. */
+  actionsRef?: RefObject<{ close: () => void; unmount: () => void } | null>
+  children: ReactNode
+  /** On the menu's surface — its width, its internal rhythm. */
+  className?: string
+}
 
-  useEffect(() => {
-    const onDown = (event: MouseEvent) => {
-      if (!ref.current?.contains(event.target as Node)) onClose()
-    }
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [onClose])
+/**
+ * Read from `globalThis` rather than as a bare `process`: the declaration
+ * build carries no ambient types on purpose, so that a consumer of this
+ * package does not inherit Node's. Every bundler still replaces the value.
+ */
+const isProduction = () =>
+  (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV === 'production'
 
-  // Callers build `position` inline every render; depending on its
-  // coordinates rather than the object keeps the effect from re-running
-  // (and re-placing) on every parent render.
-  const posLeft = position && 'left' in position ? position.left : undefined
-  const posRight = position && 'right' in position ? position.right : undefined
-  const posTop = position?.top
+/** The 4px between a menu and its trigger, and the 8px it keeps clear of
+ *  every screen edge — the two numbers `fit.ts` used. */
+const GAP = 4
+const VIEWPORT_PAD = 8
+/** A hover menu opens at once and closes 150ms after the pointer leaves —
+ *  the two numbers the hand-written version used. */
+const HOVER_OPEN_DELAY = 0
+const HOVER_CLOSE_DELAY = 150
 
-  useLayoutEffect(() => {
-    if (!portalled || !ref.current) return
-    const viewport = { width: window.innerWidth, height: window.innerHeight }
-    const menu = ref.current
-    if (anchor) {
-      const rect = anchor instanceof Element ? anchor.getBoundingClientRect() : anchor
-      const left = align === 'right' ? rect.right - menu.offsetWidth : rect.left
-      setPlaced(
-        fitMenu({
-          anchor: { left, top: rect.top, bottom: rect.bottom },
-          menu: { width: menu.offsetWidth, contentHeight: menu.scrollHeight },
-          viewport,
-        }),
-      )
-    } else if (posTop !== undefined) {
-      const left = posLeft ?? viewport.width - (posRight ?? 0) - menu.offsetWidth
-      setPlaced(clampBox({ box: { left, top: posTop, width: menu.offsetWidth, height: menu.offsetHeight }, viewport }))
-    }
-  }, [portalled, anchor, align, posLeft, posRight, posTop])
+export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpenChange, actionsRef, children, className }: MenuProps) {
+  return (
+    <BaseMenu.Root
+      open={open}
+      onOpenChange={onOpenChange ? (next) => onOpenChange(next) : undefined}
+      actionsRef={actionsRef}
+      /* Non-modal, as every menu here has always been: the page behind keeps
+         its scrollbar, so opening a menu never shifts the layout. */
+      modal={false}
+    >
+      <BaseMenu.Trigger
+        render={trigger}
+        openOnHover={openOnHover}
+        delay={HOVER_OPEN_DELAY}
+        closeDelay={HOVER_CLOSE_DELAY}
+      />
+      <BaseMenu.Portal>
+        <BaseMenu.Positioner
+          side="bottom"
+          align={align === 'right' ? 'end' : 'start'}
+          sideOffset={GAP}
+          collisionPadding={VIEWPORT_PAD}
+          className="z-50 data-[anchor-hidden]:hidden"
+        >
+          <BaseMenu.Popup
+            data-interactive
+            /* `outline-none`: the popup is a programmatic focus target, not
+               something a keyboard user tabs to. Without it Chrome rings the
+               WHOLE panel when the menu is opened from the keyboard, which
+               reads as "the menu is one thing" rather than "these rows are the
+               things" — measured, `outline: auto 1px`. The rows keep their own
+               highlight. Exactly the fix `DialogShell`'s card needed at stage
+               3, in a second place.
 
-  /* An anchored menu is placed against its trigger's rect, and a resize or a
-     page scroll moves the trigger out from under it — close, as Select does.
-     A scroll INSIDE the menu is its own capped list working; leave those. */
-  useEffect(() => {
-    if (!anchor) return
-    const onScroll = (event: Event) => {
-      if (event.target instanceof Node && ref.current?.contains(event.target)) return
-      onClose()
-    }
-    window.addEventListener('resize', onClose)
-    window.addEventListener('scroll', onScroll, true)
-    return () => {
-      window.removeEventListener('resize', onClose)
-      window.removeEventListener('scroll', onScroll, true)
-    }
-  }, [anchor, onClose])
-
-  const style: CSSProperties | undefined = portalled
-    ? placed
-      ? { left: placed.left, top: placed.top, bottom: placed.bottom, maxHeight: placed.maxHeight }
-      : // The provisional render: measured by the layout effect, never seen.
-        { left: 0, top: 0, visibility: 'hidden' }
-    : undefined
-  const node = (
-    <MenuHoverContext.Provider value={{ hold, release }}>
-      <MenuPanel
-        ref={ref}
-        role="menu"
-        data-interactive
-        className={cn(
-          'z-50 min-w-[180px]',
-          portalled ? 'fixed overflow-y-auto' : 'absolute right-0 top-full mt-1',
-          className,
-        )}
-        style={style}
-        onClick={(event) => event.stopPropagation()}
-        onMouseEnter={closeOnLeave ? hold : undefined}
-        onMouseLeave={closeOnLeave ? release : undefined}
-      >
-        {children}
-      </MenuPanel>
-    </MenuHoverContext.Provider>
+               `--available-height` is the room Floating UI found after flipping
+               and clamping; the shell passes no cap of its own, so a menu stands
+               as tall as it can and scrolls only when the screen truly has no
+               room. Select's 288 was never this component's — the identity
+               panel got it by accident once and grew a scrollbar at full
+               height. */
+            className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
+            render={<MenuPanel />}
+          >
+            <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
+          </BaseMenu.Popup>
+        </BaseMenu.Positioner>
+      </BaseMenu.Portal>
+    </BaseMenu.Root>
   )
-  return portalled ? createPortal(node, document.body) : node
 }
 
 /**
@@ -211,11 +217,11 @@ export function Menu({ onClose, anchor, align = 'left', position, closeOnLeave =
  * hand-rolled before this, one of which dropped the ref its edge-flip
  * measured and shipped a submenu cut off by the screen (2026-09-03).
  *
- * Hover-timed like those were: opens at once, closes 150ms after the
- * pointer leaves row and panel both, so the diagonal from row to panel
- * survives. The panel portals to the body and is placed by `fitSubmenu` —
- * right of the row when it fits, left when it does not, never past an edge
- * — so it also escapes whatever container its menu happens to be in.
+ * Hover-timed as those were, and as ours was: it opens at once and closes
+ * 150ms after the pointer leaves, so the diagonal from row to panel survives.
+ * Those two numbers are all that is left of the old implementation — the
+ * placement, the flip at a screen edge, and now the arrow keys (→ opens it,
+ * ← closes it) are Base UI's.
  */
 export interface MenuSubProps {
   /** The trigger row's label. */
@@ -230,60 +236,54 @@ export interface MenuSubProps {
 }
 
 export function MenuSub({ label, leading, selected, children, className }: MenuSubProps) {
-  const [open, setOpen] = useState(false)
-  const rowRef = useRef<HTMLDivElement>(null)
-  const panelRef = useRef<HTMLDivElement>(null)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const [placed, setPlaced] = useState<{ left: number; top: number } | null>(null)
-  // The panel portals out of the menu's DOM, so hovering it would read as
-  // "left the menu" to a closeOnLeave shell — report hover upward instead.
-  const menuHover = useContext(MenuHoverContext)
-
-  const enter = () => {
-    clearTimeout(closeTimer.current)
-    menuHover?.hold()
-    setOpen(true)
-  }
-  const leave = () => {
-    closeTimer.current = setTimeout(() => setOpen(false), 150)
-    menuHover?.release()
-  }
-  useEffect(() => () => clearTimeout(closeTimer.current), [])
-
-  useLayoutEffect(() => {
-    if (!open || !rowRef.current || !panelRef.current) {
-      setPlaced(null)
-      return
-    }
-    const row = rowRef.current.getBoundingClientRect()
-    setPlaced(
-      fitSubmenu({
-        row: { left: row.left, right: row.right, top: row.top },
-        panel: { width: panelRef.current.offsetWidth, height: panelRef.current.offsetHeight },
-        viewport: { width: window.innerWidth, height: window.innerHeight },
-      }),
+  /*
+   * A submenu inside a hover-opened menu strands it.
+   *
+   * Measured 2026-09-08: enter the submenu's panel, then leave in any
+   * direction that does not cross back over the parent, and neither the
+   * submenu nor the menu ever closes again — at 200ms, 500ms, 1s and 2s.
+   * Both triggers hard-code Floating UI's `safePolygon({ blockPointerEvents:
+   * true })`, which blocks pointer events while the path from row to panel is
+   * live; leaving that way never resolves the polygon. There is no prop.
+   *
+   * So the rule is: no `openOnHover` on a menu that has one of these. This
+   * says so out loud rather than leaving it to the page, because the failure
+   * is a menu that will not go away and the cause is two files apart.
+   */
+  const menu = useContext(MenuContext)
+  if (!isProduction() && menu?.openOnHover) {
+    console.error(
+      '[@estiva-app/ui] Menu: `openOnHover` and `MenuSub` cannot be used together — ' +
+        'leaving the submenu panel strands the menu open. Open this menu on a press instead. ' +
+        'See Menu.mdx, "Hover-opened menus".',
     )
-  }, [open])
-
+  }
   return (
-    <div ref={rowRef} onMouseEnter={enter} onMouseLeave={leave}>
-      <MenuItem label={label} leading={leading} selected={selected} submenu />
-      {open &&
-        createPortal(
-          <MenuPanel
-            ref={panelRef}
-            role="menu"
-            data-interactive
-            className={cn('fixed z-50 w-[160px]', className)}
-            style={placed ?? { left: 0, top: 0, visibility: 'hidden' }}
-            onMouseEnter={enter}
-            onMouseLeave={leave}
-          >
+    <BaseMenu.SubmenuRoot>
+      <BaseMenu.SubmenuTrigger
+        openOnHover
+        delay={0}
+        closeDelay={150}
+        nativeButton
+        render={<button type="button" />}
+        className={menuItemClassName({ size: 'default', selected })}
+      >
+        <MenuItemBody label={label} leading={leading} submenu />
+      </BaseMenu.SubmenuTrigger>
+      <BaseMenu.Portal>
+        <BaseMenu.Positioner
+          side="inline-end"
+          align="start"
+          sideOffset={GAP}
+          collisionPadding={VIEWPORT_PAD}
+          className="z-50 data-[anchor-hidden]:hidden"
+        >
+          <BaseMenu.Popup className={cn('w-[160px]', className)} data-interactive render={<MenuPanel />}>
             {children}
-          </MenuPanel>,
-          document.body,
-        )}
-    </div>
+          </BaseMenu.Popup>
+        </BaseMenu.Positioner>
+      </BaseMenu.Portal>
+    </BaseMenu.SubmenuRoot>
   )
 }
 
@@ -328,7 +328,43 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   selected?: boolean
 }
 
-export function MenuItem({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+/**
+ * The row's class list, written once because `MenuSub`'s trigger row is the
+ * same row.
+ *
+ * `data-highlighted` joins `:hover` here, and that is the whole visible
+ * consequence of the port: the fill that followed the pointer now also
+ * follows the arrow keys, because Base UI sets one attribute for both.
+ */
+function menuItemClassName({ size, selected, className }: { size: 'default' | 'tall'; selected?: boolean; className?: string }) {
+  return cn(
+    // shrink-0: a menu is a flex column that scrolls at its max height,
+    // and a flex child shrinks before its container does — so every row
+    // in an overflowing menu was squashed to its `min-h`, and a row given
+    // an explicit height silently lost it (Peek's `[` menu: h-12 rows
+    // measured 40px). The same fix NavItem took on 2026-09-02.
+    // `group`: the `hint` slot reveals itself from this row's own :hover,
+    // so the hint and the fill are one CSS state change, not two engines.
+    //
+    // No transition on the fill (Katerina, 2026-09-05). It faded over
+    // 150ms, and anything appearing with it had to fade too or arrive
+    // ahead of it — which, sweeping a pointer down a list, read as the
+    // hint flickering in and out. Both are instant now: they still change
+    // on exactly the same :hover, so they cannot come apart, and a row
+    // lights and unlights crisply as the pointer crosses it.
+    'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
+    // tall: as tall as its content, never shorter than 40px (Katerina,
+    // 2026-09-01) — a single-line picker row sits at 40, a row with a
+    // 32px face and a role line comes out at its natural 48. One rule,
+    // not a hand-picked height per file.
+    size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
+    selected && 'bg-bg-hover',
+    className,
+  )
+}
+
+/** Everything inside the row — written once, for the same reason. */
+function MenuItemBody({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
   const edge =
     trailing ??
     (shortcut ? (
@@ -337,35 +373,7 @@ export function MenuItem({ label, children, size = 'default', description, leadi
       <IconChevronRight size={16} stroke={1.5} className="shrink-0 text-text-muted" />
     ) : null)
   return (
-    <button
-      type="button"
-      role="menuitem"
-      className={cn(
-        // shrink-0: a menu is a flex column that scrolls at its max height,
-        // and a flex child shrinks before its container does — so every row
-        // in an overflowing menu was squashed to its `min-h`, and a row given
-        // an explicit height silently lost it (Peek's `[` menu: h-12 rows
-        // measured 40px). The same fix NavItem took on 2026-09-02.
-        // `group`: the `hint` slot reveals itself from this row's own :hover,
-        // so the hint and the fill are one CSS state change, not two engines.
-        //
-        // No transition on the fill (Katerina, 2026-09-05). It faded over
-        // 150ms, and anything appearing with it had to fade too or arrive
-        // ahead of it — which, sweeping a pointer down a list, read as the
-        // hint flickering in and out. Both are instant now: they still change
-        // on exactly the same :hover, so they cannot come apart, and a row
-        // lights and unlights crisply as the pointer crosses it.
-        'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left hover:bg-bg-hover',
-        // tall: as tall as its content, never shorter than 40px (Katerina,
-        // 2026-09-01) — a single-line picker row sits at 40, a row with a
-        // 32px face and a role line comes out at its natural 48. One rule,
-        // not a hand-picked height per file.
-        size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
-        selected && 'bg-bg-hover',
-        className,
-      )}
-      {...props}
-    >
+    <>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
       {/* Sizes are arbitrary values (the body-2 and caption tokens): these
           lists merge with a colour, and tw-merge drops a token size beside a
@@ -385,18 +393,80 @@ export function MenuItem({ label, children, size = 'default', description, leadi
         // :hover / `selected` as the fill, in the same frame.
         <span className="grid shrink-0 items-center justify-items-end [&>*]:col-start-1 [&>*]:row-start-1">
           {edge && (
-            <span className={cn('flex items-center', hint && 'group-hover:opacity-0', hint && selected && 'opacity-0')}>
+            <span className={cn('flex items-center', hint && 'group-hover:opacity-0 group-data-[highlighted]:opacity-0', hint && selected && 'opacity-0')}>
               {edge}
             </span>
           )}
           {hint && (
-            <span className={cn('flex items-center opacity-0 group-hover:opacity-100', selected && 'opacity-100')}>
+            <span className={cn('flex items-center opacity-0 group-hover:opacity-100 group-data-[highlighted]:opacity-100', selected && 'opacity-100')}>
               {hint}
             </span>
           )}
         </span>
       )}
-    </button>
+    </>
+  )
+}
+
+export function MenuItem({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+  const body = (
+    <MenuItemBody
+      label={label}
+      size={size}
+      description={description}
+      leading={leading}
+      trailing={trailing}
+      hint={hint}
+      shortcut={shortcut}
+      submenu={submenu}
+      destructive={destructive}
+      selected={selected}
+    >
+      {children}
+    </MenuItemBody>
+  )
+  const rowClassName = menuItemClassName({ size, selected, className })
+
+  /*
+   * Inside a `Menu` the row is Base UI's `Menu.Item`: it joins the roving
+   * focus, answers the typeahead, and closes the menu when it is chosen.
+   * `nativeButton` keeps the `<button>`; the part would draw a `<div>`.
+   *
+   * Outside one — a bare `MenuPanel` in an editor popup — it is a plain
+   * button, **with no `role="menuitem"`**. It used to carry the role
+   * unconditionally, which made an orphan: ARIA requires a `menuitem` to sit
+   * inside a `menu` or a `menubar`, and `MenuPanel` is a `<div>` with no role
+   * at all. Four Peek files draw rows that way, so four surfaces were telling
+   * a screen reader they were menu items of nothing.
+   *
+   * A button is what these rows actually are. The pickers they sit in are a
+   * listbox pattern rather than a menu — the editor's plugin owns the
+   * highlight and the keyboard — and saying so properly is `ChipInput`'s
+   * stage, not this one; claiming the wrong role in the meantime is worse
+   * than claiming none.
+   */
+  if (!useContext(MenuContext)) {
+    return (
+      <button type="button" className={rowClassName} {...props}>
+        {body}
+      </button>
+    )
+  }
+  return (
+    <BaseMenu.Item
+      nativeButton
+      render={<button type="button" />}
+      className={rowClassName}
+      /* `Menu.Item` types its handlers for the `<div>` it would draw by
+         default. `render` makes it the `<button>` this row has always been,
+         and `nativeButton` tells Base UI so — but the prop types do not
+         follow the render target, so a caller's `onClick` is a button
+         handler facing a div signature. The element underneath is a
+         `<button>`, which `Menu.test.tsx` pins. */
+      {...(props as ComponentPropsWithRef<'div'>)}
+    >
+      {body}
+    </BaseMenu.Item>
   )
 }
 
@@ -428,17 +498,37 @@ export function EnterHint({ target }: { target?: string }) {
   )
 }
 
-/** A section heading inside a menu: the 32px row with a SectionLabel, read
- *  secondary — a heading inside a menu labels the rows, it is not one of
- *  them (Katerina, 2026-09-01). */
+/**
+ * A section heading inside a menu: the 32px row with a SectionLabel, read
+ * secondary — a heading inside a menu labels the rows, it is not one of
+ * them (Katerina, 2026-09-01).
+ *
+ * Inside a `Menu` it is Base UI's `Menu.Group` with the heading as its
+ * `GroupLabel`, so the rows under it are announced as a named group rather
+ * than as a run of items with a stray line above them. Outside one — the
+ * editor pickers, which draw the surface but not the menu — it is the two
+ * plain elements it has always been.
+ */
 export function MenuSection({ label, children, className }: { label: string; children: ReactNode; /** On the heading row — a surface whose rows are px-3 aligns its heading with px-3. */ className?: string }) {
-  return (
-    <div className="flex flex-col">
-      <div className={cn('flex h-8 items-center px-2', className)}>
-        <SectionLabel className="text-text-secondary">{label}</SectionLabel>
-      </div>
-      {children}
+  const inMenu = useContext(MenuContext) !== null
+  const heading = (
+    <div className={cn('flex h-8 items-center px-2', className)}>
+      <SectionLabel className="text-text-secondary">{label}</SectionLabel>
     </div>
+  )
+  if (!inMenu) {
+    return (
+      <div className="flex flex-col">
+        {heading}
+        {children}
+      </div>
+    )
+  }
+  return (
+    <BaseMenu.Group className="flex flex-col">
+      <BaseMenu.GroupLabel render={heading} />
+      {children}
+    </BaseMenu.Group>
   )
 }
 

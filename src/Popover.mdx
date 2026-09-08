@@ -1,0 +1,130 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PopoverStories from './Popover.stories'
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+A floating panel from a trigger: the same elevated surface a **Menu** draws,
+with none of a menu's semantics. Its contents are contents — Tab walks them
+in order, nothing is a menu item, and typing goes where you are typing.
+
+<Canvas of={PopoverStories.Default} />
+
+## When
+
+- A small form beside its trigger: rename, a date, a link address.
+- A row of controls over a text selection — a formatting toolbar.
+- A panel of settings or toggles.
+- Anything you would have reached for `Menu` for because you wanted the box.
+
+<Canvas of={PopoverStories.AToolbar} />
+
+## When not
+
+- A list of actions → **Menu**. That is what the arrow keys, the typeahead
+  and `role="menuitem"` are for, and a Popover has none of them.
+- One value from a known set → **Select**.
+- A word for a control → **WithTooltip** — it cannot be pointed at, which
+  is the difference.
+- More of a thing on hover → **PreviewCard**.
+- A title, a body and a footer, with the page behind it out of reach →
+  **DialogShell**.
+
+## How
+
+The panel owns the trigger, exactly as `Menu` does: hand it the control and the
+contents, and write no open state, no placement and no dismiss.
+
+```tsx
+import { Popover } from '@estiva-app/ui'
+
+<Popover trigger={<Button variant="outlined">Rename</Button>} ariaLabel="Rename this">
+  <TextInput value={name} onChange={onChange} aria-label="Name" />
+</Popover>
+```
+
+- **`trigger`** is any element that forwards its ref and spreads its props —
+  this package's `Button`, `IconButton` and `PersonTrigger` all do.
+- **Focus lands on the first thing in the panel** when it opens — the field, in
+  the panel this component exists for — and goes back to the trigger when it
+  closes. Nothing is written to get that.
+- **`actionsRef`** gives `close()`, for the Cancel and Save a form panel ends
+  with. Unlike a menu row, a control inside a panel does not close it by being
+  pressed: it is content, and content may be used more than once.
+- **`align="right"`** hangs the panel's right edge from the trigger's.
+- **`side` is a preference, not a promise.** It says which side to try; Base UI
+  measures the room and flips when there is none — which is the reason the
+  placement is its job rather than arithmetic of ours. **A panel holding a
+  `Toolbar` asks for `top`**: a strip of controls acts on what is under it, so
+  it stands over that rather than on top of it.
+- **`open` / `onOpenChange`** are there for a caller that must know or must
+  force it. Leave them off and the panel keeps its own state.
+- `ariaLabel` names the panel. A panel with a visible heading can point at it
+  with `aria-labelledby` instead.
+- Width, padding and internal rhythm are yours, through `className` — the
+  panel is a surface, not a layout.
+
+<Canvas of={PopoverStories.FromATrigger} />
+
+### A panel with no trigger
+
+A toolbar over a text selection hangs from the selection, and there is no
+control that opened it. That is the one case with nothing for Base UI to watch,
+so it is the one case the caller drives:
+
+```tsx
+<Popover
+  anchor={selectionRect}
+  open={selectionRect !== null}
+  onOpenChange={(open) => !open && setSelectionRect(null)}
+  ariaLabel="Formatting"
+>
+```
+
+- **`anchor`** takes an element or a rect. A new rect moves the panel, so
+  re-measuring as the selection changes is all the tracking needed.
+- **It does not take focus**, on purpose: the person is still in the text, and
+  a toolbar that moved the caret out of it would end the edit it exists to
+  serve. `finalFocus` is therefore only for a panel something inside it *did*
+  take focus into — a field the person clicked.
+- **Render it always and toggle `open`.** Not `{rect && <Popover…>}`: mounting
+  the panel only while it is open takes Base UI's state machine with it, and
+  its exits go too — measured, Escape and re-opening both became intermittent.
+- **Two traps that come with this shape**, both measured rather than reasoned
+  about, and both belonging to the caller:
+  - **Escape must not reopen what it just closed.** The keydown closes the
+    panel; if focus is on the element that reads the selection, the same key's
+    *keyup* re-reads a selection that is still perfectly alive. Ignore Escape
+    in that handler.
+  - **A press in the text is a press outside the panel.** It closes it, and the
+    same gesture's new selection opens it again. That is right, but it means
+    the panel is remade rather than moved.
+
+**The gap, stated: an anchored panel cannot be reached by keyboard.** There is
+no trigger to Tab from and it does not take focus, so everything in one must be
+reachable another way — a shortcut, a menu. A panel that is the only route to
+something belongs on a `trigger`.
+
+<Canvas of={PopoverStories.FromASelection} />
+
+### When the side it asks for has no room
+
+<Canvas of={PopoverStories.FlippedForRoom} />
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| click / Enter / Space on the trigger | opens, and focus moves to the first thing inside |
+| Tab / Shift-Tab | walks the contents, in order |
+| Escape | closes, and gives focus back to the trigger |
+| a press outside | closes |
+| a second press of the trigger | closes — it is the trigger's own toggle, not a press outside |
+
+An anchored panel has the same two exits — Escape and a press outside — but no
+trigger row: it is not opened from the keyboard and does not take focus.
+
+## Props
+
+<Controls of={PopoverStories.FromATrigger} />

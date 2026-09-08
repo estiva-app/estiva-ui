@@ -11,6 +11,11 @@ import { DialogShell } from './DialogShell'
  * archive); `primary` otherwise. While the action runs the buttons wait;
  * an action that resolves `false` keeps the dialog open, so the caller's
  * banner can say why.
+ *
+ * On Base UI's `AlertDialog` since stage 3 of the migration (2026-09-07),
+ * through `DialogShell`'s `alert`. **A press on the backdrop no longer
+ * closes it** (Katerina, D20): a destructive question is answered, not
+ * clicked away. Escape and the close button still cancel, as they did.
  */
 export interface ConfirmDialogProps {
   title: string
@@ -35,6 +40,7 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
   }
   return (
     <DialogShell
+      alert
       title={title}
       onClose={onClose}
       bodyClassName="flex flex-col gap-3 text-body-2 text-text-primary"

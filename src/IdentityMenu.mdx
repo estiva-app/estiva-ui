@@ -50,12 +50,35 @@ import { IdentityMenu } from '@estiva-app/ui'
   receive `close`, so a row can shut the menu before opening what it
   opens.
 - Items are text only — no icons in this menu, by ruling.
-- **IdentityPanel** is exported alone for a surface that wants the panel
-  without the trigger; the stories render it, so the designed artifact is
-  what you review.
-- The trigger's toggle, `aria-expanded`, and the accessible-name rules
-  (the row is named by the person; only the bare compact face takes an
-  `aria-label`) are wired inside — bring nothing.
+- **IdentityPanel** draws the same rows as a plain surface, without the menu
+  around them — for a docs canvas, or a surface that wants the panel and not
+  the trigger.
+- The trigger's toggle, its `aria-expanded`, the placement, the focus return
+  and the accessible-name rules (the row is named by the person; only the bare
+  compact face takes an `aria-label`) are all wired inside — bring nothing.
+- **The panel hangs from the face, not from the wrapper around it** (stage 4).
+  It used to hang from the wrapper, whose box belongs to the app's layout: in
+  a flex row with the default `align-items: stretch` the wrapper takes the
+  row's full height, and the panel hung from the bottom of *that* — measured
+  360px below the face, with a scrollbar it should not have had.
+
+## Keys
+
+Since stage 4 the panel is a Base UI `Menu`, and **the arrow keys walk the
+actions only** (Katerina, D22): they step over the identity block, the
+workspace line and the notes, because those are not things you can do.
+
+| Input | What happens |
+|---|---|
+| click / Enter / Space on the face | opens the menu |
+| ↑ / ↓ | move between the actions — Edit your profile, Copy public key, Sign out, and any row the app adds — and wrap |
+| Enter on an action | runs it, and closes the menu |
+| Escape | closes, and gives focus back to the face |
+| a press on the face while open | closes it |
+
+The identity and workspace sections are `Menu.Group`s labelled by their
+headings, so a screen reader announces them as named groups rather than as
+menu items that are not items.
 
 ## Props
 

@@ -35,7 +35,24 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        className={cn('cursor-pointer rounded-full focus:outline-none', className)}
+        /*
+          The face alone is an icon-only control, so it owes a name. It has
+          one already — the person — and taking it from there means no caller
+          can forget: measured 2026-09-08, this button announced **"AD"**, the
+          initials, with no `aria-label` anywhere. A caller that wants to name
+          the destination rather than the person still can, and `IdentityMenu`
+          does ("Account menu").
+        */
+        aria-label={props['aria-label'] ?? name ?? fallback}
+        /*
+          No `focus:outline-none` here any more. It removed the browser's ring
+          and put nothing in its place, so this control — the account trigger
+          in Peek's top bar — had **no visible focus at all** (measured
+          2026-09-08: `outline: solid 2px rgba(0,0,0,0)`, no shadow). Left
+          alone it wears the same ring `Button`, `IconButton` and a `Tab`
+          wear, which is the ring the rest of the package already relies on.
+        */
+        className={cn('cursor-pointer rounded-full', className)}
         {...props}
       >
         <Avatar name={name} src={picture} size={size ?? 36} />
@@ -50,6 +67,11 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       className={cn(
         'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
         open && 'bg-bg-hover',
+        // Under a `Menu` the open state is Base UI's, not a prop: the trigger
+        // carries `data-popup-open` while its menu is up, and sets its own
+        // `aria-expanded`. Both spellings hold the fill, so this works whether
+        // the caller drives it or the menu does.
+        'data-[popup-open]:bg-bg-hover',
         className,
       )}
       {...props}

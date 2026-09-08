@@ -26,6 +26,14 @@ export const Info: Story = { args: { tone: 'info', children: 'A new version is a
 
 export const Warning: Story = { args: { tone: 'warning', children: 'This workspace is read-only until sign-in.' } }
 
+/**
+ * With a dismiss (D21). The row is 40px rather than 36px, because the button
+ * is taller than the line of text.
+ */
+export const Dismissible: Story = {
+  args: { tone: 'warning', children: 'This workspace is read-only until sign-in.', onDismiss: () => {} },
+}
+
 /** All four tones, stacked. */
 export const AllTones: Story = {
   parameters: { controls: { disable: true } },
@@ -35,6 +43,27 @@ export const AllTones: Story = {
       <Banner tone="info">A new version is available. Reload when convenient.</Banner>
       <Banner tone="warning">This workspace is read-only until sign-in.</Banner>
       <Banner tone="error">The last read failed — reconnecting.</Banner>
+    </div>
+  ),
+}
+
+/** The same four with a dismiss, so the two heights can be compared. */
+export const AllTonesDismissible: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-2">
+      <Banner tone="ok" onDismiss={() => {}}>
+        Public key copied.
+      </Banner>
+      <Banner tone="info" onDismiss={() => {}}>
+        A new version is available. Reload when convenient.
+      </Banner>
+      <Banner tone="warning" onDismiss={() => {}}>
+        This workspace is read-only until sign-in.
+      </Banner>
+      <Banner tone="error" onDismiss={() => {}}>
+        The last read failed — reconnecting.
+      </Banner>
     </div>
   ),
 }

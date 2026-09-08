@@ -26,13 +26,33 @@ token; `required` marks it with the error-coloured asterisk.
 ```tsx
 import { Field, TextInput } from '@estiva-app/ui'
 
-<Field label="Name" required>
+<Field label="Name" required helper="One line, and it can be changed later.">
   <TextInput value={name} onChange={(e) => setName(e.target.value)} />
 </Field>
 ```
 
-The label is visual, not wired: also give the control its accessible name
-(`aria-label`, or an `id`/`htmlFor` pair of your own) so the two agree.
+- **The label names the control. Add nothing.** No `aria-label`, no
+  `id`/`htmlFor` pair — this page asked for both until stage 3 and the
+  advice was already stale. Base UI's `Field` associates the pair, for its
+  own `Input` and `Checkbox`, for `TextInput`, `Textarea` and
+  `SearchInput`, and for anything else rendered through `Field.Control`. A
+  control you write yourself is the one case that still has to opt in, by
+  being one of those.
+- An `id` you set on the control is kept, and the label follows it. That
+  reversed at stage 3: the Field used to win and override it.
+- `helper` is the line under the control — the format, or what happens if
+  it is left empty. `error` **replaces** it and marks the control invalid,
+  so you no longer pass `aria-invalid` yourself. Both are announced;
+  Ship and Peek wrote this line by hand six times between them, and none of
+  those was.
+- With neither, the control stays a direct child of the field, so nothing
+  that predates the two props moved a pixel.
+- **`required` marks the control as well as the label.** The asterisk is a
+  picture of the requirement; `aria-required` on the control is the word for
+  it, and the control had neither until 2026-09-08 — measured. Base UI's
+  `Field` has no `required` of its own, so the Field puts it there. A control
+  that says so already is left alone, and a `children` of several elements
+  keeps the asterisk and owes its own.
 
 ## Props
 

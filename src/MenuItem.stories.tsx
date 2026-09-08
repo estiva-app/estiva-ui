@@ -1,14 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconPin, IconTrash } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
-import { EnterHint, Menu, MenuItem } from './Menu'
+import { useRef, useState } from 'react'
+import { Button } from './Button'
+import { Divider } from './Divider'
+import { EnterHint, Menu, MenuItem, MenuPanel, MenuSub } from './Menu'
 
 /**
  * One row of a menu. Anatomy: `leading` (a 16px icon or an Avatar) · label
  * with an optional `description` line · one thing at the right edge —
  * `trailing` (any hint), else `shortcut` (the kbd chip), else the `submenu`
- * chevron. Stories sit inside a pinned-open Menu so the row is seen on the
- * surface it lives on.
+ * chevron. Stories sit on a `MenuPanel` — the menu's surface, drawn without
+ * its behaviour — so the row is seen where it lives. A live menu portals and
+ * places itself, so it cannot stand in the page (Katerina, D25); **Menu →
+ * FromATrigger** is where the keyboard and the placement are.
  */
 const meta = {
   title: 'Overlays/MenuItem',
@@ -16,9 +21,9 @@ const meta = {
   decorators: [
     (Story) => (
       <div className="flex min-h-[120px] w-full items-center justify-center">
-        <Menu onClose={() => {}} className="static w-72">
+        <MenuPanel className="w-72">
           <Story />
-        </Menu>
+        </MenuPanel>
       </div>
     ),
   ],
@@ -48,6 +53,38 @@ export const Submenu: Story = {
   args: { label: 'Move to…', submenu: true },
 }
 
+/**
+ * The submenu, working. The story above draws the row at rest — the chevron is
+ * the whole affordance — but a row that opens another menu can only be tried
+ * inside a real one, so here is one.
+ *
+ * Hover **Move to…**, or arrow onto it and press →. The panel opens beside the
+ * row, flips to the other side at a screen edge, and stays open while you
+ * cross the diagonal into it.
+ *
+ * From the keyboard: → opens it and leaves the highlight on the row, ↓ steps
+ * into it, and ← closes it and puts the highlight back on the row. Measured in
+ * that order — → then ← alone does nothing, because focus has not entered yet.
+ */
+export const SubmenuLive: Story = {
+  parameters: { controls: { disable: true } },
+  decorators: [(Story) => <Story />],
+  render: () => (
+    <div className="flex min-h-[220px] w-full items-start justify-center pt-4">
+      <Menu trigger={<Button variant="outlined">Open the menu</Button>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuSub label="Move to…">
+          <MenuItem label="Item one" onClick={() => {}} />
+          <MenuItem label="Item two" onClick={() => {}} />
+          <MenuItem label="Item three" onClick={() => {}} />
+        </MenuSub>
+        <Divider className="my-1" />
+        <MenuItem label="Delete" destructive onClick={() => {}} />
+      </Menu>
+    </div>
+  ),
+}
+
 /** A person as a row — the face, the name, a second line, a trailing hint. Peek's mention rows. */
 export const APerson: Story = {
   args: {
@@ -60,7 +97,7 @@ export const APerson: Story = {
 
 /** The submenu's chosen value. */
 export const Selected: Story = {
-  args: { label: 'Newest first', selected: true },
+  args: { label: 'Item one', selected: true },
 }
 
 export const Destructive: Story = {

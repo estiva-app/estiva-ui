@@ -1,7 +1,7 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useCallback, useRef, type ReactNode } from 'react'
 import { cn } from './cn'
 import { Divider } from './Divider'
-import { Menu, MenuItem, MenuRow, MenuSection } from './Menu'
+import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection } from './Menu'
 import { Person } from './Person'
 import { PersonTrigger } from './PersonTrigger'
 
@@ -53,28 +53,46 @@ export interface IdentityMenuProps {
   children?: ReactNode | ((close: () => void) => ReactNode)
 }
 
-export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact' | 'className'> {
-  onClose: () => void
-  /** The trigger to hang from — the panel portals to the body and fits the
-   *  viewport, so no header, sidebar or scroll container can cover it (the
-   *  z-10 floating top bar trapped the old in-flow panel under a z-20 panel
-   *  header, 2026-09-03). Absent, the panel stands in flow — the stories. */
-  anchor?: HTMLElement | null
-  /** On the Menu surface — the stories pass `static` to stand it in flow. */
-  className?: string
+/**
+ * The menu alone, as a plain surface — what the docs canvases draw, and what
+ * a surface that wants the rows without the menu can use.
+ */
+export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact'> {
+  /** Called when a row asks the menu to close. */
+  onClose?: () => void
 }
 
-/** The menu alone — what `IdentityMenu` opens. Exported so the stories show
- *  the designed artifact rather than a closed trigger, and for any surface
- *  that wants the panel without the trigger. */
-export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, anchor, className, children }: IdentityPanelProps) {
+export function IdentityPanel({ className, onClose = () => {}, ...rest }: IdentityPanelProps) {
+  return (
+    <MenuPanel className={cn('w-72', className)}>
+      <IdentityRows {...rest} onClose={onClose} />
+    </MenuPanel>
+  )
+}
+
+/** The old name for the same thing. */
+export const IdentityPanelSurface = IdentityPanel
+
+/**
+ * The panel's contents, without the menu around them.
+ *
+ * Split out at stage 4 for the same reason `MenuPanel` was split out of
+ * `Menu`: a real menu portals and places itself against a trigger, so it
+ * cannot stand in a docs page, and the canvases must still show the artifact
+ * (Katerina, D25). The stories draw these rows on a `MenuPanel`; the app gets
+ * them inside a `Menu`. One definition either way.
+ *
+ * Not exported from the package — `IdentityMenu` and `IdentityPanel` are the
+ * API; this is how they are built.
+ */
+export function IdentityRows({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, onClose, children }: Omit<IdentityPanelProps, 'className'> & { onClose: () => void }) {
   const act = (action: () => void) => () => {
     onClose()
     action()
   }
   const appRows = typeof children === 'function' ? children(onClose) : children
   return (
-    <Menu onClose={onClose} anchor={anchor} align="right" className={cn('w-72', className)}>
+    <>
       <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
         <MenuRow>
           <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
@@ -116,50 +134,59 @@ export function IdentityPanel({ me, signedIn, relayUrl, idBase, onCopyKey, onSig
       )}
       {onCopyKey && <MenuItem label="Copy public key" onClick={act(onCopyKey)} />}
       {idBase && onSignOut && <MenuItem label="Sign out" onClick={act(onSignOut)} />}
-    </Menu>
+    </>
   )
 }
 
 export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className, children }: IdentityMenuProps) {
-  const [open, setOpen] = useState(false)
-  /* The wrapper is the anchor: the panel hangs its right edge from this
-     div's, exactly where the old in-flow `absolute right-0` put it — but
-     portalled, so nothing z-indexed in the app can cover it. */
-  const anchorRef = useRef<HTMLDivElement>(null)
-
+  /*
+   * The menu owns the trigger (stage 4, 2026-09-08). It used to be the other
+   * way round — this component held `open`, and the panel hung from a ref to
+   * the wrapper — and four separate defects came from Base UI not knowing
+   * which element opened it: the face stopped closing its own menu, opening
+   * from the keyboard highlighted nothing, a hovered submenu row unmounted
+   * the panel, and the panel hung from a wrapper the app's layout could
+   * stretch. `PLAN.md` §6.2 has the measurements.
+   */
+  const actions = useRef<{ close: () => void; unmount: () => void } | null>(null)
+  const close = useCallback(() => actions.current?.close(), [])
   return (
-    <div ref={anchorRef} className={cn('relative', className)}>
-      <PersonTrigger
-        name={me.name}
-        picture={me.picture}
-        fallback="Anonymous"
-        compact={compact}
-        size={compact ? 36 : undefined}
-        open={open}
-        // Swallowed so the menu's outside-mousedown dismiss does not fire
-        // first and turn the toggle into a close-then-reopen flicker.
-        onMouseDown={(event) => event.stopPropagation()}
-        onClick={() => setOpen((value) => !value)}
-        // The row shape is named by its own text — the person. Only the bare
-        // face needs a label; naming the row would override the person's name
-        // as the accessible name (Ship's tests find the trigger by it).
-        aria-label={compact ? 'Account menu' : undefined}
-      />
-
-      {open && (
-        <IdentityPanel
+    /* The wrapper carries the caller's `className` and nothing else. It used
+       to be `relative`, because the panel was positioned against it; the panel
+       hangs from the trigger and portals now, so a positioning context here
+       would only be a lie about what this box does. */
+    <div className={className}>
+      <Menu
+        align="right"
+        actionsRef={actions}
+        className="w-72"
+        trigger={
+          <PersonTrigger
+            name={me.name}
+            picture={me.picture}
+            fallback="Anonymous"
+            compact={compact}
+            size={compact ? 36 : undefined}
+            /* The row shape is named by its own text — the person. Only the
+               bare face needs a label; naming the row would override the
+               person's name as the accessible name (Ship's tests find the
+               trigger by it). */
+            aria-label={compact ? 'Account menu' : undefined}
+          />
+        }
+      >
+        <IdentityRows
           me={me}
           signedIn={signedIn}
           relayUrl={relayUrl}
           idBase={idBase}
           onCopyKey={onCopyKey}
           onSignOut={onSignOut}
-          onClose={() => setOpen(false)}
-          anchor={anchorRef.current}
+          onClose={close}
         >
           {children}
-        </IdentityPanel>
-      )}
+        </IdentityRows>
+      </Menu>
     </div>
   )
 }

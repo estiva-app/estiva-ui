@@ -1,5 +1,714 @@
 # Changelog
 
+## 0.10.0 — 2026-09-08
+
+**The second of the three releases D19 asks for.** Stages 3 and 4 of the
+Base UI migration, the end-to-end review of stages 0 to 3, and two components
+Katerina asked for on the way — `Toolbar` and `ReactionPicker`. `PLAN.md` had
+them as two releases, `0.10.0` and `0.11.0`; nothing was published between
+them, so they are one (D33).
+
+**What renders differently, all of it ruled:** a tooltip waits 300ms, then
+fades in while travelling 4px (D23, D26); a toolbar draws the package's
+elevated box, so Peek's two hand-drawn strips become one box (D29); the
+compact `PersonTrigger` has a visible focus ring again. Everything else
+matches the previous baseline to the pixel in both themes; the only recurring
+difference is `Skeleton`'s pulse, which is the shot tooling's own noise floor.
+
+**What a caller must do** is `migration docs/ADOPTION.md`, rows B4 to B16,
+S7, S14, S15, P16, P22, P26 and P27. The one change that breaks a build is
+`Menu`: it owns its trigger now, and eight call sites across the two apps
+delete their open state, anchor arithmetic and `onClose` and pass `trigger`
+instead (B9). Sixteen test assertions change from `button` to `combobox` for
+a `Select`'s trigger (B8). Each app mounts one `TooltipProvider` at its root
+(B6). The rest arrives with the version bump and nothing is written to get
+it.
+
+### Two small fixes for links (2026-09-08)
+
+Both found while fixing Ship's SHI-20, where every sidebar click reloaded
+the whole app, and held back until stage 4 landed (ADOPTION S14, S15).
+
+#### Added
+
+- **`Breadcrumb`'s `Crumb` takes `onClick`.** A crumb is a plain anchor, so
+  in a router app a click on it reloaded the page — and Ship's breadcrumbs
+  were the last links doing so, after SHI-20 moved every other link onto
+  `linkTo`. The prop is spread onto the anchor and nothing else; the `href`
+  stays a real address so the link can still be copied or opened in a new
+  tab. Called only on a crumb with an `href`, since a crumb without one is
+  not a link. Pinned in `Breadcrumb.test.tsx`, which is new — the page had
+  four claims and no test.
+
+#### Changed
+
+- **`Sidebar`'s page repeats `NavItem`'s navigation rule.** `NavItem.mdx`
+  said it — a router app keeps a thin wrapper that intercepts the click —
+  but `Sidebar.mdx` is the page someone reads while assembling a sidebar,
+  and it said nothing, with an example still on hash links. Peek followed
+  the rule; Ship did not, and shipped a sidebar whose every click rebooted
+  the app. The examples on the three pages now use real paths, and the
+  paragraph is there.
+
+#### Callers
+
+- Ship `views/IssueView.tsx` and `views/ProjectView.tsx` pass `linkTo(href)`'s
+  `onClick` per crumb, and the breadcrumb reload goes (**S15**). Peek's trail
+  is elsewhere and is not affected.
+- Nothing else changes: `onClick` is optional, and a crumb without it
+  behaves exactly as before.
+
+
+### Toolbar and ReactionPicker (2026-09-08)
+
+Two components Katerina asked for on 2026-09-08, pulled forward from stage 6,
+and two answers to what she found reading stage 4's stories.
+
+#### Added
+
+- **`Toolbar`** — a strip of controls that behaves as **one** control: Tab in,
+  arrow keys along, Tab out — **on the elevated box a floating strip needs**.
+  Base UI's `Toolbar`, with this package's `IconButton` as **`ToolbarButton`**,
+  plus **`ToolbarSeparator`** and **`ToolbarInput`** (a field that keeps the
+  arrow keys for its caret while it has focus).
+
+  **The box is the same `MenuPanel` a `Menu` draws**, because a floating strip
+  and a floating list are the same box. Peek had built it twice and the two had
+  already drifted — its quick menu `rounded-sm` with `shadow-sm` and a subtle
+  border, its reaction picker `rounded-lg` with `shadow-lg` and a default one.
+  `surface={false}` for a strip inside something that draws it already.
+
+  The panel **wraps** the strip rather than being composed onto it: `MenuPanel`
+  is a flex column, right for a menu's rows and wrong for a row of controls,
+  and Tailwind emits `flex-col` after `flex-row` — so a merged class list would
+  stand the toolbar on its end whatever order the classes arrived in.
+
+  **It exists because every strip in the suite is as many Tab stops as it has
+  buttons.** Ship's reaction row, Peek's composer strip and the editor's
+  formatting strip are each a hand-rolled `<div class="flex">` of
+  `IconButton`s. Measured in Chrome, four buttons: **one Tab stop in a
+  `Toolbar`, four in the row beside it** — and the story puts the two side by
+  side so the difference can be counted rather than described.
+
+  A disabled control **keeps its place in the walk**, because a strip whose
+  controls come and go from the arrow keys as their state changes is a strip
+  you cannot learn — and a `disabledReason` you cannot reach is a reason
+  nobody reads. A `ToolbarButton` **must be inside a `Toolbar`**: Base UI
+  throws otherwise, since a part with no strip has no walk to join.
+
+  **The gap, stated: Home and End do nothing.** Base UI's composite implements
+  them behind `enableHomeAndEndKeys` and `Toolbar.Root` does not pass it, so
+  the page does not claim them and a test pins the gap. The arrows wrap, which
+  reaches either end in one press of a strip this size.
+
+- **`ReactionPicker`** — the reactions on offer, to choose one from. **A
+  `Reaction` is the answer; this is the question.** Peek's `ReactionPicker`
+  (2026-09-03), moved in, with three things changed on the way:
+
+  - **it is a `Toolbar`**, so the row is one Tab stop rather than one per
+    emoji — Peek's five were five things to Tab past to reach anything after
+    the card;
+  - **its box is `Toolbar`'s**, so it is the one elevated surface rather than
+    a second hand-typed copy of it. Inside a `Popover`, which draws that box
+    already, it takes `surface={false}`;
+  - **it opens above the control that was pressed**, not below — the thing
+    being reacted to is underneath it (Katerina, 2026-09-08);
+  - **it says nothing about which reactions are yours.** That is `Reaction`'s
+    state, in the row of pills on the card. A picker that also reported it
+    would be two components wearing one name, so `selected` is gone;
+  - **the vocabulary stays with the app.** Which emoji, and what each one
+    means, is product knowledge: it arrives as `options`, and every option
+    owes a `label`, because the emoji is `aria-hidden` here for the same
+    reason it is on `Reaction`.
+
+#### Changed
+
+- **`Popover` takes `side`, and every panel holding a `Toolbar` asks for
+  `top`** (Katerina, D30). A strip of controls acts on what is under it, so it
+  stands over that rather than on top of it — and over a text selection, a
+  panel below covers the line that tells you what you have just selected.
+  Measured on all five: `data-side=top`, 4px above the trigger.
+
+  **It is a preference, not a promise.** `side` says which side to try;
+  Floating UI measures the room and flips when there is none, which is the
+  reason the placement is the library's job and not arithmetic of ours. A
+  story shows exactly that — `FlippedForRoom` asks for the top with no room
+  above and comes out below. The default stays `bottom`: a rename field is
+  *about* its trigger and hangs from it.
+- **Every `Popover` story that draws a strip now draws a real `Toolbar`**,
+  which is what the hand-rolled rows were standing in for.
+- `Reaction` and `Chip` point at `ReactionPicker` and `Toolbar` where they used
+  to point at "a toolbar of IconButtons", and `Choosing.mdx` gains a row for
+  each.
+- The `chip` and `input-label` type tokens are merged with `cn()` like every
+  other class. Three files carried a note saying they must **never** be merged;
+  that stopped being true when `cn()` was taught the ramp, and `cn.test.ts`
+  pins it.
+
+#### Removed
+
+- **`DialogShell`'s `Confirmation` and `Alert` stories — both of them.** Each
+  hand-built what `ConfirmDialog` *is*: the same "Delete this?", the same
+  Cancel and destructive Delete. `Confirmation` built it wrongly on top of
+  that — a plain dialog, so a press on the backdrop dismissed the question,
+  which is exactly what D20 stopped. A story showing the thing the page's own
+  "When not" tells you not to build is worse than no story (Katerina,
+  2026-09-08).
+
+  **`alert` therefore has no story here, on purpose**, and the page says so:
+  `ConfirmDialog` is the only thing in the package or either app that uses the
+  prop — checked, not assumed — so its canvases and its nine tests are that
+  prop's coverage.
+
+  Two stories replace them, and each covers a prop that had none:
+  **`WithHeaderContent`** (a back button and a count in place of the title) and
+  **`WithoutAFooter`** (the body keeps the card's bottom edge).
+
+- **`Toolbar`'s `AgainstALooseRow` story.** It set a toolbar beside a plain row
+  to make the Tab-stop difference countable, which is an argument rather than a
+  variant — and stories introduce the component, they do not argue for it
+  (Katerina, D32). The measurement it made lives in `Toolbar.test.tsx`, where a
+  claim belongs.
+- **`ReactionPicker`'s `Fewer` story.** Two options rather than five is not a
+  variant: the row is whatever `options` holds, and nothing here caps or wraps
+  it. The page says so in a line instead.
+- **`ReactionPicker`'s `FromAQuickMenu` story is `FromATrigger`.** "Quick menu"
+  is Peek's `ConversationQuickMenu` — furniture this package does not have, and
+  a story may not name what does not exist here (Katerina: *"what is the quick
+  menu? Do we have it?"*). What it draws is a card with a `Toolbar` of actions,
+  one of which opens the picker above itself.
+
+#### Callers
+
+- **Nothing breaks.** Both components are new and `Popover`'s `side` defaults
+  to what it did before.
+- **Peek's `ReactionPicker` becomes a three-line wrapper** holding
+  `REACTION_EMOJIS` and `REACTION_NAMES` — the vocabulary — and its hand-drawn
+  panel goes to the `Popover` it already needs (**B16**).
+- **Every hand-rolled strip of `IconButton`s becomes a `Toolbar`**: Ship's
+  reaction row, Peek's composer strip and the editor's formatting strip
+  (**B15**).
+
+### The review of stages 0 to 3 (2026-09-08)
+
+Everything the earlier stages built, read again and driven in a browser. The
+code was right; what was wrong was almost all in what the components *say* —
+to a screen reader, and on their own pages.
+
+#### Fixed
+
+- **A face said the wrong thing, everywhere one appears.** The initials are a
+  drawing of a name, and they were being read as text. Measured with the same
+  algorithm an app's own tests use:
+
+  | | Announced as | Now |
+  |---|---|---|
+  | a button holding a `Person` | "AD Ana Duarte" | "Ana Duarte" |
+  | the same, with a picture | "Ana Duarte Ana Duarte" | "Ana Duarte" |
+  | a `MenuItem` led by a face | "ADAna Duarte" | "Ana Duarte" |
+  | `PersonTrigger`, the row | "AD Ana Duarte" | "Ana Duarte" |
+  | `PersonTrigger`, `compact` | **"AD"** | "Ana Duarte" |
+  | `AvatarGroup` | "AD BC CD" | "Ana Duarte", "Ben Carter", … |
+
+  **`Avatar` is silent by default now** — almost every face in the suite sits
+  beside the name it belongs to, and a picture that spoke there said the name
+  twice — and takes **`label`** to name a face that stands on its own.
+  `PersonTrigger`'s compact shape takes its own name from the person, so the
+  icon-only control that owed a name no longer owes one; a caller can still
+  name what it *opens* instead, as `IdentityMenu` does.
+
+- **The compact `PersonTrigger` had no visible focus at all.** It carried
+  `focus:outline-none` with nothing put in its place — measured `outline:
+  solid 2px rgba(0,0,0,0)`, no shadow — on the account trigger in Peek's top
+  bar. It wears the ring `Button`, `IconButton` and a `Tab` already wear.
+
+- **`Field`'s `required` drew the asterisk and told nobody.** The control
+  carried neither `required` nor `aria-required`, so the one thing the mark
+  means never reached a reader who could not see it. The Field marks the
+  control itself (`aria-required`, not the native attribute, which would also
+  switch on a validation bubble no app here uses). It reaches **every control
+  the package offers**: `Select`, `ChipInput` and `Checkbox` take fixed prop
+  lists and dropped it silently until each was told.
+
+- **A `Tabs` row could not be named.** Its `tablist` had no name and no way to
+  give one, so two rows on a page were announced as two identical "tab
+  lists". `aria-label` / `aria-labelledby` now reach the list.
+
+- **`EditableText` dropped a native `title` and an `aria-label` that was never
+  read.** The `title="Click to edit"` was the last browser tooltip in the
+  package — its own timing, its own look, no theme — beside an `aria-label`
+  that already said it. The read-only branch's `aria-label` sat on a bare
+  `<div>`, which ARIA does not let an author name.
+
+#### Added
+
+- **`Rail` has a page and stories**, which it never had while being a public
+  export: four canvases, and the two things a caller needs to know — it is a
+  `<nav>` landmark and owes a name where an app has two, and it deliberately
+  does not scroll.
+- **Tests for the two stage-3 components that had none.** `ConfirmDialog` (9):
+  the alert role, D20's backdrop that must not close it, Escape and the ✕ that
+  must, a refused action that keeps it open, and the buttons that wait.
+  `EditableText` (13): every sentence on its page, since Base UI supplies the
+  field and *nothing else* — Enter commits trimmed, Escape restores, blur
+  commits, an unchanged value is not committed, a refusal and a throw both
+  keep the text, and Shift+Enter is a new line only when multiline.
+- `Avatar.name.test.tsx` (10) — the table above, pinned.
+- The keyboard tests `Menu` never had, and `Field`'s `required` across all six
+  controls.
+
+#### Changed
+
+- `Field`'s label is merged with `cn()` like every other class list. It was a
+  template literal, under a comment saying the type token must never be merged
+  — which stopped being true when `cn()` was taught the ramp.
+- `PersonTrigger.mdx` no longer tells callers to swallow `mousedown`: `Menu`
+  owns its trigger since stage 4, and the trap that advice worked around is
+  gone with it.
+
+#### Callers
+
+- **Nothing to change, and two app tests get easier.** A query for a person's
+  name — Ship's `getByRole('button', { name: /Ana Duarte/ })` — matched the
+  old "AD Ana Duarte" only because it is a regular expression. An exact name
+  now works. Nothing in either app queries by `title` or by the initials
+  (**B12**).
+- A `Field` with `required` now marks its control, so an app test may assert
+  `aria-required` where it could not before. Nothing needs to.
+
+### Stage 4 — everything that floats (2026-09-07, reviewed 2026-09-08)
+
+Tooltip first, because it was in the way of everything else.
+
+#### Changed
+
+- **`Tooltip` and `WithTooltip` are Base UI's `Tooltip`.** The gap this
+  library had written down about itself is closed: **a tooltip shows on
+  keyboard focus**, not on hover alone. `Tooltip.mdx` said "it shows on hover
+  only — there is no focus or touch trigger" until today, which meant the
+  reason a disabled control gives — the whole point of `disabledReason` —
+  could not be read without a mouse. Gone with it: the `createPortal`, the
+  `getBoundingClientRect` arithmetic and the two clamps this file kept
+  against the viewport's edges. Floating UI places, flips and clamps it now,
+  and the measured geometry is unchanged — 6px from the trigger, centred on
+  it, 8px clear of every screen edge, flipped to the other side when that
+  edge is close.
+
+- **A tooltip waits 300ms, and a toolbar only pauses once** (Katerina, D23,
+  2026-09-07). It used to appear the instant the pointer arrived, which
+  flashed a pill per button when sweeping a row. Mount one
+  **`TooltipProvider`** (new export) at the top of an app and every tooltip
+  below it shares that delay: the first waits, the neighbours open as the
+  pointer reaches them while the group stays warm. Measured in Chrome: 325ms,
+  then 22ms, then 19ms across three buttons. Without the provider each
+  tooltip still waits its own 300ms — nothing breaks, the row simply pauses
+  on every button.
+
+- **It fades and moves** (Katerina, D26, 2026-09-07): 120ms in, 80ms out,
+  travelling 4px away from the trigger — from below when it stands above a
+  control, from above when it hangs beneath one. It had no animation at all,
+  and could not have had one: Base UI is what keeps the pill in the DOM until
+  the transition finishes. Moving between triggers inside a warm group skips
+  it, so a toolbar sweep does not flicker. `prefers-reduced-motion` removes
+  it.
+
+- **`Select` is Base UI's `Select`.** Deleted with the port: `createPortal`,
+  the whole `onKeyDown` switch, the outside-click, resize and page-scroll
+  listeners, the `aria-activedescendant` bookkeeping, the `scrollIntoView`
+  that kept the highlight visible, and the index this component counted to
+  know which option was active. **Not one pixel moved**: 187 of 190 stories
+  identical in signal and 188 of 190 in ship, the rest being Skeleton's
+  shimmer. The open list was measured by hand, since a closed trigger is all
+  a screenshot sees — 4px under the trigger, as wide as it, capped at 288px
+  and scrolling inside that; in a bottom-right corner it flips above the
+  trigger and slides left, still at its full height and fully on screen.
+
+  **It keeps opening below the trigger** (Katerina, D24). Base UI would
+  rather lay the list *over* it so the chosen option covers the trigger's
+  own text, the way macOS does; that is off, because all fourteen call
+  sites open below one today.
+
+  **Gained, and nothing here implements any of it: typeahead** — type the
+  first letters of an option and the list jumps to it — a highlight that is
+  one `data-highlighted` attribute for pointer and keyboard alike rather
+  than an index, and a value that can belong to a form.
+
+- **The `Menu` family is Base UI's `Menu`** — `Menu`, `MenuSub`, `MenuItem`,
+  `MenuSection`, and `IdentityMenu` with them. **The arrow keys walk the
+  rows**, which is the first thing a keyboard user notices and the thing the
+  page said did nothing: ↑ ↓ move and wrap, Home and End jump, typing a
+  row's first letters goes to it, → opens a submenu and ← closes it, and
+  focus moves into the menu on open and back to the trigger on close.
+
+  Deleted with the port: the `createPortal`, the `mousedown` listener on
+  `document`, the Escape listener beside it, the resize and scroll
+  listeners, the provisional hidden render the shell did in order to measure
+  itself, and `MenuSub`'s whole hand-rolled edge-flip. Measured against a
+  trigger: 4px below it, left edges flush.
+
+- **`IdentityMenu`'s arrow keys walk the actions only** (Katerina, D22),
+  measured: ↓ goes Edit your profile → Copy public key → Sign out → wraps,
+  stepping over the identity block, the workspace line and the notes. The
+  identity and workspace sections are `Menu.Group`s labelled by their
+  headings, so they are announced as named groups rather than as menu items
+  that are not items.
+
+- **BREAKING: `Menu` owns its trigger, and its three anchorings are gone.**
+  It takes `trigger` — the control itself, as an element — and is always
+  mounted; Base UI decides when it shows. `anchor`, `position`, `onClose`
+  and `closeOnLeave` are deleted with the code that needed them.
+
+  This is the standard rather than a preference (Katerina, 2026-09-08: *"if
+  your fixes are part of base ui, I would definitely be for using the
+  standards"*). **Five defects shared one root cause** — Base UI not knowing
+  which element opened the menu — and four of them had needed a hand-written
+  answer, each of which is now deleted:
+
+  - a press on the trigger stopped closing the menu. Base UI dismisses on a
+    **captured `pointerdown`**, which the old `onMouseDown` +
+    `stopPropagation` guard could not reach in the bubble phase — measured:
+    the identity menu could no longer be closed by clicking its own face;
+  - hovering a submenu row unmounted the whole menu (the `sibling-open`
+    special case);
+  - a hover menu shut itself coming back from a submenu (the
+    `data-estiva-menu` tagging, written and then deleted inside this stage);
+  - opening from the keyboard highlighted nothing;
+  - a hover menu could only be opened by a click.
+
+  **What a caller writes now is nothing**: no open state, no anchor, no
+  `onClose`, no `onMouseDown` guard. `Menu` takes `trigger`, and optionally
+  `openOnHover`, `open` / `onOpenChange` and `actionsRef`. Every call site is
+  a net deletion; the eight of them are listed under Callers.
+
+- **`IdentityMenu` anchors its panel to the trigger, not to the wrapper**, and
+  that was a live defect rather than a tidy-up. The wrapper's box is the app's
+  to lay out: in a flex row with the default `align-items: stretch` it takes
+  the row's full height and the panel hung from the bottom of *that* —
+  measured at **360px below the face** in a 420px row, with a scrollbar it
+  should not have had. Anchored to the button both go: 4px below, right edges
+  flush, standing at its full 380px. Peek already works around a cousin of
+  this with `className="flex"`.
+
+- **A hover menu no longer shuts itself when you come back from a submenu
+  row** — the defect Katerina reported in Peek, and older than this stage.
+  Moving between a row and its panel leaves the parent popup as far as the
+  DOM is concerned, so the shell's own 150ms leave timer started. It was
+  first patched here by tagging every box of one menu; that patch is deleted
+  and the answer is Base UI's, which owns the whole hover choreography
+  including the diagonal from a row out to its panel. Measured: `Move to…` →
+  the row below it keeps the parent open.
+
+- **`openOnHover` and `MenuSub` cannot be used together, and saying so is now
+  the component's job.** Measured 2026-09-08: enter a submenu's panel, then
+  leave in any direction that does not cross back over the parent, and
+  neither the submenu nor the menu ever closes again — at 200ms, 500ms, 1s
+  and 2s. Both triggers hard-code Floating UI's `safePolygon({
+  blockPointerEvents: true })`, which blocks pointer events while the path
+  from row to panel is live, and leaving that way never resolves the polygon.
+  There is no prop for it. So a `MenuSub` inside a hover-opened menu logs a
+  development-only error naming the fix — open the menu on a press — because
+  the failure is a menu that will not go away and its cause is two files
+  from where it shows. The two Peek menus this affects are in Callers.
+
+- **The menu popup takes `outline-none`.** Opened from the keyboard, Chrome
+  drew a ring around the **whole panel** (`outline: auto 1px`, measured),
+  which reads as “the menu is one thing” rather than “these rows are the
+  things”. The rows keep their own highlight. Exactly the fix `DialogShell`'s
+  card needed at stage 3, in a second place.
+- **A row outside a `Menu` no longer claims `role="menuitem"`.** ARIA requires
+  a `menuitem` to sit inside a `menu` or a `menubar`, and `MenuPanel` is a
+  `<div>` with no role — so the four Peek files that draw rows on a bare panel
+  were each telling a screen reader they held menu items of nothing. They are
+  plain buttons now, which is what they behave like. Those pickers are really
+  a listbox pattern; saying so properly belongs with `ChipInput` at stage 5,
+  and claiming the wrong role in the meantime is worse than claiming none.
+  Nothing queries the role outside a real menu — checked in both apps.
+- **`MenuItem` and `MenuSection` still work with no `Menu` around them.**
+  Peek's `@`, `/` and `[` pickers and its compose menu draw a bare
+  `MenuPanel`, because a popup inside a text editor cannot have a menu's
+  keyboard — the editor's suggestion plugin already owns it. A Base UI
+  `Menu.Item` outside a `Menu.Root` has no context to read, so those rows
+  stay the plain buttons they have always been and only rows inside a real
+  menu become the part. Four Peek files depend on this; it is pinned by
+  tests.
+
+- **A `MenuItem` is still a `<button>`.** Base UI's part draws a `<div>`;
+  `render` plus `nativeButton` keeps the element the design was drawn with.
+- **A Select's list follows its trigger when the page scrolls.** It used to
+  close, and had to: the list was `fixed` to where the trigger *had been*,
+  so closing was the only way it could avoid being left behind. It now
+  tracks, and disappears if the trigger scrolls out of sight rather than
+  floating over whatever has scrolled into its place. The list's own scroll
+  never dismissed it and still does not.
+- **`Button` and `IconButton` no longer wrap themselves to carry a tooltip.**
+  The button *is* the trigger, so the component's root is the `<button>`.
+  This was the loose end stage 3 finished on: an `IconButton` with a
+  `tooltip` returned `WithTooltip`'s wrapper `<div>` as its root, so a
+  `Dialog.Close` or a `Menu.Trigger` composed onto the wrapper and not the
+  button. **Measured consequence, and it is a fix rather than a cost:** with
+  the wrapper gone an IconButton that carries a tooltip sits at exactly the
+  same height as one that does not. It used to sit **1px higher** — the
+  wrapper was `inline-flex`, which takes its baseline from its first flex
+  item rather than from its own last line box. Inside a flex row, which is
+  where both apps put them, the wrapper never made a difference and nothing
+  moves. The two IconButton stories are the whole of this stage's screenshot
+  diff.
+
+- **A disabled control with a `disabledReason` keeps its pointer events.** It
+  had `pointer-events-none`, which was harmless while the wrapper caught the
+  hover and fatal once the button became the trigger — a trigger the pointer
+  cannot land on never opens a tooltip. Base UI already swallows the click
+  (`focusableWhenDisabled` gives `aria-disabled` and a prevented `onClick`),
+  so nothing else needed it. A plainly disabled control, with no reason to
+  give, keeps `pointer-events-none` as before.
+
+- **`DialogShell`'s ✕ is a `Dialog.Close`**, which is what the wrapper was
+  blocking. The dialog now closes through its own state machine whichever way
+  it is closed — the ✕, Escape, a press outside — instead of one of the three
+  going around it, and Base UI reports which.
+
+#### Added
+
+- **`TooltipProvider`** — one shared delay for every tooltip below it. See
+  above; an app mounts one at its root.
+- `Tooltip` takes the props of the `<div>` it renders, so it can be what
+  `Tooltip.Popup` renders and stay the single definition of the pill.
+- `Tooltip.test.tsx`, which the component never had: 14 tests pinning what
+  the page claims, including the two exits it now has (Escape, and a click on
+  the trigger) and the focus behaviour that replaced the stated gap.
+- A **toolbar** story, where the shared delay is visible.
+- **`Popover`** — a floating panel from a trigger: the same elevated surface
+  a `Menu` draws, with none of a menu's semantics. **It exists because
+  `Menu` was being used for this.** Peek's selection toolbar puts a text
+  field inside one and its debug panel fills one with toggle rows; since the
+  menus moved onto Base UI a `Menu` gives its contents roving focus and
+  typeahead, which is wrong for both and would fight the field outright.
+  Beyond those two it is what Peek's thirteen hand-written overlays become
+  (`COMPONENTS-PEEK.md` F5).
+
+  **The API is `Menu`'s, deliberately**: it takes the `trigger` and owns
+  everything after — the toggle, the placement, the dismissal and the focus
+  return. What differs is inside: it announces itself as a dialog, Tab walks
+  its contents in order, and **focus lands on the first thing in the panel**,
+  which is the whole point. Measured in Chrome: 4px under its trigger, the
+  field focused on open, Tab going field → Cancel → Save, Escape closing it
+  and giving focus back to the trigger, a second press of the trigger closing
+  it rather than closing and reopening it, and **zero** elements with a menu
+  role anywhere in the panel.
+
+  Plus the one mode a `Menu` has no use for: **a panel with no trigger element
+  at all**, hung from a rect the caller measured — a toolbar over a text
+  selection, which is not a control and cannot be one. That mode is
+  controlled, because there is nothing for Base UI to watch, and **it does not
+  take focus**: the person is still in the text, and a toolbar that moved the
+  caret out of it would end the edit it exists to serve. Measured with focus
+  moved in, before that was decided: the first control's tooltip opened on
+  `:focus-visible` and ate the Escape that should have closed the panel, and
+  the caller's re-read of the selection fought the panel's own dismissal —
+  both intermittently. Neither happens with focus left alone. **The cost is
+  stated on the page**: an anchored panel cannot be reached by keyboard, so
+  what is in one must be reachable another way.
+
+- **`PreviewCard`** — more of a thing, on hover. **It exists because Peek's
+  Screener preview is this, hand-written**: its own `createPortal`, its own
+  "prefer the right, flip left if it would run off screen" arithmetic
+  against `window.innerWidth`, and its own clamp against the bottom edge.
+  Measured against the same numbers: it opens 12px to the right of the row,
+  360px wide, and flips when that side has no room.
+
+  It opens 350ms after the pointer rests and closes 200ms after it leaves —
+  long enough not to flash a card at every row while crossing a list, and
+  long enough to cross the gap into the card. **`content` renders only while
+  the card is open**, so a preview that fetches does not fetch once per row
+  on screen. Not a tooltip: a tooltip is a word for a control and cannot be
+  pointed at; this holds content and can.
+
+- Both draw `MenuPanel`, so the elevated box still has one definition — and
+  both have a page, stories and tests of their own (`Popover.test.tsx`, 9;
+  `PreviewCard.test.tsx`, 4).
+- `Menu.test.tsx`, which the shell never had: 19 tests, including the whole
+  Keys table — the arrow keys and their wrap, Home and End, the typeahead,
+  and → opening a submenu onto its first row — the rows working on a bare
+  `MenuPanel`, and the trigger press that must not reopen the menu.
+- Menu stories: **`FromATrigger`** (the live menu, its submenu and the whole
+  keyboard), **`InFlow`** (the anchoring two app callers use and no story
+  covered), and `IdentityMenu`'s **`FromItsTrigger`**.
+- `Select.test.tsx`, which the component never had: 11 tests for what the
+  page claims, including the typeahead it just gained and the two
+  assertions Ship makes on it, repeated here so a break shows up in this
+  repository rather than in Ship's adoption PR.
+
+#### Removed
+
+- **`clampBox` and `fitSubmenu`, and all three geometry helpers stop being
+  exported.** Floating UI places every floating surface now, so nothing
+  calls the first two. **`fitMenu` survives, for one caller: `ChipInput`**,
+  whose suggestion list is still hand-placed — so `fit.ts` is *not* deleted
+  at this stage, and `PLAN.md` §6 was wrong to say it could be. It had four
+  callers, not three. It goes at stage 5 with `ChipInput`.
+  `Menu.fit.test.ts` becomes `fit.test.ts`, keeping the `fitMenu` cases as
+  `ChipInput` uses them and dropping the rest.
+- **`Select.fit.test.ts`** — eight assertions about the pure geometry this
+  component grew and then shared with the Menu shell. The geometry is
+  Floating UI's now, so there is nothing of ours left to assert. What it
+  covered is measured in a browser instead, because jsdom lays nothing out:
+  a jsdom test claiming to check placement checks nothing. (`fit.ts` itself
+  goes when the Menu shell follows.)
+- **`Menu`'s `anchor`, `position`, `onClose` and `closeOnLeave` props.** See
+  the breaking entry above. Every one of them existed because the caller
+  owned the open state; the trigger does now.
+
+#### Callers
+
+**This release breaks every `Menu` call site**, and each one shrinks. The
+eight are read from the two apps, not estimated:
+
+| File | Today | After |
+|---|---|---|
+| Peek `ConversationMoreMenu` | in-flow, `onClose` | `trigger` |
+| Peek `HuddleCard` | `anchor`, `align`, `closeOnLeave`, `onClose` | `trigger`, `align` |
+| Peek `ThreadReplyCard` | `anchor`, `align`, `closeOnLeave`, `onClose` | `trigger`, `align` |
+| Peek `ScreenerLaterMenu` | `position` from a measured rect, `onClose` | `trigger` |
+| Peek `TopicMoreMenu` (`ConversationHeader`, `PersonRow`) | `position`, `onClose` | `trigger` |
+| Peek `SelectionToolbar` | `position`, `onClose` | **`Popover`**, anchored to the selection (P26) |
+| Peek `DebugMenu` | `position` from `window.innerWidth`, `onClose` | **`Popover`** with a `trigger` (P26) |
+| Ship `ConversationThread` | in-flow, `onClose` | `trigger` |
+
+Each also deletes its `open` state, its `getBoundingClientRect()` call and
+the `onMouseDown` + `stopPropagation` guard beside its trigger — those
+guards are dead code now, and were already failing against Base UI's
+captured `pointerdown`. **`ADOPTION.md` B9** is the row.
+
+- **`openOnHover` must come off any menu that has a `MenuSub`** until Base UI
+  offers a way through `safePolygon`. Both Peek menus that use it have one:
+  `ConversationMoreMenu` and `ThreadReplyCard`. They open on a press instead;
+  the component logs a development error if they do not (**B10**).
+- Mount a `TooltipProvider` at each app's root, or tooltips pause one per
+  button instead of once per row (**B6**).
+- **A Select's trigger is a `combobox`, not a `button`** — the correct ARIA
+  pattern for the control, and Base UI's doing. No product code changes;
+  **sixteen test assertions do**, read from the two apps rather than
+  guessed: Ship's `App.test.tsx` (5), `components/ui/ui.test.tsx` (3),
+  `components/dialogs.test.tsx` (2) and `components/rails.test.tsx` (1),
+  and Peek's `components/ui/ForeignObjectWidget.test.tsx` (5). Each is a
+  `getByRole('button', { name: … })` on a Select trigger and becomes
+  `getByRole('combobox', …)`. Peek already has one
+  `queryByRole('combobox')` assertion, and it still holds (**B8**).
+- Nothing is written to get the 300ms wait, the fade or the focus
+  behaviour — they arrive with the release (**B7**).
+- `peek/src/components/ui/WithTooltip.tsx` re-exports the package's and needs
+  no edit.
+
+### Stage 3 — forms and dialogs (2026-09-07)
+
+Six components onto Base UI, and the one gap this library had written down
+about itself is closed: **dialogs trap focus and give it back**.
+
+#### Changed
+
+- **`DialogShell` is Base UI's `Dialog`.** Focus is trapped inside the card
+  and returns to whatever opened it when it closes; the rest of the page is
+  marked `inert` while it is open. `DialogShell.mdx` said "focus is not
+  trapped or moved" until today — that sentence was true, and it is why this
+  stage exists. The portal, the backdrop, the outside press and Escape are
+  Base UI's now, so the `keydown` listener this component kept on `document`
+  is gone. **The DOM shape is unchanged on purpose** — backdrop, then a
+  full-screen flex layer centring the card — because Base UI positions
+  nothing for a dialog and keeping the layer is what keeps the pixels.
+
+  New prop **`alert`**: a press on the backdrop stops closing it, and the
+  card announces itself as `role="alertdialog"`. Escape and the ✕ still
+  close it.
+
+- **`ConfirmDialog` is Base UI's `AlertDialog`**, through that prop.
+  **A press on the backdrop no longer cancels it** (Katerina, D20,
+  2026-09-07): a destructive question is answered rather than clicked away.
+  This is the one behaviour stage 3 changes deliberately, and the only one a
+  person can notice without a keyboard. No caller changes.
+
+- **`Field` is Base UI's `Field`.** The label names the control by
+  construction, for its own `Input` and `Checkbox`, for our `TextInput`,
+  `Textarea` and `SearchInput`, and for anything rendered through
+  `Field.Control`. Two behaviours reversed and both are improvements:
+  **an `id` set on the control is now kept** and the label follows it
+  (the Field used to override it), and **a control rendered outside a Field
+  now carries a generated id of its own** (it used to carry none). The id is
+  inert — nothing points at it — and neither app asserts on its absence.
+
+- **`TextInput` and `SearchInput` render Base UI's `Input`;
+  `Textarea` and `EditableText`'s multiline state render `Field.Control`
+  as a `<textarea>`.** Class lists verbatim. `EditableText`'s read state,
+  its draft, and every rule about when a commit happens stay ours — Base UI
+  has no opinion about what an edit means.
+
+- **`Banner` takes an optional `onDismiss`** (Katerina, D21): an ✕ at the
+  right-hand end, with `dismissLabel` naming it. Without it the strip is
+  byte-for-byte what it was. With it the row is 40px rather than 36px,
+  because the button is taller than the line of text.
+
+#### Added
+
+- **`Button` and `IconButton` accept a `ref`.** They typed their props as
+  `ButtonHTMLAttributes`, which has no `ref`, so a caller could not take one
+  — and a Base UI part composes through `render`, which needs one. React 19
+  already handed `ref` to a function component as an ordinary prop, so it was
+  riding in on the spread and reaching the element all along; **the type was
+  the only thing stopping anyone**. `PersonTrigger` already had it.
+
+  This is stage 4’s prerequisite, done early at Katerina’s asking: a
+  `Menu.Trigger` or a `Dialog.Close` **is** one of these buttons rather than
+  wrapping one. Both compositions are pinned in `Button.compose.test.tsx`.
+
+  **One thing it does not yet unlock**, and it was measured rather than
+  assumed: `DialogShell`’s ✕ still calls `onClose` by hand rather than being
+  a `Dialog.Close`. An `IconButton` with a `tooltip` returns `WithTooltip`’s
+  wrapper `<div>` as its root, so the part would compose onto the wrapper and
+  not the button. **It needs `WithTooltip` on Base UI’s `Tooltip` first**,
+  which is stage 4.
+
+- **`Field` gains `helper` and `error`.** The line under the control, which
+  Ship built by hand in two dialogs (`COMPONENTS-SHIP.md` F14) and Peek in
+  four (`COMPONENTS-PEEK.md` F14) — always the same two class lists, and
+  never announced. An error **replaces** the helper rather than joining it,
+  which is what those callers did, and setting it marks the control invalid,
+  so a caller no longer passes `aria-invalid` beside it.
+
+- **`glow-accent` and `glow-success` are box shadows as well as drop
+  shadows** (`shadow-glow-accent`, `shadow-glow-success`). They arrived as
+  `dropShadow` only, for D16's icon glows; a glow on a *surface* is a box
+  shadow, and Peek's composer had been writing its send button's as an
+  arbitrary value for want of the utility (`ADOPTION.md` P22). `cn()` knows
+  both, and `cn.test.ts` pins the pair to the preset.
+
+#### Removed
+
+- **`Field`'s `htmlFor` prop is gone.** It existed to name the generated id
+  from outside, and there is no generated id to name any more: an `id` set on
+  the control is kept, and the label follows it, which is the same job done
+  from the side that can actually see the control. **Callers affected: none**
+  — the only use was this package's own test.
+
+- **`useFieldControlId` is gone.** It was the opt-in every control had to
+  call to be named by a surrounding `Field`, and Base UI does that job now.
+  **Callers affected: none** — read from both apps on 2026-09-07, nothing
+  outside this package ever imported it. It was exported, so this is a
+  breaking change on paper; a consumer with a control of its own should
+  render it through `Field.Control` instead.
+
+#### Callers
+
+- **Ship**: `NewProjectDialog` and `PairFolderDialog` can drop their
+  hand-built helper and error lines — the `flex flex-col gap-1.5` wrapper,
+  the `text-caption` span and the `aria-invalid` they pass — for `helper`
+  and `error` (`ADOPTION.md` S7). Nothing forces it; the old markup still
+  renders.
+- **Peek**: the same in `MembersDialog`, `TopicDetailsDialog` and
+  `TopicProjectPanel` (`ADOPTION.md` P16), and `ComposeBox`'s send button
+  can trade `signal:shadow-[shadow:var(--glow-accent)]` for
+  `signal:shadow-glow-accent` (P22).
+- **Both**: any `ConfirmDialog` stops closing on a backdrop press. Nothing
+  to change; worth knowing before someone reports it.
+
 ## 0.9.0 — 2026-09-07
 
 ### Added

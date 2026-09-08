@@ -28,7 +28,7 @@ const FONT_SIZE_TOKENS = [
  * `shadow-glow-warning` beside `shadow-md` kept both (measured 2026-09-06).
  * `cn.test.ts` pins these to the preset too.
  */
-const BOX_SHADOW_TOKENS = ['sm', 'md', 'lg', 'focus-ring', 'glow-warning', 'highlight-inset']
+const BOX_SHADOW_TOKENS = ['sm', 'md', 'lg', 'focus-ring', 'glow-warning', 'glow-success', 'glow-accent', 'highlight-inset']
 const DROP_SHADOW_TOKENS = ['glow-success', 'glow-accent']
 
 const twMerge = extendTailwindMerge({

@@ -44,7 +44,26 @@ import { ConfirmDialog } from '@estiva-app/ui'
 - While `onConfirm` runs, both buttons wait. Resolving `false` keeps the
   dialog open — your surface has said why; a resolved `void`/`true`
   closes it.
-- Escape and the backdrop click cancel, via the shell.
+- **Escape cancels; a press on the backdrop does not.** This is Base UI's
+  `AlertDialog`, through the shell's `alert` (Katerina, D20, 2026-09-07): a
+  destructive question is answered rather than clicked away. The backdrop
+  used to cancel, and that is the one behaviour stage 3 deliberately changed.
+- It announces itself as an alert (`role="alertdialog"`), so a screen reader
+  reads the question on arrival instead of waiting to be asked.
+- Focus is trapped in the card and returns to whatever opened it, as for
+  every dialog since stage 3.
+
+## Keys
+
+Different from `DialogShell`'s in one row, and it is the row that matters.
+
+| Input | What happens |
+|---|---|
+| Escape | cancels |
+| backdrop click | **nothing** — the question has to be answered (D20) |
+| close button | cancels |
+| Tab / Shift+Tab | cycles the controls inside the card, and cannot leave it |
+| on close | focus returns to whatever opened it |
 
 ## Props
 

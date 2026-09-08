@@ -28,8 +28,12 @@ import { Textarea } from '@estiva-app/ui'
 ```
 
 - Resizing is off by design — size it with `rows` or your layout.
-- Native `<textarea>` with a ref; every native prop passes through; give
-  it an accessible name.
+- Native `<textarea>` with a ref; every native prop passes through. It is
+  Base UI's `Field.Control` told to render a textarea since stage 3 — the
+  part `Input` is built on — because Base UI has an `Input` and no
+  textarea.
+- **Inside a `Field`, the label names it. Add nothing.** Outside one, give
+  it an `aria-label`.
 
 ## Props
 

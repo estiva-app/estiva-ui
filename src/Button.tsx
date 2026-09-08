@@ -1,7 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
-import { WithTooltip } from './Tooltip'
+import { TooltipTrigger } from './Tooltip'
 
 /**
  * Peek's Button (2026-08-28), verbatim, plus what Ship added and Peek should
@@ -26,7 +26,17 @@ import { WithTooltip } from './Tooltip'
 export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive'
 export type ButtonSize = 'default' | 'small'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+/**
+ * `ComponentPropsWithRef`, not `ButtonHTMLAttributes`, so a `ref` reaches the
+ * element. React 19 passes `ref` to a function component as an ordinary prop,
+ * so nothing here forwards it by hand — it rides in on the spread below. What
+ * was missing was only the *type* saying so, which is enough to stop a caller.
+ *
+ * It matters because a Base UI part composes through `render`: at stage 4 a
+ * `Menu.Trigger` or a `Dialog.Close` **is** this Button rather than wrapping
+ * one, and a trigger that cannot be measured or focused is not a trigger.
+ */
+export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: ButtonVariant
   size?: ButtonSize
   /** 16px, stroke 1.5 on the default size; 14px on small. */
@@ -66,7 +76,13 @@ export function Button({
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
-          state.disabled && 'bg-bg-disabled text-text-disabled pointer-events-none',
+          state.disabled && 'bg-bg-disabled text-text-disabled',
+          // `pointer-events-none` only where the button is truly out of reach.
+          // With a `disabledReason` the button IS the tooltip's trigger, and a
+          // trigger the pointer cannot land on never opens one — Base UI already
+          // swallows the click (`focusableWhenDisabled` gives `aria-disabled`
+          // and a prevented `onClick`), so nothing else needs it.
+          state.disabled && !disabledReason && 'pointer-events-none',
           state.disabled && variant === 'outlined' && 'border border-border-default',
           className,
         )
@@ -77,5 +93,5 @@ export function Button({
       {children}
     </BaseButton>
   )
-  return disabledReason ? <WithTooltip label={disabledReason}>{button}</WithTooltip> : button
+  return disabledReason ? <TooltipTrigger label={disabledReason}>{button}</TooltipTrigger> : button
 }

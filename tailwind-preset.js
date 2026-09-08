@@ -169,7 +169,14 @@ export default {
         // glow. Every theme defines it; the shared inputs use it under `signal:`.
         'focus-ring': 'var(--focus-ring)',
         // Signal's glow and inner highlight (D16); the components use them under `signal:`.
+        // All three glows are here as box shadows, and the two below are also
+        // drop shadows: a glow on a surface is a box shadow, a glow on an icon
+        // is a filter that follows its shape. Peek's composer wrote its send
+        // button's glow as an arbitrary value for want of this one
+        // (ADOPTION P22).
         'glow-warning':    'var(--glow-warning)',
+        'glow-success':    'var(--glow-success)',
+        'glow-accent':     'var(--glow-accent)',
         'highlight-inset': 'var(--highlight-inset)',
       },
       dropShadow: {

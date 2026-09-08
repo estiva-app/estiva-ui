@@ -6,8 +6,7 @@ import * as TooltipStories from './Tooltip.stories'
 # Tooltip
 
 A 30px elevated pill with a caption, and **WithTooltip**, the wrapper that
-shows it above or below a trigger on hover — portalled, fixed to the
-viewport, kept 8px inside its edges.
+shows it beside a trigger — on hover, and on keyboard focus.
 
 <Canvas of={TooltipStories.OnHoverTop} />
 
@@ -32,7 +31,7 @@ viewport, kept 8px inside its edges.
 - Anything the person must read to proceed → put it in the surface, not
   behind a hover.
 - Anything interactive inside → **Menu** or **DialogShell**; a tooltip is
-  `pointer-events: none` by design.
+  `pointer-events: none` by design and cannot be pointed at.
 
 ## How
 
@@ -48,12 +47,51 @@ import { WithTooltip } from '@estiva-app/ui'
   shrinks nothing, so a wrapped block collapses to its content width.
 - A truncating label keeps truncating if you pass
   `wrapperClassName="min-w-0 shrink"`.
-- It shows on **hover only** — there is no focus or touch trigger. Don't
-  put anything behind it that a keyboard user must reach.
+- **`Button` and `IconButton` need no wrapper**: pass `tooltip` (or
+  `disabledReason`) and the button itself becomes the trigger. That is what
+  lets a `Dialog.Close` or a `Menu.Trigger` be one of them — the component's
+  root is the `<button>`, with nothing in between.
 - `shortcut` renders, it does not format. A modifier is called Cmd on Apple
   platforms and Ctrl elsewhere, and only the caller knows which it is
   looking at — so pass the finished label. `IconButton` forwards its own
   `tooltipShortcut` here.
+
+### The delay, and why a toolbar only pauses once
+
+A tooltip waits **300ms** before it opens. Mount **one `TooltipProvider` at
+the top of the app** and every tooltip below it shares that delay: the first
+waits, and while the group stays warm the neighbours open as the pointer
+arrives — so reading along a row of icon buttons is one pause, not one per
+button. Without the provider nothing breaks; each simply waits its own 300ms.
+
+```tsx
+import { TooltipProvider } from '@estiva-app/ui'
+
+<TooltipProvider>
+  <App />
+</TooltipProvider>
+```
+
+<Canvas of={TooltipStories.InAToolbar} />
+
+### The motion
+
+It fades in over **120ms** and travels **4px** away from the trigger — up
+from below when it stands above a control, down from above when it hangs
+beneath one — and fades out over **80ms**. Moving between triggers inside a
+warm group skips the animation entirely, so a toolbar sweep does not flicker.
+`prefers-reduced-motion` removes it.
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| pointer rests on the trigger | opens after 300ms — instantly if a neighbour's tooltip was just up |
+| pointer leaves | closes |
+| Tab onto the control | opens, with no delay |
+| Tab away | closes |
+| Escape while it is up | closes |
+| a click on the trigger | closes it — the tooltip has said its piece |
 
 ## Props
 

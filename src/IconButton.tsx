@@ -1,7 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
-import { WithTooltip } from './Tooltip'
+import { TooltipTrigger } from './Tooltip'
 
 /**
  * Peek's IconButton (2026-08-28), verbatim: a square 4px-padded button
@@ -15,7 +15,8 @@ import { WithTooltip } from './Tooltip'
  */
 export type IconButtonVariant = 'muted' | 'outlined' | 'primary'
 
-export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+/** `ComponentPropsWithRef` so a `ref` reaches the element — see Button. */
+export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
   variant?: IconButtonVariant
   tooltip?: string
   /** A key hint drawn as the `Kbd` chip inside the tooltip — for a button
@@ -55,7 +56,12 @@ export function IconButton({
           state.disabled && variant === 'primary' && 'bg-bg-disabled text-text-disabled',
           state.disabled && variant === 'muted' && 'text-text-disabled',
           state.disabled && variant === 'outlined' && 'border border-border-default text-text-disabled',
-          state.disabled && 'pointer-events-none cursor-not-allowed',
+          // `pointer-events-none` only where the button is truly out of reach:
+          // with a `disabledReason` the button IS the tooltip's trigger, and a
+          // trigger the pointer cannot land on never opens one. Base UI already
+          // swallows the click.
+          state.disabled && !disabledReason && 'pointer-events-none',
+          state.disabled && 'cursor-not-allowed',
           className,
         )
       }
@@ -68,9 +74,9 @@ export function IconButton({
   const label = disabledReason ?? tooltip
   if (label) {
     return (
-      <WithTooltip label={label} shortcut={disabledReason ? undefined : tooltipShortcut} placement={tooltipPlacement}>
+      <TooltipTrigger label={label} shortcut={disabledReason ? undefined : tooltipShortcut} placement={tooltipPlacement}>
         {button}
-      </WithTooltip>
+      </TooltipTrigger>
     )
   }
   return button

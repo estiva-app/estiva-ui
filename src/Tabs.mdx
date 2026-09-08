@@ -49,6 +49,11 @@ import { Tabs } from '@estiva-app/ui'
   Wiring the panels — what shows for the active tab — is the caller's.
 - `className` lands on the outer box, around the row.
 
+- **Name the row** with `aria-label` where an app has more than one, or where
+  a screen reader would otherwise announce two "tab lists". A visible heading
+  that already names it takes `aria-labelledby` instead. Unnamed is fine for
+  the only tab row on a page.
+
 ## Keys
 
 | Key | Does |

@@ -23,7 +23,10 @@ footer for the buttons. A dialog is just what goes in the three slots.
 
 - A short list of verbs from a trigger → **Menu**.
 - "Are you sure?" → **ConfirmDialog** — it is this shell with the question
-  already wired.
+  already wired, and it is the *only* thing that uses `alert`. There is no
+  `alert` story here, on purpose: any example of it would be a confirmation
+  dialog rebuilt by hand, which is the one thing this bullet exists to stop.
+  Its canvases and its nine tests are on that page.
 - Telling someone what happened → **Toast**.
 
 ## How
@@ -52,16 +55,27 @@ import { DialogShell, Button } from '@estiva-app/ui'
   with `overflow-y-auto` for long lists). Rows in a height-capped flex
   body need `shrink-0`, or overflow crushes them.
 - The card names itself to assistive tech (`role="dialog"`, labelled by
-  `title`). Focus is not trapped or moved — give the first field
-  `autoFocus` where typing is the point.
+  its header — or by `title` when `headerContent` replaces that text).
+- **Focus is trapped and returned.** Tab cannot leave the card, and closing
+  puts focus back on whatever opened the dialog. This page said the opposite
+  until stage 3; it is Base UI's now, and pinned by `DialogShell.test.tsx`.
+  The rest of the page is marked `inert` while it is open, so a screen
+  reader cannot wander out either. `autoFocus` on the first field is still
+  worth setting where typing is the point — the trap decides where focus
+  *cannot* go, not where it starts.
+- `alert` for a question that has to be answered: a press on the backdrop
+  stops closing it (Katerina, D20). Escape and the ✕ still do.
+  `ConfirmDialog` sets it; a form or a roster should not.
 
 ## Keys
 
 | Input | What happens |
 |---|---|
 | Escape | closes |
-| backdrop click | closes |
+| backdrop click | closes — **except with `alert`, where nothing happens** |
 | close button | closes (it is an IconButton with its label) |
+| Tab / Shift+Tab | cycles the controls inside the card, and cannot leave it |
+| on close | focus returns to whatever opened the dialog |
 
 ## Props
 

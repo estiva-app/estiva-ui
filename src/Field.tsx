@@ -1,78 +1,106 @@
-import { createContext, useContext, useId, type ReactNode } from 'react'
-
-/**
- * The id of the control this Field labels.
- *
- * **A control has to opt in by calling `useFieldControlId`.** The automatic
- * alternative is nesting the control inside the `<label>`, which associates
- * anything by construction and needs no cooperation — and it is not used here,
- * because a control that is *both* nested in a label and named by its `htmlFor`
- * can receive two activations from one click. That is a real hazard for a
- * checkbox and a latent one for everything else, and this library has a
- * `Checkbox`.
- *
- * So: one explicit mechanism, and a test that pins it for every primitive that
- * uses it (`Field.test.tsx`). A new primitive that renders a labelable element
- * calls this hook and spreads the result; one that does not is unlabelled, and
- * the test is where that gets noticed.
- */
-const FieldControlIdContext = createContext<string | undefined>(undefined)
-
-/**
- * The id a surrounding `Field` wants this control to have, falling back to the
- * caller's own outside one.
- *
- * **Inside a Field, the Field wins**, which is the opposite of what I wrote
- * first and the test caught within the minute. Letting a control's own `id`
- * take precedence leaves the label's `htmlFor` pointing at the id the Field
- * generated and the control answering to a different one — which is this
- * ticket's defect exactly, reproduced by the fix for it, and it fails with the
- * same message: *"Found a label with the text of: Title, however no form
- * control was found associated to that label."*
- *
- * A caller who needs to choose the id names it on the Field (`htmlFor`), which
- * is the one place that can set both halves. Outside a Field there is nothing
- * to disagree with, so the caller's id is used.
- */
-export function useFieldControlId(ownId?: string): string | undefined {
-  const fromField = useContext(FieldControlIdContext)
-  return fromField ?? ownId
-}
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
+import { Field as BaseField } from '@base-ui/react/field'
+import { cn } from './cn'
 
 /**
  * Peek's Field (2026-08-28): a label over a control, 8px apart, with a red
- * asterisk when required. The label is the `input-label` type token as a plain
- * class, never merged.
+ * asterisk when required. The label is the `input-label` type token, merged
+ * with `cn()` like every other class list here. On Base UI's `Field` since
+ * stage 3 of the migration (2026-09-07).
  *
- * The label names its control (SHA-17). It did not, and the control was a
+ * The label names its control. It did not once, and the control was a
  * *sibling* of the label with no `htmlFor`, so there was neither an explicit
  * nor an implicit association: a screen reader announced an unlabelled edit
- * box and clicking the label focused nothing.
+ * box and clicking the label focused nothing (SHA-17). That fix used to be
+ * ours — a context carrying a generated id, which every control had to opt
+ * into by calling `useFieldControlId`. **Base UI does it now**, for its own
+ * `Input`, `Checkbox`, `Select` and anything rendered through `Field.Control`,
+ * so a new control is labelled by construction rather than by remembering.
+ *
+ * `helper` and `error` are the line under the control, which Ship built by
+ * hand in two dialogs (`COMPONENTS-SHIP.md` F14) and Peek in four
+ * (`COMPONENTS-PEEK.md` F14), always the same two class lists. **An error
+ * replaces the helper rather than joining it** — that is what those callers
+ * did (`pairError ?? 'Leave empty and…'`), and a field that says both at once
+ * is asking the reader to work out which one is live.
+ *
+ * The line is announced: Base UI wires `aria-describedby` for the helper and
+ * `aria-invalid` + the error's id for the error, which the hand-built spans
+ * never did.
+ *
+ * `required` is announced too, since 2026-09-08. It drew the asterisk and
+ * nothing else — measured, the control carried neither `required` nor
+ * `aria-required`, so the one thing the mark means never reached anybody who
+ * could not see it. Base UI's `Field` has no `required` of its own, so this
+ * puts `aria-required` on the control itself.
  */
 export interface FieldProps {
   label: string
+  /**
+   * Draws the asterisk **and** marks the control `aria-required`, so the mark
+   * means something to a reader who cannot see it. It reaches a single control
+   * element; a `children` of several elements keeps the asterisk and owes its
+   * own `aria-required`.
+   */
   required?: boolean
   /**
-   * Override the generated id. Only needed when something outside has to name
-   * the control — an `aria-describedby` elsewhere, or a form library.
+   * A hint under the control — what the format is, what happens if it is left
+   * empty. `caption`, muted. Hidden while `error` is set.
    */
-  htmlFor?: string
+  helper?: string
+  /**
+   * What is wrong, in the same place as the helper and in the error colour.
+   * Setting it also marks the control invalid, so the caller no longer passes
+   * `aria-invalid` itself.
+   */
+  error?: string
   children: ReactNode
 }
 
-export function Field({ label, required = false, htmlFor, children }: FieldProps) {
-  const generated = useId()
-  const id = htmlFor ?? generated
+export function Field({ label, required = false, helper, error, children }: FieldProps) {
+  const line = error ?? helper
+  /*
+    The asterisk is a picture of `required`; this is the word for it. Base UI's
+    `Field` has no `required` to propagate, so the control is marked here —
+    `aria-required` rather than the native attribute, because the native one
+    also switches on the browser's own validation bubble, which no field in
+    either app uses. A control that already says so keeps what it says.
+  */
+  const control =
+    required && isValidElement(children)
+      ? cloneElement(children as ReactElement<{ 'aria-required'?: boolean | 'true' | 'false' }>, {
+          'aria-required': (children as ReactElement<{ 'aria-required'?: boolean | 'true' | 'false' }>).props['aria-required'] ?? true,
+        })
+      : children
   return (
-    <div className="flex flex-col gap-2">
-      <label
-        htmlFor={id}
-        className={`text-input-label text-text-primary${required ? ' flex items-center' : ''}`}
-      >
+    <BaseField.Root invalid={!!error} className="flex flex-col gap-2">
+      {/* `cn`, like everywhere else. It was a template literal, with a comment
+          saying the type token must never be merged — which stopped being true
+          when `cn()` was taught the ramp: `input-label` is in it, and
+          `cn.test.ts` pins that. */}
+      <BaseField.Label className={cn('text-input-label text-text-primary', required && 'flex items-center')}>
         {label}
         {required && <span className="text-error-default ml-0.5">*</span>}
-      </label>
-      <FieldControlIdContext.Provider value={id}>{children}</FieldControlIdContext.Provider>
-    </div>
+      </BaseField.Label>
+      {/*
+        No line, no wrapper: every caller that predates `helper` and `error`
+        keeps the exact DOM it had, so the port cannot move a pixel. With a
+        line, this is the 6px stack Ship and Peek were both writing by hand.
+      */}
+      {line == null ? (
+        control
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          {control}
+          {error != null ? (
+            <BaseField.Error match className="text-caption text-error-default">
+              {error}
+            </BaseField.Error>
+          ) : (
+            <BaseField.Description className="text-caption text-text-muted">{helper}</BaseField.Description>
+          )}
+        </div>
+      )}
+    </BaseField.Root>
   )
 }

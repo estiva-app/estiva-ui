@@ -50,21 +50,32 @@ import { Select } from '@estiva-app/ui'
 
 - The trigger truncates long labels instead of stretching its row — give
   it room with your layout, not with `white-space` tricks.
-- Its geometry is pure and tested (`fitMenu`): 288px cap, 120px floor —
-  scrollable beats invisible.
+- **The list hangs under the trigger**, 4px below it, and flips above when
+  the room below is worse. Base UI would rather lay it *over* the trigger
+  with the chosen option covering the trigger's own text, the way macOS
+  does; that is off (Katerina, D24) because every Select in both apps opens
+  below one today.
+- It caps at 288px, or at the room the screen actually has, whichever is
+  smaller — and scrolls inside that. Measured in a bottom-right corner:
+  the list flips above the trigger, slides left to stay on screen, and
+  stands at its full 288.
+- **The trigger is a `combobox`, not a `button`.** That is the ARIA pattern
+  for this control and Base UI's doing; a test looking for it by role has
+  to ask for `combobox`.
 
 ## Keys
 
 | Input | What happens |
 |---|---|
 | Enter / Space / click, closed | opens the list |
-| ↑ / ↓ | move the active option, kept scrolled into view |
+| ↑ / ↓ | move the highlight, kept scrolled into view |
 | Home / End | jump to the first / last option |
-| Enter / Space, open | picks the active option |
+| **typing a label's first letters** | **jumps to that option** — new, and nothing here implements it |
+| Enter / Space, open | picks the highlighted option |
 | Escape | closes, returns focus to the trigger |
 | Tab | closes |
 | click outside | closes |
-| page scroll or resize | closes (the list is fixed where the trigger was) — the list's **own** scroll never dismisses it |
+| page scroll or resize | **the list follows its trigger**, and disappears if the trigger scrolls out of sight. It used to close, because a list fixed to where the trigger *had been* had no other way not to be left behind |
 
 ## Props
 
