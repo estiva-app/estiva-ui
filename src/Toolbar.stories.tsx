@@ -2,17 +2,16 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconArrowBackUp, IconArrowForwardUp, IconBold, IconItalic, IconLink, IconSquareRounded, IconUnderline } from '@tabler/icons-react'
 import { useState } from 'react'
 import { IconButton } from './IconButton'
-import { MenuPanel } from './Menu'
+import { Popover } from './Popover'
 import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolbar'
 
 /**
  * A strip of controls that behaves as **one** control: Tab in, arrow keys
  * along, Tab out.
  *
- * The thing to try on every canvas here is the keyboard. Tab to the strip and
- * press → a few times: the focus moves inside it and Tab leaves it entirely.
- * The row beside `Loose` is the same buttons without the toolbar — Tab through
- * that one and count.
+ * It draws the elevated box a floating strip needs — the same one a `Menu`
+ * draws — so a toolbar over a card, a paragraph or an image is separated from
+ * it without the caller drawing anything.
  */
 const meta = {
   title: 'Primitives/Toolbar',
@@ -35,39 +34,6 @@ export const Default: Story = {
       <ToolbarButton aria-label="Item three" tooltip="Item three">{icon}</ToolbarButton>
       <ToolbarButton aria-label="Item four" tooltip="Item four">{icon}</ToolbarButton>
     </Toolbar>
-  ),
-}
-
-/**
- * **The difference, side by side.** Both rows draw the same four buttons. The
- * top one is a `Toolbar` and is one Tab stop; the bottom one is a `div` and is
- * four. Tab from the field and count the stops before you reach the last line.
- */
-export const AgainstALooseRow: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <div className="flex w-[420px] flex-col gap-4">
-      <input aria-label="Start here" placeholder="Start here, then Tab" className="rounded-lg border border-border-default bg-bg-inset px-3 py-2 text-body-2 text-text-primary" />
-      <div className="flex flex-col gap-1">
-        <span className="text-caption text-text-secondary">A Toolbar — one stop</span>
-        <Toolbar aria-label="One stop">
-          <ToolbarButton aria-label="Item one" tooltip="Item one">{icon}</ToolbarButton>
-          <ToolbarButton aria-label="Item two" tooltip="Item two">{icon}</ToolbarButton>
-          <ToolbarButton aria-label="Item three" tooltip="Item three">{icon}</ToolbarButton>
-          <ToolbarButton aria-label="Item four" tooltip="Item four">{icon}</ToolbarButton>
-        </Toolbar>
-      </div>
-      <div className="flex flex-col gap-1">
-        <span className="text-caption text-text-secondary">A plain row — four stops</span>
-        <div className="flex items-center gap-1">
-          <IconButton aria-label="Item one" tooltip="Item one">{icon}</IconButton>
-          <IconButton aria-label="Item two" tooltip="Item two">{icon}</IconButton>
-          <IconButton aria-label="Item three" tooltip="Item three">{icon}</IconButton>
-          <IconButton aria-label="Item four" tooltip="Item four">{icon}</IconButton>
-        </div>
-      </div>
-      <span className="text-body-2 text-text-primary">The line after them.</span>
-    </div>
   ),
 }
 
@@ -106,15 +72,13 @@ export const WithAField: Story = {
   render: function WithField() {
     const [url, setUrl] = useState('')
     return (
-      <MenuPanel className="w-auto p-1">
-        <Toolbar aria-label="Link">
-          <ToolbarButton aria-label="Link" tooltip="Link">
-            <IconLink size={16} stroke={1.5} />
-          </ToolbarButton>
-          <ToolbarSeparator />
-          <ToolbarInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Paste a link" aria-label="Link address" className="h-7 w-48" />
-        </Toolbar>
-      </MenuPanel>
+      <Toolbar aria-label="Link">
+        <ToolbarButton aria-label="Link" tooltip="Link">
+          <IconLink size={16} stroke={1.5} />
+        </ToolbarButton>
+        <ToolbarSeparator />
+        <ToolbarInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Paste a link" aria-label="Link address" className="h-7 w-48" />
+      </Toolbar>
     )
   },
 }
@@ -145,5 +109,29 @@ export const Vertical: Story = {
       <ToolbarButton aria-label="Item two" tooltip="Item two" tooltipPlacement="bottom">{icon}</ToolbarButton>
       <ToolbarButton aria-label="Item three" tooltip="Item three" tooltipPlacement="bottom">{icon}</ToolbarButton>
     </Toolbar>
+  ),
+}
+
+/**
+ * **Inside something that already draws a box** — a `Popover`, a dialog, a
+ * card's own panel — the strip drops its own with `surface={false}`. Two
+ * boxes inside each other is the tell.
+ */
+export const OnAnExistingSurface: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Popover
+      /* An `IconButton`, not a `ToolbarButton`: the trigger stands outside the
+         strip, and a toolbar part outside a `Toolbar` throws. */
+      trigger={<IconButton aria-label="Open" tooltip="Open">{icon}</IconButton>}
+      ariaLabel="Formatting"
+      className="w-auto min-w-0 p-1"
+    >
+      <Toolbar aria-label="Formatting" surface={false}>
+        <ToolbarButton aria-label="Item one" tooltip="Item one">{icon}</ToolbarButton>
+        <ToolbarButton aria-label="Item two" tooltip="Item two">{icon}</ToolbarButton>
+        <ToolbarButton aria-label="Item three" tooltip="Item three">{icon}</ToolbarButton>
+      </Toolbar>
+    </Popover>
   ),
 }

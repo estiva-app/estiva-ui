@@ -1,22 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { IconMessage2, IconMoodPlus } from '@tabler/icons-react'
 import { useState } from 'react'
-import { MenuPanel } from './Menu'
 import { Popover } from './Popover'
 import { Reaction } from './Reaction'
 import { ReactionPicker, type ReactionOption } from './ReactionPicker'
-import { IconButton } from './IconButton'
-import { IconMoodPlus } from '@tabler/icons-react'
+import { Toolbar, ToolbarButton } from './Toolbar'
 
 /**
- * The reactions on offer, to choose one from. **`Reaction` is the answer; this
- * is the question.**
+ * The reactions on offer, to choose one from. **A `Reaction` is the answer;
+ * this is the question.**
  *
- * The vocabulary is the app's — which emoji it offers and what each one means
- * — so it arrives as `options`. These canvases use a neutral set; a product
- * names its own.
+ * Icon buttons holding emoji, on a `Toolbar` — so the strip carries the
+ * elevated box a floating control needs, and the whole row is one Tab stop.
  *
- * It draws no surface, so it can sit in a `Popover`, in a card's corner, or in
- * a larger toolbar. The canvases show all three.
+ * The vocabulary is the app's: which emoji it offers and what each one means.
+ * These canvases use a neutral set.
  */
 const OPTIONS: ReactionOption[] = [
   { emoji: '👍', label: 'Agree' },
@@ -29,36 +27,74 @@ const OPTIONS: ReactionOption[] = [
 const meta = {
   title: 'Primitives/ReactionPicker',
   component: ReactionPicker,
-  args: { options: OPTIONS, onSelect: () => {}, selected: [] },
+  args: { options: OPTIONS, onSelect: () => {} },
   argTypes: { options: { control: false }, onSelect: { control: false } },
 } satisfies Meta<typeof ReactionPicker>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The row alone, with no surface — which is what it is. */
+/** The picker, as it floats: the strip and its box. */
 export const Default: Story = {}
 
-/** Two already chosen: the accent fill `Reaction` uses for the same state. */
-export const SomeChosen: Story = {
-  args: { selected: ['👍', '🚀'] },
+/**
+ * **Where it comes from.** A card's quick menu offers `React`; pressing it
+ * opens the picker **above** the button, not below — the card is below, and
+ * that is the thing being reacted to.
+ *
+ * The box here is the `Popover`'s, so the picker passes `surface={false}`:
+ * two boxes inside each other is the tell.
+ */
+export const FromAQuickMenu: Story = {
+  parameters: { controls: { disable: true }, layout: 'centered' },
+  render: function FromQuickMenu() {
+    const [chosen, setChosen] = useState<string | null>(null)
+    return (
+      <div className="flex w-[420px] flex-col items-end gap-3">
+        <div className="w-full rounded-lg border border-border-default bg-bg-surface p-3 text-body-2 text-text-primary">
+          A card. The quick menu sits at its corner, and the picker opens above it.
+        </div>
+        <Toolbar aria-label="Card actions">
+          <ToolbarButton aria-label="Reply" tooltip="Reply">
+            <IconMessage2 size={16} stroke={1.5} />
+          </ToolbarButton>
+          <Popover
+            side="top"
+            align="right"
+            ariaLabel="Reactions"
+            className="w-auto min-w-0 p-1"
+            trigger={
+              <ToolbarButton aria-label="React" tooltip="React">
+                <IconMoodPlus size={16} stroke={1.5} />
+              </ToolbarButton>
+            }
+          >
+            <ReactionPicker options={OPTIONS} surface={false} onSelect={setChosen} />
+          </Popover>
+        </Toolbar>
+        <span className="text-caption text-text-secondary">
+          {chosen ? `Chose ${chosen}` : 'Nothing chosen yet.'}
+        </span>
+      </div>
+    )
+  },
 }
 
 /**
- * Live. Pick one and it joins the row of reactions below, or leaves it.
- *
- * The thing to try is the keyboard: Tab reaches the picker **once**, → walks
- * it, Enter chooses, and Tab leaves. Peek's version was five separate stops.
+ * **What it produces.** Picking puts a `Reaction` in the row on the card —
+ * the pill with the count and, when it is yours, the accent fill. That state
+ * belongs to `Reaction`; the picker only asks.
  */
-export const Live: Story = {
+export const AndWhatItProduces: Story = {
   parameters: { controls: { disable: true } },
-  render: function LivePicker() {
+  render: function Produces() {
     const [mine, setMine] = useState<string[]>(['👍'])
-    const toggle = (emoji: string) =>
-      setMine((prev) => (prev.includes(emoji) ? prev.filter((e) => e !== emoji) : [...prev, emoji]))
     return (
-      <div className="flex w-[360px] flex-col gap-4">
-        <ReactionPicker options={OPTIONS} selected={mine} onSelect={toggle} />
+      <div className="flex w-[420px] flex-col gap-4">
+        <ReactionPicker
+          options={OPTIONS}
+          onSelect={(emoji) => setMine((prev) => (prev.includes(emoji) ? prev.filter((e) => e !== emoji) : [...prev, emoji]))}
+        />
         <div className="flex flex-wrap items-center gap-1.5">
           {mine.length === 0 ? (
             <span className="text-caption text-text-muted">Nothing here yet.</span>
@@ -72,7 +108,7 @@ export const Live: Story = {
                   count={1}
                   pressed
                   aria-label={`${option.label}, 1`}
-                  onClick={() => toggle(emoji)}
+                  onClick={() => setMine((prev) => prev.filter((e) => e !== emoji))}
                 />
               )
             })
@@ -83,45 +119,7 @@ export const Live: Story = {
   },
 }
 
-/**
- * **In a panel**, which is how a card offers it: a `⋯`-style trigger opens a
- * `Popover`, and the picker is what is inside. The panel is the `Popover`'s,
- * not the picker's — the picker draws no box of its own, which is the whole
- * reason it can also sit inline.
- */
-export const InAPopover: Story = {
-  parameters: { controls: { disable: true } },
-  render: function InPanel() {
-    const [mine, setMine] = useState<string[]>([])
-    return (
-      <Popover
-        trigger={
-          <IconButton aria-label="React" tooltip="React">
-            <IconMoodPlus size={16} stroke={1.5} />
-          </IconButton>
-        }
-        ariaLabel="Reactions"
-        className="w-auto min-w-0 p-1.5"
-      >
-        <ReactionPicker
-          options={OPTIONS}
-          selected={mine}
-          onSelect={(emoji) => setMine((prev) => (prev.includes(emoji) ? prev.filter((e) => e !== emoji) : [...prev, emoji]))}
-        />
-      </Popover>
-    )
-  },
-}
-
-/** Inline in a card's corner, on the surface that is already there. */
-export const OnACard: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <MenuPanel className="w-[420px] gap-3">
-      <span className="text-body-2 text-text-primary">
-        A card. The row of reactions sits on the card's own surface, so the picker draws none.
-      </span>
-      <ReactionPicker options={OPTIONS} onSelect={() => {}} />
-    </MenuPanel>
-  ),
+/** Two reactions offered rather than five — the row is whatever the app hands it. */
+export const Fewer: Story = {
+  args: { options: OPTIONS.slice(0, 2) },
 }

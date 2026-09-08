@@ -96,7 +96,7 @@ export const AToolbar: Story = {
       <Popover trigger={<Button variant="outlined">Formatting</Button>} ariaLabel="Formatting" className="w-auto min-w-0 p-1">
         {/* The strip is a `Toolbar`, so the whole row is ONE Tab stop and the
             arrow keys walk it — four stops before, one after. */}
-        <Toolbar aria-label="Formatting">
+        <Toolbar aria-label="Formatting" surface={false}>
           <ToolbarButton aria-label="Bold" tooltip="Bold" tooltipShortcut="Cmd+B">
             <IconBold size={16} stroke={1.5} />
           </ToolbarButton>
@@ -177,7 +177,7 @@ export const FromASelection: Story = {
           ariaLabel="Formatting"
           className="w-auto min-w-0 p-1"
         >
-          <Toolbar aria-label="Formatting">
+          <Toolbar aria-label="Formatting" surface={false}>
             <ToolbarButton aria-label="Bold" tooltip="Bold">
               <IconBold size={16} stroke={1.5} />
             </ToolbarButton>

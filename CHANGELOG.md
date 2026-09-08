@@ -8,10 +8,21 @@ and two answers to what she found reading stage 4's stories.
 ### Added
 
 - **`Toolbar`** — a strip of controls that behaves as **one** control: Tab in,
-  arrow keys along, Tab out. Base UI's `Toolbar`, with this package's
-  `IconButton` as **`ToolbarButton`**, plus **`ToolbarSeparator`** and
-  **`ToolbarInput`** (a field that keeps the arrow keys for its caret while it
-  has focus).
+  arrow keys along, Tab out — **on the elevated box a floating strip needs**.
+  Base UI's `Toolbar`, with this package's `IconButton` as **`ToolbarButton`**,
+  plus **`ToolbarSeparator`** and **`ToolbarInput`** (a field that keeps the
+  arrow keys for its caret while it has focus).
+
+  **The box is the same `MenuPanel` a `Menu` draws**, because a floating strip
+  and a floating list are the same box. Peek had built it twice and the two had
+  already drifted — its quick menu `rounded-sm` with `shadow-sm` and a subtle
+  border, its reaction picker `rounded-lg` with `shadow-lg` and a default one.
+  `surface={false}` for a strip inside something that draws it already.
+
+  The panel **wraps** the strip rather than being composed onto it: `MenuPanel`
+  is a flex column, right for a menu's rows and wrong for a row of controls,
+  and Tailwind emits `flex-col` after `flex-row` — so a merged class list would
+  stand the toolbar on its end whatever order the classes arrived in.
 
   **It exists because every strip in the suite is as many Tab stops as it has
   buttons.** Ship's reaction row, Peek's composer strip and the editor's
@@ -23,7 +34,8 @@ and two answers to what she found reading stage 4's stories.
   A disabled control **keeps its place in the walk**, because a strip whose
   controls come and go from the arrow keys as their state changes is a strip
   you cannot learn — and a `disabledReason` you cannot reach is a reason
-  nobody reads.
+  nobody reads. A `ToolbarButton` **must be inside a `Toolbar`**: Base UI
+  throws otherwise, since a part with no strip has no walk to join.
 
   **The gap, stated: Home and End do nothing.** Base UI's composite implements
   them behind `enableHomeAndEndKeys` and `Toolbar.Root` does not pass it, so
@@ -37,10 +49,14 @@ and two answers to what she found reading stage 4's stories.
   - **it is a `Toolbar`**, so the row is one Tab stop rather than one per
     emoji — Peek's five were five things to Tab past to reach anything after
     the card;
-  - **it draws no surface.** Peek's drew its own elevated panel, which is
-    `MenuPanel`'s box typed again by hand. Without one it can sit in a
-    `Popover`, inline on a card, or in a larger toolbar — the "either" that
-    was asked for, and all three have a canvas;
+  - **its box is `Toolbar`'s**, so it is the one elevated surface rather than
+    a second hand-typed copy of it. Inside a `Popover`, which draws that box
+    already, it takes `surface={false}`;
+  - **it opens above the control that was pressed**, not below — the thing
+    being reacted to is underneath it (Katerina, 2026-09-08);
+  - **it says nothing about which reactions are yours.** That is `Reaction`'s
+    state, in the row of pills on the card. A picker that also reported it
+    would be two components wearing one name, so `selected` is gone;
   - **the vocabulary stays with the app.** Which emoji, and what each one
     means, is product knowledge: it arrives as `options`, and every option
     owes a `label`, because the emoji is `aria-hidden` here for the same
@@ -66,15 +82,28 @@ and two answers to what she found reading stage 4's stories.
 
 ### Removed
 
-- **`DialogShell`'s `Confirmation` story.** It hand-built what `ConfirmDialog`
-  *is* — the same question, the same two buttons — and hand-built it wrongly:
-  a plain dialog, so a press on the backdrop dismissed the question, which is
-  exactly what D20 stopped. A story showing the thing the page's own "When
-  not" tells you not to build is worse than no story (Katerina, 2026-09-08).
+- **`DialogShell`'s `Confirmation` and `Alert` stories — both of them.** Each
+  hand-built what `ConfirmDialog` *is*: the same "Delete this?", the same
+  Cancel and destructive Delete. `Confirmation` built it wrongly on top of
+  that — a plain dialog, so a press on the backdrop dismissed the question,
+  which is exactly what D20 stopped. A story showing the thing the page's own
+  "When not" tells you not to build is worse than no story (Katerina,
+  2026-09-08).
 
-  Two stories replace it, and each covers a prop that had none:
+  **`alert` therefore has no story here, on purpose**, and the page says so:
+  `ConfirmDialog` is the only thing in the package or either app that uses the
+  prop — checked, not assumed — so its canvases and its nine tests are that
+  prop's coverage.
+
+  Two stories replace them, and each covers a prop that had none:
   **`WithHeaderContent`** (a back button and a count in place of the title) and
   **`WithoutAFooter`** (the body keeps the card's bottom edge).
+
+- **`Toolbar`'s `AgainstALooseRow` story.** It set a toolbar beside a plain row
+  to make the Tab-stop difference countable, which is an argument rather than a
+  variant — and stories are for introducing the component, not for proving a
+  point about the keyboard (Katerina, 2026-09-08). The measurement it made
+  lives in `Toolbar.test.tsx`, where it belongs.
 
 ### Callers
 

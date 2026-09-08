@@ -6,7 +6,7 @@ import * as ToolbarStories from './Toolbar.stories'
 # Toolbar
 
 A strip of controls that behaves as **one** control: Tab in, arrow keys along,
-Tab out.
+Tab out — on the elevated box a floating strip needs.
 
 <Canvas of={ToolbarStories.Default} />
 
@@ -51,10 +51,10 @@ import { Toolbar, ToolbarButton, ToolbarSeparator } from '@estiva-app/ui'
 - **`ToolbarButton` is this package's `IconButton`**, joined to the walk: the
   same square, the same variants, the same `tooltip`, `tooltipShortcut` and
   `disabledReason`. It still owes an `aria-label`, because it is still an
-  icon-only control.
-- **It draws no surface.** A toolbar appears inside something that already has
-  one — a `Popover`, a card, a bar — so the box is the caller's and `className`
-  is only the row's layout.
+  icon-only control. **It must be inside a `Toolbar`** — Base UI throws
+  otherwise, since a part with no strip has no walk to join. A control *beside*
+  a strip is an `IconButton`.
+- **It draws the box** — see below — and `surface={false}` drops it.
 - **A disabled control keeps its place in the walk.** A strip whose controls
   come and go from the arrow keys as their state changes is a strip you cannot
   learn, and a `disabledReason` you cannot reach is a reason nobody reads.
@@ -62,15 +62,21 @@ import { Toolbar, ToolbarButton, ToolbarSeparator } from '@estiva-app/ui'
 
 <Canvas of={ToolbarStories.WithAField} />
 
-### What it is worth, measured
-
-The same four buttons, in a toolbar and in a plain row: **one Tab stop against
-four.** Tab from the field in the canvas below and count the stops before the
-last line.
-
-<Canvas of={ToolbarStories.AgainstALooseRow} />
-
 <Canvas of={ToolbarStories.WithADisabledControl} />
+
+### The box
+
+A toolbar floats over what it acts on — a card, a paragraph, an image — so it
+draws the elevated surface that separates it from that: **the same `MenuPanel`
+a `Menu` draws**, because a floating strip and a floating list are the same
+box. Peek had built this twice and the two had already drifted: its quick menu
+`rounded-sm` with `shadow-sm`, its reaction picker `rounded-lg` with
+`shadow-lg`.
+
+`surface={false}` for a strip inside something that draws that box already — a
+`Popover`, a dialog, a card's own panel.
+
+<Canvas of={ToolbarStories.OnAnExistingSurface} />
 
 ## Keys
 

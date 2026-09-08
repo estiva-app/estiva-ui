@@ -87,12 +87,14 @@ describe('ReactionPicker', () => {
     expect(onSelect).toHaveBeenCalledWith('👍')
   })
 
-  /** Yours is a toggle state, announced as one — the same signal `Reaction`
-   *  gives with `aria-pressed`. */
-  it('says which are already yours', () => {
-    render(<ReactionPicker options={OPTIONS} onSelect={() => {}} selected={['👍']} />)
-    expect(screen.getByRole('button', { name: 'Agree' }).getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByRole('button', { name: 'Celebrate' }).getAttribute('aria-pressed')).toBe('false')
+  /**
+   * It asks; it does not report. Which reactions are yours is `Reaction`'s
+   * state, in the row on the card — a picker that also carried it would be
+   * two components wearing one name (Katerina, 2026-09-08).
+   */
+  it('says nothing about which are already yours', () => {
+    render(<ReactionPicker options={OPTIONS} onSelect={() => {}} />)
+    expect(screen.getAllByRole('button').every((b) => !b.hasAttribute('aria-pressed'))).toBe(true)
   })
 
   it('takes a name of its own, for a page with more than one', () => {
@@ -100,13 +102,17 @@ describe('ReactionPicker', () => {
     expect(screen.getByRole('toolbar', { name: 'React to this reply' })).toBeTruthy()
   })
 
-  /** It draws no surface, which is what lets it sit in a Popover, on a card,
-   *  or in a larger toolbar. */
-  it('draws no panel of its own', () => {
-    const { container } = render(<ReactionPicker options={OPTIONS} onSelect={() => {}} />)
-    const root = container.firstElementChild as HTMLElement
-    expect(root.getAttribute('role')).toBe('toolbar')
-    expect(root.className).not.toContain('shadow')
-    expect(root.className).not.toContain('bg-bg-elevated')
+  /** It floats, so it carries the elevated box — the one `MenuPanel` draws. */
+  it('draws the box, and drops it on request', () => {
+    const withBox = render(<ReactionPicker options={OPTIONS} onSelect={() => {}} />)
+    const panel = withBox.container.firstElementChild as HTMLElement
+    expect(panel.className).toContain('bg-bg-elevated')
+    expect(panel.querySelector('[role="toolbar"]')).toBeTruthy()
+    withBox.unmount()
+
+    // Inside a Popover, which draws that box already: two boxes inside each
+    // other is the tell.
+    const bare = render(<ReactionPicker options={OPTIONS} onSelect={() => {}} surface={false} />)
+    expect((bare.container.firstElementChild as HTMLElement).getAttribute('role')).toBe('toolbar')
   })
 })

@@ -2,6 +2,7 @@ import type { ReactNode, Ref } from 'react'
 import { Toolbar as BaseToolbar } from '@base-ui/react/toolbar'
 import { cn } from './cn'
 import { IconButton, type IconButtonProps } from './IconButton'
+import { MenuPanel } from './Menu'
 import { TextInput, type TextInputProps } from './TextInput'
 
 /**
@@ -21,9 +22,14 @@ import { TextInput, type TextInputProps } from './TextInput'
  * Cancel and Save are two separate answers, and each deserves its own stop).
  * A toolbar is a set of things you do *to* something that is still there.
  *
- * The drawing is the caller's: a toolbar has no surface of its own, because it
- * appears inside things that already have one — a `Popover`, a card's corner,
- * a bar. `className` is the row's layout.
+ * **It draws the box.** A toolbar floats over what it acts on — a card, a
+ * paragraph, an image — so it carries the elevated surface that separates it
+ * from that: the same `MenuPanel` a `Menu` draws, because a floating strip and
+ * a floating list are the same box. Peek had built this twice and the two had
+ * already drifted — its quick menu is `rounded-sm` with `shadow-sm` and a
+ * subtle border, its reaction picker `rounded-lg` with `shadow-lg` and a
+ * default one. There is one box now. `surface={false}` for a strip inside
+ * something that already draws it.
  *
  * **The gap, stated: Home and End do nothing.** Base UI's composite has them
  * and its `Toolbar` does not switch them on (`enableHomeAndEndKeys`, read in
@@ -42,13 +48,21 @@ export interface ToolbarProps {
   orientation?: 'horizontal' | 'vertical'
   /** Whether the arrow keys wrap at the ends. Default true, as Base UI's. */
   loopFocus?: boolean
+  /**
+   * The elevated box around the strip. **On by default** — a toolbar floats,
+   * and this is what floating looks like here.
+   *
+   * Off for a strip inside a surface that already draws one: a `Popover`, a
+   * dialog, a card's own panel. Two boxes inside each other is the tell.
+   */
+  surface?: boolean
   children: ReactNode
   /** The row's own layout — its gap, its padding, its wrapping. */
   className?: string
 }
 
-export function Toolbar({ 'aria-label': ariaLabel, orientation = 'horizontal', loopFocus = true, children, className }: ToolbarProps) {
-  return (
+export function Toolbar({ 'aria-label': ariaLabel, orientation = 'horizontal', loopFocus = true, surface = true, children, className }: ToolbarProps) {
+  const strip = (
     <BaseToolbar.Root
       aria-label={ariaLabel}
       orientation={orientation}
@@ -58,6 +72,19 @@ export function Toolbar({ 'aria-label': ariaLabel, orientation = 'horizontal', l
       {children}
     </BaseToolbar.Root>
   )
+  if (!surface) return strip
+  /*
+    The box WRAPS the strip rather than being composed onto it. `MenuPanel` is
+    a flex COLUMN — right for a menu's rows, wrong for a row of controls — and
+    Tailwind emits `flex-col` after `flex-row`, so a merged class list would
+    stand the toolbar on its end whatever order the classes arrived in. One
+    extra element, and the box keeps its single definition.
+
+    `p-1` is Peek's quick menu's padding, the tighter of the two it had, and
+    the right one for a strip of 24px controls; `MenuPanel`'s own `p-2` is a
+    menu's, where the rows run the full width.
+  */
+  return <MenuPanel className="w-fit p-1">{strip}</MenuPanel>
 }
 
 /**
@@ -68,6 +95,10 @@ export function Toolbar({ 'aria-label': ariaLabel, orientation = 'horizontal', l
  * A disabled button **keeps its place in the walk**: a strip whose controls
  * come and go from the arrow keys as their state changes is a strip you cannot
  * learn. It is also what lets a `disabledReason` be read.
+ *
+ * **It must be inside a `Toolbar`.** Base UI throws otherwise —
+ * "ToolbarRootContext is missing" — because a part with no strip has no walk
+ * to join. A control beside a strip is an `IconButton`.
  */
 export interface ToolbarButtonProps extends IconButtonProps {
   ref?: Ref<HTMLButtonElement>

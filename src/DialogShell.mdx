@@ -23,7 +23,10 @@ footer for the buttons. A dialog is just what goes in the three slots.
 
 - A short list of verbs from a trigger → **Menu**.
 - "Are you sure?" → **ConfirmDialog** — it is this shell with the question
-  already wired.
+  already wired, and it is the *only* thing that uses `alert`. There is no
+  `alert` story here, on purpose: any example of it would be a confirmation
+  dialog rebuilt by hand, which is the one thing this bullet exists to stop.
+  Its canvases and its nine tests are on that page.
 - Telling someone what happened → **Toast**.
 
 ## How

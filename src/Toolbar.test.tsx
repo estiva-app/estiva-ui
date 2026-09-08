@@ -130,6 +130,20 @@ describe('Toolbar', () => {
     expect(screen.getByRole('button', { name: 'Two' }).getAttribute('aria-disabled')).toBe('true')
   })
 
+  /** The box, which a floating strip needs and Peek had drawn twice. */
+  it('draws the elevated box, and drops it on request', () => {
+    const withBox = render(<Toolbar aria-label="Formatting"><ToolbarButton aria-label="One">{dot}</ToolbarButton></Toolbar>)
+    const panel = withBox.container.firstElementChild as HTMLElement
+    expect(panel.className).toContain('bg-bg-elevated')
+    expect(panel.querySelector('[role="toolbar"]')).toBeTruthy()
+    // The strip stays a row inside a panel that is a column for a menu's rows.
+    expect(panel.querySelector('[role="toolbar"]')!.className).not.toContain('flex-col')
+    withBox.unmount()
+
+    const bare = render(<Toolbar aria-label="Formatting" surface={false}><ToolbarButton aria-label="One">{dot}</ToolbarButton></Toolbar>)
+    expect((bare.container.firstElementChild as HTMLElement).getAttribute('role')).toBe('toolbar')
+  })
+
   it('a separator is a separator, not just a hairline', () => {
     render(
       <Toolbar aria-label="Formatting">

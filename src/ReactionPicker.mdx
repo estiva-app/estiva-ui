@@ -5,24 +5,23 @@ import * as ReactionPickerStories from './ReactionPicker.stories'
 
 # ReactionPicker
 
-The reactions on offer, to choose one from. **`Reaction` is the answer; this is
-the question.**
+The reactions on offer, to choose one from — icon buttons holding emoji, on a
+**Toolbar**. **`Reaction` is the answer; this is the question.**
 
 <Canvas of={ReactionPickerStories.Default} />
 
 ## When
 
-- **Offering a reaction**, from a card's corner, a message's hover controls, or
-  a `…` menu's panel. This is the case it exists for.
-- Showing which you have already chosen while offering the rest: `selected`
-  fills those with the accent, the way a pressed `Reaction` is filled.
+- **Offering a reaction**, from a card's quick menu or a message's hover
+  controls. This is the case it exists for, and the only one.
 
-<Canvas of={ReactionPickerStories.SomeChosen} />
+<Canvas of={ReactionPickerStories.FromAQuickMenu} />
 
 ## When not
 
-- **Showing a reaction that has been made**, with its count → **Reaction**.
-  That is the pill; this is the row you pick from.
+- **Showing the reactions that have been made** — the pills with their counts,
+  in a row on the card → **Reaction**. That is the answer; this only asks.
+  Which reactions are yours is *its* state, not this one's.
 - Any other strip of controls → **Toolbar**, which this is built on.
 - A list of verbs → **Menu**.
 
@@ -31,14 +30,16 @@ the question.**
 ```tsx
 import { ReactionPicker } from '@estiva-app/ui'
 
-<ReactionPicker
-  options={[
-    { emoji: '👍', label: 'Makes sense' },
-    { emoji: '🎉', label: 'Congrats' },
-  ]}
-  selected={mine}
-  onSelect={react}
-/>
+<Popover side="top" align="right" trigger={reactButton} ariaLabel="Reactions" className="w-auto p-1">
+  <ReactionPicker
+    surface={false}
+    options={[
+      { emoji: '👍', label: 'Makes sense' },
+      { emoji: '🎉', label: 'Congrats' },
+    ]}
+    onSelect={react}
+  />
+</Popover>
 ```
 
 - **The vocabulary is yours.** Which emoji an app offers, and what each one
@@ -48,21 +49,22 @@ import { ReactionPicker } from '@estiva-app/ui'
   reason it is on `Reaction`: a glyph read aloud is noise, and its spoken name
   differs per screen reader. The label is what a screen reader says and what
   the tooltip shows, so write the *meaning* — "Makes sense", not "thumbs up".
-- **`onSelect` reports the emoji**, which is what an app stores. Toggling is
-  the caller's: pass the result back through `selected`.
-- **It draws no surface**, which is what lets it sit in three places — see
-  below. The panel in `InAPopover` is the `Popover`'s.
+- **`onSelect` reports the emoji**, which is what an app stores. What happens
+  to it — a new reaction, or one of yours removed — is the caller's.
+- **It opens above the control that was pressed**, not below: the thing being
+  reacted to is underneath. `Popover`'s `side="top"`.
+- **It draws the box**, from `Toolbar` — so it floats correctly on its own.
+  Inside a `Popover`, which draws that box already, pass `surface={false}`.
 - **It is one Tab stop**, because it is a `Toolbar`. The hand-written version
   it replaces was one stop per emoji, inside a hover panel — five things to
   Tab past to reach anything after the card.
 
-<Canvas of={ReactionPickerStories.Live} />
+### What it produces
 
-### The three places it goes
+Picking puts a **Reaction** in the row on the card — the pill with the count
+and, when it is yours, the accent fill. The picker asks; the pill answers.
 
-<Canvas of={ReactionPickerStories.InAPopover} />
-
-<Canvas of={ReactionPickerStories.OnACard} />
+<Canvas of={ReactionPickerStories.AndWhatItProduces} />
 
 ## Keys
 
