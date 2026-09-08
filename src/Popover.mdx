@@ -73,16 +73,33 @@ so it is the one case the caller drives:
   anchor={selectionRect}
   open={selectionRect !== null}
   onOpenChange={(open) => !open && setSelectionRect(null)}
-  finalFocus={editorRef}
   ariaLabel="Formatting"
 >
 ```
 
 - **`anchor`** takes an element or a rect. A new rect moves the panel, so
   re-measuring as the selection changes is all the tracking needed.
-- **`finalFocus` is not optional here.** With a trigger, focus goes back to it;
-  with an anchor there is nothing to go back to, and without this focus is left
-  on the document body — measured. Point it at what the person came from.
+- **It does not take focus**, on purpose: the person is still in the text, and
+  a toolbar that moved the caret out of it would end the edit it exists to
+  serve. `finalFocus` is therefore only for a panel something inside it *did*
+  take focus into — a field the person clicked.
+- **Render it always and toggle `open`.** Not `{rect && <Popover…>}`: mounting
+  the panel only while it is open takes Base UI's state machine with it, and
+  its exits go too — measured, Escape and re-opening both became intermittent.
+- **Two traps that come with this shape**, both measured rather than reasoned
+  about, and both belonging to the caller:
+  - **Escape must not reopen what it just closed.** The keydown closes the
+    panel; if focus is on the element that reads the selection, the same key's
+    *keyup* re-reads a selection that is still perfectly alive. Ignore Escape
+    in that handler.
+  - **A press in the text is a press outside the panel.** It closes it, and the
+    same gesture's new selection opens it again. That is right, but it means
+    the panel is remade rather than moved.
+
+**The gap, stated: an anchored panel cannot be reached by keyboard.** There is
+no trigger to Tab from and it does not take focus, so everything in one must be
+reachable another way — a shortcut, a menu. A panel that is the only route to
+something belongs on a `trigger`.
 
 <Canvas of={PopoverStories.FromASelection} />
 
@@ -92,9 +109,12 @@ so it is the one case the caller drives:
 |---|---|
 | click / Enter / Space on the trigger | opens, and focus moves to the first thing inside |
 | Tab / Shift-Tab | walks the contents, in order |
-| Escape | closes, and gives focus back to the trigger (`finalFocus` when there is no trigger) |
+| Escape | closes, and gives focus back to the trigger |
 | a press outside | closes |
 | a second press of the trigger | closes — it is the trigger's own toggle, not a press outside |
+
+An anchored panel has the same two exits — Escape and a press outside — but no
+trigger row: it is not opened from the keyboard and does not take focus.
 
 ## Props
 

@@ -144,4 +144,45 @@ describe('Popover', () => {
     expect(screen.queryByRole('button', { name: 'Trigger' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Bold' })).toBeTruthy()
   })
+
+  /**
+   * An anchored panel leaves focus where it was. The person is still in
+   * whatever produced it — a text selection means a caret in the text — and a
+   * panel that took the caret would end the edit it exists to serve.
+   */
+  it('an anchored panel does not take focus', async () => {
+    render(
+      <>
+        <input aria-label="Where the person is" />
+        <Popover anchor={new DOMRect(10, 10, 40, 20)} open ariaLabel="Formatting">
+          <button type="button">Bold</button>
+        </Popover>
+      </>,
+    )
+    const field = screen.getByRole('textbox', { name: 'Where the person is' })
+    field.focus()
+    await screen.findByRole('dialog')
+    expect(document.activeElement).toBe(field)
+  })
+
+  /** An anchored panel has the same two exits as any other. It is the mode
+   *  with no trigger, so this is the only place they can be asserted. */
+  it('an anchored panel still closes on Escape and on a press outside', async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    render(
+      <>
+        <Popover anchor={new DOMRect(10, 10, 40, 20)} open onOpenChange={onOpenChange} ariaLabel="Formatting">
+          <button type="button">Bold</button>
+        </Popover>
+        <button type="button">Elsewhere</button>
+      </>,
+    )
+    await screen.findByRole('dialog')
+    await user.keyboard('{Escape}')
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+    onOpenChange.mockClear()
+    await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
 })

@@ -223,9 +223,15 @@ Tooltip first, because it was in the way of everything else.
   Plus the one mode a `Menu` has no use for: **a panel with no trigger element
   at all**, hung from a rect the caller measured — a toolbar over a text
   selection, which is not a control and cannot be one. That mode is
-  controlled, because there is nothing for Base UI to watch, and it takes
-  `finalFocus` to say where focus goes when it closes. Without that, focus is
-  left on the document body; with it, on whatever the person came from.
+  controlled, because there is nothing for Base UI to watch, and **it does not
+  take focus**: the person is still in the text, and a toolbar that moved the
+  caret out of it would end the edit it exists to serve. Measured with focus
+  moved in, before that was decided: the first control's tooltip opened on
+  `:focus-visible` and ate the Escape that should have closed the panel, and
+  the caller's re-read of the selection fought the panel's own dismissal —
+  both intermittently. Neither happens with focus left alone. **The cost is
+  stated on the page**: an anchored panel cannot be reached by keyboard, so
+  what is in one must be reachable another way.
 
 - **`PreviewCard`** — more of a thing, on hover. **It exists because Peek's
   Screener preview is this, hand-written**: its own `createPortal`, its own

@@ -40,8 +40,13 @@ export interface PopoverProps {
   /**
    * For a panel with **no trigger element**: an element, or a rect the caller
    * measured — a text selection's. Pair it with `open`, since there is nothing
-   * for Base UI to watch, and with `finalFocus` to say where focus goes when
-   * it closes.
+   * for Base UI to watch.
+   *
+   * An anchored panel **does not take focus**, because the person is still in
+   * whatever produced it. That also means it cannot be reached by keyboard, so
+   * everything in one must be reachable another way.
+   *
+   * Render it always and toggle `open`; do not mount it only while it is open.
    */
   anchor?: HTMLElement | DOMRect | null
   /** Which of the panel's edges hangs from the trigger's. Default left. */
@@ -52,9 +57,10 @@ export interface PopoverProps {
   onOpenChange?: (open: boolean) => void
   /**
    * Where focus goes when the panel closes. With a `trigger` it goes back to
-   * the trigger and this is not needed; with an `anchor` there is no trigger to
-   * go back to, so pass the element the person came from — the editor a
-   * selection toolbar floats over — or focus is left on the document body.
+   * the trigger and this is not needed. An anchored panel never took focus, so
+   * this only matters when something inside it did — a field the person tabbed
+   * or clicked into: point it at what they came from, or focus is left on the
+   * document body.
    */
   finalFocus?: RefObject<HTMLElement | null>
   /** Base UI's imperative handle. `actions.current?.close()` shuts the panel —
@@ -104,10 +110,26 @@ export function Popover({ trigger, anchor, align = 'left', open, onOpenChange, f
         >
           <BasePopover.Popup
             aria-label={ariaLabel}
-            /* Focus lands on the first thing in the panel — the field, in the
-               panel this component exists for — and goes back to the trigger
-               when it closes. An anchored panel has no trigger, so its caller
-               says where with `finalFocus`. */
+            /*
+             * From a trigger, focus lands on the first thing in the panel —
+             * the field, in the panel this component exists for — and goes
+             * back to the trigger when it closes.
+             *
+             * From an anchor, it does not move at all. A panel with no trigger
+             * appeared rather than being asked for, and the person is still in
+             * the middle of what produced it: a toolbar over a text selection
+             * that took the caret out of the text would end the edit it exists
+             * to serve. Measured 2026-09-08: with focus moved into the panel,
+             * the first control's tooltip opens on `:focus-visible` and eats
+             * the Escape that should have closed the panel, and the caller's
+             * re-read of the selection fights the panel's own dismissal — both
+             * intermittently. Neither happens once focus stays put.
+             *
+             * The cost is stated on the page: an anchored panel cannot be
+             * reached by keyboard, so what is in one must also be reachable
+             * some other way.
+             */
+            initialFocus={trigger ? undefined : false}
             finalFocus={finalFocus}
             className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
             render={<MenuPanel />}
