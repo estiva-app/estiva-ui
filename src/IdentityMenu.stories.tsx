@@ -73,7 +73,10 @@ export const MinimalApp: Story = {
 export const FromItsTrigger: Story = {
   parameters: { controls: { disable: true }, layout: 'padded' },
   render: () => (
-    <div className="flex h-[420px] w-full justify-end p-4">
+    /* A top bar, and room under it for the panel: 288 x ~380. `items-center`
+       is how both apps lay their bar out. */
+    <div className="h-[560px] w-full">
+      <div className="flex h-12 items-center justify-end border-b border-border-subtle px-4">
       <IdentityMenu
         me={{ name: 'Ana Duarte', email: 'ana@example.com' }}
         signedIn
@@ -82,6 +85,7 @@ export const FromItsTrigger: Story = {
         onCopyKey={() => {}}
         onSignOut={() => {}}
       />
+      </div>
     </div>
   ),
 }

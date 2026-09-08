@@ -92,6 +92,23 @@ Tooltip first, because it was in the way of everything else.
   rather than a press outside; a `position` menu has no anchor element, so
   it passes `trigger`. `IdentityMenu`'s `stopPropagation` is deleted.
 
+- **`IdentityMenu` anchors its panel to the trigger, not to the wrapper**, and
+  that was a live defect rather than a tidy-up. The wrapper's box is the app's
+  to lay out: in a flex row with the default `align-items: stretch` it takes
+  the row's full height and the panel hung from the bottom of *that* —
+  measured at **360px below the face** in a 420px row, with a scrollbar it
+  should not have had. Anchored to the button both go: 4px below, right edges
+  flush, standing at its full 380px. Peek already works around a cousin of
+  this with `className="flex"`.
+
+- **A row outside a `Menu` no longer claims `role="menuitem"`.** ARIA requires
+  a `menuitem` to sit inside a `menu` or a `menubar`, and `MenuPanel` is a
+  `<div>` with no role — so the four Peek files that draw rows on a bare panel
+  were each telling a screen reader they held menu items of nothing. They are
+  plain buttons now, which is what they behave like. Those pickers are really
+  a listbox pattern; saying so properly belongs with `ChipInput` at stage 5,
+  and claiming the wrong role in the meantime is worse than claiming none.
+  Nothing queries the role outside a real menu — checked in both apps.
 - **`MenuItem` and `MenuSection` still work with no `Menu` around them.**
   Peek's `@`, `/` and `[` pickers and its compose menu draw a bare
   `MenuPanel`, because a popup inside a text editor cannot have a menu's

@@ -451,14 +451,27 @@ export function MenuItem({ label, children, size = 'default', description, leadi
   )
   const rowClassName = menuItemClassName({ size, selected, className })
 
-  /* Inside a `Menu` the row is Base UI's `Menu.Item`: it joins the roving
-     focus, answers the typeahead, and closes the menu when it is chosen.
-     Outside one — a bare `MenuPanel` in an editor popup — it stays the plain
-     button it has always been, because there is no menu for it to be an item
-     of. `nativeButton` keeps the `<button>`; the part would draw a `<div>`. */
+  /*
+   * Inside a `Menu` the row is Base UI's `Menu.Item`: it joins the roving
+   * focus, answers the typeahead, and closes the menu when it is chosen.
+   * `nativeButton` keeps the `<button>`; the part would draw a `<div>`.
+   *
+   * Outside one — a bare `MenuPanel` in an editor popup — it is a plain
+   * button, **with no `role="menuitem"`**. It used to carry the role
+   * unconditionally, which made an orphan: ARIA requires a `menuitem` to sit
+   * inside a `menu` or a `menubar`, and `MenuPanel` is a `<div>` with no role
+   * at all. Four Peek files draw rows that way, so four surfaces were telling
+   * a screen reader they were menu items of nothing.
+   *
+   * A button is what these rows actually are. The pickers they sit in are a
+   * listbox pattern rather than a menu — the editor's plugin owns the
+   * highlight and the keyboard — and saying so properly is `ChipInput`'s
+   * stage, not this one; claiming the wrong role in the meantime is worse
+   * than claiming none.
+   */
   if (!useContext(MenuContext)) {
     return (
-      <button type="button" role="menuitem" className={rowClassName} {...props}>
+      <button type="button" className={rowClassName} {...props}>
         {body}
       </button>
     )

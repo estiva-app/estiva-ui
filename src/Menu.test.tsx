@@ -160,14 +160,22 @@ describe('Menu', () => {
  * work with no `Menu` above them, exactly as they always have.
  */
 describe('rows on a bare MenuPanel', () => {
-  it('MenuItem is still a menuitem button, with no menu around it', () => {
+  /**
+   * It is a button, and it does NOT claim to be a menu item. ARIA requires a
+   * `menuitem` to sit inside a `menu` or a `menubar`; `MenuPanel` is a `<div>`
+   * with no role, so the role used to make an orphan in all four of the Peek
+   * files that draw rows this way.
+   */
+  it('MenuItem is a plain button outside a menu, claiming no menu role', () => {
     render(
       <MenuPanel>
         <MenuItem label="Heading" shortcut="#" onClick={() => {}} />
       </MenuPanel>,
     )
-    const item = screen.getByRole('menuitem', { name: /Heading/ })
+    const item = screen.getByRole('button', { name: /Heading/ })
     expect(item.tagName).toBe('BUTTON')
+    expect(item.getAttribute('role')).toBeNull()
+    expect(screen.queryByRole('menuitem')).toBeNull()
   })
 
   it('its onClick still runs', async () => {
@@ -178,7 +186,7 @@ describe('rows on a bare MenuPanel', () => {
         <MenuItem label="Heading" onClick={onPick} />
       </MenuPanel>,
     )
-    await user.click(screen.getByRole('menuitem', { name: 'Heading' }))
+    await user.click(screen.getByRole('button', { name: 'Heading' }))
     expect(onPick).toHaveBeenCalledTimes(1)
   })
 
@@ -191,7 +199,7 @@ describe('rows on a bare MenuPanel', () => {
       </MenuPanel>,
     )
     expect(screen.getByText('Format')).toBeTruthy()
-    expect(screen.getAllByRole('menuitem')).toHaveLength(1)
+    expect(screen.getAllByRole('button')).toHaveLength(1)
     expect(screen.queryByRole('group')).toBeNull()
   })
 })

@@ -152,14 +152,27 @@ export function IdentityPanelSurface({ className, ...rest }: Omit<IdentityPanelP
 
 export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSignOut, compact = false, className, children }: IdentityMenuProps) {
   const [open, setOpen] = useState(false)
-  /* The wrapper is the anchor: the panel hangs its right edge from this
-     div's, exactly where the old in-flow `absolute right-0` put it — but
-     portalled, so nothing z-indexed in the app can cover it. */
-  const anchorRef = useRef<HTMLDivElement>(null)
+  /*
+   * The TRIGGER is the anchor, not the wrapper around it.
+   *
+   * It was the wrapper, because the old in-flow panel was positioned with
+   * `absolute right-0 top-full` against it. That made the panel's position
+   * depend on the wrapper's box, which the app's own layout owns: in a flex
+   * row with the default `align-items: stretch` the wrapper takes the row's
+   * full height, and the panel hangs from the bottom of *that* — measured at
+   * 360px below the face in a 420px row. Peek already works around a cousin
+   * of this with `className="flex"`, so the wrapper does not grow a line box
+   * under the inline button.
+   *
+   * Anchoring to the button removes the whole class of problem: no parent
+   * layout, no stretch and no stray line box can move the panel.
+   */
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   return (
-    <div ref={anchorRef} className={cn('relative', className)}>
+    <div className={cn('relative', className)}>
       <PersonTrigger
+        ref={triggerRef}
         name={me.name}
         picture={me.picture}
         fallback="Anonymous"
@@ -182,7 +195,7 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
           onCopyKey={onCopyKey}
           onSignOut={onSignOut}
           onClose={() => setOpen(false)}
-          anchor={anchorRef.current}
+          anchor={triggerRef.current}
         >
           {children}
         </IdentityPanel>
