@@ -2,6 +2,7 @@ import { createContext, useContext, type ComponentPropsWithRef, type ReactElemen
 import { IconChevronRight } from '@tabler/icons-react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
+import { triggerDisabled } from './triggerDisabled'
 import { Kbd } from './Kbd'
 import { SectionLabel } from './SectionLabel'
 
@@ -173,6 +174,11 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
     >
       <BaseMenu.Trigger
         render={trigger}
+        /* The part writes its own disabled state over the button's, so a
+           disabled trigger came out `aria-disabled="false"` and opened
+           (Finding 39, Ship's adoption, 2026-09-08). It is told what the
+           button already knows. */
+        disabled={triggerDisabled(trigger)}
         openOnHover={openOnHover}
         delay={HOVER_OPEN_DELAY}
         closeDelay={HOVER_CLOSE_DELAY}

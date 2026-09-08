@@ -8,6 +8,8 @@ import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { IconButton } from './IconButton'
 import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolbar'
+import { Menu, MenuItem } from './Menu'
+import { Popover } from './Popover'
 
 afterEach(cleanup)
 
@@ -194,5 +196,58 @@ describe('a loose row, for comparison', () => {
     const walk: (string | null | undefined)[] = []
     for (let i = 0; i < 4; i++) { await user.tab(); walk.push(focused()) }
     expect(walk).toEqual(['One', 'Two', 'Three', 'After'])
+  })
+})
+
+describe('a ToolbarButton with a reason, as a trigger', () => {
+  /*
+    Found by Ship's adoption (2026-09-08, Finding 39): the message's tools put
+    "React" (a Popover trigger) and "…" (a Menu trigger) on one strip, and with
+    a `disabledReason` both came out `aria-disabled="false"`. The part that
+    renders the trigger writes its own disabled state over the button's.
+  */
+  it('stays disabled, reachable, and closed as a Popover trigger', async () => {
+    const user = userEvent.setup()
+    render(
+      <Toolbar aria-label="Tools">
+        <Popover
+          ariaLabel="Reactions"
+          trigger={
+            <ToolbarButton aria-label="React" disabledReason="Sign in to react.">
+              {dot}
+            </ToolbarButton>
+          }
+        >
+          <p>the picker</p>
+        </Popover>
+      </Toolbar>,
+    )
+    const button = screen.getByRole('button', { name: 'React' })
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    expect(button.getAttribute('tabindex')).toBe('0')
+    await user.click(button)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('stays disabled, reachable, and closed as a Menu trigger', async () => {
+    const user = userEvent.setup()
+    render(
+      <Toolbar aria-label="Tools">
+        <Menu
+          trigger={
+            <ToolbarButton aria-label="More" disabledReason="Sign in first.">
+              {dot}
+            </ToolbarButton>
+          }
+        >
+          <MenuItem label="Delete" onClick={() => {}} />
+        </Menu>
+      </Toolbar>,
+    )
+    const button = screen.getByRole('button', { name: 'More' })
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    expect(button.getAttribute('tabindex')).toBe('0')
+    await user.click(button)
+    expect(screen.queryByRole('menu')).toBeNull()
   })
 })

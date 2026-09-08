@@ -2,7 +2,7 @@
 
 ## 0.10.1 — 2026-09-08
 
-Two defects in `Field`, both found the same night by Ship's adoption of
+Three defects, all found the same night by Ship's adoption of
 `0.10.0` — which is what D19's early adoption points are for.
 
 ### Fixed
@@ -20,6 +20,13 @@ Two defects in `Field`, both found the same night by Ship's adoption of
   part of the label, so a required "Project" select was named "Project*".
   The asterisk is `aria-hidden`; `aria-required` on the control is the word
   for it (B13). Pinned.
+- **A disabled button stays disabled as a `Menu` or `Popover` trigger.**
+  Base UI's trigger parts keep a disabled state of their own and write it
+  over the rendered button's, so a `ToolbarButton` with a `disabledReason`
+  came out `aria-disabled="false"` and opened its panel (Finding 39, from
+  Ship's message tools). Both parts are now told what the button already
+  knows; the button stays reachable, says its reason, and does not open.
+  Pinned in `Toolbar.test.tsx` for both parts.
 
 ### Callers
 
