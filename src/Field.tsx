@@ -58,7 +58,7 @@ export interface FieldProps {
 }
 
 export function Field({ label, required = false, helper, error, children }: FieldProps) {
-  const line = error ?? helper
+
   /*
     The asterisk is a picture of `required`; this is the word for it. Base UI's
     `Field` has no `required` to propagate, so the control is marked here —
@@ -80,27 +80,34 @@ export function Field({ label, required = false, helper, error, children }: Fiel
           `cn.test.ts` pins that. */}
       <BaseField.Label className={cn('text-input-label text-text-primary', required && 'flex items-center')}>
         {label}
-        {required && <span className="text-error-default ml-0.5">*</span>}
+        {/* A picture, not a word: `aria-required` on the control says it, and
+            without this the control was named "Title*" (Finding 38). */}
+        {required && (
+          <span aria-hidden="true" className="text-error-default ml-0.5">
+            *
+          </span>
+        )}
       </BaseField.Label>
       {/*
-        No line, no wrapper: every caller that predates `helper` and `error`
-        keeps the exact DOM it had, so the port cannot move a pixel. With a
-        line, this is the 6px stack Ship and Peek were both writing by hand.
+        The control sits in the same place whether or not there is a line
+        under it. It used to be wrapped only when there was one, and React
+        then re-created the control the moment an error appeared or cleared —
+        so a person typing into a field whose error clears on input lost
+        focus after the first keystroke (found by Ship's adoption, 2026-09-08,
+        Finding 38). A one-child flex column draws exactly as the bare control
+        did; the 6px stack Ship and Peek both wrote by hand appears only with a
+        line.
       */}
-      {line == null ? (
-        control
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          {control}
-          {error != null ? (
-            <BaseField.Error match className="text-caption text-error-default">
-              {error}
-            </BaseField.Error>
-          ) : (
-            <BaseField.Description className="text-caption text-text-muted">{helper}</BaseField.Description>
-          )}
-        </div>
-      )}
+      <div className="flex flex-col gap-1.5">
+        {control}
+        {error != null ? (
+          <BaseField.Error match className="text-caption text-error-default">
+            {error}
+          </BaseField.Error>
+        ) : helper != null ? (
+          <BaseField.Description className="text-caption text-text-muted">{helper}</BaseField.Description>
+        ) : null}
+      </div>
     </BaseField.Root>
   )
 }

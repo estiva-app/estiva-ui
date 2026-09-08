@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.10.1 — 2026-09-08
+
+Two defects in `Field`, both found the same night by Ship's adoption of
+`0.10.0` — which is what D19's early adoption points are for.
+
+### Fixed
+
+- **A field's control no longer loses focus when its error line appears or
+  clears.** The control was wrapped in the 6px stack only when there was a
+  line under it, so React re-created it the moment `error` or `helper` came
+  or went — a person typing into a field whose error clears on input lost
+  focus after the first keystroke, and Ship's dialog test found its input
+  handle stale. The control now sits in the same place whatever is under it:
+  a one-child flex column, which draws exactly as the bare control did.
+  Pinned in `Field.test.tsx` (same element, still focused, across an error
+  appearing and clearing).
+- **The required asterisk stays out of the accessible name.** It was read as
+  part of the label, so a required "Project" select was named "Project*".
+  The asterisk is `aria-hidden`; `aria-required` on the control is the word
+  for it (B13). Pinned.
+
+### Callers
+
+- Nothing to change. A test that matched a required control's name with the
+  asterisk would change; none does in either app (Ship's matched "Project"
+  and was the one that failed).
+
 ## 0.10.0 — 2026-09-08
 
 **The second of the three releases D19 asks for.** Stages 3 and 4 of the
