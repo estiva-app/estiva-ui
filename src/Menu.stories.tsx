@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconHighlight, IconPencil, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconDots, IconHighlight, IconPencil, IconTrash } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 import { Button } from './Button'
+import { IconButton } from './IconButton'
 import { Divider } from './Divider'
 import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSub } from './Menu'
 import { SectionLabel } from './SectionLabel'
@@ -152,6 +153,57 @@ export const InFlow: Story = {
           <Menu onClose={() => setOpen(false)}>
             <MenuItem label="Rename" onClick={() => setOpen(false)} />
             <MenuItem label="Delete" destructive onClick={() => setOpen(false)} />
+          </Menu>
+        )}
+      </div>
+    )
+  },
+}
+
+/**
+ * The hover-flow menu: `closeOnLeave`. A card shows a `⋮` while the pointer is
+ * on it, and the menu it opens dismisses itself 150ms after the pointer leaves
+ * — no click needed, because the whole flow is a hover.
+ *
+ * **The thing to try, and the reason this story exists:** open it and move
+ * down the rows. It must stay open the whole way, including across the gaps
+ * between rows and out to a submenu panel, and close only when you actually
+ * leave. The grace period is shared with any open `MenuSub`, so crossing the
+ * diagonal from a row into its panel never counts as leaving.
+ */
+export const HoverFlow: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Hovering() {
+    const [hovered, setHovered] = useState(false)
+    const [anchor, setAnchor] = useState<DOMRect | null>(null)
+    return (
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="flex w-[420px] items-start gap-3 rounded-lg border border-border-default p-3"
+      >
+        <span className="min-w-0 flex-1 text-[14px] leading-[140%] text-text-primary">
+          A card. Rest the pointer on it, press the ⋮, then walk down the rows.
+        </span>
+        <span className={hovered || anchor ? 'opacity-100' : 'opacity-0'}>
+          <IconButton
+            aria-label="More"
+            onClick={(event) => setAnchor(anchor ? null : event.currentTarget.getBoundingClientRect())}
+          >
+            <IconDots size={16} stroke={1.5} />
+          </IconButton>
+        </span>
+        {anchor && (
+          <Menu anchor={anchor} align="right" closeOnLeave onClose={() => setAnchor(null)} className="w-[244px] gap-2">
+            <MenuSection label="Utilities">
+              <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setAnchor(null)} />
+              <MenuSub label="Mark as Highlight" leading={<IconHighlight size={16} stroke={1.5} className="text-text-secondary" />}>
+                <MenuItem label="Insight" onClick={() => setAnchor(null)} />
+                <MenuItem label="Concern" onClick={() => setAnchor(null)} />
+              </MenuSub>
+            </MenuSection>
+            <Divider className="my-1" />
+            <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => setAnchor(null)} />
           </Menu>
         )}
       </div>

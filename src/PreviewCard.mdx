@@ -5,17 +5,27 @@ import * as PreviewCardStories from './PreviewCard.stories'
 
 # PreviewCard
 
-More of a thing, on hover. A row that shows only a snippet gets a card beside
-it with the rest — faces, text, a link, whatever the caller draws.
+More of a thing, on hover.
+
+A list shows one line per thing because a list has to. This is where the rest
+of that thing goes: a card that opens beside the row when the pointer rests on
+it, holding whatever the caller draws — named values, a longer description, a
+picture, a few related lines. It closes when the pointer leaves, and you can
+move into it, which is what makes it different from a tooltip.
 
 <Canvas of={PreviewCardStories.Default} />
 
 ## When
 
-- A list row that is a summary of something longer: a conversation, a
-  request, a document.
-- A name or an avatar that could say who the person is.
-- Anything worth reading before deciding to open it.
+- **A row is a summary and the thing has more to it** — the case this exists
+  for. The row stays one line; the card carries the rest.
+- **A name or a reference that could say what it refers to** without a trip
+  to another page.
+- **Anything worth reading before deciding to open it.** If the reader would
+  otherwise click, look, and come back, this saves the round trip.
+
+The test is whether the content is *worth pointing at*. A label is a
+**WithTooltip**. Something you might read, scroll or copy is this.
 
 <Canvas of={PreviewCardStories.Loading} />
 

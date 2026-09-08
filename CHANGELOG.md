@@ -101,6 +101,30 @@ Tooltip first, because it was in the way of everything else.
   flush, standing at its full 380px. Peek already works around a cousin of
   this with `className="flex"`.
 
+- **A hover-flow menu no longer shuts itself when you come back from a
+  submenu row.** `closeOnLeave` started its 150ms timer because a submenu
+  portals to the body: moving between a row and its panel leaves the parent
+  popup as far as the DOM is concerned, and the pointer passes over the
+  submenu's **positioner** on the way — the popup's parent, so a
+  `closest('[role="menu"]')` test says no. Measured: walking from “Mark as
+  Highlight” to the row below it closed the whole menu, with the pointer
+  still inside. **This is the defect Katerina reported in Peek**, and it is
+  older than stage 4 — the shell has had it since the hover menus were
+  extracted. Every box of one menu is tagged now, and a move into another of
+  them is not a leave.
+
+  **This is a stopgap and is marked as one.** Base UI's own answer is
+  `openOnHover` on a real `Menu.Trigger`, which handles the whole hover
+  choreography including the diagonal — proved in a spike: the same walk
+  keeps the parent open, and leaving closes it. Our `Menu` cannot use it
+  because the caller owns the open state and there is no trigger part. See
+  the note in `PLAN.md` §6.2.
+
+- **The menu popup takes `outline-none`.** Opened from the keyboard, Chrome
+  drew a ring around the **whole panel** (`outline: auto 1px`, measured),
+  which reads as “the menu is one thing” rather than “these rows are the
+  things”. The rows keep their own highlight. Exactly the fix `DialogShell`'s
+  card needed at stage 3, in a second place.
 - **A row outside a `Menu` no longer claims `role="menuitem"`.** ARIA requires
   a `menuitem` to sit inside a `menu` or a `menubar`, and `MenuPanel` is a
   `<div>` with no role — so the four Peek files that draw rows on a bare panel

@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconPin, IconTrash } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
-import { EnterHint, MenuItem, MenuPanel } from './Menu'
+import { useRef, useState } from 'react'
+import { Button } from './Button'
+import { Divider } from './Divider'
+import { EnterHint, Menu, MenuItem, MenuPanel, MenuSub } from './Menu'
 
 /**
  * One row of a menu. Anatomy: `leading` (a 16px icon or an Avatar) · label
@@ -48,6 +51,47 @@ export const WithAShortcut: Story = {
 /** The row opens another menu. */
 export const Submenu: Story = {
   args: { label: 'Move to…', submenu: true },
+}
+
+/**
+ * The submenu, working. The story above draws the row at rest — the chevron is
+ * the whole affordance — but a row that opens another menu can only be tried
+ * inside a real one, so here is one.
+ *
+ * Hover **Move to…**, or arrow onto it and press →. The panel opens beside the
+ * row, flips to the other side at a screen edge, and stays open while you
+ * cross the diagonal into it.
+ *
+ * From the keyboard: → opens it and leaves the highlight on the row, ↓ steps
+ * into it, and ← closes it and puts the highlight back on the row. Measured in
+ * that order — → then ← alone does nothing, because focus has not entered yet.
+ */
+export const SubmenuLive: Story = {
+  parameters: { controls: { disable: true } },
+  decorators: [(Story) => <Story />],
+  render: function Live() {
+    const [open, setOpen] = useState(false)
+    const ref = useRef<HTMLButtonElement>(null)
+    return (
+      <div className="flex min-h-[220px] w-full items-start justify-center pt-4">
+        <Button ref={ref} variant="outlined" onClick={() => setOpen((v) => !v)}>
+          Open the menu
+        </Button>
+        {open && (
+          <Menu anchor={ref.current} onClose={() => setOpen(false)}>
+            <MenuItem label="Rename" onClick={() => setOpen(false)} />
+            <MenuSub label="Move to…">
+              <MenuItem label="Item one" onClick={() => setOpen(false)} />
+              <MenuItem label="Item two" onClick={() => setOpen(false)} />
+              <MenuItem label="Item three" onClick={() => setOpen(false)} />
+            </MenuSub>
+            <Divider className="my-1" />
+            <MenuItem label="Delete" destructive onClick={() => setOpen(false)} />
+          </Menu>
+        )}
+      </div>
+    )
+  },
 }
 
 /** A person as a row — the face, the name, a second line, a trailing hint. Peek's mention rows. */

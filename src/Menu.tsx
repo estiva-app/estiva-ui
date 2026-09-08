@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ComponentPropsWithRef, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ComponentPropsWithRef, type MouseEvent, type ReactNode } from 'react'
 import { IconChevronRight } from '@tabler/icons-react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
@@ -83,6 +83,20 @@ const GAP = 4
 const VIEWPORT_PAD = 8
 
 /**
+ * Marks every box that belongs to one menu — its positioner, its popup, and
+ * the same two for any submenu.
+ *
+ * `closeOnLeave` needs it. A submenu portals to the body, so moving between a
+ * row and its panel leaves the parent popup as far as the DOM is concerned,
+ * and the pointer passes over the submenu's **positioner** on the way — which
+ * is the popup's parent, so asking `closest('[role="menu"]')` says no. The
+ * hover-flow menu therefore closed itself whenever you came back from a
+ * submenu row to a sibling row, with the pointer still inside it. Measured,
+ * and it is the defect Katerina reported in Peek on 2026-09-08.
+ */
+const MENU_PART = 'data-estiva-menu'
+
+/**
  * Whether a row is inside a `Menu`, and the hover-grace timer it reports to.
  *
  * The first half is load-bearing: `MenuItem` and `MenuSection` are also used
@@ -148,6 +162,19 @@ export function Menu({ onClose, anchor, align = 'left', position, trigger, close
     clearTimeout(leaveTimer.current)
     leaveTimer.current = setTimeout(onClose, 150)
   }, [closeOnLeave, onClose])
+  /**
+   * Leaving one box of this menu for another box of the same menu is not
+   * leaving the menu. Without this the hover-flow menu shuts itself the moment
+   * you come back from a submenu row to a sibling row.
+   */
+  const leave = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      const to = event.relatedTarget
+      if (to instanceof Element && to.closest(`[${MENU_PART}]`)) return
+      release()
+    },
+    [release],
+  )
   useEffect(() => () => clearTimeout(leaveTimer.current), [])
   const hover = useMemo(() => ({ hold, release }), [hold, release])
 
@@ -233,19 +260,28 @@ export function Menu({ onClose, anchor, align = 'left', position, trigger, close
               align={alignEnd ? 'end' : 'start'}
               sideOffset={sideOffset}
               collisionPadding={VIEWPORT_PAD}
+              {...{ [MENU_PART]: '' }}
               className="z-50 data-[anchor-hidden]:hidden"
             >
               <BaseMenu.Popup
                 data-interactive
+                {...{ [MENU_PART]: '' }}
                 /* `--available-height` is the room Floating UI found after
                    flipping and clamping — the shell passes no cap of its own,
                    so a menu stands as tall as it can and scrolls only when the
                    screen truly has no room. Select's 288 was never this
                    component's; it got it by accident once, and the identity
                    panel grew a scrollbar at full height (2026-09-03). */
-                className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto', className)}
+                /* `outline-none`: the popup is a programmatic focus target, not
+                   something a keyboard user tabs to. Without it Chrome rings the
+                   WHOLE panel when the menu is opened from the keyboard, which
+                   reads as "the menu is one thing" rather than "these rows are
+                   the things" — measured, `outline: auto 1px`. The rows keep
+                   their own highlight. Exactly the fix `DialogShell`'s card
+                   needed at stage 3, in a second place. */
+                className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
                 onMouseEnter={closeOnLeave ? hold : undefined}
-                onMouseLeave={closeOnLeave ? release : undefined}
+                onMouseLeave={closeOnLeave ? leave : undefined}
                 render={<MenuPanel />}
               >
                 {children}
@@ -300,9 +336,10 @@ export function MenuSub({ label, leading, selected, children, className }: MenuS
           align="start"
           sideOffset={GAP}
           collisionPadding={VIEWPORT_PAD}
+          {...{ [MENU_PART]: '' }}
           className="z-50 data-[anchor-hidden]:hidden"
         >
-          <BaseMenu.Popup className={cn('w-[160px]', className)} data-interactive render={<MenuPanel />}>
+          <BaseMenu.Popup className={cn('w-[160px]', className)} data-interactive {...{ [MENU_PART]: '' }} render={<MenuPanel />}>
             {children}
           </BaseMenu.Popup>
         </BaseMenu.Positioner>
