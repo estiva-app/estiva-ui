@@ -1,4 +1,4 @@
-import { useMemo, useRef, type ReactNode } from 'react'
+import { useMemo, type ReactElement, type ReactNode, type RefObject } from 'react'
 import { Popover as BasePopover } from '@base-ui/react/popover'
 import { cn } from './cn'
 import { MenuPanel } from './Menu'
@@ -16,30 +16,55 @@ import { MenuPanel } from './Menu'
  * outside-click listeners, seven position calculations against
  * `window.innerWidth` (`COMPONENTS-PEEK.md` F5). This is what they become.
  *
- * The API is `Menu`'s, deliberately, so moving a surface across is a change of
- * one word: the same `onClose`, the same three anchorings, the same `trigger`.
- * What differs is inside — a `Popover` announces itself as a dialog, its
- * contents are ordinary content, and Tab walks them in order.
+ * **The API is `Menu`'s**: it takes the `trigger` and owns everything after —
+ * the toggle, the placement, the dismissal and the focus return. What differs
+ * is inside: a `Popover` announces itself as a dialog, its contents are
+ * ordinary content, and Tab walks them in order.
+ *
+ * The one thing a `Menu` has no use for is the second mode below: a panel with
+ * no trigger element at all, hung from a rect the caller measured — a toolbar
+ * over a text selection. That mode is controlled, because there is nothing for
+ * Base UI to watch.
  */
 export interface PopoverProps {
-  onClose: () => void
-  /** The trigger — an element, or the rect a click handler already measured.
-   *  The panel portals to the body and places itself against it. */
-  anchor?: HTMLElement | DOMRect | null
-  /** With `anchor`: which of the panel's edges hangs from the anchor's. Default left. */
-  align?: 'left' | 'right'
-  /** Viewport coordinates; the panel is portalled, hung from `top`, aligned to whichever edge is given, and kept on screen. */
-  position?: { top: number; right: number } | { top: number; left: number }
   /**
-   * The control that opens this panel, when it is not the `anchor`. A press on
-   * it is that control's own toggle, not a press outside — see `Menu`, which
-   * has the same trap for the same reason.
+   * The control that opens the panel. Any element that forwards its ref and
+   * spreads its props — this package's `Button`, `IconButton` and
+   * `PersonTrigger` all do.
+   *
+   * Base UI can only do the toggle, the placement, the dismissal and the focus
+   * return if it knows which element opened the panel. Give it the trigger
+   * unless there is genuinely no element to give — see `anchor`.
    */
-  trigger?: HTMLElement | null
+  trigger?: ReactElement
+  /**
+   * For a panel with **no trigger element**: an element, or a rect the caller
+   * measured — a text selection's. Pair it with `open`, since there is nothing
+   * for Base UI to watch, and with `finalFocus` to say where focus goes when
+   * it closes.
+   */
+  anchor?: HTMLElement | DOMRect | null
+  /** Which of the panel's edges hangs from the trigger's. Default left. */
+  align?: 'left' | 'right'
+  /** Controlled, for a caller that must know or must force it. Required with
+   *  `anchor`; with a `trigger`, leave both off and the panel keeps its own. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /**
+   * Where focus goes when the panel closes. With a `trigger` it goes back to
+   * the trigger and this is not needed; with an `anchor` there is no trigger to
+   * go back to, so pass the element the person came from — the editor a
+   * selection toolbar floats over — or focus is left on the document body.
+   */
+  finalFocus?: RefObject<HTMLElement | null>
+  /** Base UI's imperative handle. `actions.current?.close()` shuts the panel —
+   *  for the Cancel and Save buttons a form panel ends with. */
+  actionsRef?: RefObject<{ close: () => void; unmount: () => void } | null>
   /** Names the panel for assistive tech. A panel with a visible heading can
    *  point at it instead, with `aria-labelledby`. */
   ariaLabel?: string
   children: ReactNode
+  /** On the panel's surface — its width, its internal rhythm. */
   className?: string
 }
 
@@ -48,69 +73,49 @@ export interface PopoverProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-function virtualAnchor(x: number, y: number) {
-  return { getBoundingClientRect: () => new DOMRect(x, y, 0, 0) }
-}
-
-export function Popover({ onClose, anchor, align = 'left', position, trigger, ariaLabel, children, className }: PopoverProps) {
-  const markerRef = useRef<HTMLSpanElement>(null)
-  const inFlow = !anchor && !position
-  const posLeft = position && 'left' in position ? position.left : undefined
-  const posRight = position && 'right' in position ? position.right : undefined
-  const posTop = position?.top
-
+export function Popover({ trigger, anchor, align = 'left', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className }: PopoverProps) {
+  /* A rect is not an element, so it becomes a virtual anchor — the one shape
+     Floating UI takes besides an element. */
   const anchorTarget = useMemo(() => {
-    if (anchor) return anchor instanceof Element ? anchor : { getBoundingClientRect: () => anchor }
-    if (posTop !== undefined) {
-      const x = posLeft ?? (posRight !== undefined ? window.innerWidth - posRight : 0)
-      return virtualAnchor(x, posTop)
-    }
-    return () => markerRef.current?.parentElement ?? null
-  }, [anchor, posLeft, posRight, posTop])
-
-  const alignEnd = inFlow || align === 'right' || posRight !== undefined
+    if (!anchor) return undefined
+    if (anchor instanceof Element) return anchor
+    return { getBoundingClientRect: () => anchor }
+  }, [anchor])
 
   return (
-    <>
-      {inFlow && <span ref={markerRef} className="hidden" aria-hidden="true" />}
-      <BasePopover.Root
-        open
-        onOpenChange={(next, details) => {
-          if (next) return
-          const opener = trigger ?? (anchor instanceof Element ? anchor : null) ?? markerRef.current?.parentElement
-          /* A press on the control this panel hangs from is that control's own
-             toggle, not a press outside — the same trap `Menu` documents. */
-          if (details.reason === 'outside-press' && opener?.contains(details.event.target as Node)) return
-          onClose()
-        }}
-        /* Non-modal: the page behind keeps its scrollbar, so opening a panel
-           never shifts the layout, and a toolbar over a text selection must not
-           take the page away from the person using it. */
-        modal={false}
-      >
-        <BasePopover.Portal>
-          <BasePopover.Positioner
-            anchor={anchorTarget}
-            side="bottom"
-            align={alignEnd ? 'end' : 'start'}
-            sideOffset={position ? 0 : GAP}
-            collisionPadding={VIEWPORT_PAD}
-            className="z-50 data-[anchor-hidden]:hidden"
+    <BasePopover.Root
+      open={open}
+      onOpenChange={onOpenChange ? (next) => onOpenChange(next) : undefined}
+      actionsRef={actionsRef}
+      /* Non-modal: the page behind keeps its scrollbar, so opening a panel
+         never shifts the layout, and a toolbar over a text selection must not
+         take the page away from the person using it. */
+      modal={false}
+    >
+      {trigger && <BasePopover.Trigger render={trigger} />}
+      <BasePopover.Portal>
+        <BasePopover.Positioner
+          anchor={anchorTarget}
+          side="bottom"
+          align={align === 'right' ? 'end' : 'start'}
+          sideOffset={GAP}
+          collisionPadding={VIEWPORT_PAD}
+          className="z-50 data-[anchor-hidden]:hidden"
+        >
+          <BasePopover.Popup
+            aria-label={ariaLabel}
+            /* Focus lands on the first thing in the panel — the field, in the
+               panel this component exists for — and goes back to the trigger
+               when it closes. An anchored panel has no trigger, so its caller
+               says where with `finalFocus`. */
+            finalFocus={finalFocus}
+            className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
+            render={<MenuPanel />}
           >
-            <BasePopover.Popup
-              aria-label={ariaLabel}
-              /* A field inside the panel keeps the focus its `autoFocus` asks
-                 for — the link editor's URL box is the reason this component
-                 exists, and a popup that steals focus from it is useless. Base
-                 UI does not move focus that has already landed inside. */
-              className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
-              render={<MenuPanel />}
-            >
-              {children}
-            </BasePopover.Popup>
-          </BasePopover.Positioner>
-        </BasePopover.Portal>
-      </BasePopover.Root>
-    </>
+            {children}
+          </BasePopover.Popup>
+        </BasePopover.Positioner>
+      </BasePopover.Portal>
+    </BasePopover.Root>
   )
 }

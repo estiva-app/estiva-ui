@@ -33,29 +33,28 @@ in order, nothing is a menu item, and typing goes where you are typing.
 
 ## How
 
-Controlled, exactly like `Menu`: the caller keeps the open state, renders the
-panel only while true, and hands it `onClose`. Escape and the press outside
-then work without the caller writing either.
+The panel owns the trigger, exactly as `Menu` does: hand it the control and the
+contents, and write no open state, no placement and no dismiss.
 
 ```tsx
 import { Popover } from '@estiva-app/ui'
 
-{open && (
-  <Popover anchor={buttonRef.current} onClose={() => setOpen(false)} ariaLabel="Rename this">
-    <TextInput autoFocus value={name} onChange={onChange} aria-label="Name" />
-  </Popover>
-)}
+<Popover trigger={<Button variant="outlined">Rename</Button>} ariaLabel="Rename this">
+  <TextInput value={name} onChange={onChange} aria-label="Name" />
+</Popover>
 ```
 
-- The three anchorings are `Menu`'s and behave identically: an `anchor`
-  element or rect, `position` coordinates, or neither — under the element it
-  sits in, right-aligned. All three portal.
-- **A trigger that toggles needs `trigger`** when there is no `anchor`
-  element to recognise it by, or its own press will not close the panel.
-  Same trap, same fix, same reason as `Menu`'s.
-- **A field inside keeps its `autoFocus`.** Base UI does not move focus that
-  has already landed in the panel, which is what makes a link editor
-  possible.
+- **`trigger`** is any element that forwards its ref and spreads its props —
+  this package's `Button`, `IconButton` and `PersonTrigger` all do.
+- **Focus lands on the first thing in the panel** when it opens — the field, in
+  the panel this component exists for — and goes back to the trigger when it
+  closes. Nothing is written to get that.
+- **`actionsRef`** gives `close()`, for the Cancel and Save a form panel ends
+  with. Unlike a menu row, a control inside a panel does not close it by being
+  pressed: it is content, and content may be used more than once.
+- **`align="right"`** hangs the panel's right edge from the trigger's.
+- **`open` / `onOpenChange`** are there for a caller that must know or must
+  force it. Leave them off and the panel keeps its own state.
 - `ariaLabel` names the panel. A panel with a visible heading can point at it
   with `aria-labelledby` instead.
 - Width, padding and internal rhythm are yours, through `className` — the
@@ -63,14 +62,39 @@ import { Popover } from '@estiva-app/ui'
 
 <Canvas of={PopoverStories.FromATrigger} />
 
+### A panel with no trigger
+
+A toolbar over a text selection hangs from the selection, and there is no
+control that opened it. That is the one case with nothing for Base UI to watch,
+so it is the one case the caller drives:
+
+```tsx
+<Popover
+  anchor={selectionRect}
+  open={selectionRect !== null}
+  onOpenChange={(open) => !open && setSelectionRect(null)}
+  finalFocus={editorRef}
+  ariaLabel="Formatting"
+>
+```
+
+- **`anchor`** takes an element or a rect. A new rect moves the panel, so
+  re-measuring as the selection changes is all the tracking needed.
+- **`finalFocus` is not optional here.** With a trigger, focus goes back to it;
+  with an anchor there is nothing to go back to, and without this focus is left
+  on the document body — measured. Point it at what the person came from.
+
+<Canvas of={PopoverStories.FromASelection} />
+
 ## Keys
 
 | Input | What happens |
 |---|---|
+| click / Enter / Space on the trigger | opens, and focus moves to the first thing inside |
 | Tab / Shift-Tab | walks the contents, in order |
-| Escape | closes, and gives focus back to what opened it |
+| Escape | closes, and gives focus back to the trigger (`finalFocus` when there is no trigger) |
 | a press outside | closes |
-| a press on the trigger it hangs from | closes it once — not a press outside |
+| a second press of the trigger | closes — it is the trigger's own toggle, not a press outside |
 
 ## Props
 

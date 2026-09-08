@@ -98,12 +98,19 @@ buttons you tabbed through, and this page said the arrow keys did nothing.
 `openOnHover` opens the menu on hover and closes it shortly after the pointer
 leaves — for a control that only appears while the pointer is on a card.
 
-**Do not use it on a menu that has a `MenuSub` yet.** Measured: once the
-pointer has been inside a submenu panel, neither the submenu nor the menu
-closes again. The parent's close is driven by hover on its trigger, and the
-pointer never returns there. Leaving *without* entering a submenu closes
-correctly. This is Base UI's own hover choreography, so there is nothing of
-ours to fix; `PLAN.md` §6.2 carries the measurement.
+**Never use it on a menu that has a `MenuSub`** — the two together strand the
+menu open, and the component says so in the console if you try.
+
+Measured: enter the submenu's panel, then leave in any direction that does not
+cross back over the parent, and neither the submenu nor the menu ever closes
+again — at 200ms, 500ms, 1s and 2s. Leaving by a path that crosses the parent
+closes correctly, which is why it is easy to miss. Both triggers hard-code
+Floating UI's `safePolygon({ blockPointerEvents: true })`, which blocks pointer
+events while the path from a row to its panel is live; leaving that way never
+resolves the polygon, and Base UI exposes no prop for it.
+
+Without a submenu it is exact: opens on hover, closes ~200ms after the pointer
+leaves. `PLAN.md` §6.2 carries the measurements.
 
 ### Rows without a menu
 

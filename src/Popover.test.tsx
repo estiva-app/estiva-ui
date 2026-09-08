@@ -8,40 +8,25 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRef, useState } from 'react'
+import { Button } from './Button'
 import { Popover } from './Popover'
 import { PreviewCard } from './PreviewCard'
 import { TextInput } from './TextInput'
 
 afterEach(cleanup)
 
-function Opened({ onClose = () => {}, children }: { onClose?: () => void; children?: React.ReactNode }) {
-  const ref = useRef<HTMLButtonElement>(null)
-  const [open, setOpen] = useState(false)
+function Basic({ children, onOpenChange }: { children?: React.ReactNode; onOpenChange?: (open: boolean) => void }) {
   return (
-    <>
-      <button ref={ref} type="button" onClick={() => setOpen((v) => !v)}>
-        Trigger
-      </button>
-      {open && (
-        <Popover
-          anchor={ref.current}
-          ariaLabel="A panel"
-          onClose={() => {
-            setOpen(false)
-            onClose()
-          }}
-        >
-          {children ?? <button type="button">Inside</button>}
-        </Popover>
-      )}
-    </>
+    <Popover trigger={<Button variant="outlined">Trigger</Button>} ariaLabel="A panel" onOpenChange={onOpenChange}>
+      {children ?? <button type="button">Inside</button>}
+    </Popover>
   )
 }
 
 describe('Popover', () => {
   it('is a named panel, portalled out of what rendered it', async () => {
     const user = userEvent.setup()
-    const { container } = render(<Opened />)
+    const { container } = render(<Basic />)
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     const panel = await screen.findByRole('dialog', { name: 'A panel' })
     expect(container.contains(panel)).toBe(false)
@@ -51,7 +36,7 @@ describe('Popover', () => {
    *  menuitem, so nothing takes the arrow keys or the typeahead. */
   it('its contents are contents, not menu items', async () => {
     const user = userEvent.setup()
-    render(<Opened />)
+    render(<Basic />)
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('dialog')
     expect(screen.queryByRole('menu')).toBeNull()
@@ -68,9 +53,9 @@ describe('Popover', () => {
       return <TextInput autoFocus value={value} onChange={(e) => setValue(e.target.value)} aria-label="Link address" />
     }
     render(
-      <Opened>
+      <Basic>
         <Field />
-      </Opened>,
+      </Basic>,
     )
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     const field = await screen.findByRole('textbox', { name: 'Link address' })
@@ -79,38 +64,86 @@ describe('Popover', () => {
     expect((field as HTMLInputElement).value).toBe('abc')
   })
 
-  it('closes on Escape', async () => {
+  it('closes on Escape and gives focus back to the trigger', async () => {
     const user = userEvent.setup()
-    const onClose = vi.fn()
-    render(<Opened onClose={onClose} />)
-    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    render(<Basic />)
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    await user.click(trigger)
     await screen.findByRole('dialog')
     await user.keyboard('{Escape}')
-    expect(onClose).toHaveBeenCalled()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
   })
 
   it('closes on a press outside', async () => {
     const user = userEvent.setup()
-    const onClose = vi.fn()
     render(
       <>
-        <Opened onClose={onClose} />
+        <Basic />
         <button type="button">Elsewhere</button>
       </>,
     )
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('dialog')
     await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
-    expect(onClose).toHaveBeenCalled()
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('a press on the anchor closes it once, and does not reopen it', async () => {
+  it('a second press of the trigger closes it', async () => {
     const user = userEvent.setup()
-    render(<Opened />)
+    render(<Basic />)
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    await user.click(trigger)
+    await screen.findByRole('dialog')
+    await user.click(trigger)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  /** A control inside a panel is content, not a menu row: pressing it does not
+   *  close the panel, which is what `actionsRef` is for. */
+  it('a button inside does not close it; actionsRef does', async () => {
+    const user = userEvent.setup()
+    function WithActions() {
+      const actions = useRef<{ close: () => void; unmount: () => void } | null>(null)
+      return (
+        <Popover trigger={<Button variant="outlined">Trigger</Button>} actionsRef={actions} ariaLabel="A panel">
+          <Button size="small">Does nothing</Button>
+          <Button size="small" onClick={() => actions.current?.close()}>
+            Close
+          </Button>
+        </Popover>
+      )
+    }
+    render(<WithActions />)
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('dialog')
-    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    await user.click(screen.getByRole('button', { name: 'Does nothing' }))
+    expect(screen.queryByRole('dialog')).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('reports opening and closing to a caller that asks', async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    render(<Basic onOpenChange={onOpenChange} />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    await screen.findByRole('dialog')
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    await user.keyboard('{Escape}')
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  /** The other mode: no trigger element, hung from a rect the caller measured. */
+  it('opens from an anchored rect with no trigger at all', async () => {
+    render(
+      <Popover anchor={new DOMRect(10, 10, 40, 20)} open ariaLabel="Formatting">
+        <button type="button">Bold</button>
+      </Popover>,
+    )
+    expect(await screen.findByRole('dialog', { name: 'Formatting' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Trigger' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Bold' })).toBeTruthy()
   })
 })
 

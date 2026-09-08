@@ -57,7 +57,7 @@ import { SectionLabel } from './SectionLabel'
  * so those rows stay exactly the buttons they have always been, and only rows
  * inside a real menu become the part.
  */
-const MenuContext = createContext(false)
+const MenuContext = createContext<{ openOnHover: boolean } | null>(null)
 
 /**
  * The menu's surface, with none of its behaviour — an elevated box with a
@@ -144,6 +144,14 @@ export interface MenuProps {
   className?: string
 }
 
+/**
+ * Read from `globalThis` rather than as a bare `process`: the declaration
+ * build carries no ambient types on purpose, so that a consumer of this
+ * package does not inherit Node's. Every bundler still replaces the value.
+ */
+const isProduction = () =>
+  (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV === 'production'
+
 /** The 4px between a menu and its trigger, and the 8px it keeps clear of
  *  every screen edge — the two numbers `fit.ts` used. */
 const GAP = 4
@@ -196,7 +204,7 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
             className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
             render={<MenuPanel />}
           >
-            <MenuContext.Provider value>{children}</MenuContext.Provider>
+            <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
           </BaseMenu.Popup>
         </BaseMenu.Positioner>
       </BaseMenu.Portal>
@@ -228,6 +236,28 @@ export interface MenuSubProps {
 }
 
 export function MenuSub({ label, leading, selected, children, className }: MenuSubProps) {
+  /*
+   * A submenu inside a hover-opened menu strands it.
+   *
+   * Measured 2026-09-08: enter the submenu's panel, then leave in any
+   * direction that does not cross back over the parent, and neither the
+   * submenu nor the menu ever closes again — at 200ms, 500ms, 1s and 2s.
+   * Both triggers hard-code Floating UI's `safePolygon({ blockPointerEvents:
+   * true })`, which blocks pointer events while the path from row to panel is
+   * live; leaving that way never resolves the polygon. There is no prop.
+   *
+   * So the rule is: no `openOnHover` on a menu that has one of these. This
+   * says so out loud rather than leaving it to the page, because the failure
+   * is a menu that will not go away and the cause is two files apart.
+   */
+  const menu = useContext(MenuContext)
+  if (!isProduction() && menu?.openOnHover) {
+    console.error(
+      '[@estiva-app/ui] Menu: `openOnHover` and `MenuSub` cannot be used together — ' +
+        'leaving the submenu panel strands the menu open. Open this menu on a press instead. ' +
+        'See Menu.mdx, "Hover-opened menus".',
+    )
+  }
   return (
     <BaseMenu.SubmenuRoot>
       <BaseMenu.SubmenuTrigger
@@ -480,7 +510,7 @@ export function EnterHint({ target }: { target?: string }) {
  * plain elements it has always been.
  */
 export function MenuSection({ label, children, className }: { label: string; children: ReactNode; /** On the heading row — a surface whose rows are px-3 aligns its heading with px-3. */ className?: string }) {
-  const inMenu = useContext(MenuContext)
+  const inMenu = useContext(MenuContext) !== null
   const heading = (
     <div className={cn('flex h-8 items-center px-2', className)}>
       <SectionLabel className="text-text-secondary">{label}</SectionLabel>
