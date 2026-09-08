@@ -36,13 +36,17 @@ the caller's — this is the shell.
 import { Sidebar, NavItem, SectionLabel } from '@estiva-app/ui'
 
 <Sidebar>
-  <NavItem href="#/documents" label="Documents" active />
+  <NavItem href="/documents" label="Documents" active />
   <div className="mt-2 flex h-8 shrink-0 items-center px-2">
     <SectionLabel>Collections</SectionLabel>
   </div>
-  <NavItem href="#/collections/12" label="Quarterly plan" count={7} countLabel="7 open" />
+  <NavItem href="/collections/12" label="Quarterly plan" count={7} countLabel="7 open" />
 </Sidebar>
 ```
+
+**Every row is a plain anchor, so in a router app each click would reload
+the page.** Keep NavItem's rule: a thin wrapper computes `active` from the
+location, intercepts the click and navigates in place — see **NavItem**.
 
 Anything you place directly in the column needs `shrink-0` (the heading
 row above carries it): the column scrolls on overflow, and a flex child

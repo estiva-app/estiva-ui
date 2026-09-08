@@ -35,13 +35,16 @@ import { Breadcrumb } from '@estiva-app/ui'
 
 <Breadcrumb
   items={[
-    { label: 'Documents', href: '#/documents' },
-    { label: 'Quarterly plan', href: '#/documents/12' },
+    { label: 'Documents', href: '/documents' },
+    { label: 'Quarterly plan', href: '/documents/12' },
     { label: 'DOC-12', mono: true },
   ]}
 />
 ```
 
+- A crumb is a plain anchor. In a router app pass `onClick` per crumb and
+  navigate in place there — NavItem's rule — and keep the `href` a real
+  address, so the link can still be copied or opened in a new tab.
 - Truncation is re-measured as the trail resizes; the tooltip appears and
   disappears with the room the trail actually has. Give the trail a
   `min-w-0` container so it can truncate at all.

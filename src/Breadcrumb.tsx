@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useLayoutEffect, useRef, useState, type MouseEventHandler } from 'react'
 import { cn } from './cn'
 import { WithTooltip } from './Tooltip'
 
@@ -15,10 +15,18 @@ import { WithTooltip } from './Tooltip'
  * (Katerina, 2026-09-01); one that fits shows nothing extra. Truncation is
  * re-measured when the trail resizes, so the tooltip appears and disappears
  * with the room the trail actually has.
+ *
+ * A crumb with an `href` is a plain anchor, so in a router app a click on it
+ * reloads the page. Such an app passes `onClick` per crumb and navigates in
+ * place there — NavItem's rule — and the `href` stays a real address so the
+ * link can still be copied or opened in a new tab. Ship's breadcrumbs were
+ * the last links reloading the whole app (ADOPTION S15, 2026-09-08).
  */
 export interface Crumb {
   label: string
   href?: string
+  /** A router app intercepts the click here. Called only on a crumb with an `href`. */
+  onClick?: MouseEventHandler<HTMLAnchorElement>
   /** Set the item in the mono face — a ref, an id. */
   mono?: boolean
   /** Quieter — a label that is not a place. */
@@ -73,7 +81,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
           labelRefs.current[index] = el
         }
         const crumb = item.href ? (
-          <a ref={setLabelRef} href={item.href} className={cn(text, 'hover:text-text-primary')}>
+          <a ref={setLabelRef} href={item.href} onClick={item.onClick} className={cn(text, 'hover:text-text-primary')}>
             {item.label}
           </a>
         ) : (
