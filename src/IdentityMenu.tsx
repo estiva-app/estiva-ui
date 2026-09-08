@@ -151,7 +151,11 @@ export function IdentityMenu({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
   const actions = useRef<{ close: () => void; unmount: () => void } | null>(null)
   const close = useCallback(() => actions.current?.close(), [])
   return (
-    <div className={cn('relative', className)}>
+    /* The wrapper carries the caller's `className` and nothing else. It used
+       to be `relative`, because the panel was positioned against it; the panel
+       hangs from the trigger and portals now, so a positioning context here
+       would only be a lie about what this box does. */
+    <div className={className}>
       <Menu
         align="right"
         actionsRef={actions}

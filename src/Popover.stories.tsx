@@ -133,7 +133,12 @@ export const FromASelection: Story = {
     }
     return (
       <div className="w-[420px]">
-        <p ref={body} onMouseUp={read} onKeyUp={read} className="text-[14px] leading-[1.6] text-text-primary">
+        {/* `tabIndex={-1}`: `finalFocus` needs something that can take focus,
+            and a paragraph cannot until it is told it may. An editor already
+            can, which is the real case; `-1` gives this one the same property
+            without adding a Tab stop. Without it focus is left on the document
+            body when the panel closes — measured. */}
+        <p ref={body} tabIndex={-1} onMouseUp={read} onKeyUp={read} className="text-[14px] leading-[1.6] text-text-primary outline-none">
           Select any part of this sentence with the pointer, and a panel appears
           above the selection rather than beside a button — because a selection
           is not a control and there is no trigger to hang from.

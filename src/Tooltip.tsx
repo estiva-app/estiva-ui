@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
@@ -175,10 +175,13 @@ export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassNa
  *
  * Internal: the two buttons' `tooltip` / `disabledReason` props are the API.
  */
-export function TooltipTrigger({ label, shortcut, placement = 'top', children }: { label: string; shortcut?: string; placement?: 'top' | 'bottom'; children: ReactNode }) {
+export function TooltipTrigger({ label, shortcut, placement = 'top', children }: { label: string; shortcut?: string; placement?: 'top' | 'bottom'; children: ReactElement }) {
   return (
     <BaseTooltip.Root disableHoverablePopup>
-      <BaseTooltip.Trigger delay={OPEN_DELAY} render={children as never} />
+      {/* `children` is the control itself, so it is what the part renders —
+          a `ReactElement`, not a `ReactNode`, because `render` takes one
+          element and there is nothing sensible to do with two. */}
+      <BaseTooltip.Trigger delay={OPEN_DELAY} render={children} />
       <TooltipSurface label={label} shortcut={shortcut} placement={placement} />
     </BaseTooltip.Root>
   )

@@ -67,12 +67,8 @@ Tooltip first, because it was in the way of everything else.
   Deleted with the port: the `createPortal`, the `mousedown` listener on
   `document`, the Escape listener beside it, the resize and scroll
   listeners, the provisional hidden render the shell did in order to measure
-  itself, and `MenuSub`'s whole hand-rolled edge-flip. All three anchorings
-  are kept and **all three now portal** — the in-flow one did not, which is
-  exactly how the identity menu ended up under a z-indexed panel header.
-  Measured against a trigger: 4px below it, left edges flush; in-flow: 4px
-  below the wrapper, right edges flush, which is what `absolute right-0
-  top-full mt-1` drew.
+  itself, and `MenuSub`'s whole hand-rolled edge-flip. Measured against a
+  trigger: 4px below it, left edges flush.
 
 - **`IdentityMenu`'s arrow keys walk the actions only** (Katerina, D22),
   measured: ↓ goes Edit your profile → Copy public key → Sign out → wraps,
@@ -81,16 +77,32 @@ Tooltip first, because it was in the way of everything else.
   headings, so they are announced as named groups rather than as menu items
   that are not items.
 
-- **New prop `Menu.trigger`**, and it replaces a trick that has stopped
-  working. A trigger that toggles on `click` used to see its own press
-  dismiss the menu and the click reopen it; the fix was `onMouseDown` with
-  `stopPropagation`, because the dismiss was a `mousedown` listener on
-  `document`. Base UI dismisses on a **captured `pointerdown`**, which
-  stopping propagation in the bubble phase cannot reach — measured: the
-  identity menu could no longer be closed by clicking its own face. The
-  shell now treats a press inside the `anchor` as that control's toggle
-  rather than a press outside; a `position` menu has no anchor element, so
-  it passes `trigger`. `IdentityMenu`'s `stopPropagation` is deleted.
+- **BREAKING: `Menu` owns its trigger, and its three anchorings are gone.**
+  It takes `trigger` — the control itself, as an element — and is always
+  mounted; Base UI decides when it shows. `anchor`, `position`, `onClose`
+  and `closeOnLeave` are deleted with the code that needed them.
+
+  This is the standard rather than a preference (Katerina, 2026-09-08: *"if
+  your fixes are part of base ui, I would definitely be for using the
+  standards"*). **Five defects shared one root cause** — Base UI not knowing
+  which element opened the menu — and four of them had needed a hand-written
+  answer, each of which is now deleted:
+
+  - a press on the trigger stopped closing the menu. Base UI dismisses on a
+    **captured `pointerdown`**, which the old `onMouseDown` +
+    `stopPropagation` guard could not reach in the bubble phase — measured:
+    the identity menu could no longer be closed by clicking its own face;
+  - hovering a submenu row unmounted the whole menu (the `sibling-open`
+    special case);
+  - a hover menu shut itself coming back from a submenu (the
+    `data-estiva-menu` tagging, written and then deleted inside this stage);
+  - opening from the keyboard highlighted nothing;
+  - a hover menu could only be opened by a click.
+
+  **What a caller writes now is nothing**: no open state, no anchor, no
+  `onClose`, no `onMouseDown` guard. `Menu` takes `trigger`, and optionally
+  `openOnHover`, `open` / `onOpenChange` and `actionsRef`. Every call site is
+  a net deletion; the eight of them are listed under Callers.
 
 - **`IdentityMenu` anchors its panel to the trigger, not to the wrapper**, and
   that was a live defect rather than a tidy-up. The wrapper's box is the app's
@@ -101,24 +113,26 @@ Tooltip first, because it was in the way of everything else.
   flush, standing at its full 380px. Peek already works around a cousin of
   this with `className="flex"`.
 
-- **A hover-flow menu no longer shuts itself when you come back from a
-  submenu row.** `closeOnLeave` started its 150ms timer because a submenu
-  portals to the body: moving between a row and its panel leaves the parent
-  popup as far as the DOM is concerned, and the pointer passes over the
-  submenu's **positioner** on the way — the popup's parent, so a
-  `closest('[role="menu"]')` test says no. Measured: walking from “Mark as
-  Highlight” to the row below it closed the whole menu, with the pointer
-  still inside. **This is the defect Katerina reported in Peek**, and it is
-  older than stage 4 — the shell has had it since the hover menus were
-  extracted. Every box of one menu is tagged now, and a move into another of
-  them is not a leave.
+- **A hover menu no longer shuts itself when you come back from a submenu
+  row** — the defect Katerina reported in Peek, and older than this stage.
+  Moving between a row and its panel leaves the parent popup as far as the
+  DOM is concerned, so the shell's own 150ms leave timer started. It was
+  first patched here by tagging every box of one menu; that patch is deleted
+  and the answer is Base UI's, which owns the whole hover choreography
+  including the diagonal from a row out to its panel. Measured: `Move to…` →
+  the row below it keeps the parent open.
 
-  **This is a stopgap and is marked as one.** Base UI's own answer is
-  `openOnHover` on a real `Menu.Trigger`, which handles the whole hover
-  choreography including the diagonal — proved in a spike: the same walk
-  keeps the parent open, and leaving closes it. Our `Menu` cannot use it
-  because the caller owns the open state and there is no trigger part. See
-  the note in `PLAN.md` §6.2.
+- **`openOnHover` and `MenuSub` cannot be used together, and saying so is now
+  the component's job.** Measured 2026-09-08: enter a submenu's panel, then
+  leave in any direction that does not cross back over the parent, and
+  neither the submenu nor the menu ever closes again — at 200ms, 500ms, 1s
+  and 2s. Both triggers hard-code Floating UI's `safePolygon({
+  blockPointerEvents: true })`, which blocks pointer events while the path
+  from row to panel is live, and leaving that way never resolves the polygon.
+  There is no prop for it. So a `MenuSub` inside a hover-opened menu logs a
+  development-only error naming the fix — open the menu on a press — because
+  the failure is a menu that will not go away and its cause is two files
+  from where it shows. The two Peek menus this affects are in Callers.
 
 - **The menu popup takes `outline-none`.** Opened from the keyboard, Chrome
   drew a ring around the **whole panel** (`outline: auto 1px`, measured),
@@ -196,13 +210,22 @@ Tooltip first, because it was in the way of everything else.
   Beyond those two it is what Peek's thirteen hand-written overlays become
   (`COMPONENTS-PEEK.md` F5).
 
-  **The API is `Menu`'s, deliberately** — the same `onClose`, the same three
-  anchorings, the same `trigger` — so moving a surface across is a change of
-  one word. What differs is inside: it announces itself as a dialog, Tab
-  walks its contents in order, and **a field keeps the focus its `autoFocus`
-  asked for**, which is the whole point. Measured in Chrome: 4px under its
-  trigger, the URL field focused on open, typing reaching it, and **zero**
-  elements with a menu role anywhere in the panel.
+  **The API is `Menu`'s, deliberately**: it takes the `trigger` and owns
+  everything after — the toggle, the placement, the dismissal and the focus
+  return. What differs is inside: it announces itself as a dialog, Tab walks
+  its contents in order, and **focus lands on the first thing in the panel**,
+  which is the whole point. Measured in Chrome: 4px under its trigger, the
+  field focused on open, Tab going field → Cancel → Save, Escape closing it
+  and giving focus back to the trigger, a second press of the trigger closing
+  it rather than closing and reopening it, and **zero** elements with a menu
+  role anywhere in the panel.
+
+  Plus the one mode a `Menu` has no use for: **a panel with no trigger element
+  at all**, hung from a rect the caller measured — a toolbar over a text
+  selection, which is not a control and cannot be one. That mode is
+  controlled, because there is nothing for Base UI to watch, and it takes
+  `finalFocus` to say where focus goes when it closes. Without that, focus is
+  left on the document body; with it, on whatever the person came from.
 
 - **`PreviewCard`** — more of a thing, on hover. **It exists because Peek's
   Screener preview is this, hand-written**: its own `createPortal`, its own
@@ -211,7 +234,7 @@ Tooltip first, because it was in the way of everything else.
   Measured against the same numbers: it opens 12px to the right of the row,
   360px wide, and flips when that side has no room.
 
-  It opens 400ms after the pointer rests and closes 200ms after it leaves —
+  It opens 350ms after the pointer rests and closes 200ms after it leaves —
   long enough not to flash a card at every row while crossing a list, and
   long enough to cross the gap into the card. **`content` renders only while
   the card is open**, so a preview that fetches does not fetch once per row
@@ -219,10 +242,12 @@ Tooltip first, because it was in the way of everything else.
   pointed at; this holds content and can.
 
 - Both draw `MenuPanel`, so the elevated box still has one definition — and
-  both have a page, stories and tests (`Popover.test.tsx`, 9).
-- `Menu.test.tsx`, which the shell never had: 11 tests, including the rows
-  working on a bare `MenuPanel` and the trigger press that must not reopen
-  the menu.
+  both have a page, stories and tests of their own (`Popover.test.tsx`, 9;
+  `PreviewCard.test.tsx`, 4).
+- `Menu.test.tsx`, which the shell never had: 19 tests, including the whole
+  Keys table — the arrow keys and their wrap, Home and End, the typeahead,
+  and → opening a submenu onto its first row — the rows working on a bare
+  `MenuPanel`, and the trigger press that must not reopen the menu.
 - Menu stories: **`FromATrigger`** (the live menu, its submenu and the whole
   keyboard), **`InFlow`** (the anchoring two app callers use and no story
   covered), and `IdentityMenu`'s **`FromItsTrigger`**.
@@ -247,27 +272,37 @@ Tooltip first, because it was in the way of everything else.
   covered is measured in a browser instead, because jsdom lays nothing out:
   a jsdom test claiming to check placement checks nothing. (`fit.ts` itself
   goes when the Menu shell follows.)
+- **`Menu`'s `anchor`, `position`, `onClose` and `closeOnLeave` props.** See
+  the breaking entry above. Every one of them existed because the caller
+  owned the open state; the trigger does now.
 
 ### Callers
 
-Nothing to change to keep working. Two things worth doing, both in
-`ADOPTION.md`:
+**This release breaks every `Menu` call site**, and each one shrinks. The
+eight are read from the two apps, not estimated:
 
+| File | Today | After |
+|---|---|---|
+| Peek `ConversationMoreMenu` | in-flow, `onClose` | `trigger` |
+| Peek `HuddleCard` | `anchor`, `align`, `closeOnLeave`, `onClose` | `trigger`, `align` |
+| Peek `ThreadReplyCard` | `anchor`, `align`, `closeOnLeave`, `onClose` | `trigger`, `align` |
+| Peek `ScreenerLaterMenu` | `position` from a measured rect, `onClose` | `trigger` |
+| Peek `TopicMoreMenu` (`ConversationHeader`, `PersonRow`) | `position`, `onClose` | `trigger` |
+| Peek `SelectionToolbar` | `position`, `onClose` | **`Popover`**, anchored to the selection (P26) |
+| Peek `DebugMenu` | `position` from `window.innerWidth`, `onClose` | **`Popover`** with a `trigger` (P26) |
+| Ship `ConversationThread` | in-flow, `onClose` | `trigger` |
+
+Each also deletes its `open` state, its `getBoundingClientRect()` call and
+the `onMouseDown` + `stopPropagation` guard beside its trigger — those
+guards are dead code now, and were already failing against Base UI's
+captured `pointerdown`. **`ADOPTION.md` B9** is the row.
+
+- **`openOnHover` must come off any menu that has a `MenuSub`** until Base UI
+  offers a way through `safePolygon`. Both Peek menus that use it have one:
+  `ConversationMoreMenu` and `ThreadReplyCard`. They open on a press instead;
+  the component logs a development error if they do not (**B10**).
 - Mount a `TooltipProvider` at each app's root, or tooltips pause one per
   button instead of once per row (**B6**).
-- **A `position` menu whose trigger toggles it must pass `trigger`** — one
-  prop, the trigger element it already has — or clicking that trigger while
-  the menu is open will no longer close it. Read from Peek:
-  `ConversationHeader` and `PersonRow` (both through `TopicMoreMenu`),
-  `ScreenerLaterMenu`, and `DebugMenu`, which already holds the element.
-  `SelectionToolbar` opens from a text selection and needs nothing. A menu
-  with an `anchor` needs nothing either (**B9**).
-- **The `onMouseDown` / `stopPropagation` guards beside those triggers are
-  now dead code** and can go with the same edit. They are harmless if left.
-- **Two Peek surfaces use `Menu` as a floating panel rather than as a
-  menu**, and should move to `Popover`: `SelectionToolbar`, which puts a
-  `TextInput` inside one, and `DebugMenu`, which fills one with toggle rows.
-  Neither wants roving focus or typeahead over its contents (**P26**).
 - **A Select's trigger is a `combobox`, not a `button`** — the correct ARIA
   pattern for the control, and Base UI's doing. No product code changes;
   **sixteen test assertions do**, read from the two apps rather than

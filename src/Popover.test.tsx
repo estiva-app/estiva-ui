@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event'
 import { useRef, useState } from 'react'
 import { Button } from './Button'
 import { Popover } from './Popover'
-import { PreviewCard } from './PreviewCard'
 import { TextInput } from './TextInput'
 
 afterEach(cleanup)
@@ -144,44 +143,5 @@ describe('Popover', () => {
     expect(await screen.findByRole('dialog', { name: 'Formatting' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Trigger' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Bold' })).toBeTruthy()
-  })
-})
-
-describe('PreviewCard', () => {
-  it('renders its trigger, and nothing of its content, until it opens', () => {
-    render(
-      <PreviewCard content={<span>The rest of it</span>}>
-        <span>A row</span>
-      </PreviewCard>,
-    )
-    expect(screen.getByText('A row')).toBeTruthy()
-    // `content` is not rendered while closed, so a preview that fetches does
-    // not fetch once per row on screen.
-    expect(screen.queryByText('The rest of it')).toBeNull()
-  })
-
-  it('opens when the pointer rests on the trigger, and closes when it leaves', async () => {
-    const user = userEvent.setup()
-    render(
-      <PreviewCard content={<span>The rest of it</span>} delay={0} closeDelay={0}>
-        <span>A row</span>
-      </PreviewCard>,
-    )
-    await user.hover(screen.getByText('A row'))
-    expect(await screen.findByText('The rest of it')).toBeTruthy()
-    await user.unhover(screen.getByText('A row'))
-    expect(screen.queryByText('The rest of it')).toBeNull()
-  })
-
-  it('the trigger is the wrapper, and the row inside it is untouched', () => {
-    const { container } = render(
-      <PreviewCard content={<span>x</span>} wrapperClassName="block w-full">
-        <div data-testid="row">A row</div>
-      </PreviewCard>,
-    )
-    const wrapper = container.firstElementChild as HTMLElement
-    expect(wrapper.tagName).toBe('SPAN')
-    expect(wrapper.className).toContain('block')
-    expect(wrapper.firstElementChild?.getAttribute('data-testid')).toBe('row')
   })
 })

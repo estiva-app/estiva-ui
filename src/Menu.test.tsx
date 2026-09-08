@@ -140,6 +140,110 @@ describe('Menu', () => {
     expect(group.querySelectorAll('[role="menuitem"]')).toHaveLength(2)
   })
 
+  /**
+   * The Keys table, pinned. Every row of it is Base UI's, and none of it
+   * existed before stage 4 — which is exactly why it is tested here: a
+   * behaviour nobody wrote is a behaviour nobody notices losing.
+   *
+   * `data-highlighted` is the assertion because it is what the row's fill
+   * keys off, so a test that passes and a menu that looks wrong cannot come
+   * apart.
+   */
+  const highlighted = () => screen.getAllByRole('menuitem').find((i) => i.hasAttribute('data-highlighted'))?.textContent
+
+  it('opens from the keyboard with the first row highlighted', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    expect(highlighted()).toBe('Rename')
+  })
+
+  it('the arrow keys walk the rows and wrap at both ends', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    await user.keyboard('{ArrowDown}')
+    expect(highlighted()).toBe('Duplicate')
+    await user.keyboard('{ArrowDown}')
+    expect(highlighted()).toBe('Delete')
+    await user.keyboard('{ArrowDown}')
+    expect(highlighted()).toBe('Rename')
+    await user.keyboard('{ArrowUp}')
+    expect(highlighted()).toBe('Delete')
+  })
+
+  it('Home and End jump to the ends', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    await user.keyboard('{End}')
+    expect(highlighted()).toBe('Delete')
+    await user.keyboard('{Home}')
+    expect(highlighted()).toBe('Rename')
+  })
+
+  it('typing a row’s first letters jumps to it', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    await screen.findByRole('menu')
+    await user.keyboard('de')
+    expect(highlighted()).toBe('Delete')
+  })
+
+  it('Enter on the highlighted row activates it and closes the menu', async () => {
+    const user = userEvent.setup()
+    const onPick = vi.fn()
+    render(
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
+        <MenuItem label="Rename" onClick={onPick} />
+        <MenuItem label="Delete" destructive onClick={() => {}} />
+      </Menu>,
+    )
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    await user.keyboard('{Enter}')
+    expect(onPick).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('menu')).toBeNull()
+  })
+
+  /**
+   * → opens the submenu **and takes the highlight into it**; the parent row
+   * gives it up. The page said the highlight stayed on the row and ↓ stepped
+   * in, which was written from Base UI's documentation rather than from a
+   * measurement, and is wrong in a browser and here (2026-09-08).
+   */
+  it('→ opens a submenu onto its first row, and ← comes back', async () => {
+    const user = userEvent.setup()
+    render(
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuSub label="Move to…">
+          <MenuItem label="Item one" onClick={() => {}} />
+          <MenuItem label="Item two" onClick={() => {}} />
+        </MenuSub>
+      </Menu>,
+    )
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    await user.keyboard('{ArrowDown}')
+    expect(highlighted()).toBe('Move to…')
+    await user.keyboard('{ArrowRight}')
+    expect(await screen.findByRole('menuitem', { name: 'Item one' })).toBeTruthy()
+    expect(highlighted()).toBe('Item one')
+    await user.keyboard('{ArrowLeft}')
+    expect(screen.queryByRole('menuitem', { name: 'Item one' })).toBeNull()
+    expect(highlighted()).toBe('Move to…')
+  })
+
   it('a submenu row says it opens one', async () => {
     const user = userEvent.setup()
     render(
