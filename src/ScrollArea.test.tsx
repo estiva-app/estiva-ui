@@ -24,13 +24,27 @@ describe('ScrollArea', () => {
     expect(container.firstElementChild!.className).toContain('h-40')
   })
 
-  it('takes the viewport classes on the scrolling box, not the region', () => {
+  it('puts each class prop on its own box: the region, the viewport, the content', () => {
     const { container } = render(
-      <ScrollArea viewportClassName="p-2">
+      <ScrollArea className="h-40" viewportClassName="max-h-20" contentClassName="p-2">
         <p>Inside</p>
       </ScrollArea>,
     )
-    expect(container.firstElementChild!.className).not.toContain('p-2')
-    expect(screen.getByText('Inside').parentElement!.className).toContain('p-2')
+    const region = container.firstElementChild!
+    const content = screen.getByText('Inside').parentElement!
+    const viewport = content.parentElement!
+    expect(region.className).toContain('h-40')
+    expect(viewport.className).toContain('max-h-20')
+    expect(content.className).toContain('p-2')
+    expect(viewport.parentElement).toBe(region)
+  })
+
+  it('keeps a vertical region no wider than itself, and lets a sideways one grow', () => {
+    const v = render(<ScrollArea><p>Inside</p></ScrollArea>)
+    expect((screen.getByText('Inside').parentElement as HTMLElement).style.minWidth).toBe('0px')
+    cleanup()
+    render(<ScrollArea orientation="horizontal"><p>Inside</p></ScrollArea>)
+    expect((screen.getByText('Inside').parentElement as HTMLElement).style.minWidth).toBe('fit-content')
+    void v
   })
 })

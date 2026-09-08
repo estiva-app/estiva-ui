@@ -145,11 +145,11 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
              */
             initialFocus={trigger ? undefined : false}
             finalFocus={finalFocus}
-            className={cn('min-w-[180px] p-0 outline-none', className)}
+            className={cn('min-w-[180px] outline-none', className)}
             render={<MenuPanel />}
           >
-            {/* As in Menu: the padding and the height cap on the scrolling box, the bar at the edge. */}
-            <ScrollArea viewportClassName="flex max-h-[var(--available-height)] flex-col p-2 [&>[role=separator]]:mx-0">
+            {/* As in Menu: the cap on the scrolling box, less the panel's padding; the padding stays on the panel. */}
+            <ScrollArea viewportClassName="max-h-[calc(var(--available-height)_-_1rem)]" contentClassName="flex flex-col [&>[role=separator]]:mx-0">
               {children}
             </ScrollArea>
           </BasePopover.Popup>

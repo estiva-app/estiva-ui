@@ -80,10 +80,10 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
           className="z-50 data-[anchor-hidden]:hidden"
         >
           <BasePreviewCard.Popup
-            className={cn('w-[360px] p-0 outline-none', className)}
+            className={cn('w-[360px] p-3 outline-none', className)}
             render={<MenuPanel />}
           >
-            <ScrollArea viewportClassName="flex max-h-[min(300px,var(--available-height))] flex-col gap-3 p-3 [&>*]:shrink-0">
+            <ScrollArea viewportClassName="max-h-[calc(min(300px,var(--available-height))_-_1.5rem)]" contentClassName="flex flex-col gap-3 [&>*]:shrink-0">
               {content}
             </ScrollArea>
           </BasePreviewCard.Popup>
