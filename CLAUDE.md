@@ -172,6 +172,9 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 
 ---
 
+- **`npm pack` does not rebuild `dist/`.** It runs `prepack`/`prepare`, not `prepublishOnly`, so a tarball packed after a source change carries the previous build. `npm run build` first, then pack — and check the tarball for the change before installing it in an app (2026-09-08: an hour spent on a "fix" that was never in the tarball).
+- **The products are where a Base UI problem shows** (D19 said so; 2026-09-08 proved it three times in one evening — Findings 38 and 39). Nothing on a package canvas re-creates a control on a state change, names a required field, or disables a trigger; an app does all three on its first day. Budget the app's first hour as part of a stage.
+
 ## 12. Tooling
 
 ```
