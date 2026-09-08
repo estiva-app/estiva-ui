@@ -123,8 +123,8 @@ export interface MenuProps {
   /** Which of the menu's edges hangs from the trigger's. Default left. */
   align?: 'left' | 'right'
   /**
-   * Open on hover, and close shortly after the pointer leaves — the
-   * quick-menu cards work this way.
+   * Open on hover, and close shortly after the pointer leaves — for a control
+   * that only appears while the pointer is on a card.
    *
    * Base UI owns the whole choreography, including the diagonal from a row
    * out to a submenu panel. The shell used to hand-write this and got it

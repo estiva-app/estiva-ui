@@ -38,21 +38,21 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 
 /**
- * **Where it comes from.** A card's quick menu offers `React`; pressing it
- * opens the picker **above** the button, not below — the card is below, and
- * that is the thing being reacted to.
+ * **Where it comes from.** A card carries a `Toolbar` of actions; one of them
+ * opens the picker, and it opens **above** that control — what is being
+ * reacted to is underneath.
  *
  * The box here is the `Popover`'s, so the picker passes `surface={false}`:
  * two boxes inside each other is the tell.
  */
-export const FromAQuickMenu: Story = {
+export const FromATrigger: Story = {
   parameters: { controls: { disable: true }, layout: 'centered' },
-  render: function FromQuickMenu() {
+  render: function FromTrigger() {
     const [chosen, setChosen] = useState<string | null>(null)
     return (
       <div className="flex w-[420px] flex-col items-end gap-3">
         <div className="w-full rounded-lg border border-border-default bg-bg-surface p-3 text-body-2 text-text-primary">
-          A card. The quick menu sits at its corner, and the picker opens above it.
+          A card. Its actions sit at the corner, and the picker opens above them.
         </div>
         <Toolbar aria-label="Card actions">
           <ToolbarButton aria-label="Reply" tooltip="Reply">
@@ -117,9 +117,4 @@ export const AndWhatItProduces: Story = {
       </div>
     )
   },
-}
-
-/** Two reactions offered rather than five — the row is whatever the app hands it. */
-export const Fewer: Story = {
-  args: { options: OPTIONS.slice(0, 2) },
 }

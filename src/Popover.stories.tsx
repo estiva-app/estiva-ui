@@ -85,15 +85,28 @@ export const FromATrigger: Story = {
 }
 
 /**
- * The shape this component was added for: a row of controls with a text field
- * in it. In a `Menu` the arrow keys and the typeahead would fight the field.
+ * The shape this component was added for: a `Toolbar` with a text field in
+ * it. In a `Menu` the arrow keys and the typeahead would fight the field.
+ *
+ * It opens **above** its trigger, as a panel holding a toolbar does — the
+ * strip acts on what is under it.
  */
 export const AToolbar: Story = {
   parameters: { controls: { disable: true } },
   render: function FormattingStrip() {
     const [url, setUrl] = useState('')
     return (
-      <Popover trigger={<Button variant="outlined">Formatting</Button>} ariaLabel="Formatting" className="w-auto min-w-0 p-1">
+      <Popover
+        trigger={<Button variant="outlined">Formatting</Button>}
+        ariaLabel="Formatting"
+        /* Above the trigger, like every panel that holds a toolbar: a strip of
+           controls acts on what is under it, so it stands over that rather
+           than on top of it. `side` is the *preference* — Base UI flips it
+           when there is no room, which is the reason the placement is its job
+           and not ours. */
+        side="top"
+        className="w-auto min-w-0 p-1"
+      >
         {/* The strip is a `Toolbar`, so the whole row is ONE Tab stop and the
             arrow keys walk it — four stops before, one after. */}
         <Toolbar aria-label="Formatting" surface={false}>
@@ -189,4 +202,21 @@ export const FromASelection: Story = {
       </div>
     )
   },
+}
+
+/**
+ * **The side is a preference, not a promise.** This one asks for the top in a
+ * row pinned to the top of the screen, so there is no room above it and Base
+ * UI puts it below. Deciding that is the whole reason the placement is not
+ * ours to compute.
+ */
+export const FlippedForRoom: Story = {
+  parameters: { controls: { disable: true }, layout: 'fullscreen' },
+  render: () => (
+    <div className="flex h-[260px] w-full items-start justify-center pt-2">
+      <Popover trigger={<Button variant="outlined">Asks for the top</Button>} side="top" ariaLabel="A panel" className="w-[240px]">
+        <span className="text-body-2 text-text-primary">No room above, so it is below.</span>
+      </Popover>
+    </div>
+  ),
 }

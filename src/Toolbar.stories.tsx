@@ -118,13 +118,17 @@ export const Vertical: Story = {
  * boxes inside each other is the tell.
  */
 export const OnAnExistingSurface: Story = {
-  parameters: { controls: { disable: true } },
+  parameters: { controls: { disable: true }, layout: 'fullscreen' },
   render: () => (
+    <div className="flex h-[220px] w-full items-end justify-center pb-4">
     <Popover
       /* An `IconButton`, not a `ToolbarButton`: the trigger stands outside the
          strip, and a toolbar part outside a `Toolbar` throws. */
       trigger={<IconButton aria-label="Open" tooltip="Open">{icon}</IconButton>}
       ariaLabel="Formatting"
+      /* Above the control that opened it: a strip acts on what is under it.
+         `side` is the preference; Base UI flips it when there is no room. */
+      side="top"
       className="w-auto min-w-0 p-1"
     >
       <Toolbar aria-label="Formatting" surface={false}>
@@ -133,5 +137,6 @@ export const OnAnExistingSurface: Story = {
         <ToolbarButton aria-label="Item three" tooltip="Item three">{icon}</ToolbarButton>
       </Toolbar>
     </Popover>
+    </div>
   ),
 }

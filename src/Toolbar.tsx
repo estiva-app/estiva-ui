@@ -26,8 +26,8 @@ import { TextInput, type TextInputProps } from './TextInput'
  * paragraph, an image — so it carries the elevated surface that separates it
  * from that: the same `MenuPanel` a `Menu` draws, because a floating strip and
  * a floating list are the same box. Peek had built this twice and the two had
- * already drifted — its quick menu is `rounded-sm` with `shadow-sm` and a
- * subtle border, its reaction picker `rounded-lg` with `shadow-lg` and a
+ * already drifted — `ConversationQuickMenu` is `rounded-sm` with `shadow-sm`
+ * and a subtle border, `ReactionPicker` `rounded-lg` with `shadow-lg` and a
  * default one. There is one box now. `surface={false}` for a strip inside
  * something that already draws it.
  *
@@ -80,9 +80,9 @@ export function Toolbar({ 'aria-label': ariaLabel, orientation = 'horizontal', l
     stand the toolbar on its end whatever order the classes arrived in. One
     extra element, and the box keeps its single definition.
 
-    `p-1` is Peek's quick menu's padding, the tighter of the two it had, and
-    the right one for a strip of 24px controls; `MenuPanel`'s own `p-2` is a
-    menu's, where the rows run the full width.
+    `p-1` is the tighter of Peek's two paddings and the right one for a strip
+    of 24px controls; `MenuPanel`'s own `p-2` is a menu's, where the rows run
+    the full width.
   */
   return <MenuPanel className="w-fit p-1">{strip}</MenuPanel>
 }

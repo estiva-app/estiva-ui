@@ -8,8 +8,8 @@ import { Toolbar, ToolbarButton } from './Toolbar'
  * **`Reaction` is the answer; this is the question.** A `Reaction` is a pill
  * that says an emoji, a count and whether it is yours. This is the row you
  * pick from before any of that exists, and both apps need it: Peek draws one
- * from its card quick-menus, and Ship's reaction strip is the same row with
- * nothing behind it yet.
+ * from a card's action strip (`ConversationQuickMenu`), and Ship draws the
+ * same row in `Reactions.tsx` from its own vocabulary.
  *
  * **It is a `Toolbar`** — icon buttons holding emoji, on the strip's own
  * elevated box — so the whole row is one Tab stop and the arrow keys walk it.

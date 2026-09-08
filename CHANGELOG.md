@@ -64,14 +64,20 @@ and two answers to what she found reading stage 4's stories.
 
 ### Changed
 
-- **`Popover` takes `side`.** A toolbar over a text selection wants `top`
-  (Katerina, 2026-09-08): below, the panel covers the line after the selection
-  — and that is the line telling you what you have just selected. Measured
-  after: `data-side=top`, the panel's bottom edge 4px above the selection's
-  top. It is a preference, not a promise; Base UI flips it when that side has
-  no room.
-- **Both of `Popover`'s toolbar stories are now real `Toolbar`s**, which is
-  what the component was standing in for.
+- **`Popover` takes `side`, and every panel holding a `Toolbar` asks for
+  `top`** (Katerina, D30). A strip of controls acts on what is under it, so it
+  stands over that rather than on top of it — and over a text selection, a
+  panel below covers the line that tells you what you have just selected.
+  Measured on all five: `data-side=top`, 4px above the trigger.
+
+  **It is a preference, not a promise.** `side` says which side to try;
+  Floating UI measures the room and flips when there is none, which is the
+  reason the placement is the library's job and not arithmetic of ours. A
+  story shows exactly that — `FlippedForRoom` asks for the top with no room
+  above and comes out below. The default stays `bottom`: a rename field is
+  *about* its trigger and hangs from it.
+- **Every `Popover` story that draws a strip now draws a real `Toolbar`**,
+  which is what the hand-rolled rows were standing in for.
 - `Reaction` and `Chip` point at `ReactionPicker` and `Toolbar` where they used
   to point at "a toolbar of IconButtons", and `Choosing.mdx` gains a row for
   each.
@@ -101,9 +107,17 @@ and two answers to what she found reading stage 4's stories.
 
 - **`Toolbar`'s `AgainstALooseRow` story.** It set a toolbar beside a plain row
   to make the Tab-stop difference countable, which is an argument rather than a
-  variant — and stories are for introducing the component, not for proving a
-  point about the keyboard (Katerina, 2026-09-08). The measurement it made
-  lives in `Toolbar.test.tsx`, where it belongs.
+  variant — and stories introduce the component, they do not argue for it
+  (Katerina, D32). The measurement it made lives in `Toolbar.test.tsx`, where a
+  claim belongs.
+- **`ReactionPicker`'s `Fewer` story.** Two options rather than five is not a
+  variant: the row is whatever `options` holds, and nothing here caps or wraps
+  it. The page says so in a line instead.
+- **`ReactionPicker`'s `FromAQuickMenu` story is `FromATrigger`.** "Quick menu"
+  is Peek's `ConversationQuickMenu` — furniture this package does not have, and
+  a story may not name what does not exist here (Katerina: *"what is the quick
+  menu? Do we have it?"*). What it draws is a card with a `Toolbar` of actions,
+  one of which opens the picker above itself.
 
 ### Callers
 

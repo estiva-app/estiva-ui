@@ -53,6 +53,11 @@ import { Popover } from '@estiva-app/ui'
   with. Unlike a menu row, a control inside a panel does not close it by being
   pressed: it is content, and content may be used more than once.
 - **`align="right"`** hangs the panel's right edge from the trigger's.
+- **`side` is a preference, not a promise.** It says which side to try; Base UI
+  measures the room and flips when there is none — which is the reason the
+  placement is its job rather than arithmetic of ours. **A panel holding a
+  `Toolbar` asks for `top`**: a strip of controls acts on what is under it, so
+  it stands over that rather than on top of it.
 - **`open` / `onOpenChange`** are there for a caller that must know or must
   force it. Leave them off and the panel keeps its own state.
 - `ariaLabel` names the panel. A panel with a visible heading can point at it
@@ -102,6 +107,10 @@ reachable another way — a shortcut, a menu. A panel that is the only route to
 something belongs on a `trigger`.
 
 <Canvas of={PopoverStories.FromASelection} />
+
+### When the side it asks for has no room
+
+<Canvas of={PopoverStories.FlippedForRoom} />
 
 ## Keys
 
