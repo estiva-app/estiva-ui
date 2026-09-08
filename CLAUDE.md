@@ -169,11 +169,10 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 | Two axe projects in one run | they race on one cache dir; "Failed to fetch dynamically imported module" | one `--project` per run (clear `node_modules/.cache/storybook/*/sb-vitest` if it already happened) |
 | An empty `<span>` for an empty `<button>` | 1px higher on a text line (the same in a flex row) | keep the element the design was drawn with, or measure both |
 | A square control in a flex row | `align-items: stretch` grows it to the row's height — an `IconButton` measured 24×268, and a menu hung 360px below its trigger | `items-start` / `items-center` on the row; measure the control, not the row |
+| `npm pack` after a source change | the tarball carries the previous `dist/` — `pack` runs `prepack`, not `prepublishOnly` — and an app installing it tests the old code (2026-09-08: an hour on a "fix" that was never in the tarball) | `npm run build`, then pack; grep the tarball for the change before installing it |
+| A defect no package canvas can show | Findings 38 and 39 (2026-09-08): a control re-created on a state change, a required field named with its asterisk, a disabled trigger that opens — none visible in Storybook, all three in an app's first hour | the app's first hour is part of the stage (D19); read every app failure as a possible package defect before touching the app's test |
 
 ---
-
-- **`npm pack` does not rebuild `dist/`.** It runs `prepack`/`prepare`, not `prepublishOnly`, so a tarball packed after a source change carries the previous build. `npm run build` first, then pack — and check the tarball for the change before installing it in an app (2026-09-08: an hour spent on a "fix" that was never in the tarball).
-- **The products are where a Base UI problem shows** (D19 said so; 2026-09-08 proved it three times in one evening — Findings 38 and 39). Nothing on a package canvas re-creates a control on a state change, names a required field, or disables a trigger; an app does all three on its first day. Budget the app's first hour as part of a stage.
 
 ## 12. Tooling
 
