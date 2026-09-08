@@ -67,6 +67,7 @@ Every later port repeats this; none interprets it.
 
 - Every component has a `.stories.tsx` beside it. Every variant and every state that has a name in the props table is a story. A story that needs app data does not belong here; the component is then not a primitive.
 - Placeholder content only: `IconSquareRounded` at 16 / stroke 1.5 for icons, neutral labels ("Item", "Item one", "Label"), "Nothing here yet." for empty states, no real names, no product nouns.
+- **This applies to every word in a story and on a page, not only to the props.** A row labelled "Mark as Highlight", a section called "Utilities", a card of messages or a preview of a conversation all name one app's furniture, and a reader from the other app has to translate before they can see the component. Katerina, 2026-09-08. Say what the thing *is*: "Item one", "Move to…", "Label" / "Value". Where an example needs prose, write prose that explains the component's own behaviour rather than borrowing a product's.
 - Stories render in both product themes from the toolbar (`signal`, `ship`); a story that only reads right in one has a colour from outside the token set.
 - Frame and layout stories render full height (`h-screen`) and, where they scroll, with enough rows to actually scroll. Every bar story stands against content.
 - Story names are the variant's name, in words a designer uses.

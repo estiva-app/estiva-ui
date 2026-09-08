@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconDots, IconHighlight, IconPencil, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
 import { useRef, useState } from 'react'
 import { Button } from './Button'
 import { IconButton } from './IconButton'
@@ -49,14 +49,14 @@ export const Sections: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <MenuPanel className="min-w-[180px]">
-      <MenuSection label="Sort by">
-        <MenuItem label="Newest first" selected onClick={() => {}} />
-        <MenuItem label="Oldest first" onClick={() => {}} />
+      <MenuSection label="Section">
+        <MenuItem label="Item one" selected onClick={() => {}} />
+        <MenuItem label="Item two" onClick={() => {}} />
       </MenuSection>
       <Divider className="my-1" />
-      <MenuSection label="Show">
-        <MenuItem label="Everything" onClick={() => {}} />
-        <MenuItem label="Unread only" onClick={() => {}} />
+      <MenuSection label="Another section">
+        <MenuItem label="Option one" onClick={() => {}} />
+        <MenuItem label="Option two" onClick={() => {}} />
       </MenuSection>
     </MenuPanel>
   ),
@@ -68,8 +68,8 @@ export const WithARow: Story = {
   render: () => (
     <MenuPanel className="w-64">
       <MenuRow>
-        <span className="min-w-0 flex-1 truncate text-[14px] leading-[140%] text-text-primary">Ana Duarte</span>
-        <SectionLabel className="text-text-secondary">Owner</SectionLabel>
+        <span className="min-w-0 flex-1 truncate text-[14px] leading-[140%] text-text-primary">Item one</span>
+        <SectionLabel className="text-text-secondary">Label</SectionLabel>
       </MenuRow>
       <Divider className="my-1" />
       <MenuItem label="Sign out" onClick={() => {}} />
@@ -84,7 +84,7 @@ export const SubmenuRow: Story = {
   render: () => (
     <MenuPanel className="min-w-[180px]">
       <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
-      <MenuItem label="Mark as Highlight" leading={<IconHighlight size={16} stroke={1.5} className="text-text-secondary" />} submenu />
+      <MenuItem label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />} submenu />
       <Divider className="my-1" />
       <MenuItem label="Delete" destructive onClick={() => {}} />
     </MenuPanel>
@@ -114,12 +114,12 @@ export const FromATrigger: Story = {
           <Menu anchor={anchorRef.current} onClose={() => setOpen(false)}>
             <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setOpen(false)} />
             <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="Ctrl+C" onClick={() => setOpen(false)} />
-            <MenuSub label="Mark as Highlight" leading={<IconHighlight size={16} stroke={1.5} className="text-text-secondary" />}>
-              <MenuItem label="Insight" onClick={() => setOpen(false)} />
-              <MenuItem label="Concern" onClick={() => setOpen(false)} />
-              <MenuItem label="Conclusion" onClick={() => setOpen(false)} />
-              <MenuItem label="Question" onClick={() => setOpen(false)} />
-              <MenuItem label="Summary" onClick={() => setOpen(false)} />
+            <MenuSub label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />}>
+              <MenuItem label="Item one" onClick={() => setOpen(false)} />
+              <MenuItem label="Item two" onClick={() => setOpen(false)} />
+              <MenuItem label="Item three" onClick={() => setOpen(false)} />
+              <MenuItem label="Item four" onClick={() => setOpen(false)} />
+              <MenuItem label="Item five" onClick={() => setOpen(false)} />
             </MenuSub>
             <Divider className="my-1" />
             <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => setOpen(false)} />
@@ -195,11 +195,11 @@ export const HoverFlow: Story = {
         </span>
         {anchor && (
           <Menu anchor={anchor} align="right" closeOnLeave onClose={() => setAnchor(null)} className="w-[244px] gap-2">
-            <MenuSection label="Utilities">
+            <MenuSection label="Section">
               <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setAnchor(null)} />
-              <MenuSub label="Mark as Highlight" leading={<IconHighlight size={16} stroke={1.5} className="text-text-secondary" />}>
-                <MenuItem label="Insight" onClick={() => setAnchor(null)} />
-                <MenuItem label="Concern" onClick={() => setAnchor(null)} />
+              <MenuSub label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />}>
+                <MenuItem label="Item one" onClick={() => setAnchor(null)} />
+                <MenuItem label="Item two" onClick={() => setAnchor(null)} />
               </MenuSub>
             </MenuSection>
             <Divider className="my-1" />

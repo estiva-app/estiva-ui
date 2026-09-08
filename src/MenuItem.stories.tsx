@@ -106,7 +106,7 @@ export const APerson: Story = {
 
 /** The submenu's chosen value. */
 export const Selected: Story = {
-  args: { label: 'Newest first', selected: true },
+  args: { label: 'Item one', selected: true },
 }
 
 export const Destructive: Story = {

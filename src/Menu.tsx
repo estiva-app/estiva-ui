@@ -136,7 +136,22 @@ export interface MenuPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'chil
 export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
   return (
     <div
-      className={cn('flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg', className)}
+      className={cn(
+        'flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg',
+        /*
+         * A divider in a menu runs the width of the rows it separates.
+         *
+         * `Divider` is inset 12px each side, which is right in a page and
+         * wrong here: measured in a 180px menu, the rule started 21px from the
+         * panel's edge where the rows start at 9px — 12px narrower on each side
+         * than the things it divides. `IdentityMenu` was already cancelling it
+         * by hand with `mx-0`, which is the sign it belonged here (Katerina,
+         * 2026-09-08). Direct children only, so a divider a caller puts inside
+         * a row keeps its own spacing.
+         */
+        '[&>[role=separator]]:mx-0',
+        className,
+      )}
       {...props}
     >
       {children}
