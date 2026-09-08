@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconBold, IconItalic, IconLink } from '@tabler/icons-react'
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { Button } from './Button'
-import { IconButton } from './IconButton'
 import { MenuPanel } from './Menu'
 import { Popover } from './Popover'
 import { TextInput } from './TextInput'
+import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolbar'
 
 /**
  * A floating panel from a trigger — the menu's surface, with none of a menu's
@@ -90,24 +90,25 @@ export const FromATrigger: Story = {
  */
 export const AToolbar: Story = {
   parameters: { controls: { disable: true } },
-  render: function Toolbar() {
+  render: function FormattingStrip() {
     const [url, setUrl] = useState('')
     return (
-      <Popover
-        trigger={<Button variant="outlined">Formatting</Button>}
-        ariaLabel="Formatting"
-        className="w-auto min-w-0 flex-row items-center gap-1 p-1"
-      >
-        <IconButton aria-label="Bold" tooltip="Bold" tooltipShortcut="Cmd+B">
-          <IconBold size={16} stroke={1.5} />
-        </IconButton>
-        <IconButton aria-label="Italic" tooltip="Italic" tooltipShortcut="Cmd+I">
-          <IconItalic size={16} stroke={1.5} />
-        </IconButton>
-        <IconButton aria-label="Link" tooltip="Link">
-          <IconLink size={16} stroke={1.5} />
-        </IconButton>
-        <TextInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Paste a link" aria-label="Link address" className="h-7 w-48" />
+      <Popover trigger={<Button variant="outlined">Formatting</Button>} ariaLabel="Formatting" className="w-auto min-w-0 p-1">
+        {/* The strip is a `Toolbar`, so the whole row is ONE Tab stop and the
+            arrow keys walk it — four stops before, one after. */}
+        <Toolbar aria-label="Formatting">
+          <ToolbarButton aria-label="Bold" tooltip="Bold" tooltipShortcut="Cmd+B">
+            <IconBold size={16} stroke={1.5} />
+          </ToolbarButton>
+          <ToolbarButton aria-label="Italic" tooltip="Italic" tooltipShortcut="Cmd+I">
+            <IconItalic size={16} stroke={1.5} />
+          </ToolbarButton>
+          <ToolbarButton aria-label="Link" tooltip="Link">
+            <IconLink size={16} stroke={1.5} />
+          </ToolbarButton>
+          <ToolbarSeparator />
+          <ToolbarInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Paste a link" aria-label="Link address" className="h-7 w-48" />
+        </Toolbar>
       </Popover>
     )
   },
@@ -168,15 +169,22 @@ export const FromASelection: Story = {
           open={rect !== null}
           onOpenChange={(next) => !next && setRect(null)}
           finalFocus={body}
+          /* Above the selection, not below it (Katerina, 2026-09-08): below,
+             the panel covers the line after the selection — and that is the
+             line that tells you what you have just selected. Base UI flips it
+             when the top has no room. */
+          side="top"
           ariaLabel="Formatting"
-          className="w-auto min-w-0 flex-row items-center gap-1 p-1"
+          className="w-auto min-w-0 p-1"
         >
-          <IconButton aria-label="Bold" tooltip="Bold">
-            <IconBold size={16} stroke={1.5} />
-          </IconButton>
-          <IconButton aria-label="Italic" tooltip="Italic">
-            <IconItalic size={16} stroke={1.5} />
-          </IconButton>
+          <Toolbar aria-label="Formatting">
+            <ToolbarButton aria-label="Bold" tooltip="Bold">
+              <IconBold size={16} stroke={1.5} />
+            </ToolbarButton>
+            <ToolbarButton aria-label="Italic" tooltip="Italic">
+              <IconItalic size={16} stroke={1.5} />
+            </ToolbarButton>
+          </Toolbar>
         </Popover>
       </div>
     )

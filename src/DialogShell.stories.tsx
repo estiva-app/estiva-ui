@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
+import { IconArrowLeft } from '@tabler/icons-react'
 import { Button } from './Button'
+import { Chip } from './Chip'
 import { DialogShell } from './DialogShell'
+import { IconButton } from './IconButton'
 import { Field } from './Field'
 import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
@@ -49,17 +52,60 @@ export const Default: Story = {
   },
 }
 
-/** A minimal confirmation dialog — single line of body, two buttons. */
-export const Confirmation: Story = {
+/**
+ * **`headerContent` replaces the title text** — a back button beside it, a
+ * count after it — and the ✕ stays. The dialog is then named by its `title`
+ * anyway, since there is no longer a heading to point at.
+ *
+ * There used to be a `Confirmation` story here. It hand-built what
+ * `ConfirmDialog` *is* — same question, same two buttons — and hand-built it
+ * wrongly: a plain dialog, so a press on the backdrop dismissed the question,
+ * which is exactly what D20 stopped. A story showing the thing the page's own
+ * "When not" tells you not to build is worse than no story (Katerina,
+ * 2026-09-08). These two show what this shell does that `ConfirmDialog`
+ * cannot.
+ */
+export const WithHeaderContent: Story = {
   args: {
-    title: 'Delete this?',
+    headerContent: (
+      <div className="flex items-center gap-2">
+        <IconButton aria-label="Back" tooltip="Back">
+          <IconArrowLeft size={16} stroke={1.5} />
+        </IconButton>
+        <span className="text-h4 text-text-primary">Item one</span>
+        <Chip label="3" />
+      </div>
+    ),
     footer: (
       <>
         <Button variant="muted">Cancel</Button>
-        <Button variant="destructive">Delete</Button>
+        <Button variant="primary">Save</Button>
       </>
     ),
-    children: <p className="text-body-2 leading-[1.4] text-text-primary">This permanently removes it. It cannot be undone.</p>,
+    children: <p className="text-body-2 leading-[1.4] text-text-primary">The header is the caller's, and the ✕ is still the dialog's.</p>,
+  },
+}
+
+/**
+ * **No footer.** The body keeps the card's own bottom edge — a roster, a list,
+ * anything that simply ends rather than asking a question. There is no divider
+ * under the body either, because there is nothing to divide it from.
+ */
+export const WithoutAFooter: Story = {
+  args: {
+    title: 'Item one',
+    footer: null,
+    bodyClassName: 'flex flex-col gap-3',
+    children: (
+      <>
+        {['Item one', 'Item two', 'Item three'].map((label) => (
+          <div key={label} className="flex items-center justify-between">
+            <span className="text-body-2 text-text-primary">{label}</span>
+            <span className="text-caption text-text-secondary">Value</span>
+          </div>
+        ))}
+      </>
+    ),
   },
 }
 

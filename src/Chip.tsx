@@ -8,8 +8,9 @@ import { cn } from './cn'
  * slots centre their icon (Ship's addition — an icon beside text otherwise
  * rides on the baseline).
  *
- * The label is the `chip` type token, 11px / 500; it is a plain class here,
- * never merged, so tailwind-merge cannot drop it.
+ * The label is the `chip` type token, 11px / 500. It used to be spelled as a
+ * plain class under a note that it must never be merged; `cn()` knows the ramp
+ * now, so a token size survives beside a colour and the note is retired.
  */
 export type ChipType = 'neutral' | 'brand' | 'info' | 'warning' | 'success' | 'error'
 

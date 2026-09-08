@@ -51,6 +51,16 @@ export interface PopoverProps {
   anchor?: HTMLElement | DOMRect | null
   /** Which of the panel's edges hangs from the trigger's. Default left. */
   align?: 'left' | 'right'
+  /**
+   * Which side of the trigger, or of the anchor, the panel prefers. Default
+   * `bottom`.
+   *
+   * **A toolbar over a text selection wants `top`** (Katerina, 2026-09-08):
+   * below, it covers the line you are about to read next, and it is the line
+   * *after* the selection that tells you what you have selected. It is a
+   * preference, not a promise — Base UI flips it when that side has no room.
+   */
+  side?: 'top' | 'bottom'
   /** Controlled, for a caller that must know or must force it. Required with
    *  `anchor`; with a `trigger`, leave both off and the panel keeps its own. */
   open?: boolean
@@ -79,7 +89,7 @@ export interface PopoverProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Popover({ trigger, anchor, align = 'left', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className }: PopoverProps) {
+export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className }: PopoverProps) {
   /* A rect is not an element, so it becomes a virtual anchor — the one shape
      Floating UI takes besides an element. */
   const anchorTarget = useMemo(() => {
@@ -102,7 +112,7 @@ export function Popover({ trigger, anchor, align = 'left', open, onOpenChange, f
       <BasePopover.Portal>
         <BasePopover.Positioner
           anchor={anchorTarget}
-          side="bottom"
+          side={side}
           align={align === 'right' ? 'end' : 'start'}
           sideOffset={GAP}
           collisionPadding={VIEWPORT_PAD}

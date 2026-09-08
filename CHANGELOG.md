@@ -1,5 +1,92 @@
 # Changelog
 
+## Unreleased — Toolbar and ReactionPicker
+
+Two components Katerina asked for on 2026-09-08, pulled forward from stage 6,
+and two answers to what she found reading stage 4's stories.
+
+### Added
+
+- **`Toolbar`** — a strip of controls that behaves as **one** control: Tab in,
+  arrow keys along, Tab out. Base UI's `Toolbar`, with this package's
+  `IconButton` as **`ToolbarButton`**, plus **`ToolbarSeparator`** and
+  **`ToolbarInput`** (a field that keeps the arrow keys for its caret while it
+  has focus).
+
+  **It exists because every strip in the suite is as many Tab stops as it has
+  buttons.** Ship's reaction row, Peek's composer strip and the editor's
+  formatting strip are each a hand-rolled `<div class="flex">` of
+  `IconButton`s. Measured in Chrome, four buttons: **one Tab stop in a
+  `Toolbar`, four in the row beside it** — and the story puts the two side by
+  side so the difference can be counted rather than described.
+
+  A disabled control **keeps its place in the walk**, because a strip whose
+  controls come and go from the arrow keys as their state changes is a strip
+  you cannot learn — and a `disabledReason` you cannot reach is a reason
+  nobody reads.
+
+  **The gap, stated: Home and End do nothing.** Base UI's composite implements
+  them behind `enableHomeAndEndKeys` and `Toolbar.Root` does not pass it, so
+  the page does not claim them and a test pins the gap. The arrows wrap, which
+  reaches either end in one press of a strip this size.
+
+- **`ReactionPicker`** — the reactions on offer, to choose one from. **A
+  `Reaction` is the answer; this is the question.** Peek's `ReactionPicker`
+  (2026-09-03), moved in, with three things changed on the way:
+
+  - **it is a `Toolbar`**, so the row is one Tab stop rather than one per
+    emoji — Peek's five were five things to Tab past to reach anything after
+    the card;
+  - **it draws no surface.** Peek's drew its own elevated panel, which is
+    `MenuPanel`'s box typed again by hand. Without one it can sit in a
+    `Popover`, inline on a card, or in a larger toolbar — the "either" that
+    was asked for, and all three have a canvas;
+  - **the vocabulary stays with the app.** Which emoji, and what each one
+    means, is product knowledge: it arrives as `options`, and every option
+    owes a `label`, because the emoji is `aria-hidden` here for the same
+    reason it is on `Reaction`.
+
+### Changed
+
+- **`Popover` takes `side`.** A toolbar over a text selection wants `top`
+  (Katerina, 2026-09-08): below, the panel covers the line after the selection
+  — and that is the line telling you what you have just selected. Measured
+  after: `data-side=top`, the panel's bottom edge 4px above the selection's
+  top. It is a preference, not a promise; Base UI flips it when that side has
+  no room.
+- **Both of `Popover`'s toolbar stories are now real `Toolbar`s**, which is
+  what the component was standing in for.
+- `Reaction` and `Chip` point at `ReactionPicker` and `Toolbar` where they used
+  to point at "a toolbar of IconButtons", and `Choosing.mdx` gains a row for
+  each.
+- The `chip` and `input-label` type tokens are merged with `cn()` like every
+  other class. Three files carried a note saying they must **never** be merged;
+  that stopped being true when `cn()` was taught the ramp, and `cn.test.ts`
+  pins it.
+
+### Removed
+
+- **`DialogShell`'s `Confirmation` story.** It hand-built what `ConfirmDialog`
+  *is* — the same question, the same two buttons — and hand-built it wrongly:
+  a plain dialog, so a press on the backdrop dismissed the question, which is
+  exactly what D20 stopped. A story showing the thing the page's own "When
+  not" tells you not to build is worse than no story (Katerina, 2026-09-08).
+
+  Two stories replace it, and each covers a prop that had none:
+  **`WithHeaderContent`** (a back button and a count in place of the title) and
+  **`WithoutAFooter`** (the body keeps the card's bottom edge).
+
+### Callers
+
+- **Nothing breaks.** Both components are new and `Popover`'s `side` defaults
+  to what it did before.
+- **Peek's `ReactionPicker` becomes a three-line wrapper** holding
+  `REACTION_EMOJIS` and `REACTION_NAMES` — the vocabulary — and its hand-drawn
+  panel goes to the `Popover` it already needs (**P29**).
+- **Every hand-rolled strip of `IconButton`s becomes a `Toolbar`**: Ship's
+  reaction row, Peek's composer strip and the editor's formatting strip
+  (**B15**).
+
 ## Unreleased — the review of stages 0 to 3
 
 Everything the earlier stages built, read again and driven in a browser. The

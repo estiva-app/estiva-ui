@@ -76,8 +76,10 @@ export function Reaction({ emoji, count, pressed = false, className, type, ...pr
       <span aria-hidden="true" className="shrink-0 text-[16px] leading-none">
         {emoji}
       </span>
-      {/* `text-chip` is a plain class, never merged — the same guard Chip uses,
-          because tailwind-merge drops a token size that follows a text colour. */}
+      {/* `text-chip` stands alone here, so there is nothing to merge it with.
+          The old note said it must NEVER be merged; that stopped being true
+          when `cn()` was taught the ramp — `chip` is in it, and `cn.test.ts`
+          pins that. */}
       <span className="text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tabular-nums">
         {count}
       </span>

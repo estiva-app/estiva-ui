@@ -4,9 +4,9 @@ import { cn } from './cn'
 
 /**
  * Peek's Field (2026-08-28): a label over a control, 8px apart, with a red
- * asterisk when required. The label is the `input-label` type token as a plain
- * class, never merged. On Base UI's `Field` since stage 3 of the migration
- * (2026-09-07).
+ * asterisk when required. The label is the `input-label` type token, merged
+ * with `cn()` like every other class list here. On Base UI's `Field` since
+ * stage 3 of the migration (2026-09-07).
  *
  * The label names its control. It did not once, and the control was a
  * *sibling* of the label with no `htmlFor`, so there was neither an explicit

@@ -1,0 +1,81 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ReactionPickerStories from './ReactionPicker.stories'
+
+<Meta of={ReactionPickerStories} />
+
+# ReactionPicker
+
+The reactions on offer, to choose one from. **`Reaction` is the answer; this is
+the question.**
+
+<Canvas of={ReactionPickerStories.Default} />
+
+## When
+
+- **Offering a reaction**, from a card's corner, a message's hover controls, or
+  a `…` menu's panel. This is the case it exists for.
+- Showing which you have already chosen while offering the rest: `selected`
+  fills those with the accent, the way a pressed `Reaction` is filled.
+
+<Canvas of={ReactionPickerStories.SomeChosen} />
+
+## When not
+
+- **Showing a reaction that has been made**, with its count → **Reaction**.
+  That is the pill; this is the row you pick from.
+- Any other strip of controls → **Toolbar**, which this is built on.
+- A list of verbs → **Menu**.
+
+## How
+
+```tsx
+import { ReactionPicker } from '@estiva-app/ui'
+
+<ReactionPicker
+  options={[
+    { emoji: '👍', label: 'Makes sense' },
+    { emoji: '🎉', label: 'Congrats' },
+  ]}
+  selected={mine}
+  onSelect={react}
+/>
+```
+
+- **The vocabulary is yours.** Which emoji an app offers, and what each one
+  means, is product knowledge — so it arrives as `options`, and every option
+  owes a `label`.
+- **`label` is not decoration.** The emoji is `aria-hidden`, for the same
+  reason it is on `Reaction`: a glyph read aloud is noise, and its spoken name
+  differs per screen reader. The label is what a screen reader says and what
+  the tooltip shows, so write the *meaning* — "Makes sense", not "thumbs up".
+- **`onSelect` reports the emoji**, which is what an app stores. Toggling is
+  the caller's: pass the result back through `selected`.
+- **It draws no surface**, which is what lets it sit in three places — see
+  below. The panel in `InAPopover` is the `Popover`'s.
+- **It is one Tab stop**, because it is a `Toolbar`. The hand-written version
+  it replaces was one stop per emoji, inside a hover panel — five things to
+  Tab past to reach anything after the card.
+
+<Canvas of={ReactionPickerStories.Live} />
+
+### The three places it goes
+
+<Canvas of={ReactionPickerStories.InAPopover} />
+
+<Canvas of={ReactionPickerStories.OnACard} />
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Tab | onto the row — once, however many reactions are offered |
+| ← / → | move between them, and wrap at the ends |
+| Enter / Space | choose the focused one |
+| Tab again | leaves the row entirely |
+
+The keys are `Toolbar`'s, and its gap is this one's: **Home and End do
+nothing.**
+
+## Props
+
+<Controls of={ReactionPickerStories.Default} />
