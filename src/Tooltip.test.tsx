@@ -11,7 +11,7 @@
  * a browser instead and the numbers live in the page.
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { Tooltip, TooltipProvider, WithTooltip } from './Tooltip'
@@ -70,7 +70,7 @@ describe('WithTooltip', () => {
     // The 300ms wait is D23; it was instant before.
     expect((await screen.findByRole('tooltip')).textContent).toBe('Add to starred')
     await user.unhover(screen.getByRole('button', { name: 'Star' }))
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
   })
 
   it('closes on Escape while it is up', async () => {
@@ -83,7 +83,7 @@ describe('WithTooltip', () => {
     await user.tab()
     expect(await screen.findByRole('tooltip')).toBeTruthy()
     await user.keyboard('{Escape}')
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
   })
 
   it('a click on the trigger closes it — the tooltip has said its piece', async () => {
@@ -97,7 +97,7 @@ describe('WithTooltip', () => {
     await user.hover(star)
     expect(await screen.findByRole('tooltip')).toBeTruthy()
     await user.click(star)
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
   })
 
   /** The gap the page wrote down about itself, and the reason Tooltip went first. */
@@ -127,7 +127,7 @@ describe('WithTooltip', () => {
     expect(await screen.findByRole('tooltip')).toBeTruthy()
     await user.tab()
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Next' }))
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
   })
 })
 

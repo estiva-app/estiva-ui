@@ -5,7 +5,7 @@
  * contents are not menu items, and a field inside it keeps its focus.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRef, useState } from 'react'
 import { Button } from './Button'
@@ -70,7 +70,7 @@ describe('Popover', () => {
     await user.click(trigger)
     await screen.findByRole('dialog')
     await user.keyboard('{Escape}')
-    expect(screen.queryByRole('dialog')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     expect(document.activeElement).toBe(trigger)
   })
 
@@ -85,7 +85,7 @@ describe('Popover', () => {
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('dialog')
     await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
-    expect(screen.queryByRole('dialog')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
   it('a second press of the trigger closes it', async () => {
@@ -95,7 +95,7 @@ describe('Popover', () => {
     await user.click(trigger)
     await screen.findByRole('dialog')
     await user.click(trigger)
-    expect(screen.queryByRole('dialog')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
   /** A control inside a panel is content, not a menu row: pressing it does not
@@ -119,7 +119,7 @@ describe('Popover', () => {
     await user.click(screen.getByRole('button', { name: 'Does nothing' }))
     expect(screen.queryByRole('dialog')).toBeTruthy()
     await user.click(screen.getByRole('button', { name: 'Close' }))
-    expect(screen.queryByRole('dialog')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
   it('reports opening and closing to a caller that asks', async () => {

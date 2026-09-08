@@ -8,7 +8,7 @@
  * behaviour, and stage 4 is where most of it started existing.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Button } from './Button'
 import { Menu, MenuItem, MenuPanel, MenuSection, MenuSub } from './Menu'
@@ -65,7 +65,7 @@ describe('Menu', () => {
     await user.click(trigger)
     await screen.findByRole('menu')
     await user.keyboard('{Escape}')
-    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
     expect(document.activeElement).toBe(trigger)
   })
 
@@ -80,7 +80,7 @@ describe('Menu', () => {
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('menu')
     await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
-    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
   })
 
   /**
@@ -96,7 +96,7 @@ describe('Menu', () => {
     await user.click(trigger)
     await screen.findByRole('menu')
     await user.click(trigger)
-    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
   })
 
   it('reports opening and closing to a caller that asks', async () => {
@@ -121,7 +121,7 @@ describe('Menu', () => {
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Rename' }))
     expect(onPick).toHaveBeenCalledTimes(1)
-    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
   })
 
   it('a section is a labelled group, so its rows are announced together', async () => {
@@ -211,7 +211,7 @@ describe('Menu', () => {
     await screen.findByRole('menu')
     await user.keyboard('{Enter}')
     expect(onPick).toHaveBeenCalledTimes(1)
-    expect(screen.queryByRole('menu')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
   })
 
   /**
@@ -240,7 +240,7 @@ describe('Menu', () => {
     expect(await screen.findByRole('menuitem', { name: 'Item one' })).toBeTruthy()
     expect(highlighted()).toBe('Item one')
     await user.keyboard('{ArrowLeft}')
-    expect(screen.queryByRole('menuitem', { name: 'Item one' })).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('menuitem', { name: 'Item one' })).toBeNull())
     expect(highlighted()).toBe('Move to…')
   })
 

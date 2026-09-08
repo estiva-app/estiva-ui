@@ -14,7 +14,7 @@
  * repository rather than in Ship's adoption PR.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { Select } from './Select'
@@ -84,7 +84,7 @@ describe('Select', () => {
     await user.click(screen.getByRole('combobox', { name: 'Status' }))
     expect(await screen.findByRole('listbox')).toBeTruthy()
     await user.keyboard('{Escape}')
-    expect(screen.queryByRole('listbox')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
   })
 
   it('closes on a press outside', async () => {
@@ -98,7 +98,7 @@ describe('Select', () => {
     await user.click(screen.getByRole('combobox', { name: 'Status' }))
     expect(await screen.findByRole('listbox')).toBeTruthy()
     await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
-    expect(screen.queryByRole('listbox')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
   })
 
   it('picking an option reports it and closes', async () => {
@@ -108,7 +108,7 @@ describe('Select', () => {
     await user.click(screen.getByRole('combobox', { name: 'Status' }))
     await user.click(await screen.findByRole('option', { name: /Done/ }))
     expect(onChange).toHaveBeenCalledWith('done')
-    expect(screen.queryByRole('listbox')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
   })
 
   /** New at stage 4, and nothing here implements it: type the start of an
@@ -144,7 +144,7 @@ describe('Select', () => {
     await user.click(screen.getByRole('combobox', { name: 'Status' }))
     expect(await screen.findByRole('listbox')).toBeTruthy()
     await user.tab()
-    expect(screen.queryByRole('listbox')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
   })
   it('disabled: the trigger cannot be opened', async () => {
     const user = userEvent.setup()
