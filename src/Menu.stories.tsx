@@ -110,8 +110,11 @@ export const FromATrigger: Story = {
 export const RightAligned: Story = {
   parameters: { controls: { disable: true }, layout: 'fullscreen' },
   render: () => (
-    <div className="flex h-[300px] w-full justify-end p-4">
-      <Menu align="right" trigger={<IconButton aria-label="More"><IconDots size={16} stroke={1.5} /></IconButton>}>
+    /* `items-start`: a flex row stretches its children by default, and an
+       IconButton has no height of its own — without it the 24px square grew to
+       the row's 300px and wore a 300px hover fill (measured 24x268 before). */
+    <div className="flex h-[300px] w-full items-start justify-end p-4">
+      <Menu align="right" trigger={<IconButton aria-label="More" tooltip="More"><IconDots size={16} stroke={1.5} /></IconButton>}>
         <MenuItem label="Rename" onClick={() => {}} />
         <MenuItem label="Delete" destructive onClick={() => {}} />
       </Menu>
@@ -120,27 +123,23 @@ export const RightAligned: Story = {
 }
 
 /**
- * **Opens on hover, and closes shortly after the pointer leaves** — no click.
- * The quick-menu cards work this way: the control appears while the pointer is
- * on the card, and the menu it opens dismisses itself when you go.
+ * The shape a card uses: a `⋮` at the end of the row, named by its tooltip,
+ * opening a right-aligned menu on **click**.
  *
- * The thing to try: open it and walk down the rows, out to the submenu and
- * back. It must stay open the whole way, including the diagonal from a row to
- * its panel, and close only when you actually leave. All of that is Base UI's
- * `openOnHover` — the shell used to hand-write it and got it wrong in two
- * directions.
+ * Walk down the rows, out to the submenu and back — it stays open the whole
+ * way, including the diagonal from a row to its panel, and closes on Escape,
+ * on a press outside, or on a second press of the `⋮`.
  */
-export const OpensOnHover: Story = {
+export const OnACard: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex w-[420px] items-start gap-3 rounded-lg border border-border-default p-3">
       <span className="min-w-0 flex-1 text-[14px] leading-[140%] text-text-primary">
-        A card. Rest the pointer on the control, then walk down the rows and out to the submenu.
+        A card. Press the control at the end of the row, then walk down the rows and out to the submenu.
       </span>
       <Menu
         align="right"
-        openOnHover
-        trigger={<IconButton aria-label="More"><IconDots size={16} stroke={1.5} /></IconButton>}
+        trigger={<IconButton aria-label="More" tooltip="More"><IconDots size={16} stroke={1.5} /></IconButton>}
         className="w-[244px] gap-2"
       >
         <MenuSection label="Section">

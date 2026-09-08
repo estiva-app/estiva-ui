@@ -5,34 +5,29 @@ import * as MenuStories from './Menu.stories'
 
 # Menu
 
-The shell every menu shares: an elevated container — hairline border, 8px
-radius, 8px padding, the large shadow — and the behaviour every menu owes,
-**owned here and never by the caller**: Escape, a click outside, and since
-stage 4 the keyboard — ↑ ↓ walk the rows, Home and End jump, typing a row's
-first letters goes to it. Rows are
-**MenuItem**, headings are **MenuSection**, a non-interactive line at row
-geometry is **MenuRow**, and **EnterHint** is the `↩ Enter` chip a picker row
-shows while highlighted.
+A list of actions from a trigger. **The menu owns the trigger**, so a caller
+writes no open state, no placement and no dismiss — it hands over the control
+and the rows, and everything else is Base UI's.
 
-**MenuPanel** is the container on its own, without the behaviour — for the
-one case that cannot have it: a type-ahead popup inside a text editor, where
-the editor's own plugin already owns the keyboard and the placement, and a
-second Escape handler fights it. `Menu` renders `MenuPanel`, so the surface
-has one definition either way. If your surface opens from a trigger, you want
-`Menu`; reach for `MenuPanel` only when something else is already driving.
+Rows are **MenuItem**, headings are **MenuSection**, a non-interactive line at
+row geometry is **MenuRow**, a row that opens another menu is **MenuSub**, and
+**EnterHint** is the `↩ Enter` chip a picker row shows while highlighted.
+
+**MenuPanel** is the container on its own, without the behaviour — for the one
+case that cannot have it: a type-ahead popup inside a text editor, where the
+editor's own plugin already owns the keyboard and a menu's roving focus would
+take focus out of the text. `Menu` renders `MenuPanel`, so the surface has one
+definition either way.
 
 <Canvas of={MenuStories.Items} />
 
 ## When
 
-- A click-opened list of actions: a `…` more-menu, an account menu, a
-  right-click's worth of verbs. Rows are the default `MenuItem` — 14px
-  label, optional `leading` icon, `shortcut` kbd chip, `destructive` in the
-  error colour.
-- A picker fed by typing: @-mentions, a people picker, a command list.
-  Those rows are `MenuItem size="tall"` — content height with a 40px floor,
-  room for a 32px face via `leading` and a `description` line — with an
-  `EnterHint` on the highlighted row.
+- A click-opened list of actions: a `⋮` more-menu, an account menu, a
+  right-click's worth of verbs.
+- A picker fed by typing: rows are `MenuItem size="tall"` — content height
+  with a 40px floor, room for a 32px face via `leading` and a `description`
+  line — with an `EnterHint` on the highlighted row.
 - Grouped choices where one is current: `MenuSection` over rows, `selected`
   on the chosen one.
 
@@ -40,105 +35,89 @@ has one definition either way. If your surface opens from a trigger, you want
 
 ## When not
 
-- Picking one value for a form field → **Select**. It is the same shell
-  behaviour plus a trigger that shows the value.
-- Rows that toggle checkboxes and stay open → that is a **listbox**, not a
-  menu; a Checkbox inside a `menuitem` button is invalid HTML. Build it as
-  a list in a DialogShell.
-- A strip of icon actions (reactions, formatting) → a toolbar of
-  **IconButton**s.
-- Anything with a title and a footer → **DialogShell**.
-- Who-you-are and where-you-are (the avatar in the top bar) →
-  **IdentityMenu**, already built on this shell.
+- **A panel of content — a field, a form, a row of controls** → **Popover**.
+  It is this surface with none of a menu's keyboard, which is what content
+  needs: a menu's typeahead would fight a text field.
+- Picking one value for a form field → **Select**.
+- Rows that toggle and stay open → that is a listbox, not a menu; a Checkbox
+  inside a `menuitem` is invalid. Build it as a list in a **DialogShell**.
+- A strip of icon actions → a toolbar of **IconButton**s.
+- Who-you-are and where-you-are → **IdentityMenu**, already built on this.
 
 ## How
-
-Menus are controlled: the caller keeps `open` state, renders the menu only
-while true, and hands it `onClose`. Escape and outside-click then work
-without the caller writing either.
 
 ```tsx
 import { Menu, MenuItem } from '@estiva-app/ui'
 
-{open && (
-  <Menu onClose={() => setOpen(false)}>
-    <MenuItem label="Rename" onClick={rename} />
-    <MenuItem label="Delete" destructive onClick={confirmDelete} />
-  </Menu>
-)}
+<Menu trigger={<IconButton aria-label="More" tooltip="More"><IconDots /></IconButton>}>
+  <MenuItem label="Rename" onClick={rename} />
+  <MenuItem label="Delete" destructive onClick={confirmDelete} />
+</Menu>
 ```
 
-Three anchorings. **All of them portal to the body**, so nothing in an app
-can clip or cover a menu — which the old in-flow mode could not promise, and
-is how the identity menu once ended up under a z-indexed panel header.
+That is the whole of it. **No `open` state, no anchor, no `onClose`** — the
+menu is always mounted and Base UI decides when it is shown, which is what
+lets it place itself against the trigger, return focus to it, highlight the
+first row when it was opened from the keyboard, and treat a second press of
+the trigger as "close" rather than as a press outside.
 
-- **`anchor={el}`** — the trigger element, or a rect a click handler already
-  measured. The menu hangs 4px under it, flips above when the room below is
-  worse, and stays on screen. `align="right"` hangs the menu's right edge
-  from the anchor's.
-- **`position={{ top, left }}` or `{ top, right }`** — viewport coordinates
-  the caller computed. That corner is honoured, and can no longer land off
-  screen. `right` is measured from the right-hand edge of the window.
-- **Neither** — the menu hangs from the element it sits in, right-aligned,
-  4px below: what `absolute right-0 top-full mt-1` drew. The wrapper should
-  still be the one you want it measured against.
+- **`trigger`** is any element that forwards its ref and spreads its props —
+  this package's `Button`, `IconButton` and `PersonTrigger` all do. An
+  icon-only trigger owes a `tooltip` and an `aria-label`.
+- **`align="right"`** hangs the menu's right edge from the trigger's, for a
+  control at the right of a row or a bar.
+- **`open` / `onOpenChange`** are there for a caller that must know or must
+  force it. Leave them off and the menu keeps its own state.
+- **`actionsRef`** gives `close()`, for content that is not a `MenuItem` and
+  so does not close the menu by being chosen.
+- A menu stands as tall as the room it opens into and scrolls only when the
+  screen has none; it flips above the trigger when the room below is worse,
+  and never leaves the screen.
 
-<Canvas of={MenuStories.FromATrigger} />
+<Canvas of={MenuStories.OnACard} />
 
 ## Keys
 
 | Input | What happens |
 |---|---|
+| click / Enter / Space on the trigger | opens; from the keyboard, the first row is highlighted |
 | ↑ / ↓ | move between rows, and wrap at the ends |
 | Home / End | first row / last row |
 | typing a row's first letters | jumps to that row |
 | Enter / Space on the highlighted row | activates it, and closes the menu |
 | → on a submenu row | opens the submenu, highlight staying on the row; ↓ steps into it, ← closes it and comes back |
-| Escape | closes, and gives focus back to what opened it |
-| a press outside | closes |
-| a press on the trigger the menu hangs from | closes it once — not a press outside (see below) |
+| Escape | closes, and gives focus back to the trigger |
+| a press outside, or a second press of the trigger | closes |
 
-Focus moves into the menu when it opens and returns when it closes. None of
-that existed before stage 4: a menu was a portalled box of buttons you
-tabbed through, and the page said the arrow keys did nothing.
-
-### The trigger trap, and how it changed
-
-A trigger that toggles on `click` used to see its own press dismiss the menu
-and the click reopen it — a flicker that reads as "the menu ignores me". The
-old fix was `onMouseDown` with `stopPropagation`, because the dismiss was a
-`mousedown` listener on `document`. **That no longer helps**: Base UI
-dismisses on a captured `pointerdown`, which stopping propagation in the
-bubble phase cannot reach.
-
-The shell handles it instead: a press inside the `anchor` is that control's
-own toggle, not a press outside, and is ignored. **A `position` menu has no
-anchor element, so it passes `trigger`:**
-
-```tsx
-<Menu
-  position={{ top: rect.bottom + 4, left: rect.left }}
-  trigger={buttonRef.current}
-  onClose={() => setOpen(false)}
-/>
-```
+Focus moves into the menu when it opens and returns to the trigger when it
+closes. None of that existed before stage 4: a menu was a portalled box of
+buttons you tabbed through, and this page said the arrow keys did nothing.
 
 ### Hover-opened menus
 
-`closeOnLeave` closes the menu 150ms after the pointer leaves it — the
-quick-menu cards dismiss this way. The grace period is shared with any open
-`MenuSub` panel, so crossing the diagonal from a row into its submenu never
-counts as leaving.
+`openOnHover` opens the menu on hover and closes it shortly after the pointer
+leaves — for a control that only appears while the pointer is on a card.
 
-`MenuSub` is hover-timed the same way and opens on → as well. Where it goes
-is Floating UI's: right of the row when it fits, flipped left at the screen
-edge.
+**Do not use it on a menu that has a `MenuSub` yet.** Measured: once the
+pointer has been inside a submenu panel, neither the submenu nor the menu
+closes again. The parent's close is driven by hover on its trigger, and the
+pointer never returns there. Leaving *without* entering a submenu closes
+correctly. This is Base UI's own hover choreography, so there is nothing of
+ours to fix; `PLAN.md` §6.2 carries the measurement.
+
+### Rows without a menu
+
+`MenuItem` and `MenuSection` work on a bare `MenuPanel`, and there they are
+plain buttons: no `role="menuitem"`, because ARIA requires a menu item to sit
+inside a `menu` or a `menubar` and a `MenuPanel` is a `<div>` with no role.
+Four surfaces used to claim menu items of nothing.
 
 ### Alignment
 
-A menu whose rows are `px-3` (tall picker rows) aligns its headings by
-passing `className="px-3"` to `MenuSection` — the heading row is `px-2` by
-default, matching the default rows.
+A menu whose rows are `px-3` (tall picker rows) aligns its headings by passing
+`className="px-3"` to `MenuSection` — the heading row is `px-2` by default,
+matching the default rows. A `Divider` inside a menu needs nothing: the panel
+already runs it the width of the rows it separates.
 
 ## Props
 

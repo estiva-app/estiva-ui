@@ -84,10 +84,24 @@ export const Default: Story = {
 export const Loading: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <MenuPanel className="w-[360px] gap-2 p-3">
-      <SkeletonBar className="w-32" />
-      <SkeletonBar className="w-full" />
-      <SkeletonBar className="w-3/4" />
+    /* The skeleton is the shape of `Default`, line for line: a heading, three
+       label/value rows, and two lines of detail. That is what makes it a
+       skeleton rather than a placeholder — the card is the size it is about to
+       be, so nothing moves when the content lands. */
+    <MenuPanel className="w-[360px] gap-3 p-3">
+      <SkeletonBar className="h-4 w-24" />
+      <div className="flex flex-col gap-1.5">
+        {['w-16', 'w-24', 'w-20'].map((w, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <SkeletonBar className="w-20 shrink-0" />
+            <SkeletonBar className={w} />
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <SkeletonBar className="w-full" />
+        <SkeletonBar className="w-2/3" />
+      </div>
     </MenuPanel>
   ),
 }

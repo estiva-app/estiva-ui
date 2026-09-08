@@ -162,6 +162,7 @@ Every non-empty diff is either a ruling (named in the PR) or a defect. "It looks
 | An app's Vitest on the symlinked package | two Reacts; "Cannot read properties of null (reading 'useRef')" | run caller tests on the `npm pack` tarball |
 | Two axe projects in one run | they race on one cache dir; "Failed to fetch dynamically imported module" | one `--project` per run (clear `node_modules/.cache/storybook/*/sb-vitest` if it already happened) |
 | An empty `<span>` for an empty `<button>` | 1px higher on a text line (the same in a flex row) | keep the element the design was drawn with, or measure both |
+| A square control in a flex row | `align-items: stretch` grows it to the row's height — an `IconButton` measured 24×268, and a menu hung 360px below its trigger | `items-start` / `items-center` on the row; measure the control, not the row |
 
 ---
 
