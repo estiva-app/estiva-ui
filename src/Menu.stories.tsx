@@ -1,50 +1,54 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
-import { useRef, useState } from 'react'
 import { Button } from './Button'
-import { IconButton } from './IconButton'
 import { Divider } from './Divider'
+import { IconButton } from './IconButton'
 import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSub } from './Menu'
 import { SectionLabel } from './SectionLabel'
 
 /**
- * The shell every menu shares — container, rows, headings, and the exits
- * (Escape, a click outside) owned here, never by the caller. Since stage 4
- * it also owns the keyboard: ↑ ↓ walk the rows, Home and End jump, typing a
- * row's first letters jumps to it.
+ * The shell every menu shares: an elevated container, rows, headings — and all
+ * of a menu's behaviour, which is Base UI's. **The menu owns its trigger**, so
+ * a caller writes no open state, no placement and no dismiss.
  *
- * A real menu portals to the body and places itself against a trigger, so it
- * cannot stand in the page the way these canvases need. **The canvases draw
- * the surface with `MenuPanel`** — which is what a menu *is*, and what
- * `Menu` itself renders — so the anatomy is visible at a glance;
- * **`FromATrigger` is the live one**, with the placement and the keyboard
- * (Katerina, D25).
+ * ↑ ↓ walk the rows and wrap, Home and End jump, typing a row's first letters
+ * goes to it, → opens a submenu and ← closes it, Escape closes and gives focus
+ * back to the trigger.
+ *
+ * A live menu portals and places itself against its trigger, so it cannot
+ * stand in a docs canvas: **`Items` and `Sections` draw the surface** with
+ * `MenuPanel` — which is what a menu *is*, and what `Menu` renders — and every
+ * story below them is live (Katerina, D25).
  */
 const meta = {
   title: 'Overlays/Menu',
   component: Menu,
-  decorators: [(Story) => <div className="flex min-h-[240px] w-full items-center justify-center"><Story /></div>],
-  args: { onClose: () => {}, children: null },
-  argTypes: { position: { control: false }, onClose: { control: false }, children: { control: false }, anchor: { control: false } },
+  decorators: [(Story) => <div className="flex min-h-[260px] w-full items-start justify-center pt-6"><Story /></div>],
+  args: { trigger: <Button variant="outlined">Open the menu</Button>, children: null },
+  argTypes: { trigger: { control: false }, children: { control: false }, onOpenChange: { control: false }, actionsRef: { control: false } },
 } satisfies Meta<typeof Menu>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Rows with a leading icon, a shortcut, and the destructive colour for the one that deletes. */
+const icon = (Icon: typeof IconPencil) => <Icon size={16} stroke={1.5} className="text-text-secondary" />
+
+/** The anatomy at rest: rows with a leading icon, a shortcut, and the
+ *  destructive colour for the one that deletes. */
 export const Items: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <MenuPanel className="min-w-[180px]">
-      <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
-      <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="Ctrl+C" onClick={() => {}} />
+      <MenuItem label="Rename" leading={icon(IconPencil)} onClick={() => {}} />
+      <MenuItem label="Duplicate" leading={icon(IconCopy)} shortcut="Ctrl+D" onClick={() => {}} />
       <Divider className="my-1" />
       <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
     </MenuPanel>
   ),
 }
 
-/** Groups under SectionLabel headings, with a Divider between them; `selected` marks the chosen value. */
+/** Groups under headings, with a divider between them. The divider runs the
+ *  width of the rows it separates, not the width of the panel's text. */
 export const Sections: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
@@ -62,7 +66,7 @@ export const Sections: Story = {
   ),
 }
 
-/** A non-interactive row at the item's geometry — identity lines, hints. */
+/** A non-interactive line at row geometry — a value, a note. */
 export const WithARow: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
@@ -72,141 +76,83 @@ export const WithARow: Story = {
         <SectionLabel className="text-text-secondary">Label</SectionLabel>
       </MenuRow>
       <Divider className="my-1" />
-      <MenuItem label="Sign out" onClick={() => {}} />
-    </MenuPanel>
-  ),
-}
-
-/** The row that opens another menu, at rest: the chevron at the right edge is
- *  the whole affordance. Hover it in **FromATrigger** to see the panel. */
-export const SubmenuRow: Story = {
-  parameters: { controls: { disable: true } },
-  render: () => (
-    <MenuPanel className="min-w-[180px]">
-      <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => {}} />
-      <MenuItem label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />} submenu />
-      <Divider className="my-1" />
-      <MenuItem label="Delete" destructive onClick={() => {}} />
+      <MenuItem label="An action" onClick={() => {}} />
     </MenuPanel>
   ),
 }
 
 /**
- * The live menu. Click the button, then try the keyboard: ↑ and ↓ walk the
- * rows and wrap, Home and End jump, typing "de" goes to Delete, → opens the
- * submenu and ← closes it, Escape closes the menu and gives focus back.
+ * Live. Click the button, then use only the keyboard: ↑ ↓ walk the rows and
+ * wrap, Home and End jump, typing "de" goes to Delete, Escape closes and puts
+ * focus back on the button.
  *
- * The submenu is hover-timed too — it opens at once and closes 150ms after
- * the pointer leaves, so the diagonal from row to panel survives — and it
- * flips to the left of the row when the right-hand edge is close.
+ * The trigger belongs to the menu, so nothing here keeps open state.
  */
 export const FromATrigger: Story = {
   parameters: { controls: { disable: true } },
-  render: function Live() {
-    const [open, setOpen] = useState(false)
-    const anchorRef = useRef<HTMLButtonElement>(null)
-    return (
-      <>
-        <Button ref={anchorRef} variant="outlined" onClick={() => setOpen((v) => !v)}>
-          Open the menu
-        </Button>
-        {open && (
-          <Menu anchor={anchorRef.current} onClose={() => setOpen(false)}>
-            <MenuItem label="Rename" leading={<IconPencil size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setOpen(false)} />
-            <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} shortcut="Ctrl+C" onClick={() => setOpen(false)} />
-            <MenuSub label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />}>
-              <MenuItem label="Item one" onClick={() => setOpen(false)} />
-              <MenuItem label="Item two" onClick={() => setOpen(false)} />
-              <MenuItem label="Item three" onClick={() => setOpen(false)} />
-              <MenuItem label="Item four" onClick={() => setOpen(false)} />
-              <MenuItem label="Item five" onClick={() => setOpen(false)} />
-            </MenuSub>
-            <Divider className="my-1" />
-            <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => setOpen(false)} />
-          </Menu>
-        )}
-      </>
-    )
-  },
+  render: () => (
+    <Menu trigger={<Button variant="outlined">Open the menu</Button>}>
+      <MenuItem label="Rename" leading={icon(IconPencil)} onClick={() => {}} />
+      <MenuItem label="Duplicate" leading={icon(IconCopy)} shortcut="Ctrl+D" onClick={() => {}} />
+      <MenuSub label="Move to…" leading={icon(IconSquareRounded)}>
+        <MenuItem label="Item one" onClick={() => {}} />
+        <MenuItem label="Item two" onClick={() => {}} />
+        <MenuItem label="Item three" onClick={() => {}} />
+      </MenuSub>
+      <Divider className="my-1" />
+      <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
+    </Menu>
+  ),
+}
+
+/** The menu's right edge hangs from the trigger's, for a control at the right
+ *  of a bar. */
+export const RightAligned: Story = {
+  parameters: { controls: { disable: true }, layout: 'fullscreen' },
+  render: () => (
+    <div className="flex h-[300px] w-full justify-end p-4">
+      <Menu align="right" trigger={<IconButton aria-label="More"><IconDots size={16} stroke={1.5} /></IconButton>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuItem label="Delete" destructive onClick={() => {}} />
+      </Menu>
+    </div>
+  ),
 }
 
 /**
- * No `anchor` and no `position`: the menu hangs from the element it sits in,
- * right-aligned, 4px below it — what `absolute right-0 top-full mt-1` drew.
- * It portals now, so nothing above it in the app can clip or cover it, which
- * the old in-flow mode could not promise: that is exactly how the identity
- * menu ended up under a z-indexed panel header.
+ * **Opens on hover, and closes shortly after the pointer leaves** — no click.
+ * The quick-menu cards work this way: the control appears while the pointer is
+ * on the card, and the menu it opens dismisses itself when you go.
  *
- * Two callers use this shape — Ship's message actions and Peek's
- * conversation menu when it has no anchor.
+ * The thing to try: open it and walk down the rows, out to the submenu and
+ * back. It must stay open the whole way, including the diagonal from a row to
+ * its panel, and close only when you actually leave. All of that is Base UI's
+ * `openOnHover` — the shell used to hand-write it and got it wrong in two
+ * directions.
  */
-export const InFlow: Story = {
+export const OpensOnHover: Story = {
   parameters: { controls: { disable: true } },
-  render: function InFlowMenu() {
-    const [open, setOpen] = useState(false)
-    return (
-      <div className="relative">
-        <Button variant="outlined" onClick={() => setOpen((v) => !v)}>
-          Actions
-        </Button>
-        {open && (
-          <Menu onClose={() => setOpen(false)}>
-            <MenuItem label="Rename" onClick={() => setOpen(false)} />
-            <MenuItem label="Delete" destructive onClick={() => setOpen(false)} />
-          </Menu>
-        )}
-      </div>
-    )
-  },
-}
-
-/**
- * The hover-flow menu: `closeOnLeave`. A card shows a `⋮` while the pointer is
- * on it, and the menu it opens dismisses itself 150ms after the pointer leaves
- * — no click needed, because the whole flow is a hover.
- *
- * **The thing to try, and the reason this story exists:** open it and move
- * down the rows. It must stay open the whole way, including across the gaps
- * between rows and out to a submenu panel, and close only when you actually
- * leave. The grace period is shared with any open `MenuSub`, so crossing the
- * diagonal from a row into its panel never counts as leaving.
- */
-export const HoverFlow: Story = {
-  parameters: { controls: { disable: true } },
-  render: function Hovering() {
-    const [hovered, setHovered] = useState(false)
-    const [anchor, setAnchor] = useState<DOMRect | null>(null)
-    return (
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="flex w-[420px] items-start gap-3 rounded-lg border border-border-default p-3"
+  render: () => (
+    <div className="flex w-[420px] items-start gap-3 rounded-lg border border-border-default p-3">
+      <span className="min-w-0 flex-1 text-[14px] leading-[140%] text-text-primary">
+        A card. Rest the pointer on the control, then walk down the rows and out to the submenu.
+      </span>
+      <Menu
+        align="right"
+        openOnHover
+        trigger={<IconButton aria-label="More"><IconDots size={16} stroke={1.5} /></IconButton>}
+        className="w-[244px] gap-2"
       >
-        <span className="min-w-0 flex-1 text-[14px] leading-[140%] text-text-primary">
-          A card. Rest the pointer on it, press the ⋮, then walk down the rows.
-        </span>
-        <span className={hovered || anchor ? 'opacity-100' : 'opacity-0'}>
-          <IconButton
-            aria-label="More"
-            onClick={(event) => setAnchor(anchor ? null : event.currentTarget.getBoundingClientRect())}
-          >
-            <IconDots size={16} stroke={1.5} />
-          </IconButton>
-        </span>
-        {anchor && (
-          <Menu anchor={anchor} align="right" closeOnLeave onClose={() => setAnchor(null)} className="w-[244px] gap-2">
-            <MenuSection label="Section">
-              <MenuItem label="Copy link" leading={<IconCopy size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setAnchor(null)} />
-              <MenuSub label="Move to…" leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />}>
-                <MenuItem label="Item one" onClick={() => setAnchor(null)} />
-                <MenuItem label="Item two" onClick={() => setAnchor(null)} />
-              </MenuSub>
-            </MenuSection>
-            <Divider className="my-1" />
-            <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => setAnchor(null)} />
-          </Menu>
-        )}
-      </div>
-    )
-  },
+        <MenuSection label="Section">
+          <MenuItem label="Duplicate" leading={icon(IconCopy)} onClick={() => {}} />
+          <MenuSub label="Move to…" leading={icon(IconSquareRounded)}>
+            <MenuItem label="Item one" onClick={() => {}} />
+            <MenuItem label="Item two" onClick={() => {}} />
+          </MenuSub>
+        </MenuSection>
+        <Divider className="my-1" />
+        <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
+      </Menu>
+    </div>
+  ),
 }

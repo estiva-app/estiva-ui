@@ -69,29 +69,20 @@ export const Submenu: Story = {
 export const SubmenuLive: Story = {
   parameters: { controls: { disable: true } },
   decorators: [(Story) => <Story />],
-  render: function Live() {
-    const [open, setOpen] = useState(false)
-    const ref = useRef<HTMLButtonElement>(null)
-    return (
-      <div className="flex min-h-[220px] w-full items-start justify-center pt-4">
-        <Button ref={ref} variant="outlined" onClick={() => setOpen((v) => !v)}>
-          Open the menu
-        </Button>
-        {open && (
-          <Menu anchor={ref.current} onClose={() => setOpen(false)}>
-            <MenuItem label="Rename" onClick={() => setOpen(false)} />
-            <MenuSub label="Move to…">
-              <MenuItem label="Item one" onClick={() => setOpen(false)} />
-              <MenuItem label="Item two" onClick={() => setOpen(false)} />
-              <MenuItem label="Item three" onClick={() => setOpen(false)} />
-            </MenuSub>
-            <Divider className="my-1" />
-            <MenuItem label="Delete" destructive onClick={() => setOpen(false)} />
-          </Menu>
-        )}
-      </div>
-    )
-  },
+  render: () => (
+    <div className="flex min-h-[220px] w-full items-start justify-center pt-4">
+      <Menu trigger={<Button variant="outlined">Open the menu</Button>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuSub label="Move to…">
+          <MenuItem label="Item one" onClick={() => {}} />
+          <MenuItem label="Item two" onClick={() => {}} />
+          <MenuItem label="Item three" onClick={() => {}} />
+        </MenuSub>
+        <Divider className="my-1" />
+        <MenuItem label="Delete" destructive onClick={() => {}} />
+      </Menu>
+    </div>
+  ),
 }
 
 /** A person as a row — the face, the name, a second line, a trailing hint. Peek's mention rows. */

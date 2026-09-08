@@ -10,49 +10,29 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useRef, useState } from 'react'
+import { Button } from './Button'
 import { Menu, MenuItem, MenuPanel, MenuSection, MenuSub } from './Menu'
 
 afterEach(cleanup)
 
-/**
- * A trigger and the menu it opens, the way every caller builds one — closed
- * until the trigger is pressed, which is also what puts the trigger element in
- * the ref the menu anchors to.
- */
-function Opened({ onClose = () => {}, ...rest }: { onClose?: () => void } & Partial<React.ComponentProps<typeof Menu>>) {
-  const ref = useRef<HTMLButtonElement>(null)
-  const [open, setOpen] = useState(false)
+/** A trigger and the menu it opens — which is now the whole of a caller's
+ *  code: no open state, no anchor, no dismiss. */
+function Basic({ onOpenChange }: { onOpenChange?: (open: boolean) => void }) {
   return (
-    <>
-      <button ref={ref} type="button" onClick={() => setOpen((v) => !v)}>
-        Trigger
-      </button>
-      {open && (
-        <Menu
-          anchor={ref.current}
-          onClose={() => {
-            setOpen(false)
-            onClose()
-          }}
-          {...rest}
-        >
-          <MenuItem label="Rename" onClick={() => {}} />
-          <MenuItem label="Copy link" onClick={() => {}} />
-          <MenuItem label="Delete" destructive onClick={() => {}} />
-        </Menu>
-      )}
-    </>
+    <Menu trigger={<Button variant="outlined">Trigger</Button>} onOpenChange={onOpenChange}>
+      <MenuItem label="Rename" onClick={() => {}} />
+      <MenuItem label="Duplicate" onClick={() => {}} />
+      <MenuItem label="Delete" destructive onClick={() => {}} />
+    </Menu>
   )
 }
 
 describe('Menu', () => {
-  it('is a menu of menuitems, and each row is still a button', async () => {
+  it('opens from its own trigger, and the rows are menu items', async () => {
     const user = userEvent.setup()
-    render(<Opened />)
+    render(<Basic />)
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
-    const menu = await screen.findByRole('menu')
-    expect(menu).toBeTruthy()
+    expect(await screen.findByRole('menu')).toBeTruthy()
     const items = screen.getAllByRole('menuitem')
     expect(items).toHaveLength(3)
     // `render` keeps the <button> the design was drawn with; the part would
@@ -60,93 +40,119 @@ describe('Menu', () => {
     expect(items.every((i) => i.tagName === 'BUTTON')).toBe(true)
   })
 
+  it('the trigger says whether its menu is open', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    await user.click(trigger)
+    await screen.findByRole('menu')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
+
   it('portals: the menu is not inside the element that rendered it', async () => {
     const user = userEvent.setup()
-    const { container } = render(<Opened />)
+    const { container } = render(<Basic />)
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     const menu = await screen.findByRole('menu')
     expect(container.contains(menu)).toBe(false)
   })
 
-  it('closes on Escape', async () => {
+  it('closes on Escape and gives focus back to the trigger', async () => {
     const user = userEvent.setup()
-    const onClose = vi.fn()
-    render(<Opened onClose={onClose} />)
-    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    render(<Basic />)
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    await user.click(trigger)
     await screen.findByRole('menu')
     await user.keyboard('{Escape}')
-    expect(onClose).toHaveBeenCalled()
+    expect(screen.queryByRole('menu')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
   })
 
   it('closes on a press outside', async () => {
     const user = userEvent.setup()
-    const onClose = vi.fn()
     render(
       <>
-        <Opened onClose={onClose} />
+        <Basic />
         <button type="button">Elsewhere</button>
       </>,
     )
     await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('menu')
     await user.click(screen.getByRole('button', { name: 'Elsewhere' }))
-    expect(onClose).toHaveBeenCalled()
-  })
-
-  /**
-   * The caller's own trigger is not "outside". Without this the press closes
-   * the menu and the caller's `onClick` reopens it in the same gesture — the
-   * flicker the old shell avoided with `onMouseDown` / `stopPropagation`,
-   * which no longer helps because Base UI dismisses on a captured
-   * `pointerdown`.
-   */
-  it('a press on the anchor closes it once, and does not reopen it', async () => {
-    const user = userEvent.setup()
-    render(<Opened />)
-    await user.click(screen.getByRole('button', { name: 'Trigger' }))
-    await screen.findByRole('menu')
-    await user.click(screen.getByRole('button', { name: 'Trigger' }))
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
-  it('choosing a row runs its handler', async () => {
+  /**
+   * The trigger is the menu's own, so a press on it toggles. This used to be a
+   * trap: the press dismissed the menu and the caller's `onClick` reopened it
+   * in the same gesture, and the workaround was `onMouseDown` with
+   * `stopPropagation`. There is no caller `onClick` any more.
+   */
+  it('a second press on the trigger closes it', async () => {
+    const user = userEvent.setup()
+    render(<Basic />)
+    const trigger = screen.getByRole('button', { name: 'Trigger' })
+    await user.click(trigger)
+    await screen.findByRole('menu')
+    await user.click(trigger)
+    expect(screen.queryByRole('menu')).toBeNull()
+  })
+
+  it('reports opening and closing to a caller that asks', async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    render(<Basic onOpenChange={onOpenChange} />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    await screen.findByRole('menu')
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    await user.keyboard('{Escape}')
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  it('choosing a row runs its handler and closes the menu', async () => {
     const user = userEvent.setup()
     const onPick = vi.fn()
-    const ref = { current: null }
     render(
-      <Menu anchor={ref.current} onClose={() => {}}>
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
         <MenuItem label="Rename" onClick={onPick} />
       </Menu>,
     )
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Rename' }))
     expect(onPick).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('menu')).toBeNull()
   })
 
   it('a section is a labelled group, so its rows are announced together', async () => {
+    const user = userEvent.setup()
     render(
-      <Menu anchor={null} onClose={() => {}}>
-        <MenuSection label="Sort by">
-          <MenuItem label="Newest first" onClick={() => {}} />
-          <MenuItem label="Oldest first" onClick={() => {}} />
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
+        <MenuSection label="Section">
+          <MenuItem label="Item one" onClick={() => {}} />
+          <MenuItem label="Item two" onClick={() => {}} />
         </MenuSection>
       </Menu>,
     )
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
     const group = await screen.findByRole('group')
-    expect(group.textContent).toContain('Sort by')
+    expect(group.textContent).toContain('Section')
     expect(group.querySelectorAll('[role="menuitem"]')).toHaveLength(2)
   })
 
-  it('a submenu row says it opens one, and is not one of the parent menu items twice', async () => {
+  it('a submenu row says it opens one', async () => {
+    const user = userEvent.setup()
     render(
-      <Menu anchor={null} onClose={() => {}}>
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
         <MenuItem label="Rename" onClick={() => {}} />
-        <MenuSub label="Mark as Highlight">
-          <MenuItem label="Insight" onClick={() => {}} />
+        <MenuSub label="Move to…">
+          <MenuItem label="Item one" onClick={() => {}} />
         </MenuSub>
       </Menu>,
     )
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
     await screen.findByRole('menu')
-    const sub = screen.getByRole('menuitem', { name: 'Mark as Highlight' })
+    const sub = screen.getByRole('menuitem', { name: 'Move to…' })
     expect(sub.getAttribute('aria-haspopup')).toBe('menu')
     expect(sub.getAttribute('aria-expanded')).toBe('false')
     expect(sub.tagName).toBe('BUTTON')
@@ -157,7 +163,7 @@ describe('Menu', () => {
  * The rows outside a menu. Peek's `@`, `/` and `[` pickers and its compose
  * menu draw the surface without the behaviour, because the editor's suggestion
  * plugin already owns the keyboard — so `MenuItem` and `MenuSection` have to
- * work with no `Menu` above them, exactly as they always have.
+ * work with no `Menu` above them.
  */
 describe('rows on a bare MenuPanel', () => {
   /**
@@ -193,12 +199,12 @@ describe('rows on a bare MenuPanel', () => {
   it('MenuSection draws its heading and its rows, and is not a group', () => {
     render(
       <MenuPanel>
-        <MenuSection label="Format">
+        <MenuSection label="Section">
           <MenuItem label="Heading" onClick={() => {}} />
         </MenuSection>
       </MenuPanel>,
     )
-    expect(screen.getByText('Format')).toBeTruthy()
+    expect(screen.getByText('Section')).toBeTruthy()
     expect(screen.getAllByRole('button')).toHaveLength(1)
     expect(screen.queryByRole('group')).toBeNull()
   })
