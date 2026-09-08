@@ -125,7 +125,7 @@ and two answers to what she found reading stage 4's stories.
   to what it did before.
 - **Peek's `ReactionPicker` becomes a three-line wrapper** holding
   `REACTION_EMOJIS` and `REACTION_NAMES` — the vocabulary — and its hand-drawn
-  panel goes to the `Popover` it already needs (**P29**).
+  panel goes to the `Popover` it already needs (**B16**).
 - **Every hand-rolled strip of `IconButton`s becomes a `Toolbar`**: Ship's
   reaction row, Peek's composer strip and the editor's formatting strip
   (**B15**).

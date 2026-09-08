@@ -59,6 +59,9 @@ Every later port repeats this; none interprets it.
 - A hover-only affordance is CSS (`group-hover`, `:hover`), never a React mount; a mount cannot stay in step with a transition.
 - Sizes and spacing in the class list, never computed in JavaScript, unless the value depends on data (an avatar's pixel size).
 - Where the caller owes something for accessibility (an `aria-label` on an icon-only button, a `label` on a field), the prop is required, not optional.
+- **A floating thing draws the package's one elevated box**, `MenuPanel` — a menu, a popover, a preview card and a toolbar are the same box at different widths (D29, 2026-09-08). A component that floats and draws no box is unfinished; two boxes inside each other is the tell that one of them should have been switched off.
+- **A panel that acts on what is under it opens above its trigger** (D30). A toolbar acts; a rename field is *about* its trigger and hangs from it. The side is a *preference* — Floating UI measures the room and overrules it — which is the reason placement is the library's job and never arithmetic of ours.
+- **A picker picks** (D31). The state of what it produces belongs to the thing it produces: `ReactionPicker` offers, `Reaction` carries the count and the accent fill. A component that both offers and reports is two components wearing one name.
 - A class map (a `Record<Variant, string>` of class lists) is named so the lint can see it: `typeStyles`, `TONE_STYLES`; a name ending in `Styles` / `_STYLES` or `Classes` / `_CLASSES`. The lint reads `className`, `cn()` and `clsx()` by default and nothing else; a map named any other way is invisible to `no-unknown-classes`.
 
 ---
@@ -71,6 +74,9 @@ Every later port repeats this; none interprets it.
 - Stories render in both product themes from the toolbar (`signal`, `ship`); a story that only reads right in one has a colour from outside the token set.
 - Frame and layout stories render full height (`h-screen`) and, where they scroll, with enough rows to actually scroll. Every bar story stands against content.
 - Story names are the variant's name, in words a designer uses.
+- **A story introduces the component; it does not argue for it** (D32, 2026-09-08). A canvas that exists to prove a point — the same buttons in a toolbar and in a plain row, so the Tab stops can be counted — is an argument. Make the claim in the test file, where a claim belongs, and spend the canvas on a variant.
+- **A story may not name furniture the package has not got** (D32). "From a quick menu" borrowed one app's `ConversationQuickMenu`; what the canvas actually drew was a card with a `Toolbar` of actions, which is what it says now.
+- **A story may not hand-build a component this package already has** (D32). Two `DialogShell` stories rebuilt `ConfirmDialog`, and one of them rebuilt it *wrongly*, on a plain dialog whose backdrop dismissed the question. Where the only honest example of a prop is another component, say so on the page and let that component's canvases be the coverage.
 
 ---
 
