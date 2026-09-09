@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.12.0 — unreleased
+
+Katerina's Ship improvements (2026-09-09): three of her five turned out to
+be the package's, and a sixth arrived mid-way. Nothing here is breaking;
+the version is a minor because it adds.
+
+### Fixed
+
+- **`ScrollArea` stopped the page under every table and board.**
+  `overscroll-contain` sat on a viewport Base UI makes `overflow: scroll`
+  on *both* axes: a sideways region is also a vertical scroll box with
+  nothing to scroll, and a wheel down over it was an overscroll that
+  `contain` refused to chain. Measured in Chrome: 0px of page scroll with
+  the pointer over Ship's project table, 446px without the line. The wheel
+  is now kept per axis and only while that axis really overflows — Base
+  UI's `data-has-overflow-x` / `-y` — so a wheel down over a sideways
+  region moves the page (measured on the `SidewaysInsideAPage` story:
+  page 300px, region 0) and a sideways swipe moves the region (region
+  300px, page 0). A list with more to show still keeps the wheel from the
+  page behind it. Both apps had it since `0.11.0` (PLAN Finding 40;
+  ADOPTION B17).
+
+### Added
+
+- **`EmptyState` has a `scope`**: `page` (the default, today's look — the
+  icon over a centred line) for a whole page with nothing on it;
+  `section` for one empty section of a page that has other things on it —
+  the line alone, left-aligned, no icon (Katerina's rule, 2026-09-09: the
+  page decides, not the size of the box). Stories `Page` and `Section`;
+  `Default` is now `Page`. Nothing moves until a caller says `section`;
+  the callers to sort are ADOPTION B18.
+- **A `Breadcrumb` crumb takes an `icon`**, 16px before its label, for
+  what kind of place it is — so a container's name is not mistaken for an
+  item's (Katerina, 2026-09-09). Drawn beside the crumb, not inside it, so
+  the crumb stays the one element that truncates; `aria-hidden`, in the
+  crumb's own tone. Measured: 16px, centred on the 19.6px line, 6px either
+  side — the trail's own gap; a trail without icons is what it was.
+
 ## 0.11.0 — 2026-09-08
 
 Three things from Katerina's first look at Ship on `0.10.0`, the same night.
