@@ -1,10 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconPlus, IconSquareRounded } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import { CollapsibleSection } from './CollapsibleSection'
 import { NavItem } from './NavItem'
-import { Sidebar } from './Sidebar'
-
-const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 /** A section that opens and closes: the header's title is the toggle, and the rows slide. */
 const meta = {
@@ -39,23 +36,3 @@ export const WithActions: Story = {
 /** Close it and reload the page: still closed. This browser remembers, under the key. */
 export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.collapsible-section' } }
 
-/** Two sections in the frame's Sidebar under fixed entries: `mt-2` between groups, `shrink-0` so a long list scrolls rather than squashes. */
-export const InASidebar: Story = {
-  parameters: { layout: 'fullscreen' },
-  decorators: [(Story) => <div className="flex h-screen bg-bg-base">{Story()}</div>],
-  render: () => (
-    <Sidebar>
-      <NavItem href="#" label="Item one" icon={placeholder} count={18} countLabel="18 open" active />
-      <NavItem href="#" label="Item two" icon={placeholder} count={5} countLabel="5 active" />
-      <CollapsibleSection title="Group one" className="mt-2 shrink-0" contentClassName="gap-px">
-        <NavItem href="#" label="Item three" count={7} countLabel="7 open" />
-        <NavItem href="#" label="Item four" count={2} countLabel="2 open" />
-        <NavItem href="#" label="Item five" />
-      </CollapsibleSection>
-      <CollapsibleSection title="Group two" className="mt-2 shrink-0" contentClassName="gap-px" defaultOpen={false}>
-        <NavItem href="#" label="Item six" icon={placeholder} />
-        <NavItem href="#" label="Item seven" icon={placeholder} />
-      </CollapsibleSection>
-    </Sidebar>
-  ),
-}

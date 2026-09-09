@@ -5,9 +5,10 @@ import * as SectionHeaderStories from './SectionHeader.stories'
 
 # SectionHeader
 
-The 32px row a section starts with: a SectionLabel, an optional collapse
-chevron that makes the title the toggle, and actions that appear on hover
-or focus as IconButtons with tooltips.
+The 32px row a section starts with: a SectionLabel, and actions that
+appear on hover or focus as IconButtons with tooltips. It is also the
+header of a **CollapsibleSection**, which draws the chevron and makes the
+title the toggle — that is where a section folds.
 
 <Canvas of={SectionHeaderStories.WithActions} />
 
@@ -15,14 +16,10 @@ or focus as IconButtons with tooltips.
 
 - A sidebar or panel section that carries its own actions — add, sort,
   filter.
-- A section that collapses **and whose rows the app hides itself** —
-  `chevron`, `isExpanded`, `onToggle`. For the rows and the slide as well,
-  reach for **CollapsibleSection**, which is this header on Base UI's
-  Collapsible.
 - `showActions="always"` keeps the actions visible — for touch, or for a
   section whose actions are the point.
 
-<Canvas of={SectionHeaderStories.Collapsible} />
+<Canvas of={SectionHeaderStories.PersistentActions} />
 
 ## When not
 
@@ -38,18 +35,14 @@ or focus as IconButtons with tooltips.
 import { SectionHeader } from '@estiva-app/ui'
 import { IconPlus } from '@tabler/icons-react'
 
-<SectionHeader
-  title="Sections"
-  chevron
-  isExpanded={expanded}
-  onToggle={() => setExpanded((v) => !v)}
-  actions={[{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: add }]}
-/>
+<SectionHeader title="Sections" actions={[{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: add }]} />
 ```
 
-- With `chevron`, the title is a button that fills the row up to the
-  actions — the whole row is the hit target, and the keyboard can toggle
-  it. It says its state (`aria-expanded`).
+- `chevron`, `isExpanded` and `onToggle` are CollapsibleSection's to set
+  (decided 2026-09-09: one component folds, and it is that one). With
+  them, the title is a button that fills the row up to the actions — the
+  whole row is the hit target, the keyboard can toggle it, and it says its
+  state (`aria-expanded`).
 - An action is `{ icon, tooltip, onClick }` — the tooltip doubles as the
   action's accessible name. The actions sit beside the title button, not
   inside it, so a click on one never also toggles the section.

@@ -1,5 +1,6 @@
 import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
 import * as CollapsibleSectionStories from './CollapsibleSection.stories'
+import * as SidebarStories from './Sidebar.stories'
 
 <Meta of={CollapsibleSectionStories} />
 
@@ -22,7 +23,10 @@ toggle, and the rows under it, sliding shut and open.
 - `actions` for add, sort, filter beside the title — SectionHeader's,
   revealed on hover or focus.
 
-<Canvas of={CollapsibleSectionStories.InASidebar} />
+In a sidebar — the Sidebar's own Composed canvas, which is where that
+composition lives:
+
+<Canvas of={SidebarStories.Composed} />
 
 ## When not
 
