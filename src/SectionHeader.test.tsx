@@ -1,0 +1,40 @@
+// @vitest-environment jsdom
+/**
+ * The page's claims: with `chevron` the title is a button that toggles by
+ * click and by key and says its state; an action beside it acts without
+ * toggling; without `chevron` there is no button to find.
+ */
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { SectionHeader } from './SectionHeader'
+
+afterEach(cleanup)
+
+describe('SectionHeader', () => {
+  it('with a chevron the title is a button that toggles, by click and by key', async () => {
+    const onToggle = vi.fn()
+    render(<SectionHeader title="Section" chevron isExpanded onToggle={onToggle} />)
+    const title = screen.getByRole('button', { name: 'Section' })
+    expect(title.getAttribute('aria-expanded')).toBe('true')
+    await userEvent.click(title)
+    title.focus()
+    await userEvent.keyboard('{Enter}')
+    expect(onToggle).toHaveBeenCalledTimes(2)
+  })
+
+  it('an action beside the title acts, and never toggles', async () => {
+    const onToggle = vi.fn()
+    const add = vi.fn()
+    render(<SectionHeader title="Section" chevron onToggle={onToggle} actions={[{ icon: <i />, tooltip: 'Add', onClick: add }]} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }))
+    expect(add).toHaveBeenCalledTimes(1)
+    expect(onToggle).not.toHaveBeenCalled()
+  })
+
+  it('without a chevron there is no button', () => {
+    render(<SectionHeader title="Section" />)
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.getByText('Section')).not.toBeNull()
+  })
+})

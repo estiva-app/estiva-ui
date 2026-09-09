@@ -7,12 +7,16 @@ const meta = {
   component: EmptyState,
   args: { message: 'Nothing here yet.' },
   argTypes: { icon: { control: false } },
+  // A box with a hairline, so where the state sits inside its room can be seen: a page's in the middle both ways, a section's at the top left.
+  decorators: [(Story) => <div className="flex h-[280px] w-[480px] flex-col rounded-lg border border-border-default p-4">{Story()}</div>],
 } satisfies Meta<typeof EmptyState>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The default icon with the caller's words. */
-export const Default: Story = {}
-export const LongerMessage: Story = { args: { message: 'No topics yet. Start one from any conversation.' } }
+/** The `page` manner: the default icon over the caller's words, in the middle of its box both ways. */
+export const Page: Story = {}
+/** The `section` manner: the words alone, left-aligned — one line in a page that has other things on it. */
+export const Section: Story = { args: { scope: 'section' } }
+export const LongerMessage: Story = { args: { message: 'No items yet. Add one from any list.' } }
 export const CustomIcon: Story = { args: { icon: <IconLock size={16} stroke={1.5} />, message: 'Nothing you can read here yet.' } }

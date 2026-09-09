@@ -54,10 +54,23 @@ export function ScrollArea({ orientation = 'vertical', className, viewportClassN
   const horizontal = orientation !== 'vertical'
   return (
     <BaseScrollArea.Root className={cn('relative min-h-0 min-w-0', className)}>
-      {/* `overscroll-contain`: a list that reaches its end does not hand the
-          wheel to the page behind it, which is the rule every popup here has
-          kept since Peek. */}
-      <BaseScrollArea.Viewport className={cn('h-full w-full overscroll-contain outline-none', viewportClassName)}>
+      {/* `overscroll-contain`, per axis and only while that axis has more to
+          show: a list that reaches its end does not hand the wheel to the page
+          behind it — the rule every popup here has kept since Peek — but a
+          region with nothing to scroll one way passes that way's wheel through.
+          Base UI's viewport is `overflow: scroll` on both axes whatever
+          `orientation` says, so a sideways table is also a vertical scroll box
+          with no room in it, and an unconditional `contain` stopped the page
+          under every table and board (Katerina, 2026-09-09: 0px of page scroll
+          with the pointer over Ship's table, 446px without the line; PLAN
+          Finding 40). `data-has-overflow-x` / `-y` are Base UI's word for
+          "this axis really overflows", written on the viewport as it changes. */}
+      <BaseScrollArea.Viewport
+        className={cn(
+          'h-full w-full outline-none data-[has-overflow-x]:overscroll-x-contain data-[has-overflow-y]:overscroll-y-contain',
+          viewportClassName,
+        )}
+      >
         {/* Base UI gives the content box `min-width: fit-content`, which is
             right when the region scrolls sideways and wrong when it does not:
             a row's `truncate` needs a box no wider than the viewport. */}

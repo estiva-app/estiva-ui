@@ -22,6 +22,12 @@ between them, and a tooltip on any crumb that has had to truncate.
 
 <Canvas of={BreadcrumbStories.LongName} />
 
+- `icon` draws a 16px icon before a crumb — what kind of place it is, so
+  a container's name is not read as an item's. Decorative: the trail is
+  still read as its labels.
+
+<Canvas of={BreadcrumbStories.WithAnIcon} />
+
 ## When not
 
 - Switching between sibling views of one thing → **Tabs**.

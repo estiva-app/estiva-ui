@@ -5,18 +5,32 @@ import * as EmptyStateStories from './EmptyState.stories'
 
 # EmptyState
 
-A 16px icon over a centred line of secondary text, for the place where
-content will be once there is some.
+The place where content will be once there is some, in two manners: a
+16px icon over a centred line when the whole page is empty, the line
+alone and left-aligned when one section of a page is.
 
-<Canvas of={EmptyStateStories.Default} />
+<Canvas of={EmptyStateStories.Page} />
 
 ## When
 
-- A list, panel or view with nothing in it yet. The message says **what
-  would fill it** — "No comments yet. Start the thread." — not just that
-  it is empty.
-- `icon` swaps the default speech bubble for one that matches the
-  subject.
+- **`page`** — the whole page is empty: no items yet, a link that leads to
+  nothing. The icon over a centred line; `icon` swaps the default speech
+  bubble for one that matches the subject.
+- **`section`** — one section of a page is empty and the page has other
+  things on it: no replies under an item, a search with no results. The
+  line alone, left-aligned, no icon. A section's emptiness is one line
+  among the page's content, not a stage of its own.
+
+<Canvas of={EmptyStateStories.Section} />
+
+The page decides, not the size of the box: a whole page with one short
+message is still a `page`; a tall section with nothing in it is still a
+`section`. The message says **what would fill it** — "No comments yet.
+Start the thread." — not just that it is empty.
+
+A `page` sits in the middle of its box both ways. Inside a flex column
+it takes the room left (`flex-1`) and centres in it; drawn straight into
+a page, give it the height — `className="h-full"`.
 
 ## When not
 
@@ -30,12 +44,17 @@ content will be once there is some.
 ```tsx
 import { EmptyState } from '@estiva-app/ui'
 
-<EmptyState message="No documents yet. Create the first one." />
+// the whole page, drawn straight into it
+<EmptyState className="h-full" message="No documents yet. Create the first one." />
+
+// one section of a page
+<EmptyState scope="section" message="No comments yet." />
 ```
 
 The message is the caller's — a shared component has no words of its own
-for what is missing.
+for what is missing. A hand-written "Nothing here" paragraph or span in a
+section is the `section` manner, and becomes it.
 
 ## Props
 
-<Controls of={EmptyStateStories.Default} />
+<Controls of={EmptyStateStories.Page} />

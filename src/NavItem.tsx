@@ -45,7 +45,11 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
       <span className="flex-1 truncate">{label}</span>
       {count ? (
         <WithTooltip label={countLabel ?? `${count} open`}>
-          <span className="shrink-0 font-mono text-caption tabular-nums text-text-muted">{count}</span>
+          {/* A 16px box, centred: the slot is an icon's width, so a number
+              here sits on the same axis as a SectionHeader's action above it
+              — right edges alone left a digit 4px off a 16px icon (Katerina,
+              2026-09-09). A three-digit count grows the box leftwards. */}
+          <span className="min-w-4 shrink-0 text-center font-mono text-caption tabular-nums text-text-muted">{count}</span>
         </WithTooltip>
       ) : null}
     </a>

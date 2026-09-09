@@ -1,5 +1,95 @@
 # Changelog
 
+## 0.12.0 — 2026-09-09
+
+Katerina's Ship improvements (2026-09-09): three of her five turned out to
+be the package's, and a sixth arrived mid-way. Nothing here is breaking;
+the version is a minor because it adds.
+
+### Fixed
+
+- **`ScrollArea` stopped the page under every table and board.**
+  `overscroll-contain` sat on a viewport Base UI makes `overflow: scroll`
+  on *both* axes: a sideways region is also a vertical scroll box with
+  nothing to scroll, and a wheel down over it was an overscroll that
+  `contain` refused to chain. Measured in Chrome: 0px of page scroll with
+  the pointer over Ship's project table, 446px without the line. The wheel
+  is now kept per axis and only while that axis really overflows — Base
+  UI's `data-has-overflow-x` / `-y` — so a wheel down over a sideways
+  region moves the page (measured on the `SidewaysInsideAPage` story:
+  page 300px, region 0) and a sideways swipe moves the region (region
+  300px, page 0). A list with more to show still keeps the wheel from the
+  page behind it. Both apps had it since `0.11.0` (PLAN Finding 40;
+  ADOPTION B17).
+
+### Added
+
+- **`EmptyState` has a `scope`**: `page` (the default, today's look — the
+  icon over a centred line) for a whole page with nothing on it;
+  `section` for one empty section of a page that has other things on it —
+  the line alone, left-aligned, no icon (Katerina's rule, 2026-09-09: the
+  page decides, not the size of the box). **A `page` sits in the middle of
+  its box both ways** (her second look: it sat near the top) — inside a
+  flex column it takes the room left and centres in it; drawn straight
+  into a page it takes `className="h-full"`. Stories `Page` and
+  `Section`, in a box with a hairline so the placement can be seen;
+  `Default` is now `Page`. Nothing moves until a caller says `section` or
+  gives a `page` room; the callers to sort are ADOPTION B18.
+- **`CollapsibleSection`** — a section that opens and closes: a
+  `SectionHeader` whose title is the toggle, the rows under it, and the
+  slide between (150ms; none under `prefers-reduced-motion`). On Base
+  UI's `Collapsible` (D6): the state, `aria-expanded` and `aria-controls`,
+  Enter and Space, the panel's height for the slide — `auto` again once it
+  ends, so rows that arrive later are not clipped — and `hiddenUntilFound`,
+  so the browser's find-in-page opens a closed section that holds the
+  match. `storageKey` remembers open or closed in this browser; `open` +
+  `onOpenChange` for an app that owns it. A closed section stays closed
+  whatever is selected inside it (Katerina, 2026-09-09). Ship's sidebar
+  takes it for Projects and Folders (ADOPTION S24); Peek's three
+  hand-drawn accordion headers are P15.
+
+### Changed
+
+- **A `NavItem`'s count sits in a 16px centred box** — an icon's width —
+  so a number under a `SectionHeader`'s action shares its centre: with
+  right edges alone a digit sat 4px off a 16px icon (Katerina,
+  2026-09-09; measured 4px, then 0). A one- or two-digit count moves at
+  most 4.4px left; a three-digit one grows the box leftwards. The slot is
+  the same width an icon would take, for a row that carries one instead.
+- **A `Chip` given a `max-w-*` truncates its label** with an ellipsis
+  instead of growing past the cap — `overflow-x-clip` + `text-ellipsis`
+  on the label, `min-w-0` on the pill. Not `truncate`: that is
+  `overflow: hidden` on both axes, and the label's line box (11px under
+  Signal) is tighter than its glyphs, so the screenshot diff caught every
+  descender cut off; `clip` is the one overflow that leaves the other
+  axis visible (PLAN Finding 41). A chip with no cap draws exactly as
+  before. For Ship's project chip on an issue row (ADOPTION S26), where a
+  project's name can be long.
+- **`SectionHeader`'s title is a button when it toggles**, and the
+  keyboard can toggle it — the row was a `div` with an `onClick`, so it
+  could not. The button fills the row up to the actions, which sit beside
+  it now rather than inside it (a button inside a button is invalid
+  HTML), so an action's click no longer has to be stopped from toggling.
+  The hover fill and the actions' reveal are CSS, not React state — the
+  actions are in the row at `opacity-0` until hovered *or focused*, so a
+  keyboard user reaches them. A `render` prop swaps the title's element
+  in Base UI's manner; it is how `CollapsibleSection` makes it a
+  `Collapsible.Trigger`. Props otherwise unchanged; Peek's `TopicsPage`
+  (the one caller) needs nothing. Measured at rest: the row is 32px and
+  the label sits where it did. **Its own stories show the row and no
+  chevron** — one component folds, and that is `CollapsibleSection`
+  (Katerina's question, 2026-09-09); the `Collapsible` and `ActionsOnly`
+  stories are gone. **A fixed heading no longer lights up on hover**: the
+  fill says "this does something", so only a row with a toggle or with
+  actions takes it — the Sidebar's fixed group (its Composed canvas shows
+  both kinds) reads as a heading, not a control.
+- **A `Breadcrumb` crumb takes an `icon`**, 16px before its label, for
+  what kind of place it is — so a container's name is not mistaken for an
+  item's (Katerina, 2026-09-09). Drawn beside the crumb, not inside it, so
+  the crumb stays the one element that truncates; `aria-hidden`, in the
+  crumb's own tone. Measured: 16px, centred on the 19.6px line, 6px either
+  side — the trail's own gap; a trail without icons is what it was.
+
 ## 0.11.0 — 2026-09-08
 
 Three things from Katerina's first look at Ship on `0.10.0`, the same night.

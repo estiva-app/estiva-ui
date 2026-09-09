@@ -5,23 +5,26 @@ import * as SectionHeaderStories from './SectionHeader.stories'
 
 # SectionHeader
 
-The 32px row a section starts with: a SectionLabel, an optional collapse
-chevron that makes the whole row the toggle, and actions that appear on
-hover as IconButtons with tooltips.
+The 32px row a section starts with: a SectionLabel, and actions that
+appear on hover or focus as IconButtons with tooltips. It is also the
+header of a **CollapsibleSection**, which draws the chevron and makes the
+title the toggle — that is where a section folds.
 
 <Canvas of={SectionHeaderStories.WithActions} />
 
 ## When
 
-- A sidebar or panel section that collapses, or that carries its own
-  actions — add, sort, filter.
+- A sidebar or panel section that carries its own actions — add, sort,
+  filter.
 - `showActions="always"` keeps the actions visible — for touch, or for a
   section whose actions are the point.
 
-<Canvas of={SectionHeaderStories.Collapsible} />
+<Canvas of={SectionHeaderStories.PersistentActions} />
 
 ## When not
 
+- A section that opens and closes → **CollapsibleSection**: the header,
+  the rows, the slide, and a `storageKey` that remembers.
 - A title with no chevron and no actions → **SectionLabel** alone.
 - A heading inside a menu → **MenuSection**.
 - Page-level headings → the `h*` type tokens.
@@ -32,20 +35,26 @@ hover as IconButtons with tooltips.
 import { SectionHeader } from '@estiva-app/ui'
 import { IconPlus } from '@tabler/icons-react'
 
-<SectionHeader
-  title="Sections"
-  chevron
-  isExpanded={expanded}
-  onToggle={() => setExpanded((v) => !v)}
-  actions={[{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: add }]}
-/>
+<SectionHeader title="Sections" actions={[{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: add }]} />
 ```
 
+- `chevron`, `isExpanded` and `onToggle` are CollapsibleSection's to set
+  (decided 2026-09-09: one component folds, and it is that one). With
+  them, the title is a button that fills the row up to the actions — the
+  whole row is the hit target, the keyboard can toggle it, and it says its
+  state (`aria-expanded`).
 - An action is `{ icon, tooltip, onClick }` — the tooltip doubles as the
-  action's accessible name, and an action's click never also toggles the
-  section.
-- With `chevron`, the whole row is the toggle — no separate hit target to
-  find.
+  action's accessible name. The actions sit beside the title button, not
+  inside it, so a click on one never also toggles the section.
+- `render` swaps the title's element in Base UI's manner; it is how
+  CollapsibleSection makes the title a `Collapsible.Trigger`.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Enter, Space | on the title, with `chevron`: calls `onToggle` |
+| Tab | the title, then each action — the actions show while one has focus |
 
 ## Props
 

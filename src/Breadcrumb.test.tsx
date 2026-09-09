@@ -42,3 +42,13 @@ describe('Breadcrumb', () => {
     expect(screen.queryByText('/', { ignore: '[aria-hidden="true"]' })).toBeNull()
   })
 })
+
+describe('Breadcrumb with an icon', () => {
+  it('draws the icon before the crumb, and the trail still reads as its labels', () => {
+    render(<Breadcrumb items={[{ label: 'Documents', href: '#' }, { label: 'Quarterly plan', icon: <i data-testid="kind" /> }]} />)
+    const icon = screen.getByTestId('kind').parentElement!
+    expect(icon.getAttribute('aria-hidden')).toBe('true')
+    expect(icon.nextElementSibling).toBe(screen.getByText('Quarterly plan'))
+    expect(screen.getByRole('navigation', { name: 'Breadcrumb' }).textContent).toBe('Documents/Quarterly plan')
+  })
+})
