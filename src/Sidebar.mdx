@@ -17,7 +17,9 @@ the caller's — this is the shell.
   with **NavItem** rows — the sidebar pairs with the solid TopBar, as the
   Rail pairs with the floating one.
 - A labelled group inside it: a **SectionLabel** in a 32px `px-2` row
-  above its rows (the Composed story shows the idiom).
+  above its rows (the Composed story shows the idiom) — or, for a group
+  the reader can fold away and that stays how they left it, a
+  **CollapsibleSection** (its InASidebar story).
 - It scrolls on its own — a long list never scrolls the frame away.
 
 <Canvas of={SidebarStories.Scrolls} />
@@ -49,8 +51,9 @@ the page.** Keep NavItem's rule: a thin wrapper computes `active` from the
 location, intercepts the click and navigates in place — see **NavItem**.
 
 Anything you place directly in the column needs `shrink-0` (the heading
-row above carries it): the column scrolls on overflow, and a flex child
-without it gets compressed instead — rows must keep their height.
+row above carries it, and a CollapsibleSection takes it in `className`):
+the column scrolls on overflow, and a flex child without it gets
+compressed instead — rows must keep their height.
 
 It is a `nav` region — pass `aria-label` when "Workspace" is not the
 right name for what it navigates.

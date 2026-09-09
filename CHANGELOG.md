@@ -31,6 +31,33 @@ the version is a minor because it adds.
   page decides, not the size of the box). Stories `Page` and `Section`;
   `Default` is now `Page`. Nothing moves until a caller says `section`;
   the callers to sort are ADOPTION B18.
+- **`CollapsibleSection`** — a section that opens and closes: a
+  `SectionHeader` whose title is the toggle, the rows under it, and the
+  slide between (150ms; none under `prefers-reduced-motion`). On Base
+  UI's `Collapsible` (D6): the state, `aria-expanded` and `aria-controls`,
+  Enter and Space, the panel's height for the slide — `auto` again once it
+  ends, so rows that arrive later are not clipped — and `hiddenUntilFound`,
+  so the browser's find-in-page opens a closed section that holds the
+  match. `storageKey` remembers open or closed in this browser; `open` +
+  `onOpenChange` for an app that owns it. A closed section stays closed
+  whatever is selected inside it (Katerina, 2026-09-09). Ship's sidebar
+  takes it for Projects and Folders (ADOPTION S24); Peek's three
+  hand-drawn accordion headers are P15.
+
+### Changed
+
+- **`SectionHeader`'s title is a button when it toggles**, and the
+  keyboard can toggle it — the row was a `div` with an `onClick`, so it
+  could not. The button fills the row up to the actions, which sit beside
+  it now rather than inside it (a button inside a button is invalid
+  HTML), so an action's click no longer has to be stopped from toggling.
+  The hover fill and the actions' reveal are CSS, not React state — the
+  actions are in the row at `opacity-0` until hovered *or focused*, so a
+  keyboard user reaches them. A `render` prop swaps the title's element
+  in Base UI's manner; it is how `CollapsibleSection` makes it a
+  `Collapsible.Trigger`. Props otherwise unchanged; Peek's `TopicsPage`
+  (the one caller) needs nothing. Measured at rest: the row is 32px and
+  the label sits where it did.
 - **A `Breadcrumb` crumb takes an `icon`**, 16px before its label, for
   what kind of place it is — so a container's name is not mistaken for an
   item's (Katerina, 2026-09-09). Drawn beside the crumb, not inside it, so
