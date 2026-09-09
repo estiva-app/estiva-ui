@@ -6,15 +6,19 @@ import * as SectionHeaderStories from './SectionHeader.stories'
 # SectionHeader
 
 The 32px row a section starts with: a SectionLabel, an optional collapse
-chevron that makes the whole row the toggle, and actions that appear on
-hover as IconButtons with tooltips.
+chevron that makes the title the toggle, and actions that appear on hover
+or focus as IconButtons with tooltips.
 
 <Canvas of={SectionHeaderStories.WithActions} />
 
 ## When
 
-- A sidebar or panel section that collapses, or that carries its own
-  actions — add, sort, filter.
+- A sidebar or panel section that carries its own actions — add, sort,
+  filter.
+- A section that collapses **and whose rows the app hides itself** —
+  `chevron`, `isExpanded`, `onToggle`. For the rows and the slide as well,
+  reach for **CollapsibleSection**, which is this header on Base UI's
+  Collapsible.
 - `showActions="always"` keeps the actions visible — for touch, or for a
   section whose actions are the point.
 
@@ -22,6 +26,8 @@ hover as IconButtons with tooltips.
 
 ## When not
 
+- A section that opens and closes → **CollapsibleSection**: the header,
+  the rows, the slide, and a `storageKey` that remembers.
 - A title with no chevron and no actions → **SectionLabel** alone.
 - A heading inside a menu → **MenuSection**.
 - Page-level headings → the `h*` type tokens.
@@ -41,11 +47,21 @@ import { IconPlus } from '@tabler/icons-react'
 />
 ```
 
+- With `chevron`, the title is a button that fills the row up to the
+  actions — the whole row is the hit target, and the keyboard can toggle
+  it. It says its state (`aria-expanded`).
 - An action is `{ icon, tooltip, onClick }` — the tooltip doubles as the
-  action's accessible name, and an action's click never also toggles the
-  section.
-- With `chevron`, the whole row is the toggle — no separate hit target to
-  find.
+  action's accessible name. The actions sit beside the title button, not
+  inside it, so a click on one never also toggles the section.
+- `render` swaps the title's element in Base UI's manner; it is how
+  CollapsibleSection makes the title a `Collapsible.Trigger`.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Enter, Space | on the title, with `chevron`: calls `onToggle` |
+| Tab | the title, then each action — the actions show while one has focus |
 
 ## Props
 

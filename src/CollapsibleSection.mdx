@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CollapsibleSectionStories from './CollapsibleSection.stories'
+
+<Meta of={CollapsibleSectionStories} />
+
+# CollapsibleSection
+
+A section that opens and closes: a SectionHeader whose title is the
+toggle, and the rows under it, sliding shut and open.
+
+<Canvas of={CollapsibleSectionStories.Default} />
+
+## When
+
+- A group of rows in a sidebar or a panel that the reader may want out of
+  the way — projects, folders, starred items.
+- `defaultOpen={false}` for a group that starts folded.
+- `storageKey` when the section should stay how the reader left it across
+  reloads: this browser remembers, under that key. The app prefixes the
+  key (`ship.sidebar.projects`).
+- `open` + `onOpenChange` when the app owns the state.
+- `actions` for add, sort, filter beside the title — SectionHeader's,
+  revealed on hover or focus.
+
+<Canvas of={CollapsibleSectionStories.InASidebar} />
+
+## When not
+
+- A heading over rows that never fold → **SectionHeader** without
+  `chevron`, or **SectionLabel** in a 32px row.
+- Several panels where opening one closes the others → not here; that is
+  an accordion, and no app has asked for one.
+- Content that appears on demand from a control elsewhere → **Popover**.
+
+## How
+
+```tsx
+import { CollapsibleSection, NavItem } from '@estiva-app/ui'
+
+<CollapsibleSection title="Projects" storageKey="app.sidebar.projects" className="mt-2 shrink-0" contentClassName="gap-px">
+  <NavItem href="/p/1" label="Item one" />
+  <NavItem href="/p/2" label="Item two" />
+</CollapsibleSection>
+```
+
+- On Base UI's `Collapsible`: the state, the title button's
+  `aria-expanded` and `aria-controls`, the keys, the panel's height for
+  the slide (150ms; none under `prefers-reduced-motion`), and
+  `hiddenUntilFound` — the browser's find-in-page can find a row inside a
+  closed section and open it. The rows stay in the DOM while closed.
+- `className` is the section's box: `mt-2` between groups, `shrink-0` in
+  a scrolling column — the missing-`shrink-0` family. `contentClassName`
+  is the box the rows sit in: the gap between them.
+- A closed section stays closed whatever is selected inside it — the
+  reader closed it. An app that wants it to spring open owns the state
+  with `open`.
+- A browser that blocks storage still gets a working section; it forgets.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Enter, Space | on the title: opens or closes |
+| Tab | the title, then each action, then the rows when open |
+
+## Props
+
+<Controls of={CollapsibleSectionStories.Default} />
