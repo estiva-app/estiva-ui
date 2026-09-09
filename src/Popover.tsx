@@ -1,6 +1,7 @@
 import { useMemo, type ReactElement, type ReactNode, type RefObject } from 'react'
 import { Popover as BasePopover } from '@base-ui/react/popover'
 import { cn } from './cn'
+import { triggerDisabled } from './triggerDisabled'
 import { MenuPanel } from './Menu'
 
 /**
@@ -108,7 +109,9 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
          take the page away from the person using it. */
       modal={false}
     >
-      {trigger && <BasePopover.Trigger render={trigger} />}
+      {/* Told the button's disabled state, or it writes `aria-disabled="false"`
+          over it and opens anyway (Finding 39). */}
+      {trigger && <BasePopover.Trigger render={trigger} disabled={triggerDisabled(trigger)} />}
       <BasePopover.Portal>
         <BasePopover.Positioner
           anchor={anchorTarget}

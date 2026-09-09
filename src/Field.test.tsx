@@ -192,16 +192,44 @@ describe('Field', () => {
     expect(document.getElementById(describedBy!)?.textContent).toBe('That is not a Folder link.')
   })
 
-  it('renders no line, and no wrapper, when there is neither', () => {
-    // The port must not move a pixel for the callers that predate these props,
-    // so the control stays a direct child of the Field exactly as before.
-    const { container } = render(
-      <Field label="Title">
+  it('keeps the same control, and its focus, when an error appears and clears', () => {
+    // Finding 38 (Ship's adoption, 2026-09-08): the control used to be wrapped
+    // only when there was a line under it, so React re-created it the moment
+    // an error appeared or cleared — and a person typing into a field whose
+    // error clears on input lost focus after the first keystroke. The control
+    // sits in the same place now whatever is under it.
+    const { rerender } = render(
+      <Field label="Folder link">
         <TextInput defaultValue="" />
       </Field>,
     )
-    const root = container.firstElementChild!
-    expect(root.children).toHaveLength(2)
-    expect(root.children[1].tagName).toBe('INPUT')
+    const input = screen.getByLabelText('Folder link')
+    input.focus()
+    rerender(
+      <Field label="Folder link" error="That is not a Folder link.">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    expect(screen.getByLabelText('Folder link')).toBe(input)
+    expect(document.activeElement).toBe(input)
+    rerender(
+      <Field label="Folder link">
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    expect(screen.getByLabelText('Folder link')).toBe(input)
+    expect(document.activeElement).toBe(input)
+  })
+
+  it('keeps the required asterisk out of the accessible name', () => {
+    // Ship's test asked for a combobox named "Project" and found "Project*"
+    // (Finding 38). The asterisk is a picture; `aria-required` is the word.
+    render(
+      <Field label="Title" required>
+        <TextInput defaultValue="" />
+      </Field>,
+    )
+    expect(screen.getByRole('textbox', { name: 'Title' })).toBeTruthy()
+    expect(screen.getByText('*').getAttribute('aria-hidden')).toBe('true')
   })
 })
