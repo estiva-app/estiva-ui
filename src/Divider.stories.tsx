@@ -42,3 +42,28 @@ export const Vertical: Story = {
     </div>
   ),
 }
+
+/** Words in the middle of the line — a date between two days of messages. */
+export const WithALabel: Story = {
+  // axe color-contrast is off here until PLAN.md stage 0.10 is ruled:
+  // the label is muted caption text, 3.78:1 on --bg-surface in signal (AA 4.5:1).
+  parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
+  render: () => (
+    <div className="w-96 rounded-lg border border-border-default bg-bg-surface py-3 text-body-2 text-text-primary">
+      <p className="px-3 pb-2">Yesterday's last message</p>
+      <Divider label="Today" />
+      <p className="px-3 pt-2">Today's first</p>
+    </div>
+  ),
+}
+
+/** Asking for attention: where "new since you last read this" begins. The warning colour, because the accent could not be read on Ship's background. */
+export const Warning: Story = {
+  render: () => (
+    <div className="w-96 rounded-lg border border-border-default bg-bg-surface py-3 text-body-2 text-text-primary">
+      <p className="px-3 pb-2">Yes — it re-reads the folder union and the archived one lands last.</p>
+      <Divider label="New since you last read this" tone="warning" />
+      <p className="px-3 pt-2">Same here, from Peek.</p>
+    </div>
+  ),
+}

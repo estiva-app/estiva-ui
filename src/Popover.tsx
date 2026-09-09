@@ -2,6 +2,7 @@ import { useMemo, type ReactElement, type ReactNode, type RefObject } from 'reac
 import { Popover as BasePopover } from '@base-ui/react/popover'
 import { cn } from './cn'
 import { triggerDisabled } from './triggerDisabled'
+import { ScrollArea } from './ScrollArea'
 import { MenuPanel } from './Menu'
 
 /**
@@ -144,10 +145,13 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
              */
             initialFocus={trigger ? undefined : false}
             finalFocus={finalFocus}
-            className={cn('min-w-[180px] max-h-[var(--available-height)] overflow-y-auto outline-none', className)}
+            className={cn('min-w-[180px] outline-none', className)}
             render={<MenuPanel />}
           >
-            {children}
+            {/* As in Menu: the cap on the scrolling box, less the panel's padding; the padding stays on the panel. */}
+            <ScrollArea viewportClassName="max-h-[calc(var(--available-height)_-_1rem)]" contentClassName="flex flex-col [&>[role=separator]]:mx-0">
+              {children}
+            </ScrollArea>
           </BasePopover.Popup>
         </BasePopover.Positioner>
       </BasePopover.Portal>

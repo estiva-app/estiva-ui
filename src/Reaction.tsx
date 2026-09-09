@@ -65,7 +65,12 @@ export function Reaction({ emoji, count, pressed = false, className, type, ...pr
         'border transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-50',
         pressed
-          ? 'border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover'
+          ? /* In the ship theme the accent on its own wash measures 2.70:1
+               (Finding 4), and the count was the thing that vanished
+               (Katerina, 2026-09-08). The number reads in the text colour
+               there; the accent keeps the edge and the fill. Signal keeps
+               Peek's blue-on-wash, which reads. */
+            'border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary'
           : 'border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover',
         className,
       )}

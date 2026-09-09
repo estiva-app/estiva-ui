@@ -20,6 +20,13 @@ carries the `separator` role for assistive tech.
 
 <Canvas of={DividerStories.Vertical} />
 
+- With a `label`, words sit in the middle of the line — a date between two
+  days of messages, or where "new since you last read this" begins.
+  `tone="warning"` for the second: the label in the warning colour, the
+  lines in its wash. The line is named by its label for assistive tech.
+
+<Canvas of={DividerStories.Warning} />
+
 ## When not
 
 - Between every row of a list — spacing does that; a hairline per row is
@@ -34,6 +41,8 @@ import { Divider } from '@estiva-app/ui'
 
 <Divider />
 <Divider orientation="vertical" />
+<Divider label="Today" />
+<Divider label="New since you last read this" tone="warning" />
 ```
 
 ## Props
