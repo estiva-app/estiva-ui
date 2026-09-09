@@ -29,8 +29,9 @@ message is still a `page`; a tall section with nothing in it is still a
 Start the thread." — not just that it is empty.
 
 A `page` sits in the middle of its box both ways. Inside a flex column
-it takes the room left (`flex-1`) and centres in it; drawn straight into
-a page, give it the height — `className="h-full"`.
+— the frame's `main` is one — it takes the room left (`flex-1`) and
+centres in it, with nothing to add; only outside a flex column does it
+need a height from the caller (`className="h-full"`).
 
 ## When not
 
@@ -44,8 +45,8 @@ a page, give it the height — `className="h-full"`.
 ```tsx
 import { EmptyState } from '@estiva-app/ui'
 
-// the whole page, drawn straight into it
-<EmptyState className="h-full" message="No documents yet. Create the first one." />
+// the whole page, in the frame: it fills and centres on its own
+<EmptyState message="No documents yet. Create the first one." />
 
 // one section of a page
 <EmptyState scope="section" message="No comments yet." />

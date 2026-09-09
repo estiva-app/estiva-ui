@@ -39,6 +39,21 @@ Layout only: no data, no routes.
 
 ## How
 
+**The page contract, in the solid manner.** The frame owns the page's
+scrollbar: the content column is a ScrollArea, and `main` inside it is a
+flex column. A page is a flex child of `main`, and says one of two things:
+
+- `flex-1` — it fills the frame and, when taller, scrolls in the frame's
+  bar. A list page. (Its empty state centres on its own.)
+- `flex-1 min-h-0 [contain:size]` — it takes exactly the frame's height
+  and scrolls inside itself, in regions of its own. A detail page with a
+  content column and a rail.
+
+Never `h-full`: the frame's content box is *at least* the viewport's
+height and grows with a tall page — which is what lets the bar know the
+page changed — so a percentage height has nothing to resolve against.
+Measured on all four of Ship's pages (2026-09-09).
+
 ```tsx
 import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
 

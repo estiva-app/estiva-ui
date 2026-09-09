@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.12.1 — 2026-09-09
+
+### Fixed
+
+- **The frame owns the page's scrollbar.** `AppShell`'s content column
+  (solid manner) is a `ScrollArea`; it had been a native `overflow-y-auto`
+  box since the morning, so Ship's Issues and Projects pages — the two
+  that scroll in the frame rather than inside themselves — still drew a
+  native bar (Katerina, 2026-09-09: *"it won't take the scrollbar from
+  estiva-ui"*). D40 said everywhere; the one place every page passes
+  through had been left out. Measured on all four Ship pages: the tall
+  Issues page scrolls in the package's bar with the native one hidden; the
+  empty page fills and centres; the two detail pages take exactly the
+  frame's height and scroll in their own columns. **The page contract**
+  is on the AppShell page: a page is a flex child of `main` — `flex-1` to
+  fill and scroll here, `flex-1 min-h-0 [contain:size]` to scroll inside
+  itself — never `h-full`. Ship's four pages change accordingly (ADOPTION
+  S30); Peek's floating manner is untouched. PLAN Finding 42.
+
 ## 0.12.0 — 2026-09-09
 
 Katerina's Ship improvements (2026-09-09): three of her five turned out to

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { ScrollArea } from './ScrollArea'
 import { TopBar } from './TopBar'
 
 /**
@@ -63,7 +64,9 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
   }
 
   return (
-    /* `relative overflow-hidden` is the seal the floating manner already has,
+    /* `relative overflow-hidden` is the seal the floating manner already has
+       (and the ScrollArea's own root is `relative`, so an absolutely placed
+       stray inside a page now belongs to the region and scrolls with it),
        and it takes both halves: an absolutely positioned descendant with no
        positioned ancestor belongs to the *viewport*, so a scroll container
        never clips it and the document itself gains its position as scroll
@@ -76,12 +79,24 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
         {nav}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {banner}
-          {/* Not a ScrollArea: the apps' pages scroll inside themselves (Ship's
-              detail columns are `h-full` grids with their own regions), and a
-              region here kept a bar on Ship's page for overflow that was not
-              there (2026-09-09). A page that does scroll here gets its region
-              where it scrolls. */}
-          <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+          {/* The frame owns the page's scrollbar (Katerina, 2026-09-09: the
+              Issues page still had a native bar — D40 said everywhere, and the
+              one place every page passes through had been left out). A
+              `ScrollArea` here means no page can forget it. The content box is
+              at least the viewport's height and grows with a tall page, so Base
+              UI sees its size change (the morning's phantom bar was a content
+              box it could not watch); `main` fills it as a flex column. The
+              page contract (the AppShell page says it): a page is a flex
+              child of `main` — `flex-1` to fill and scroll here; `flex-1
+              min-h-0 [contain:size]` to take exactly the frame's height and
+              scroll inside itself, as Ship's detail grids do — and the outer
+              region, with nothing to scroll, passes the wheel through. Never
+              `h-full`: a box that is *at least* the viewport's height gives a
+              percentage nothing to resolve against — measured, all four Ship
+              pages, 2026-09-09. */}
+          <ScrollArea className="min-h-0 flex-1" contentClassName="flex min-h-full flex-col">
+            <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+          </ScrollArea>
         </div>
       </div>
     </div>
