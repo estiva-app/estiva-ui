@@ -12,7 +12,9 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The default icon with the caller's words. */
-export const Default: Story = {}
-export const LongerMessage: Story = { args: { message: 'No topics yet. Start one from any conversation.' } }
+/** The `page` manner: the default icon over the caller's words, centred. */
+export const Page: Story = {}
+/** The `section` manner: the words alone, left-aligned — one line in a page that has other things on it. */
+export const Section: Story = { args: { scope: 'section' } }
+export const LongerMessage: Story = { args: { message: 'No items yet. Add one from any list.' } }
 export const CustomIcon: Story = { args: { icon: <IconLock size={16} stroke={1.5} />, message: 'Nothing you can read here yet.' } }
