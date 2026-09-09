@@ -41,6 +41,12 @@ import { ScrollArea } from '@estiva-app/ui'
 - The region needs a height (or a `max-h-*`) to have anything to scroll.
 - The native scrollbar is hidden by Base UI; a native `overflow-y-auto` on
   the same element would draw a second one.
+- A region keeps the wheel only in an axis it can actually scroll: a list
+  that reaches its end does not hand the wheel to the page behind it, but a
+  sideways table inside a scrolling page passes a wheel *down* through to
+  the page, and a region whose content fits passes everything. Measured in
+  Chrome: wheel down over a sideways region inside a page, the page moves
+  and the region does not; a sideways swipe, the other way round.
 
 ## Keys
 

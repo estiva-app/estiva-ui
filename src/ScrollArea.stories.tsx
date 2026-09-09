@@ -73,3 +73,32 @@ export const Both: Story = {
     </ScrollArea>
   ),
 }
+
+/** A sideways region inside a scrolling page — a table in a content column. A wheel down over it moves the page; a swipe sideways moves the region. */
+export const SidewaysInsideAPage: Story = {
+  render: () => (
+    <ScrollArea className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface" viewportClassName="p-2">
+      <div className="flex flex-col gap-px">
+        {rows.slice(0, 3).map((row) => (
+          <p key={row} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
+            {row}
+          </p>
+        ))}
+        <ScrollArea orientation="horizontal" className="my-1 rounded-md border border-border-default" viewportClassName="p-2">
+          <div className="flex w-max gap-2">
+            {rows.slice(0, 12).map((row) => (
+              <div key={row} className="w-[120px] shrink-0 rounded-md bg-bg-inset px-2 py-1.5 text-body-2 text-text-primary">
+                {row}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+        {rows.slice(3).map((row) => (
+          <p key={row} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
+            {row}
+          </p>
+        ))}
+      </div>
+    </ScrollArea>
+  ),
+}

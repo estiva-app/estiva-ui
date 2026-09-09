@@ -48,3 +48,18 @@ describe('ScrollArea', () => {
     void v
   })
 })
+
+describe('ScrollArea and the page behind it', () => {
+  // Measured in Chrome (2026-09-09, PLAN Finding 40): with an unconditional
+  // `overscroll-contain` the page under a sideways table moved 0px on a
+  // wheel down, 446px without it; with these two classes 400px, and the
+  // table 0. jsdom cannot scroll; it pins that the contain is per axis and
+  // waits for Base UI's overflow attribute rather than being unconditional.
+  it('contains the wheel per axis, and only while that axis overflows', () => {
+    render(<ScrollArea orientation="horizontal"><p>Inside</p></ScrollArea>)
+    const viewport = screen.getByText('Inside').parentElement!.parentElement!
+    expect(viewport.className).toContain('data-[has-overflow-x]:overscroll-x-contain')
+    expect(viewport.className).toContain('data-[has-overflow-y]:overscroll-y-contain')
+    expect(viewport.className).not.toMatch(/(^|\s)overscroll-contain(\s|$)/)
+  })
+})
