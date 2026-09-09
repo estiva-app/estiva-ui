@@ -74,6 +74,21 @@ export const Solid: Story = {
 }
 
 /** The banner belongs to the content area — at its top, never across the navigation. */
+/** A page taller than the frame: it scrolls in the frame's own bar — the region every page passes through — never a native one. */
+export const SolidScrolls: Story = {
+  render: (args) => (
+    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+      <div className="flex flex-col gap-px px-6 py-5">
+        {Array.from({ length: 60 }, (_, i) => (
+          <p key={i} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
+            Row {i + 1}
+          </p>
+        ))}
+      </div>
+    </AppShell>
+  ),
+}
+
 export const SolidWithBanner: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} banner={<Banner tone="ok">Public key copied.</Banner>}>
