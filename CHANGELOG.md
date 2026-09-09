@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.12.0 — unreleased
+## 0.12.0 — 2026-09-09
 
 Katerina's Ship improvements (2026-09-09): three of her five turned out to
 be the package's, and a sixth arrived mid-way. Nothing here is breaking;
