@@ -28,9 +28,13 @@ the version is a minor because it adds.
   icon over a centred line) for a whole page with nothing on it;
   `section` for one empty section of a page that has other things on it —
   the line alone, left-aligned, no icon (Katerina's rule, 2026-09-09: the
-  page decides, not the size of the box). Stories `Page` and `Section`;
-  `Default` is now `Page`. Nothing moves until a caller says `section`;
-  the callers to sort are ADOPTION B18.
+  page decides, not the size of the box). **A `page` sits in the middle of
+  its box both ways** (her second look: it sat near the top) — inside a
+  flex column it takes the room left and centres in it; drawn straight
+  into a page it takes `className="h-full"`. Stories `Page` and
+  `Section`, in a box with a hairline so the placement can be seen;
+  `Default` is now `Page`. Nothing moves until a caller says `section` or
+  gives a `page` room; the callers to sort are ADOPTION B18.
 - **`CollapsibleSection`** — a section that opens and closes: a
   `SectionHeader` whose title is the toggle, the rows under it, and the
   slide between (150ms; none under `prefers-reduced-motion`). On Base
@@ -72,7 +76,13 @@ the version is a minor because it adds.
   in Base UI's manner; it is how `CollapsibleSection` makes it a
   `Collapsible.Trigger`. Props otherwise unchanged; Peek's `TopicsPage`
   (the one caller) needs nothing. Measured at rest: the row is 32px and
-  the label sits where it did.
+  the label sits where it did. **Its own stories show the row and no
+  chevron** — one component folds, and that is `CollapsibleSection`
+  (Katerina's question, 2026-09-09); the `Collapsible` and `ActionsOnly`
+  stories are gone. **A fixed heading no longer lights up on hover**: the
+  fill says "this does something", so only a row with a toggle or with
+  actions takes it — the Sidebar's fixed group (its Composed canvas shows
+  both kinds) reads as a heading, not a control.
 - **A `Breadcrumb` crumb takes an `icon`**, 16px before its label, for
   what kind of place it is — so a container's name is not mistaken for an
   item's (Katerina, 2026-09-09). Drawn beside the crumb, not inside it, so

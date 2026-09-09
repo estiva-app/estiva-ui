@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { CollapsibleSection } from './CollapsibleSection'
 import { NavItem } from './NavItem'
+import { SectionHeader } from './SectionHeader'
 import { Sidebar } from './Sidebar'
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
@@ -18,7 +19,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Entries, then groups that fold — each a CollapsibleSection: `mt-2` between them, `shrink-0` so the column scrolls rather than squashes. */
+/** Entries, then two kinds of group: one that folds (a CollapsibleSection) and one that stays open (a SectionHeader over its rows). `mt-2` between groups, `shrink-0` so the column scrolls rather than squashes. */
 export const Composed: Story = {
   // axe color-contrast is off here until PLAN.md stage 0.10 is ruled:
   // the count chip is muted text, 3.06:1 on the active row in signal (AA 4.5:1).
@@ -32,10 +33,9 @@ export const Composed: Story = {
         <NavItem href="#" label="Item four" count={2} countLabel="2 open" />
         <NavItem href="#" label="Item five" />
       </CollapsibleSection>
-      <CollapsibleSection title="Group two" className="mt-2 shrink-0" contentClassName="gap-px">
-        <NavItem href="#" label="Item six" icon={placeholder} />
-        <NavItem href="#" label="Item seven" icon={placeholder} />
-      </CollapsibleSection>
+      <SectionHeader title="Group two" className="mt-2 shrink-0" />
+      <NavItem href="#" label="Item six" icon={placeholder} />
+      <NavItem href="#" label="Item seven" icon={placeholder} />
     </Sidebar>
   ),
 }

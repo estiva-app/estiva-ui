@@ -16,10 +16,10 @@ the caller's — this is the shell.
 - The structured frame's navigation (AppShell's `solid` variant), filled
   with **NavItem** rows — the sidebar pairs with the solid TopBar, as the
   Rail pairs with the floating one.
-- A labelled group inside it: a **SectionLabel** in a 32px `px-2` row
-  above its rows (the Composed story shows the idiom) — or, for a group
-  the reader can fold away and that stays how they left it, a
-  **CollapsibleSection** (its InASidebar story).
+- A labelled group inside it, of two kinds (the Composed story shows
+  both): one the reader can fold away and that stays how they left it —
+  a **CollapsibleSection** — and one that stays open, a **SectionHeader**
+  over its rows.
 - It scrolls on its own — a long list never scrolls the frame away.
 
 <Canvas of={SidebarStories.Scrolls} />
@@ -35,14 +35,15 @@ the caller's — this is the shell.
 ## How
 
 ```tsx
-import { Sidebar, NavItem, SectionLabel } from '@estiva-app/ui'
+import { Sidebar, NavItem, CollapsibleSection, SectionHeader } from '@estiva-app/ui'
 
 <Sidebar>
   <NavItem href="/documents" label="Documents" active />
-  <div className="mt-2 flex h-8 shrink-0 items-center px-2">
-    <SectionLabel>Collections</SectionLabel>
-  </div>
-  <NavItem href="/collections/12" label="Quarterly plan" count={7} countLabel="7 open" />
+  <CollapsibleSection title="Collections" storageKey="app.sidebar.collections" className="mt-2 shrink-0" contentClassName="gap-px">
+    <NavItem href="/collections/12" label="Quarterly plan" count={7} countLabel="7 open" />
+  </CollapsibleSection>
+  <SectionHeader title="Pinned" className="mt-2 shrink-0" />
+  <NavItem href="/documents/3" label="Reading list" />
 </Sidebar>
 ```
 
@@ -50,8 +51,8 @@ import { Sidebar, NavItem, SectionLabel } from '@estiva-app/ui'
 the page.** Keep NavItem's rule: a thin wrapper computes `active` from the
 location, intercepts the click and navigates in place — see **NavItem**.
 
-Anything you place directly in the column needs `shrink-0` (the heading
-row above carries it, and a CollapsibleSection takes it in `className`):
+Anything you place directly in the column needs `shrink-0` (both headings
+above take it in `className`):
 the column scrolls on overflow, and a flex child without it gets
 compressed instead — rows must keep their height.
 

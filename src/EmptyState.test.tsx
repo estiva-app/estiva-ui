@@ -16,7 +16,10 @@ describe('EmptyState', () => {
     const { container } = render(<EmptyState message="Nothing here yet." />)
     expect(container.querySelector('svg')).not.toBeNull()
     expect(screen.getByText('Nothing here yet.').className).toContain('text-center')
+    // In the middle of its box both ways: it takes a flex column's room and centres in it.
     expect(container.firstElementChild!.className).toContain('items-center')
+    expect(container.firstElementChild!.className).toContain('justify-center')
+    expect(container.firstElementChild!.className).toContain('flex-1')
   })
 
   it('draws the line alone for a section, and nothing else', () => {

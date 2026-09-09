@@ -28,6 +28,10 @@ message is still a `page`; a tall section with nothing in it is still a
 `section`. The message says **what would fill it** — "No comments yet.
 Start the thread." — not just that it is empty.
 
+A `page` sits in the middle of its box both ways. Inside a flex column
+it takes the room left (`flex-1`) and centres in it; drawn straight into
+a page, give it the height — `className="h-full"`.
+
 ## When not
 
 - Data is still on its way → **Skeleton**; empty and loading are
@@ -40,8 +44,8 @@ Start the thread." — not just that it is empty.
 ```tsx
 import { EmptyState } from '@estiva-app/ui'
 
-// the whole page
-<EmptyState message="No documents yet. Create the first one." />
+// the whole page, drawn straight into it
+<EmptyState className="h-full" message="No documents yet. Create the first one." />
 
 // one section of a page
 <EmptyState scope="section" message="No comments yet." />
