@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { Breadcrumb } from './Breadcrumb'
 
 /** A trail of places, ending where you are — or on a mono ref. */
@@ -40,6 +41,17 @@ export const LongName: Story = {
       { label: 'Documents', href: '#' },
       { label: 'Onboarding flow for new workspaces, the whole first ten minutes', href: '#' },
       { label: 'ONB-12', mono: true },
+    ],
+  },
+}
+
+/** An icon before a crumb says what kind of place it is — a container, not an item. */
+export const WithAnIcon: Story = {
+  args: {
+    items: [
+      { label: 'Documents', href: '#' },
+      { label: 'Quarterly plan', href: '#', icon: <IconSquareRounded size={16} stroke={1.5} /> },
+      { label: 'DOC-12', mono: true },
     ],
   },
 }

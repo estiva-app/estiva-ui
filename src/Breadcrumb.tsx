@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useLayoutEffect, useRef, useState, type MouseEventHandler } from 'react'
+import { Fragment, useCallback, useLayoutEffect, useRef, useState, type MouseEventHandler, type ReactNode } from 'react'
 import { cn } from './cn'
 import { WithTooltip } from './Tooltip'
 
@@ -29,6 +29,12 @@ export interface Crumb {
   onClick?: MouseEventHandler<HTMLAnchorElement>
   /** Set the item in the mono face — a ref, an id. */
   mono?: boolean
+  /**
+   * 16px, stroke 1.5, before the label — what kind of place this is, so a
+   * container's name is not mistaken for an item's (Katerina, 2026-09-09).
+   * Decorative: the label says where you are; the icon says what it is.
+   */
+  icon?: ReactNode
   /** Quieter — a label that is not a place. */
   muted?: boolean
 }
@@ -69,13 +75,14 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
         // The mono size is an arbitrary value (the caption token) because this
         // string goes through cn() and a token size before a colour class is
         // dropped (the tailwind-merge pitfall).
+        const tone = item.muted || (last && item.mono) ? 'text-text-muted' : last ? 'text-text-primary' : 'text-text-secondary'
         const text = cn(
           'truncate',
           // A mono crumb is a ref — the identity. It never gives up width to a
           // long name beside it (the LongName story always claimed "the ref
           // stays"; flexbox was squeezing it anyway until this line).
           item.mono && 'shrink-0 font-mono text-[12px] leading-[120%]',
-          item.muted || (last && item.mono) ? 'text-text-muted' : last ? 'text-text-primary' : 'text-text-secondary',
+          tone,
         )
         const setLabelRef = (el: HTMLElement | null) => {
           labelRefs.current[index] = el
@@ -94,6 +101,14 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
             {index > 0 && (
               <span aria-hidden="true" className="shrink-0 text-text-muted">
                 /
+              </span>
+            )}
+            {/* Beside the crumb, not inside it: the crumb stays the one element
+                that truncates and is measured, and the trail's own gap — 6px —
+                is the distance between an icon and its name everywhere here. */}
+            {item.icon && (
+              <span aria-hidden="true" className={cn('flex shrink-0', tone)}>
+                {item.icon}
               </span>
             )}
             {truncated.has(index) ? (
