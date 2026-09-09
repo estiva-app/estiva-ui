@@ -53,10 +53,14 @@ the version is a minor because it adds.
   most 4.4px left; a three-digit one grows the box leftwards. The slot is
   the same width an icon would take, for a row that carries one instead.
 - **A `Chip` given a `max-w-*` truncates its label** with an ellipsis
-  instead of growing past the cap — `truncate` in place of
-  `whitespace-nowrap` on the label, `min-w-0` on the pill. A chip with no
-  cap draws exactly as before. For Ship's project chip on an issue row
-  (ADOPTION S26), where a project's name can be long.
+  instead of growing past the cap — `overflow-x-clip` + `text-ellipsis`
+  on the label, `min-w-0` on the pill. Not `truncate`: that is
+  `overflow: hidden` on both axes, and the label's line box (11px under
+  Signal) is tighter than its glyphs, so the screenshot diff caught every
+  descender cut off; `clip` is the one overflow that leaves the other
+  axis visible (PLAN Finding 41). A chip with no cap draws exactly as
+  before. For Ship's project chip on an issue row (ADOPTION S26), where a
+  project's name can be long.
 - **`SectionHeader`'s title is a button when it toggles**, and the
   keyboard can toggle it — the row was a `div` with an `onClick`, so it
   could not. The button fills the row up to the actions, which sit beside

@@ -36,11 +36,15 @@ export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, class
     <div className={cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)}>
       {leadingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{leadingIcon}</span>}
       {label && (
-        // `truncate` rather than `whitespace-nowrap` (2026-09-09): the same
-        // no-wrap, and a chip given a `max-w-*` cuts a long label with an
-        // ellipsis instead of growing past it — Ship's project chip on an
-        // issue row. A chip with no cap draws exactly as before.
-        <span className="min-w-0 truncate text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tracking-[0.02em] signal:tabular-nums">{label}</span>
+        // A chip given a `max-w-*` cuts a long label with an ellipsis instead
+        // of growing past it — Ship's project chip on an issue row
+        // (2026-09-09). Clipped sideways only: `overflow-x-clip`, not
+        // `truncate`, because `truncate` is `overflow: hidden` on both axes and
+        // the label's line box (11px under Signal) is tighter than its glyphs —
+        // the screenshot diff caught every descender cut off. `clip` is the
+        // one overflow that leaves the other axis visible. A chip with no cap
+        // draws exactly as before.
+        <span className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tracking-[0.02em] signal:tabular-nums">{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
     </div>
