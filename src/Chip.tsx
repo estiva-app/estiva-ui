@@ -33,10 +33,14 @@ const typeStyles: Record<ChipType, string> = {
 
 export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, className }: ChipProps) {
   return (
-    <div className={cn('inline-flex items-center justify-center gap-1.5 rounded-full max-h-[20px] min-w-[16px] px-2 py-1', typeStyles[type], className)}>
+    <div className={cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)}>
       {leadingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{leadingIcon}</span>}
       {label && (
-        <span className="text-chip whitespace-nowrap signal:font-mono signal:text-[10px] signal:font-semibold signal:tracking-[0.02em] signal:tabular-nums">{label}</span>
+        // `truncate` rather than `whitespace-nowrap` (2026-09-09): the same
+        // no-wrap, and a chip given a `max-w-*` cuts a long label with an
+        // ellipsis instead of growing past it — Ship's project chip on an
+        // issue row. A chip with no cap draws exactly as before.
+        <span className="min-w-0 truncate text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tracking-[0.02em] signal:tabular-nums">{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
     </div>
