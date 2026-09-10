@@ -27,7 +27,7 @@ export const Helper: Story = {
 
 /** It went through, and something about it needs saying. */
 export const Warning: Story = {
-  args: { tone: 'warning', children: 'Saved here, but the change was not announced.' },
+  args: { tone: 'warning', children: 'Saved, with one thing left undone.' },
 }
 
 /** It did not go through. This one announces itself. */
@@ -49,7 +49,7 @@ export const UnderAGroup: Story = {
           <Button variant="primary" size="small">Save</Button>
           <Button variant="outlined" size="small">Cancel</Button>
         </div>
-        <FieldLine tone="warning">Saved here, but the change was not announced.</FieldLine>
+        <FieldLine tone="warning">Saved, with one thing left undone.</FieldLine>
       </div>
     </div>
   ),
@@ -69,7 +69,7 @@ export const AllTones: Story = {
       </div>
       <div className="flex flex-col gap-1.5">
         <Select value="one" onChange={() => {}} options={[{ value: 'one', label: 'Item one' }]} ariaLabel="Item" />
-        <FieldLine tone="warning">Saved here, but the change was not announced.</FieldLine>
+        <FieldLine tone="warning">Saved, with one thing left undone.</FieldLine>
       </div>
       <div className="flex flex-col gap-1.5">
         <Select value="one" onChange={() => {}} options={[{ value: 'one', label: 'Item one' }]} ariaLabel="Item" />
