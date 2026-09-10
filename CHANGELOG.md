@@ -44,11 +44,17 @@ component without the new prop draws exactly what it drew.
   selected (Katerina, PEE-19); only the two edges were mapped, so it kept
   the placement arithmetic that moving onto `Popover` was meant to
   delete.
-- **`Toast` takes a `warning` tone**, for a notice that has to stay up —
-  Peek's "removed here, and other apps can still read it" (D50). Amber in
-  the light themes; under Signal the same dark pill with an amber icon and
-  its glow, as the other three read there. `glow-warning` is now a drop
-  shadow as well as a box shadow, so all three glows are both.
+- **`Toast` takes `warning` and `error` tones, and its leading icon now
+  says which type it is** — a check for `success`, `brand` and `neutral`, a
+  `!` for `warning`, an `×` for `error` (Katerina, 2026-09-10: *"the icons
+  should be representative, x for error, ! for warning"*). It was a
+  circle-check on every pill, so a warning would have arrived with a tick
+  beside it, which is why a caller with bad news turned the icon off
+  instead. Amber and red in the light themes; under Signal the same dark
+  pill with the icon carrying the colour. `glow-warning` is a drop shadow
+  as well as a box shadow now, so all three glows are both; `error` has no
+  glow, because no theme defines one and a colour with no token is not
+  approximated (D16).
 
 ## 0.12.1 — 2026-09-09
 

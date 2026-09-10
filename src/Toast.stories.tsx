@@ -12,7 +12,7 @@ const meta = {
     leadingIcon: true,
   },
   argTypes: {
-    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral', 'warning'] },
+    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral', 'warning', 'error'] },
     onAction: { control: false },
   },
 } satisfies Meta<typeof Toast>
@@ -35,6 +35,11 @@ export const Warning: Story = {
   args: { type: 'warning', label: 'Not everything went through' },
 }
 
+/** It did not happen. The icon is an ×, not a tick. */
+export const Error: Story = {
+  args: { type: 'error', label: 'That did not go through' },
+}
+
 /** With a right-side action. */
 export const WithAction: Story = {
   args: {
@@ -49,12 +54,12 @@ export const NoIcon: Story = {
   args: { leadingIcon: false, label: 'Copied to clipboard' },
 }
 
-/** All four surfaces, with and without an action. */
+/** All five surfaces, with and without an action — and each with its own icon. */
 export const AllTypes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col items-start gap-2">
-      {(['success', 'brand', 'neutral', 'warning'] as const).map((type) => (
+      {(['success', 'brand', 'neutral', 'warning', 'error'] as const).map((type) => (
         <div key={type} className="flex items-center gap-2">
           <Toast type={type} label="Changes saved" />
           <Toast type={type} label="Changes saved" actionLabel="Undo" onAction={() => {}} />
