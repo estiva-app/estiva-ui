@@ -186,3 +186,23 @@ describe('Popover', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 })
+
+/**
+ * `align="center"` (0.12.2, ADOPTION B21). Peek's selection toolbar is centred
+ * over the text you selected, and kept its own placement arithmetic while only
+ * the two edges were mapped.
+ */
+describe('Popover, centred on its anchor', () => {
+  it('asks Base UI for the middle', async () => {
+    render(
+      <Popover trigger={<Button>Open</Button>} align="center" ariaLabel="A panel">
+        <span>Inside</span>
+      </Popover>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const panel = await screen.findByRole('dialog')
+    // Base UI writes the resolved placement on the positioner it owns.
+    const positioner = panel.closest('[data-align]') ?? panel.parentElement
+    expect(positioner?.getAttribute('data-align')).toBe('center')
+  })
+})

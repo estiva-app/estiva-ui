@@ -1,0 +1,57 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as FieldLineStories from './FieldLine.stories'
+
+<Meta of={FieldLineStories} />
+
+# Field line
+
+The small line a **Field** draws under a control — on its own, for the
+places where there is no single control to draw it under.
+
+<Canvas of={FieldLineStories.UnderAGroup} />
+
+## When
+
+- A line under a **group** of controls: a value with Save and Cancel beside
+  it, a row of action controls. The group already has a heading above it.
+- `helper` is a hint. `warning` and `error` are outcomes: what happened when
+  the person did something.
+
+## When not
+
+- The line belongs to **one control** → **Field**'s `helper` and `error`.
+  Those are wired to the control with `aria-describedby` and `aria-invalid`,
+  which this cannot be, and Field draws the label too.
+- A strip under the app's header → **Banner**.
+- Something that floats over the page and goes away → **Toast**.
+
+## How
+
+```tsx
+import { FieldLine } from '@estiva-app/ui'
+
+<div className="flex flex-col gap-1.5">
+  <div className="flex items-center gap-2">
+    <TextInput value={draft} onChange={…} />
+    <Button variant="primary" size="small">Save</Button>
+  </div>
+  {outcome && <FieldLine tone={outcome.kind}>{outcome.message}</FieldLine>}
+</div>
+```
+
+- **The 6px above it is the caller's.** Field puts the control and its line
+  in a `flex flex-col gap-1.5`; a group does the same around its own row, so
+  the line sits where a field's line sits.
+- **It announces itself.** An `error` is `role="alert"`, the other two are
+  `role="status"` — Banner's rule, so the two agree. These lines appear
+  *after* something was done, and a reader who cannot see them is told.
+- **`warning` is the tone Field has not got**, and deliberately: Field's
+  `error` also marks its control invalid, and a warning is not invalid — it
+  went through, and something about it needs saying. A group has no single
+  control to mark, so the distinction is free here.
+- The three tones are the same two classes Field draws, from one map in
+  `Field.tsx`, so they cannot drift.
+
+## Props
+
+<Controls of={FieldLineStories.Helper} />

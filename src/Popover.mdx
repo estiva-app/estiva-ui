@@ -52,7 +52,9 @@ import { Popover } from '@estiva-app/ui'
 - **`actionsRef`** gives `close()`, for the Cancel and Save a form panel ends
   with. Unlike a menu row, a control inside a panel does not close it by being
   pressed: it is content, and content may be used more than once.
-- **`align="right"`** hangs the panel's right edge from the trigger's.
+- **`align="right"`** hangs the panel's right edge from the trigger's;
+  **`align="center"`** puts the panel's middle over the anchor's, wherever
+  in the line that is — what a toolbar over a text selection wants.
 - **`side` is a preference, not a promise.** It says which side to try; Base UI
   measures the room and flips when there is none — which is the reason the
   placement is its job rather than arithmetic of ours. **A panel holding a

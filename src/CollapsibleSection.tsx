@@ -31,6 +31,8 @@ export interface CollapsibleSectionProps {
   onOpenChange?: (open: boolean) => void
   /** Remember open or closed in this browser, under this key. The app prefixes it. */
   storageKey?: string
+  /** Beside the title and always visible, before the actions — a count. `SectionHeader`'s. */
+  trailing?: ReactNode
   /** Beside the title, revealed on hover or focus — `SectionHeader`'s. */
   actions?: SectionAction[]
   showActions?: 'hover' | 'always'
@@ -64,7 +66,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, actions, showActions, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -74,7 +76,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
   }
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron isExpanded={open} actions={actions} showActions={showActions} className="shrink-0" render={<Collapsible.Trigger />} />
+      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} showActions={showActions} className="shrink-0" render={<Collapsible.Trigger />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame

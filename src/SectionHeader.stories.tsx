@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconPlus, IconSortDescending } from '@tabler/icons-react'
+import { Chip } from './Chip'
 import { SectionHeader } from './SectionHeader'
 
 /** The 32px row a section starts with. Hover it: the row fills, and its actions appear. A section that folds is CollapsibleSection, whose header this is. */
@@ -8,7 +9,7 @@ const meta = {
   component: SectionHeader,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
   args: { title: 'Section', showActions: 'hover' },
-  argTypes: { showActions: { control: 'inline-radio', options: ['hover', 'always'] }, chevron: { control: false }, isExpanded: { control: false } },
+  argTypes: { showActions: { control: 'inline-radio', options: ['hover', 'always'] }, chevron: { control: false }, isExpanded: { control: false }, trailing: { control: false } },
 } satisfies Meta<typeof SectionHeader>
 
 export default meta
@@ -30,6 +31,14 @@ export const WithActions: Story = {
 export const PersistentActions: Story = {
   args: {
     showActions: 'always',
+    actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
+  },
+}
+
+/** A count beside the title, held on screen while the actions come and go. */
+export const WithTrailing: Story = {
+  args: {
+    trailing: <Chip type="brand" label="2" />,
     actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
   },
 }

@@ -46,6 +46,15 @@ export interface SectionHeaderProps {
   chevron?: boolean
   isExpanded?: boolean
   onToggle?: () => void
+  /**
+   * Beside the title and always visible, before the actions — a count.
+   *
+   * The actions come and go with the hover; this does not, because a count is
+   * information rather than an affordance. Peek's Screener header carries its
+   * number as a `Chip` here, and was the last hand-drawn folding header in the
+   * app for want of the slot (ADOPTION B23).
+   */
+  trailing?: ReactNode
   /** Right-aligned, in the order given. */
   actions?: SectionAction[]
   /** `hover` reveals the actions while the row is hovered or focused; `always` keeps them. */
@@ -58,7 +67,7 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, actions, showActions = 'hover', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', render, className }: SectionHeaderProps) {
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
@@ -93,6 +102,10 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
       )}
     >
       {titleElement}
+      {/* Outside the title button, like the actions: a chip inside a button
+          would be part of the button's accessible name and part of its hit
+          target, and the count is neither. */}
+      {trailing != null && <div className="flex shrink-0 items-center">{trailing}</div>}
       {actions && actions.length > 0 && (
         <div
           // `-mr-1`: an IconButton is 24px around a 16px icon, so at the row's

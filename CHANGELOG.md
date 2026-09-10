@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.12.2 — 2026-09-10
+
+The six gaps Peek's adoption found, in one release, so Peek can finish
+(D53, and Katerina 2026-09-10: *"let's fix the field issue in estiva-ui
+properly and use base UI if needed"*). Nothing here is breaking; every
+component without the new prop draws exactly what it drew.
+
+### Added
+
+- **`FieldLine` — the line a `Field` draws, on its own** (ADOPTION B24).
+  Three surfaces in Peek put that small line under a *group* of controls
+  — a value with Save and Cancel beside it, a Folder's action controls,
+  another app's action controls — and each already has a section heading
+  above it, so `Field` (which brings a label of its own) could not be
+  used. All three spelled `text-xs text-error-default` by hand, and none
+  of them was announced. This is the same two classes from one map in
+  `Field.tsx`, plus **`warning`**, the tone `Field` has not got and
+  deliberately: `Field`'s `error` also marks its control invalid, and a
+  warning is not invalid. An `error` is `role="alert"`, the rest are
+  `role="status"` — `Banner`'s rule, so the two agree.
+- **`SectionHeader` and `CollapsibleSection` take a `trailing` slot**
+  (B23): a count beside the title, held on screen while the actions come
+  and go, and outside the title button so it is neither part of the
+  toggle's name nor part of its hit target. Peek's Screener header
+  carries its number as a `Chip` there and was the app's last hand-drawn
+  folding header for want of the slot.
+- **`ScrollArea` hands back the box that scrolls** — `viewportRef` and
+  `onScroll` (B20). A conversation arrives at its newest message, keeps
+  its place when older ones load above it, and jumps to the bottom on a
+  reply; none of that is the region's to do, and none of it is possible
+  without the box. Peek's two streams and its thread panel kept native
+  bars for exactly this.
+- **`DialogShell` takes `bodyMaxHeight`** (B19): the cap, and with it the
+  body becomes a `ScrollArea`, so a long roster or a tall form scrolls in
+  the package's bar rather than the browser's. The cap lands on the
+  viewport and the padding on the content, so the bar is drawn over the
+  padding rather than beside it. Peek's five dialogs passed
+  `overflow-y-auto` on the body — and two of the five passed it with no
+  cap, which never scrolled anything.
+- **`Popover` takes `align="center"`** (B21), mapped to Base UI's own
+  `center`. Peek's selection toolbar is centred over the text you
+  selected (Katerina, PEE-19); only the two edges were mapped, so it kept
+  the placement arithmetic that moving onto `Popover` was meant to
+  delete.
+- **`Toast` takes `warning` and `error` tones, and its leading icon now
+  says which type it is** — a check for `success`, `brand` and `neutral`, a
+  `!` for `warning`, an `×` for `error` (Katerina, 2026-09-10: *"the icons
+  should be representative, x for error, ! for warning"*). It was a
+  circle-check on every pill, so a warning would have arrived with a tick
+  beside it, which is why a caller with bad news turned the icon off
+  instead. Amber and red in the light themes; under Signal the same dark
+  pill with the icon carrying the colour. `glow-warning` is a drop shadow
+  as well as a box shadow now, so all three glows are both; `error` has no
+  glow, because no theme defines one and a colour with no token is not
+  approximated (D16).
+
 ## 0.12.1 — 2026-09-09
 
 ### Fixed

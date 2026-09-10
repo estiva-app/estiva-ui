@@ -12,7 +12,7 @@ const meta = {
     leadingIcon: true,
   },
   argTypes: {
-    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral'] },
+    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral', 'warning', 'error'] },
     onAction: { control: false },
   },
 } satisfies Meta<typeof Toast>
@@ -30,6 +30,16 @@ export const Brand: Story = {
   args: { type: 'brand', label: 'Session started' },
 }
 
+/** Something that needs saying rather than celebrating — usually with `durationMs: 0` and a Dismiss, because a warning that fades takes itself with it. */
+export const Warning: Story = {
+  args: { type: 'warning', label: 'Not everything went through' },
+}
+
+/** It did not happen. The icon is an ×, not a tick. */
+export const Error: Story = {
+  args: { type: 'error', label: 'That did not go through' },
+}
+
 /** With a right-side action. */
 export const WithAction: Story = {
   args: {
@@ -44,12 +54,12 @@ export const NoIcon: Story = {
   args: { leadingIcon: false, label: 'Copied to clipboard' },
 }
 
-/** All three surfaces, with and without an action. */
+/** All five surfaces, with and without an action — and each with its own icon. */
 export const AllTypes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col items-start gap-2">
-      {(['success', 'brand', 'neutral'] as const).map((type) => (
+      {(['success', 'brand', 'neutral', 'warning', 'error'] as const).map((type) => (
         <div key={type} className="flex items-center gap-2">
           <Toast type={type} label="Changes saved" />
           <Toast type={type} label="Changes saved" actionLabel="Undo" onAction={() => {}} />

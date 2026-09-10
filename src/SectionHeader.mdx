@@ -46,6 +46,10 @@ import { IconPlus } from '@tabler/icons-react'
 - An action is `{ icon, tooltip, onClick }` — the tooltip doubles as the
   action's accessible name. The actions sit beside the title button, not
   inside it, so a click on one never also toggles the section.
+- `trailing` is a count beside the title, held on screen while the actions
+  come and go: a count is information, not an affordance. It sits outside
+  the title button too, so it is neither part of the toggle's name nor part
+  of its hit target.
 - `render` swaps the title's element in Base UI's manner; it is how
   CollapsibleSection makes the title a `Collapsible.Trigger`.
 

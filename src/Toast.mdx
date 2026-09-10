@@ -17,8 +17,14 @@ the positioning (bottom-left), the portal, and the auto-dismiss.
   "Changes saved".
 - `actionLabel` + `onAction` add the one follow-up worth offering — an
   "Undo", a "View".
-- `neutral` states, `success` celebrates, `brand` speaks with the
-  accent's voice.
+- **The leading icon says which type it is**: a check for `success`,
+  `brand` and `neutral`, a `!` for `warning`, an `×` for `error`. It was a
+  check on all of them, so a warning arrived with a tick beside it and a
+  caller with bad news turned the icon off instead.
+- `neutral` states, `success` celebrates, `brand` speaks with the accent's
+  voice, `error` reports a failure, and `warning` says something needs
+  knowing — a notice usually paired with `durationMs: 0` and a Dismiss,
+  because a warning that fades takes itself with it.
 
 <Canvas of={ToastStories.WithAction} />
 

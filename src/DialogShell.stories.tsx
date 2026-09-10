@@ -145,3 +145,32 @@ export const OpenAndClose: Story = {
     )
   },
 }
+
+/**
+ * **A body that scrolls in the package's bar.** `bodyMaxHeight` is the cap;
+ * without it the body grows to its content, as every dialog written before
+ * 0.12.2 does. The bar is drawn over the padding rather than beside it, so the
+ * text column keeps its width when the content overflows.
+ */
+export const ScrollingBody: Story = {
+  args: {
+    title: 'A long list',
+    bodyMaxHeight: 'max-h-[240px]',
+    bodyClassName: 'flex flex-col gap-2',
+    footer: (
+      <>
+        <Button variant="muted">Cancel</Button>
+        <Button variant="primary">Confirm</Button>
+      </>
+    ),
+    children: (
+      <>
+        {Array.from({ length: 16 }, (_, i) => (
+          <span key={i} className="text-body-2 text-text-primary">
+            Item {i + 1}
+          </span>
+        ))}
+      </>
+    ),
+  },
+}

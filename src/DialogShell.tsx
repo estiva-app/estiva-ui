@@ -4,6 +4,7 @@ import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
+import { ScrollArea } from './ScrollArea'
 
 /**
  * Peek's DialogShell (2026-08-28), verbatim: the portal, the backdrop, the
@@ -41,8 +42,20 @@ export interface DialogShellProps {
    *  (a roster that simply ends). */
   footer?: ReactNode
   children: ReactNode
-  /** Extra classes on the body (e.g. `flex flex-col gap-6`, or a max height with `overflow-y-auto`). */
+  /** Extra classes on the body: its layout and any padding override (`flex flex-col gap-6`, `p-0 py-2`). */
   bodyClassName?: string
+  /**
+   * How tall the body may get before it scrolls, as the cap class —
+   * `max-h-[400px]`, `max-h-[70vh]`. Setting it makes the body a `ScrollArea`,
+   * so a long roster or a tall form scrolls in the package's bar rather than
+   * the browser's (D40, ADOPTION B19).
+   *
+   * Without it the body is what it always was and grows to its content, so no
+   * dialog written before 0.12.2 moves a pixel. A `bodyClassName` carrying
+   * `overflow-y-auto` and no cap never scrolled anything — the box grew — and
+   * is the case this replaces.
+   */
+  bodyMaxHeight?: string
   width?: number
   /**
    * A question that has to be answered rather than clicked away: a press on
@@ -53,7 +66,7 @@ export interface DialogShellProps {
   alert?: boolean
 }
 
-export function DialogShell({ title, onClose, headerContent, footer, children, bodyClassName, width = 502, alert = false }: DialogShellProps) {
+export function DialogShell({ title, onClose, headerContent, footer, children, bodyClassName, bodyMaxHeight, width = 502, alert = false }: DialogShellProps) {
   // The two families are the same parts with different dismiss rules, so the
   // chrome below is written once. AlertDialog re-exports Dialog's Backdrop,
   // Popup, Portal and Title types, which is why this substitutes cleanly.
@@ -128,8 +141,22 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
               />
             </div>
 
-            {/* Body */}
-            <div className={cn('pl-5 pr-4 py-4', footer != null && 'border-b border-border-subtle', bodyClassName)}>{children}</div>
+            {/* Body. With a cap it scrolls in the package's bar: the cap goes
+                on the viewport (ScrollArea's rule — on the region the viewport
+                grows to its content and nothing scrolls), and the padding and
+                the caller's layout go on the content, so the bar is drawn over
+                the padding rather than beside it. */}
+            {bodyMaxHeight ? (
+              <ScrollArea
+                className={cn(footer != null && 'border-b border-border-subtle')}
+                viewportClassName={bodyMaxHeight}
+                contentClassName={cn('pl-5 pr-4 py-4', bodyClassName)}
+              >
+                {children}
+              </ScrollArea>
+            ) : (
+              <div className={cn('pl-5 pr-4 py-4', footer != null && 'border-b border-border-subtle', bodyClassName)}>{children}</div>
+            )}
 
             {/* Footer */}
             {footer != null && <div className="h-12 flex items-center justify-end gap-2 pl-5 pr-4 shrink-0">{footer}</div>}

@@ -183,6 +183,10 @@ export default {
         // The icon glows (D16), as `drop-shadow-glow-*`; a filter, so they follow the icon's shape.
         'glow-success': 'var(--glow-success)',
         'glow-accent':  'var(--glow-accent)',
+        // Added at 0.12.2 with the warning toast, so the set is symmetric:
+        // all three glows are a box shadow (a glow on a surface) and a drop
+        // shadow (a glow on an icon).
+        'glow-warning': 'var(--glow-warning)',
       },
       keyframes: {
         'skeleton-in': {

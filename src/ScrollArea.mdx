@@ -39,6 +39,11 @@ import { ScrollArea } from '@estiva-app/ui'
 - `className` sizes and places the region; `viewportClassName` styles the
   scrolling box inside it — padding, gap, the layout of the content.
 - The region needs a height (or a `max-h-*`) to have anything to scroll.
+- **`viewportRef` and `onScroll` hand back the box that scrolls**, for a
+  region that reads or drives its own scrolling: a conversation that arrives
+  at its newest message, keeps its place when older ones load above it, and
+  jumps to the bottom when a reply is sent. Nothing else here can do that for
+  the caller, and the caller cannot do it without the box.
 - The native scrollbar is hidden by Base UI; a native `overflow-y-auto` on
   the same element would draw a second one.
 - A region keeps the wheel only in an axis it can actually scroll: a list

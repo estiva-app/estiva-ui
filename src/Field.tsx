@@ -57,6 +57,16 @@ export interface FieldProps {
   children: ReactNode
 }
 
+/**
+ * The two looks the line under a control wears, in one place so `Field` and
+ * `FieldLine` cannot drift apart. `warning` is `FieldLine`'s alone — see there.
+ */
+const LINE_STYLES = {
+  helper: 'text-caption text-text-muted',
+  warning: 'text-caption text-warning-default',
+  error: 'text-caption text-error-default',
+} as const
+
 export function Field({ label, required = false, helper, error, children }: FieldProps) {
 
   /*
@@ -101,13 +111,58 @@ export function Field({ label, required = false, helper, error, children }: Fiel
       <div className="flex flex-col gap-1.5">
         {control}
         {error != null ? (
-          <BaseField.Error match className="text-caption text-error-default">
+          <BaseField.Error match className={LINE_STYLES.error}>
             {error}
           </BaseField.Error>
         ) : helper != null ? (
-          <BaseField.Description className="text-caption text-text-muted">{helper}</BaseField.Description>
+          <BaseField.Description className={LINE_STYLES.helper}>{helper}</BaseField.Description>
         ) : null}
       </div>
     </BaseField.Root>
+  )
+}
+
+/**
+ * The line on its own — the same small line `Field` draws under a control,
+ * for the places where there is no single control to draw it under.
+ *
+ * **Why it is not a `Field`.** Three surfaces in Peek put this line under a
+ * *group*: the rename row (a field and two buttons), a Folder's action
+ * controls, another app's action controls. Each already has a section heading
+ * above it, and `Field` comes with a label of its own — so wrapping the group
+ * in one would either say the heading twice or restyle it. Found at step 4 of
+ * Peek's adoption (`ADOPTION.md` B24); until this existed, all three spelled
+ * `text-xs text-error-default` by hand.
+ *
+ * **It announces itself**, which is the half the hand-written spans never had.
+ * These lines appear *after* something was done — a rename that the relay
+ * refused, an action that failed — so a reader who cannot see them is told:
+ * `role="alert"` for an error, `role="status"` for the rest. That is `Banner`'s
+ * rule (2026-09-02), kept here so the two agree.
+ *
+ * **`warning` is the tone `Field` has not got**, and deliberately: `Field`'s
+ * `error` also marks its control invalid, and a warning is not invalid — the
+ * rename went through, and something about it needs saying. A group has no
+ * single control to mark, so the distinction is free here and would not be
+ * there.
+ *
+ * When the line belongs to one control, it is `Field`'s `helper` or `error`:
+ * those are wired to the control with `aria-describedby` and `aria-invalid`,
+ * which this cannot be.
+ */
+export type FieldLineTone = 'helper' | 'warning' | 'error'
+
+export interface FieldLineProps {
+  /** `helper` (muted) is a hint; `warning` (amber) and `error` (red) are outcomes. Default `helper`. */
+  tone?: FieldLineTone
+  children: ReactNode
+  className?: string
+}
+
+export function FieldLine({ tone = 'helper', children, className }: FieldLineProps) {
+  return (
+    <p role={tone === 'error' ? 'alert' : 'status'} className={cn(LINE_STYLES[tone], className)}>
+      {children}
+    </p>
   )
 }

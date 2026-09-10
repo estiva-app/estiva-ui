@@ -38,3 +38,28 @@ describe('SectionHeader', () => {
     expect(screen.getByText('Section')).not.toBeNull()
   })
 })
+
+/**
+ * The trailing slot (0.12.2, ADOPTION B23). Peek's Screener header carries its
+ * count as a Chip there, and was the last hand-drawn folding header in the app
+ * for want of it.
+ */
+describe('SectionHeader, the trailing slot', () => {
+  it('holds a count beside the title, outside the button and outside the hover', () => {
+    render(
+      <SectionHeader
+        title="Section"
+        chevron
+        trailing={<span data-testid="count">2</span>}
+        actions={[{ icon: <span />, tooltip: 'Add', onClick: () => {} }]}
+      />,
+    )
+    const count = screen.getByTestId('count')
+    const title = screen.getByRole('button', { name: /section/i })
+    // Not part of the toggle: neither its name nor its hit target.
+    expect(title.contains(count)).toBe(false)
+    expect(title.textContent).toBe('Section')
+    // Not part of the hover reveal either — a count is information, not an affordance.
+    expect(count.closest('.opacity-0')).toBe(null)
+  })
+})

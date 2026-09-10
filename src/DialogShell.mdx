@@ -51,9 +51,15 @@ import { DialogShell, Button } from '@estiva-app/ui'
 ```
 
 - Render it only while open — mounting is opening.
-- `bodyClassName` shapes the body (`flex flex-col gap-6`, or a max height
-  with `overflow-y-auto` for long lists). Rows in a height-capped flex
-  body need `shrink-0`, or overflow crushes them.
+- `bodyClassName` shapes the body — its layout and any padding override
+  (`flex flex-col gap-6`, `p-0 py-2`).
+- **`bodyMaxHeight` makes the body scroll in the package's bar**: give it
+  the cap (`max-h-[400px]`, `max-h-[70vh]`) and the body becomes a
+  `ScrollArea`, so a long roster keeps its text column when it overflows.
+  Without it the body grows to its content, as it always did. A
+  `bodyClassName` carrying `overflow-y-auto` and no cap never scrolled
+  anything — the box grew — and is what this replaces. Rows in a capped
+  flex body still need `shrink-0`, or overflow crushes them.
 - The card names itself to assistive tech (`role="dialog"`, labelled by
   its header — or by `title` when `headerContent` replaces that text).
 - **Focus is trapped and returned.** Tab cannot leave the card, and closing
