@@ -30,6 +30,11 @@ export const Brand: Story = {
   args: { type: 'brand', label: 'Session started' },
 }
 
+/** Something that needs saying rather than celebrating — usually with `durationMs: 0` and a Dismiss, because a warning that fades takes itself with it. */
+export const Warning: Story = {
+  args: { type: 'warning', label: 'Not everything went through' },
+}
+
 /** With a right-side action. */
 export const WithAction: Story = {
   args: {
@@ -44,12 +49,12 @@ export const NoIcon: Story = {
   args: { leadingIcon: false, label: 'Copied to clipboard' },
 }
 
-/** All three surfaces, with and without an action. */
+/** All four surfaces, with and without an action. */
 export const AllTypes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col items-start gap-2">
-      {(['success', 'brand', 'neutral'] as const).map((type) => (
+      {(['success', 'brand', 'neutral', 'warning'] as const).map((type) => (
         <div key={type} className="flex items-center gap-2">
           <Toast type={type} label="Changes saved" />
           <Toast type={type} label="Changes saved" actionLabel="Undo" onAction={() => {}} />
@@ -84,9 +89,4 @@ export const FromTheProvider: Story = {
       <ProviderDemo />
     </ToastProvider>
   ),
-}
-
-/** Something that needs saying rather than celebrating — a notice that stays up. */
-export const Warning: Story = {
-  args: { type: 'warning', label: 'Removed here, and still readable elsewhere', actionLabel: 'Dismiss', onAction: () => {} },
 }
