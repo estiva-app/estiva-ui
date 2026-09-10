@@ -182,3 +182,38 @@ describe('ConfirmDialog', () => {
     expect(screen.getByRole('alertdialog')).toBeTruthy()
   })
 })
+
+/**
+ * `bodyMaxHeight` makes the body scroll in the package's bar (0.12.2,
+ * ADOPTION B19). Peek's five dialogs passed `overflow-y-auto` on the body, so
+ * a long roster drew the native bar D40 removed everywhere else — and two of
+ * the five passed it with no cap at all, which never scrolled anything.
+ */
+describe('DialogShell, a body that scrolls', () => {
+  it('leaves the body alone without a cap, and wraps it in a scroll region with one', () => {
+    const { container, unmount } = render(
+      <DialogShell title="T" onClose={() => {}} bodyClassName="flex flex-col gap-6">
+        <p>Inside</p>
+      </DialogShell>,
+    )
+    const plain = screen.getByText('Inside').parentElement!
+    expect(plain.className).toContain('flex flex-col gap-6')
+    expect(plain.className).toContain('pl-5')
+    unmount()
+
+    render(
+      <DialogShell title="T" onClose={() => {}} bodyMaxHeight="max-h-[240px]" bodyClassName="flex flex-col gap-6">
+        <p>Inside</p>
+      </DialogShell>,
+    )
+    const content = screen.getByText('Inside').parentElement!
+    // The padding and the layout stay on the box the children are in…
+    expect(content.className).toContain('flex flex-col gap-6')
+    expect(content.className).toContain('pl-5')
+    // …and the cap is on the scrolling box above it, never on the region.
+    const viewport = content.closest('[class*="max-h-"]')
+    expect(viewport).not.toBe(null)
+    expect(viewport).not.toBe(content)
+    expect(viewport!.className).toContain('overflow')
+  })
+})

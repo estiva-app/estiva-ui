@@ -29,7 +29,7 @@ const FONT_SIZE_TOKENS = [
  * `cn.test.ts` pins these to the preset too.
  */
 const BOX_SHADOW_TOKENS = ['sm', 'md', 'lg', 'focus-ring', 'glow-warning', 'glow-success', 'glow-accent', 'highlight-inset']
-const DROP_SHADOW_TOKENS = ['glow-success', 'glow-accent']
+const DROP_SHADOW_TOKENS = ['glow-success', 'glow-accent', 'glow-warning']
 
 const twMerge = extendTailwindMerge({
   extend: {

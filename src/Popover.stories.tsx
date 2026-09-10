@@ -220,3 +220,18 @@ export const FlippedForRoom: Story = {
     </div>
   ),
 }
+
+/**
+ * `align="center"` puts the panel's middle over the anchor's, wherever in the
+ * line that is — what a toolbar over a selection wants.
+ */
+export const Centred: Story = {
+  parameters: { controls: { disable: true }, layout: 'fullscreen' },
+  render: () => (
+    <div className="flex h-[260px] w-full items-center justify-center">
+      <Popover trigger={<Button variant="outlined">Centred over this</Button>} align="center" ariaLabel="A panel" className="w-[120px]">
+        <span className="text-body-2 text-text-primary">Middle over middle.</span>
+      </Popover>
+    </div>
+  ),
+}

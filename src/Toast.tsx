@@ -6,7 +6,7 @@ import { cn } from './cn'
 /**
  * Peek's Toast (Figma: Alert) and its provider (2026-09-01), verbatim.
  *
- * The pill: three types — `success`, `brand`, `neutral` — an optional leading
+ * The pill: four types — `success`, `brand`, `neutral`, `warning` — an optional leading
  * circle-check, an optional action on the right. Under Signal every toast is
  * the same dark overlay pill; the type lives in the icon's colour and glow,
  * not the surface.
@@ -15,11 +15,17 @@ import { cn } from './cn'
  * (5 s; pass `durationMs: 0` to keep one up). One toast at a time — a new
  * one replaces the standing one, it does not queue.
  */
-export type ToastType = 'success' | 'brand' | 'neutral'
+export type ToastType = 'success' | 'brand' | 'neutral' | 'warning'
 
 export interface ToastProps {
   label: string
-  /** Visual variant per Figma (Alert component): success, brand, or neutral. */
+  /**
+   * Visual variant per Figma (Alert component): success, brand, neutral, or
+   * warning. `warning` arrived at 0.12.2 for a notice that has to stay up —
+   * Peek's "the relay kept this, other apps can still read it" (D50): amber in
+   * the light themes, and under Signal the same dark pill with an amber icon
+   * and its glow, exactly as the other three read there.
+   */
   type?: ToastType
   /** Show the leading circle-check icon. Defaults to true. */
   leadingIcon?: boolean
@@ -35,18 +41,21 @@ const SURFACE_STYLES: Record<ToastType, string> = {
   success: 'bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
   brand: 'bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
   neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
+  warning: 'bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
 }
 
 const ICON_STYLES: Record<ToastType, string> = {
   success: 'signal:text-success-default signal:drop-shadow-glow-success',
   brand: 'signal:text-text-interactive signal:drop-shadow-glow-accent',
   neutral: 'signal:text-text-secondary',
+  warning: 'signal:text-warning-default signal:drop-shadow-glow-warning',
 }
 
 const ACTION_BORDER_STYLES: Record<ToastType, string> = {
   success: 'signal:border signal:border-border-default signal:hover:border-border-strong',
   brand: 'signal:border signal:border-border-default signal:hover:border-border-strong',
   neutral: 'border border-border-default',
+  warning: 'signal:border signal:border-border-default signal:hover:border-border-strong',
 }
 
 export function Toast({ label, type = 'neutral', leadingIcon = true, actionLabel, onAction, className }: ToastProps) {

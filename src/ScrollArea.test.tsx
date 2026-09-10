@@ -5,8 +5,9 @@
  * it shows, is measured in Chrome (2026-09-08: the viewport keeps its full
  * width with 40 rows overflowing; the native bar is hidden).
  */
+import { createRef } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ScrollArea } from './ScrollArea'
 
 afterEach(cleanup)
@@ -61,5 +62,30 @@ describe('ScrollArea and the page behind it', () => {
     expect(viewport.className).toContain('data-[has-overflow-x]:overscroll-x-contain')
     expect(viewport.className).toContain('data-[has-overflow-y]:overscroll-y-contain')
     expect(viewport.className).not.toMatch(/(^|\s)overscroll-contain(\s|$)/)
+  })
+})
+
+/**
+ * The viewport is the box a caller reads and drives (0.12.2, ADOPTION B20).
+ * A conversation arrives at its newest message and jumps to the bottom on a
+ * reply; neither is something the region can do for the caller, and neither is
+ * possible without the box.
+ */
+describe('ScrollArea, the viewport it hands back', () => {
+  it('gives the caller the box that scrolls, and reports its scrolling', () => {
+    const ref = createRef<HTMLDivElement>()
+    let scrolled = 0
+    render(
+      <ScrollArea className="h-40" viewportRef={ref} onScroll={() => { scrolled += 1 }}>
+        <p>Inside</p>
+      </ScrollArea>,
+    )
+    // The box the caller gets is the one the content sits in, not the region.
+    expect(ref.current).not.toBe(null)
+    expect(ref.current!.contains(screen.getByText('Inside'))).toBe(true)
+    expect(ref.current!.className).toContain('overflow')
+
+    fireEvent.scroll(ref.current!)
+    expect(scrolled).toBe(1)
   })
 })

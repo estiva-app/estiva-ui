@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref, UIEventHandler } from 'react'
 import { ScrollArea as BaseScrollArea } from '@base-ui/react/scroll-area'
 import { cn } from './cn'
 
@@ -43,13 +43,25 @@ export interface ScrollAreaProps {
   viewportClassName?: string
   /** On the content, the box the children sit in: padding, gap, layout. */
   contentClassName?: string
+  /**
+   * The scrolling box itself, for a region that reads or drives its own
+   * scrolling: `ref.current.scrollTop`, `scrollTo`, `scrollHeight`.
+   *
+   * A conversation is the case this exists for (ADOPTION B20): it arrives at
+   * the newest message, keeps its place when older ones load above, and jumps
+   * to the bottom when a reply is sent — none of which the region can do for
+   * the caller, and all of which the caller cannot do without the box.
+   */
+  viewportRef?: Ref<HTMLDivElement>
+  /** Fires as the viewport scrolls — the unread policy's input, beside `viewportRef`. */
+  onScroll?: UIEventHandler<HTMLDivElement>
   children: ReactNode
 }
 
 const BAR = 'flex touch-none select-none rounded-full opacity-0 transition-opacity delay-300 data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[scrolling]:opacity-100 data-[scrolling]:delay-0'
 const THUMB = 'rounded-full bg-border-strong'
 
-export function ScrollArea({ orientation = 'vertical', className, viewportClassName, contentClassName, children }: ScrollAreaProps) {
+export function ScrollArea({ orientation = 'vertical', className, viewportClassName, contentClassName, viewportRef, onScroll, children }: ScrollAreaProps) {
   const vertical = orientation !== 'horizontal'
   const horizontal = orientation !== 'vertical'
   return (
@@ -66,6 +78,8 @@ export function ScrollArea({ orientation = 'vertical', className, viewportClassN
           Finding 40). `data-has-overflow-x` / `-y` are Base UI's word for
           "this axis really overflows", written on the viewport as it changes. */}
       <BaseScrollArea.Viewport
+        ref={viewportRef}
+        onScroll={onScroll}
         className={cn(
           'h-full w-full outline-none data-[has-overflow-x]:overscroll-x-contain data-[has-overflow-y]:overscroll-y-contain',
           viewportClassName,

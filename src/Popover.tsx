@@ -51,8 +51,17 @@ export interface PopoverProps {
    * Render it always and toggle `open`; do not mount it only while it is open.
    */
   anchor?: HTMLElement | DOMRect | null
-  /** Which of the panel's edges hangs from the trigger's. Default left. */
-  align?: 'left' | 'right'
+  /**
+   * Which of the panel's edges hangs from the trigger's, or `center` to put
+   * the panel's middle over the anchor's. Default left.
+   *
+   * **`center` is what a toolbar over a text selection wants** (Katerina,
+   * PEE-19, after Linear): the panel sits over the middle of what you
+   * selected, wherever in the line that is. Until 0.12.2 only the two edges
+   * were mapped, so Peek's selection toolbar kept the placement arithmetic
+   * the move onto this component was meant to delete (ADOPTION B21).
+   */
+  align?: 'left' | 'center' | 'right'
   /**
    * Which side of the trigger, or of the anchor, the panel prefers. Default
    * `bottom`.
@@ -117,7 +126,7 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
         <BasePopover.Positioner
           anchor={anchorTarget}
           side={side}
-          align={align === 'right' ? 'end' : 'start'}
+          align={align === 'right' ? 'end' : align === 'center' ? 'center' : 'start'}
           sideOffset={GAP}
           collisionPadding={VIEWPORT_PAD}
           className="z-50 data-[anchor-hidden]:hidden"

@@ -12,7 +12,7 @@ const meta = {
     leadingIcon: true,
   },
   argTypes: {
-    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral'] },
+    type: { control: 'inline-radio', options: ['success', 'brand', 'neutral', 'warning'] },
     onAction: { control: false },
   },
 } satisfies Meta<typeof Toast>
@@ -84,4 +84,9 @@ export const FromTheProvider: Story = {
       <ProviderDemo />
     </ToastProvider>
   ),
+}
+
+/** Something that needs saying rather than celebrating — a notice that stays up. */
+export const Warning: Story = {
+  args: { type: 'warning', label: 'Removed here, and still readable elsewhere', actionLabel: 'Dismiss', onAction: () => {} },
 }
