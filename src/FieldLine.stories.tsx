@@ -43,7 +43,9 @@ export const UnderAGroup: Story = {
       <SectionLabel>Label</SectionLabel>
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <TextInput defaultValue="Value" className="flex-1" />
+          {/* A section heading is not a label: the control still owes its own
+              name, which is half of why this group cannot simply be a Field. */}
+          <TextInput defaultValue="Value" aria-label="Label" className="flex-1" />
           <Button variant="primary" size="small">Save</Button>
           <Button variant="outlined" size="small">Cancel</Button>
         </div>
