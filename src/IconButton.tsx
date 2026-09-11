@@ -49,7 +49,12 @@ export function IconButton({
       focusableWhenDisabled={!!disabledReason}
       className={(state) =>
         cn(
-          'flex items-center justify-center p-1 rounded-lg transition-colors shrink-0 cursor-pointer',
+          // `shrink-0` stops a flex parent squashing the button; `self-center`
+          // stops one stretching it. Two different failures, and both have
+          // happened here: a row with no `items-*` drew this 24 wide and 228
+          // tall in Peek's TopicMoreMenu story (Katerina, 2026-09-11). A button
+          // is the size of its icon and its padding, whatever box it lands in.
+          'flex items-center justify-center p-1 rounded-lg transition-colors shrink-0 self-center cursor-pointer',
           !state.disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse',
           !state.disabled && variant === 'muted' && 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-secondary',

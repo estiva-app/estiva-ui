@@ -102,4 +102,20 @@ describe('IconButton', () => {
     await user.tab()
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'After' }))
   })
+
+  /*
+    A flex parent with no `items-*` stretches its children. `shrink-0` does
+    not stop that — it is the other direction — so this button grew to 228px
+    tall in a 260px row (Katerina, 2026-09-11). jsdom computes no layout, so
+    the class is what can be asserted here; the story beside it is what shows
+    the pixels.
+  */
+  it('keeps its own size in a flex parent that would stretch it', () => {
+    render(
+      <div className="flex h-[260px]">
+        <IconButton aria-label="Edit">{icon}</IconButton>
+      </div>,
+    )
+    expect(screen.getByRole('button', { name: 'Edit' }).className).toContain('self-center')
+  })
 })

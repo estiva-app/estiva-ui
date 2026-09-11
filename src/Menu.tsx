@@ -20,9 +20,9 @@ import { SectionLabel } from './SectionLabel'
  *
  * What every menu shares, kept exactly: an elevated container with a
  * hairline border, 8px radius, 8px padding and the large shadow; items that
- * are 8px-radius rows, `px-2 py-1.5`, hover fill, 14px text, destructive
- * ones in the error colour; section headings as a SectionLabel in a 32px
- * row; and the two exits every menu has — Escape and a click outside.
+ * are 8px-radius rows, `px-2 py-1.5` and never shorter than 36px, hover
+ * fill, 14px text, destructive ones in the error colour; section headings
+ * as a SectionLabel in a 32px row; and the two exits every menu has — Escape and a click outside.
  *
  * **What stage 4 changed, and it is the first thing a keyboard user notices:
  * the arrow keys walk the rows.** ↑ and ↓ move between items and wrap, Home
@@ -368,11 +368,14 @@ function menuItemClassName({ size, selected, className }: { size: 'default' | 't
     // on exactly the same :hover, so they cannot come apart, and a row
     // lights and unlights crisply as the pointer crosses it.
     'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
-    // tall: as tall as its content, never shorter than 40px (Katerina,
-    // 2026-09-01) — a single-line picker row sits at 40, a row with a
-    // 32px face and a role line comes out at its natural 48. One rule,
-    // not a hand-picked height per file.
-    size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'gap-2 px-2 py-1.5',
+    // Both sizes are as tall as their content and never shorter than a
+    // floor: 36px for a default row (Katerina, 2026-09-11), 40px for a
+    // tall one (Katerina, 2026-09-01). A single-line action row sits at
+    // 36, a picker row at 40, a row with a 32px face and a role line
+    // comes out at its natural 48. One rule, not a hand-picked height
+    // per file — Peek's Later menu had been forcing `h-9` for exactly
+    // this 36px and was the only menu in either app out of step.
+    size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'min-h-9 gap-2 px-2 py-1.5',
     selected && 'bg-bg-hover',
     className,
   )

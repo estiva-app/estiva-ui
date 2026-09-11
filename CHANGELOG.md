@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.12.3 — 2026-09-11
+
+Two fixes Katerina found reading Storybook, both about a control's own
+size. Neither adds a prop; both change what something measures, so read
+the note on each before taking this.
+
+**Taking this moves every menu in both apps by 4.41px a row.** Nothing
+else moves unless a button was being stretched, which nothing in either
+app was doing outside a story.
+
+### Changed
+
+- **A default menu row is never shorter than 36px** (`min-h-9`). It had no
+  floor at all: height came from 14px text and 6px of padding, which lands
+  at 31.59px. Peek's Later menu had been forcing `h-9` — exactly 36px —
+  since it was written, and was the only menu in either app out of step
+  with the other six. Katerina ruled the package was what should change
+  (2026-09-11): *"menu item height in the estiva-ui should be 36px and
+  peek should stop forcing it there, it should naturally get the
+  package's one"*. `tall` keeps its own 40px floor, and a row with a
+  description still grows past both. Measured after: every menu row in
+  every story in this Storybook is 36.00px, none excepted.
+
+  **This moves every menu in both apps** — six in Peek, and Ship's — by
+  4.41px a row. That is the point of it, but it is not a silent change.
+
+- **A button cannot be stretched by the box it is dropped into**
+  (`self-center` on `Button` and `IconButton`). `shrink-0` stopped a flex
+  parent squashing a button; nothing stopped one stretching it, and a flex
+  parent with no `items-*` stretches every child to its own height — so
+  the ⋯ trigger in Peek's `TopicMoreMenu` story measured **24 wide and 228
+  tall**. The apps never showed it because every real row says
+  `items-center`; only the stories, which stand a control in a bare frame
+  on purpose.
+
 ## 0.12.2 — 2026-09-10
 
 The six gaps Peek's adoption found, in one release, so Peek can finish

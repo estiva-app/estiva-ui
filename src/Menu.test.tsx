@@ -288,6 +288,19 @@ describe('rows on a bare MenuPanel', () => {
     expect(screen.queryByRole('menuitem')).toBeNull()
   })
 
+  it('a default row is never shorter than 36px, and a tall one never shorter than 40', () => {
+    render(
+      <MenuPanel>
+        <MenuItem label="Default" onClick={() => {}} />
+        <MenuItem size="tall" label="Tall" onClick={() => {}} />
+      </MenuPanel>,
+    )
+    // jsdom computes no layout, so the floor class is what it can assert;
+    // the story beside it is what shows the pixels.
+    expect(screen.getByRole('button', { name: 'Default' }).className).toContain('min-h-9')
+    expect(screen.getByRole('button', { name: 'Tall' }).className).toContain('min-h-10')
+  })
+
   it('its onClick still runs', async () => {
     const user = userEvent.setup()
     const onPick = vi.fn()

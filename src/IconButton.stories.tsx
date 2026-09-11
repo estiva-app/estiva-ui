@@ -47,3 +47,19 @@ export const AllVariants: Story = {
     </div>
   ),
 }
+
+/**
+ * A button is the size of its icon and its padding, whatever box it is dropped
+ * into. A flex parent with no `items-*` of its own stretches whatever is in it,
+ * and this one is 260px tall; the button stays 24px square.
+ */
+export const InATallRow: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex h-[260px] w-[200px] justify-end rounded-lg border border-border-subtle p-4">
+      <IconButton aria-label="Settings">
+        <IconSettings className="size-4" stroke={1.5} />
+      </IconButton>
+    </div>
+  ),
+}

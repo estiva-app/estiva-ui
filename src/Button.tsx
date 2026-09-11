@@ -66,7 +66,13 @@ export function Button({
       focusableWhenDisabled={!!disabledReason}
       className={(state) =>
         cn(
-          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
+          // `self-center` for the same reason as IconButton's: a flex parent
+          // with no `items-*` stretches its children, and a button stretched to
+          // a column's height is not a button. `h-8` and `h-6` below set the
+          // height, and stretching overrode them. No caller in the suite wants
+          // a stretched one — checked across both apps and this package on
+          // 2026-09-11, and none passes `w-full` either.
+          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium self-center',
           size === 'default' && 'h-8 text-btn-default',
           size === 'small' && 'h-6 text-btn-small',
           // Extra right padding beside a leading icon, for optical balance.
