@@ -1,10 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.12.3 — 2026-09-11
 
-Two fixes Katerina found reading Storybook on 2026-09-11. Both are held
-back at her word — *"dont release yet, we will continue later with more
-fixes"* — so this section is where they wait for a number.
+Two fixes Katerina found reading Storybook, both about a control's own
+size. Neither adds a prop; both change what something measures, so read
+the note on each before taking this.
+
+**Taking this moves every menu in both apps by 4.41px a row.** Nothing
+else moves unless a button was being stretched, which nothing in either
+app was doing outside a story.
 
 ### Changed
 
