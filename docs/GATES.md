@@ -24,7 +24,7 @@ answer
 |---|---|
 | ⚠️ **1** | **The verdict column in §3 is empty.** Mark each rule *on*, *warn*, or *dropped*. Phase 1 cannot start until you do. |
 | ⚠️ **2** | **Stories: in or out?** You asked why I excluded them. The count is in §10. My answer is **in**. Tests stay out. If you agree, UIG-3 goes from 12 violations to 19. |
-| ⚠️ **3** | **Does padding count as "placement"?** See §3 family D. Your answer halves or doubles that rule. |
+| ⚠️ **3** | **Six findings have no ticket, and two of them block phase 1.** §13. We have no Link component, so UIG-7 cannot write the `<a>` rule. And nothing owns `CommandLauncher.tsx`, which every phase-1 ticket will hit. |
 | ⚠️ **4** | **Four more rules nobody had written down.** §11. The big one: `lint:tokens` blocks `text-sm` but lets `text-[14px]` through, and Peek has 157 of those. I proved it, I did not assume it. |
 | ⚠️ **5** | **Should the usage rules come before the wall?** §12. estiva-ui's 44 components already have their pages. Peek's 113 and Ship's 55 have nothing. And UIG-1 hit a lint rule it could not write because the answer had not been decided yet. |
 
@@ -150,6 +150,9 @@ Guide T11. Ticket UIG-8.
 | **no-role-dialog** | estiva-ui | 0 | none found | `A hand-written role="dialog" means a hand-made dialog. Use DialogShell. It traps focus and gives it back.` | |
 | | peek | **0** | none found | same | |
 | | ship | **0** | none found | same | |
+| **hand-written ARIA role**, wider | estiva-ui | 3 | `src/Divider.tsx:33` · `:46` (`separator`) · `src/Tooltip.tsx:69` (`tooltip`) | all legitimate — these components own those roles | |
+| *(see note)* | **peek** | **7** | `components/AddToOpenWorkDialog.tsx:71` (`option`) · `components/ui/ProjectTickets.tsx:22` (`progressbar`) · `components/CommandLauncher.tsx:1680` (`alert`) | `A hand-written role="option" means a hand-made listbox. Use Select.` | |
+| | **ship** | **4** | `components/ui/ProgressBar.tsx:25` (`progressbar`) · `components/Composer.tsx:229` (`alert`) · `components/ui/DescriptionEditing.tsx:238` (`alert`) | same, per role | |
 | **no-tabindex-on-div** | estiva-ui | 0 | none found | `tabIndex turns a box into a control. Use Button, IconButton or NavItem. They are focusable already.` | |
 | | peek | **0** | none found | same | |
 | | **ship** | **1** | `components/ui/DescriptionEditor.tsx:77` | same | |
@@ -157,10 +160,27 @@ Guide T11. Ticket UIG-8.
 | | **peek** | **2** | `components/CommandLauncher.tsx:1689` · `components/HuddleCreator.tsx:143` | `overflow-auto draws the browser's scrollbar. Use ScrollArea. It draws ours.` | |
 | | **ship** | **1** | `components/ui/prose.ts:35` | same | |
 
-One note on `no-tabindex-on-div`: as written it flags any `tabIndex` on a
+Two notes on this family.
+
+**`no-tabindex-on-div` as written is too broad.** It flags any `tabIndex` on a
 non-interactive element. It should only flag `tabIndex={0}` or higher.
 `tabIndex={-1}` is the correct way to make something focusable by script without
 adding a Tab stop. See §10.
+
+**I first measured `role="dialog"` only, and got 0 everywhere.** UIG-8's ticket
+names `role="dialog"` / `"menu"` / `"listbox"` / `"tooltip"` / `"tab"`, so my
+first count was too narrow. I went back and read every `role=` in all three
+repos. There are 14. Two matter:
+
+- **`AddToOpenWorkDialog.tsx:71` writes `<div role="option">`.** That is a
+  hand-made listbox. `Select` exists.
+- **`role="progressbar"` appears twice** — `peek/…/ProjectTickets.tsx:22` and
+  `ship/…/ProgressBar.tsx:25`. Two apps each hand-built a progress bar, and the
+  package has none. D6 lists Progress as something Base UI should own. That is a
+  package gap, not just a rule violation.
+
+The three `role="alert"` are inline error messages. `FieldLine` carries a tone
+and may be the right answer; worth checking in UIG-15.
 
 ### Family C — fingerprints
 
@@ -191,21 +211,22 @@ Guide T13. Ticket UIG-9.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
-| **className-placement-only** | estiva-ui | **9** or 8 | `src/Banner.tsx:62` (IconButton `text-current`) · `src/DialogShell.tsx:150` (ScrollArea `border-b`) · `src/Tooltip.tsx:115` (Tooltip `transition-[…]`) | `Only placement passes through IconButton's className. "text-current" changes how it looks. Ask for a prop on IconButton instead.` | |
-| | **peek** | **33** or 15 | `components/ui/ForeignObjectWidget.tsx:91` (Person `text-caption`) · `pages/FoldersPage.tsx:260` (EditableText `text-body-2-strong`) · `components/ui/ComposeBox.tsx:407` (IconButton `signal:shadow-glow-accent`) | same, with the component's own name | |
-| | **ship** | **15** or 8 | `views/IssueView.tsx:120` (EditableText `text-h2`) · `components/NewProjectDialog.tsx:89` (TextInput `font-mono`) · `components/IssuesTable.tsx:47` (ScrollArea `border rounded-lg`) | same | |
+| **className-placement-only** | estiva-ui | **8** | `src/Banner.tsx:62` (IconButton `text-current`) · `src/DialogShell.tsx:150` (ScrollArea `border-b`) · `src/Tooltip.tsx:115` (Tooltip `transition-[…]`) | `Only placement passes through IconButton's className. "text-current" changes how it looks. Ask for a prop on IconButton instead.` | |
+| | **peek** | **15** | `components/ui/ForeignObjectWidget.tsx:91` (Person `text-caption`) · `pages/FoldersPage.tsx:260` (EditableText `text-body-2-strong`) · `components/ui/ComposeBox.tsx:407` (IconButton `signal:shadow-glow-accent`) | same, with the component's own name | |
+| | **ship** | **8** | `views/IssueView.tsx:120` (EditableText `text-h2`) · `components/NewProjectDialog.tsx:89` (TextInput `font-mono`) · `components/IssuesTable.tsx:47` (ScrollArea `border rounded-lg`) | same | |
 
-⚠️ **Two numbers because one word is undecided: is padding placement?**
+**Padding is allowed. That was already decided and I missed it.**
 
-The first number treats `p-3` and `py-8` as not placement. The second lets them
-through. Almost all the difference is padding pushed into `EmptyState`: 9 places
-in Peek, 6 in Ship.
+I first reported two numbers here and asked Katerina whether padding counts as
+placement. It does. UIG-9's ticket spells the allow-list out and `p-*`, `px-*`,
+`py-*`, `pt-*`, `pr-*`, `pb-*`, `pl-*` are all in it. The numbers above are the
+padding-allowed ones, which is the only set that matters.
 
-Margin is clearly placement. Padding is the component's own internal spacing, so
-my instinct is no. But `EmptyState` is used 15 times with padding, which suggests
-it is missing a prop rather than that 15 callers are wrong.
-
-**Your call.** If padding is allowed, Peek drops to 15 and Ship to 8.
+For the record, the stricter reading would be estiva-ui 9, Peek 33, Ship 15. The
+whole difference is padding pushed into `EmptyState`: 9 places in Peek, 6 in
+Ship. That is not a rule violation, but 15 callers adding their own padding to
+the same component does suggest `EmptyState` is missing a prop. Worth a look in
+UIG-15.
 
 ### Already on, recorded so it is not counted twice
 
@@ -762,6 +783,82 @@ UIG-17 and UIG-18, the 168 app components, are the expensive half and can stay i
 phase 3.
 
 **Not decided. Katerina's call.**
+
+---
+
+## §13 Does every finding here actually get fixed?
+
+Katerina asked. I checked each one against the ticket text rather than assuming.
+
+**Mostly yes. Six things have no ticket at all.**
+
+The tickets are written better than I had assumed. UIG-7, UIG-8, UIG-9 and UIG-25
+all define their target set by reading the code, not by a list, and each says the
+examples are not the scope. So most findings here land somewhere by construction.
+
+### Findings that have a home
+
+| finding | lands in | why it is safe |
+|---|---|---|
+| raw button / input / dialog counts | UIG-3, UIG-4, UIG-7 | UIG-7 derives the element list from the package's exports, so `<select>` and `<textarea>` (§4) are in without being named. |
+| forbid-the-reach counts | UIG-8 | Its target set is "every behaviour the package owns", enumerated from Base UI imports. Wider than my list. |
+| the wider `role=` finds | UIG-8 | It already names `menu`, `listbox`, `tooltip`, `tab`. |
+| className allow-list | UIG-9 | Target set is import analysis over both apps. |
+| copied class lists in the apps | UIG-25 | Reads the registry, covers all 233 components. |
+| hand-made header, empty state, native tooltip | UIG-22, UIG-23, UIG-24 | One ticket each. |
+| the docs contract (§11 G4) | UIG-19 | Locks it in CI. |
+| `Reference` duplicated in both apps (§11 G3) | UIG-17, UIG-18 | Both produce a promote list. |
+| escape-boundary numbers | UIG-3, UIG-7 | Feeds the escape design. |
+| the tracer recommendation | UIG-5 | Its ticket says UIG-1 names it. |
+
+### ⛔ Six things with no ticket
+
+| # | finding | why nothing covers it |
+|---|---|---|
+| **1** | **We have no Link component.** 14 raw `<a>`. | UIG-7 says: for each element, name the component **or record "no component — allowed" with a reason**. So UIG-7 will *document* the hole, not close it. The 14 anchors stay, forever, legitimately. Somebody has to decide to build a `Link`. |
+| **2** | **`CommandLauncher.tsx`, 1,655 lines.** | It holds a slice of almost every rule, and its copied class lists show it hand-built a dialog, chips and a search box. Every phase-1 ticket will trip over it. No ticket owns it. |
+| **3** | **Arbitrary values outside a package component (§11 G1).** Peek 157. | UIG-9 covers `className` passed **into a package component**. `text-[14px]` on a plain `<div>` is not that. `lint:tokens` lets it through — proved. Nothing else looks at it. |
+| **4** | **Inline `style={{}}` that sets a colour (§11 G2).** | No rule anywhere reads the `style` prop. `HighlightPill.tsx` sets `backgroundColor` inline, outside the tokens entirely. |
+| **5** | **estiva-ui copying its own class lists (§9.4).** 14. | UIG-25's target set is "every class list in `peek/src` and `ship/web/src`". The package is not in it. |
+| **6** | **"Rules" means two things (§12).** | A wording fix across the guide, the backlog and the tickets. No ticket, and it is the thing that made this whole conversation confusing. |
+
+Two more that also need a home, smaller:
+
+- **A `ProgressBar` in the package.** Both apps hand-built one (`role="progressbar"`
+  in each). D6 lists Progress as something Base UI should own.
+- **`EmptyState` probably needs a padding prop.** 15 callers add their own.
+
+### ⚠️ One conflict to resolve
+
+**UIG-2's acceptance says the committed guide must be "identical in substance to
+the artifact".**
+
+§9.2 and §9.5 found two things in the guide that are wrong: the Base UI package
+name, and "Peek has 5 pages and 0 page stories".
+
+As written, UIG-2 commits both mistakes. Its acceptance criterion actively
+prevents the fix. **Amend UIG-2** to say: identical except where GATES.md records
+a correction, and list them.
+
+### Three findings that are only recorded here
+
+These have a ticket, but the ticket does not know about them. They survive only
+because GATES.md says so, and GATES.md is a document — which is exactly the
+failure mode this project exists to fix.
+
+| finding | needs adding to |
+|---|---|
+| `tabIndex={-1}` must pass; only `0` and up is a violation | UIG-8 |
+| P2 (no doc page) and P3 (no story) are free, switch them on | UIG-5 |
+| T3's near-duplicate scan needs a wrapper carve-out, or it reports 17 where 6 are real | UIG-25 |
+
+### What I suggest
+
+**Create the six missing tickets before phase 1 starts.** Otherwise they live in
+a document, and the whole argument of this project is that documents do not hold.
+
+The Link one is urgent — it blocks UIG-7. The `CommandLauncher` one is urgent
+because every phase-1 ticket will hit that file.
 
 ---
 
