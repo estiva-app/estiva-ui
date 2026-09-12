@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.12.5 — 2026-09-12
+
+One prop, found by Peek's type-ahead menus moving onto `Popover` (D47).
+
+### Added
+
+- **`Popover` takes `maxHeight`** — a cap on the scrolling box, as a class:
+  `maxHeight="max-h-[360px]"`. Without one a panel grows to the room the
+  positioner has, which is right for a panel as tall as its content and
+  wrong for a long list.
+
+  **Why it cannot go on `className`.** That lands on the panel, and the
+  panel's children sit inside a `ScrollArea` whose viewport carries its
+  own cap — so a `max-h` on the panel is overrun and the content draws
+  straight through the panel's border. Measured with Peek's `/` menu on
+  2026-09-12: a 400px panel with 559px of rows hanging out of the bottom
+  of it. The cap belongs on the viewport, which is how `DialogShell` has
+  taken `bodyMaxHeight` since `0.12.2` (B19). This is the same gap in the
+  other component — ADOPTION **B31**.
+
+  **What a cap is for, beyond tidiness.** A panel taller than the room
+  above *and* below its anchor is not flipped by the positioner: it is
+  moved to the **side**. Measured on the same menu — 724px tall, and it
+  arrived to the right of the caret, full-window height, where a
+  type-ahead belongs above the caret it is completing. A cap keeps the
+  choice between above and below.
+
+  It replaces the available-height cap rather than adding to it, so a
+  caller that sets one owns it. `Popover/Capped` is the story.
+
 ## 0.12.4 — 2026-09-12
 
 One fix, and it is half of 0.12.3's second change taken back out.
