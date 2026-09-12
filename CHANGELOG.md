@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.12.6 — 2026-09-13
+
+**The scrollbar hugs the panel, in every menu and every popover.**
+
+### Fixed
+
+- **A `Menu`'s and a `Popover`'s scrollbar sat 9px inside the panel**
+  where every other scrolling surface in the suite draws it at 1px.
+  Katerina, reading the `Popover/Capped` story: *"there is this gap on
+  the right side of the scrollbar and it's not like that in other
+  places so it's wrong."* Measured: `Popover` and `Menu` **9px**,
+  `DialogShell` **1px**.
+
+  The cause, and `DialogShell` already had it right and said so in its
+  own comment: the padding was on the **panel**, so the scrolling box
+  sat inside it and the bar was drawn beside the padding instead of
+  over it. The padding is on the scrolling box's **content** now, at
+  the same 8px, in both components.
+
+  **Nothing else moves.** The rows keep their 8px inset — the padding
+  that was the panel's is the content's — and the height cap loses its
+  `- 1rem` for the same reason: the padding is inside the scrolling box
+  now, so the panel is exactly as tall as Floating UI allowed. Checked
+  across this package's 243 stories: **238 byte-identical**, and the
+  five are `Popover/Capped` (the bar, and its own anchor fix) plus four
+  whose skeletons pulse.
+
+  **A caller's `className` still lands on the panel.** A caller that
+  wants different padding around a scrolling menu sets it through
+  `MenuPanel` directly, which is what that component is for.
+
+- **The `Popover/Capped` story anchored on a rect of its marker rather
+  than on the marker**, so in a Storybook canvas the panel hung off a
+  position read before the page had settled — the story looked like a
+  line of text with no panel at all. `anchor` takes an element, and an
+  element is re-measured. A rect is for a caller that genuinely has no
+  element, as Peek's type-ahead popups have only the caret's.
+
 ## 0.12.5 — 2026-09-12
 
 One prop, found by Peek's type-ahead menus moving onto `Popover` (D47).

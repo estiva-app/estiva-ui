@@ -208,16 +208,28 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
                room. Select's 288 was never this component's — the identity
                panel got it by accident once and grew a scrollbar at full
                height. */
-            className={cn('min-w-[180px] outline-none', className)}
+            className={cn('min-w-[180px] outline-none p-0', className)}
             render={<MenuPanel />}
           >
             {/* The height cap sits on the box that scrolls — on the panel it
                 let the box grow to its content and nothing scrolled (measured,
-                2026-09-08) — less the panel's own padding, so the panel still
-                stops where Floating UI said. The padding stays on the panel,
-                where a caller's `className` can change it; the divider rule
-                moves with the rows. A menu that fits draws exactly as before. */}
-            <ScrollArea viewportClassName="max-h-[calc(var(--available-height)_-_1rem)]" contentClassName="flex flex-col [&>[role=separator]]:mx-0">
+                2026-09-08).
+             *
+             * And **the padding is on the content, not on the panel** (D63,
+             * 2026-09-13). With it on the panel the scrolling box was inset by
+             * it, so the bar floated 9px in from the panel's edge where every
+             * other scrolling surface in the suite draws it at 1px —
+             * `DialogShell` had it right and said so in its own comment, and
+             * this is the same arrangement. The rows do not move: the padding
+             * that used to be the panel's is now the content's, at the same
+             * 8px. The cap loses its `- 1rem` for the same reason — the
+             * padding is inside the scrolling box now, so the panel is exactly
+             * as tall as Floating UI allowed.
+             *
+             * A caller's `className` still lands on the panel, so a caller
+             * asking for different padding needs `contentClassName` — which is
+             * what `MenuPanel` is for when one is used on its own. */}
+            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName="flex flex-col p-2 [&>[role=separator]]:mx-0">
               <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
             </ScrollArea>
           </BaseMenu.Popup>

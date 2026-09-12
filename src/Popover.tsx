@@ -175,14 +175,16 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
              */
             initialFocus={trigger ? undefined : false}
             finalFocus={finalFocus}
-            className={cn('min-w-[180px] outline-none', className)}
+            className={cn('min-w-[180px] outline-none p-0', className)}
             render={<MenuPanel />}
           >
-            {/* As in Menu: the cap on the scrolling box, less the panel's padding; the padding stays on the panel.
-                A caller's `maxHeight` replaces it — see the prop. */}
+            {/* As in Menu: the cap on the scrolling box, and the padding on the
+                content rather than the panel, so the bar is drawn over the
+                padding instead of 9px inside it (D63). A caller's `maxHeight`
+                replaces the cap — see the prop. */}
             <ScrollArea
-              viewportClassName={maxHeight ?? 'max-h-[calc(var(--available-height)_-_1rem)]'}
-              contentClassName="flex flex-col [&>[role=separator]]:mx-0"
+              viewportClassName={maxHeight ?? 'max-h-[var(--available-height)]'}
+              contentClassName="flex flex-col p-2 [&>[role=separator]]:mx-0"
             >
               {children}
             </ScrollArea>
