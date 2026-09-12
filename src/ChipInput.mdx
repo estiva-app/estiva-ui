@@ -51,6 +51,10 @@ import { ChipInput } from '@estiva-app/ui'
   edge, a bare label gets 8px.
 - Suggestions appear **only once the user types** — focusing must not drop
   the whole directory over the surface below.
+- It is a **combobox over a listbox**: focus stays in the text while the
+  arrow keys move through the suggestions, and a screen reader is told which
+  one is highlighted. The list is as wide as the field and hangs below it,
+  or above when there is no room.
 
 ## Keys
 
@@ -59,6 +63,8 @@ import { ChipInput } from '@estiva-app/ui'
 | typing | filters; suggestions appear |
 | ↑ / ↓ | move the highlight |
 | Enter | adds the highlighted entry |
+| click a suggestion | adds it; focus stays in the text |
+| ✕ on a chip | removes that chip |
 | Backspace, empty query | removes the last chip — consumed, never the surface's "back" |
 | Escape, with a query | clears the query — consumed |
 | Escape, idle | bubbles, so the dialog or launcher around it can act |
