@@ -105,6 +105,24 @@ describe('Button', () => {
     expect(held).not.toHaveBeenCalled()
   })
 
+  /* jsdom computes no layout, so the class list is what a test can hold on to.
+     Both halves matter: the height is why a stretching parent cannot change
+     this button, and the absence of `align-self` is why its caller keeps the
+     say on where it sits. The pixels behind both were measured in Chrome on
+     2026-09-12 — 32px in a 260px row either way, and left in a column that
+     asks for the left. */
+  it('states its own height and no alignment of its own', () => {
+    const { rerender } = render(<Button>Default</Button>)
+    const defaultButton = screen.getByRole('button', { name: 'Default' })
+    expect(defaultButton.className).toContain('h-8')
+    expect(defaultButton.className).not.toContain('self-')
+
+    rerender(<Button size="small">Small</Button>)
+    const smallButton = screen.getByRole('button', { name: 'Small' })
+    expect(smallButton.className).toContain('h-6')
+    expect(smallButton.className).not.toContain('self-')
+  })
+
   it('passes native props through', () => {
     render(
       <Button form="f1" aria-pressed="true" data-x="y" className="mt-2">
