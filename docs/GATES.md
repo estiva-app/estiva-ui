@@ -26,6 +26,7 @@ answer
 | ⚠️ **2** | **Stories: in or out?** You asked why I excluded them. The count is in §10. My answer is **in**. Tests stay out. If you agree, UIG-3 goes from 12 violations to 19. |
 | ⚠️ **3** | **Does padding count as "placement"?** See §3 family D. Your answer halves or doubles that rule. |
 | ⚠️ **4** | **Four more rules nobody had written down.** §11. The big one: `lint:tokens` blocks `text-sm` but lets `text-[14px]` through, and Peek has 157 of those. I proved it, I did not assume it. |
+| ⚠️ **5** | **Should the usage rules come before the wall?** §12. estiva-ui's 44 components already have their pages. Peek's 113 and Ship's 55 have nothing. And UIG-1 hit a lint rule it could not write because the answer had not been decided yet. |
 
 ### What is ready for the next tickets
 
@@ -686,6 +687,81 @@ something you grow for a year. What §3 to §5 gives you is the set the guide
 committed to, and §11 is what one careful pass over the code turned up on top of
 it. If you want, the honest next step is to run the same exercise once more after
 UIG-3 proves the chain, when we know what a rule costs to add.
+
+---
+
+## §12 What UIG-1 did not do, and an ordering question
+
+Katerina expected UIG-1 to read every component and write the rule for each one.
+It did not, and the reason is a naming problem in our own documents.
+
+**"Rules" means two different things in this project.**
+
+| | |
+|---|---|
+| **Lint rules** | A machine blocks bad code. "No raw `<button>`." This is UIG-1, §3 to §11. |
+| **Usage rules** | A written page per component. What it is for, when to use it, when not to. This is UIG-12 to UIG-19. |
+
+Nothing separates those two words anywhere in the guide, the backlog or the
+tickets. They should be named differently from here on.
+
+### estiva-ui already has its usage rules
+
+All 44 components have an `.mdx` page with *When*, *When not*, *How* and a story.
+I checked all 46 pages (§11 G4).
+
+They are good. `Popover.mdx` under *When not* sends you to `Menu` for a list of
+actions, `Select` for one value from a set, `WithTooltip` for a word about a
+control, and says why each. That is the standard the rest should match.
+
+### The gap is Peek and Ship
+
+| repo | exported components | doc pages | real files with no story |
+|---|---|---|---|
+| estiva-ui | 63 | **46** | 0 |
+| peek | 113 | **0** | 37 |
+| ship | 55 | **0** | 25 |
+| **total** | **231** | **46** | **62** |
+
+Peek and Ship have four `.mdx` files between them: `Introduction` and
+`DesignTokens`, twice. **No component page in either app.**
+
+So the usage-rule work is **168 components across Peek and Ship**. That is
+UIG-17 and UIG-18, and they are the two biggest tickets in the project.
+
+*(190 real component files hold those 231 exports. Peek has 16 pure re-export
+files and Ship has 31, which is why the file counts and the component counts
+differ.)*
+
+### ⚠️ The ordering question
+
+The guide calls gate 0 plus gate 1 — the catalogue and the usage rules — "the
+single biggest lever on the problem you described."
+
+Our ticket order puts the lint wall in phase 1, Leaf in phase 2, and the
+catalogue and usage rules in phase 3.
+
+The guide's own verdict on building the wall alone: *"it refuses the wrong thing
+without teaching the right one."*
+
+**UIG-1 produced evidence for that.** §9.1 found a rule I cannot write.
+`raw-anchor` has 14 violations and no error message, because no Link component
+exists to name. The rule is blocked by missing "know" work.
+
+That will happen again. Every lint message has to name a component. Deciding
+which component to name *is* the usage-rule work. Doing the wall first means
+writing messages before we have decided what they should say.
+
+**My recommendation: bring the estiva-ui half of gate 0 forward.** UIG-12 (the
+registry) and UIG-14 to UIG-16 (estiva-ui's usage rules) are cheap, because the
+package's 44 pages already exist — those tickets are mostly reconciling what is
+written with what the code does. Doing them before UIG-3 means every lint message
+in phase 1 can point at a decided answer.
+
+UIG-17 and UIG-18, the 168 app components, are the expensive half and can stay in
+phase 3.
+
+**Not decided. Katerina's call.**
 
 ---
 
