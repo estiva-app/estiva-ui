@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.12.4 — 2026-09-12
+
+One fix, and it is half of 0.12.3's second change taken back out.
+
+**Taking this puts a `Button` back where its caller puts it.** Nothing
+else moves. Peek is not affected at all — 0 of its 327 stories — and in
+Ship it is the four actions in `ProjectRail`, which go back to the left
+edge they sat on before 0.12.3.
+
+### Fixed
+
+- **A `Button` no longer says `self-center`.** `IconButton` keeps it;
+  this never needed it. The difference is the `h-8` / `h-6` a Button sets
+  for itself: `align-items: stretch` only stretches a child whose cross
+  size is `auto`, so a Button could never be stretched, with the class or
+  without it. Measured in Chrome on 2026-09-12, in the same 260px row
+  Finding 49 came from: **Button 32px with `self-center` and 32px
+  without; IconButton 24px with and 226px without.** Only one of the two
+  was ever at risk.
+
+  What the class did do was decide the **other** axis. `align-self` beats
+  the parent's `align-items`, so in a column a Button ignored the
+  `items-start` its caller had asked for and centred itself. Found taking
+  Ship to `0.12.3` (ADOPTION S31): its `ProjectRail` actions — "Copy
+  Folder link", "Pair with another Folder…", "Archive project", "Delete
+  project" — moved from x=1006 to x=1078/1053/1083/1006, with nobody
+  asking. **Five of this package's own story frames had the same done to
+  them**: `Menu/FromATrigger`, `MenuItem/SubmenuLive`, `Popover/AToolbar`,
+  `Popover/FlippedForRoom` and `Popover/FromATrigger` each say
+  `items-start … pt-6`, and each was getting a centred trigger instead.
+  They draw what they ask for again.
+
+  A control does not get to decide where its caller puts it. The tests
+  hold both halves — the height it states, and the alignment it does not
+  — and `Button/InATallRow` and `Button/InAColumnThatAsksForTheLeft` are
+  the two pictures.
+
 ## 0.12.3 — 2026-09-11
 
 Two fixes Katerina found reading Storybook, both about a control's own
@@ -34,6 +71,10 @@ app was doing outside a story.
   tall**. The apps never showed it because every real row says
   `items-center`; only the stories, which stand a control in a bare frame
   on purpose.
+
+  **Half of this was taken back out in `0.12.4`**: `Button` never needed
+  it, and the class was overriding what a caller asked for on the other
+  axis. `IconButton` keeps it — it is the one that could be stretched.
 
 ## 0.12.2 — 2026-09-10
 
