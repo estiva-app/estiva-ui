@@ -28,7 +28,28 @@ answer
 | ✅ **4** | **The four extra rules in §11 have verdicts too.** Font sizes like `text-[14px]` are on; heights and spacing are warn. |
 | ✅ **5** | **Keep the order of the work.** The usage pages stay in phase 3. |
 
-**UIG-1 is finished. It closes when Katerina merges PR #21.**
+**UIG-1 is finished, and PR #21 merged it.**
+
+### What changed around us while UIG-1 ran
+
+| | |
+|---|---|
+| ✅ | **Stage 5 of the migration merged** — estiva-ui PR #22, `ChipInput` on Base UI's `Combobox`, `fit.ts` deleted. |
+| ✅ | **estiva-ui `0.12.7` is released** — tagged `v0.12.7`, on npm as `latest`. |
+| ⬜ | **Neither app has taken `0.12.7` yet.** Peek and Ship both still ask for `^0.12.6`. |
+
+UIG-1's counts were measured on `0.12.6`, before stage 5. Only the package's
+`ChipInput` lines changed, and §14 says what that does to UIG-5.
+
+### ▶️ Next: UIG-2
+
+UIG-2 is the only ticket standing between us and phase 1 — UIG-3 is blocked by it.
+
+It needs one thing from Katerina. Its wording fix (split "rules" into *lint
+rules* and *usage rules*) reaches the Ship project description, and that
+description holds two of her screenshots. **Do not rewrite it through the Ship
+tool** — the tool replaces the whole description and the screenshots go with it.
+Write the new wording out, and let her paste it in Ship.
 
 ### The running order
 
@@ -967,8 +988,8 @@ the split UIG-28 said needed her ruling, and she has given it.
 **D3 already has its fix, in two parts, and neither is a new ticket.**
 
 - **`ChipInput` is fixed by stage 5 of the migration: estiva-ui PR #22**, built
-  13 September by another session in a separate worktree, open and unmerged. On
-  that branch `fit.ts` is deleted, `ChipInput` no longer imports it, the two
+  13 September by another session in a separate worktree. **Merged, and released
+  as `0.12.7`.** `fit.ts` is deleted, `ChipInput` no longer imports it, the two
   `window` listeners are gone, and the raw `<input>` is gone. The one
   `createPortal` left in the file is inside a comment. Checked, not assumed.
 - **`Toast` moves onto Base UI's `Toast` at stage 6** of the migration. Not built.
@@ -978,9 +999,9 @@ the split UIG-28 said needed her ruling, and she has given it.
 
 **PR #22 changes UIG-5's tracer count.** Two of the four tracer violations were
 in `ChipInput`. PR #22 removes the raw `<input>` (`:205`) and keeps the raw
-`<button>`, which moves from `:43` to `:49`. So once it merges the tracer is
-expected to be **3**, not 4. UIG-5 must re-count after PR #22 merges, and must not
-edit `ChipInput.tsx` while PR #22 is open.
+`<button>`, which moves from `:43` to `:49`. PR #22 has now merged, so the tracer
+is expected to be **3**, not 4. UIG-5 must re-count on current `main` before it
+reconciles.
 
 ### Tickets updated to match
 
