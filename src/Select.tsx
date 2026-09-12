@@ -3,6 +3,7 @@ import { Select as BaseSelect } from '@base-ui/react/select'
 import type { ReactNode } from 'react'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
+import { MenuPanel, menuItemClassName } from './Menu'
 
 /**
  * Peek's Select (2026-08-28), verbatim, plus what Ship added: an option may
@@ -126,13 +127,28 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
                clamped it — the two numbers `fitMenu` used to compute here. The
                288px is the old `max-h-72`, now a ceiling on that room rather
                than a height applied blind. */
-            className="min-w-[var(--anchor-width)] rounded-lg border border-border-default bg-bg-elevated p-1 shadow-lg"
+            /* The list is the package's one list (Katerina, 2026-09-13: "i
+               thought the type to search menu would be from estiva-ui and be
+               the one used in select component"). The box is `MenuPanel` —
+               the same border, fill, radius and shadow this used to spell out
+               — with its padding moved onto the scrolling content (D63). */
+            render={<MenuPanel />}
+            className="min-w-[var(--anchor-width)] p-0"
           >
             {/* The list scrolls in a ScrollArea: the bar takes no width, so a
                 long list is exactly as wide as a short one (Katerina,
-                2026-09-08). The cap sits on the box that scrolls, less the
-                panel's padding, so 288px stays 288px. */}
-            <ScrollArea viewportClassName="max-h-[calc(min(288px,var(--available-height))_-_0.5rem)]" contentClassName="flex flex-col">
+                2026-09-08).
+             *
+             * **The padding is on the scrolling content, not on the panel**
+             * (D63, applied here 2026-09-13). On the panel it inset the
+             * scrolling box, so the thumb sat 7px from the panel's edge where
+             * DialogShell, Popover, Menu and ChipInput all draw it at 3px —
+             * Katerina: "the position of the scrollbar in select … not closer
+             * to the right side". The rows keep their 4px inset, because the
+             * padding that was the panel's is the content's; and the cap loses
+             * its `- 0.5rem`, because that padding is inside the box that
+             * scrolls now, so 288px stays 288px. */}
+            <ScrollArea viewportClassName="max-h-[min(288px,var(--available-height))]" contentClassName="flex flex-col p-2">
             {options.map((option) => (
               <BaseSelect.Item
                 key={option.value}
@@ -141,11 +157,17 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
                    keyboard set the same attribute, so what the DOM says and
                    what the row looks like cannot disagree. It used to be an
                    index this component counted. */
-                className="flex h-9 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-[14px] font-normal leading-[1.4] text-text-primary transition-colors data-[highlighted]:bg-bg-hover data-[selected]:font-medium"
+                /* A menu row, exactly (`menuItemClassName`): 36px floor, 8px
+                   in from a panel padded 8px, so the label lands 17px from the
+                   panel's edge — the same pixel as the old 4px + 12px. What
+                   Select adds is its own: the ✓ at the end, and the chosen
+                   row in medium weight. No fade on the highlight, as in every
+                   menu (Katerina, 2026-09-05). */
+                className={cn(menuItemClassName({ size: 'default' }), 'justify-between data-[selected]:font-medium')}
               >
                 <span className="flex min-w-0 items-center gap-2">
                   {option.leading && <span className="flex shrink-0 items-center">{option.leading}</span>}
-                  <BaseSelect.ItemText className="truncate">{option.label}</BaseSelect.ItemText>
+                  <BaseSelect.ItemText className="truncate text-[14px] leading-[140%] text-text-primary">{option.label}</BaseSelect.ItemText>
                 </span>
                 <BaseSelect.ItemIndicator
                   render={<IconCheck size={16} stroke={1.5} className="shrink-0 text-text-secondary" />}

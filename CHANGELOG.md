@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.12.8 — 2026-09-13
+
+**Select's list is the package's one list.** Katerina: *"i thought we were
+getting the menu items and scrollbar position from estiva-ui. pls fix
+them in select AND Chip input."*
+
+### Changed
+
+- **`Select`'s panel is `MenuPanel` and its rows wear `MenuItem`'s look**,
+  the same list `Menu`, `Popover` and `ChipInput` draw. Before, Select
+  spelled out its own box and its own row. Measured against Katerina's
+  reference — Peek's `[` menu — with one probe:
+
+  | | rows in from the edge | thumb from the edge | thumb clear of the rows |
+  |---|---|---|---|
+  | the reference | 9px | 3px | yes |
+  | Select before | 5px | 7px | no |
+  | **Select now** | **9px** | **3px** | **yes** |
+  | ChipInput (0.12.7) | 9px | 3px | yes |
+
+  **The label does not move** — it sits 17px from the panel's edge before
+  and after, at 14px, because the panel's padding went 4px → 8px while the
+  row's own went 12px → 8px. What you see change is the highlight, which
+  now stops 8px short of the edge with the scrollbar in the gap, and the
+  highlight no longer fades (as in every menu, Katerina 2026-09-05).
+  Select keeps what is its own: the ✓ and the chosen row in medium weight.
+
+- **Select's padding is on its scrolling content, not its panel** (D63) —
+  the half of the fix that moves the thumb. The cap loses its `- 0.5rem`
+  for the same reason Menu's lost its `- 1rem`: the padding is inside the
+  box that scrolls now, so 288px stays 288px.
+
 ## 0.12.7 — 2026-09-13
 
 Stage 5 of the migration, the package half. **Nothing a caller writes
