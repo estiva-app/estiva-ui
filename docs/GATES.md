@@ -24,19 +24,40 @@ answer
 |---|---|
 | ⚠️ **1** | **The verdict column in §3 is empty.** Mark each rule *on*, *warn*, or *dropped*. Phase 1 cannot start until you do. |
 | ⚠️ **2** | **Stories: in or out?** You asked why I excluded them. The count is in §10. My answer is **in**. Tests stay out. If you agree, UIG-3 goes from 12 violations to 19. |
-| ⚠️ **3** | **Six findings have no ticket, and two of them block phase 1.** §13. We have no Link component, so UIG-7 cannot write the `<a>` rule. And nothing owns `CommandLauncher.tsx`, which every phase-1 ticket will hit. |
+| ✅ **3** | **The six findings with no ticket now have one.** §13. Three new tickets, three folded into existing ones, and four ticket errors corrected. Done 13 September. |
 | ⚠️ **4** | **Four more rules nobody had written down.** §11. The big one: `lint:tokens` blocks `text-sm` but lets `text-[14px]` through, and Peek has 157 of those. I proved it, I did not assume it. |
 | ⚠️ **5** | **Should the usage rules come before the wall?** §12. estiva-ui's 44 components already have their pages. Peek's 113 and Ship's 55 have nothing. And UIG-1 hit a lint rule it could not write because the answer had not been decided yet. |
+
+### The running order
+
+**There are 29 tickets now, and the reference number is no longer the order.**
+UIG-27, UIG-28 and UIG-29 were created after UIG-1 found six things with no home,
+so they carry high numbers but run early. Every *Blocked by* line names the
+reference **and** the title, which is what the brief said would make reordering
+safe.
+
+| when | tickets |
+|---|---|
+| done | **UIG-1** |
+| now, any order | **UIG-2** · **UIG-27** · **UIG-28** |
+| then, phase 1 | **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9** |
+| alongside phase 1, never blocking it | **UIG-29** |
+| after | UIG-10 onwards, unchanged |
+
+UIG-27 blocks UIG-7 and UIG-8. UIG-28 does not block anything, but it fixes a
+hole in a gate the phase-1 rules will sit on top of, so do it first.
 
 ### What is ready for the next tickets
 
 | ticket | what UIG-1 gives it |
 |---|---|
-| UIG-2 | Nothing needed. Start it any time. |
+| UIG-2 | The three guide corrections it must make, and 29 rows not 26. |
 | UIG-3 | Raw `<button>` in Peek: **12**, across 7 files. |
 | UIG-4 | Raw `<button>` in Ship: **0**. Ship has none. |
-| UIG-5 | Tracer rule: **`raw-element-outside-a-wrapper`, 4 violations**. §7. |
-| UIG-7 | ⛔ `raw-anchor` is blocked. We have no Link component. §9.1 |
+| UIG-5 | Tracer rule: **`raw-element-outside-a-wrapper`, 4 violations**, and P2/P3 free at zero. §7. |
+| UIG-7 | The full element counts, and a blocker: no Link component. §9.1 |
+| UIG-8 | The Base UI name is `@base-ui/react`; `tabIndex={-1}` must pass; the role branch is wider than `dialog`. |
+| UIG-25 | The package copies itself 14 times, and it needs a wrapper carve-out. |
 | all | Escape-boundary answered: Peek 23, Ship 9. §6 |
 
 Nothing was installed. No source file changed in any repo. The measurement
@@ -790,7 +811,8 @@ phase 3.
 
 Katerina asked. I checked each one against the ticket text rather than assuming.
 
-**Mostly yes. Six things have no ticket at all.**
+**Mostly yes. Six things had no ticket at all. They all have one now** — see the
+tables below, closed 13 September.
 
 The tickets are written better than I had assumed. UIG-7, UIG-8, UIG-9 and UIG-25
 all define their target set by reading the code, not by a list, and each says the
@@ -811,54 +833,51 @@ examples are not the scope. So most findings here land somewhere by construction
 | escape-boundary numbers | UIG-3, UIG-7 | Feeds the escape design. |
 | the tracer recommendation | UIG-5 | Its ticket says UIG-1 names it. |
 
-### ⛔ Six things with no ticket
+### ✅ The six with no ticket — closed, 13 September
 
-| # | finding | why nothing covers it |
+Katerina said to create them before phase 1 starts. Three became new tickets.
+Three were folded into tickets that already existed, because the work belonged
+inside them.
+
+| # | finding | where it lives now |
 |---|---|---|
-| **1** | **We have no Link component.** 14 raw `<a>`. | UIG-7 says: for each element, name the component **or record "no component — allowed" with a reason**. So UIG-7 will *document* the hole, not close it. The 14 anchors stay, forever, legitimately. Somebody has to decide to build a `Link`. |
-| **2** | **`CommandLauncher.tsx`, 1,655 lines.** | It holds a slice of almost every rule, and its copied class lists show it hand-built a dialog, chips and a search box. Every phase-1 ticket will trip over it. No ticket owns it. |
-| **3** | **Arbitrary values outside a package component (§11 G1).** Peek 157. | UIG-9 covers `className` passed **into a package component**. `text-[14px]` on a plain `<div>` is not that. `lint:tokens` lets it through — proved. Nothing else looks at it. |
-| **4** | **Inline `style={{}}` that sets a colour (§11 G2).** | No rule anywhere reads the `style` prop. `HighlightPill.tsx` sets `backgroundColor` inline, outside the tokens entirely. |
-| **5** | **estiva-ui copying its own class lists (§9.4).** 14. | UIG-25's target set is "every class list in `peek/src` and `ship/web/src`". The package is not in it. |
-| **6** | **"Rules" means two things (§12).** | A wording fix across the guide, the backlog and the tickets. No ticket, and it is the thing that made this whole conversation confusing. |
+| **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
+| **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
+| **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). |
+| **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. |
+| **5** | estiva-ui copying its own class lists. 14. | **UIG-25**, target set widened to include `estiva-ui/src`, with a second message for a primitive copying a sibling. |
+| **6** | "Rules" means two things. | **UIG-2**, item 5c. A wording pass over the guide, the Ship brief and every ambiguous ticket. |
 
-Two more that also need a home, smaller:
+The two smaller ones went with them: **ProgressBar** and **EmptyState's padding
+prop** are both in UIG-27, and UIG-8 now waits on UIG-27 for the
+`role="progressbar"` branch.
 
-- **A `ProgressBar` in the package.** Both apps hand-built one (`role="progressbar"`
-  in each). D6 lists Progress as something Base UI should own.
-- **`EmptyState` probably needs a padding prop.** 15 callers add their own.
+### ✅ The three that were only recorded here — now in their tickets
 
-### ⚠️ One conflict to resolve
-
-**UIG-2's acceptance says the committed guide must be "identical in substance to
-the artifact".**
-
-§9.2 and §9.5 found two things in the guide that are wrong: the Base UI package
-name, and "Peek has 5 pages and 0 page stories".
-
-As written, UIG-2 commits both mistakes. Its acceptance criterion actively
-prevents the fix. **Amend UIG-2** to say: identical except where GATES.md records
-a correction, and list them.
-
-### Three findings that are only recorded here
-
-These have a ticket, but the ticket does not know about them. They survive only
-because GATES.md says so, and GATES.md is a document — which is exactly the
-failure mode this project exists to fix.
-
-| finding | needs adding to |
+| finding | added to |
 |---|---|
-| `tabIndex={-1}` must pass; only `0` and up is a violation | UIG-8 |
-| P2 (no doc page) and P3 (no story) are free, switch them on | UIG-5 |
-| T3's near-duplicate scan needs a wrapper carve-out, or it reports 17 where 6 are real | UIG-25 |
+| `tabIndex={-1}` must pass; only `0` and up is a violation | **UIG-8** |
+| P2 (no doc page) and P3 (no story) are free at zero — switch them on | **UIG-5** |
+| The near-duplicate scan needs a wrapper carve-out, or it reports 17 where 6 are real | **UIG-25** |
 
-### What I suggest
+### ✅ Four errors found inside the tickets themselves, corrected
 
-**Create the six missing tickets before phase 1 starts.** Otherwise they live in
-a document, and the whole argument of this project is that documents do not hold.
+Reading the ticket text to answer this question turned up four mistakes that had
+nothing to do with UIG-1's count.
 
-The Link one is urgent — it blocks UIG-7. The `CommandLauncher` one is urgent
-because every phase-1 ticket will hit that file.
+| | |
+|---|---|
+| **UIG-2** | Its acceptance said the committed guide must be "identical in substance to the artifact", which would have **forced it to commit the two errors §9.2 and §9.5 found**. Rewritten: identical *except* the corrections, each listed with its evidence. |
+| **UIG-8** | Said "UIG-11's registry". The registry is **UIG-12**. UIG-11 is the Leaf repo. |
+| **UIG-5** | Same wrong reference, same fix. |
+| **UIG-5** | Said the package's four numbers "do not agree". They do. 44 `.tsx`, 46 `.mdx`, 46 stories, 45 export lines — the two extra are `FieldLine` and `MenuItem`, exported from a sibling file. Corrected. |
+
+### What is still true
+
+Nothing in this document is now waiting on a ticket that does not exist.
+
+Three things still wait on **Katerina**, and they are in §0: the verdict column,
+stories in or out, and the ordering question in §12.
 
 ---
 
