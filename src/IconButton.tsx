@@ -54,6 +54,12 @@ export function IconButton({
           // happened here: a row with no `items-*` drew this 24 wide and 228
           // tall in Peek's TopicMoreMenu story (Katerina, 2026-09-11). A button
           // is the size of its icon and its padding, whatever box it lands in.
+          //
+          // This is the one of the two that needs it: an IconButton states no
+          // height, so its cross size is `auto` and a stretching parent takes
+          // it. Measured in the same 260px row on 2026-09-12: 24px with this
+          // class, 226px without. `Button` states `h-8`/`h-6`, so it cannot be
+          // stretched and carries no `self-center` — see the note there.
           'flex items-center justify-center p-1 rounded-lg transition-colors shrink-0 self-center cursor-pointer',
           !state.disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse',
           !state.disabled && variant === 'muted' && 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',

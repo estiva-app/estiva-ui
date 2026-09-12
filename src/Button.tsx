@@ -66,13 +66,18 @@ export function Button({
       focusableWhenDisabled={!!disabledReason}
       className={(state) =>
         cn(
-          // `self-center` for the same reason as IconButton's: a flex parent
-          // with no `items-*` stretches its children, and a button stretched to
-          // a column's height is not a button. `h-8` and `h-6` below set the
-          // height, and stretching overrode them. No caller in the suite wants
-          // a stretched one — checked across both apps and this package on
-          // 2026-09-11, and none passes `w-full` either.
-          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium self-center',
+          // No `self-center` here, deliberately — `IconButton` needs it and this
+          // does not, and the difference is the `h-8` / `h-6` on the next two
+          // lines. `align-items: stretch` only stretches a child whose cross
+          // size is `auto`; a Button always states its height, so a stretching
+          // parent cannot change it. Measured in Chrome on 2026-09-12, in the
+          // 260px row of Finding 49: 32px with `self-center` and 32px without.
+          // What the class DID do was override the caller on the other axis —
+          // in a column it beats the parent's `items-start`, which centred the
+          // four actions in Ship's `ProjectRail` and the trigger in five of
+          // this package's own story frames, each of which asks for the top.
+          // A control does not get to decide where its caller puts it.
+          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
           size === 'default' && 'h-8 text-btn-default',
           size === 'small' && 'h-6 text-btn-small',
           // Extra right padding beside a leading icon, for optical balance.

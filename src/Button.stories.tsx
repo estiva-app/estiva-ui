@@ -30,6 +30,35 @@ export const Disabled: Story = { args: { variant: 'primary', disabled: true } }
 export const WithAReason: Story = { args: { variant: 'primary', disabledReason: 'Sign in to add items' } }
 
 /** Every variant × size × icon × disabled combination on one canvas. */
+/* The box it is dropped into cannot change its height: a Button states `h-8`
+   (or `h-6` when small), and a stretching parent only stretches a child whose
+   height is `auto`. The row below says no `items-*` at all, which is the box
+   that drew an IconButton 228px tall — this stays 32. */
+export const InATallRow: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex h-[260px] w-[240px] justify-center rounded-lg border border-border-subtle p-4">
+      <Button variant="outlined">Button</Button>
+    </div>
+  ),
+}
+
+/* And the caller says where it sits. This column asks for the left; a Button
+   carries no `align-self` of its own, so the left is what it gets. */
+export const InAColumnThatAsksForTheLeft: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-[240px] flex-col items-start gap-2 rounded-lg border border-border-subtle p-4">
+      <Button variant="outlined" size="small">
+        Copy link
+      </Button>
+      <Button variant="outlined" size="small">
+        Pair with another Folder…
+      </Button>
+    </div>
+  ),
+}
+
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
