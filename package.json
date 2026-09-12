@@ -1,6 +1,6 @@
 {
   "name": "@estiva-app/ui",
-  "version": "0.12.6",
+  "version": "0.12.7",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
   "license": "MIT",

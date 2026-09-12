@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.12.7 — 2026-09-13
+
+Stage 5 of the migration, the package half. **Nothing a caller writes
+changes**, and nothing a person sees moves — every `ChipInput` story is
+byte-identical. What changes is what the field *is*.
+
+### Changed
+
+- **`ChipInput` is a combobox over a listbox**, on Base UI's `Combobox`
+  with `multiple`. Focus stays in the text while the arrow keys move
+  through the suggestions, and the highlighted row is named through
+  `aria-activedescendant`. Before, the rows were plain buttons in a
+  `<div>` and a screen reader was told nothing.
+
+  The component still decides what is its business and not the part's:
+  which options are on offer (never the chosen, never the excluded), that
+  a match is on the label *or* the description, that the list opens only
+  once you type, and that Backspace on an empty query takes the last chip.
+  Escape clears a query and keeps the key; with nothing typed it lets the
+  key through to the dialog around the field.
+
+  **The list hangs from the field, not from its input** (PLAN Finding 57).
+  Base UI places a combobox's list against the input by default, and in a
+  chip field the input sits inside 12px of padding and a border — the
+  list came out 358px under a 384px field. It is anchored on the field.
+
+  Peek's `PersonChipInput` needs no change: checked on a copy of Peek with
+  this build, typecheck clean and all 1286 tests.
+
+### Removed
+
+- **`fit.ts`** and its test. `ChipInput` was `fitMenu`'s last caller (PLAN
+  Finding 22); Base UI's positioner does the flipping and the clamping,
+  against the element itself rather than a rect read a frame earlier.
+  `fit.ts` was never exported, so no caller can have depended on it.
+
+### Added
+
+- **`ChipInput` has tests** — nine, where it had none, pinning every
+  promise its page makes.
+
 ## 0.12.6 — 2026-09-13
 
 **The scrollbar hugs the panel, in every menu and every popover.**
