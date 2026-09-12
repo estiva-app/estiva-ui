@@ -363,7 +363,11 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
  * consequence of the port: the fill that followed the pointer now also
  * follows the arrow keys, because Base UI sets one attribute for both.
  */
-function menuItemClassName({ size, selected, className }: { size: 'default' | 'tall'; selected?: boolean; className?: string }) {
+/** The row's look, shared inside the package: `MenuItem` draws it, and
+ *  `Select` puts it on Base UI's `Select.Item`, whose parts (`ItemText`,
+ *  `ItemIndicator`) have to stay the element's own. One row, two parts. Not
+ *  exported from the package's index. */
+export function menuItemClassName({ size, selected, className }: { size: 'default' | 'tall'; selected?: boolean; className?: string }) {
   return cn(
     // shrink-0: a menu is a flex column that scrolls at its max height,
     // and a flex child shrinks before its container does — so every row
