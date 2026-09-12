@@ -22,6 +22,8 @@ Status key, emoji first: ✅ done · 🚧 in progress · ⬜ not started · ⛔ 
 |---|---|
 | ✅ | **UIG-1 — the count.** All 21 candidate rules measured across all three repos. §3–§7 below. |
 | ⚠️ | **The verdict column in §3 is blank.** Katerina marks every rule *on* / *warn* / *dropped*. Nothing in phase 1 can start until she has. |
+| ⚠️ | **Stories: in or out?** She asked why the ticket excluded them. §10 has the count and says **in** — the package's own stories break the className rule 19 times against its source's 9, and `Person.stories.tsx` documents the very thing the rule forbids. Tests stay out. Her call; it changes UIG-1's Scope line and takes UIG-3 from 12 to 19. |
+| ⚠️ | **Is padding "placement"?** §3 family D. It halves the className rule. |
 | ⬜ | UIG-2 — the tracking rails. Not started. Can run in parallel; it does not need UIG-1. |
 | ⛔ | UIG-3 onwards — waiting on the verdicts. |
 
@@ -71,6 +73,10 @@ completeness, not for a tidy figure:
   logic with no JSX in them, and **they carry 0 violations of any rule** — so
   they change no number here. If UIG-3 writes the real lint, exclude `*.test.ts`
   as well; it costs nothing and the intent is plainly the same.
+- **The `*.stories.tsx` exclusion is the ticket's, not the guide's** — and it is
+  probably wrong. **§10** counts what it hid and recommends putting stories back
+  in. Everything in §3 to §8 is the target set as the ticket wrote it, so the
+  reconciliation still matches the ticket; §10 is the second column.
 - estiva-ui's 51 is 44 component `.tsx` files plus `index.ts`, `cn.ts`,
   `fit.ts`, `triggerDisabled.ts`, and 3 `.test.ts`. The **44** agrees with the
   number UIG-5 quotes.
@@ -320,8 +326,13 @@ silently dropped:
 table row. It is measured (§3 family B) — the ticket's standing rule is that a
 rule the guide names is in scope even where this ticket's example list forgot it.
 
-**Violations counted, all repos, all 21 rules: 198** — estiva-ui 61, peek 104,
-ship 33. In 93 distinct files of the 435 scanned.
+**Violations counted, across the 17 app-facing rules: 200** — 198 from the
+guide's 15, plus 2 from `raw-textarea` (§4); `raw-select` is 0 everywhere. The
+four package-facing rules in §5 re-measure the same `estiva-ui/src` from a
+different angle, so they add no new violations to that total.
+
+That 200 is **source files only** — it is what the ticket's target set can see.
+§10 counts the stories and the tests the target set leaves out.
 
 ---
 
@@ -383,6 +394,128 @@ All 14 of estiva-ui's `no-copied-class-list` hits are the package copying
 That is a different problem from an app re-typing a component — these are
 sibling primitives that should share a constant. It is real, and it is not what
 UIG-25 is aimed at. Noted here so it is not lost.
+
+### ⚠️ 5. "Peek has 5 pages and 0 page stories" is not true any more
+
+The guide says it twice, and gate 3 / T17 is costed on it. Counted today:
+Peek has **5 pages** and **3 page stories** — `stories/layouts/Pages.stories.tsx`
+runs Desk, Topics and People through a `PeekApp` harness on seed data.
+
+The honest version, and it is still an argument for T17:
+
+- **`FoldersPage` has no story.** Neither does `ObjectPage`. Folders is the page
+  all eight defects were on.
+- **No page has an empty or a loading state.** The file says so itself: *"Empty /
+  first-login states arrive with the Convex data layer."*
+
+So the shortfall is real but it is "2 of 5 pages missing, and no state but the
+happy one" — not zero. Worth correcting in `GATES-GUIDE.md` when UIG-2 commits
+it, alongside finding 2.
+
+---
+
+## §10 Stories and tests — what the target set left out
+
+**Katerina asked, 2026-09-13: why were `*.stories.tsx` and `*.test.tsx`
+excluded?**
+
+Straight answer: **UIG-1's own Scope line excluded them.** Nothing in the guide
+asks for that. So here is the count, and it says she is right about stories.
+
+### What the guide actually says a story is
+
+| line | the guide |
+|---|---|
+| T9 | **"Storybook as the doc surface** — every registry row links to a live story. One place to look, not three ports." |
+| Gate 0 | the registry entry for every component carries **"a link to its live story"** |
+| Gate 0, *Catches* | **"a component with no story and no explanation"** |
+| Gate 3 | **"every story shot in both themes"**, diffed, and *you* accept or reject each canvas |
+
+A story is therefore the **documentation**, the **thing gate 1 sends people to**,
+and the **thing gate 3 photographs for her review**. Exempting it from the rules
+means the one surface built to teach people what to do is the one surface allowed
+to do it wrong.
+
+### The count
+
+Same 17 rules, same three repos, split by what kind of file the violation is in.
+
+| repo | source | stories | tests |
+|---|---|---|---|
+| estiva-ui | 48 files | 46 | 30 |
+| peek | 205 | 59 | 91 |
+| ship | 114 | 20 | 50 |
+
+*(source + tests = the 51 / 254 / 130 of §2: the ticket excludes `*.test.tsx` but
+not `*.test.ts`, so 3 / 49 / 16 test files were counted as source there.)*
+
+| rule | estiva-ui *src / story / test* | peek | ship |
+|---|---|---|---|
+| raw-button | 8 / **1** / 31 | 12 / **7** / 1 | 0 / 0 / 0 |
+| raw-input | 1 / 0 / 1 | 4 / 0 / 0 | 2 / 0 / 0 |
+| raw-anchor | 3 / 0 / 2 | 7 / 0 / 0 | 7 / 0 / 0 |
+| raw-textarea | 2 / 0 / 0 | 0 / **1** / 0 | 0 / 0 / 0 |
+| no-base-ui-import | 22 / 0 / 1 | 0 / 0 / 0 | 0 / 0 / 0 |
+| no-tabindex-on-div | 0 / **1** / 0 | 0 / 0 / 0 | 1 / 0 / 0 |
+| no-overflow-class | 1 / 0 / 1 | 2 / **1** / 0 | 1 / 0 / 0 |
+| no-handmade-empty-state | 0 / **1** / 0 | 7 / 0 / 0 | 2 / 0 / 0 |
+| no-native-title | 0 / 0 / 0 | 3 / **3** / 0 | 3 / 0 / 0 |
+| no-copied-class-list | 14 / **2** / 0 | 28 / **1** / 0 | 2 / 0 / 0 |
+| **className-placement-only** | 9 / **19** / 0 | 33 / 0 / 0 | 15 / **1** / 0 |
+| *(rules with nothing anywhere omitted)* | | | |
+| **TOTAL** *(all 17 rules)* | 63 / **24** / 36 | 104 / **13** / 1 | 33 / **1** / 0 |
+
+**200 in source · 38 in stories · 37 in tests.**
+
+### The finding, and it is the one that matters
+
+**estiva-ui's stories break the className rule more than its source does — 19
+against 9.** The package's own documentation is twice as bad as the package.
+
+- **`Person.stories.tsx:34–37`** is the `Sizes` story. It teaches that the way to
+  change a Person's type size is `className="text-caption"` / `text-body-2` /
+  `text-body-1`. That is **the doc page demonstrating the exact thing the rule
+  forbids.** `Property.stories.tsx:31,45` goes further and pushes raw
+  `text-[12px] leading-[120%]` through.
+- **`ScrollArea.stories.tsx`** pushes `rounded-lg border border-border-default
+  bg-bg-surface` into `ScrollArea` in **six** stories — and Ship's
+  `IssuesTable.tsx:47` does the same thing in the app. **The story taught it and
+  the app copied it.** That is this whole project's mechanism, caught in the act.
+- **`ReactionPicker.stories.tsx:100`** hand-makes "Nothing here yet." instead of
+  using `EmptyState` — in the package's own story.
+
+### What tests look like, for contrast
+
+**31 of estiva-ui's 36 test violations are one rule in one place**: raw `<button>`
+inside `Button.compose.test.tsx` and its neighbours, mounting bare elements to
+test that composition works. That is a test doing its job. Tests are not
+documentation and nobody copies them.
+
+### Recommendation
+
+| | |
+|---|---|
+| ✅ | **Stories in.** They are the doc surface, gate 1 points at them, and gate 3 photographs them. 38 violations across all three repos — a day's work, not a project. |
+| ❌ | **Tests out.** 37 violations, 31 of them a test legitimately mounting a raw element to test composition. Exclude `*.test.tsx` **and `*.test.ts`**. |
+
+Three story violations are legitimate and want an escape, not a fix — they are
+good examples of why the escape hatch exists:
+
+- `Checkbox.stories.tsx:43` — a raw `<button>` wrapping a `Checkbox`, which is
+  Katerina's own "the row is the control" ruling.
+- `Popover.stories.tsx:169` — `tabIndex={-1}` on a `<p>`, with a written reason
+  and "measured" beside it. **This also says the rule is too broad:**
+  `tabIndex={-1}` is the correct way to make something programmatically
+  focusable; only `tabIndex={0}` or a positive number adds a tab stop. UIG-8
+  should flag those, not `-1`.
+- `peek/src/stories/SignalTheme.stories.tsx` — 6 raw `<button>`, a `<textarea>`
+  and 3 native `title=`. It is a **Storybook-only theme preview** with its own
+  `<style>` block and `sig-*` CSS, not our components by design; it already
+  carries a file-level `eslint-disable` for the token lint for the same reason.
+  One file-level escape. **Not** a folder exemption — §6 just argued why.
+
+⚠️ **If Katerina says yes, UIG-1's Scope line changes** to "excluding `*.test.ts`
+and `*.test.tsx`", and UIG-3's Peek button count goes from **12 to 19**.
 
 ---
 
