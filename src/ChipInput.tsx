@@ -1,9 +1,24 @@
-import { useState, useRef, useMemo, useEffect, useLayoutEffect, type KeyboardEvent, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { Combobox } from '@base-ui/react/combobox'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
-import { fitMenu } from './fit'
-import { MenuItem } from './Menu'
+import { MenuItem, MenuPanel } from './Menu'
+import { ScrollArea } from './ScrollArea'
+
+/* The chip's own look, written once: `InputChip` draws it for a caller who
+   wants a chip on its own, and `ChipInput` gives the same classes to Base UI's
+   `Combobox.Chip`, which is the one that joins the input's keyboard. */
+const CHIP_BOX =
+  // Curved, not a pill (Katerina, 2026-09-01): the Avatar keeps its own
+  // rounded-sm corners — never a forced circle — and the chip's corner
+  // follows concentrically: 4px face + 2px inset = rounded-md.
+  'inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-md py-0.5 max-h-[24px]'
+const CHIP_LABEL = 'text-caption font-medium text-text-primary'
+const CHIP_REMOVE = 'size-4 flex items-center justify-center rounded-full hover:bg-bg-hover text-text-secondary'
+// The padding follows the contents (Katerina, 2026-09-01): a face sits 2px
+// from the edge, a bare label needs 8px of air; the ✕ brings its own box, so
+// 4px behind it — 8px when there isn't one.
+const chipPadding = (leading: boolean, removable: boolean) => cn(leading ? 'pl-[2px]' : 'pl-2', removable ? 'pr-1' : 'pr-2')
 
 /**
  * The chip a `ChipInput` is made of: a 24px pill with an optional 16px
@@ -11,6 +26,10 @@ import { MenuItem } from './Menu'
  * Exported on its own (Katerina, 2026-09-01) under a name that promises
  * nothing about people — a chip like this may one day hold a label, a file,
  * a filter.
+ *
+ * Inside a `ChipInput` the chip is Base UI's `Combobox.Chip` wearing these
+ * same classes, because there it has to answer the arrow keys and Backspace
+ * along with the input. This component is for a chip standing alone.
  */
 export interface InputChipProps {
   label: string
@@ -23,22 +42,9 @@ export interface InputChipProps {
 
 export function InputChip({ label, leading, onRemove, className }: InputChipProps) {
   return (
-    <div
-      className={cn(
-        // Curved, not a pill (Katerina, 2026-09-01): the Avatar keeps its own
-        // rounded-sm corners — never a forced circle — and the chip's corner
-        // follows concentrically: 4px face + 2px inset = rounded-md.
-        'inline-flex items-center gap-1.5 bg-bg-elevated border border-border-subtle rounded-md py-0.5 max-h-[24px]',
-        // The padding follows the contents (Katerina, 2026-09-01): a face
-        // sits 2px from the edge, a bare label needs 8px of air; the ✕
-        // brings its own box, so 4px behind it — 8px when there isn't one.
-        leading ? 'pl-[2px]' : 'pl-2',
-        onRemove ? 'pr-1' : 'pr-2',
-        className,
-      )}
-    >
+    <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
-      <span className="text-caption font-medium text-text-primary">{label}</span>
+      <span className={CHIP_LABEL}>{label}</span>
       {onRemove && (
         <button
           type="button"
@@ -46,7 +52,7 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
             e.stopPropagation()
             onRemove()
           }}
-          className="size-4 flex items-center justify-center rounded-full hover:bg-bg-hover text-text-secondary"
+          className={CHIP_REMOVE}
           aria-label={`Remove ${label}`}
         >
           <IconX size={10} stroke={1.5} />
@@ -58,18 +64,28 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
 
 /**
  * A multi-select input: chips for the chosen, a typeahead for the rest —
- * Peek's PersonChipInput (2026-09-01), generalised on the way in. Peek's
- * version knew it was picking people: it read the directory from Peek's own
- * data layer and drew every face itself. Here the caller hands in `options`,
- * and — when the entries have faces or icons — the two leading slots: 16px
- * in a chip, 32px in a suggestion row. Nothing in this file knows what is
- * being picked.
+ * Peek's PersonChipInput (2026-09-01), generalised on the way in, and on Base
+ * UI's `Combobox` since stage 5 of the migration (2026-09-13).
  *
- * Suggestions appear only once the user types — focusing (or auto-focus on
- * dialog open) must not drop the full directory over the surface below.
- * Backspace on an empty query removes the last chip; Escape clears the query
- * when there is one and bubbles when there is not, so the surface around it
- * (dialog, launcher) can act.
+ * **What the part brought, and what it took away from this file.** The list is
+ * a real listbox now: the input keeps focus and says which row is highlighted
+ * through `aria-activedescendant`, where before the rows were plain buttons in
+ * a `<div>` and nothing was announced. With it went the highlight index, the
+ * arrow keys, Enter, the filter loop, the blur timeout that kept a click on a
+ * row from closing the list under the pointer, the `createPortal`, the
+ * measured anchor rect, the resize and scroll listeners that re-measured it,
+ * and `fit.ts` — the flip-up-when-low arithmetic this package carried for one
+ * caller (PLAN Finding 22). Base UI's positioner does the flipping, and it
+ * does it against the element rather than against a rect read a frame ago.
+ *
+ * **What this file still decides**, because none of it is the part's business:
+ * which options are on offer (the chosen and the excluded are not), that a
+ * match is on the label *or* the description, that suggestions appear only
+ * once you type — focusing must not drop the whole directory over the surface
+ * below — and that Backspace on an empty query takes the last chip.
+ *
+ * Escape clears the query when there is one and bubbles when there is not, so
+ * the surface around it (dialog, launcher) can act.
  *
  * Generic over the option type: the objects handed back through `onChange`
  * are the caller's own, extra fields and all — no re-mapping on the way out.
@@ -110,154 +126,136 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
   ...aria
 }: ChipInputProps<T>) {
   const [query, setQuery] = useState('')
-  const [highlight, setHighlight] = useState(0)
-  const [isFocused, setIsFocused] = useState(false)
-  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  /* The box the list hangs from. Base UI hangs a combobox's list from its
+     input by default, and the input sits inside this box's 12px of padding
+     and its border, so the list came out 26px narrower than the field it
+     belongs to (measured: 358 against 384) and started inside it. Held as an
+     element, not a measured rect, so the positioner re-measures it. */
+  const [box, setBox] = useState<HTMLDivElement | null>(null)
 
-  const matches = useMemo(() => {
-    const selectedIds = new Set(value.map((o) => o.id))
-    const excludedIds = new Set(excludeIds)
-    const q = query.trim().toLowerCase()
-    return options.filter((o) => {
-      if (selectedIds.has(o.id)) return false
-      if (excludedIds.has(o.id)) return false
-      if (!q) return true
-      return o.label.toLowerCase().includes(q) || (o.description ?? '').toLowerCase().includes(q)
-    })
-  }, [query, value, excludeIds, options])
+  /* What is on offer: never what is already chosen, never what the caller
+     excluded. The part filters by the query; which options exist at all is
+     this component's question. */
+  const available = useMemo(() => {
+    const chosen = new Set(value.map((o) => o.id))
+    const excluded = new Set(excludeIds)
+    return options.filter((o) => !chosen.has(o.id) && !excluded.has(o.id))
+  }, [options, value, excludeIds])
 
-  useEffect(() => {
-    setHighlight(0)
-  }, [query, matches.length])
+  /* A match is on the label or the description — "who is the engineer" finds
+     the person by their role. Base UI's own filter reads one string per item. */
+  const filter = useMemo(
+    () => (item: T, q: string) => {
+      const needle = q.trim().toLowerCase()
+      if (!needle) return true
+      return item.label.toLowerCase().includes(needle) || (item.description ?? '').toLowerCase().includes(needle)
+    },
+    [],
+  )
 
-  const showDropdown = isFocused && query.trim().length > 0 && matches.length > 0
+  /* Suggestions appear only once you type. Focus — or a dialog's autoFocus —
+     must not drop the whole directory over the surface below, which is why
+     the open state is this component's and not the part's. */
+  const open = query.trim().length > 0
 
-  useLayoutEffect(() => {
-    if (!showDropdown) return
-    const update = () => {
-      if (wrapperRef.current) setAnchorRect(wrapperRef.current.getBoundingClientRect())
-    }
-    update()
-    window.addEventListener('resize', update)
-    window.addEventListener('scroll', update, true)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('scroll', update, true)
-    }
-  }, [showDropdown, value.length])
-
-  function addOption(option: T) {
-    onChange([...value, option])
-    setQuery('')
-    inputRef.current?.focus()
+  function removeLast() {
+    if (value.length > 0) onChange(value.slice(0, -1))
   }
 
-  function removeOption(id: string) {
-    onChange(value.filter((o) => o.id !== id))
-  }
-
-  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Backspace' && query === '' && value.length > 0) {
-      // Consumed: removing a chip must not double as the surface's "back".
-      e.preventDefault()
-      removeOption(value[value.length - 1].id)
+  function onInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Backspace' && query === '' && value.length > 0) {
+      // Consumed: removing a chip must not double as the surface's "back",
+      // and Base UI would otherwise walk focus into the chips first.
+      event.preventDefault()
+      event.stopPropagation()
+      removeLast()
       return
     }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setHighlight((h) => Math.min(h + 1, Math.max(0, matches.length - 1)))
-      return
-    }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setHighlight((h) => Math.max(h - 1, 0))
-      return
-    }
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      const target = matches[highlight]
-      if (target) addOption(target)
-      return
-    }
-    if (e.key === 'Escape') {
+    if (event.key === 'Escape' && query !== '') {
       // Consume it only when there is something to clear; an idle input lets
       // Escape bubble so the surface around it (dialog, launcher) can act.
-      if (query !== '') {
-        e.preventDefault()
-        setQuery('')
-      }
+      event.preventDefault()
+      event.stopPropagation()
+      setQuery('')
     }
   }
 
   return (
-    <div className="relative">
-      <div
-        ref={wrapperRef}
-        className="bg-bg-inset border border-border-default hover:border-border-strong focus-within:border-border-focus focus-within:hover:border-border-focus rounded-lg px-3 py-1.5 flex flex-wrap items-center gap-1.5 transition-colors min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring"
-        onClick={() => inputRef.current?.focus()}
-      >
-        {value.map((o) => (
-          <InputChip key={o.id} label={o.label} leading={chipLeading?.(o)} onRemove={() => removeOption(o.id)} />
+    <Combobox.Root
+      multiple
+      items={available}
+      value={value}
+      onValueChange={(next) => {
+        onChange(next as T[])
+        setQuery('')
+      }}
+      inputValue={query}
+      onInputValueChange={setQuery}
+      open={open}
+      /* The list is the query's, not the click's — see `open` above. */
+      openOnInputClick={false}
+      filter={filter}
+      itemToStringLabel={(option) => (option as T).label}
+    >
+      {/* The box the chips and the input share. `Combobox.Chips` is what makes
+          the two one control for the keyboard; the look is what it always was. */}
+      <Combobox.Chips ref={setBox} className="bg-bg-inset border border-border-default hover:border-border-strong focus-within:border-border-focus focus-within:hover:border-border-focus rounded-lg px-3 py-1.5 flex flex-wrap items-center gap-1.5 transition-colors min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring">
+        {value.map((option) => (
+          <Combobox.Chip key={option.id} className={cn(CHIP_BOX, chipPadding(!!chipLeading, true))}>
+            {chipLeading && <span className="flex shrink-0 items-center">{chipLeading(option)}</span>}
+            <span className={CHIP_LABEL}>{option.label}</span>
+            <Combobox.ChipRemove className={CHIP_REMOVE} aria-label={`Remove ${option.label}`}>
+              <IconX size={10} stroke={1.5} />
+            </Combobox.ChipRemove>
+          </Combobox.Chip>
         ))}
-
-        <input
-          ref={inputRef}
+        <Combobox.Input
           autoFocus={autoFocus}
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            setTimeout(() => setIsFocused(false), 150)
-          }}
           placeholder={value.length === 0 ? placeholder : ''}
           aria-required={aria['aria-required']}
+          onKeyDown={onInputKeyDown}
           className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
         />
-      </div>
+      </Combobox.Chips>
 
-      {showDropdown && anchorRect && createPortal(
-        <div
-          className="fixed z-[60] overflow-y-auto bg-bg-elevated border border-border-default rounded-lg shadow-lg"
-          /*
-            Placed by fitMenu (2026-09-03), not hung blindly below: an input
-            low on the screen flips its list upward instead of running the
-            tail past the bottom edge. The rows are a fixed 48px, so the
-            content height is arithmetic and needs no second render pass;
-            the 240px cap is the old max-h-[240px].
-          */
-          style={{
-            ...fitMenu({
-              anchor: { left: anchorRect.left, top: anchorRect.top, bottom: anchorRect.bottom },
-              menu: { width: anchorRect.width, contentHeight: matches.length * 48 },
-              viewport: { width: window.innerWidth, height: window.innerHeight },
-              cap: 240,
-            }),
-            width: anchorRect.width,
-          }}
+      <Combobox.Portal>
+        <Combobox.Positioner
+          anchor={box}
+          sideOffset={GAP}
+          collisionPadding={VIEWPORT_PAD}
+          className="z-50 data-[anchor-hidden]:hidden"
         >
-          {matches.map((o, i) => (
-            <MenuItem
-              key={o.id}
-              size="tall"
-              className="h-12 rounded-none"
-              leading={rowLeading?.(o)}
-              label={o.label}
-              description={o.description}
-              selected={i === highlight}
-              onMouseEnter={() => setHighlight(i)}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                addOption(o)
-              }}
-            />
-          ))}
-        </div>,
-        document.body
-      )}
-    </div>
+          {/* As wide as the box, which is what the hand-measured rect was
+              for; `--anchor-width` is the positioner's own answer, and the
+              anchor is the box (see `box` above), not the input. The padding
+              is on the scrolling content so the bar hugs the panel (D63), and
+              240px is the cap this list has always had. */}
+          <Combobox.Popup className="w-[var(--anchor-width)] p-0" render={<MenuPanel />}>
+            <ScrollArea viewportClassName="max-h-[240px]" contentClassName="flex flex-col p-2">
+              <Combobox.List>
+                {(option: T) => (
+                  <Combobox.Item
+                    key={option.id}
+                    value={option}
+                    render={
+                      <MenuItem
+                        size="tall"
+                        leading={rowLeading?.(option)}
+                        label={option.label}
+                        description={option.description}
+                      />
+                    }
+                  />
+                )}
+              </Combobox.List>
+            </ScrollArea>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
   )
 }
+
+/** `Menu`'s numbers, because the list hangs the same way a menu does. */
+const GAP = 4
+const VIEWPORT_PAD = 8
