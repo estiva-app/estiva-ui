@@ -18,15 +18,17 @@ answer
 
 **13 September 2026. UIG-1 is done and in estiva-ui PR #21. Not merged.**
 
-### Three things need your answer
+### ✅ Nothing waits on Katerina. She ruled on everything, 13 September.
 
 | | |
 |---|---|
-| ⚠️ **1** | **The verdict column in §3 is empty.** Mark each rule *on*, *warn*, or *dropped*. Phase 1 cannot start until you do. |
-| ⚠️ **2** | **Stories: in or out?** You asked why I excluded them. The count is in §10. My answer is **in**. Tests stay out. If you agree, UIG-3 goes from 12 violations to 19. |
-| ✅ **3** | **The six findings with no ticket now have one.** §13. Three new tickets, three folded into existing ones, and four ticket errors corrected. Done 13 September. |
-| ⚠️ **4** | **Four more rules nobody had written down.** §11. The big one: `lint:tokens` blocks `text-sm` but lets `text-[14px]` through, and Peek has 157 of those. I proved it, I did not assume it. |
-| ⚠️ **5** | **Should the usage rules come before the wall?** §12. estiva-ui's 44 components already have their pages. Peek's 113 and Ship's 55 have nothing. And UIG-1 hit a lint rule it could not write because the answer had not been decided yet. |
+| ✅ **1** | **Every rule has a verdict.** 24 on, 2 warn, none dropped. The full list, and what it changes in each ticket, is **§14**. |
+| ✅ **2** | **Stories are in, tests are out.** UIG-3 goes from 12 violations to 19. |
+| ✅ **3** | **The six findings with no ticket have one.** §13. |
+| ✅ **4** | **The four extra rules in §11 have verdicts too.** Font sizes like `text-[14px]` are on; heights and spacing are warn. |
+| ✅ **5** | **Keep the order of the work.** The usage pages stay in phase 3. |
+
+**UIG-1 is finished. It closes when Katerina merges PR #21.**
 
 ### The running order
 
@@ -72,7 +74,7 @@ One question: before we switch a rule on, how much would it actually block?
 §3 answers it. One row per rule per repo. Real counts, real `file:line`, and the
 exact words the error would print.
 
-The verdict column is empty on purpose. That call is yours.
+Katerina filled in the verdicts on 13 September. §14 has them all.
 
 ---
 
@@ -132,7 +134,7 @@ picking one. That is §3 family D, §5 P4, and §7.
 21 candidate rules, one row per repo. The message column is the exact error text.
 Every message names a component.
 
-**Verdict column is yours: on / warn / dropped.**
+**Verdicts ruled by Katerina, 13 September.** §14 explains what each one changes.
 
 ### Family A — forbid the raw element
 
@@ -140,16 +142,16 @@ Guide T10. Tickets UIG-3, UIG-4, UIG-7.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
-| **raw-button** | estiva-ui | 8 | `src/Menu.tsx:295` · `src/Toast.tsx:105` · `src/Reaction.tsx:58` | see §5 P4 | |
+| **raw-button** | estiva-ui | 8 | `src/Menu.tsx:295` · `src/Toast.tsx:105` · `src/Reaction.tsx:58` | see §5 P4 | **on** |
 | | **peek** | **12** | `components/CommandLauncher.tsx:1363` · `components/HuddleCreator.tsx:87` · `components/ui/PendingAttachmentChip.tsx:58` | `A <button> here is not ours. Use Button, or IconButton when it is icon-only.` | |
 | | **ship** | **0** | none found | same | |
-| **raw-input** | estiva-ui | 1 | `src/ChipInput.tsx:205` | see §5 P4 | |
+| **raw-input** | estiva-ui | 1 | `src/ChipInput.tsx:205` | see §5 P4 | **on** |
 | | **peek** | **4** | `components/CommandLauncher.tsx:1418` · `components/HuddleCreator.tsx:95` · `components/ui/AttachFiles.tsx:30` | `An <input> here is not ours. Use TextInput, SearchInput, or Checkbox for a tick box.` | |
 | | **ship** | **2** | `components/Composer.tsx:183` · `components/ui/DescriptionEditing.tsx:215` | same | |
-| **raw-anchor** ⛔ | estiva-ui | 3 | `src/NavItem.tsx:31` · `src/RailItem.tsx:27` · `src/Breadcrumb.tsx:91` | see §5 P4 | |
+| **raw-anchor** ⛔ | estiva-ui | 3 | `src/NavItem.tsx:31` · `src/RailItem.tsx:27` · `src/Breadcrumb.tsx:91` | see §5 P4 | **on** once UIG-27 builds Link |
 | | **peek** | **7** | `components/ui/MessageBody.tsx:51` · `components/ThreadReplyCard.tsx:500` · `components/ui/ForeignObjectWidget.tsx:277` | **no message possible. §9.1** | |
 | | **ship** | **7** | `components/Board.tsx:24` · `components/IssueRow.tsx:66` · `components/IssuesTable.tsx:84` | **no message possible. §9.1** | |
-| **raw-dialog** | estiva-ui | 0 | none found | `A <dialog> here is not ours. Use DialogShell, or ConfirmDialog to ask yes or no.` | |
+| **raw-dialog** | estiva-ui | 0 | none found | `A <dialog> here is not ours. Use DialogShell, or ConfirmDialog to ask yes or no.` | **on** |
 | | peek | **0** | none found | same | |
 | | ship | **0** | none found | same | |
 
@@ -159,25 +161,25 @@ Guide T11. Ticket UIG-8.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
-| **no-base-ui-import** | estiva-ui | 22 | `src/Button.tsx:2` · `src/Checkbox.tsx:1` · `src/CollapsibleSection.tsx:2` | legitimate. This is the package's job. | |
+| **no-base-ui-import** | estiva-ui | 22 | `src/Button.tsx:2` · `src/Checkbox.tsx:1` · `src/CollapsibleSection.tsx:2` | legitimate. This is the package's job. | **on** |
 | | **peek** | **0** | none found | `Only @estiva-app/ui imports Base UI. Take the component from @estiva-app/ui, or add it there first.` | |
 | | **ship** | **0** | none found | same | |
-| **no-create-portal** | estiva-ui | 2 | `src/ChipInput.tsx:222` · `src/Toast.tsx:174` | see §5 P1 | |
+| **no-create-portal** | estiva-ui | 2 | `src/ChipInput.tsx:222` · `src/Toast.tsx:174` | see §5 P1 | **on** |
 | | **peek** | **2** | `components/CommandLauncher.tsx:1327` · `components/ui/FileAttachmentCard.tsx:67` | `createPortal is not how we float things. Use Popover, Menu, Tooltip, PreviewCard or DialogShell. Each owns its own portal.` | |
 | | **ship** | **0** | none found | same | |
-| **no-keydown-listener** | estiva-ui | 0 | none found | same | |
+| **no-keydown-listener** | estiva-ui | 0 | none found | same | **on** |
 | | **peek** | **2** | `components/HuddleCreator.tsx:64` · `layouts/AppShell.tsx:34` | `A keydown listener on document is not how we take keys. Menu, Select, Popover and DialogShell own their own.` | |
 | | **ship** | **0** | none found | same | |
-| **no-role-dialog** | estiva-ui | 0 | none found | `A hand-written role="dialog" means a hand-made dialog. Use DialogShell. It traps focus and gives it back.` | |
+| **no-role-dialog** | estiva-ui | 0 | none found | `A hand-written role="dialog" means a hand-made dialog. Use DialogShell. It traps focus and gives it back.` | **on** |
 | | peek | **0** | none found | same | |
 | | ship | **0** | none found | same | |
-| **hand-written ARIA role**, wider | estiva-ui | 3 | `src/Divider.tsx:33` · `:46` (`separator`) · `src/Tooltip.tsx:69` (`tooltip`) | all legitimate — these components own those roles | |
+| **hand-written ARIA role**, wider | estiva-ui | 3 | `src/Divider.tsx:33` · `:46` (`separator`) · `src/Tooltip.tsx:69` (`tooltip`) | all legitimate — these components own those roles | **on** · `progressbar` once UIG-27 builds ProgressBar |
 | *(see note)* | **peek** | **7** | `components/AddToOpenWorkDialog.tsx:71` (`option`) · `components/ui/ProjectTickets.tsx:22` (`progressbar`) · `components/CommandLauncher.tsx:1680` (`alert`) | `A hand-written role="option" means a hand-made listbox. Use Select.` | |
 | | **ship** | **4** | `components/ui/ProgressBar.tsx:25` (`progressbar`) · `components/Composer.tsx:229` (`alert`) · `components/ui/DescriptionEditing.tsx:238` (`alert`) | same, per role | |
-| **no-tabindex-on-div** | estiva-ui | 0 | none found | `tabIndex turns a box into a control. Use Button, IconButton or NavItem. They are focusable already.` | |
+| **no-tabindex-on-div** | estiva-ui | 0 | none found | `tabIndex turns a box into a control. Use Button, IconButton or NavItem. They are focusable already.` | **on** · `tabIndex={0}` and up only |
 | | peek | **0** | none found | same | |
 | | **ship** | **1** | `components/ui/DescriptionEditor.tsx:77` | same | |
-| **no-overflow-class** | estiva-ui | 1 | `src/ChipInput.tsx:224` | see §5 P1 | |
+| **no-overflow-class** | estiva-ui | 1 | `src/ChipInput.tsx:224` | see §5 P1 | **on** |
 | | **peek** | **2** | `components/CommandLauncher.tsx:1689` · `components/HuddleCreator.tsx:143` | `overflow-auto draws the browser's scrollbar. Use ScrollArea. It draws ours.` | |
 | | **ship** | **1** | `components/ui/prose.ts:35` | same | |
 
@@ -209,16 +211,16 @@ Guide T12. Tickets UIG-22 to UIG-25.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
-| **no-handmade-header** | estiva-ui | 1 → **0** | `src/DialogShell.tsx:117`, which owns the shape | `A panel header drawn by hand. Use SectionHeader.` | |
+| **no-handmade-header** | estiva-ui | 1 → **0** | `src/DialogShell.tsx:117`, which owns the shape | `A panel header drawn by hand. Use SectionHeader.` | **on** |
 | | **peek** | 4 → **3** | `components/ConversationHeader.tsx:132` · `components/ThreadPanel.tsx:233` · `components/ThreadPanel.tsx:367` | `A panel header drawn by hand. Use ContainerHeader.` | |
 | | **ship** | **0** | none found | `A panel header drawn by hand. Use SectionHeader.` | |
-| **no-handmade-empty-state** | estiva-ui | 0 | none found | `A line saying there is nothing is an EmptyState. Use EmptyState. scope="section" inside a section, scope="page" for a whole page.` | |
+| **no-handmade-empty-state** | estiva-ui | 0 | none found | `A line saying there is nothing is an EmptyState. Use EmptyState. scope="section" inside a section, scope="page" for a whole page.` | **on** |
 | | **peek** | **7** | `components/CommandLauncher.tsx:1464` · `components/ReadStatePanel.tsx:65` · `components/views/FolderContentsView.tsx:101` | same | |
 | | **ship** | **2** | `components/Board.tsx:61` · `components/ui/ForeignObject.tsx:206` | same | |
-| **no-native-title** | estiva-ui | **0** | none found | `title= is the browser's tooltip, not ours. Use WithTooltip, or IconButton's tooltip prop.` | |
+| **no-native-title** | estiva-ui | **0** | none found | `title= is the browser's tooltip, not ours. Use WithTooltip, or IconButton's tooltip prop.` | **on** |
 | | **peek** | **3** | `components/ui/Reference.tsx:116` · `:137` · `:166` | same | |
 | | **ship** | **3** | `components/ui/Reference.tsx:87` · `:103` · `:137` | same | |
-| **no-copied-class-list** | estiva-ui | 14 | `src/TextInput.tsx:26` ≈ `Textarea.tsx:24` · `src/Chip.tsx:36` ≈ `Reaction.tsx:64` | see §9.4 | |
+| **no-copied-class-list** | estiva-ui | 14 | `src/TextInput.tsx:26` ≈ `Textarea.tsx:24` · `src/Chip.tsx:36` ≈ `Reaction.tsx:64` | see §9.4 | **warn** |
 | | **peek** | **28** | `components/CommandLauncher.tsx:1339` ≈ `DialogShell.tsx:113` · `components/ThreadPanel.tsx:233` ≈ `DialogShell.tsx:117` · `components/ui/PersonRow.tsx:84` ≈ `Skeleton.tsx:22` | `This class list is DialogShell's, re-typed. Import DialogShell from @estiva-app/ui.` | |
 | | **ship** | **2** | `auth/AuthShell.tsx:42` ≈ `DialogShell.tsx:87` · `components/Sidebar.tsx:91` ≈ `NavItem.tsx:38` | same | |
 
@@ -232,7 +234,7 @@ Guide T13. Ticket UIG-9.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
-| **className-placement-only** | estiva-ui | **8** | `src/Banner.tsx:62` (IconButton `text-current`) · `src/DialogShell.tsx:150` (ScrollArea `border-b`) · `src/Tooltip.tsx:115` (Tooltip `transition-[…]`) | `Only placement passes through IconButton's className. "text-current" changes how it looks. Ask for a prop on IconButton instead.` | |
+| **className-placement-only** | estiva-ui | **8** | `src/Banner.tsx:62` (IconButton `text-current`) · `src/DialogShell.tsx:150` (ScrollArea `border-b`) · `src/Tooltip.tsx:115` (Tooltip `transition-[…]`) | `Only placement passes through IconButton's className. "text-current" changes how it looks. Ask for a prop on IconButton instead.` | **on** |
 | | **peek** | **15** | `components/ui/ForeignObjectWidget.tsx:91` (Person `text-caption`) · `pages/FoldersPage.tsx:260` (EditableText `text-body-2-strong`) · `components/ui/ComposeBox.tsx:407` (IconButton `signal:shadow-glow-accent`) | same, with the component's own name | |
 | | **ship** | **8** | `views/IssueView.tsx:120` (EditableText `text-h2`) · `components/NewProjectDialog.tsx:89` (TextInput `font-mono`) · `components/IssuesTable.tsx:47` (ScrollArea `border rounded-lg`) | same | |
 
@@ -265,8 +267,8 @@ dropdowns, links, dialogs". A dropdown is `<select>`, and a text box is as often
 
 | rule | estiva-ui | peek | ship | samples | message | verdict |
 |---|---|---|---|---|---|---|
-| **raw-select** | 0 | **0** | **0** | none found anywhere | `A <select> here is not ours. Use Select.` | |
-| **raw-textarea** | 2 | **0** | **0** | `src/Textarea.tsx:22` · `src/EditableText.tsx:143`, both `render` props | `A <textarea> here is not ours. Use Textarea.` | |
+| **raw-select** | 0 | **0** | **0** | none found anywhere | `A <select> here is not ours. Use Select.` | **on** |
+| **raw-textarea** | 2 | **0** | **0** | `src/Textarea.tsx:22` · `src/EditableText.tsx:143`, both `render` props | `A <textarea> here is not ours. Use Textarea.` | **on** |
 
 Both are free. Zero violations in either app. The package's two are handed to a
 Base UI `render` prop, which is the correct pattern. Turn them on in UIG-7 and
@@ -281,10 +283,10 @@ them. Measured against `estiva-ui/src`.
 
 | | rule | count | what I found | verdict |
 |---|---|---|---|---|
-| **P1** | hand-rolled behaviour where Base UI has a part (D6) | **2 components, 6 sites** | `ChipInput` is the package's last hand-rolled float. It imports `./fit` (:5), listens to `window` resize and scroll itself (:143, :144), and portals by hand (:222). Base UI's Positioner and Portal do all four. `Toast.tsx:174` is the second `createPortal`. `fit.ts` now has one real caller; everything else moved to Base UI. | |
-| **P2** | a component with no `.mdx` doc page | **0** | All 44 have one. There are 46 `.mdx` files. The two extra are `FieldLine` and `MenuItem`, which are exported from a sibling file. That is the false positive UIG-5 warned about, and it is real. | |
-| **P3** | a component with no `.stories.tsx` | **0** | All 44 have one. Same two extras, same reason. | |
-| **P4** | a raw element outside a wrapper | **9** or **4** | The package has 14 raw elements. 5 are handed to a Base UI `render` prop, which is fine. Of the other 9, **4 sit nested inside a bigger component**: `Breadcrumb.tsx:91`, `ChipInput.tsx:43`, `ChipInput.tsx:205`, `Toast.tsx:105`. The other 5 are the component's own root element: `NavItem`, `RailItem`, `Reaction`, `EditableText`, `Menu.tsx:480`. | |
+| **P1** | hand-rolled behaviour where Base UI has a part (D6) | **2 components, 6 sites** | `ChipInput` is the package's last hand-rolled float. It imports `./fit` (:5), listens to `window` resize and scroll itself (:143, :144), and portals by hand (:222). Base UI's Positioner and Portal do all four. `Toast.tsx:174` is the second `createPortal`. `fit.ts` now has one real caller; everything else moved to Base UI. | **on** · ChipInput fixed by PR #22, Toast at stage 6 |
+| **P2** | a component with no `.mdx` doc page | **0** | All 44 have one. There are 46 `.mdx` files. The two extra are `FieldLine` and `MenuItem`, which are exported from a sibling file. That is the false positive UIG-5 warned about, and it is real. | **on** |
+| **P3** | a component with no `.stories.tsx` | **0** | All 44 have one. Same two extras, same reason. | **on** |
+| **P4** | a raw element outside a wrapper | **9** or **4** | The package has 14 raw elements. 5 are handed to a Base UI `render` prop, which is fine. Of the other 9, **4 sit nested inside a bigger component**: `Breadcrumb.tsx:91`, `ChipInput.tsx:43`, `ChipInput.tsx:205`, `Toast.tsx:105`. The other 5 are the component's own root element: `NavItem`, `RailItem`, `Reaction`, `EditableText`, `Menu.tsx:480`. | **on** · the tracer |
 
 P2 and P3 are at zero. That is good news, but it means neither can be the tracer:
 a rule with nothing to fix proves nothing about the fix-or-escape path. Turn them
@@ -585,8 +587,9 @@ are good arguments for having the escape hatch at all:
   lint for the same reason. Give it one file-level escape. Not a folder
   exemption, for the reason in §6.
 
-⚠️ **If you say yes**, UIG-1's Scope line becomes "excluding `*.test.ts` and
-`*.test.tsx`", and UIG-3's Peek count goes from **12 to 19**.
+✅ **Katerina said yes, 13 September. Stories in, tests out.** Every lint rule
+from UIG-3 onwards checks `*.stories.tsx` and skips `*.test.ts` and `*.test.tsx`.
+UIG-3's Peek count goes from **12 to 19**.
 
 ---
 
@@ -803,7 +806,14 @@ in phase 1 can point at a decided answer.
 UIG-17 and UIG-18, the 168 app components, are the expensive half and can stay in
 phase 3.
 
-**Not decided. Katerina's call.**
+✅ **Ruled 13 September: keep the order.**
+
+My recommendation changed before she ruled, and the reason is worth keeping.
+UIG-27 now builds the missing Link component. So the one lint rule that was stuck
+for lack of a decided answer is not stuck any more, and every other phase-1 rule
+already has a component to name. Moving the usage pages earlier would have cost
+her a review of 44 components' *When not* lines before phase 1 could start, for
+no rule that needed it. Look at this again after phase 1.
 
 ---
 
@@ -878,6 +888,104 @@ Nothing in this document is now waiting on a ticket that does not exist.
 
 Three things still wait on **Katerina**, and they are in §0: the verdict column,
 stories in or out, and the ordering question in §12.
+
+---
+
+## §14 Katerina's rulings — 13 September 2026
+
+She was given the rules in four groups, with a recommendation for each, and ruled
+on all of them. **24 on, 2 warn, 0 dropped.**
+
+### Group A — nothing to fix today
+
+| | rule | verdict | ticket |
+|---|---|---|---|
+| A1 | No plain `<dialog>` | **on** | UIG-7 |
+| A2 | No plain `<select>` | **on** | UIG-7 |
+| A3 | No plain `<textarea>` | **on** | UIG-7 |
+| A4 | Apps don't import Base UI directly | **on** | UIG-8 |
+| A5 | No hand-made dialog (`role="dialog"`) | **on** | UIG-8 |
+| A6 | Every package component has a doc page with *When*, *When not*, *How* | **on** | UIG-5, locked in CI by UIG-19 |
+| A7 | Every package component has a story | **on** | UIG-5 |
+
+### Group B — small, clear fixes
+
+| | rule | verdict | ticket |
+|---|---|---|---|
+| B1 | No plain `<button>` | **on** | UIG-3 (Peek), UIG-4 (Ship) |
+| B2 | No plain `<input>` | **on** | UIG-7 |
+| B3 | No hand-made floating layer (`createPortal`) | **on** | UIG-8 |
+| B4 | No hand-written keyboard listener | **on** | UIG-8 |
+| B5 | No browser scrollbar (`overflow-auto`) | **on** | UIG-8 |
+| B6 | No browser tooltip (`title=`) | **on** | UIG-24 |
+| B7 | No hand-made panel header | **on** | UIG-22 |
+| B8 | Only position and spacing pass into our components | **on** | UIG-9 |
+| B9 | No hand-made list option (`role="option"`) | **on** | UIG-8 |
+| B10 | No focusable `<div>` (`tabIndex` 0 and up) | **on** | UIG-8 |
+| B11 | No colours in inline `style` | **on** | UIG-28 |
+| B12 | No hand-written font sizes like `text-[14px]` | **on** | UIG-28 |
+| B13 | Package: no plain element that isn't wrapping anything | **on** | UIG-5, the tracer |
+
+### Group C — rules that guess
+
+| | rule | verdict | ticket |
+|---|---|---|---|
+| C1 | Hand-made empty state | **on** — *overruled my advice of warn* | UIG-23 |
+| C2 | Styling copied from one of our components | **warn** | UIG-25 |
+| C3 | Hand-written heights and spacing like `h-[240px]` | **warn** | UIG-28 |
+
+### Group D — waiting on something
+
+| | rule | verdict | ticket |
+|---|---|---|---|
+| D1 | No plain link `<a>` | **on** — "we will build it" | UIG-27 builds Link, then UIG-7 |
+| D2 | No hand-made progress bar | **on** — "we will build it" | UIG-27 builds ProgressBar, then UIG-8 |
+| D3 | Package: no hand-made positioning | **on** — "we will fix it" | see below |
+
+### Stories and order
+
+- **Stories in, tests out.** Every rule from UIG-3 on checks `*.stories.tsx` and
+  skips `*.test.ts` and `*.test.tsx`. UIG-3's Peek count goes from 12 to 19.
+- **Keep the order.** The usage pages stay in phase 3. §12 explains why the
+  recommendation changed before she ruled.
+
+### What the rulings change
+
+**C1 is on, so UIG-23 has to be exact.**
+I had advised *warn* because the rule, as UIG-1 measured it, guesses from the
+words. It flagged `CommandLauncher.tsx:1498` — *"Nothing is created until you
+submit it."* — which is a hint, not an empty state. A warning can afford a
+mistake like that. A blocking rule cannot: every false alarm stops a merge.
+Katerina ruled *on*, so UIG-23 must not match on wording alone. It has to look at
+what the element is and where it sits, and that line must pass.
+
+**C2 and C3 are warnings, not errors.**
+UIG-25 builds a rule that reports and does not block. UIG-28 splits its
+arbitrary-value rule in two: font sizes block, heights and spacing warn. That was
+the split UIG-28 said needed her ruling, and she has given it.
+
+**D3 already has its fix, in two parts, and neither is a new ticket.**
+
+- **`ChipInput` is fixed by stage 5 of the migration: estiva-ui PR #22**, built
+  13 September by another session in a separate worktree, open and unmerged. On
+  that branch `fit.ts` is deleted, `ChipInput` no longer imports it, the two
+  `window` listeners are gone, and the raw `<input>` is gone. The one
+  `createPortal` left in the file is inside a comment. Checked, not assumed.
+- **`Toast` moves onto Base UI's `Toast` at stage 6** of the migration. Not built.
+  Her standing ruling is that the gates come before the migration, so `Toast`
+  keeps its hand-made portal until then. When UIG-5 switches the rule on,
+  `Toast.tsx` carries an escape whose reason names stage 6.
+
+**PR #22 changes UIG-5's tracer count.** Two of the four tracer violations were
+in `ChipInput`. PR #22 removes the raw `<input>` (`:205`) and keeps the raw
+`<button>`, which moves from `:43` to `:49`. So once it merges the tracer is
+expected to be **3**, not 4. UIG-5 must re-count after PR #22 merges, and must not
+edit `ChipInput.tsx` while PR #22 is open.
+
+### Tickets updated to match
+
+UIG-3, UIG-4, UIG-5, UIG-23, UIG-25 and UIG-28. UIG-7 and UIG-8 already pointed
+here for the stories answer, and this section gives it, so they were left alone.
 
 ---
 
