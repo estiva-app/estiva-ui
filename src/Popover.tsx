@@ -93,6 +93,27 @@ export interface PopoverProps {
   children: ReactNode
   /** On the panel's surface — its width, its internal rhythm. */
   className?: string
+  /**
+   * A cap on the scrolling box, as a class — `max-h-[360px]`. Without one the
+   * panel grows to the room the positioner has, which is the right default for
+   * a panel that is as tall as its content.
+   *
+   * **It cannot go on `className`.** That lands on the panel, and the panel's
+   * children sit inside a `ScrollArea` whose viewport carries its own cap — so
+   * a `max-h` on the panel is overrun by the viewport and the content draws
+   * straight through the panel's border (measured with Peek's `/` menu,
+   * 2026-09-12: a 400px panel with 559px of rows hanging out of it). The cap
+   * belongs on the viewport, as `DialogShell` takes `bodyMaxHeight`.
+   *
+   * **When a panel needs one.** A panel taller than the room above *and* below
+   * its anchor is not flipped by the positioner — it is moved to the side of
+   * the anchor, which for a type-ahead over a caret is not where it belongs.
+   * A cap keeps the choice between above and below.
+   *
+   * It replaces the available-height cap rather than adding to it, so a caller
+   * that sets one owns it.
+   */
+  maxHeight?: string
 }
 
 /** The 4px between the panel and what it hangs from, and the 8px it keeps
@@ -100,7 +121,7 @@ export interface PopoverProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className }: PopoverProps) {
+export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className, maxHeight }: PopoverProps) {
   /* A rect is not an element, so it becomes a virtual anchor — the one shape
      Floating UI takes besides an element. */
   const anchorTarget = useMemo(() => {
@@ -157,8 +178,12 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
             className={cn('min-w-[180px] outline-none', className)}
             render={<MenuPanel />}
           >
-            {/* As in Menu: the cap on the scrolling box, less the panel's padding; the padding stays on the panel. */}
-            <ScrollArea viewportClassName="max-h-[calc(var(--available-height)_-_1rem)]" contentClassName="flex flex-col [&>[role=separator]]:mx-0">
+            {/* As in Menu: the cap on the scrolling box, less the panel's padding; the padding stays on the panel.
+                A caller's `maxHeight` replaces it — see the prop. */}
+            <ScrollArea
+              viewportClassName={maxHeight ?? 'max-h-[calc(var(--available-height)_-_1rem)]'}
+              contentClassName="flex flex-col [&>[role=separator]]:mx-0"
+            >
               {children}
             </ScrollArea>
           </BasePopover.Popup>

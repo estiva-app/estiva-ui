@@ -193,6 +193,23 @@ describe('Popover', () => {
  * the two edges were mapped.
  */
 describe('Popover, centred on its anchor', () => {
+  it('caps the scrolling box, not the panel', async () => {
+    /* The cap has to land on the viewport: a `max-h` on the panel is overrun
+       by the viewport's own cap and the content draws through the panel's
+       border. jsdom computes no layout, so the class is what this can hold. */
+    render(
+      <Popover trigger={<Button>Open</Button>} ariaLabel="A panel" maxHeight="max-h-[160px]">
+        <span>Inside</span>
+      </Popover>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const panel = await screen.findByRole('dialog')
+    expect(panel.className).not.toContain('max-h-[160px]')
+    const viewport = panel.querySelector('[class*="max-h-"]')
+    expect(viewport?.className).toContain('max-h-[160px]')
+    expect(viewport?.className).not.toContain('available-height')
+  })
+
   it('asks Base UI for the middle', async () => {
     render(
       <Popover trigger={<Button>Open</Button>} align="center" ariaLabel="A panel">

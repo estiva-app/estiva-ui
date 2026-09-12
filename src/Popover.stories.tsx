@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconBold, IconItalic, IconLink } from '@tabler/icons-react'
-import { useRef, useState, type KeyboardEvent } from 'react'
+import { useRef, useState, type KeyboardEvent, useCallback } from 'react'
 import { Button } from './Button'
 import { MenuPanel } from './Menu'
 import { Popover } from './Popover'
@@ -219,6 +219,41 @@ export const FlippedForRoom: Story = {
       </Popover>
     </div>
   ),
+}
+
+/**
+ * `maxHeight` caps the scrolling box. Without one a panel grows to the room
+ * the positioner has — right for a panel as tall as its content, wrong for a
+ * long list, because a panel that fits neither above nor below its anchor is
+ * moved to the **side** of it. A cap keeps the choice between above and below.
+ *
+ * The cap goes here and not on `className`: `className` is the panel, and the
+ * panel's children scroll in a viewport of their own.
+ */
+export const Capped: Story = {
+  parameters: { controls: { disable: true }, layout: 'fullscreen' },
+  render: function Capped() {
+    /* Anchored and open, so the cap is the thing you see rather than a button
+       you have to press first. A rect is all an anchor needs. */
+    const [rect, setRect] = useState<DOMRect | null>(null)
+    const mark = useCallback((el: HTMLDivElement | null) => {
+      setRect(el ? el.getBoundingClientRect() : null)
+    }, [])
+    return (
+      <div className="flex h-[420px] w-full items-center justify-center">
+        <div ref={mark} className="text-body-2 text-text-secondary">
+          twenty rows, capped at 160px
+        </div>
+        <Popover anchor={rect} open ariaLabel="A long panel" className="w-[240px]" maxHeight="max-h-[160px]">
+          {Array.from({ length: 20 }, (_, i) => (
+            <span key={i} className="text-body-2 text-text-primary py-1">
+              Row {i + 1}
+            </span>
+          ))}
+        </Popover>
+      </div>
+    )
+  },
 }
 
 /**
