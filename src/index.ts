@@ -17,6 +17,14 @@ export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from '.
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export { Chip, type ChipProps, type ChipType } from './Chip'
 export { ChipInput, InputChip, type ChipInputOption, type ChipInputProps, type InputChipProps } from './ChipInput'
+export {
+  INLINE_CHIP_CLASSES,
+  INLINE_CHIP_TONE_CLASSES,
+  InlineChip,
+  inlineChipClassName,
+  type InlineChipProps,
+  type InlineChipTone,
+} from './InlineChip'
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'
