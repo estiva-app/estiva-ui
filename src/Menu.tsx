@@ -142,8 +142,18 @@ export interface MenuProps {
    *  closes the menu by itself, so this is only for content that is not one. */
   actionsRef?: RefObject<{ close: () => void; unmount: () => void } | null>
   children: ReactNode
-  /** On the menu's surface — its width, its internal rhythm. */
+  /** On the menu's surface — its width. **Not its padding**: see
+   *  `contentClassName`. */
   className?: string
+  /**
+   * The padding around the rows, as a class. Default `p-2`, 8px.
+   *
+   * It is on the scrolling content, not on the panel, so the scrollbar hugs the
+   * panel's edge (D63) — and so a padding class on `className` adds to it
+   * rather than replacing it. Peek's Later menu asked for `p-1` there and got
+   * 12px from `0.12.6` on (PLAN Finding 60). Set it here.
+   */
+  contentClassName?: string
 }
 
 /**
@@ -163,7 +173,7 @@ const VIEWPORT_PAD = 8
 const HOVER_OPEN_DELAY = 0
 const HOVER_CLOSE_DELAY = 150
 
-export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpenChange, actionsRef, children, className }: MenuProps) {
+export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpenChange, actionsRef, children, className, contentClassName }: MenuProps) {
   return (
     <BaseMenu.Root
       open={open}
@@ -227,9 +237,11 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
              * as tall as Floating UI allowed.
              *
              * A caller's `className` still lands on the panel, so a caller
-             * asking for different padding needs `contentClassName` — which is
-             * what `MenuPanel` is for when one is used on its own. */}
-            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName="flex flex-col p-2 [&>[role=separator]]:mx-0">
+             * asking for different padding needs `contentClassName`. That
+             * sentence was written at 0.12.6 and the prop was not: a `p-1` on
+             * `className` added 4px to these 8px instead of replacing them
+             * (PLAN Finding 60). The prop exists now. */}
+            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName={cn('flex flex-col p-2 [&>[role=separator]]:mx-0', contentClassName)}>
               <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
             </ScrollArea>
           </BaseMenu.Popup>

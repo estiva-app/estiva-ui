@@ -105,7 +105,8 @@ export const AToolbar: Story = {
            when there is no room, which is the reason the placement is its job
            and not ours. */
         side="top"
-        className="w-auto min-w-0 p-1"
+        className="w-auto min-w-0"
+        contentClassName="p-1"
       >
         {/* The strip is a `Toolbar`, so the whole row is ONE Tab stop and the
             arrow keys walk it — four stops before, one after. */}

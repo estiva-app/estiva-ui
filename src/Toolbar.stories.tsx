@@ -129,7 +129,8 @@ export const OnAnExistingSurface: Story = {
       /* Above the control that opened it: a strip acts on what is under it.
          `side` is the preference; Base UI flips it when there is no room. */
       side="top"
-      className="w-auto min-w-0 p-1"
+      className="w-auto min-w-0"
+      contentClassName="p-1"
     >
       <Toolbar aria-label="Formatting" surface={false}>
         <ToolbarButton aria-label="Item one" tooltip="Item one">{icon}</ToolbarButton>

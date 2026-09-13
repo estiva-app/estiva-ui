@@ -91,8 +91,23 @@ export interface PopoverProps {
    *  point at it instead, with `aria-labelledby`. */
   ariaLabel?: string
   children: ReactNode
-  /** On the panel's surface — its width, its internal rhythm. */
+  /**
+   * On the panel's surface — its width. **Not its padding**: see
+   * `contentClassName`.
+   */
   className?: string
+  /**
+   * The padding around the children, as a class. Default `p-2`, 8px — what a
+   * panel of rows or a small form wants. **A toolbar wants `p-1`.**
+   *
+   * The padding is on the scrolling content, not on the panel, so a scrollbar
+   * is drawn over it and hugs the panel's edge (D63). A padding class on
+   * `className` therefore does not replace this one — it adds to it: that is
+   * how every toolbar in a `Popover` grew 8px a side at `0.12.6`, measured 13px
+   * from the panel's edge to the toolbar where it had been 5px (PLAN Finding
+   * 60). Set it here.
+   */
+  contentClassName?: string
   /**
    * A cap on the scrolling box, as a class — `max-h-[360px]`. Without one the
    * panel grows to the room the positioner has, which is the right default for
@@ -121,7 +136,7 @@ export interface PopoverProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className, maxHeight }: PopoverProps) {
+export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open, onOpenChange, finalFocus, actionsRef, ariaLabel, children, className, contentClassName, maxHeight }: PopoverProps) {
   /* A rect is not an element, so it becomes a virtual anchor — the one shape
      Floating UI takes besides an element. */
   const anchorTarget = useMemo(() => {
@@ -181,10 +196,11 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
             {/* As in Menu: the cap on the scrolling box, and the padding on the
                 content rather than the panel, so the bar is drawn over the
                 padding instead of 9px inside it (D63). A caller's `maxHeight`
-                replaces the cap — see the prop. */}
+                replaces the cap, and a caller's `contentClassName` the padding
+                — see the props. */}
             <ScrollArea
               viewportClassName={maxHeight ?? 'max-h-[var(--available-height)]'}
-              contentClassName="flex flex-col p-2 [&>[role=separator]]:mx-0"
+              contentClassName={cn('flex flex-col p-2 [&>[role=separator]]:mx-0', contentClassName)}
             >
               {children}
             </ScrollArea>

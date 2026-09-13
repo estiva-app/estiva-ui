@@ -64,8 +64,10 @@ import { Popover } from '@estiva-app/ui'
   force it. Leave them off and the panel keeps its own state.
 - `ariaLabel` names the panel. A panel with a visible heading can point at it
   with `aria-labelledby` instead.
-- Width, padding and internal rhythm are yours, through `className` — the
-  panel is a surface, not a layout.
+- **Width goes on `className`, padding on `contentClassName`.** The padding
+  sits on the scrolling content so the scrollbar hugs the panel's edge, and a
+  padding class on `className` adds to it rather than replacing it. Default
+  8px; **a toolbar asks for `contentClassName="p-1"`**.
 
 <Canvas of={PopoverStories.FromATrigger} />
 

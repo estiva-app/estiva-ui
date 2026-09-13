@@ -62,7 +62,8 @@ export const FromATrigger: Story = {
             side="top"
             align="right"
             ariaLabel="Reactions"
-            className="w-auto min-w-0 p-1"
+            className="w-auto min-w-0"
+            contentClassName="p-1"
             trigger={
               <ToolbarButton aria-label="React" tooltip="React">
                 <IconMoodPlus size={16} stroke={1.5} />

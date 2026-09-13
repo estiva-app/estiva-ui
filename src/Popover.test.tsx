@@ -223,3 +223,41 @@ describe('Popover, centred on its anchor', () => {
     expect(positioner?.getAttribute('data-align')).toBe('center')
   })
 })
+
+/**
+ * The padding lives on the scrolling content, so the scrollbar hugs the panel
+ * (D63) — and a caller's padding has to land there too. At 0.12.6 a toolbar's
+ * `p-1` on `className` was added to the content's `p-2` instead of replacing
+ * it, and every toolbar in a Popover grew 8px a side (PLAN Finding 60).
+ * Measured in Chrome after the fix: the toolbar 5px inside the panel's edge,
+ * as on 0.12.5.
+ */
+describe('Popover, padding', () => {
+  // The scrolling content is the box that carries the separator rule.
+  const contentOf = (child: HTMLElement) => child.closest('[class*="role=separator"]') as HTMLElement
+
+  it('pads its content 8px by default', async () => {
+    render(
+      <Popover trigger={<Button>Open</Button>} ariaLabel="A panel">
+        <span>Inside</span>
+      </Popover>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const content = contentOf(await screen.findByText('Inside'))
+    expect(content.className).toContain('p-2')
+  })
+
+  it('takes a caller’s padding on contentClassName, instead of the 8px', async () => {
+    render(
+      <Popover trigger={<Button>Open</Button>} ariaLabel="A toolbar" className="w-auto" contentClassName="p-1">
+        <span>Inside</span>
+      </Popover>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const content = contentOf(await screen.findByText('Inside'))
+    expect(content.className.split(/\s+/)).toContain('p-1')
+    expect(content.className.split(/\s+/)).not.toContain('p-2')
+    // And the panel carries none of it.
+    expect((await screen.findByRole('dialog')).className.split(/\s+/)).not.toContain('p-1')
+  })
+})
