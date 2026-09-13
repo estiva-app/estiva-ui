@@ -31,13 +31,13 @@ Not a list of complaints — the actual chain. Every link is a place where somet
 - **1** · Someone needs a panel header.
   A person, or a Claude session. Same behaviour either way.
 - **2** · They don't know `ContainerHeader` exists.
-  There is no list of what exists. 43 components in the package, more in each app, spread over three Storybooks on three ports.
+  There is no list of what exists. 44 components in the package, more in each app, spread over three Storybooks on three ports.
 - **3** · Nothing asks them to look before they write.
-  The rules live in prose, in documents nobody opens mid-task.
+  The usage rules live in prose, in documents nobody opens mid-task.
 - **4** · They write a `div` with `px-3 py-2`. It compiles.
   No lint objects. No hook blocks it. This is literally what happened in Peek PR #192 — a working `<ContainerHeader>` was replaced by a hand-made row.
 - **5** · Every gate passes it: 1,219 tests, two typechecks, two lints, 323 stories.
-  Because none of them asks "is this the right component?" — and Peek's 5 pages have 0 stories between them.
+  Because none of them asks "is this the right component?" — and Peek's 5 pages have 3 stories between them, none for Folders and none empty or loading.
 - **6** · You open the app and find eight things.
   Then you spend a session and a lot of tokens putting them back.
 
@@ -119,13 +119,13 @@ Mews measure adoption from **production**: a build step marks every DOM element 
 
 Enforcing **100% adoption is an anti-pattern**. Effective systems land near 74%. Custom components live about 1.5 months before being absorbed or dropped.
 
-**For us:** build an escape hatch on purpose, or people will disable the rules. See §06.
+**For us:** build an escape hatch on purpose, or people will disable the lint rules. See §06.
 
 *W. G. Corrêa · DEV Community*
 
 ### 3 layers of AI instruction
 
-The field has split agent instructions into `AGENTS.md` (always-on rules), `SKILL.md` (the procedure, loaded on demand), `DESIGN.md` (the visual identity, machine-readable). Google open-sourced DESIGN.md in April; 11k stars.
+The field has split agent instructions into `AGENTS.md` (always-on instructions), `SKILL.md` (the procedure, loaded on demand), `DESIGN.md` (the visual identity, machine-readable). Google open-sourced DESIGN.md in April; 11k stars.
 
 **For us:** three files, three jobs. Don't cram all of it into CLAUDE.md — that's the mistake everyone makes.
 
@@ -149,7 +149,7 @@ Ant Design and Nuxt UI both publish `/llms.txt` (a ~5k-token index) and `/llms-f
 
 ### Skill = the how, MCP = the what
 
-Figma's guidance: MCP gives an agent *access*; the skill gives it *the rules*. A skill's first instruction should be **"always search the library before creating anything new."** Include a *Gotchas* section for where agents repeatedly get it wrong.
+Figma's guidance: MCP gives an agent *access*; the skill gives it *the usage rules*. A skill's first instruction should be **"always search the library before creating anything new."** Include a *Gotchas* section for where agents repeatedly get it wrong.
 
 **For us:** our gotchas list writes itself — the hand-made header, the `div` that should scroll, the raw `<button>`.
 
@@ -181,7 +181,7 @@ What each one is made of, what it catches, and — the part most write-ups skip 
 
 A script reads the source of estiva-ui, Peek and Ship and emits `registry.json`: for every component — name, repo, import path, purpose, the variants from its props, **the behaviours it owns** (focus trap, anchored positioning, scrolling, the slide — derived from which Base UI parts it imports), its status, and a link to its live story.
 
-Two rules make it honest. Every entry must answer *When* and *When not* — naming the alternative — or CI fails. And a near-duplicate scan flags a new component whose name, props or class list already match something that exists.
+Two CI checks make it honest. Every entry must answer *When* and *When not* — naming the alternative — or CI fails. And a near-duplicate scan flags a new component whose name, props or class list already match something that exists.
 
 Covering all three repos is the part that matters for your case: `PendingAttachmentChip` lives in Peek, not the package, and today nothing points anyone at it.
 
@@ -207,7 +207,7 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 **A Claude Skill**, committed to each app repo. It triggers on any UI task. Step 1 is *search the registry before creating anything new*. It carries a *Gotchas* section listing exactly where sessions keep erring here — the hand-made header, the column that should scroll, the raw element. Anthropic's guidance is to move procedure out of CLAUDE.md and into skills once CLAUDE.md passes ~200 lines.
 
-**CLAUDE.md becomes a thin index** pointing at the skill, plus *path-scoped rules* (`paths:` frontmatter) so page-specific rules only load when someone touches `src/pages/**`. Fewer tokens per session, not more.
+**CLAUDE.md becomes a thin index** pointing at the skill, plus *path-scoped instructions* (`paths:` frontmatter; Claude Code calls them rules) so page-specific instructions only load when someone touches `src/pages/**`. Fewer tokens per session, not more.
 
 **`llms.txt` and an MCP server** extend the same facts to every other tool — Cursor, Copilot, whatever Jan or a stranger uses. The MCP version lets an agent ask *"what do I use for a floating panel?"* and get `Popover`, with the import line, instead of inventing one.
 
@@ -219,7 +219,7 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 - An agent inventing what already exists
 - A stranger's agent, once the package is public
-- Rules being forgotten mid-task
+- Usage rules being forgotten mid-task
 - Token waste from re-reading long prose
 
 **Cannot catch**
@@ -232,11 +232,11 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 *The only layer that works on people who never read anything. We already own the machinery.*
 
-ESLint rules whose error message **names the component to use**. Not "don't write a div" — *"use ContainerHeader"*. Four families: forbid the raw element (`<button>`, `<input>`, `<a>`, `<dialog>` outside a shim folder); forbid the reach (a direct Base UI import, `createPortal`, a keydown listener, `role="dialog"`, `tabIndex` on a div, `overflow-auto`); fingerprint rules for hand-made headers and hand-made empty states; and a `className` allow-list so only placement classes pass through a package component.
+ESLint rules whose error message **names the component to use**. Not "don't write a div" — *"use ContainerHeader"*. Four families: forbid the raw element (`<button>`, `<input>`, `<a>`, `<dialog>`, with no folder exempt: an exception is one marked line); forbid the reach (a direct Base UI import, `createPortal`, a keydown listener, `role="dialog"`, `tabIndex` on a div, `overflow-auto`); fingerprint rules for hand-made headers and hand-made empty states; and a `className` allow-list so only placement classes pass through a package component.
 
-A **PreToolUse hook** in each repo's `.claude/settings.json` runs the same rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session, mine or anyone's.
+A **PreToolUse hook** in each repo's `.claude/settings.json` runs the same lint rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session, mine or anyone's.
 
-The trick that makes this land in days rather than weeks: give the new rules **their own config and their own script**, exactly as `lint:tokens` has, so the gate is green on day one and Peek's 79 existing lint errors don't block a single deploy.
+The trick that makes this land in days rather than weeks: give the new lint rules **their own config and their own script**, exactly as `lint:tokens` has, so the gate is green on day one and Peek's 80-odd existing lint errors don't block a single deploy.
 
 > **In plain words**
 >
@@ -246,7 +246,7 @@ The trick that makes this land in days rather than weeks: give the new rules **t
 
 - Everyone — Jan, me, you, a stranger
 - Hand-rolled dropdowns, dialogs, tooltips
-- The Folders scroll bug (`overflow`)
+- A hand-rolled scrolling box (`overflow-auto`)
 - PR #192's hand-made header
 - Colours and sizes — already live
 
@@ -254,13 +254,14 @@ The trick that makes this land in days rather than weeks: give the new rules **t
 
 - Real components composed into a layout that just looks wrong
 - Spacing, rhythm, hierarchy, taste
+- The Folders scroll bug: a column with no scroll container has no class for a lint rule to find
 - That is gate 3, and then you
 
 ### GATE 3 · See — pictures, not pages
 
-*The backstop for everything a rule can't judge. Also the layer that shrinks your job to its proper size.*
+*The backstop for everything a lint rule can't judge. Also the layer that shrinks your job to its proper size.*
 
-**Page stories built from generators** — `makeFolders(81)`, `makeFolders(0)`, `loading` — so the states that actually break get drawn. Peek has 5 pages and 0 page stories; every one of your eight Folders defects was on a page.
+**Page stories built from generators** — `makeFolders(81)`, `makeFolders(0)`, `loading` — so the states that actually break get drawn. Peek has 5 pages and 3 page stories, none for Folders and none empty or loading; every one of your eight Folders defects was on a page.
 
 **Visual regression per PR.** Every story shot in both themes, diffed against the baseline, and you see only the canvases that changed, with accept or reject on each. Your approval turns CI green. Either Chromatic (paid, purpose-built, designer-friendly UI) or Playwright screenshots taken in the Linux CI container — we already have `shots-themed.mjs` and `diff.mjs` doing this by hand.
 
@@ -290,17 +291,17 @@ Every idea worth having, sized. S is half a day to a day · M is two to three da
 |---|---|---|---|---|
 | | **Gate 0 — Know what exists** | | | |
 | T1 | **The registry** · registry.json | Every component in all three repos, generated from source. Purpose, props, behaviours owned, story link. | M | ships |
-| T2 | **The "when not" contract** | A component whose page lacks *When*, *When not* or *How* fails CI. Turns your docs template into a rule. | S | ships |
+| T2 | **The "when not" contract** | A component whose page lacks *When*, *When not* or *How* fails CI. Turns your docs template into a CI check. | S | ships |
 | T3 | **Near-duplicate scan** | Flags a new component whose name, props or class list already match one that exists. Stops the third MessageCard. | M | ships |
 | T4 | **DESIGN.md** · Google Labs spec | Tokens machine-readable, the reasoning in prose. Has an official linter. Any agent, any tool, reads our identity correctly. | S | ships |
 | | **Gate 1 — Read before writing** | | | |
 | T5 | **A Claude Skill** · SKILL.md, committed | Triggers on any UI task. Step 1: search the registry. Carries a Gotchas list of where sessions keep erring here. | S | ships |
-| T6 | **CLAUDE.md as an index** | Procedures move out to skills; rules get `paths:` scoping so they load only when relevant. Fewer tokens, more obedience. | S | ours |
+| T6 | **CLAUDE.md as an index** | Procedures move out to skills; instructions get `paths:` scoping so they load only when relevant. Fewer tokens, more obedience. | S | ours |
 | T7 | **llms.txt + llms-full.txt** | What Ant Design and Nuxt UI publish. Any AI tool learns estiva-ui correctly without us doing anything. | S | ships |
 | T8 | **An MCP server** | An agent asks "what do I use for a floating panel?" and gets `Popover` with the import line. Works for Cursor, Copilot, anyone. | M | ships |
 | T9 | **Storybook as the doc surface** | Every registry row links to a live story. One place to look, not three ports. | S | ships |
 | | **Gate 2 — Refuse** | | | |
-| T10 | **Forbid the raw element** | No `<button>`, `<input>`, `<a>`, `<dialog>` outside a shim folder. Error names the component. | S | ships |
+| T10 | **Forbid the raw element** | No `<button>`, `<input>`, `<a>`, `<dialog>` in an app, and no folder is exempt: an exception is one marked line. Error names the component. | S | ships |
 | T11 | **Forbid the reach** | No direct Base UI import in an app, no `createPortal`, no keydown listener, no `role="dialog"`, no `overflow-auto`. | S | ships |
 | T12 | **Fingerprint rules** | The hand-made header (#192), the hand-made "Nothing here", a native `title=`, a class list copied out of a component. | M | ships |
 | T13 | **className allow-list** | Only placement classes through a package component. Stops a colour or a size being smuggled in. | S | ships |
@@ -308,13 +309,13 @@ Every idea worth having, sized. S is half a day to a day · M is two to three da
 | T15 | **Its own config & script** · lint:rules | Green on day one, old backlog skipped — the same trick that let `lint:tokens` become a gate immediately. | S | ours |
 | T16 | **Branch protection** | Required check on every PR in both apps. Nothing merges broken, whoever wrote it. **You already said yes.** | XS | ours |
 | | **Gate 3 — See** | | | |
-| T17 | **Page stories from generators** | 81 folders, 0 folders, loading. The states that break, drawn. Peek has 5 pages and 0 page stories. | M | ours |
+| T17 | **Page stories from generators** | 81 folders, 0 folders, loading. The states that break, drawn. Peek has 5 pages and 3 page stories, none for Folders and none empty or loading. | M | ours |
 | T18 | **Visual regression per PR** | You accept or reject only what changed; your approval turns CI green. Chromatic, or Playwright in the CI container. | M | ours |
 | T19 | **Route probe** | Every route, tall / empty / loading, asserting the invariants a story can't. Prints violations; must print nothing. | M | ours |
 | | **Underneath — Measure & govern** | | | |
 | T20 | **Adoption %, from production** | Mews' method: mark every element a package component made, count marked ÷ total. One honest number per app, per page. | M | ships |
 | T21 | **The ratchet** | The violation count is committed; CI fails if it grows. Migration becomes a number that only falls. | S | ours |
-| T22 | **The escape hatch** | `// @estiva-escape: reason` — sanctioned, listed in a report, reviewed. Without it, people switch the rules off. | S | ships |
+| T22 | **The escape hatch** | `// @estiva-escape: reason` — sanctioned, listed in a report, reviewed. Without it, people switch the lint rules off. | S | ships |
 | T23 | **The app starter** · the paved road | A template a new app is created from, carrying every gate already switched on. Leaf starts at zero violations instead of inheriting a backlog. See §07. | M | ships |
 
 > **In plain words**
@@ -329,7 +330,7 @@ Each one contains the one before it. Nothing is wasted if you start small and go
 
 **≈ 3 days · both apps**
 
-- The rules lint, its own config, green from day one
+- The lint rules, their own config, green from day one
 - The PreToolUse hook in both repos
 - Branch protection turned on
 
@@ -350,7 +351,7 @@ Each one contains the one before it. Nothing is wasted if you start small and go
 
 `+ T1 T2 T4 T5 T6 T7 T12 T13 T22 T23`
 
-**This is the one that matches what you asked for.** Know how components are used · docs that are always read · rules that enforce it · Peek's and Ship's own components covered, not only the package · and Leaf starts clean instead of being fixed later.
+**This is the one that matches what you asked for.** Know how components are used · docs that are always read · lint rules that enforce it · Peek's and Ship's own components covered, not only the package · and Leaf starts clean instead of being fixed later.
 
 ### Plan C · Agent-ready, open source
 
@@ -374,9 +375,9 @@ Each one contains the one before it. Nothing is wasted if you start small and go
 
 Peek and Ship were both fixed *afterwards*. That is the expensive way, and we have now done it twice. Leaf does not have to pay it — but only if the gates exist before Leaf's first commit.
 
-- **Ship** · Retrofitted. PR #130, then #132, then #133, then #139.
-  Four pull requests to reach a package it could have started on.
-- **Peek** · Retrofitted. PR #193 — 29 commits, 0.9.0 to 0.12.3, and a month.
+- **Ship** · Retrofitted. PRs #78, #92, #99, #108, #113, #130, #132 and #133.
+  Eight pull requests to reach a package it could have started on.
+- **Peek** · Retrofitted. PR #193 — 29 commits, 0.9.0 to 0.12.3, over two days.
   And eight defects still reached you afterwards, on the one page the sweeps couldn't see.
 - **Leaf** · Retrofitted too — unless the gates are built first.
   A third clean-up, at the same price, for the same reason.
@@ -385,7 +386,7 @@ Peek and Ship were both fixed *afterwards*. That is the expensive way, and we ha
 
 *The "paved road" pattern: make the correct road the only easy one to drive.*
 
-Leaf is created from a template that already carries every gate switched on: the rules lint and its config, the PreToolUse hook in `.claude/settings.json`, the skill, CLAUDE.md as an index, the token import, `AppShell`, the page contract, the CI workflow with all the gates wired, and branch protection.
+Leaf is created from a template that already carries every gate switched on: the lint rules and their config, the PreToolUse hook in `.claude/settings.json`, the skill, CLAUDE.md as an index, the token import, `AppShell`, the page contract, the CI workflow with all the gates wired, and branch protection.
 
 The decisive difference is the **ratchet's starting number**. Peek's starts at whatever it is today and has to fall. **Leaf's starts at zero and may never rise.** "Never any violations" is a far easier rule to hold than "reduce the violations" — there is no backlog to argue about and no exception anyone can point at.
 
@@ -421,7 +422,7 @@ You told me mid-way through this research, and it changed the recommendation. He
 
 A registry, a skill, `llms.txt`, a DESIGN.md and a lint plugin are internal hygiene when you have two apps. The moment strangers install the package, they become **the reason people adopt it**. Ant Design and Nuxt UI both ship llms.txt precisely because agents now choose libraries.
 
-So the rules should ship *as part of the package* — `@estiva-app/eslint-plugin-ui`, a skill in the tarball, a registry served from the docs. A stranger installs estiva-ui and gets the guardrails free. That is what mature systems do, and it is the cheapest distribution advantage available.
+So the lint rules should ship *as part of the package* — `@estiva-app/eslint-plugin-ui`, a skill in the tarball, a registry served from the docs. A stranger installs estiva-ui and gets the guardrails free. That is what mature systems do, and it is the cheapest distribution advantage available.
 
 #### Peek and Ship become the proof
 
@@ -442,7 +443,7 @@ Their adoption number stops being an internal metric and becomes the package's c
 
 **New things to be careful about**
 
-- Strangers need escape hatches more than we do — a rule with no exit gets forked or disabled
+- Strangers need escape hatches more than we do — a lint rule with no exit gets forked or disabled
 - Nostr-specific components (identity, relays, signing) need their own clear line between "the system" and "your app"
 - Every internal name becomes public API. Naming now costs later.
 
@@ -452,7 +453,7 @@ Their adoption number stops being an internal metric and becomes the package's c
 
 The strongest dissent in the research: enforcing complete adoption stops teams evolving the product. Effective design systems sit near **74%**, not 100 — and custom components have a natural life of about a month and a half before they're either absorbed into the system or abandoned. That's healthy, not a failure.
 
-So the escape hatch (T22) isn't a compromise, it's part of the design. A sanctioned marker — `// @estiva-escape: reason` — turns one rule off for one line, lists it in a report, and gets reviewed. Without one, the first time a rule blocks something genuinely new, someone deletes the rule. Then you have nothing.
+So the escape hatch (T22) isn't a compromise, it's part of the design. A sanctioned marker — `// @estiva-escape: reason` — turns one lint rule off for one line, lists it in a report, and gets reviewed. Without one, the first time a lint rule blocks something genuinely new, someone deletes the rule. Then you have nothing.
 
 **And the honest limit of everything above:** not one of these gates can tell you a layout is ugly. They stop the wrong *component* being used and the wrong *behaviour* being re-written. Taste stays yours. The goal isn't to remove you from review — it's to make sure that when you look, the only thing left to judge is the thing only you can judge.
 
@@ -468,9 +469,9 @@ Five answers and I can start. Nothing below needs code knowledge.
 
 My recommendation is **B**. A is too thin to teach anyone; C is too long to wait before you see it working. B is two to three weeks, it matches your four requirements exactly, and it ends with a starter Leaf can be born from.
 
-#### Q2 · Should I show you the rule list with counts before building it?
+#### Q2 · Should I show you the lint rule list with counts before building it?
 
-I can run every proposed rule over Peek and Ship first and show you one table — rule, how many places break it today, what the error would say. Half a day, and you decide on real numbers instead of my list.
+I can run every proposed lint rule over Peek and Ship first and show you one table — rule, how many places break it today, what the error would say. Half a day, and you decide on real numbers instead of my list.
 
 #### Q3 · Chromatic, or the free version?
 
@@ -480,9 +481,9 @@ Chromatic is a paid service built for exactly your review, with accept/reject pe
 
 If estiva-ui is going open source soon, I'd name things and structure the registry for strangers from the start. If it's a year away, we build for ourselves and generalise later. It changes real decisions.
 
-#### Q5 · Does Jan get a say in the rule list?
+#### Q5 · Does Jan get a say in the lint rule list?
 
-You've said the lint blocks his PRs. That will land on him first — most likely on his next new page. Worth him seeing the rules before they're a gate, or not?
+You've said the lint blocks his PRs. That will land on him first — most likely on his next new page. Worth him seeing the lint rules before they're a gate, or not?
 
 #### Q6 · When does Leaf start?
 
@@ -505,4 +506,4 @@ Read on 12 September 2026. Where a claim is secondhand, it's marked as such abov
 - 11 · [Design Systems Collective — Measuring adoption: a visual coverage analyzer](https://www.designsystemscollective.com/measuring-design-system-adoption-building-a-visual-coverage-analyzer-b5d9ae410d42)
 
 ---
-*Numbers about Estiva in this page were measured today, not recalled: Peek has 5 pages and 0 page stories, 58 story files across 115 components; the merged adoption branch passed 1,219 tests, two typechecks and two lints; eight defects were found afterwards by looking at the running app.*
+*Numbers about Estiva in this page were measured today, not recalled: Peek has 5 pages and 3 page stories, 58 story files across 115 components; the merged adoption branch passed 1,219 tests, two typechecks and two lints; eight defects were found afterwards by looking at the running app.*
