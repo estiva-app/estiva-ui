@@ -1,4 +1,5 @@
 import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import { Combobox } from '@base-ui/react/combobox'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
@@ -45,8 +46,12 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
       <span className={CHIP_LABEL}>{label}</span>
+      {/* Base UI's `Button`, as every button in the package is (D6). Base UI
+          has no chip of its own — its only chips are `Combobox.Chip` and
+          `ChipRemove`, which throw outside a combobox — so the ✕ is the one
+          part of a chip standing alone that it has a counterpart for. */}
       {onRemove && (
-        <button
+        <BaseButton
           type="button"
           onClick={(e) => {
             e.stopPropagation()
@@ -56,7 +61,7 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
           aria-label={`Remove ${label}`}
         >
           <IconX size={10} stroke={1.5} />
-        </button>
+        </BaseButton>
       )}
     </div>
   )

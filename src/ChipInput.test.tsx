@@ -13,7 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
-import { ChipInput, type ChipInputOption } from './ChipInput'
+import { ChipInput, InputChip, type ChipInputOption } from './ChipInput'
 import { Field } from './Field'
 
 afterEach(cleanup)
@@ -199,5 +199,20 @@ describe('ChipInput', () => {
       expect(screen.getByRole('combobox', { name: 'Invite people' })).toBeTruthy()
       expect(screen.getByRole('combobox', { name: 'Reviewers' })).toBeTruthy()
     })
+  })
+})
+
+describe('InputChip', () => {
+  it('its ✕ is a button named for the chip, and removes it', async () => {
+    const user = userEvent.setup()
+    const onRemove = vi.fn()
+    render(<InputChip label="Label" onRemove={onRemove} />)
+    await user.click(screen.getByRole('button', { name: 'Remove Label' }))
+    expect(onRemove).toHaveBeenCalledTimes(1)
+  })
+
+  it('draws no ✕ without onRemove', () => {
+    render(<InputChip label="Label" />)
+    expect(screen.queryByRole('button')).toBeNull()
   })
 })
