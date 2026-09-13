@@ -326,3 +326,23 @@ describe('rows on a bare MenuPanel', () => {
     expect(screen.queryByRole('group')).toBeNull()
   })
 })
+
+/** As `Popover`: the padding is the content's, and a caller sets it there
+ *  (PLAN Finding 60 — Peek's Later menu asked for `p-1` on `className` and got
+ *  12px from 0.12.6 on). */
+describe('Menu, padding', () => {
+  it('takes a caller’s padding on contentClassName, instead of the 8px', async () => {
+    render(
+      <Menu trigger={<Button>Open</Button>} contentClassName="p-1">
+        <MenuItem label="Item one" onClick={() => {}} />
+      </Menu>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Open' }))
+    const row = await screen.findByRole('menuitem', { name: 'Item one' })
+    // The scrolling content is the box that carries the separator rule.
+    const content = row.closest('[class*="role=separator"]') as HTMLElement
+    const classes = content.className.split(/\s+/)
+    expect(classes).toContain('p-1')
+    expect(classes).not.toContain('p-2')
+  })
+})
