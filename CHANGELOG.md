@@ -36,10 +36,10 @@ change; the apps take these in UIG-27's own app PRs.
   role and its numbers; `label` is required. Ship's props, unchanged
   (`value`, `max`, `label`), and both apps' looks, kept because they do
   different jobs: `default` is Ship's, 6px with the success colour, a bar
-  someone reads; `quiet` is Peek's, 3px with the muted success colour, a glance
+  someone reads; `quiet` is Peek's, now 4px (Katerina, 14 September; Peek's is 3px) with the muted success colour, a glance
   beside a count. Measured: `default` identical to Ship's bar at 10 of 14,
   empty and complete, track and fill, width and share included; `quiet`
-  identical to Peek's. A screen reader now hears the share as a percentage.
+  identical to Peek's but for the height. A screen reader now hears the share as a percentage.
 
 ### Fixed, against Peek's copy
 

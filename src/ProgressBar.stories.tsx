@@ -31,12 +31,12 @@ export const WithWords: Story = {
   parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
 }
 
-/** 3px, the muted success colour: a glance, on the same line as a count. */
+/** 4px, the muted success colour: a glance, on the same line as a count — a caption label, 12px before the bar. */
 export const Quiet: Story = {
   args: { variant: 'quiet', value: 3, max: 4 },
   render: (args) => (
-    <div className="flex items-center gap-2 text-body-2 text-text-secondary">
-      <span className="shrink-0">
+    <div className="flex items-center gap-3">
+      <span className="shrink-0 text-caption text-text-secondary">
         Items ({args.value}/{args.max})
       </span>
       <ProgressBar {...args} className="flex-1" />

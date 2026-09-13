@@ -40,7 +40,7 @@ describe('ProgressBar', () => {
     expect(bar.getAttribute('aria-valuemax')).toBe('0')
   })
 
-  it('default is 6px with the success colour; quiet is 3px with the muted one', () => {
+  it('default is 6px with the success colour; quiet is 4px with the muted one', () => {
     render(
       <>
         <ProgressBar value={1} max={2} label="Default" />
@@ -51,7 +51,7 @@ describe('ProgressBar', () => {
     expect(classesOf(standard.firstElementChild!)).toContain('h-1.5')
     expect(classesOf(fillOf(standard))).toContain('bg-success-default')
     const quiet = screen.getByRole('progressbar', { name: 'Quiet' })
-    expect(classesOf(quiet.firstElementChild!)).toContain('h-[3px]')
+    expect(classesOf(quiet.firstElementChild!)).toContain('h-1')
     expect(classesOf(fillOf(quiet))).toContain('bg-success-muted')
   })
 
