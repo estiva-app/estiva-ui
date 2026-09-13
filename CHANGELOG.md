@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.12.10 — 2026-09-13
+
+**Every toolbar in a Popover is its old size again, and the Capped story
+draws its panel.** Katerina, in Peek: *"the toolbar has changed size. Why
+did this happen."* — and in this Storybook: *"the capped story doesnt show
+anything."*
+
+### Fixed
+
+- **A caller's padding replaces the 8px again, instead of adding to it**
+  (PLAN Finding 60). `0.12.6` moved `Popover`'s and `Menu`'s padding onto
+  the scrolling content so the scrollbar would hug the panel (D63), and
+  gave callers no way to set it there. A toolbar that asked for `p-1` on
+  `className` had replaced the panel's 8px; from `0.12.6` it sat on the
+  panel *and* the content kept its 8px. Measured, toolbar to panel edge:
+
+  | | `0.12.5` | `0.12.6`–`0.12.9` | now |
+  |---|---|---|---|
+  | `Popover/A toolbar` | 5px, 299 × 38 | 13px, 315 × 54 | 5px, 299 × 38 |
+  | `ReactionPicker/From a trigger` | 5px, 158 × 38 | 13px, 174 × 54 | 5px, 158 × 38 |
+  | `Toolbar/On an existing surface` | 5px, 90 × 34 | 13px, 106 × 50 | 5px, 90 × 34 |
+
+  The open panels are byte-identical to `0.12.5`'s. The scrollbar still
+  hugs the panel.
+
+  `0.12.6`'s entry said *"238 byte-identical"*. It could not see this:
+  those stories draw the popover closed, behind its trigger.
+
+- **The `Popover/Capped` story anchors on its marker element** (PLAN
+  Finding 61). Arriving at it from another story read the marker's rect
+  before the canvas was laid out — 0 × 0 at the corner — and drew a 0px
+  panel. Measured now, first load and arriving from another story alike:
+  240 × 162, under the marker. **`0.12.6`'s entry below says this was
+  fixed. It was not: the story still read a rect.** That sentence was
+  written without the change being committed.
+
+### Added
+
+- **`contentClassName` on `Popover` and `Menu`** — the padding around the
+  children, default `p-2`. A toolbar asks for `contentClassName="p-1"`.
+  `className` is the panel's width, not its padding.
+
+### Callers — each moves its padding off `className`
+
+- **Peek** `components/ui/SelectionToolbar.tsx`, `components/ConversationQuickMenu.tsx`
+  (`p-1` → `contentClassName="p-1"`); `components/ReadStatePanel.tsx`
+  (`p-2` on the panel added to the content's 8px — remove it);
+  `components/ScreenerLaterMenu.tsx` (`Menu`, `p-1` → `contentClassName="p-1"`).
+- **Ship** `web/src/components/ConversationThread.tsx` (`p-1` →
+  `contentClassName="p-1"`).
+
 ## 0.12.9 — 2026-09-13
 
 **ChipInput's field keeps its name once a chip is in it** (PLAN Finding 6,
