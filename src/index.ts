@@ -25,6 +25,7 @@ export {
   type InlineChipProps,
   type InlineChipTone,
 } from './InlineChip'
+export { Link, type LinkProps, type LinkVariant } from './Link'
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'

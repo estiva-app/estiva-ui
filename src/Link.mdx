@@ -1,0 +1,59 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LinkStories from './Link.stories'
+
+<Meta of={LinkStories} />
+
+# Link
+
+A link, in one of four looks. It is a real anchor with a real address, and
+the app decides how it navigates.
+
+<Canvas of={LinkStories.AllVariants} />
+
+## When
+
+- **`text`** — a link written inside text: the info colour, always
+  underlined, dimming on hover.
+- **`quiet`** — a title or a time that is also a link. It takes the colour and
+  size of the text it sits in, and underlines on hover.
+- **`underlined`** — a short "open it there" beside a note. It takes the
+  note's colour, is always underlined, and brightens on hover.
+- **`plain`** — a box or a row that is a link as a whole. No look of its own:
+  what it wraps draws itself.
+- `external` — another site or app: it opens in a new tab, with
+  `noopener noreferrer`.
+
+## When not
+
+- An action — something happens, nothing is navigated to → **Button**.
+- A row of a sidebar → **NavItem**. A tile of a rail → **RailItem**.
+- The trail back up → **Breadcrumb**.
+- A word standing for a person or a thing, drawn in a small box → **InlineChip**
+  with `href`.
+
+## How
+
+```tsx
+import { Link } from '@estiva-app/ui'
+
+<p className="text-body-2">
+  Read <Link href="https://example.com" external>the guide</Link> first.
+</p>
+
+<h3 className="text-body-2 font-semibold text-text-primary">
+  <Link href={itemUrl} variant="quiet" onClick={navigate}>Item one</Link>
+</h3>
+```
+
+- It renders a plain anchor and passes every anchor prop through. A router app
+  passes `onClick`, prevents the default and navigates; the `href` stays a real
+  address, so a modified click or a new tab still works.
+- `quiet` and `underlined` set no size and no colour at rest: put them inside
+  the text whose look they should take.
+- `plain` wraps a block: give the Link `className="block"` and let the child
+  draw the border, the fill and the hover.
+- If your router also exports a `Link`, rename one of them on import.
+
+## Props
+
+<Controls of={LinkStories.Text} />
