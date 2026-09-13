@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
-import { ChipInput, type ChipInputOption } from './ChipInput'
+import { ChipInput, InputChip, type ChipInputOption } from './ChipInput'
+import { Field } from './Field'
 
 afterEach(cleanup)
 
@@ -23,7 +24,17 @@ const PEOPLE: ChipInputOption[] = [
   { id: 'alan', label: 'Alan Turing', description: 'Mathematician' },
 ]
 
-function Harness({ initial = [], excludeIds, onChange }: { initial?: ChipInputOption[]; excludeIds?: string[]; onChange?: (v: ChipInputOption[]) => void }) {
+function Harness({
+  initial = [],
+  excludeIds,
+  onChange,
+  naming,
+}: {
+  initial?: ChipInputOption[]
+  excludeIds?: string[]
+  onChange?: (v: ChipInputOption[]) => void
+  naming?: { 'aria-label'?: string; 'aria-labelledby'?: string }
+}) {
   const [value, setValue] = useState(initial)
   return (
     <ChipInput
@@ -35,6 +46,7 @@ function Harness({ initial = [], excludeIds, onChange }: { initial?: ChipInputOp
       options={PEOPLE}
       excludeIds={excludeIds}
       placeholder="Search people"
+      {...naming}
     />
   )
 }
@@ -138,5 +150,69 @@ describe('ChipInput', () => {
     // dialog, the launcher — must hear it.
     await user.keyboard('{Escape}')
     expect(reachedOutside).toHaveBeenCalledTimes(1)
+  })
+
+  describe('the field’s name (PLAN Finding 6)', () => {
+    /* Chrome names an empty field by its placeholder, and the first chip takes
+       the placeholder away. Measured in Chrome's accessibility tree before this
+       was fixed: with a chip in, the name was "". */
+    it('keeps the placeholder as its name once a chip takes the placeholder away', () => {
+      render(<Harness initial={[PEOPLE[0]]} />)
+      const input = screen.getByRole('combobox', { name: 'Search people' })
+      expect(input.getAttribute('placeholder')).toBe('')
+    })
+
+    it('adds no name of its own while the placeholder is still drawn', () => {
+      render(<Harness />)
+      expect(screen.getByRole('combobox').getAttribute('aria-label')).toBeNull()
+    })
+
+    it('takes a caller’s aria-label over the placeholder', () => {
+      render(<Harness initial={[PEOPLE[0]]} naming={{ 'aria-label': 'To' }} />)
+      expect(screen.getByRole('combobox', { name: 'To' })).toBeTruthy()
+    })
+
+    it('takes a caller’s aria-labelledby — a visible “To:”', () => {
+      render(
+        <div>
+          <span id="to">To:</span>
+          <Harness initial={[PEOPLE[0]]} naming={{ 'aria-labelledby': 'to' }} />
+        </div>,
+      )
+      expect(screen.getByRole('combobox', { name: 'To:' })).toBeTruthy()
+    })
+
+    /* The trap this pins: Base UI copies a caller's prop over its own even when
+       it is `undefined`, so an `aria-labelledby` passed through empty would wipe
+       the `Field`'s and the placeholder would name the field instead. */
+    it('inside a Field, is named by the Field’s label, chip or no chip', () => {
+      render(
+        <>
+          <Field label="Invite people">
+            <Harness />
+          </Field>
+          <Field label="Reviewers">
+            <Harness initial={[PEOPLE[0]]} />
+          </Field>
+        </>,
+      )
+      expect(screen.getByRole('combobox', { name: 'Invite people' })).toBeTruthy()
+      expect(screen.getByRole('combobox', { name: 'Reviewers' })).toBeTruthy()
+    })
+  })
+})
+
+describe('InputChip', () => {
+  it('its ✕ is a button named for the chip, and removes it', async () => {
+    const user = userEvent.setup()
+    const onRemove = vi.fn()
+    render(<InputChip label="Label" onRemove={onRemove} />)
+    await user.click(screen.getByRole('button', { name: 'Remove Label' }))
+    expect(onRemove).toHaveBeenCalledTimes(1)
+  })
+
+  it('draws no ✕ without onRemove', () => {
+    render(<InputChip label="Label" />)
+    expect(screen.queryByRole('button')).toBeNull()
   })
 })

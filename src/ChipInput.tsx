@@ -1,4 +1,5 @@
 import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import { Combobox } from '@base-ui/react/combobox'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
@@ -45,8 +46,12 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
       <span className={CHIP_LABEL}>{label}</span>
+      {/* Base UI's `Button`, as every button in the package is (D6). Base UI
+          has no chip of its own — its only chips are `Combobox.Chip` and
+          `ChipRemove`, which throw outside a combobox — so the ✕ is the one
+          part of a chip standing alone that it has a counterpart for. */}
       {onRemove && (
-        <button
+        <BaseButton
           type="button"
           onClick={(e) => {
             e.stopPropagation()
@@ -56,7 +61,7 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
           aria-label={`Remove ${label}`}
         >
           <IconX size={10} stroke={1.5} />
-        </button>
+        </BaseButton>
       )}
     </div>
   )
@@ -112,6 +117,14 @@ export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
   rowLeading?: (option: T) => ReactNode
   /** Set by a `Field` with `required`; a caller inside one owes nothing. */
   'aria-required'?: boolean | 'true' | 'false'
+  /**
+   * The field's name, for a caller that is not inside a `Field` — a `Field`'s
+   * label names it already. With neither this nor `aria-labelledby`, the
+   * placeholder is the name, and it stays the name once a chip is in.
+   */
+  'aria-label'?: string
+  /** The id of what names the field on the page — a visible "To:", say. */
+  'aria-labelledby'?: string
 }
 
 export function ChipInput<T extends ChipInputOption = ChipInputOption>({
@@ -157,6 +170,21 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
      must not drop the whole directory over the surface below, which is why
      the open state is this component's and not the part's. */
   const open = query.trim().length > 0
+
+  /* The field's name (PLAN Finding 6). With no chip, Chrome names the field
+     by its placeholder; the first chip takes the placeholder away, and the
+     field was left with no name at all (measured: ""). So the placeholder
+     stays on as the name once it is no longer drawn. A caller's own name
+     wins, and so does a `Field`'s label: Base UI points `aria-labelledby` at
+     it, and a label by reference outranks `aria-label`.
+     Only a name that exists is passed. Base UI copies a caller's prop over its
+     own even when the value is `undefined`, so an `aria-labelledby` written
+     out empty would wipe the `Field`'s. */
+  const ariaLabel = aria['aria-label'] ?? (value.length > 0 ? placeholder : undefined)
+  const naming = {
+    ...(ariaLabel !== undefined && { 'aria-label': ariaLabel }),
+    ...(aria['aria-labelledby'] !== undefined && { 'aria-labelledby': aria['aria-labelledby'] }),
+  }
 
   function removeLast() {
     if (value.length > 0) onChange(value.slice(0, -1))
@@ -213,6 +241,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
           autoFocus={autoFocus}
           placeholder={value.length === 0 ? placeholder : ''}
           aria-required={aria['aria-required']}
+          {...naming}
           onKeyDown={onInputKeyDown}
           className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
         />

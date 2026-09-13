@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.12.9 — 2026-09-13
+
+**ChipInput's field keeps its name once a chip is in it** (PLAN Finding 6,
+which stage 5 was meant to clear and did not). Nothing a caller writes has
+to change, and nothing a person sees moves: all five `ChipInput` stories
+are byte-identical in both themes, with the list open too.
+
+### Fixed
+
+- **The first chip no longer takes the field's name away.** Chrome names an
+  empty chip field by its placeholder, and the placeholder is not drawn
+  once a chip is in. Measured in Chrome's accessibility tree:
+
+  | | before | now |
+  |---|---|---|
+  | on its own, no chip | "Search people…" | "Search people…" |
+  | on its own, a chip | **""** | "Search people…" |
+  | inside a `Field`, chip or not | the label | the label |
+  | a caller's `aria-label` | **dropped, ""** | the caller's |
+
+  Inside a `Field` it was always named: Base UI points the input's
+  `aria-labelledby` at the `Field`'s label. The defect was only outside
+  one — Peek's huddle To: field is such a place.
+
+### Added
+
+- **`ChipInput` takes `aria-label` and `aria-labelledby`**, the same pair as
+  `Tabs`. With neither, the placeholder is the name. Only a name that exists
+  is passed to the input: Base UI copies a caller's prop over its own even
+  when it is `undefined`, so an empty `aria-labelledby` would wipe a
+  `Field`'s. A test pins that.
+
+### Changed
+
+- **`InputChip`'s ✕ is Base UI's `Button`** (D6), as every other button in
+  the package is. Base UI has no chip of its own — `Combobox.Chip` throws
+  outside a combobox — so the ✕ is the one part of a chip standing alone
+  that it has a counterpart for. Inside a `ChipInput` the ✕ was already
+  Base UI's `ChipRemove`. Measured against `0.12.8`: every computed style
+  the same at rest, hovered and keyboard-focused; the button gains
+  `tabindex="0"`, which Base UI gives every button.
+
 ## 0.12.8 — 2026-09-13
 
 **Select's list is the package's one list.** Katerina: *"i thought we were
