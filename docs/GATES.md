@@ -18,19 +18,19 @@ answer
 
 ## §0 Where we are
 
-**13 September 2026. UIG-2 is built. estiva-ui PR #24 is merged. Peek's and Ship's PRs are open.**
+**13 September 2026. UIG-2 is done. Nothing waits on Katerina.**
 
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
-| 🚧 **UIG-2** | Built. estiva-ui PR #24 merged at 10:03 UTC. peek PR #204 and ship PR #148 wait to merge. This file's last lines came in a follow-up PR, because #24 merged while they were being written. |
+| ✅ **UIG-2** | Done. Merged in estiva-ui PR #24 and #25, peek PR #204, ship PR #148. The Ship project description carries the new wording (§19). |
 
-### Two things wait on Katerina
+### Two things that went wrong while closing UIG-2
 
-| | |
-|---|---|
-| ⚠️ **1** | **Merge peek PR #204 and ship PR #148.** |
-| ⚠️ **2** | **Paste the new wording into the Ship project description.** The text is in §19. The Ship tool must not do it: it replaces the whole description, and the description holds two of her screenshots. |
+| | what happened | now |
+|---|---|---|
+| ⚠️ **1** | **The Ship project description showed raw JSON for about three minutes.** Katerina asked for the wording to be applied rather than pasted. It was sent with the agent's `edit-project` command, which drops the `content-format` tag Ship's editor sets, so Ship drew the block document as plain text. | Republished at 10:23 UTC with the tag, the way the editor saves. Stored value checked byte for byte, both screenshots present, format "blocks". Nothing was lost. §19 has the method; §22 the bug. |
+| ⚠️ **2** | **Peek's deploy after #204 failed on a flaky test**, `CommandLauncher.live.test.tsx` — "pointer-events: none" clicking a Select option. It failed 2 of the last 5 runs, both after PR #201 moved Peek to `@estiva-app/ui` `0.12.8`. UIG-2 changed no app code. | The failed job was re-run: it passed and Peek published. The flake is still there. §22. |
 
 ### Start here
 
@@ -46,13 +46,8 @@ On 13 September, on the `gates/02-rails` branches, it printed:
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-The 2 done are UIG-1 and UIG-2. Until #204 and #148 merge, a run with Peek and
-Ship on their `main` shows their parts as ❔, because their script does not exist
-there yet.
-
-**UIG-2's ✅ there is not the whole ticket.** The script reads code, and one part
-of UIG-2 is not code: the Ship project description (§19). UIG-2 closes in Ship
-when #204 and #148 merge **and** Katerina has pasted that wording.
+The 2 done are UIG-1 and UIG-2. After all four PRs merged, the same run on the
+three `main` branches prints the same lines.
 
 ### ▶️ Next: UIG-27 and UIG-28, in any order. Then phase 1.
 
@@ -83,7 +78,7 @@ UIG-27 needs Katerina early: she rules on Link's shape before it is built.
 | ✅ | `CLAUDE.md` in each repo points here | two lines each |
 | ✅ | The memory note on Katerina's machine names the guide, this file, the Ship project and the command | `estiva-ui-guardrails-project` |
 | ✅ | A fresh session answered "where are we?" from these sources alone | §17 |
-| ⬜ | The Ship project description | waits for Katerina's paste, §19 |
+| ✅ | The Ship project description | carries the new wording, screenshots kept, §19 |
 
 ### What changed around us while UIG-2 ran
 
@@ -1428,11 +1423,26 @@ rewrites for no gain in meaning.
 Tickets that talk only about lint rules — UIG-3 to UIG-6, UIG-22 to UIG-25,
 UIG-28 — keep "rule" in their bodies.
 
-### ⚠️ The Ship project description — waiting for Katerina
+### ✅ The Ship project description — applied, 13 September
 
-The description holds two of her screenshots, so the Ship tool must not rewrite
-it. The changes below are for her to paste. Each is a find and a replace, in the
-order they appear, written as the words look on screen.
+Katerina asked for these nine changes to be applied rather than pasted. They are
+in the description now, and both of her screenshots are still in it.
+
+**How, so nobody breaks it again.** The description is not text. It is a block
+document, stored as JSON, with a `content-format` tag (`estiva-blocks-1`) on the
+change that saves it. Ship draws it as rich text only when that tag is there.
+
+| | step |
+|---|---|
+| 1 | Read the stored JSON. Change only the words of the text pieces, found by their own words; each must occur once. |
+| 2 | Walk the old and new documents together: every node identical except those pieces' text. The screenshots deep-equal. (186 nodes, 10 pieces, 2 screenshots.) |
+| 3 | Publish with the agent's `Store.setField` **and `contentFormat: 'estiva-blocks-1'`** — never the `edit-project` command or `ship_edit_project`, which send no tag. |
+| 4 | Read it back: stored value equal byte for byte, `descriptionFormat` "blocks". |
+
+Step 3 was first done with `edit-project`, and Ship drew raw JSON until the
+republish three minutes later. §0 and §22.
+
+The changes, as they look on screen:
 
 | | find | replace with |
 |---|---|---|
@@ -1467,7 +1477,7 @@ and §0 adds UIG-27, UIG-28 and UIG-29 to them.
 | 8 | One status engine, the same file in every repo; one checks file per repo; estiva-ui warns when the engines differ. | UIG-2 |
 | 9 | A check that expects nothing must first prove something is being checked. | UIG-2, after four false passes (§17) |
 | 10 | UIG-3's title stays; UIG-1, UIG-7, UIG-8, UIG-9 and UIG-29 were renamed. | UIG-2 (§19) |
-| 11 | The Ship project description is written out for Katerina to paste, never rewritten by the tool. | Katerina, standing |
+| 11 | The Ship project description was to be written out for Katerina to paste. She then asked for it to be applied; it was, with the method in §19. The standing rule is now: never through `edit-project` or `ship_edit_project`, only with the content-format tag and a byte-for-byte check. | Katerina |
 
 ---
 
@@ -1504,6 +1514,8 @@ Reading every ticket turned up these. The ones marked ✅ are corrected in Ship.
 | ⬜ | UIG-17 | "58 story files" — Peek has had 59 since 09:24 UTC on 12 September. | Not changed. The ticket counts before and after. |
 | ⬜ | UIG-3, UIG-5 | The roadmap puts a `docs/GATES-DEBT.md` in every repo, and UIG-20 reads "all repos' `GATES-DEBT.md`". Only UIG-4 creates one. | **Open.** UIG-3 and UIG-5 should each create theirs, or UIG-20 reads less than it thinks. Worth a line in each when they start. |
 | ⬜ | GATES.md §9.2 and §13 | §9.2 says the guide named the wrong Base UI package; it did not (§18). §13's last lines say three things wait on Katerina; §14 answered them. | Left as UIG-1 wrote them. This row and §0 are the correction. |
+| ⚠️ | estiva-agent | `edit-project` and `edit-issue --description`, and the `ship_edit_project` / `ship_edit_issue` tools built on them, send a description with **no `content-format` tag**. A rich description edited that way is drawn as raw JSON. The vendored `Store.setField` already accepts `contentFormat`; the commands never pass it. It broke the UI Guardrails description for three minutes on 13 September. | **Open.** A fix belongs in estiva-agent — Jan's call. Until then, never edit a rich description with those commands. Plain-text ticket descriptions, like every UIG ticket's, are unaffected. |
+| ⚠️ | peek | `src/components/CommandLauncher.live.test.tsx`, "the created object leaves a trace in the thread (PEE-2)": clicking the Project Select's option fails with "pointer-events: none" on a `div`. Failed on #204's first run and on `main` after #204 merged; passed on re-run and locally 10 of 10. Every failure is after PR #201 moved Peek to `@estiva-app/ui` `0.12.8`, whose Select changed (estiva-ui PR #23). | **Open.** Not UIG-2's. A flaky test on `main` blocks deploys at random. Needs a ticket. |
 
 ---
 
