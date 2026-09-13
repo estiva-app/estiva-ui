@@ -14,7 +14,7 @@ const PEEK_SHIP = ["peek", "ship"];
 const all = [
   { ref: "UIG-1", owner: "estiva-ui", title: "Count every candidate lint rule across all three repos" },
   { ref: "UIG-2", owner: "estiva-ui", parts: PEEK_SHIP, title: "The tracking rails — GATES.md, the status script, the guide committed" },
-  { ref: "UIG-3", owner: "peek", parts: ["estiva-ui"], title: "Tracer bullet — one lint rule, end to end, blocking in Peek" },
+  { ref: "UIG-3", owner: "peek", parts: ["estiva-ui"], title: "Tracer bullet — one rule, end to end, blocking in Peek" },
   { ref: "UIG-4", owner: "ship", title: "The same chain, blocking in Ship" },
   { ref: "UIG-5", owner: "estiva-ui", title: "The same chain inside estiva-ui, pointed inward" },
   { ref: "UIG-6", owner: "estiva-ui", parts: PEEK_SHIP, title: "Branch protection — the backstop, all three repos" },

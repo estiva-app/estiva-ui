@@ -6,8 +6,10 @@ left to do.
 The reasoning lives in `docs/GATES-GUIDE.md`. If this file and the guide
 disagree, the guide wins.
 
-UIG-1 wrote §0 to §10. UIG-2 adds the phase table, the 26 ticket rows, the five
-seams, and the `gates:status` script.
+UIG-1 wrote §1 to §14. UIG-2 added §15 to §22: the route, the five seams,
+`gates:status`, the guide's corrections, the three words for "rules", the
+decisions it took, the debt lists, and what it found in other tickets. §0 is kept
+current by every ticket.
 
 Status key: ✅ done · 🚧 in progress · ⬜ not started · ⛔ blocked · ⚠️ needs your
 answer
@@ -16,75 +18,84 @@ answer
 
 ## §0 Where we are
 
-**13 September 2026. UIG-1 is done and in estiva-ui PR #21. Not merged.**
-
-### ✅ Nothing waits on Katerina. She ruled on everything, 13 September.
+**13 September 2026. UIG-2 is built. Its three PRs are open and not merged.**
 
 | | |
 |---|---|
-| ✅ **1** | **Every rule has a verdict.** 24 on, 2 warn, none dropped. The full list, and what it changes in each ticket, is **§14**. |
-| ✅ **2** | **Stories are in, tests are out.** UIG-3 goes from 12 violations to 19. |
-| ✅ **3** | **The six findings with no ticket have one.** §13. |
-| ✅ **4** | **The four extra rules in §11 have verdicts too.** Font sizes like `text-[14px]` are on; heights and spacing are warn. |
-| ✅ **5** | **Keep the order of the work.** The usage pages stay in phase 3. |
+| ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
+| 🚧 **UIG-2** | Built. estiva-ui PR @@EUI_PR@@, peek PR @@PEEK_PR@@, ship PR @@SHIP_PR@@. Waiting for Katerina to merge. |
 
-**UIG-1 is finished, and PR #21 merged it.**
-
-### What changed around us while UIG-1 ran
+### Two things wait on Katerina
 
 | | |
 |---|---|
-| ✅ | **Stage 5 of the migration merged** — estiva-ui PR #22, `ChipInput` on Base UI's `Combobox`, `fit.ts` deleted. |
-| ✅ | **estiva-ui `0.12.7` is released** — tagged `v0.12.7`, on npm as `latest`. |
-| ⬜ | **Neither app has taken `0.12.7` yet.** Peek and Ship both still ask for `^0.12.6`. |
+| ⚠️ **1** | **Merge the three UIG-2 PRs.** |
+| ⚠️ **2** | **Paste the new wording into the Ship project description.** The text is in §19. The Ship tool must not do it: it replaces the whole description, and the description holds two of her screenshots. |
 
-UIG-1's counts were measured on `0.12.6`, before stage 5. Only the package's
-`ChipInput` lines changed, and §14 says what that does to UIG-5.
+### Start here
 
-### ▶️ Next: UIG-2
+1. Read this section.
+2. Run `npm run gates:status` in estiva-ui. It reads all 29 tickets from the code, in all three repos. §17 says how.
+3. Read the ticket in Ship, in full.
 
-UIG-2 is the only ticket standing between us and phase 1 — UIG-3 is blocked by it.
+On 13 September, on the `gates/02-rails` branches, it printed:
 
-It needs one thing from Katerina. Its wording fix (split "rules" into *lint
-rules* and *usage rules*) reaches the Ship project description, and that
-description holds two of her screenshots. **Do not rewrite it through the Ship
-tool** — the tool replaces the whole description and the screenshots go with it.
-Write the new wording out, and let her paste it in Ship.
+```
+✅ 2 done · 🚧 0 started · ⬜ 27 not started · ❔ 0 could not check
+29 tickets. Owned by estiva-ui 24, peek 3, ship 2.
+✅ Each ticket is owned by exactly one repo, and every repo agrees.
+```
 
-### The running order
+The 2 done are UIG-1 and UIG-2. On `main` the command does not exist until the
+PRs merge.
 
-**There are 29 tickets now, and the reference number is no longer the order.**
-UIG-27, UIG-28 and UIG-29 were created after UIG-1 found six things with no home,
-so they carry high numbers but run early. Every *Blocked by* line names the
-reference **and** the title, which is what the brief said would make reordering
-safe.
+### ▶️ Next: UIG-27 and UIG-28, in any order. Then phase 1.
 
 | when | tickets |
 |---|---|
-| done | **UIG-1** |
-| now, any order | **UIG-2** · **UIG-27** · **UIG-28** |
+| done | **UIG-1** · **UIG-2** (once merged) |
+| now, any order | **UIG-27** · **UIG-28** |
 | then, phase 1 | **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9** |
 | alongside phase 1, never blocking it | **UIG-29** |
-| after | UIG-10 onwards, unchanged |
+| after | UIG-10 onwards, in order |
 
-UIG-27 blocks UIG-7 and UIG-8. UIG-28 does not block anything, but it fixes a
-hole in a gate the phase-1 rules will sit on top of, so do it first.
+UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the
+token lint that phase 1 sits on, so do it first. The reference number is not the
+order: UIG-27, UIG-28 and UIG-29 were created after UIG-1.
+
+UIG-27 needs Katerina early: she rules on Link's shape before it is built.
+
+### What UIG-2 changed, in one table
+
+| | what | where |
+|---|---|---|
+| ✅ | The guide is committed, word for word, then corrected in 36 approved changes | `docs/GATES-GUIDE.md`, §18, §19 |
+| ✅ | `npm run gates:status` in all three repos | `scripts/gates-status.mjs`, §17 |
+| ✅ | The route: phases, the 29 tickets, who owns each | §15 |
+| ✅ | The five seams | §16 |
+| ✅ | "Rules" is three words: lint rules, usage rules, instructions | §19 |
+| ✅ | 14 tickets reworded or corrected in Ship | §19, §22 |
+| ✅ | `CLAUDE.md` in each repo points here | two lines each |
+| ⬜ | The Ship project description | waits for Katerina's paste, §19 |
+
+### What changed around us while UIG-2 ran
+
+| | |
+|---|---|
+| ✅ | estiva-ui `0.12.8` is released (PR #23, Select's list and scrollbar). Peek and Ship still ask for `^0.12.6`. |
+| ✅ | Peek PR #201 merged: migration stage 5 in Peek. Peek's `gates/02-rails` branch starts after it, at `00bf06b`. |
+| ⚠️ | Ship's local `web/node_modules` has `@estiva-app/ui` `0.12.5` installed, though `web/package.json` asks for `^0.12.6`. A local install out of date. `gates:status` reads what is installed. |
 
 ### What is ready for the next tickets
 
-| ticket | what UIG-1 gives it |
+| ticket | what it gets |
 |---|---|
-| UIG-2 | The three guide corrections it must make, and 29 rows not 26. |
-| UIG-3 | Raw `<button>` in Peek: **12**, across 7 files. |
-| UIG-4 | Raw `<button>` in Ship: **0**. Ship has none. |
-| UIG-5 | Tracer rule: **`raw-element-outside-a-wrapper`, 4 violations**, and P2/P3 free at zero. §7. |
-| UIG-7 | The full element counts, and a blocker: no Link component. §9.1 |
-| UIG-8 | The Base UI name is `@base-ui/react`; `tabIndex={-1}` must pass; the role branch is wider than `dialog`. |
-| UIG-25 | The package copies itself 14 times, and it needs a wrapper carve-out. |
-| all | Escape-boundary answered: Peek 23, Ship 9. §6 |
-
-Nothing was installed. No source file changed in any repo. The measurement
-scripts were throwaway and are deleted. This file is the only thing UIG-1 wrote.
+| UIG-3 | Its checks in `gates:status` are written, and proved to flip. Peek's lint today: `eslint src` **84**, `eslint .` **99** (the ticket's 79 / 94 is stale). |
+| UIG-4 | Its checks are written. It creates `ship/docs/GATES-DEBT.md`, the first debt list. |
+| UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
+| UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
+| UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
+| every ticket | Update your own checks in `scripts/gates-checks.mjs` and your row in §15 in the same session. |
 
 ---
 
@@ -1008,7 +1019,466 @@ reconciles.
 UIG-3, UIG-4, UIG-5, UIG-23, UIG-25 and UIG-28. UIG-7 and UIG-8 already pointed
 here for the stories answer, and this section gives it, so they were left alone.
 
+## §15 The route — phases and the 29 tickets
+
+UIG-2 wrote this. Ship holds each ticket's full text. `gates:status` holds each
+ticket's status, read from the code. This section holds what neither does: the
+phases, who owns each ticket, and what counts as evidence.
+
+**No status is written here on purpose.** A status in a document goes stale the
+day it is written. Run `npm run gates:status` for it.
+
+### The phases
+
+| phase | tickets | when it is done |
+|---|---|---|
+| 0 · count and track | UIG-1, UIG-2 | The lint rules are chosen from real numbers, and every ticket after is tracked from the code. |
+| before 1 | UIG-27, UIG-28 | The package has Link and ProgressBar, and the token lint has no hole for `text-[14px]`. |
+| 1 · the wall | UIG-3 to UIG-9 | Nobody can write or merge code that reaches past the system, in any of the three repos. |
+| alongside 1 | UIG-29 | `CommandLauncher.tsx` is on the package's components, with no key behaving differently. |
+| 2 · Leaf's road | UIG-10, UIG-11 | Leaf starts, behind the wall, at zero violations. |
+| 3 · the catalogue | UIG-12 to UIG-19 | One list of every component in the three libraries, and a usage rule for every reusable one. |
+| 4 · make it read | UIG-20, UIG-21 | A session searches the catalogue before it builds, and `CLAUDE.md` is an index. |
+| 5 · the fingerprints | UIG-22 to UIG-25 | The shapes of mistake that reached Katerina cannot reach her again. |
+| close | UIG-26 | The starter carries everything, Leaf has every rule, and the numbers are measured. |
+
+The phases come from the roadmap artifact, revision 5. UIG-27, UIG-28 and UIG-29
+were added by UIG-1's findings on 13 September.
+
+### The 29 tickets, who owns each, and what gates:status checks
+
+Every ticket is **owned by exactly one repo**. That repo's `gates:status` prints
+it as its own row. A ticket that touches other repos has **parts** there, checked
+where the files live and joined into the one row when estiva-ui runs.
+
+**How the owner was chosen:** the repo the ticket names as holding its main
+work. A lint rule's code lives in estiva-ui, so every lint rule ticket that runs
+in all repos is owned by estiva-ui. A ticket whose work is in one app is owned by
+that app. A ticket spread evenly over all repos is owned by estiva-ui.
+
+| ticket | title | owner | parts in | what counts as evidence today |
+|---|---|---|---|---|
+| UIG-1 | Count every candidate lint rule across all three repos | estiva-ui | | GATES.md §3 (the counts) and §14 (her verdicts) |
+| UIG-2 | The tracking rails | estiva-ui | peek, ship | the guide committed, no wrong Base UI name, §15 exists, `gates:status` wired in all three |
+| UIG-3 | Tracer bullet — one rule, end to end, blocking in Peek | peek | estiva-ui | the plugin in `src/eslint` with `no-raw-button` and an `./eslint` export; in Peek: the gate config loads, `lint:rules`, CI, the hook, `.gates-count.json`, and a lint probe: a raw `<button>` is an error in source and in a story, not in a test |
+| UIG-4 | The same chain, blocking in Ship | ship | | the same chain in `ship/web`, the hook at the root, the lint probes, `docs/GATES-DEBT.md` |
+| UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the same chain in estiva-ui, and a nested raw element is an error |
+| UIG-6 | Branch protection | estiva-ui | peek, ship | GitHub requires a check whose name has "gate" or "lint:rules", in each repo |
+| UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | probes: `<input>` names TextInput, `<a>` names Link |
+| UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | probes: `createPortal` is an error; `tabIndex={0}` is, `tabIndex={-1}` is not |
+| UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | probe: a border passed into `Button` is an error naming Button |
+| UIG-10 | create-app | estiva-ui | | a `create-app` command in the package |
+| UIG-11 | Create the Leaf repo from it | estiva-ui | | `estiva-app/leaf` exists on GitHub; a `leaf` checkout beside estiva-ui |
+| UIG-12 | The registry, thin and proved | estiva-ui | | `registry.json` committed, versioned, with entries; `ui:find` wired |
+| UIG-13 | The registry widens to Peek's and Ship's | estiva-ui | peek, ship | the registry has Peek and Ship entries; each app has its own `registry.json` |
+| UIG-14 | Usage rules — components that own a behaviour | estiva-ui | | every component importing `@base-ui/react` has a page with the five sections |
+| UIG-15 | Usage rules — frame and layout | estiva-ui | | `EmptyState.mdx` has the five sections |
+| UIG-16 | Usage rules — the rest, close the 44 | estiva-ui | | every component page has the five sections |
+| UIG-17 | Usage rules — Peek's own components | peek | | `PendingAttachmentChip.mdx` has the five sections; every Peek registry entry has a class |
+| UIG-18 | Usage rules — Ship's own components | ship | | `ForeignObject.mdx` has the five sections; every Ship registry entry has a class |
+| UIG-19 | Lock the contract in CI, one search | estiva-ui | peek, ship | a CI step runs an `npm run …contract…` script; estiva-ui's Storybook has `refs` |
+| UIG-20 | The Claude skill | estiva-ui | peek, ship | a committed `SKILL.md` that runs `ui:find` |
+| UIG-21 | CLAUDE.md becomes an index | estiva-ui | peek, ship | `.claude/rules/*.md` with `paths:` frontmatter |
+| UIG-22 | Fingerprint — hand-made header row | estiva-ui | peek, ship | probe: a padded row at the top of a pane names ContainerHeader (Peek) or SectionHeader (Ship) |
+| UIG-23 | Fingerprint — hand-made empty state | estiva-ui | peek, ship | probe: "Nothing here" in place of an empty list names EmptyState, in all three repos |
+| UIG-24 | Fingerprint — browser tooltip | estiva-ui | peek, ship | probe: `title=` names WithTooltip |
+| UIG-25 | Fingerprint — component copied by hand | estiva-ui | peek, ship | probe: SectionLabel's class list typed by hand is a **warning**, in all three repos |
+| UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
+| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link` and `ProgressBar` exported; `EmptyState` has a `padding` prop; each app installs a version that has them and its hand-made progress bar is gone |
+| UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on the token lint: `text-[14px]` and an inline colour are errors, `h-[240px]` is a warning |
+| UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
+
+The five sections are *What it is*, *When*, *When not*, *How* and *What it owns*,
+from UIG-14.
+
+**Evidence for a ticket not yet built is a first guess, taken from its own
+text.** A ticket's code may name things differently. The ticket that builds it
+changes its checks in `scripts/gates-checks.mjs` and its row here, in the same
+session. Every ticket already says so in its acceptance criteria.
+
+### The arithmetic
+
+| | |
+|---|---|
+| tickets | **29** |
+| owned by estiva-ui | **24** — UIG-1, 2, 5 to 16, 19 to 28 |
+| owned by peek | **3** — UIG-3, 17, 29 |
+| owned by ship | **2** — UIG-4, 18 |
+| **24 + 3 + 2** | **29** ✅ |
+| parts checked in estiva-ui | 1 — UIG-3 |
+| parts checked in peek | 15 |
+| parts checked in ship | 15 |
+
+`gates:status` proves this on every run rather than trusting this table. It
+fails loudly if a ticket is claimed twice, claimed by nobody, claimed by a repo
+the list does not name, or if a repo checks a part the list does not give it.
+On 13 September it printed: *Each ticket is owned by exactly one repo, and every
+repo agrees.*
+
+### "The same row set" is now "the same gate checks"
+
+UIG-10, UIG-11 and UIG-26 said a new app's `gates:status` must report "the same
+row set as Peek's and Ship's". That cannot be true once each ticket has one
+owner: Peek owns UIG-3 and Ship owns UIG-4, so their rows differ. What those
+tickets meant is that a new app carries every gate the apps carry. All three now
+say **the same gate checks**. UIG-2 decided one owner per ticket, so the three
+tickets were aligned to it rather than the other way round.
+
+---
+
+## §16 The five seams
+
+A seam is a decision made now, cheaply, so a later phase builds on top with no
+rework. They come from the roadmap artifact, §07.
+
+| | seam | the decision | why it was chosen | built by |
+|---|---|---|---|---|
+| **S1** | The lint rules are a plugin, not config | A publishable plugin inside estiva-ui from the first commit, with its own tests. | Leaf gets every lint rule written after it launches through an ordinary version bump. The hook runs the same rule code as the lint, so the two cannot disagree. | UIG-3 |
+| **S2** | The registry is a data source | A versioned schema with stable field names, read by machines first and rendered second. One per repo, merged into an index. | The MCP server, the duplicate scan and any public docs file read it and nothing else. A Markdown generator would need three parsers. | UIG-12, UIG-13 |
+| **S3** | Every lint run writes its count | `.gates-count.json` per repo, committed from day one, even though nothing compares it yet. | The later ratchet is one CI step comparing two numbers, and the history of the number falling starts at the first commit. | UIG-3, UIG-4, UIG-5 |
+| **S4** | The escape marker is machine-readable | `// @estiva-escape: <reason>` — a fixed shape, parsed and reported. Never a free comment, never `eslint-disable`. | The adoption number can subtract sanctioned exceptions honestly, and the report lists every escape with its reason and age. | UIG-3 |
+| **S5** | The starter is generated, never copied | Assembled from the live repos on each run, not a folder snapshotted once. | This is what let the starter move from phase 5 to phase 2. Re-running it carries everything new into Leaf. A copy would be stale before Leaf's first commit. | UIG-10, UIG-26 |
+
+S1 and S5 together are why building the starter before the catalogue costs
+nothing: every later lint rule reaches Leaf through the package, and every later
+gate reaches the starter through a re-run.
+
+---
+
+## §17 How gates:status reads the code
+
+### The files
+
+| repo | files | run it |
+|---|---|---|
+| estiva-ui | `scripts/gates-status.mjs`, `scripts/gates-checks.mjs` | `npm run gates:status` — all 29 tickets, joining in `../peek` and `../ship` |
+| peek | the same two | `npm run gates:status` — Peek's 3 tickets and its 15 parts |
+| ship | the same two, at the repo root | `npm run gates:status` — Ship's 2 tickets and its 15 parts |
+
+`gates-status.mjs` is **the same file in all three repos**. estiva-ui's run
+compares the copies and warns when they differ. `gates-checks.mjs` is each repo's
+own list. Neither file reaches estiva-ui's published package: its `files` list
+does not include `scripts/`.
+
+Flags: `-- --detail` prints every check under every row. `-- --json` prints
+machine output; estiva-ui's run reads the other repos that way. `GATES_PEEK`,
+`GATES_SHIP` and `GATES_LEAF` point at a checkout that is not in the usual place.
+
+### How a row is decided
+
+| | when |
+|---|---|
+| ✅ | every check passes |
+| 🚧 | some pass |
+| ⬜ | none pass |
+| ❔ | a check could not run: a repo is missing, GitHub cannot be asked, or the lint config would not load |
+
+A missing repo is ❔, never ✅. A ticket cannot read done while any of its parts
+is unread.
+
+### What counts as evidence
+
+| kind | example | how it is read |
+|---|---|---|
+| a file exists | `docs/GATES-DEBT.md` | on disk |
+| a file is committed | `.gates-count.json` | `git ls-files` |
+| a config loads | `eslint.gates.config.js` | imported for real |
+| a script is wired | `lint:rules` | `package.json` |
+| CI runs it | `npm run lint:rules` | a step in `.github/workflows/*.yml` — a word in a comment does not count |
+| the hook runs it | the gates hook | `PreToolUse` in `.claude/settings.json` — any other hook does not count |
+| a lint rule fires | a raw `<button>` | a line of code is linted **in memory, never written to disk**, with the repo's own config, the way the hook will |
+| a GitHub setting | branch protection | `gh api`; ❔ without `gh` |
+
+**Nothing is read from a list someone ticks.** GATES.md itself is read only for
+UIG-1 and UIG-2, whose deliverable is this document.
+
+### Proved, 13 September
+
+**A built thing, deleted, flips its row back.** In Peek, an
+`eslint.gates.config.js` and a `lint:rules` script were added, then deleted:
+
+| step | UIG-3's row |
+|---|---|
+| before | ⬜ 0 of 8 |
+| config and script added | 🚧 2 of 8 — the config loads, the script is wired; the other six fail and say why |
+| both deleted | ⬜ 0 of 8 |
+
+**A lint probe can tell pass from fail.** On Peek's real token config, `text-sm`
+is an error and `text-[14px]` is not. So UIG-28's ⬜ is the hole itself, not a
+broken check.
+
+**The status files break no existing check.** Both lint clean in estiva-ui and
+Peek. Peek's `eslint .` has 0 errors in them. Ship's `tsc --noEmit` includes
+`scripts/` but not `.mjs`, and still exits 0.
+
+### Four false passes, caught while building
+
+Each would have shown a ticket as started that was not.
+
+| | the check | what went wrong | fixed |
+|---|---|---|---|
+| 1 | CI runs the usage-page contract (UIG-19) | estiva-ui's `check.yml` has the words "token contract" in a comment | matches an `npm run` step only |
+| 2 | a test file is not linted (UIG-3, UIG-4) | a config that lints nothing passes it | passes only once source files are linted |
+| 3 | `tabIndex={-1}` is not an error (UIG-8) | same: a config that lints nothing passes it | passes only once `tabIndex={0}` is caught |
+| 4 | no escape still names UIG-29 (UIG-29) | true today, because no escapes exist yet | passes only once the gate lint passes the file |
+
+The lesson for whoever adds a check: **a check that expects nothing must first
+prove something is being checked.**
+
+### Limits
+
+- It reads the **checked-out branch** in each repo, not `main`.
+- It reads **installed** packages. A stale `node_modules` gives a stale answer;
+  Ship's `web/node_modules` is one today (§0).
+- Lint probes need `node_modules` installed. The run takes about 25 seconds.
+
+---
+
+## §18 The guide, committed — what changed and why
+
+`docs/GATES-GUIDE.md` is the guide artifact, version `1789170129-badc`, written
+12 September. It went in as two commits, so each change shows in the diff.
+
+### The proof
+
+| step | result |
+|---|---|
+| 1. A script converted the HTML to Markdown. No sentence was retyped. | 509 lines |
+| 2. A second script took every word from both and diffed them. | **4,572** words each, **0** places that differ |
+| 3. Changing one word in a test copy | reported exactly **1** |
+| 4. The approved changes were applied, each an exact match that must occur once | **36** changes |
+| 5. The same diff, after | **49** places differ, and every one belongs to one of the 36 |
+
+Both scripts were throwaway, as UIG-1's were. This table is their record.
+
+### The ticket expected three corrections. One was not in the guide.
+
+| | the ticket said | what was true |
+|---|---|---|
+| a | The guide says `@base-ui-components/*` | **The guide never names a Base UI package.** It says "Base UI" three times. The wrong spelling was in **UIG-1's and UIG-8's ticket text**, and UIG-8 was already corrected on 12 September. GATES.md §9.2 was wrong to say the guide had it. `grep` finds 0 in `docs/GATES-GUIDE.md`. |
+| b | "Peek has 5 pages and 0 page stories", twice | True that it was wrong. It was there **four** times. F2 to F5. |
+| c | "Rules" means two things | True, and there was a third meaning. §19. |
+
+### Wrong facts about our code — Katerina approved fixing all of them
+
+Every number and fact about Estiva in the guide was checked against the code,
+GitHub or the git history as of 12 September. The reasoning, the plans and the
+research were left word for word.
+
+| | where | the guide said | now says | evidence |
+|---|---|---|---|---|
+| ✏️ **F1** | §01 step 2 | 43 components in the package | 44 components in the package | `v0.12.3`, the version the guide names, has 44 component files in `src/`. `v0.12.6` and `main` have 44 too. |
+| ✏️ **F2** | §01 step 5 | and Peek's 5 pages have 0 stories between them. | and Peek's 5 pages have 3 stories between them, none for Folders and none empty or loading. | `src/stories/layouts/Pages.stories.tsx` draws Desk, Topics and People. It was added on 13 July (`6c44b6b`), so "0" was never true. `FoldersPage` and `ObjectPage` have no story. No page story has an empty or loading state. |
+| ✏️ **F3** | §04 gate 3 | Peek has 5 pages and 0 page stories; every one | Peek has 5 pages and 3 page stories, none for Folders and none empty or loading; every one | Same evidence as F2. |
+| ✏️ **F4** | §05 T17 | Peek has 5 pages and 0 page stories. \| M \| ours \| | Peek has 5 pages and 3 page stories, none for Folders and none empty or loading. \| M \| ours \| | Same evidence as F2. |
+| ✏️ **F5** | footer | Peek has 5 pages and 0 page stories, 58 story files | Peek has 5 pages and 3 page stories, 58 story files | Same evidence as F2. |
+| ✏️ **F6** | §04 gate 2 | Peek's 79 existing lint errors | Peek's 80-odd existing lint errors | `npx eslint src` in Peek: 81 errors at every `main` commit from PR #193's merge (`c618250`, 11 September) to `f3d97f4` (12 September 09:24 UTC), then 86 from `2fa9116`. Never 79. The same setup reproduced PR #193's own recorded 81. |
+| ✏️ **F7** | §04 gate 2, catches | - The Folders scroll bug (`overflow`) | - A hand-rolled scrolling box (`overflow-auto`) | The Folders column had **no** scroll container at all. Peek commit `3dc663b` says so: "a column that should scroll and never did has none to find". A lint rule that looks for `overflow-auto` cannot catch a missing class. |
+| ✏️ **F8** | §04 gate 2, cannot catch | - Spacing, rhythm, hierarchy, taste / - That is gate 3, and then you | - Spacing, rhythm, hierarchy, taste / - The Folders scroll bug: a column with no scroll container has no class for a lint rule to find / - That is gate 3, and then you | Same evidence as F7. Gate 3's route probe checks it: "every scroll container is a package viewport", with tall data. |
+| ✏️ **F9** | §07 Ship | Retrofitted. PR #130, then #132, then #133, then #139. / Four pull requests to reach a package it could have started on. | Retrofitted. PRs #78, #92, #99, #108, #113, #130, #132 and #133. / Eight pull requests to reach a package it could have started on. | Ship's merged PRs that took `@estiva-app/ui`, up to 12 September: #78 (2 Sept), #92, #99, #108, #113, #130, #132, #133 (9 Sept). #139 is not one: it removed Storybook's theme picker (D58) and changes only `web/.storybook/preview.tsx`. |
+| ✏️ **F10** | §07 Peek | PR #193 — 29 commits, 0.9.0 to 0.12.3, and a month. | PR #193 — 29 commits, 0.9.0 to 0.12.3, over two days. | PR #193's first commit is 9 September 17:35 UTC and it merged on 11 September 17:59 UTC. It has 29 commits and moves `@estiva-app/ui` from `^0.9.0` to `^0.12.3`. |
+| ✏️ **D1** | §04 gate 2 | `<dialog>` outside a shim folder); forbid the reach | `<dialog>`, with no folder exempt: an exception is one marked line); forbid the reach | UIG-1 §6: app `components/ui` folders mix one-line re-exports with real components, so exempting the folder would hide the 7 real components that hold raw elements, `PendingAttachmentChip` among them. UIG-3 builds per-line escapes only. Ruled 13 September. |
+| ✏️ **D2** | §05 T10 | No `<button>`, `<input>`, `<a>`, `<dialog>` outside a shim folder. Error names the component. | No `<button>`, `<input>`, `<a>`, `<dialog>` in an app, and no folder is exempt: an exception is one marked line. Error names the component. | Same as D1. |
+
+### Facts checked and kept
+
+| | the guide says | checked against |
+|---|---|---|
+| ✅ | `estiva-ui 0.12.3` | It was current until `v0.12.4` was tagged at 14:48 UTC on 12 September. |
+| ✅ | Peek PR #192 replaced a working `ContainerHeader` with a hand-made row | PR #192's diff: `<ContainerHeader …/>` out, `flex items-center gap-2 px-3 py-2` in. |
+| ✅ | 1,219 tests, two typechecks, two lints, 323 stories | PR #193's own record: "1219 of 1219 green", `tsc -b` and `tsc -p convex`, token lint and lint, "323, none throws". |
+| ✅ | eight defects on Folders | PR #193: "found eight defects". |
+| ✅ | `lint:tokens` a CI gate since D55 | DECISIONS.md D55. |
+| ✅ | `PendingAttachmentChip` lives in Peek | `peek/src/components/ui/PendingAttachmentChip.tsx`. |
+| ✅ | `shots-themed.mjs` and `diff.mjs` | `peek/.verify-shots/`. |
+| ✅ | three Storybooks on three ports | 6006, 6007, 6008. |
+| ✅ | sixteen of twenty-three tactics ship | counted in the table. |
+| ❔ | 58 story files | Peek had 58 until 09:24 UTC on 12 September and 59 after. The time the guide was written is not recorded, so it stays. |
+| ❔ | 115 components | The counting method is not recorded, and UIG-1 counted 113 exported components a different way. It stays. |
+| ❔ | Gate 2 today: "colours & sizes only"; gate 3 today: "components, not pages" | Summaries, not counts. UIG-28 records the size hole; F2 records the page stories. They stay. |
+
+### The design point Katerina ruled on
+
+D1 and D2 in the table above. The guide allowed raw elements "outside a shim
+folder". UIG-1 §6 showed a folder exemption hides real components, and UIG-3 was
+already built on per-line escapes. Katerina ruled on 13 September: no folder is
+exempt, and an exception is one marked line.
+
+---
+
+## §19 "Rules" is three words now
+
+### The three words
+
+| word | means | tickets |
+|---|---|---|
+| **lint rule** | A machine blocks bad code. "No raw `<button>`." | UIG-3 to UIG-9, UIG-22 to UIG-25, UIG-28 |
+| **usage rule** | A written page per component: what it is for, when to use it, when not. | UIG-12 to UIG-19 |
+| **instruction** | What we tell Claude, in `CLAUDE.md`, a skill or `AGENTS.md`. Claude Code calls path-scoped ones "rules"; we call them instructions. | UIG-20, UIG-21 |
+
+Katerina chose "instructions" on 13 September. A check CI runs that is not a lint
+rule, like the usage-page contract, is a **CI check**.
+
+"Rule" is left alone where it is plain English — "a far easier rule to hold",
+"people respect a rule that has an honest way out" — or already says which kind.
+
+### In the guide: 43 uses, 25 changed, 18 left
+
+| | where | the guide said | now says | meaning |
+|---|---|---|---|---|
+| ✏️ **W1** | §01 step 3 | The rules live in prose, in documents nobody opens mid-task. | The usage rules live in prose, in documents nobody opens mid-task. | usage rules |
+| ✏️ **W2** | §03, 74% | or people will disable the rules. See §06. | or people will disable the lint rules. See §06. | lint rules |
+| ✏️ **W3** | §03, 3 layers | `AGENTS.md` (always-on rules) | `AGENTS.md` (always-on instructions) | instructions |
+| ✏️ **W4** | §03, skill vs MCP | the skill gives it *the rules*. | the skill gives it *the usage rules*. | usage rules |
+| ✏️ **W5** | §04 gate 0 | Two rules make it honest. | Two CI checks make it honest. | CI checks, not rules |
+| ✏️ **W6** | §04 gate 1 | plus *path-scoped rules* (`paths:` frontmatter) so page-specific rules only load | plus *path-scoped instructions* (`paths:` frontmatter; Claude Code calls them rules) so page-specific instructions only load | instructions |
+| ✏️ **W7** | §04 gate 1, catches | - Rules being forgotten mid-task | - Usage rules being forgotten mid-task | usage rules |
+| ✏️ **W8** | §04 gate 2 | runs the same rules on the content of an Edit or Write | runs the same lint rules on the content of an Edit or Write | lint rules |
+| ✏️ **W9** | §04 gate 2 | give the new rules **their own config | give the new lint rules **their own config | lint rules |
+| ✏️ **W10** | §04 gate 3 | *The backstop for everything a rule can't judge. | *The backstop for everything a lint rule can't judge. | lint rule |
+| ✏️ **W11** | §05 T2 | Turns your docs template into a rule. | Turns your docs template into a CI check. | CI check, not a rule |
+| ✏️ **W12** | §05 T6 | Procedures move out to skills; rules get `paths:` scoping | Procedures move out to skills; instructions get `paths:` scoping | instructions |
+| ✏️ **W13** | §05 T22 | Without it, people switch the rules off. | Without it, people switch the lint rules off. | lint rules |
+| ✏️ **W14** | §06 plan A | - The rules lint, its own config, green from day one | - The lint rules, their own config, green from day one | lint rules |
+| ✏️ **W15** | §06 plan B | rules that enforce it | lint rules that enforce it | lint rules |
+| ✏️ **W16** | §07 T23 | the rules lint and its config | the lint rules and their config | lint rules |
+| ✏️ **W17** | §08 | So the rules should ship | So the lint rules should ship | lint rules |
+| ✏️ **W18** | §08, careful | a rule with no exit gets forked or disabled | a lint rule with no exit gets forked or disabled | lint rule |
+| ✏️ **W19** | §09 | turns one rule off for one line | turns one lint rule off for one line | lint rule |
+| ✏️ **W20** | §09 | the first time a rule blocks something genuinely new | the first time a lint rule blocks something genuinely new | lint rule |
+| ✏️ **W21** | §10 Q2 | Should I show you the rule list with counts | Should I show you the lint rule list with counts | lint rule |
+| ✏️ **W22** | §10 Q2 | I can run every proposed rule over Peek and Ship | I can run every proposed lint rule over Peek and Ship | lint rule |
+| ✏️ **W23** | §10 Q5 | Does Jan get a say in the rule list? | Does Jan get a say in the lint rule list? | lint rule |
+| ✏️ **W24** | §10 Q5 | Worth him seeing the rules before they're a gate | Worth him seeing the lint rules before they're a gate | lint rules |
+
+W6 held two uses. So 24 changes cover 25 uses.
+
+**The 18 left as they were:**
+
+| why | where |
+|---|---|
+| plain English | "What no rule can judge", "It follows every rule and still looks wrong", "Anything a rule can't describe", "a far easier rule to hold", "People respect a rule" |
+| already says which kind | "Lints put rules in their face", "a rule in a document", "a rule in a lint", "ESLint rules", "fingerprint rules" in gate 2, "Fingerprint rules" in the T12 row and in plan B, "The lint rules published", "Publish the lint rules" |
+| refers back to "a lint rule" in the same sentence | "someone deletes the rule" |
+| a column name in Q2's table | "rule, how many places break it" |
+| a command or a link | `lint:rules`, the Anthropic article's URL |
+
+That is 18. Two uses were added: "Claude Code calls them rules" (W6) and "a lint
+rule to find" (F8). The guide has 39 uses now.
+
+### In Ship: 14 tickets
+
+**The test for changing a ticket:** "rule" could be read as the other kind —
+because the ticket is about both kinds, or because it is a title in the list,
+where "Rule — …" sat beside "Usage rules — …". A ticket about lint rules only
+keeps the word.
+
+| ticket | what changed |
+|---|---|
+| UIG-1 | title: "candidate rule" → "candidate lint rule" |
+| UIG-7 | title: "Rule —" → "Lint rule —" |
+| UIG-8 | title: "Rule —" → "Lint rule —" |
+| UIG-9 | title: "Rule —" → "Lint rule —"; its Blocked-by line names UIG-1's new title |
+| UIG-29 | title: "every rule" → "every lint rule" |
+| UIG-12 | Blocked-by line names UIG-8's new title |
+| UIG-15 | "broke a rule, because no rule existed" → usage rule |
+| UIG-17 | "a written rule anywhere" → usage rule |
+| UIG-20 | "The rules refuse the wrong thing" → lint rules |
+| UIG-21 | every "rule" that means a `CLAUDE.md` instruction → instruction; its line counts measured (§22) |
+| UIG-26 | "every rule written since", "the rules ship inside the package" → lint rule |
+| UIG-27 | "two phase-1 rules", "a rule it could not write" → lint rule; the Blocked-by lines name UIG-7's and UIG-8's new titles |
+| UIG-10, UIG-11 | "same row set" → "same gate checks" (§15); UIG-11 "every rule" → lint rule |
+
+**UIG-3's title was left as it is:** "Tracer bullet — one rule, end to end,
+blocking in Peek". Eleven other tickets name it in their Blocked-by lines, and
+"blocking" already marks it as a lint rule. Renaming it would mean eleven more
+rewrites for no gain in meaning.
+
+Tickets that talk only about lint rules — UIG-3 to UIG-6, UIG-22 to UIG-25,
+UIG-28 — keep "rule" in their bodies.
+
+### ⚠️ The Ship project description — waiting for Katerina
+
+The description holds two of her screenshots, so the Ship tool must not rewrite
+it. The changes below are for her to paste. Each is a find and a replace, in the
+order they appear, written as the words look on screen.
+
+| | find | replace with |
+|---|---|---|
+| 1 | each with a written rule for when to use it and when not | each with a written usage rule: when to use it and when not |
+| 2 | These 26 tickets deliver gates 0, 1 and 2 | These 29 tickets deliver gates 0, 1 and 2 |
+| 3 | its rules point inward at the package itself | its lint rules point inward at the package itself |
+| 4 | their rules point at their callers | their lint rules point at their callers |
+| 5 | because the rules ship inside the package | because the lint rules ship inside the package |
+| 6 | UIG-1 is the first ticket and UIG-26 is the last. The reference number is the order. | There are 29 tickets, and the reference number is not the order. UIG-27, UIG-28 and UIG-29 were added after UIG-1. The running order is in estiva-ui docs/GATES.md §0. |
+| 7 | the catalogue, and a written rule for using every component | the catalogue, and a written usage rule for every component |
+| 8 | No rule is absolute. | No lint rule is absolute. |
+| 9 | All 26 tickets closed | All 29 tickets closed |
+
+Change 6 leaves the order table below it as it is; its groups are still right,
+and §0 adds UIG-27, UIG-28 and UIG-29 to them.
+
+---
+
+## §20 Decisions, 13 September
+
+§14 holds Katerina's rulings on the lint rules. These are the ones UIG-2 took.
+
+| | decision | who |
+|---|---|---|
+| 1 | Fix every wrong fact about our code in the guide, not only the three the ticket named. The reasoning and the plans stay word for word. | Katerina |
+| 2 | The guide says no folder is exempt from the raw-element lint rule; an exception is one marked line. | Katerina |
+| 3 | The third word is **instructions**. | Katerina |
+| 4 | Each repo's `CLAUDE.md` gets two lines pointing here, so a session of Jan's can find the project. | Katerina |
+| 5 | Every ticket has one owner repo, and parts where its files live. UIG-10, UIG-11 and UIG-26 say "gate checks", not "row set". | UIG-2, from its own text |
+| 6 | The owner is the repo that holds the ticket's main work; lint rule tickets across all repos belong to estiva-ui. | UIG-2 |
+| 7 | Branch protection is read from GitHub with `gh`, because it is a setting, not a file. Without `gh` it is ❔. | UIG-2 |
+| 8 | One status engine, the same file in every repo; one checks file per repo; estiva-ui warns when the engines differ. | UIG-2 |
+| 9 | A check that expects nothing must first prove something is being checked. | UIG-2, after four false passes (§17) |
+| 10 | UIG-3's title stays; UIG-1, UIG-7, UIG-8, UIG-9 and UIG-29 were renamed. | UIG-2 (§19) |
+| 11 | The Ship project description is written out for Katerina to paste, never rewritten by the tool. | Katerina, standing |
+
+---
+
+## §21 The debt lists
+
+A debt list is a file that cannot pass a gate yet, with a reason and a date.
+Each repo keeps its own, at `docs/GATES-DEBT.md`.
+
+| repo | debt list | created by |
+|---|---|---|
+| ship | not yet | UIG-4 creates it; its acceptance requires it |
+| peek | not yet | **no ticket names it** — see §22 |
+| estiva-ui | not yet | **no ticket names it** — see §22 |
+| leaf | not yet | UIG-10's starter generates an empty one |
+
+On 13 September there are **0** debt lists and **0** entries.
+
+---
+
+## §22 What UIG-2 found in other tickets
+
+Reading every ticket turned up these. The ones marked ✅ are corrected in Ship.
+
+| | ticket | what was wrong | now |
+|---|---|---|---|
+| ✅ | UIG-8 | Its acceptance said the lint rule must report the Folders scroll bug. Its own trap said a class rule could never find it. Peek commit `3dc663b` settles it: the column had no scroll container. | The acceptance asks `GATES.md` to show there was no overflow class, and hands the case to the route probe. The example line that repeated the claim is corrected too. |
+| ✅ | UIG-10 | "the registry generator, once UIG-11 exists". UIG-11 is Leaf. | UIG-12. |
+| ✅ | UIG-10 | "Ship was retrofitted over four pull requests. Peek … over 29 commits and a month". The same wrong facts as the guide's F9 and F10. | Eight pull requests; PR #193's 29 commits. |
+| ✅ | UIG-10, UIG-11, UIG-26 | "the same row set as Peek's and Ship's" | "the same gate checks" (§15). |
+| ✅ | UIG-26 | "all 25 rows", "All 25 preceding tickets", "UIG-1 to UIG-25" — written before UIG-27 to UIG-29 existed. | The 28 other tickets. |
+| ✅ | UIG-21 | "All of ours have passed [200 lines]". `CLAUDE.md` alone: estiva-ui 189, Peek 136, Ship 168 — none has. Counted with the files each imports with `@`: Peek **273**, Ship **298**, estiva-ui **192**. | The measured numbers, a trap about imports, and "under 200 lines, counted with every file it imports". |
+| ✅ | UIG-15 | "no page in Peek has a story or a test". Three pages have had a story since 13 July; `FoldersPage.test.tsx` arrived on 12 September. | The Folders page had no story and no test when its defects passed. |
+| ⬜ | UIG-3, UIG-29 | Their traps quote Peek's lint as `eslint src` 79, `eslint .` 94. On 13 September, at `00bf06b`: **84** and **99**. | Not changed. Both tickets tell the session to quote the scope it ran; it must re-measure. |
+| ⬜ | UIG-17 | "58 story files" — Peek has had 59 since 09:24 UTC on 12 September. | Not changed. The ticket counts before and after. |
+| ⬜ | UIG-3, UIG-5 | The roadmap puts a `docs/GATES-DEBT.md` in every repo, and UIG-20 reads "all repos' `GATES-DEBT.md`". Only UIG-4 creates one. | **Open.** UIG-3 and UIG-5 should each create theirs, or UIG-20 reads less than it thinks. Worth a line in each when they start. |
+| ⬜ | GATES.md §9.2 and §13 | §9.2 says the guide named the wrong Base UI package; it did not (§18). §13's last lines say three things wait on Katerina; §14 answered them. | Left as UIG-1 wrote them. This row and §0 are the correction. |
+
 ---
 
 *UIG-1, 13 September 2026. Measured at estiva-ui `93048cd` (0.12.6), peek
 `d094006`, ship `e85de7f`. All three on main, all three clean.*
+
+*UIG-2, 13 September 2026. Built on estiva-ui `214702c` (0.12.8), peek
+`00bf06b`, ship `e85de7f`. The guide copied from its artifact, version
+`1789170129-badc`.*
