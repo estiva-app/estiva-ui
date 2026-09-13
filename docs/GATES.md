@@ -23,7 +23,7 @@ answer
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
-| 🚧 **UIG-2** | Built. estiva-ui PR @@EUI_PR@@, peek PR @@PEEK_PR@@, ship PR @@SHIP_PR@@. Waiting for Katerina to merge. |
+| 🚧 **UIG-2** | Built. estiva-ui PR #24, peek PR #204, ship PR #148. Waiting for Katerina to merge. |
 
 ### Two things wait on Katerina
 
@@ -48,6 +48,10 @@ On 13 September, on the `gates/02-rails` branches, it printed:
 
 The 2 done are UIG-1 and UIG-2. On `main` the command does not exist until the
 PRs merge.
+
+**UIG-2's ✅ there is not the whole ticket.** The script reads code, and one part
+of UIG-2 is not code: the Ship project description (§19). UIG-2 closes in Ship
+when the three PRs merge **and** Katerina has pasted that wording.
 
 ### ▶️ Next: UIG-27 and UIG-28, in any order. Then phase 1.
 
@@ -76,6 +80,8 @@ UIG-27 needs Katerina early: she rules on Link's shape before it is built.
 | ✅ | "Rules" is three words: lint rules, usage rules, instructions | §19 |
 | ✅ | 14 tickets reworded or corrected in Ship | §19, §22 |
 | ✅ | `CLAUDE.md` in each repo points here | two lines each |
+| ✅ | The memory note on Katerina's machine names the guide, this file, the Ship project and the command | `estiva-ui-guardrails-project` |
+| ✅ | A fresh session answered "where are we?" from these sources alone | §17 |
 | ⬜ | The Ship project description | waits for Katerina's paste, §19 |
 
 ### What changed around us while UIG-2 ran
@@ -1210,6 +1216,30 @@ broken check.
 **The status files break no existing check.** Both lint clean in estiva-ui and
 Peek. Peek's `eslint .` has 0 errors in them. Ship's `tsc --noEmit` includes
 `scripts/` but not `.mjs`, and still exits 0.
+
+**A fresh session can answer "where are we?" from these sources alone.** A new
+agent, with none of the conversation behind UIG-2, was given only this file, the
+guide, `npm run gates:status` and the Ship project, and told to read nothing
+else. It answered all of these correctly, quoting the source for each:
+
+| question | its answer |
+|---|---|
+| done, in progress | UIG-1 done; UIG-2 built on the branch, waiting to merge; 27 not started |
+| waiting on Katerina | merge PRs #24, #204, #148; paste §19's wording into the Ship description |
+| next | UIG-27 and UIG-28, then UIG-3 to UIG-9 in order, UIG-29 alongside |
+| how many, who owns | 29; estiva-ui 24, peek 3, ship 2 |
+| where the true status is | `npm run gates:status`, with `-- --detail` |
+
+It also found three things, all now handled:
+
+| | it said | now |
+|---|---|---|
+| 1 | `gates:status` shows UIG-2 ✅, but the Ship description paste is part of UIG-2 and no check can see it | §0 says so. A setting in Ship is not code; the ticket closes in Ship. |
+| 2 | The sources do not show the memory note was written | Written at the end of the session, after the proof ran. §0 lists it. |
+| 3 | §9.2 and §13 still say what UIG-1 wrote | §22 already records both as stale, and why they are left. |
+
+It could not tell whether the PRs are still open. That is right: a merge is not
+in the code, so check GitHub.
 
 ### Four false passes, caught while building
 
