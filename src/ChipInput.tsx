@@ -112,6 +112,14 @@ export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
   rowLeading?: (option: T) => ReactNode
   /** Set by a `Field` with `required`; a caller inside one owes nothing. */
   'aria-required'?: boolean | 'true' | 'false'
+  /**
+   * The field's name, for a caller that is not inside a `Field` — a `Field`'s
+   * label names it already. With neither this nor `aria-labelledby`, the
+   * placeholder is the name, and it stays the name once a chip is in.
+   */
+  'aria-label'?: string
+  /** The id of what names the field on the page — a visible "To:", say. */
+  'aria-labelledby'?: string
 }
 
 export function ChipInput<T extends ChipInputOption = ChipInputOption>({
@@ -157,6 +165,21 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
      must not drop the whole directory over the surface below, which is why
      the open state is this component's and not the part's. */
   const open = query.trim().length > 0
+
+  /* The field's name (PLAN Finding 6). With no chip, Chrome names the field
+     by its placeholder; the first chip takes the placeholder away, and the
+     field was left with no name at all (measured: ""). So the placeholder
+     stays on as the name once it is no longer drawn. A caller's own name
+     wins, and so does a `Field`'s label: Base UI points `aria-labelledby` at
+     it, and a label by reference outranks `aria-label`.
+     Only a name that exists is passed. Base UI copies a caller's prop over its
+     own even when the value is `undefined`, so an `aria-labelledby` written
+     out empty would wipe the `Field`'s. */
+  const ariaLabel = aria['aria-label'] ?? (value.length > 0 ? placeholder : undefined)
+  const naming = {
+    ...(ariaLabel !== undefined && { 'aria-label': ariaLabel }),
+    ...(aria['aria-labelledby'] !== undefined && { 'aria-labelledby': aria['aria-labelledby'] }),
+  }
 
   function removeLast() {
     if (value.length > 0) onChange(value.slice(0, -1))
@@ -213,6 +236,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
           autoFocus={autoFocus}
           placeholder={value.length === 0 ? placeholder : ''}
           aria-required={aria['aria-required']}
+          {...naming}
           onKeyDown={onInputKeyDown}
           className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
         />

@@ -55,6 +55,15 @@ import { ChipInput } from '@estiva-app/ui'
   arrow keys move through the suggestions, and a screen reader is told which
   one is highlighted. The list is as wide as the field and hangs below it,
   or above when there is no room.
+- **The field's name.** Inside a `Field`, the label names it — pass nothing.
+  Anywhere else, pass `aria-label`, or `aria-labelledby` pointing at a
+  visible label such as a "To:". With neither, the placeholder is the name,
+  and it stays the name after the first chip stops it being drawn.
+
+```tsx
+<span id="to-label">To:</span>
+<ChipInput aria-labelledby="to-label" value={chosen} onChange={setChosen} options={directory} />
+```
 
 ## Keys
 
