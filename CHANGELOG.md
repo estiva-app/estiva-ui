@@ -1,5 +1,44 @@
 # Changelog
 
+## Unreleased — UIG-27
+
+**Two components the apps had to build themselves: `Link` and `InlineChip`.**
+Both apps hand-wrote every link they have (18 raw `<a>` on 13 September, plus
+2 through Peek's router), and Peek had the only inline chip, in its own code.
+Nothing a caller writes has to change; the apps take these in UIG-27's own
+app PRs.
+
+### Added
+
+- **`Link`** — a real anchor in one of four looks, with navigation left to the
+  app's router through `onClick`, the way `NavItem` does it. Katerina's
+  rulings reduced the apps' five looks to these:
+
+  | look | what it is | where the apps had it |
+  |---|---|---|
+  | `text` | the info colour, always underlined, dims on hover | a link inside a message body |
+  | `quiet` | its text's colour and size, underlines on hover | a title, a reply's timestamp, a title in a table |
+  | `underlined` | its text's colour, always underlined, brightens on hover | "Open in app ↗" (was dotted) and "Open it there" |
+  | `plain` | no look; what it wraps draws itself | a card or a row that is a link |
+
+  `external` opens a new tab with `noopener noreferrer`. `text` measures
+  identical to Peek's body link, 24 computed properties at rest and on hover;
+  `quiet`'s underline is identical to Peek's timestamp.
+
+- **`InlineChip`** — Peek's inline chip (D67), a word in a sentence one line
+  high, in four tones: `neutral`, `person` (Peek's `mention`), `urgent`,
+  `quiet`. `href` makes it a link. `inlineChipClassName(tone)` and the two class
+  maps are exported for an editor that renders chips from strings. Measured
+  against Peek's chips: 24–26 computed properties identical for neutral,
+  person, urgent and a chip with an icon.
+
+### Fixed, against Peek's copy
+
+- **The quiet chip is 19.6px tall, like every other chip.** In Peek it is
+  16.8px — `1.4em` of its caption size — with its letters 1.81px above the
+  sentence's baseline. Here its height is written out, and they sit 0.41px
+  off. Peek's copy keeps the 16.8px box until it takes this one.
+
 ## 0.12.10 — 2026-09-13
 
 **Every toolbar in a Popover is its old size again, and the Capped story
