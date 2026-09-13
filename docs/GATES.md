@@ -18,75 +18,79 @@ answer
 
 ## §0 Where we are
 
-**13 September 2026. UIG-2 is done. Nothing waits on Katerina.**
+**14 September 2026. UIG-27 is in progress. UIG-30 is new. Link and InlineChip wait for Katerina’s review.**
 
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
-| ✅ **UIG-2** | Done. Merged in estiva-ui PR #24 and #25, peek PR #204, ship PR #148. The Ship project description carries the new wording (§19). |
+| ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
+| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built and waiting for Katerina's review in Storybook. ProgressBar, Card, EmptyState's padding and the two app PRs are left. |
+| ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
 
-### Two things that went wrong while closing UIG-2
+### What happened since UIG-2 closed
 
-| | what happened | now |
+| | what | now |
 |---|---|---|
-| ⚠️ **1** | **The Ship project description showed raw JSON for about three minutes.** Katerina asked for the wording to be applied rather than pasted. It was sent with the agent's `edit-project` command, which drops the `content-format` tag Ship's editor sets, so Ship drew the block document as plain text. | Republished at 10:23 UTC with the tag, the way the editor saves. Stored value checked byte for byte, both screenshots present, format "blocks". Nothing was lost. §19 has the method; §22 the bug. |
-| ⚠️ **2** | **Peek's deploy after #204 failed on a flaky test**, `CommandLauncher.live.test.tsx` — "pointer-events: none" clicking a Select option. It failed 2 of the last 5 runs, both after PR #201 moved Peek to `@estiva-app/ui` `0.12.8`. UIG-2 changed no app code. | The failed job was re-run: it passed and Peek published. The flake is still there. §22. |
+| ✅ | **The flaky Peek test is fixed** (peek PR #205, merged and deployed). §22 blamed `0.12.8`; that was wrong. Focusing a Base UI Select's trigger mounts its list at once, closed: `hidden` and `pointer-events: none`. A mouse press opens it one animation frame later. The tests found an option by its text inside the closed list and clicked before that frame. It failed the same way on `0.12.3`, on 12 September. Slowing every frame by 100 ms found **9 tests in 4 files** in Peek, **0** in Ship and estiva-ui. They now find the option by its role, which waits for the open list. | closed |
+| ✅ | **UIG-27 overlapped the migration plan.** PLAN §9 (stage 7) already held `Card`, with a link variant, and `ProgressBar`; the migration's D67 was building the inline chip in Peek. Katerina ruled: Card, rows, ProgressBar and EmptyState's padding are UIG-27's. The chip was D67's, and moves into the package here. The foreign-object card's inside layout (D66) stays with stage 7. The migration docs say the same. | ruled 13 September |
+| ✅ | **UIG-30 created**: the half of Peek's `MessageBody` and Ship's `RichText` that draws the protocol's text tree becomes one package component, `RichText`. What a mention points at stays in each app. It goes against a written line in the protocol package ("one parse, one resolution, two designs"), so Jan is told before its PR. | created |
 
 ### Start here
 
 1. Read this section.
-2. Run `npm run gates:status` in estiva-ui. It reads all 29 tickets from the code, in all three repos. §17 says how.
+2. Run `npm run gates:status` in estiva-ui. It reads every ticket from the code, in all three repos. §17 says how.
 3. Read the ticket in Ship, in full.
 
-On 13 September, on the `gates/02-rails` branches, it printed:
+On 14 September, on `gates/27-missing-components`, it printed:
 
 ```
-✅ 2 done · 🚧 0 started · ⬜ 27 not started · ❔ 0 could not check
-29 tickets. Owned by estiva-ui 24, peek 3, ship 2.
+✅ 2 done · 🚧 1 started · ⬜ 27 not started · ❔ 0 could not check
+30 tickets. Owned by estiva-ui 25, peek 3, ship 2.
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-The 2 done are UIG-1 and UIG-2. After all four PRs merged, the same run on the
-three `main` branches prints the same lines.
+UIG-27 reads 2 of 10: `Link` and `InlineChip` are exported.
 
-### ▶️ Next: UIG-27 and UIG-28, in any order. Then phase 1.
+### UIG-27: Katerina's rulings, 13 September
 
-| when | tickets |
-|---|---|
-| done | **UIG-1** · **UIG-2** (once merged) |
-| now, any order | **UIG-27** · **UIG-28** |
-| then, phase 1 | **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9** |
-| alongside phase 1, never blocking it | **UIG-29** |
-| after | UIG-10 onwards, in order |
+1. The text links become a new **`Link`**. Cards and rows use the same Link with no look of its own (`plain`), and `Card` is built on it in this ticket.
+2. Link has four looks. Link A (in text) is **`text`**. Links B and C, which differed only in their text, become one look, **`quiet`**. Links D and E, a dotted and a solid underline doing the same job, become one solid look, **`underlined`**.
+3. Peek's chip moves into the package unchanged, as **`InlineChip`**, before Link. Its tone `mention` is renamed **`person`**. A chip that leads somewhere takes `href` and `onClick`, like `NavItem`.
+4. Only the drawing part of rich text moves, and in its own ticket (UIG-30).
 
-UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the
-token lint that phase 1 sits on, so do it first. The reference number is not the
-order: UIG-27, UIG-28 and UIG-29 were created after UIG-1.
+### UIG-27: the links, recounted
 
-UIG-27 needs Katerina early: she rules on Link's shape before it is built.
+Counted by AST on 13 September, Peek `main` `ada8c91`, Ship `main` `21ec2a8`, tests excluded.
 
-### What UIG-2 changed, in one table
+| job | Peek | Ship | total |
+|---|---|---|---|
+| 🔗 text link | 5 | 2 | 7 |
+| 🃏 a whole card or row | 2 | 4 | 6 |
+| 💊 a chip | 2 | 3 | 5 |
+| **raw `<a>`** | **9** | **9** | **18** |
+| through Peek's router `Link`, the quiet look | 2 | 0 | **2** |
 
-| | what | where |
+UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`, 2 per app. The 2 router links in `ConversationCard.tsx` and `ThreadPanel.tsx` were never raw anchors, so no count saw them. The ticket's arithmetic, `fitted + reasoned = 20`, is written here when the app PRs land.
+
+### UIG-27: what building it found
+
+| | finding | where it goes |
 |---|---|---|
-| ✅ | The guide is committed, word for word, then corrected in 36 approved changes | `docs/GATES-GUIDE.md`, §18, §19 |
-| ✅ | `npm run gates:status` in all three repos | `scripts/gates-status.mjs`, §17 |
-| ✅ | The route: phases, the 29 tickets, who owns each | §15 |
-| ✅ | The five seams | §16 |
-| ✅ | "Rules" is three words: lint rules, usage rules, instructions | §19 |
-| ✅ | 14 tickets reworded or corrected in Ship | §19, §22 |
-| ✅ | `CLAUDE.md` in each repo points here | two lines each |
-| ✅ | The memory note on Katerina's machine names the guide, this file, the Ship project and the command | `estiva-ui-guardrails-project` |
-| ✅ | A fresh session answered "where are we?" from these sources alone | §17 |
-| ✅ | The Ship project description | carries the new wording, screenshots kept, §19 |
+| ✅ | **Peek's quiet chip is 16.8px, not 19.6px**: `1.4em` of its caption size, with its letters 1.81px above the sentence's baseline. D67 ruled every chip 19.6px. The package's is 19.6px, 0.41px off. | Peek is fixed when it takes `InlineChip` |
+| ⚠️ | **`InlineChip` needs `h-[1.4em]`, and `h-[19.6px]` for the quiet tone.** No token names one line of body text. UIG-28 plans `h-[240px]` as a warning. | UIG-28: allow these two, or add a line-height token |
+| ✅ | Ship's mention chip does not move when it takes `InlineChip`: its status icon comes after the words, and the drift D67 measured needs an icon first. | measured 13 September |
+| ✅ | Two stories carry a color-contrast exception, computed and not run: the person chip in ship (2.70:1, the brand `Chip`'s number) and the quiet chip in signal (3.25:1). | PLAN stage 0.10 |
 
-### What changed around us while UIG-2 ran
+### ▶️ Next
 
-| | |
+| when | what |
 |---|---|
-| ✅ | estiva-ui `0.12.8` is released (PR #23, Select's list and scrollbar). Peek and Ship still ask for `^0.12.6`. |
-| ✅ | Peek PR #201 merged: migration stage 5 in Peek. Peek's `gates/02-rails` branch starts after it, at `00bf06b`. |
-| ⚠️ | Ship's local `web/node_modules` has `@estiva-app/ui` `0.12.5` installed, though `web/package.json` asks for `^0.12.6`. A local install out of date. `gates:status` reads what is installed. |
+| now | Katerina reviews `Link` and `InlineChip` in the branch's Storybook |
+| then, in UIG-27 | `ProgressBar` on Base UI `Progress` (Katerina picks Ship's 6px or Peek's 3px), `Card` with its link, EmptyState's padding (17 callers pass their own, in 7 sizes), then one PR in Peek and one in Ship |
+| after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
+| alongside phase 1, never blocking it | **UIG-29** |
+
+UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
 
 ### What is ready for the next tickets
 
@@ -94,10 +98,13 @@ UIG-27 needs Katerina early: she rules on Link's shape before it is built.
 |---|---|
 | UIG-3 | Its checks in `gates:status` are written, and proved to flip. Peek's lint today: `eslint src` **84**, `eslint .` **99** (the ticket's 79 / 94 is stale). |
 | UIG-4 | Its checks are written. It creates `ship/docs/GATES-DEBT.md`, the first debt list. |
+| UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
 | UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
 | every ticket | Update your own checks in `scripts/gates-checks.mjs` and your row in §15 in the same session. |
+
+**Not yet done for UIG-30:** Peek's and Ship's `scripts/gates-checks.mjs` still list 29 tickets. UIG-27's app PRs add it.
 
 ---
 
@@ -1021,7 +1028,7 @@ reconciles.
 UIG-3, UIG-4, UIG-5, UIG-23, UIG-25 and UIG-28. UIG-7 and UIG-8 already pointed
 here for the stories answer, and this section gives it, so they were left alone.
 
-## §15 The route — phases and the 29 tickets
+## §15 The route — phases and the tickets
 
 UIG-2 wrote this. Ship holds each ticket's full text. `gates:status` holds each
 ticket's status, read from the code. This section holds what neither does: the
@@ -1045,9 +1052,10 @@ day it is written. Run `npm run gates:status` for it.
 | close | UIG-26 | The starter carries everything, Leaf has every rule, and the numbers are measured. |
 
 The phases come from the roadmap artifact, revision 5. UIG-27, UIG-28 and UIG-29
-were added by UIG-1's findings on 13 September.
+were added by UIG-1's findings on 13 September. UIG-30 was added while UIG-27 was
+planned, the same day, and runs after it.
 
-### The 29 tickets, who owns each, and what gates:status checks
+### The tickets, who owns each, and what gates:status checks
 
 Every ticket is **owned by exactly one repo**. That repo's `gates:status` prints
 it as its own row. A ticket that touches other repos has **parts** there, checked
@@ -1086,9 +1094,10 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-24 | Fingerprint — browser tooltip | estiva-ui | peek, ship | probe: `title=` names WithTooltip |
 | UIG-25 | Fingerprint — component copied by hand | estiva-ui | peek, ship | probe: SectionLabel's class list typed by hand is a **warning**, in all three repos |
 | UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
-| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link` and `ProgressBar` exported; `EmptyState` has a `padding` prop; each app installs a version that has them and its hand-made progress bar is gone |
+| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip` and `ProgressBar` exported; `EmptyState` has a `padding` prop; each app installs a version that has them and its hand-made progress bar is gone |
 | UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on the token lint: `text-[14px]` and an inline colour are errors, `h-[240px]` is a warning |
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
+| UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
 
 The five sections are *What it is*, *When*, *When not*, *How* and *What it owns*,
 from UIG-14.
@@ -1102,11 +1111,11 @@ session. Every ticket already says so in its acceptance criteria.
 
 | | |
 |---|---|
-| tickets | **29** |
-| owned by estiva-ui | **24** — UIG-1, 2, 5 to 16, 19 to 28 |
+| tickets | **30** |
+| owned by estiva-ui | **25** — UIG-1, 2, 5 to 16, 19 to 28, 30 |
 | owned by peek | **3** — UIG-3, 17, 29 |
 | owned by ship | **2** — UIG-4, 18 |
-| **24 + 3 + 2** | **29** ✅ |
+| **25 + 3 + 2** | **30** ✅ |
 | parts checked in estiva-ui | 1 — UIG-3 |
 | parts checked in peek | 15 |
 | parts checked in ship | 15 |
@@ -1515,7 +1524,7 @@ Reading every ticket turned up these. The ones marked ✅ are corrected in Ship.
 | ⬜ | UIG-3, UIG-5 | The roadmap puts a `docs/GATES-DEBT.md` in every repo, and UIG-20 reads "all repos' `GATES-DEBT.md`". Only UIG-4 creates one. | **Open.** UIG-3 and UIG-5 should each create theirs, or UIG-20 reads less than it thinks. Worth a line in each when they start. |
 | ⬜ | GATES.md §9.2 and §13 | §9.2 says the guide named the wrong Base UI package; it did not (§18). §13's last lines say three things wait on Katerina; §14 answered them. | Left as UIG-1 wrote them. This row and §0 are the correction. |
 | ⚠️ | estiva-agent | `edit-project` and `edit-issue --description`, and the `ship_edit_project` / `ship_edit_issue` tools built on them, send a description with **no `content-format` tag**. A rich description edited that way is drawn as raw JSON. The vendored `Store.setField` already accepts `contentFormat`; the commands never pass it. It broke the UI Guardrails description for three minutes on 13 September. | **Open.** A fix belongs in estiva-agent — Jan's call. Until then, never edit a rich description with those commands. Plain-text ticket descriptions, like every UIG ticket's, are unaffected. |
-| ⚠️ | peek | `src/components/CommandLauncher.live.test.tsx`, "the created object leaves a trace in the thread (PEE-2)": clicking the Project Select's option fails with "pointer-events: none" on a `div`. Failed on #204's first run and on `main` after #204 merged; passed on re-run and locally 10 of 10. Every failure is after PR #201 moved Peek to `@estiva-app/ui` `0.12.8`, whose Select changed (estiva-ui PR #23). | **Open.** Not UIG-2's. A flaky test on `main` blocks deploys at random. Needs a ticket. |
+| ⚠️ | peek | `src/components/CommandLauncher.live.test.tsx`, "the created object leaves a trace in the thread (PEE-2)": clicking the Project Select's option fails with "pointer-events: none" on a `div`. Failed on #204's first run and on `main` after #204 merged; passed on re-run and locally 10 of 10. Every failure is after PR #201 moved Peek to `@estiva-app/ui` `0.12.8`, whose Select changed (estiva-ui PR #23). **Corrected 14 September: not `0.12.8`.** It failed on `0.12.3` too; the cause was a Base UI timing race in the tests (§0). | ✅ **Fixed** in peek PR #205, no ticket (Katerina). |
 
 ---
 

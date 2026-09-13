@@ -1,5 +1,5 @@
 /**
- * What gates:status checks in estiva-ui, and the list of all 29 tickets.
+ * What gates:status checks in estiva-ui, and the list of every ticket.
  *
  * `all` is every ticket, its title (copied from Ship, which stays the source
  * for titles), the one repo that owns it, and which other repos hold a part of
@@ -41,6 +41,7 @@ const all = [
   { ref: "UIG-27", owner: "estiva-ui", parts: PEEK_SHIP, title: "The components the apps had to build themselves — Link, ProgressBar, EmptyState padding" },
   { ref: "UIG-28", owner: "estiva-ui", parts: PEEK_SHIP, title: "Close the two holes in the token contract — arbitrary values, and inline style" },
   { ref: "UIG-29", owner: "peek", title: "CommandLauncher — 1,655 lines that will fail almost every lint rule" },
+  { ref: "UIG-30", owner: "estiva-ui", parts: PEEK_SHIP, title: "RichText — one component that draws a message's text, for both apps" },
 ];
 
 const siblings = [
@@ -142,11 +143,15 @@ export default function define(h) {
     { ref: "UIG-26", owner: true, checks: [] },
     { ref: "UIG-27", owner: true, checks: [
       { what: "Link is in the package", run: () => h.contains("src/index.ts", /\bLink\b/, "src/index.ts exports Link") },
+      { what: "InlineChip is in the package", run: () => h.contains("src/index.ts", /\bInlineChip\b/, "src/index.ts exports InlineChip") },
       { what: "ProgressBar is in the package", run: () => h.contains("src/index.ts", /\bProgressBar\b/, "src/index.ts exports ProgressBar") },
       { what: "EmptyState takes padding as a prop", run: () => h.contains("src/EmptyState.tsx", /\bpadding\??\s*:/, "EmptyState has a padding prop") },
     ] },
     { ref: "UIG-28", owner: true, checks: [
       { what: "text-[14px] is an error in the package", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"text-[14px]\">x</div>\n}\n", expect: "error" }) },
+    ] },
+    { ref: "UIG-30", owner: true, checks: [
+      { what: "RichText is in the package", run: () => h.contains("src/index.ts", /\bRichText\b/, "src/index.ts exports RichText") },
     ] },
   ];
 
