@@ -18,18 +18,18 @@ answer
 
 ## §0 Where we are
 
-**13 September 2026. UIG-2 is built. Its three PRs are open and not merged.**
+**13 September 2026. UIG-2 is built. estiva-ui PR #24 is merged. Peek's and Ship's PRs are open.**
 
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
-| 🚧 **UIG-2** | Built. estiva-ui PR #24, peek PR #204, ship PR #148. Waiting for Katerina to merge. |
+| 🚧 **UIG-2** | Built. estiva-ui PR #24 merged at 10:03 UTC. peek PR #204 and ship PR #148 wait to merge. This file's last lines came in a follow-up PR, because #24 merged while they were being written. |
 
 ### Two things wait on Katerina
 
 | | |
 |---|---|
-| ⚠️ **1** | **Merge the three UIG-2 PRs.** |
+| ⚠️ **1** | **Merge peek PR #204 and ship PR #148.** |
 | ⚠️ **2** | **Paste the new wording into the Ship project description.** The text is in §19. The Ship tool must not do it: it replaces the whole description, and the description holds two of her screenshots. |
 
 ### Start here
@@ -46,12 +46,13 @@ On 13 September, on the `gates/02-rails` branches, it printed:
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-The 2 done are UIG-1 and UIG-2. On `main` the command does not exist until the
-PRs merge.
+The 2 done are UIG-1 and UIG-2. Until #204 and #148 merge, a run with Peek and
+Ship on their `main` shows their parts as ❔, because their script does not exist
+there yet.
 
 **UIG-2's ✅ there is not the whole ticket.** The script reads code, and one part
 of UIG-2 is not code: the Ship project description (§19). UIG-2 closes in Ship
-when the three PRs merge **and** Katerina has pasted that wording.
+when #204 and #148 merge **and** Katerina has pasted that wording.
 
 ### ▶️ Next: UIG-27 and UIG-28, in any order. Then phase 1.
 
