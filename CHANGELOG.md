@@ -2,11 +2,11 @@
 
 ## Unreleased — UIG-27
 
-**Two components the apps had to build themselves: `Link` and `InlineChip`.**
-Both apps hand-wrote every link they have (18 raw `<a>` on 13 September, plus
-2 through Peek's router), and Peek had the only inline chip, in its own code.
-Nothing a caller writes has to change; the apps take these in UIG-27's own
-app PRs.
+**Three components the apps had to build themselves: `Link`, `InlineChip` and
+`ProgressBar`.** Both apps hand-wrote every link they have (18 raw `<a>` on 13
+September, plus 2 through Peek's router), Peek had the only inline chip, in its
+own code, and each app drew its own progress bar. Nothing a caller writes has to
+change; the apps take these in UIG-27's own app PRs.
 
 ### Added
 
@@ -31,6 +31,15 @@ app PRs.
   maps are exported for an editor that renders chips from strings. Measured
   against Peek's chips: 24–26 computed properties identical for neutral,
   person, urgent and a chip with an icon.
+
+- **`ProgressBar`** — on Base UI's `Progress`, which owns the `progressbar`
+  role and its numbers; `label` is required. Ship's props, unchanged
+  (`value`, `max`, `label`), and both apps' looks, kept because they do
+  different jobs: `default` is Ship's, 6px with the success colour, a bar
+  someone reads; `quiet` is Peek's, 3px with the muted success colour, a glance
+  beside a count. Measured: `default` identical to Ship's bar at 10 of 14,
+  empty and complete, track and fill, width and share included; `quiet`
+  identical to Peek's. A screen reader now hears the share as a percentage.
 
 ### Fixed, against Peek's copy
 

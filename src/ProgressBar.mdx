@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ProgressBarStories from './ProgressBar.stories'
+
+<Meta of={ProgressBarStories} />
+
+# ProgressBar
+
+How much of something is done: a thin rounded track with a success-coloured
+fill.
+
+<Canvas of={ProgressBarStories.WithWords} />
+
+## When
+
+- **`default`** — 6px, the success colour: a bar someone reads, with the words
+  printed beside it.
+- **`quiet`** — 3px, the muted success colour: a glance on the same line as a
+  count.
+
+<Canvas of={ProgressBarStories.Quiet} />
+
+## When not
+
+- Something still loading, with no amount to show → **Skeleton**.
+- A state with a verdict rather than an amount → **Chip**.
+
+## How
+
+```tsx
+import { ProgressBar } from '@estiva-app/ui'
+
+<ProgressBar value={done} max={total} label="Items done" />
+<span className="text-caption text-text-muted">{done} of {total} done</span>
+```
+
+- `label` is required: it is the bar's accessible name. A screen reader hears
+  the name and the share as a percentage; print the counts beside the bar for
+  everyone else.
+- A value above `max` fills the bar and no further. `max={0}` is an empty bar.
+- It is built on Base UI's `Progress`, which owns the `progressbar` role and
+  its numbers. Do not nest it inside a button: the bar's name would become part
+  of the button's.
+- `className` is for placement: a width, a margin, `flex-1` in a row.
+
+## Props
+
+<Controls of={ProgressBarStories.Default} />
