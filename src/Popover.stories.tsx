@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconBold, IconItalic, IconLink } from '@tabler/icons-react'
-import { useRef, useState, type KeyboardEvent, useCallback } from 'react'
+import { useRef, useState, type KeyboardEvent } from 'react'
 import { Button } from './Button'
 import { MenuPanel } from './Menu'
 import { Popover } from './Popover'
@@ -235,17 +235,18 @@ export const Capped: Story = {
   parameters: { controls: { disable: true }, layout: 'fullscreen' },
   render: function Capped() {
     /* Anchored and open, so the cap is the thing you see rather than a button
-       you have to press first. A rect is all an anchor needs. */
-    const [rect, setRect] = useState<DOMRect | null>(null)
-    const mark = useCallback((el: HTMLDivElement | null) => {
-      setRect(el ? el.getBoundingClientRect() : null)
-    }, [])
+       you have to press first. Anchored on the ELEMENT, held in state from a
+       callback ref: an element is re-measured. It used to be a rect read once
+       in the ref, and arriving at this story from another one read it before
+       the canvas was laid out — 0 × 0 at the corner, a 0px panel, only the
+       line of text showing (PLAN Finding 61). */
+    const [marker, setMarker] = useState<HTMLDivElement | null>(null)
     return (
       <div className="flex h-[420px] w-full items-center justify-center">
-        <div ref={mark} className="text-body-2 text-text-secondary">
+        <div ref={setMarker} className="text-body-2 text-text-secondary">
           twenty rows, capped at 160px
         </div>
-        <Popover anchor={rect} open ariaLabel="A long panel" className="w-[240px]" maxHeight="max-h-[160px]">
+        <Popover anchor={marker} open ariaLabel="A long panel" className="w-[240px]" maxHeight="max-h-[160px]">
           {Array.from({ length: 20 }, (_, i) => (
             <span key={i} className="text-body-2 text-text-primary py-1">
               Row {i + 1}
