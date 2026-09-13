@@ -33,6 +33,7 @@
     "test:a11y": "vitest run --project storybook-signal --project storybook-ship",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "gates:status": "node scripts/gates-status.mjs",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
