@@ -18,13 +18,13 @@ answer
 
 ## §0 Where we are
 
-**14 September 2026. UIG-27 is in progress. UIG-30 is new. Link and InlineChip wait for Katerina’s review.**
+**14 September 2026. UIG-27 is in progress. UIG-30 is new.**
 
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
-| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built and waiting for Katerina's review in Storybook. ProgressBar, Card, EmptyState's padding and the two app PRs are left. |
+| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built: Ship's look and Peek's, both measured identical to the originals. Card, EmptyState's padding and the two app PRs are left. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
 
 ### What happened since UIG-2 closed
@@ -85,8 +85,8 @@ UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`
 
 | when | what |
 |---|---|
-| now | Katerina reviews `Link` and `InlineChip` in the branch's Storybook |
-| then, in UIG-27 | `ProgressBar` on Base UI `Progress` (Katerina picks Ship's 6px or Peek's 3px), `Card` with its link, EmptyState's padding (17 callers pass their own, in 7 sizes), then one PR in Peek and one in Ship |
+| now | Katerina reviews `ProgressBar`, and rules on EmptyState's padding: Peek's callers pad to match the list they replace (FolderContentsView's `p-4` is its list's `p-4`); Ship's add vertical room (`py-6`, `py-8`, `py-10`). One prop cannot carry both without moving pixels |
+| then, in UIG-27 | `Card` with its link: first sort every bordered box in the two apps — 23 class strings with a radius, a border and a fill (Peek 16, Ship 7), plus the cards drawn without a fill (Ship's issue row, the thread card) — into cards and not-cards, with Katerina, from photographs. Then one PR in Peek and one in Ship |
 | after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
 
