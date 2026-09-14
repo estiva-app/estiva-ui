@@ -32,6 +32,41 @@
   always drew it, and the doc now says not to render a reaction with no count.
   Proof: its 9 stories and `ReactionPicker`'s identical in both themes; 5 tests,
   one failing on the old component and two when `pressed` becomes uncontrolled.
+- **`ToastProvider` is Base UI's `Toast`, and three toasts stand at once**
+  (D6, D7). Before, a new toast replaced the standing one and nothing was
+  announced. Now:
+  - up to **three** show, bottom-left, the newest nearest the corner; a fourth
+    hides the oldest until one of the three closes, so a warning kept up with
+    `durationMs: 0` comes back rather than being lost;
+  - the stack is a region named "Notifications", announced politely; an
+    `error` toast is announced at once;
+  - the timers pause while the pointer or focus is on the toasts, and while
+    the window is in the background;
+  - F6 moves focus to the toasts, Escape closes the focused one, and a toast
+    can be swiped away left or down;
+  - the portal, the timer and the one-toast state are gone from this file.
+
+  **API.** `showToast` returns the toast's id (it returned nothing).
+  `dismissToast(id?)` takes it: with an id it closes that toast, with none it
+  closes every toast. **The action closes its own toast** and runs `onAction`
+  only if given, so `actionLabel` alone is a Dismiss. `Toast`, the pill drawn
+  in place, is unchanged.
+
+  **Callers.** Peek passes `onAction: dismissToast` in two places —
+  `lib/reportDelete.ts:38` and `pages/TopicsPage.tsx:162`. Pressed with other
+  toasts on screen, that now closes all of them; drop the `onAction` and keep
+  `actionLabel: 'Dismiss'`. Ship calls `showToast` once (`App.tsx`) and needs no
+  change.
+
+  Proof: a live toast from the provider photographed and style-diffed (every
+  element's box, colour, border, shadow, padding, type) before and after,
+  plain and with an action, both themes: identical. In Chrome: three stacked
+  8px apart, the fourth hid the kept-up warning, which came back once the
+  others expired; hovered for 6s nothing closed; F6, Tab, Escape; drag left
+  or down closes, right or up does not. 10 tests (it had none), 9 failing on
+  the old provider; breaking the one-toast close, the hidden class or the
+  error priority each fails one. Stories: every Toast and Banner story
+  identical but *From the provider*, which gained a *Keep one up* button.
 
 ## 0.13.1 — 2026-09-15 — UIG-27
 

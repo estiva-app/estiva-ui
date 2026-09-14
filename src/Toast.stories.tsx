@@ -82,11 +82,22 @@ function ProviderDemo() {
       >
         With an action
       </Button>
+      <Button
+        variant="muted"
+        onClick={() =>
+          showToast({ label: 'Not everything went through', type: 'warning', durationMs: 0, actionLabel: 'Dismiss' })
+        }
+      >
+        Keep one up
+      </Button>
     </div>
   )
 }
 
-/** The provider in motion: bottom-left, gone after 5 s, a new toast replaces the standing one. */
+/**
+ * The provider in motion: bottom-left, gone after 5 s. Press a few times — three stand at once, the newest
+ * nearest the corner, and a fourth hides the oldest until there is room. Hovering the toasts pauses them.
+ */
 export const FromTheProvider: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
