@@ -2,13 +2,35 @@
 
 ## Unreleased — UIG-27
 
-**Three components the apps had to build themselves: `Link`, `InlineChip` and
-`ProgressBar`.** Both apps hand-wrote every link they have (18 raw `<a>` on 13
-September, plus 2 through Peek's router), Peek had the only inline chip, in its
-own code, and each app drew its own progress bar. Nothing a caller writes has to
-change; the apps take these in UIG-27's own app PRs.
+**Four components the apps had to build themselves: `Link`, `InlineChip`,
+`ProgressBar` and `Card`.** Both apps hand-wrote every link they have (18 raw
+`<a>` on 13 September, plus 2 through Peek's router), Peek had the only inline
+chip, in its own code, each app drew its own progress bar, and 18 cards were
+drawn by hand across the two. Nothing a caller writes has to change; the apps
+take these in UIG-27's own app PRs.
 
 ### Added
+
+- **`Card`** — a box that stands for one thing, drawn as its frame: 8px
+  corners, a fill, a hairline; no padding or layout of its own. Katerina's
+  rulings, 14 September, from photographs of the 18 cards in both apps:
+
+  | | |
+  |---|---|
+  | `fill` | by what the card sits on: `surface` (the page), `elevated` (something already filled), `inset` (inside something filled), `none` |
+  | the hairline | follows the fill — default on `surface` and `elevated`, subtle on `inset` and `none` |
+  | `href` | the whole card is a `Link`; its hairline goes one step stronger on hover |
+  | `hover="fill"` | a card in a feed lights up; `quietUntilHover` hides its hairline until then |
+  | `selected` · `active` · `attention` | the one you are on · the one being changed · a hairline for something new (`accent`) or urgent (`warning`) |
+  | `unreadable` | a dashed hairline, in both apps |
+
+  Measured against the cards it replaces, corners, hairline and fill at rest and
+  on hover: identical to Ship's project card (link), Ship's object card and its
+  can't-read state, Peek's file card, Peek's project box, and Peek's
+  conversation card at rest, on hover, selected, unread, urgent and editing.
+  Ship's board card moves from 6px to 8px corners, as ruled. A card that never
+  changes carries no transition; the apps' still cards disagreed (some had one),
+  and nothing animates on a card that does not change.
 
 - **`Link`** — a real anchor in one of four looks, with navigation left to the
   app's router through `onClick`, the way `NavItem` does it. Katerina's

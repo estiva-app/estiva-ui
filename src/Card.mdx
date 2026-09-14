@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CardStories from './Card.stories'
+
+<Meta of={CardStories} />
+
+# Card
+
+A box that stands for one thing — drawn as its frame: 8px corners, a fill and a
+hairline. What goes inside, and the space around it, is yours.
+
+<Canvas of={CardStories.AllFills} />
+
+## When
+
+A box is a card when it stands for **one thing you could name**, and there are
+many of it or you treat the whole box as that thing — open it, point at it,
+move it.
+
+- **`surface`** — on the page. The default hairline.
+- **`elevated`** — on something already filled, like a column of cards. The
+  default hairline.
+- **`inset`** — inside something filled, like a message. The subtle hairline.
+- **`none`** — a hairline alone, the subtle one.
+- `href` — the whole card is a link; its hairline goes one step stronger on
+  hover.
+- `hover="fill"` — a card in a feed: it lights up when pointed at, so the light
+  says which one you are on. `quietUntilHover` hides its hairline until then.
+- `selected` — the one you are on. `active` — the one being changed in place.
+  Neither answers the pointer.
+- `attention` — a hairline that asks to be looked at: `accent` for something
+  new, `warning` for something urgent.
+- `unreadable` — it stands for something that could not be read: the hairline
+  is dashed.
+
+<Canvas of={CardStories.InAFeed} />
+
+## When not
+
+- You type in it → **TextInput**, **Textarea**, or your editor's box — a field,
+  not a card.
+- It frames an area holding many different things → a panel, or
+  **DialogShell**.
+- It is small and sits in a line → **Chip**, **InlineChip**, or **Button**.
+- It stands in while the card loads → **Skeleton**, shaped like the card.
+- It tells the reader something rather than being a thing → **Banner**.
+
+## How
+
+```tsx
+import { Card } from '@estiva-app/ui'
+
+<Card href={itemUrl} onClick={navigate} className="flex flex-col gap-2 p-3">
+  <span className="text-body-2-strong text-text-primary">Item one</span>
+  <span className="text-caption text-text-secondary">A line about the item.</span>
+</Card>
+```
+
+- It draws no padding and no layout of its own: put them in `className`, or let
+  the content pad itself.
+- With `href` it renders `Link`'s anchor, with every anchor prop passed through,
+  so a router app takes the click and the address stays real.
+- Without `href`, a card that responds to a click gets `cursor-pointer` from its
+  `hover` and your `onClick`. Controls inside it should stop their own clicks
+  from reaching the card.
+
+## Props
+
+<Controls of={CardStories.Surface} />

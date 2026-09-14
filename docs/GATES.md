@@ -24,7 +24,7 @@ answer
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
-| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted: 18. Card itself and the two app PRs are left. |
+| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted, 18, and `Card` is built from her rulings on their frames. The package half is done; the two app PRs are left. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
 
 ### What happened since UIG-2 closed
@@ -64,6 +64,10 @@ And on 14 September:
 6. **EmptyState gets no padding prop.** A section's empty state goes inside the box its rows live in, and is never padded: the box is written once and holds the rows or the empty state, so its padding places both. 15 of the 17 callers that pad one today draw it *instead of* that box and copy its padding by hand. A lint rule refuses padding on `EmptyState` (UIG-9, or UIG-23) and names the rule. How much room an empty *page section* takes in Ship (`py-6`, `py-8`, `py-10`) is a separate ruling, taken when those callers are fixed.
 7. **The cards are the 18 in the next table**, sorted by Katerina from photographs (`uig27-cards.png`, 38 bordered, rounded boxes in the two apps). A box is a card when it stands for one thing you could name, and there are many of it or you treat the whole box as that thing.
 8. **Ship's files become the same card as Peek's.** Ship draws a file as a 28px line; Peek as a 50px card with a file-type tile, the name over the type and size.
+9. **Card draws the frame only**, with four fills chosen by what it sits on — `surface`, `elevated`, `inset`, `none` — and no padding of its own.
+10. **The hairline follows the fill** (default on `surface` and `elevated`, subtle on `inset` and `none`), and **every card has 8px corners**. Ship's board card moves from 6px.
+11. **A clickable card's hairline goes one step stronger on hover**; Peek's conversation, reply and huddle cards keep lighting up. (Correction to the question as asked: the conversation and reply cards also have no hairline until pointed at. That is kept, as `quietUntilHover`, as part of lighting up.)
+12. **A card that cannot be read has a dashed hairline**, in both apps.
 
 ### UIG-27: the cards, sorted
 
@@ -107,8 +111,8 @@ UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`
 
 | when | what |
 |---|---|
-| now | `Card`: measure the frames of the 18 cards (radius, border, fill, padding, hover) and bring Katerina the few looks they reduce to, then build it on `Link`'s `plain` look |
-| then, in UIG-27 | one PR in Peek and one in Ship: take the package, swap the links, chips, bars and cards, move the 15 padded empty states inside their rows' boxes, and add UIG-30 to their `gates-checks.mjs` |
+| now | Katerina reviews `Card` in the branch's Storybook. Then estiva-ui's PR for the package half, and a release, so the apps can install it |
+| then, in UIG-27 | one PR in Peek and one in Ship: take the release; swap the 20 links, the chips, the two bars and the 18 cards; Ship's files become the file card (which needs a home: a package component with no product noun in its name, or Peek's shared); move the 15 padded empty states inside their rows' boxes; add UIG-30 to their `gates-checks.mjs`; then `fitted + reasoned = 20` for the links here |
 | after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
 
