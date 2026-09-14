@@ -69,8 +69,12 @@
   **Callers.** Peek passes `onAction: dismissToast` in two places —
   `lib/reportDelete.ts:38` and `pages/TopicsPage.tsx:162`. Pressed with other
   toasts on screen, that now closes all of them; drop the `onAction` and keep
-  `actionLabel: 'Dismiss'`. Ship calls `showToast` once (`App.tsx`) and needs no
-  change.
+  `actionLabel: 'Dismiss'` (ADOPTION P34). Ship calls `showToast` once
+  (`App.tsx`) and its code needs no change, but **each toast is now a
+  `dialog`** to assistive tech (not modal), and `web/src/App.test.tsx:170` waits
+  for "no dialog" after creating a project — the toast answers it. Name the
+  dialog: `queryByRole('dialog', { name: 'New project' })` (ADOPTION S35,
+  measured 25/25).
 
   Proof: a live toast from the provider photographed and style-diffed (every
   element's box, colour, border, shadow, padding, type) before and after,

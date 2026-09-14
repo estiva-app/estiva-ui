@@ -62,6 +62,9 @@ showToast({ label: 'Link copied', type: 'success' })
 - A toast can be swiped away towards its corner — left or down.
 - It is Base UI's `Toast`. The stack is a region named "Notifications" that
   a screen reader announces politely; an `error` toast is announced at once.
+- **Each toast is a `dialog`** (not modal), so it can take focus. A test that
+  waits for "no dialog" after closing one will find the toast: ask for the
+  dialog by its name.
 - Focus on a toast shows the browser's own outline, as the package's buttons
   do.
 - `useToast` outside a provider throws — mount the provider at the root,
