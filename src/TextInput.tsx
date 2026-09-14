@@ -15,16 +15,28 @@ import { cn } from './cn'
  * context behind it — is gone. Outside a `Field` it behaves as before: the
  * field context has a default, so nothing has to be wrapped.
  */
-export type TextInputProps = InputHTMLAttributes<HTMLInputElement>
+export interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  /**
+   * `small` is 24px tall with 12px text — the small `Select`'s size, so a
+   * field can share a dense row with small selects (D67, 2026-09-13: Peek's
+   * reference widget hand-built one because this was 38px). Replaces the
+   * native `size` attribute, which counts characters and which no caller
+   * used; set a width with the layout instead.
+   */
+  size?: 'default' | 'small'
+}
 
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInput({ className, type = 'text', ...props }, ref) {
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInput({ className, type = 'text', size = 'default', ...props }, ref) {
   return (
     <Input
       ref={ref}
       type={type}
       className={cn(
-        'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg px-3 py-2',
-        'text-[14px] leading-[1.4] font-normal text-text-primary placeholder:text-text-muted',
+        'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg',
+        // The small size is the small Select's trigger, class for class.
+        size === 'default' && 'px-3 py-2 text-[14px] leading-[1.4] font-normal',
+        size === 'small' && 'h-6 px-2 text-[12px] leading-[1.4] font-normal',
+        'text-text-primary placeholder:text-text-muted',
         'outline-none transition-colors',
         'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
         'signal:transition-shadow signal:focus:shadow-focus-ring',

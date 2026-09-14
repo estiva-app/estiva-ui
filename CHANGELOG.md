@@ -5,6 +5,20 @@
 **The last primitives move onto Base UI.** Released on its own as `0.14.0`
 (Katerina, 2026-09-14, D69).
 
+### Added
+
+- **`TextInput` takes `size="small"`: 24px tall, 12px text** — the small
+  `Select`'s trigger, class for class (D67, ADOPTION B35). Peek's reference
+  widget hand-built a 24.41px field beside two small selects because this was
+  37.59px; it swaps once it takes this release. `size` replaces the native
+  attribute of that name, which counts characters: no `TextInput` or
+  `ToolbarInput` in Peek or Ship passes one (both `main`s, 2026-09-14).
+  `ToolbarInput` passes `size` on to its field. Measured beside two small
+  selects in both themes: all three 24px, same radius, padding, fill and
+  hairline, and the words' ink on the same pixel rows. The default size is
+  unchanged: 45 stories holding a text field identical in both themes. A first
+  test file; making small 28px fails it.
+
 ### Changed
 
 - **`Divider` is Base UI's `Separator`** (D6, D66). It wrote the `separator`
