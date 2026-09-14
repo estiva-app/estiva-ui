@@ -25,7 +25,7 @@ const OPTIONS: ReactionOption[] = [
 ]
 
 const meta = {
-  title: 'Primitives/ReactionPicker',
+  title: 'Components/ReactionPicker',
   component: ReactionPicker,
   args: { options: OPTIONS, onSelect: () => {} },
   argTypes: { options: { control: false }, onSelect: { control: false } },

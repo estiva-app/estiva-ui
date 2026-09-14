@@ -95,6 +95,12 @@ PRs.
   from the box's corner both ways. A test pins that a section carries no padding
   or margin. The four stories that were there draw byte-identical HTML.
 
+- **Storybook has a Components group, right below Inputs** (Katerina, 14
+  September): `AttachmentCard`, `InlineChip`, `Person`, `PersonTrigger`,
+  `Reaction` and `ReactionPicker`. Until now it held only `Reaction`, sorted
+  after every named group. A saved link to the pages of `Person`,
+  `PersonTrigger` or `ReactionPicker` changes address.
+
 ### Fixed, against Peek's copy
 
 - **The quiet chip is 19.6px tall, like every other chip.** In Peek it is

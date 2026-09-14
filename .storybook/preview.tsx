@@ -123,7 +123,7 @@ const preview: Preview = {
     a11y: { test: 'error' },
     docs: { theme: themes.dark },
     options: {
-      storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Feedback', 'Overlays', 'Navigation', 'Frame'] },
+      storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Components', 'Feedback', 'Overlays', 'Navigation', 'Frame'] },
     },
   },
   decorators: [withTheme],

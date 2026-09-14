@@ -3,7 +3,7 @@ import { IconSquareRounded } from '@tabler/icons-react'
 import { InlineChip } from './InlineChip'
 
 const meta = {
-  title: 'Primitives/InlineChip',
+  title: 'Components/InlineChip',
   component: InlineChip,
   args: { tone: 'neutral', children: 'Label' },
   argTypes: {

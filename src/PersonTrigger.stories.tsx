@@ -3,7 +3,7 @@ import { PersonTrigger } from './PersonTrigger'
 
 /** The person, as the button that opens the account menu. The menu itself stays in the app. */
 const meta = {
-  title: 'Primitives/PersonTrigger',
+  title: 'Components/PersonTrigger',
   component: PersonTrigger,
   args: { name: 'Ana Duarte', open: false, compact: false },
 } satisfies Meta<typeof PersonTrigger>
