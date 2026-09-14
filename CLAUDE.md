@@ -3,7 +3,7 @@
 This is Estiva's design package: the tokens every Estiva app must use and the components they may use. It is consumed from npm by Peek and Ship, and it churns faster than anything else in the suite, which is why the rules here are strict and short. Read them before touching `src/`. `README.md` is for consumers; this file is for whoever changes the package.
 
 **The UI Guardrails project:** `docs/GATES.md` §0 says where it stands, and `docs/GATES-GUIDE.md` is its source of truth.
-`npm run gates:status` reads the real state of all 29 tickets from the code, here and in the `peek` and `ship` checkouts beside this one.
+`npm run gates:status` reads the real state of every ticket from the code, here and in the `peek` and `ship` checkouts beside this one.
 
 ---
 

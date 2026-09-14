@@ -3,7 +3,7 @@ import { Person } from './Person'
 
 /** A face beside a name — never a key. */
 const meta = {
-  title: 'Primitives/Person',
+  title: 'Components/Person',
   component: Person,
   args: { name: 'Ana Duarte', size: 20 },
 } satisfies Meta<typeof Person>

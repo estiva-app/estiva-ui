@@ -52,6 +52,20 @@ import { EmptyState } from '@estiva-app/ui'
 <EmptyState scope="section" message="No comments yet." />
 ```
 
+**Put a section's empty state inside the box its rows live in, and give it no
+padding.** Write the box once; inside it goes either the rows or the empty
+state. The box's padding then places both, and the line starts where the first
+row would. An empty state drawn *instead of* the box has to copy the box's
+padding by hand, and is left behind the day the box changes.
+
+<Canvas of={EmptyStateStories.InsideTheRowsBox} />
+
+```tsx
+<div className="flex flex-col gap-2 p-4">
+  {items.length ? items.map((item) => <Row key={item.id} {...item} />) : <EmptyState scope="section" message="No items yet." />}
+</div>
+```
+
 The message is the caller's — a shared component has no words of its own
 for what is missing. A hand-written "Nothing here" paragraph or span in a
 section is the `section` manner, and becomes it.

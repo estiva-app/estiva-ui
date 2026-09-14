@@ -1,5 +1,117 @@
 # Changelog
 
+## Unreleased — UIG-27
+
+**Five components the apps had to build themselves: `Link`, `InlineChip`,
+`ProgressBar`, `Card` and `AttachmentCard`.** Both apps hand-wrote every link
+they have (18 raw `<a>` on 13 September, plus 2 through Peek's router), Peek had
+the only inline chip and the only attachment cards, in its own code, each app
+drew its own progress bar, and 18 cards were drawn by hand across the two.
+Nothing a caller writes has to change; the apps take these in UIG-27's own app
+PRs.
+
+### Added
+
+- **`AttachmentCard`** — a document or an image attached to something, posted
+  or waiting to be sent: Peek's `FileAttachmentCard` and
+  `PendingAttachmentChip`, class for class, drawn on `Card`'s frame (Katerina,
+  14 September: both apps draw one; Ship's files become this card). The file
+  decides the shape — an image with a picture is a 180px thumbnail, anything
+  else a 240px row — and `pending` is the composer's 200px row with a remove
+  control. It fetches nothing: the app passes `src`, `href` and `state`, and
+  takes the clicks back through `onOpen`, `onDownload` and `onRemove`. Measured
+  element by element against Peek's stories (every element's box, colour, type,
+  hairline and padding): identical for a document, an image, a tall image, no
+  address, a long name, several together, and pending ready, ready document,
+  uploading, failed and warning. Two changes, by ruling: a file that could not
+  be read has a dashed hairline; and a name shows in full on hover only when it
+  is cut off, on every card, posted as well as waiting — a name that fits and a
+  size show nothing (Katerina, 14 September; Peek's posted cards had no way to
+  read a cut-off name, and its waiting card showed the name and the size on
+  every hover). A note's `noteHint` is still always on hover. The remove control
+  and the picture are buttons on Base UI's `Button`, as InputChip's ✕ is (her
+  ruling: not `IconButton`, whose 24px square is a different control).
+  Screenshots of every story are identical pixel for pixel before and after, but
+  for the warning's note: Peek's clipped 3 pixels off its last letter, and this
+  draws it whole. (Peek's *Every type* story draws `.heic` as a broken image,
+  where its own comment says it lands on the file glyph; this story draws the
+  glyph.)
+
+- **`Card`** — a box that stands for one thing, drawn as its frame: 8px
+  corners, a fill, a hairline; no padding or layout of its own. Katerina's
+  rulings, 14 September, from photographs of the 18 cards in both apps:
+
+  | | |
+  |---|---|
+  | `fill` | by what the card sits on: `surface` (the page), `elevated` (something already filled), `inset` (inside something filled), `none` |
+  | the hairline | follows the fill — default on `surface` and `elevated`, subtle on `inset` and `none` |
+  | `href` | the whole card is a `Link`; its hairline goes one step stronger on hover |
+  | `hover="fill"` | a card in a feed lights up; `quietUntilHover` hides its hairline until then |
+  | `selected` · `active` · `attention` | the one you are on · the one being changed · a hairline for something new (`accent`) or urgent (`warning`) |
+  | `unreadable` | a dashed hairline, in both apps |
+
+  Measured against the cards it replaces, corners, hairline and fill at rest and
+  on hover: identical to Ship's project card (link), Ship's object card and its
+  can't-read state, Peek's file card, Peek's project box, and Peek's
+  conversation card at rest, on hover, selected, unread, urgent and editing.
+  Ship's board card moves from 6px to 8px corners, as ruled. A card that never
+  changes carries no transition; the apps' still cards disagreed (some had one),
+  and nothing animates on a card that does not change.
+
+- **`Link`** — a real anchor in one of four looks, with navigation left to the
+  app's router through `onClick`, the way `NavItem` does it. Katerina's
+  rulings reduced the apps' five looks to these:
+
+  | look | what it is | where the apps had it |
+  |---|---|---|
+  | `text` | the info colour, always underlined, dims on hover | a link inside a message body |
+  | `quiet` | its text's colour and size, underlines on hover | a title, a reply's timestamp, a title in a table |
+  | `underlined` | its text's colour, always underlined, brightens on hover | "Open in app ↗" (was dotted) and "Open it there" |
+  | `plain` | no look; what it wraps draws itself | a card or a row that is a link |
+
+  `external` opens a new tab with `noopener noreferrer`. `text` measures
+  identical to Peek's body link, 24 computed properties at rest and on hover;
+  `quiet`'s underline is identical to Peek's timestamp.
+
+- **`InlineChip`** — Peek's inline chip (D67), a word in a sentence one line
+  high, in four tones: `neutral`, `person` (Peek's `mention`), `urgent`,
+  `quiet`. `href` makes it a link. `inlineChipClassName(tone)` and the two class
+  maps are exported for an editor that renders chips from strings. Measured
+  against Peek's chips: 24–26 computed properties identical for neutral,
+  person, urgent and a chip with an icon.
+
+- **`ProgressBar`** — on Base UI's `Progress`, which owns the `progressbar`
+  role and its numbers; `label` is required. Ship's props, unchanged
+  (`value`, `max`, `label`), and both apps' looks, kept because they do
+  different jobs: `default` is Ship's, 6px with the success colour, a bar
+  someone reads; `quiet` is Peek's, now 4px (Katerina, 14 September; Peek's is 3px) with the muted success colour, a glance
+  beside a count. Measured: `default` identical to Ship's bar at 10 of 14,
+  empty and complete, track and fill, width and share included; `quiet`
+  identical to Peek's but for the height. A screen reader now hears the share as a percentage.
+
+### Documented
+
+- **Where a section's empty state goes** (Katerina, 14 September): inside the
+  box its rows live in, with no padding of its own. The box is written once and
+  holds the rows or the empty state, so its padding places both. `EmptyState`
+  gets no padding prop. A new story, *Inside the rows' box*, draws the same box
+  with rows and empty; measured, the line starts where the first row does, 17px
+  from the box's corner both ways. A test pins that a section carries no padding
+  or margin. The four stories that were there draw byte-identical HTML.
+
+- **Storybook has a Components group, right below Inputs** (Katerina, 14
+  September): `AttachmentCard`, `InlineChip`, `Person`, `PersonTrigger`,
+  `Reaction` and `ReactionPicker`. Until now it held only `Reaction`, sorted
+  after every named group. A saved link to the pages of `Person`,
+  `PersonTrigger` or `ReactionPicker` changes address.
+
+### Fixed, against Peek's copy
+
+- **The quiet chip is 19.6px tall, like every other chip.** In Peek it is
+  16.8px — `1.4em` of its caption size — with its letters 1.81px above the
+  sentence's baseline. Here its height is written out, and they sit 0.41px
+  off. Peek's copy keeps the 16.8px box until it takes this one.
+
 ## 0.12.10 — 2026-09-13
 
 **Every toolbar in a Popover is its old size again, and the Capped story

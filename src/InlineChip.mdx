@@ -1,0 +1,56 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as InlineChipStories from './InlineChip.stories'
+
+<Meta of={InlineChipStories} />
+
+# InlineChip
+
+A word in a sentence that stands for something — a person, a place, a thing —
+drawn as a small tinted box exactly one line high, with its words level with
+the text around it.
+
+<Canvas of={InlineChipStories.InRunningText} />
+
+## When
+
+- **`neutral`** — anything that is not a person.
+- **`person`** — a person, named in the text.
+- **`urgent`** — a person, called urgently.
+- **`quiet`** — a reference nobody could resolve: smaller, mono and muted, so it
+  stays visible without reading as an error.
+- `icon` — a 16px icon, or a 14px one it centres, before the label.
+- `href` — the chip leads somewhere. Without it the chip is a label.
+
+## When not
+
+- A status, a count or a category standing on its own → **Chip** — a 20px
+  pill with a verdict colour, not a word in a sentence.
+- A value picked into a field, with a ✕ to remove it → **InputChip**, inside
+  **ChipInput**.
+- A link written as words, with no box → **Link**.
+
+## How
+
+```tsx
+import { InlineChip } from '@estiva-app/ui'
+
+<p className="text-body-2">
+  Ask <InlineChip tone="person" href={personUrl} onClick={openInApp}>@Ana Duarte</InlineChip> to look.
+</p>
+```
+
+- It belongs inside running text at the body size. `h-[1.4em]` is one line of
+  that text, and `align-top` pins the chip to the line, so a line with a chip
+  is the same height as a line without one.
+- It renders a plain anchor when it has an `href`. A router app passes
+  `onClick`, prevents the default and navigates; the `href` stays a real
+  address for a modified click or a new tab. Inside something that opens on
+  click, stop the event there so the chip's click is not also the container's.
+- A long label: pass `className="max-w-[24ch]"` and wrap the text in
+  `<span className="truncate">`.
+- A rich-text editor that renders chips from strings cannot use a component.
+  `inlineChipClassName(tone)` gives it the same classes.
+
+## Props
+
+<Controls of={InlineChipStories.Neutral} />

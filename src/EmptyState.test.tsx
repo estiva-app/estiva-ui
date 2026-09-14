@@ -31,6 +31,14 @@ describe('EmptyState', () => {
     expect(line.className).not.toContain('text-center')
   })
 
+  it('a section carries no space of its own, so the box it sits in decides where it starts', () => {
+    // Katerina, 2026-09-14: the box is written once and holds the rows or the empty
+    // state; the empty state is never padded. So it may carry no padding or margin.
+    render(<EmptyState scope="section" message="Nothing here yet." />)
+    const classes = screen.getByText('Nothing here yet.').className.split(' ')
+    expect(classes.filter((c) => /^-?[pm][xytrbl]?-/.test(c))).toEqual([])
+  })
+
   it('keeps the caller icon for a page', () => {
     const { container } = render(<EmptyState icon={<i data-testid="own" />} message="Nothing here yet." />)
     expect(container.querySelector('[data-testid="own"]')).not.toBeNull()

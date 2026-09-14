@@ -10,13 +10,24 @@
  * TypeScript that produced it.
  */
 export { AppShell, type AppShellProps } from './AppShell'
+export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } from './AttachmentCard'
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { AvatarGroup, type AvatarGroupMember, type AvatarGroupProps } from './AvatarGroup'
 export { Banner, type BannerProps, type BannerTone } from './Banner'
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'
+export { Card, type CardAttention, type CardFill, type CardHover, type CardProps } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export { Chip, type ChipProps, type ChipType } from './Chip'
 export { ChipInput, InputChip, type ChipInputOption, type ChipInputProps, type InputChipProps } from './ChipInput'
+export {
+  INLINE_CHIP_CLASSES,
+  INLINE_CHIP_TONE_CLASSES,
+  InlineChip,
+  inlineChipClassName,
+  type InlineChipProps,
+  type InlineChipTone,
+} from './InlineChip'
+export { Link, type LinkProps, type LinkVariant } from './Link'
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'
@@ -30,6 +41,7 @@ export { DialogShell, type DialogShellProps } from './DialogShell'
 export { Divider, type DividerProps } from './Divider'
 export { EditableText, type EditableTextProps } from './EditableText'
 export { EmptyState, type EmptyStateProps } from './EmptyState'
+export { ProgressBar, type ProgressBarProps, type ProgressBarVariant } from './ProgressBar'
 export { SkeletonBar, SkeletonList, SkeletonRow } from './Skeleton'
 export { Breadcrumb, type BreadcrumbProps, type Crumb } from './Breadcrumb'
 export { EnterHint, Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSub, type MenuItemProps, type MenuPanelProps, type MenuProps, type MenuSubProps } from './Menu'
