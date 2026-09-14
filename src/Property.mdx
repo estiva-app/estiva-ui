@@ -46,6 +46,14 @@ import { Property } from '@estiva-app/ui'
 Any control sits inside — a Chip, a Person, a Select, plain text (the
 WithControls story shows the pairings).
 
+- It is HTML's own name–value markup: a `<dl>` with the label as its `<dt>`
+  and what you pass as its `<dd>`, so a screen reader hears the label as the
+  name of the value. Base UI has no part for this. Each property is a list of
+  one; nothing needs wrapping.
+- The `<dd>` draws no box (`display: contents`), so what you pass lays out as
+  a child of the row or the column: a control with `flex-1` still fills the
+  row, and two values still sit the row's gap apart.
+
 ## Props
 
 <Controls of={PropertyStories.Row} />

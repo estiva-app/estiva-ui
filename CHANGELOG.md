@@ -13,6 +13,16 @@
   Proof: all 59 stories that draw a divider (its own, and every menu, toolbar,
   popover, select, preview card and reaction picker) identical in both themes.
   No caller changes.
+- **`Property` is a name and its value in HTML's own markup** (PLAN stage 6):
+  a `<dl>` holding the label as `<dt>` and the value as `<dd>`, where it was two
+  `<div>`s and a `<span>`. Base UI has no part for it. The `<dd>` draws no box
+  (`display: contents`), so a caller's value still lays out as a child of the
+  row — Peek's reference widget passes a form with `flex-1` that must keep
+  filling it. Proof: 16 stories identical in both themes (Property, Select, the
+  tokens page); Chrome's accessibility tree reads `term("Status") · definition`
+  for every row; a first test file (5 tests) fails on the old component. No
+  caller changes.
+
 ## 0.13.1 — 2026-09-15 — UIG-27
 
 **`Card` holds its hover look while its own menu is open, and the selected
