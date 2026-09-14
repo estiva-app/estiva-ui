@@ -81,6 +81,17 @@
   the old provider; breaking the one-toast close, the hidden class or the
   error priority each fails one. Stories: every Toast and Banner story
   identical but *From the provider*, which gained a *Keep one up* button.
+- **`Avatar` is Base UI's `Avatar`** (D6). Base UI watches the picture load
+  and draws the initials or the silhouette as its fallback; the hand-kept
+  `broken` state is gone, and a new `src` after a failed one is tried again
+  (the old tile stayed on the initials). The picture keeps today's three
+  moments, by Base UI's `keepMounted`: while it loads the tile is empty, when it
+  arrives it fills the tile, if it fails the initials show. Base UI's default
+  would have shown the initials while loading and swapped them out, and would
+  not put the `<img>` in the page until it had loaded — which Peek's
+  `TopBar.avatar.test.tsx` looks for. Measured live in Chrome with a picture
+  held back 3s and one answered 401. Props, classes and the tile's `div` are
+  unchanged.
 
 ## 0.13.1 — 2026-09-15 — UIG-27
 

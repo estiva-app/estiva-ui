@@ -30,8 +30,9 @@ import { Avatar } from '@estiva-app/ui'
 <Avatar name={person.name} src={person.picture} size={24} />
 ```
 
-- The caller resolves `src`. A picture that fails to load falls back to the
-  initials — nothing to handle.
+- The caller resolves `src`. While the picture loads the tile stays empty;
+  once it arrives it fills the tile; if it fails, the initials show — nothing
+  to handle. It is Base UI's `Avatar`, which watches the picture load.
 - Initials come from a **name, never a key**: the first letter of the first
   two words, skipping words that open with a symbol. An unnamed person is
   the silhouette, not a `?` — a question mark reads as an error badge.
