@@ -44,6 +44,14 @@ const HAIRLINE_HOVER_CLASSES: Record<CardFill, string> = {
   none: 'hover:border-border-default',
 }
 
+/** The same step, held by `hovered` rather than by the pointer. */
+const HAIRLINE_HELD_CLASSES: Record<CardFill, string> = {
+  surface: 'border-border-strong',
+  elevated: 'border-border-strong',
+  inset: 'border-border-default',
+  none: 'border-border-default',
+}
+
 const ATTENTION_CLASSES: Record<CardAttention, string> = {
   accent: 'border-accent-muted hover:border-accent-muted',
   warning: 'border-warning-muted hover:border-warning-muted',
@@ -58,6 +66,12 @@ export interface CardProps extends ComponentPropsWithRef<'div'> {
   hover?: CardHover
   /** No hairline until it is pointed at — a row in a feed that shows its edge only when you are on it. */
   quietUntilHover?: boolean
+  /**
+   * Draw the hover look now, whatever the pointer does. For a card whose own menu or picker is open: the menu
+   * opens outside the card, so the pointer on it leaves the card, and the card would go dark under its own menu.
+   * Ignored while `selected` or `active`, like the pointer.
+   */
+  hovered?: boolean
   /** The one you are on: the selected fill, a subtle hairline, and no hover. */
   selected?: boolean
   /** Being changed in place: the selected fill with the accent hairline, and no hover. */
@@ -74,6 +88,7 @@ export function Card({
   href,
   hover = href ? 'hairline' : 'none',
   quietUntilHover = false,
+  hovered = false,
   selected = false,
   active = false,
   attention,
@@ -91,7 +106,10 @@ export function Card({
     quietUntilHover && 'border-transparent',
     !still && hover === 'hairline' && HAIRLINE_HOVER_CLASSES[fill],
     !still && hover === 'fill' && 'hover:bg-bg-hover hover:border-border-default',
-    !still && hover !== 'none' && !href && props.onClick && 'cursor-pointer',
+    !still && hovered && hover === 'hairline' && HAIRLINE_HELD_CLASSES[fill],
+    !still && hovered && hover === 'fill' && 'bg-bg-hover border-border-default',
+    // The one you are on can still be clicked (it opens again); the one being changed cannot.
+    !active && hover !== 'none' && !href && props.onClick && 'cursor-pointer',
     selected && 'bg-bg-selected border-border-subtle',
     active && 'bg-bg-selected border-accent-primary',
     !active && attention && ATTENTION_CLASSES[attention],

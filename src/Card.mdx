@@ -25,8 +25,10 @@ move it.
   hover.
 - `hover="fill"` — a card in a feed: it lights up when pointed at, so the light
   says which one you are on. `quietUntilHover` hides its hairline until then.
+- `hovered` — hold that look while the pointer is elsewhere: a card whose own
+  menu or picker is open stays lit, because the menu opens outside the card.
 - `selected` — the one you are on. `active` — the one being changed in place.
-  Neither answers the pointer.
+  Neither answers the pointer, and `hovered` changes neither.
 - `attention` — a hairline that asks to be looked at: `accent` for something
   new, `warning` for something urgent.
 - `unreadable` — it stands for something that could not be read: the hairline
@@ -60,8 +62,12 @@ import { Card } from '@estiva-app/ui'
 - With `href` it renders `Link`'s anchor, with every anchor prop passed through,
   so a router app takes the click and the address stays real.
 - Without `href`, a card that responds to a click gets `cursor-pointer` from its
-  `hover` and your `onClick`. Controls inside it should stop their own clicks
-  from reaching the card.
+  `hover` and your `onClick` — the selected one too, since it can open again;
+  the one being changed does not. Controls inside it should stop their own
+  clicks from reaching the card.
+- Keep a card lit while its menu is open by passing `hovered` from your own
+  state: set it when the pointer enters, and clear it when the pointer leaves
+  and nothing of the card's is open.
 
 ## Props
 
