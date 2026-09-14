@@ -205,7 +205,9 @@ export function AttachmentCard({
 
   if (state === 'loading') {
     return (
-      <Card fill="inset" aria-busy="true" aria-label={`Loading ${name}`} className={cn('w-[180px] h-28 animate-pulse', className)} {...props}>
+      // `role="status"`: a plain box may not carry a name (axe, aria-prohibited-attr), and a
+      // status says what it is doing — loading — to a reader that cannot see the pulse.
+      <Card role="status" fill="inset" aria-busy="true" aria-label={`Loading ${name}`} className={cn('w-[180px] h-28 animate-pulse', className)} {...props}>
         {null}
       </Card>
     )

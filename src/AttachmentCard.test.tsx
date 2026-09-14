@@ -77,11 +77,12 @@ describe('AttachmentCard', () => {
     expect(outside).not.toHaveBeenCalled()
   })
 
-  it('an image on its way is a busy placeholder', () => {
+  it('an image on its way is a busy placeholder, named as a status', () => {
     const { container } = render(<AttachmentCard name="shot.png" state="loading" />)
     const root = rootOf(container)
+    // A name needs a role to hang on: a plain div may not carry aria-label.
+    expect(screen.getByRole('status', { name: 'Loading shot.png' })).toBe(root)
     expect(root.getAttribute('aria-busy')).toBe('true')
-    expect(root.getAttribute('aria-label')).toBe('Loading shot.png')
     expect(classesOf(root)).toContain('animate-pulse')
   })
 
