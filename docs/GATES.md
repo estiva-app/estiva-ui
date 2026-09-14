@@ -24,7 +24,7 @@ answer
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
-| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted, 18, and `Card` is built from her rulings on their frames; `AttachmentCard` is Peek's attachments moved in. The package half is done and in estiva-ui PR #29; the two app PRs are left. |
+| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, in estiva-ui PR #29. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted, 18, and `Card` is built from her rulings on their frames; `AttachmentCard` is Peek's attachments moved in, and she reviewed it (rulings 16–18). The package half is done; the two app PRs are left. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
 
 ### What happened since UIG-2 closed
@@ -49,7 +49,7 @@ On 14 September, on `gates/27-missing-components`, it printed:
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-UIG-27 read 2 of 10 then. On the evening of 14 September it reads 4 of 11: `Link`, `InlineChip` and `ProgressBar` are exported, and EmptyState’s page places a section’s empty state; `Card` is the next check.
+UIG-27 read 2 of 10 then. With PR #29 it reads 6 of 12: `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` are exported, and EmptyState’s page places a section’s empty state. The other 6 are the app PRs.
 
 ### UIG-27: Katerina's rulings, 13 September
 
@@ -71,6 +71,9 @@ And on 14 September:
 13. **`AttachmentCard` joins the package in this same PR**, so the apps take one release. It is Peek's two attachment components moved in: the package draws; each app keeps what only it can do (fetching the bytes with the reader's permission, opening an image full screen, saving a file). Peek's `PendingAttachmentChip` has nothing of that and disappears; its `FileAttachmentCard` shrinks to that fetch-and-click part.
 14. **Ship's images stay as they are** (the whole picture, in a 4px frame) until the package has a full-screen viewer (the migration's Lightbox, stage 7). Ship's files and its can't-load state become `AttachmentCard`.
 15. **The adoption is full**: Peek and Ship adopt `Link`, `InlineChip`, `Card`, `ProgressBar` and `AttachmentCard` completely, and the code they replace is deleted.
+16. **The ✕ on a waiting file is a button on Base UI's `Button`, like InputChip's ✕**, keeping Peek's 20px round badge. Not `IconButton`: its 24px square that fills on hover is a different control. The picture's preview button went on Base UI's `Button` too.
+17. **Storybook has a Components group, right below Inputs**: `AttachmentCard`, `InlineChip`, `Person`, `PersonTrigger`, `Reaction`, `ReactionPicker`. No rule is written for what goes there; ask Katerina where a new component goes.
+18. **Every attachment card shows its full name on hover**, posted as well as waiting. Peek's posted cards had no way to read a cut-off name. Screenshots of every story are identical pixel for pixel before and after 16 and 18.
 
 ### UIG-27: the cards, sorted
 
@@ -114,7 +117,7 @@ UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`
 
 | when | what |
 |---|---|
-| now | estiva-ui PR #29 (the package half, with `AttachmentCard`): Katerina merges, then the release |
+| now | estiva-ui PR #29 (the package half, with `AttachmentCard`, rulings 16–18 in): Katerina merges, then the release |
 | then, in UIG-27 | one PR in Peek and one in Ship, adopting fully and deleting what is replaced (ruling 15): take the release; swap the 20 links, the chips, the two bars, the 18 cards and the attachments (Peek's `PendingAttachmentChip` goes; `FileAttachmentCard` keeps only its fetch and clicks; Ship's `Attachment` draws `AttachmentCard` for files, keeps its image); move the 15 padded empty states inside their rows' boxes; add UIG-30 to their `gates-checks.mjs`; then `fitted + reasoned = 20` for the links here. Each app's stories photographed before and after |
 | after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
