@@ -24,7 +24,7 @@ answer
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
-| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built: Ship's look and Peek's, both measured identical to the originals. Card, EmptyState's padding and the two app PRs are left. |
+| 🚧 **UIG-27** | In progress on `gates/27-missing-components`, not pushed. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted: 18. Card itself and the two app PRs are left. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
 
 ### What happened since UIG-2 closed
@@ -49,7 +49,7 @@ On 14 September, on `gates/27-missing-components`, it printed:
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-UIG-27 reads 2 of 10: `Link` and `InlineChip` are exported.
+UIG-27 read 2 of 10 then. On the evening of 14 September it reads 4 of 11: `Link`, `InlineChip` and `ProgressBar` are exported, and EmptyState’s page places a section’s empty state; `Card` is the next check.
 
 ### UIG-27: Katerina's rulings, 13 September
 
@@ -57,6 +57,28 @@ UIG-27 reads 2 of 10: `Link` and `InlineChip` are exported.
 2. Link has four looks. Link A (in text) is **`text`**. Links B and C, which differed only in their text, become one look, **`quiet`**. Links D and E, a dotted and a solid underline doing the same job, become one solid look, **`underlined`**.
 3. Peek's chip moves into the package unchanged, as **`InlineChip`**, before Link. Its tone `mention` is renamed **`person`**. A chip that leads somewhere takes `href` and `onClick`, like `NavItem`.
 4. Only the drawing part of rich text moves, and in its own ticket (UIG-30).
+
+And on 14 September:
+
+5. **ProgressBar's `quiet` look is 4px** (the `h-1` token). Peek's own bar is 3px until it takes the package's.
+6. **EmptyState gets no padding prop.** A section's empty state goes inside the box its rows live in, and is never padded: the box is written once and holds the rows or the empty state, so its padding places both. 15 of the 17 callers that pad one today draw it *instead of* that box and copy its padding by hand. A lint rule refuses padding on `EmptyState` (UIG-9, or UIG-23) and names the rule. How much room an empty *page section* takes in Ship (`py-6`, `py-8`, `py-10`) is a separate ruling, taken when those callers are fixed.
+7. **The cards are the 18 in the next table**, sorted by Katerina from photographs (`uig27-cards.png`, 38 bordered, rounded boxes in the two apps). A box is a card when it stands for one thing you could name, and there are many of it or you treat the whole box as that thing.
+8. **Ship's files become the same card as Peek's.** Ship draws a file as a 28px line; Peek as a 50px card with a file-type tile, the name over the type and size.
+
+### UIG-27: the cards, sorted
+
+| | Peek | Ship |
+|---|---|---|
+| a conversation, a reply, a huddle | `ConversationCard.tsx:487` · `ThreadReplyCard.tsx:415` · `HuddleCard.tsx:127` | `ConversationThread.tsx:543` |
+| a project | `TopicDetailsDialog.tsx:254` · `TopicProjectPanel.tsx:238` — the same project, drawn two ways | `ProjectCard.tsx:58` |
+| an issue | | `Board.tsx:26` |
+| a file | `ui/FileAttachmentCard.tsx:216` · `:246` · `:291` · `ui/PendingAttachmentChip.tsx:87` | `ui/Attachment.tsx:45` · `:88` |
+| an object from another app | `ui/ForeignObjectWidget.tsx:385` · `:607` | `ui/ForeignObject.tsx:89` · `:212` |
+| **total** | **11** | **7** — **18** |
+
+Three of them are a card that **cannot be read** (`ForeignObjectWidget.tsx:607`, `ForeignObject.tsx:89`, `Attachment.tsx:45`): a state of the card, not an empty state — the package's EmptyState page says an empty state never stands in for a failure. Peek draws that state with a solid hairline and caption text, Ship with a dashed border and body text: one look to rule on when Card is built.
+
+Not cards: 6 fields (the compose box, the edit boxes, a text input), 3 panels (the launcher, a board column, the issues table's frame), 2 chips or buttons, 4 loading placeholders, 1 notice, 4 others (a hand-made tick box, a picture's frame, an unknown editor block, and the pinned message — a preview, not clickable).
 
 ### UIG-27: the links, recounted
 
@@ -85,8 +107,8 @@ UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`
 
 | when | what |
 |---|---|
-| now | Katerina reviews `ProgressBar`, and rules on EmptyState's padding: Peek's callers pad to match the list they replace (FolderContentsView's `p-4` is its list's `p-4`); Ship's add vertical room (`py-6`, `py-8`, `py-10`). One prop cannot carry both without moving pixels |
-| then, in UIG-27 | `Card` with its link: first sort every bordered box in the two apps — 23 class strings with a radius, a border and a fill (Peek 16, Ship 7), plus the cards drawn without a fill (Ship's issue row, the thread card) — into cards and not-cards, with Katerina, from photographs. Then one PR in Peek and one in Ship |
+| now | `Card`: measure the frames of the 18 cards (radius, border, fill, padding, hover) and bring Katerina the few looks they reduce to, then build it on `Link`'s `plain` look |
+| then, in UIG-27 | one PR in Peek and one in Ship: take the package, swap the links, chips, bars and cards, move the 15 padded empty states inside their rows' boxes, and add UIG-30 to their `gates-checks.mjs` |
 | after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
 
@@ -1094,7 +1116,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-24 | Fingerprint — browser tooltip | estiva-ui | peek, ship | probe: `title=` names WithTooltip |
 | UIG-25 | Fingerprint — component copied by hand | estiva-ui | peek, ship | probe: SectionLabel's class list typed by hand is a **warning**, in all three repos |
 | UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
-| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip` and `ProgressBar` exported; `EmptyState` has a `padding` prop; each app installs a version that has them and its hand-made progress bar is gone |
+| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip`, `ProgressBar` and `Card` exported; `EmptyState.mdx` places a section's empty state inside its rows' box (no padding prop, Katerina, 14 September); each app installs a version that has them and its hand-made progress bar is gone |
 | UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on the token lint: `text-[14px]` and an inline colour are errors, `h-[240px]` is a warning |
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |

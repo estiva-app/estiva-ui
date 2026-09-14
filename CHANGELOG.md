@@ -41,6 +41,16 @@ change; the apps take these in UIG-27's own app PRs.
   empty and complete, track and fill, width and share included; `quiet`
   identical to Peek's but for the height. A screen reader now hears the share as a percentage.
 
+### Documented
+
+- **Where a section's empty state goes** (Katerina, 14 September): inside the
+  box its rows live in, with no padding of its own. The box is written once and
+  holds the rows or the empty state, so its padding places both. `EmptyState`
+  gets no padding prop. A new story, *Inside the rows' box*, draws the same box
+  with rows and empty; measured, the line starts where the first row does, 17px
+  from the box's corner both ways. A test pins that a section carries no padding
+  or margin. The four stories that were there draw byte-identical HTML.
+
 ### Fixed, against Peek's copy
 
 - **The quiet chip is 19.6px tall, like every other chip.** In Peek it is

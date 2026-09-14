@@ -145,7 +145,9 @@ export default function define(h) {
       { what: "Link is in the package", run: () => h.contains("src/index.ts", /\bLink\b/, "src/index.ts exports Link") },
       { what: "InlineChip is in the package", run: () => h.contains("src/index.ts", /\bInlineChip\b/, "src/index.ts exports InlineChip") },
       { what: "ProgressBar is in the package", run: () => h.contains("src/index.ts", /\bProgressBar\b/, "src/index.ts exports ProgressBar") },
-      { what: "EmptyState takes padding as a prop", run: () => h.contains("src/EmptyState.tsx", /\bpadding\??\s*:/, "EmptyState has a padding prop") },
+      // Katerina, 14 September: no padding prop — a section's empty state goes inside its rows' box, unpadded.
+      { what: "EmptyState's page says where a section's empty state goes", run: () => h.contains("src/EmptyState.mdx", /inside the box its rows live in/, "EmptyState.mdx places it inside the rows' box") },
+      { what: "Card is in the package", run: () => h.contains("src/index.ts", /\bCard\b/, "src/index.ts exports Card") },
     ] },
     { ref: "UIG-28", owner: true, checks: [
       { what: "text-[14px] is an error in the package", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"text-[14px]\">x</div>\n}\n", expect: "error" }) },
