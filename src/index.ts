@@ -10,6 +10,7 @@
  * TypeScript that produced it.
  */
 export { AppShell, type AppShellProps } from './AppShell'
+export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } from './AttachmentCard'
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { AvatarGroup, type AvatarGroupMember, type AvatarGroupProps } from './AvatarGroup'
 export { Banner, type BannerProps, type BannerTone } from './Banner'

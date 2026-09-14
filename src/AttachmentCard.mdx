@@ -1,0 +1,58 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as AttachmentCardStories from './AttachmentCard.stories'
+
+<Meta of={AttachmentCardStories} />
+
+# AttachmentCard
+
+Something attached — a document or an image — drawn as a card: posted, or
+waiting to be sent.
+
+<Canvas of={AttachmentCardStories.SeveralTogether} />
+
+## When
+
+The file decides the shape:
+
+- **an image with a picture** (`src`) — a 180px thumbnail; `onOpen` is what a
+  click on the picture does.
+- **anything else** — a 240px row: a type tile, the name, the type and size.
+  `href` opens it in a new tab; without one the row is dimmed.
+- `onDownload` — a download control that fades in on hover or keyboard focus.
+- `state="loading"` — an image on its way. `state="unreadable"` — it could not
+  be read: said, with a dashed hairline, never left as a gap.
+- **`pending`** — waiting to be sent: a 200px row with a remove control on its
+  corner (`onRemove`). `state` says what is happening to it: `ready` (its size),
+  `uploading`, `failed` (the reason, in `note`), `warning` (something the sender
+  should know, in `note`, with the full words in `noteHint`).
+
+<Canvas of={AttachmentCardStories.Pending} />
+
+## When not
+
+- A whole thing standing for itself, not a file → **Card**.
+- A word in a sentence that names a file → **InlineChip**.
+- A value picked into a field → **InputChip**, inside **ChipInput**.
+
+## How
+
+```tsx
+import { AttachmentCard } from '@estiva-app/ui'
+
+// Posted: the app fetched the picture, and opens it full screen itself.
+<AttachmentCard name={name} size={bytes} contentType={type} src={pictureUrl} onOpen={openFullScreen} onDownload={save} />
+
+// Waiting to be sent.
+<AttachmentCard pending name={name} size={bytes} state={uploading ? 'uploading' : 'ready'} src={localPreview} onRemove={remove} />
+```
+
+- The card fetches nothing. Reading a file may need the reader's own permission,
+  and only the app has it: pass the result — `src`, `href`, `state`.
+- A click on the picture, the download control and the remove control each stop
+  there, so they never also click the card or row the attachment sits in.
+- The name truncates. On a pending card the full name, and the size or the
+  note's full words, are on hover.
+
+## Props
+
+<Controls of={AttachmentCardStories.Document} />

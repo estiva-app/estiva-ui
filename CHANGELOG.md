@@ -2,14 +2,31 @@
 
 ## Unreleased — UIG-27
 
-**Four components the apps had to build themselves: `Link`, `InlineChip`,
-`ProgressBar` and `Card`.** Both apps hand-wrote every link they have (18 raw
-`<a>` on 13 September, plus 2 through Peek's router), Peek had the only inline
-chip, in its own code, each app drew its own progress bar, and 18 cards were
-drawn by hand across the two. Nothing a caller writes has to change; the apps
-take these in UIG-27's own app PRs.
+**Five components the apps had to build themselves: `Link`, `InlineChip`,
+`ProgressBar`, `Card` and `AttachmentCard`.** Both apps hand-wrote every link
+they have (18 raw `<a>` on 13 September, plus 2 through Peek's router), Peek had
+the only inline chip and the only attachment cards, in its own code, each app
+drew its own progress bar, and 18 cards were drawn by hand across the two.
+Nothing a caller writes has to change; the apps take these in UIG-27's own app
+PRs.
 
 ### Added
+
+- **`AttachmentCard`** — a document or an image attached to something, posted
+  or waiting to be sent: Peek's `FileAttachmentCard` and
+  `PendingAttachmentChip`, class for class, drawn on `Card`'s frame (Katerina,
+  14 September: both apps draw one; Ship's files become this card). The file
+  decides the shape — an image with a picture is a 180px thumbnail, anything
+  else a 240px row — and `pending` is the composer's 200px row with a remove
+  control. It fetches nothing: the app passes `src`, `href` and `state`, and
+  takes the clicks back through `onOpen`, `onDownload` and `onRemove`. Measured
+  element by element against Peek's stories (every element's box, colour, type,
+  hairline and padding): identical for a document, an image, a tall image, no
+  address, a long name, several together, and pending ready, ready document,
+  uploading, failed and warning. One change, by ruling: a file that could not be
+  read has a dashed hairline. (Peek's *Every type* story draws `.heic` as a
+  broken image, where its own comment says it lands on the file glyph; this
+  story draws the glyph.)
 
 - **`Card`** — a box that stands for one thing, drawn as its frame: 8px
   corners, a fill, a hairline; no padding or layout of its own. Katerina's
