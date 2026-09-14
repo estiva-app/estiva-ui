@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, FC } from 'react'
+import { useLayoutEffect, useRef, useState, type ComponentPropsWithRef, type FC } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import {
   IconAlertCircle,
@@ -90,14 +90,45 @@ function TypeIcon({ name }: { name: string }) {
 }
 
 /**
- * The name, truncating: the ellipsis is fine as long as the full name can be read on hover (Katerina, 2026-09-07; every card, 2026-09-14).
- * `flex-col` stretches the name across the wrapper, as wide as it was before it had one: a name exactly as wide as its own
- * letters clips the last letter's antialiased edge (5 pixels in the EveryType story, measured).
+ * A line that truncates, with its full words on hover only when they are cut off — a name that fits, or a size,
+ * shows nothing extra (Katerina, 2026-09-14; Breadcrumb's rule, 2026-09-01). `hint`, when given, is always on hover:
+ * it says more than the line, not the same words again.
+ *
+ * Measured like Breadcrumb's crumbs: on mount, when the line resizes, and when the fonts arrive — a name set in
+ * the fallback face can fit and then not, in a line whose box never changes. The wrapper is `flex-col` so the
+ * text stretches across it, as wide as it is without one.
  */
-function Name({ name, className, wrapperClassName }: { name: string; className: string; wrapperClassName?: string }) {
+function Truncating({ text, hint, className, wrapperClassName }: { text: string; hint?: string; className: string; wrapperClassName?: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [cut, setCut] = useState(false)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let live = true
+    const measure = () => {
+      if (live) setCut(el.scrollWidth > el.clientWidth)
+    }
+    measure()
+    void document.fonts?.ready.then(measure)
+    // jsdom has neither layout nor ResizeObserver; without this guard an app cannot render a card in its tests.
+    if (typeof ResizeObserver === 'undefined') return () => void (live = false)
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => {
+      live = false
+      observer.disconnect()
+    }
+    // `cut` re-runs it: wrapping the line mounts a new element, and that one is the one to watch.
+  }, [text, cut])
+  const line = (
+    <span ref={ref} className={className}>
+      {text}
+    </span>
+  )
+  if (!hint && !cut) return line
   return (
-    <WithTooltip label={name} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
-      <span className={className}>{name}</span>
+    <WithTooltip label={hint ?? text} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
+      {line}
     </WithTooltip>
   )
 }
@@ -174,12 +205,12 @@ export function AttachmentCard({
           )}
         </div>
         <div className="flex flex-col gap-[1px] min-w-0">
-          <Name name={name} className={NAME} />
-          <WithTooltip label={noteHint ?? sizeText} wrapperClassName="min-w-0">
-            <span className={cn(NOTE, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}>
-              {failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)}
-            </span>
-          </WithTooltip>
+          <Truncating text={name} className={NAME} />
+          <Truncating
+            text={(failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)) ?? ''}
+            hint={noteHint}
+            className={cn(NOTE, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
+          />
         </div>
         {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
             that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
@@ -233,7 +264,7 @@ export function AttachmentCard({
           <TypeIcon name={name} />
         </div>
         <div className="flex flex-col gap-[1px] min-w-0 text-left">
-          <Name name={name} className={NAME} />
+          <Truncating text={name} className={NAME} />
           <span className={cn(NOTE, 'text-text-secondary')}>{note ?? 'Could not be loaded'}</span>
         </div>
       </Card>
@@ -260,7 +291,7 @@ export function AttachmentCard({
           <div className="block w-full">{picture}</div>
         )}
         <div className="flex items-center gap-1 pl-2 pr-1 py-1 min-w-0">
-          <Name name={name} className="flex-1 text-[12px] leading-[1.3] text-text-primary truncate" wrapperClassName="flex-1" />
+          <Truncating text={name} className="flex-1 text-[12px] leading-[1.3] text-text-primary truncate" wrapperClassName="flex-1" />
           {download}
         </div>
       </Card>
@@ -273,7 +304,7 @@ export function AttachmentCard({
         <TypeIcon name={name} />
       </div>
       <div className="flex flex-col gap-[1px] min-w-0 text-left">
-        <Name name={name} className={NAME} />
+        <Truncating text={name} className={NAME} />
         <span className={cn(NOTE, 'text-text-secondary')}>{note ?? `${typeLabelOf(name)} · ${sizeText}`}</span>
       </div>
     </>

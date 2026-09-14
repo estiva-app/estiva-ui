@@ -7,7 +7,7 @@
  * reaches what the card sits in; a pending card says what is happening to it;
  * and a file that could not be read is dashed.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AttachmentCard } from './AttachmentCard'
@@ -77,19 +77,53 @@ describe('AttachmentCard', () => {
     expect(outside).not.toHaveBeenCalled()
   })
 
-  it.each([
-    ['a document', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.xlsx" size={1000} href="#" />],
-    ['a document without an address', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.xlsx" size={1000} />],
-    ['an image', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.png" src="data:image/png;base64,AA" />],
-    ['a file that could not be read', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.png" state="unreadable" />],
-    ['a pending card', <AttachmentCard pending name="2026-Q3-billing-reconciliation-FINAL-v4.png" size={1} />],
-  ])('%s: the name truncates, and the full name is on hover', async (_, card) => {
-    const user = userEvent.setup()
-    render(card)
-    const name = screen.getByText(/^2026-Q3-billing-reconciliation-FINAL-v4/)
-    expect(name.className).toContain('truncate')
-    await user.hover(name)
-    expect((await screen.findByRole('tooltip')).textContent).toBe(name.textContent)
+  describe('the full words on hover, only when they are cut off', () => {
+    // jsdom lays nothing out: a line is "cut off" here when its words are longer than 20 characters.
+    beforeEach(() => {
+      vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(function (this: HTMLElement) {
+        return (this.textContent?.length ?? 0) * 7
+      })
+      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(140)
+    })
+    afterEach(() => vi.restoreAllMocks())
+    // Longer than the tooltip's 300ms wait, so "nothing" means nothing opened.
+    const pastTheWait = () => new Promise((resolve) => setTimeout(resolve, 600))
+
+    it.each([
+      ['a document', (name: string) => <AttachmentCard name={name} size={1000} href="#" />],
+      ['a document without an address', (name: string) => <AttachmentCard name={name} size={1000} />],
+      ['an image', (name: string) => <AttachmentCard name={`${name}.png`} src="data:image/png;base64,AA" />],
+      ['a file that could not be read', (name: string) => <AttachmentCard name={`${name}.png`} state="unreadable" />],
+      ['a pending card', (name: string) => <AttachmentCard pending name={`${name}.png`} size={1} />],
+    ])('%s: a name that is cut off shows in full; one that fits shows nothing', async (_, card) => {
+      const user = userEvent.setup()
+      render(card('2026-Q3-billing-reconciliation-FINAL-v4.xlsx'))
+      const long = screen.getByText(/^2026-Q3-billing-reconciliation-FINAL-v4/)
+      expect(long.className).toContain('truncate')
+      await user.hover(long)
+      expect((await screen.findByRole('tooltip')).textContent).toBe(long.textContent)
+      cleanup()
+
+      render(card('notes'))
+      await user.hover(screen.getByText(/^notes/))
+      await pastTheWait()
+      expect(screen.queryByRole('tooltip')).toBeNull()
+    })
+
+    it('the size never has one', async () => {
+      const user = userEvent.setup()
+      render(<AttachmentCard pending name="a.png" size={248_000} />)
+      await user.hover(screen.getByText('242 KB'))
+      await pastTheWait()
+      expect(screen.queryByRole('tooltip')).toBeNull()
+    })
+
+    it('a note’s hint is always on hover: it says more than the line', async () => {
+      const user = userEvent.setup()
+      render(<AttachmentCard pending name="a.png" size={1} state="warning" note="Not shared" noteHint="Only this app has a copy of this file." />)
+      await user.hover(screen.getByText('Not shared'))
+      expect((await screen.findByRole('tooltip')).textContent).toBe('Only this app has a copy of this file.')
+    })
   })
 
   it('an image on its way is a busy placeholder, named as a status', () => {

@@ -73,7 +73,7 @@ And on 14 September:
 15. **The adoption is full**: Peek and Ship adopt `Link`, `InlineChip`, `Card`, `ProgressBar` and `AttachmentCard` completely, and the code they replace is deleted.
 16. **The ✕ on a waiting file is a button on Base UI's `Button`, like InputChip's ✕**, keeping Peek's 20px round badge. Not `IconButton`: its 24px square that fills on hover is a different control. The picture's preview button went on Base UI's `Button` too.
 17. **Storybook has a Components group, right below Inputs**: `AttachmentCard`, `InlineChip`, `Person`, `PersonTrigger`, `Reaction`, `ReactionPicker`. No rule is written for what goes there; ask Katerina where a new component goes.
-18. **Every attachment card shows its full name on hover**, posted as well as waiting. Peek's posted cards had no way to read a cut-off name. Screenshots of every story are identical pixel for pixel before and after 16 and 18.
+18. **An attachment card's name shows in full on hover only when it is cut off**, on every card, posted as well as waiting. A name that fits, and a size, show no tooltip ("i dont want tooltips on titles and size. only if title is too long"). Peek's posted cards had no way to read a cut-off name; its waiting card showed the name and the size on every hover. Measured like Breadcrumb's crumbs. Screenshots of every story are identical pixel for pixel before and after 16 and 18, but for 3 pixels: Peek clipped the last letter of the warning's note, and the package draws it whole.
 
 ### UIG-27: the cards, sorted
 

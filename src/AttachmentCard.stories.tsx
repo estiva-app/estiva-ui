@@ -54,7 +54,7 @@ export const EveryType: Story = {
   ),
 }
 
-/** A name longer than the card truncates, so every card in a row keeps the same two lines. The full name is on hover. */
+/** A name longer than the card truncates, so every card in a row keeps the same two lines. The full name is on hover, because it is cut off. */
 export const LongName: Story = { args: { name: '2026-Q3-billing-reconciliation-and-invoice-summary-FINAL-v4.xlsx', size: 3_100_000 } }
 
 /** Several together, in one flow: images and rows are different widths on purpose. */

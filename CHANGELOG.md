@@ -24,14 +24,18 @@ PRs.
   hairline and padding): identical for a document, an image, a tall image, no
   address, a long name, several together, and pending ready, ready document,
   uploading, failed and warning. Two changes, by ruling: a file that could not
-  be read has a dashed hairline; and the full name is on hover on every card,
-  posted as well as waiting (Katerina, 14 September — Peek's posted cards had no
-  way to read a cut-off name). The remove control and the picture are buttons on
-  Base UI's `Button`, as InputChip's ✕ is (her ruling: not `IconButton`, whose
-  24px square is a different control); screenshots of every story are identical
-  pixel for pixel before and after both. (Peek's *Every type* story draws
-  `.heic` as a broken image, where its own comment says it lands on the file
-  glyph; this story draws the glyph.)
+  be read has a dashed hairline; and a name shows in full on hover only when it
+  is cut off, on every card, posted as well as waiting — a name that fits and a
+  size show nothing (Katerina, 14 September; Peek's posted cards had no way to
+  read a cut-off name, and its waiting card showed the name and the size on
+  every hover). A note's `noteHint` is still always on hover. The remove control
+  and the picture are buttons on Base UI's `Button`, as InputChip's ✕ is (her
+  ruling: not `IconButton`, whose 24px square is a different control).
+  Screenshots of every story are identical pixel for pixel before and after, but
+  for the warning's note: Peek's clipped 3 pixels off its last letter, and this
+  draws it whole. (Peek's *Every type* story draws `.heic` as a broken image,
+  where its own comment says it lands on the file glyph; this story draws the
+  glyph.)
 
 - **`Card`** — a box that stands for one thing, drawn as its frame: 8px
   corners, a fill, a hairline; no padding or layout of its own. Katerina's
