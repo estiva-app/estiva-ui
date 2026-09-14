@@ -23,10 +23,15 @@ PRs.
   element by element against Peek's stories (every element's box, colour, type,
   hairline and padding): identical for a document, an image, a tall image, no
   address, a long name, several together, and pending ready, ready document,
-  uploading, failed and warning. One change, by ruling: a file that could not be
-  read has a dashed hairline. (Peek's *Every type* story draws `.heic` as a
-  broken image, where its own comment says it lands on the file glyph; this
-  story draws the glyph.)
+  uploading, failed and warning. Two changes, by ruling: a file that could not
+  be read has a dashed hairline; and the full name is on hover on every card,
+  posted as well as waiting (Katerina, 14 September — Peek's posted cards had no
+  way to read a cut-off name). The remove control and the picture are buttons on
+  Base UI's `Button`, as InputChip's ✕ is (her ruling: not `IconButton`, whose
+  24px square is a different control); screenshots of every story are identical
+  pixel for pixel before and after both. (Peek's *Every type* story draws
+  `.heic` as a broken image, where its own comment says it lands on the file
+  glyph; this story draws the glyph.)
 
 - **`Card`** — a box that stands for one thing, drawn as its frame: 8px
   corners, a fill, a hairline; no padding or layout of its own. Katerina's

@@ -50,8 +50,11 @@ import { AttachmentCard } from '@estiva-app/ui'
   and only the app has it: pass the result — `src`, `href`, `state`.
 - A click on the picture, the download control and the remove control each stop
   there, so they never also click the card or row the attachment sits in.
-- The name truncates. On a pending card the full name, and the size or the
-  note's full words, are on hover.
+- The name truncates, and the full name is on hover, on every card. On a
+  pending card the size or the note's full words are on hover too.
+- The remove control is Peek's 20px round badge on the card's corner, a button
+  on Base UI's `Button` like InputChip's ✕ — not an `IconButton`, the 24px
+  square that fills on hover.
 
 ## Props
 

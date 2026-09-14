@@ -1,4 +1,5 @@
 import type { ComponentPropsWithRef, FC } from 'react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import {
   IconAlertCircle,
   IconAlertTriangle,
@@ -88,6 +89,19 @@ function TypeIcon({ name }: { name: string }) {
   return <Icon size={20} stroke={1.5} />
 }
 
+/**
+ * The name, truncating: the ellipsis is fine as long as the full name can be read on hover (Katerina, 2026-09-07; every card, 2026-09-14).
+ * `flex-col` stretches the name across the wrapper, as wide as it was before it had one: a name exactly as wide as its own
+ * letters clips the last letter's antialiased edge (5 pixels in the EveryType story, measured).
+ */
+function Name({ name, className, wrapperClassName }: { name: string; className: string; wrapperClassName?: string }) {
+  return (
+    <WithTooltip label={name} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
+      <span className={className}>{name}</span>
+    </WithTooltip>
+  )
+}
+
 export interface AttachmentCardProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** The name it was attached under, extension included: it decides the icon and the type label. */
   name: string
@@ -160,18 +174,17 @@ export function AttachmentCard({
           )}
         </div>
         <div className="flex flex-col gap-[1px] min-w-0">
-          {/* The ellipsis is fine as long as the full name can be read on hover (Katerina, 2026-09-07). */}
-          <WithTooltip label={name} wrapperClassName="min-w-0">
-            <span className={NAME}>{name}</span>
-          </WithTooltip>
+          <Name name={name} className={NAME} />
           <WithTooltip label={noteHint ?? sizeText} wrapperClassName="min-w-0">
             <span className={cn(NOTE, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}>
               {failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)}
             </span>
           </WithTooltip>
         </div>
+        {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
+            that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
         {onRemove && (
-          <button
+          <BaseButton
             type="button"
             aria-label={`Remove ${name}`}
             className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
@@ -181,7 +194,7 @@ export function AttachmentCard({
             }}
           >
             <IconX size={11} stroke={1.75} />
-          </button>
+          </BaseButton>
         )}
       </Card>
     )
@@ -220,7 +233,7 @@ export function AttachmentCard({
           <TypeIcon name={name} />
         </div>
         <div className="flex flex-col gap-[1px] min-w-0 text-left">
-          <span className={NAME}>{name}</span>
+          <Name name={name} className={NAME} />
           <span className={cn(NOTE, 'text-text-secondary')}>{note ?? 'Could not be loaded'}</span>
         </div>
       </Card>
@@ -232,7 +245,7 @@ export function AttachmentCard({
     return (
       <Card fill="inset" hover="hairline" className={cn('group relative flex flex-col w-[180px] overflow-hidden', className)} {...props}>
         {onOpen ? (
-          <button
+          <BaseButton
             type="button"
             className="block w-full"
             aria-label={`Preview ${name}`}
@@ -242,12 +255,12 @@ export function AttachmentCard({
             }}
           >
             {picture}
-          </button>
+          </BaseButton>
         ) : (
           <div className="block w-full">{picture}</div>
         )}
         <div className="flex items-center gap-1 pl-2 pr-1 py-1 min-w-0">
-          <span className="flex-1 text-[12px] leading-[1.3] text-text-primary truncate">{name}</span>
+          <Name name={name} className="flex-1 text-[12px] leading-[1.3] text-text-primary truncate" wrapperClassName="flex-1" />
           {download}
         </div>
       </Card>
@@ -260,7 +273,7 @@ export function AttachmentCard({
         <TypeIcon name={name} />
       </div>
       <div className="flex flex-col gap-[1px] min-w-0 text-left">
-        <span className={NAME}>{name}</span>
+        <Name name={name} className={NAME} />
         <span className={cn(NOTE, 'text-text-secondary')}>{note ?? `${typeLabelOf(name)} · ${sizeText}`}</span>
       </div>
     </>

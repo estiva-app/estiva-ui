@@ -77,6 +77,21 @@ describe('AttachmentCard', () => {
     expect(outside).not.toHaveBeenCalled()
   })
 
+  it.each([
+    ['a document', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.xlsx" size={1000} href="#" />],
+    ['a document without an address', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.xlsx" size={1000} />],
+    ['an image', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.png" src="data:image/png;base64,AA" />],
+    ['a file that could not be read', <AttachmentCard name="2026-Q3-billing-reconciliation-FINAL-v4.png" state="unreadable" />],
+    ['a pending card', <AttachmentCard pending name="2026-Q3-billing-reconciliation-FINAL-v4.png" size={1} />],
+  ])('%s: the name truncates, and the full name is on hover', async (_, card) => {
+    const user = userEvent.setup()
+    render(card)
+    const name = screen.getByText(/^2026-Q3-billing-reconciliation-FINAL-v4/)
+    expect(name.className).toContain('truncate')
+    await user.hover(name)
+    expect((await screen.findByRole('tooltip')).textContent).toBe(name.textContent)
+  })
+
   it('an image on its way is a busy placeholder, named as a status', () => {
     const { container } = render(<AttachmentCard name="shot.png" state="loading" />)
     const root = rootOf(container)
