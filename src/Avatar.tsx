@@ -126,7 +126,20 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
             background: `linear-gradient(160deg, color-mix(in srgb, ${hueFor(label)} 92%, #fff) 0%, color-mix(in srgb, ${hueFor(label)} 70%, #0b0d11) 100%)`,
           }}
         >
-          {initialsFor(label)}
+          {/*
+            D27 (ruled 2026-09-08, built 2026-09-14): what is centred is the
+            capitals' own box, cap height to baseline, not the line box. The
+            line box's ascent and descent are rounded to whole pixels before
+            it is centred, which put the baseline up to 0.73px from where
+            centred capitals put it (at 24px: 14.5 against 15.23); trimmed, it
+            lands within 0.06px. On screen, averaged over eight sub-pixel
+            positions, the ink leaned 0.66px high at 24px, 0.44px at 28px and
+            0.27px low at 22px; now every size averages within 0.07px of the
+            middle. Any one face can still sit up to half a pixel off, because
+            the screen rounds text to its pixel grid wherever the tile falls.
+            A browser without `text-box` draws the old line box, as before.
+          */}
+          <span className="[text-box:trim-both_cap_alphabetic]">{initialsFor(label)}</span>
         </BaseAvatar.Fallback>
       ) : (
         <BaseAvatar.Fallback render={<div />} className="w-full h-full bg-accent-muted flex items-center justify-center text-text-muted">

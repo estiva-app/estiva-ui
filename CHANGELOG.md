@@ -91,7 +91,28 @@
   not put the `<img>` in the page until it had loaded — which Peek's
   `TopBar.avatar.test.tsx` looks for. Measured live in Chrome with a picture
   held back 3s and one answered 401. Props, classes and the tile's `div` are
-  unchanged.
+  unchanged. Every story, 287, identical in both themes.
+- **`Avatar`'s initials are centred on their capitals** (D27, ADOPTION B11) —
+  cap height to baseline, through CSS `text-box`, instead of the line box. This
+  moves pixels. Measured as ink against tile in Chrome, every size at eight
+  sub-pixel positions, both themes:
+
+  | size | before: average lean | after | worst, before → after |
+  |---|---|---|---|
+  | 22px | 0.27px low | 0.02px | 0.71 → 0.46px |
+  | 24px | 0.66px high | 0.03px | 1.10 → 0.47px |
+  | 28px | 0.44px high | 0.06px | 0.88 → 0.50px |
+  | 32px | 0.19px high | 0.06px | 0.63 → 0.50px |
+  | 16, 20, 36px | within 0.06px | within 0.07px | 0.50 either way |
+
+  Any one face can still be up to half a pixel off: the screen rounds text to
+  its pixel grid wherever the tile lands, and no CSS decides that. So a given
+  avatar can move down, up, or not at all. In the package's stories 11 of 287
+  change in each theme, each by the letters of one 24px face (Person, TopBar,
+  AppShell, IdentityMenu, Avatar sizes); in the top bar the letters went up a
+  pixel, where that position happened to round the other way. A browser without
+  `text-box` draws the old line box; support was checked in Chrome 152 only.
+  Both apps change wherever a face shows initials.
 
 ## 0.13.1 — 2026-09-15 — UIG-27
 

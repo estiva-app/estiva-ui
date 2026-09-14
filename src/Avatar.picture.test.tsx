@@ -45,6 +45,13 @@ describe('Avatar picture', () => {
     expect(tile(container).textContent).toBe('AD')
   })
 
+  it('the initials are centred on their capitals, not their line box (D27)', () => {
+    const { container } = render(<Avatar name="Ana Duarte" />)
+    const initials = tile(container).querySelector('span')
+    expect(initials?.textContent).toBe('AD')
+    expect(initials?.className).toBe('[text-box:trim-both_cap_alphabetic]')
+  })
+
   it('no picture and no name: the silhouette', () => {
     const { container } = render(<Avatar />)
     expect(tile(container).querySelector('svg')).not.toBeNull()
