@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — UIG-27
+## 0.13.1 — 2026-09-15 — UIG-27
 
 **`Card` holds its hover look while its own menu is open, and the selected
 card keeps its pointer.** Found adopting 0.13.0 in an app: a card in a feed
