@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — UIG-27
+## 0.13.0 — 2026-09-14 — UIG-27
 
 **Five components the apps had to build themselves: `Link`, `InlineChip`,
 `ProgressBar`, `Card` and `AttachmentCard`.** Both apps hand-wrote every link
