@@ -42,9 +42,20 @@ import { Reaction } from '@estiva-app/ui'
   aloud is noise, and its spoken name differs per screen reader — so the
   count is the only visible text and the control would otherwise be
   announced as "2". Pass the meaning and the count.
-- It is a real `<button>` with `aria-pressed`, so "mine" reaches assistive
-  tech as a toggle rather than as a colour. Every native prop passes
-  through; `type` defaults to `"button"`.
+- It is Base UI's `Toggle`: a real `<button>` with `aria-pressed` and
+  `data-pressed`, so "mine" reaches assistive tech as a toggle rather than as
+  a colour. It is always `type="button"`, never a form's submit.
+- **You own `pressed`.** A press calls `onClick` and changes nothing on its
+  own; the pill shows "yours" when your data says so. A write can fail, and
+  another client can change the count.
+- `disabled` takes it out of the Tab order and ignores presses.
+
+## Keys
+
+| Key | What happens |
+|---|---|
+| Tab | Moves to the reaction; a disabled one is skipped |
+| Enter, Space | Presses it: calls `onClick` |
 
 ## Props
 

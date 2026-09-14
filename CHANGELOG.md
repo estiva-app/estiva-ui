@@ -22,6 +22,16 @@
   tokens page); Chrome's accessibility tree reads `term("Status") · definition`
   for every row; a first test file (5 tests) fails on the old component. No
   caller changes.
+- **`Reaction` is Base UI's `Toggle`** (D6, Finding 19). It gains
+  `data-pressed` beside `aria-pressed`, a test file and a Keys table, which it
+  arrived without. `pressed` stays the caller's: a press calls `onClick` and
+  the pill keeps what `pressed` says. Two native props leave its type, because
+  `Toggle` ignores them: `type` (always `"button"`) and `value`. No caller in
+  Peek or Ship renders a `Reaction` (checked on both `main`s, 2026-09-14), so
+  nobody passes either. Its count doc said a `0` "is not drawn"; the component
+  always drew it, and the doc now says not to render a reaction with no count.
+  Proof: its 9 stories and `ReactionPicker`'s identical in both themes; 5 tests,
+  one failing on the old component and two when `pressed` becomes uncontrolled.
 
 ## 0.13.1 — 2026-09-15 — UIG-27
 

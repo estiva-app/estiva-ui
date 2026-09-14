@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { Toggle } from '@base-ui/react/toggle'
 import { cn } from './cn'
 
 /**
@@ -22,8 +23,10 @@ import { cn } from './cn'
  * 1px hairline against no border at all — which is legible and is not the
  * signal Peek's accent fill gives.
  *
- * It is a real `<button>` with `aria-pressed`, so the state reaches assistive
- * tech as a toggle rather than as a colour.
+ * On Base UI's `Toggle` since stage 6 of the migration (2026-09-14): a native
+ * `<button>` with `aria-pressed` and `data-pressed`, so the state reaches
+ * assistive tech as a toggle rather than as a colour. Base UI writes both;
+ * this component used to write the first by hand.
  *
  * ## `aria-label` is required, and the reason is specific
  *
@@ -39,12 +42,16 @@ import { cn } from './cn'
  * `small`, the same 8px horizontal padding, the `chip` type token for the
  * count so it sits at 11px/500 like every other count in the system.
  */
-export interface ReactionProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+export interface ReactionProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'type' | 'value'> {
   /** The emoji, drawn decoratively — name the control with `aria-label`. */
   emoji: ReactNode
-  /** How many people reacted. Drawn as-is; `0` is not a reaction and is not drawn. */
+  /** How many people reacted. Drawn as it is. A count of `0` is not a reaction: do not render one. */
   count: number
-  /** You are one of them: the accent tint and edge, and `aria-pressed`. */
+  /**
+   * You are one of them: the accent tint and edge, and `aria-pressed`. The
+   * caller owns it — a press calls `onClick` and the pill keeps showing this
+   * value until the caller changes it.
+   */
   pressed?: boolean
   /**
    * Names the control. **Required** — the emoji is decorative and the count is
@@ -53,11 +60,13 @@ export interface ReactionProps extends Omit<ButtonHTMLAttributes<HTMLButtonEleme
   'aria-label': string
 }
 
-export function Reaction({ emoji, count, pressed = false, className, type, ...props }: ReactionProps) {
+export function Reaction({ emoji, count, pressed = false, className, ...props }: ReactionProps) {
   return (
-    <button
-      type={type ?? 'button'}
-      aria-pressed={pressed}
+    <Toggle
+      // Controlled: a reaction is yours when the data says so, not when the
+      // pill was last pressed — a write can fail, and another client can
+      // change it.
+      pressed={pressed}
       className={cn(
         // Chip's pill at a control's height, so a reaction and a status chip
         // read as the same family — 24px matches Button `small`.
@@ -88,6 +97,6 @@ export function Reaction({ emoji, count, pressed = false, className, type, ...pr
       <span className="text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tabular-nums">
         {count}
       </span>
-    </button>
+    </Toggle>
   )
 }
