@@ -88,7 +88,7 @@ And on 14 September:
 | an object from another app | `ui/ForeignObjectWidget.tsx:385` · `:607` | `ui/ForeignObject.tsx:89` · `:212` |
 | **total** | **11** | **7** — **18** |
 
-Three of them are a card that **cannot be read** (`ForeignObjectWidget.tsx:607`, `ForeignObject.tsx:89`, `Attachment.tsx:45`): a state of the card, not an empty state — the package's EmptyState page says an empty state never stands in for a failure. Peek draws that state with a solid hairline and caption text, Ship with a dashed border and body text: one look to rule on when Card is built.
+Three of them are a card that **cannot be read** (`ForeignObjectWidget.tsx:607`, `ForeignObject.tsx:89`, `Attachment.tsx:45`): a state of the card, not an empty state — the package's EmptyState page says an empty state never stands in for a failure. Peek drew that state with a solid hairline and caption text, Ship with a dashed border and body text. Ruled since: dashed, in both apps (ruling 12).
 
 Not cards: 6 fields (the compose box, the edit boxes, a text input), 3 panels (the launcher, a board column, the issues table's frame), 2 chips or buttons, 4 loading placeholders, 1 notice, 4 others (a hand-made tick box, a picture's frame, an unknown editor block, and the pinned message — a preview, not clickable).
 
@@ -133,45 +133,72 @@ Katerina's words: *"peek and ship will adopt the updates from estiva-ui carefull
 #### 1. Before any code
 
 1. Read the UIG-27 ticket in Ship in full (`ship_get_issue UIG-27`; the answer is too big to print, so it is saved to a file — read all of it). Its acceptance list is the definition of done; §4 below repeats it.
-2. `npm view @estiva-app/ui version` must print `0.13.0` or later. Read its CHANGELOG entry: it lists every prop.
+2. `npm view @estiva-app/ui version` must print `0.13.0` or later (released 14 September: PR #29 and #30, tag `v0.13.0`). If it prints less, stop and tell Katerina. Read the 0.13.0 CHANGELOG entry: it lists every prop.
 3. **Work in a worktree, never a main checkout.** The migration session (PLAN stage 6) works in Peek and Ship at the same time. `git fetch` first; main has moved under a session twice before. Ship: `npm ci` in the root **and** in `web/`. Stop every dev server in a checkout before `npm ci`, or it fails on Windows. Katerina's servers (`:6006`, `:6008`, `:5173`) are hers; use your own ports.
-4. Branch `gates/27-missing-components` in each app (the ticket's name). One PR per app. **Do not merge**: Katerina merges.
-5. **Photograph first.** Every app story, before and after, pixel for pixel (the package's CLAUDE.md, "A port, step by step", step 9), plus the real screens a story does not reach (a conversation with attachments, a Ship issue with a description, a project). Every difference is either a ruling below or a bug. Scripts that do this, from the package half: `K:\Estiva\uig27-review\scripts\` (its README says which is which).
+4. **Another session works in these apps** (the migration, PLAN stage 6). Run `gh pr list` in peek and ship before starting and again before pushing; rebase on `origin/main`; if an open PR touches the same files, tell Katerina.
+5. Branch `gates/27-missing-components` in each app (the ticket's name). One PR per app. **Do not merge**: Katerina merges.
+6. **Photograph first.** Every app story, before and after, pixel for pixel (the package's CLAUDE.md, "A port, step by step", step 9), plus the real screens a story does not reach (a conversation with attachments, a Ship issue with a description, a project). Every difference is either a ruling below or a bug. Scripts: `K:\Estiva\uig27-review\scripts\` — `shoot-all-stories.mjs` photographs every story a Storybook lists, `pixels-attachment.mjs compare` diffs two folders, and the README says which is which. For the real screens, the method in memory `estiva-session-2026-09-10-peek-atlas` (58 screens of Peek).
+7. **Show Katerina the plan before building** (her standing rule): three short parts and yes/no questions, with the photos of what only she can rule — the two router links, and Ship's empty-state room (§2). Asked at the start, a ruling never blocks the end.
+8. **Push** when the app builds, its tests pass and every photographed difference is explained; open the PR; **never merge**.
 
 #### 2. What each app changes
 
 Places as of Peek `main` `664d144` and Ship `main` `58732d4`, 14 September. **Lines drift: find each by its file and its code, and re-count before starting.**
 
-**`Link`** — 20 links: 18 raw `<a>` and 2 router links. Every one ends as a component or a written reason; `fitted + reasoned = 20` goes in **UIG-27: the links, recounted** above.
+**`Link`** — 20 links: 18 raw `<a>` and 2 router links. Every one ends as a component or a written reason; `fitted + reasoned = 20` goes in **UIG-27: the links, recounted** above. Re-read on 14 September at the commits above: the same 20, and by job the same as that table (Peek 5 text, 2 card or row, 2 chip; Ship 2, 4, 3).
 
-| app | where | becomes (proposed: check each against the look it has now) |
-|---|---|---|
-| Peek | `ui/MessageBody.tsx:52` (`BodyLink`) | `Link` `text`, `external` |
-| Peek | `ThreadReplyCard.tsx:504` · `TopicProjectPanel.tsx:243` · `ui/ForeignObjectWidget.tsx:277` · `:401` · `ui/ProjectTickets.tsx:154` | `Link` `quiet` or `underlined`: match each to the look it has now (rulings 1–2) |
-| Peek | `ui/FileAttachmentCard.tsx:297` | goes with it, into `AttachmentCard` |
-| Peek | `ui/Reference.tsx:227` · `:258` | `InlineChip` with `href` |
-| Peek | `ConversationCard.tsx:572` · `ThreadPanel.tsx:492` — `react-router-dom`'s `Link` | `Link` `quiet`, navigating through the router in `onClick` (NavItem's rule), or a written reason to keep the router's |
-| Ship | `Board.tsx:24` · `ProjectCard.tsx:55` · `ui/ForeignObject.tsx:218` | `Card` with `href` (it draws `Link` `plain`) |
-| Ship | `IssueRow.tsx:66` · `:79` | `Link` `plain` |
-| Ship | `IssuesTable.tsx:84` | `Link` `quiet` |
-| Ship | `ui/ForeignObject.tsx:99` | `Link` `underlined` |
-| Ship | `ui/Reference.tsx:156` · `:160` | `InlineChip` with `href` |
+| app | where | job | what it looks like now | becomes |
+|---|---|---|---|---|
+| Peek | `ui/MessageBody.tsx:52` (`BodyLink`) | text | info colour, underlined | `Link` `text`, `external` |
+| Peek | `ThreadReplyCard.tsx:504` | text | a muted timestamp, underline on hover | `Link` `quiet` |
+| Peek | `TopicProjectPanel.tsx:243` · `ui/ForeignObjectWidget.tsx:401` | text | a title, underline on hover | `Link` `quiet`, `external` |
+| Peek | `ui/ForeignObjectWidget.tsx:277` | text | "Open in app ↗", dotted underline | `Link` `underlined`, `external` (solid now: ruling 2) |
+| Peek | `ui/ProjectTickets.tsx:154` | row | a title whose `after:absolute after:inset-0` makes the whole row the link | `Link` `plain`, keeping those classes |
+| Peek | `ui/FileAttachmentCard.tsx:297` | card | the file row | goes with it, into `AttachmentCard` |
+| Peek | `ui/Reference.tsx:227` · `:258` | chip | the inline chip | `InlineChip` with `href` |
+| Peek | `ConversationCard.tsx:572` · `ThreadPanel.tsx:492` — `react-router-dom`'s `Link` | text | quiet | `Link` `quiet` navigating through the router in `onClick` (NavItem's rule), or keep the router's with a written reason — **Katerina decides**, from the two side by side |
+| Ship | `Board.tsx:24` · `ProjectCard.tsx:55` · `ui/ForeignObject.tsx:218` | card | the whole card | `Card` with `href` (it draws `Link` `plain`) |
+| Ship | `IssueRow.tsx:66` | row | `after:absolute after:inset-0`, the whole row | `Link` `plain`, keeping those classes |
+| Ship | `IssueRow.tsx:79` | chip | wraps the round project badge | `Link` `plain` |
+| Ship | `IssuesTable.tsx:84` | text | a title, underline on hover | `Link` `quiet` |
+| Ship | `ui/ForeignObject.tsx:99` | text | "Open it there", underlined | `Link` `underlined` |
+| Ship | `ui/Reference.tsx:156` · `:160` | chip | the inline chip | `InlineChip` with `href` |
+
+`Card`, `Link` and `InlineChip` all pass the rest of their props to the anchor, so `{...linkTo(href)}` spreads onto any of them (read in `Card.tsx` and `InlineChip.tsx`).
 
 ⛔ **Ship's links spread `{...linkTo(href)}`** (`router.ts:191`, SHI-20). Keep it: `<Link {...linkTo(href)} …>`. Drop it and every click reloads the whole app. **Prove it, don't read it** (acceptance): in Playwright set `window.__marker = 1`, click the link, read it back. Still there, the app navigated; gone, the page reloaded. Do it for every Ship link that changed, and for Peek's two router links.
 
-**`InlineChip`** (D67, ruling 3). Peek: delete `ui/inlineChip.ts`; its callers take the package's `InlineChip`, or `inlineChipClassName` / `INLINE_CHIP_CLASSES` where the editor needs strings — `ui/MessageBody.tsx` (3 chips), `ui/Reference.tsx` (3), `extensions/mention.tsx` (8), `extensions/highlight.tsx`. Tone `mention` is renamed `person`. The package's classes already carry `h-[1.4em] align-top`, so Peek's `INLINE_CHIP_STYLE` and `INLINE_CHIP_STYLE_ATTR` go, never doubled (a chip that adds its own style keeps that part: `mention.tsx:505` caps its width at `24ch`). The quiet chip becomes 19.6px (was 16.8px, a fix). Ship: `ui/Reference.tsx`'s chip becomes `InlineChip`; measured, it does not move.
+**`InlineChip`** (D67, ruling 3). Peek: delete `ui/inlineChip.ts`; its callers take the package's `InlineChip`, or `inlineChipClassName` / `INLINE_CHIP_CLASSES` where the editor needs strings — `ui/MessageBody.tsx` (3 chips), `ui/Reference.tsx` (3), `extensions/mention.tsx` (8), `extensions/highlight.tsx`. Tone `mention` is renamed `person`. The package's classes already carry `h-[1.4em] align-top`, so Peek's `INLINE_CHIP_STYLE` and `INLINE_CHIP_STYLE_ATTR` go, never doubled (a chip that adds its own style keeps that part: `mention.tsx:505` caps its width at `24ch`). The quiet chip becomes 19.6px (was 16.8px, a fix). Renaming the tone changes no saved or pasted text: the editor finds a chip by its data attribute (`parseHTML` matches `span[data-mention]` and its siblings), never by a class. Ship: `ui/Reference.tsx` draws every Ship chip, a person's too; it becomes `InlineChip`, and measured, it does not move.
 
-**`ProgressBar`**. Peek `ui/ProjectTickets.tsx:22` → `variant="quiet"` (4px now, was 3px: ruling 5). Ship `ProjectRail.tsx:88` → the package's; delete `ui/ProgressBar.tsx` and its story and test.
+**`ProgressBar`**. Peek `ui/ProjectTickets.tsx:22` → `variant="quiet"` (4px now, was 3px: ruling 5). Ship `ProjectRail.tsx:88` → the package's `variant="default"` (Ship's own 6px look); delete `ui/ProgressBar.tsx` and its story and test.
 
-**`Card`** — the 18 in **UIG-27: the cards, sorted** above, by rulings 9–12: pick the `fill` by what the card sits on; `href` for a card that is a link; Peek's conversation, reply and huddle cards take `hover="fill"`, and the conversation and reply cards `quietUntilHover`; `selected`, `active` and `attention` where they have those states; `unreadable` for the three that cannot be read. Ship's `ConversationThread` card is `subdued` today (`border-subtle` on `bg-base`): try `fill="none"`, and measure it. Ship's board card goes from 6px corners to 8px (ruled). The foreign object's inside layout (D66) is **not** this ticket.
+**`Card`** — the 18 in **UIG-27: the cards, sorted** above, by rulings 9–12. The fill is read from each card's measured colour (13 September, `card-frames.json` in the scripts folder); the states from the Card diff that matched Peek's conversation card.
+
+| app | card | `Card` |
+|---|---|---|
+| Peek | `ConversationCard.tsx:487` | `fill="surface"` `hover="fill"` `quietUntilHover`; selected → `selected`, being edited → `active`, unread → `attention="accent"`, urgent → `attention="warning"` (each measured identical) |
+| Peek | `ThreadReplyCard.tsx:415` | `fill="surface"` `hover="fill"` `quietUntilHover`; the same states, where it draws them (read it) |
+| Peek | `HuddleCard.tsx:127` | `fill="surface"` `hover="fill"` (its hairline stays at rest) |
+| Peek | `TopicDetailsDialog.tsx:254` · `TopicProjectPanel.tsx:238` | `fill="none"` |
+| Peek | `ui/ForeignObjectWidget.tsx:385` | `fill="inset"` |
+| Peek | `ui/ForeignObjectWidget.tsx:607` | `fill="none"` `unreadable` (dashed now) |
+| Peek | `ui/FileAttachmentCard.tsx:216` · `:246` · `:291` · `ui/PendingAttachmentChip.tsx:87` | `AttachmentCard`, below |
+| Ship | `Board.tsx:26` | `fill="elevated"` `href` (8px corners now, was 6px) |
+| Ship | `ProjectCard.tsx:58` | `fill="surface"` `href` |
+| Ship | `ConversationThread.tsx:543` | `fill="surface"`; its `subdued` look (`border-subtle` on `bg-base`) → try `fill="none"`, and measure |
+| Ship | `ui/ForeignObject.tsx:212` | `fill="surface"`, and `href` where it is a link (the `<a>` at `:218`) |
+| Ship | `ui/ForeignObject.tsx:89` | `fill="surface"` `unreadable` |
+| Ship | `ui/Attachment.tsx:45` · `:88` | `AttachmentCard`, below |
+
+The foreign object's inside layout (D66) is **not** this ticket.
 
 **`AttachmentCard`** (rulings 13, 14, 16, 18).
 
 | app | today | becomes |
 |---|---|---|
 | Peek | `ui/PendingAttachmentChip.tsx`, used in `ui/ComposeBox.tsx:366` and `ui/AttachFiles.tsx:54` | `<AttachmentCard pending …>` in both; **delete** the file, its story and its test |
-| Peek | `ui/FileAttachmentCard.tsx`, used in `ConversationCard.tsx:671` and `ThreadReplyCard.tsx:535` | shrinks to what only Peek can do: `useRelayBlob` (the fetch), `downloadFile`, `ImageLightbox`. It passes `src`, `href`, `state` and the three `on…` clicks. Its props spread onto the card, so `data-interactive` still reaches it |
-| Ship | `ui/Attachment.tsx`, used in `ui/RichText.tsx`, `ui/editorSchema.tsx`, `ConversationThread.tsx` (`Attachments`) | a **file** and the **can't-load** state become `AttachmentCard` (ruling 8: 28px line → Peek's 50px card). **Images stay as they are** until the package has a full-screen viewer (ruling 14) |
+| Peek | `ui/FileAttachmentCard.tsx`, used in `ConversationCard.tsx:671` and `ThreadReplyCard.tsx:535` | shrinks to what only Peek can do: `useRelayBlob` (the fetch), `downloadFile`, `ImageLightbox`. It passes `src`, `href` and `state`, with `onOpen` (opens `ImageLightbox`) and `onDownload` (calls `downloadFile`). Keep passing `data-interactive`: `ConversationCard.tsx:516` and `HuddleCard.tsx:158` ignore a click inside `[data-interactive]`, so a click on a file does not also open the conversation. The card's props spread onto its root, so it arrives |
+| Ship | `ui/Attachment.tsx`, used in `ui/RichText.tsx`, `ui/editorSchema.tsx`, `ConversationThread.tsx` (`Attachments`) | a **file** and the **can't-load** state become `AttachmentCard` (ruling 8: 28px line → Peek's 50px card). **Images stay as they are** until the package has a full-screen viewer (ruling 14), so `Attachment.tsx` keeps its image and its fetch. ⚠️ `editorSchema.tsx` draws it **inside the description editor**: the taller card changes the editing surface — photograph a description with a file while editing, and check it can still be selected, moved and deleted |
 
 What changes on screen, all ruled: a card that cannot be read is dashed; a name shows in full on hover **only when it is cut off**, and a size never does; the loading placeholder is a named status (Peek's had an `aria-label` on a plain `div`).
 
@@ -182,9 +209,13 @@ What changes on screen, all ruled: a card that cannot be read is dashed; a name 
 | Peek | `TopicActivity.tsx:68` (`px-4 py-4`) · `TopicProjectPanel.tsx:211` · `:219` (`p-3`) · `ui/ProjectTickets.tsx:118` (`border-t px-3 py-2`) · `views/FolderContentsView.tsx:91` · `:96` (`p-4`) · `views/ForeignConversationView.tsx:72` · `:86` (`p-4`) — and read the multi-line ones: `ui/StarredSection.tsx:47`, `ui/ErrorBoundary.tsx:41`, `pages/DeskPage.tsx:410`, `pages/TopicsPage.tsx:200` · `:215` |
 | Ship | `Activity.tsx:122` (`py-8`) · `ConversationThread.tsx:648` (`py-8`) · `History.tsx:32` (`py-6`) · `NewIssueDialog.tsx:73` (`py-6`) · `views/ProjectView.tsx:126` (`py-10`) · `IssueList.tsx:50` (passes `className` on) — and read `pages/IssuePage.tsx:93`, `views/ProjectsView.tsx:54` |
 
-⚠️ **Not ruled yet:** how much vertical room an empty *page section* takes in Ship (`py-6`, `py-8`, `py-10`). Ruling 6 says it is taken when those callers are fixed. Photograph them, and ask Katerina before changing them.
+⚠️ **Not ruled yet, and it covers all six of Ship's padded callers:** how much vertical room an empty section takes in Ship (`py-6`, `py-8`, `py-10`). Ruling 6 says it is taken when those callers are fixed. Photograph them at the start and bring the photos to Katerina with the plan (§1, step 7); change them after she rules.
 
-**`gates:status`.** Add UIG-30 to both apps' `scripts/gates-checks.mjs` (they list 29 tickets; each repo's list must agree). UIG-27's own app checks read the installed package and Peek's progress bar; add a check for each thing this adoption deletes, so it cannot come back.
+A finding, not this ticket's to fix: some callers use `EmptyState` for a **failure** — Peek's "This folder could not be read." (`views/FolderContentsView.tsx:91`), "Something went wrong… try again" (`ui/ErrorBoundary.tsx:41`) — which its page says an empty state must never stand in for. List them in the PR; change them only if Katerina says.
+
+**`gates:status`.** It is run in estiva-ui and reads all three repos. UIG-27 reads 6 of 12 today: the 6 package checks pass, and the other 6 are the apps' — in each, "the installed package has Link", "… has ProgressBar", and "the hand-made progress bar is gone". Taking 0.13.0 and deleting the two bars turns all 6. Also: add UIG-30 to both apps' `scripts/gates-checks.mjs`, which list 29 tickets. Nothing catches that today: "every repo agrees" checks who owns a ticket, not that every list has it. And add a check for each thing this adoption deletes (`inlineChip.ts`, `PendingAttachmentChip.tsx`), so it cannot come back.
+
+**GATES.md is estiva-ui's.** The last edits (the arithmetic, §0, §13, §15) go in a third PR, in estiva-ui, branch `gates/27-close` (UIG-2 closed the same way). Katerina merges it.
 
 #### 3. Traps
 
@@ -205,11 +236,12 @@ The ticket's acceptance, with today's numbers:
 - [ ] All 20 links fitted or reasoned; `fitted + reasoned = 20` written above.
 - [ ] Every Ship link keeps `linkTo`, proved by the window marker; Peek's two router links too.
 - [ ] Both hand-made progress bars are gone.
-- [ ] The chips, the 18 cards and the attachments are the package's; `inlineChip.ts`, `PendingAttachmentChip.tsx` and Ship's `ui/ProgressBar.tsx` are deleted, and `FileAttachmentCard.tsx` holds only Peek's own part.
-- [ ] Every padded empty state sits inside its rows' box, or waits on Katerina's Ship ruling.
-- [ ] Every story photographed before and after; every difference is a ruling or fixed.
-- [ ] Both apps build, typecheck, lint and pass their tests; CI green.
-- [ ] `gates:status` reads UIG-27 done in all three repos; §0, §13 and §15 updated in the same session.
+- [ ] The chips, the 18 cards and the attachments are the package's; `inlineChip.ts`, `PendingAttachmentChip.tsx` and Ship's `ui/ProgressBar.tsx` are deleted, with their stories and tests; `FileAttachmentCard.tsx` holds only Peek's own part, and Ship's `ui/Attachment.tsx` only its image and its fetch.
+- [ ] Every padded empty state sits inside its rows' box; Ship's six after Katerina's ruling on their room.
+- [ ] Every story photographed before and after, and the real screens; every difference is a ruling or fixed.
+- [ ] Both apps build, typecheck, lint and pass their tests; CI green on both PRs.
+- [ ] Both apps' `gates-checks.mjs` list UIG-30, and check that the deleted files stay deleted.
+- [ ] `npm run gates:status` in estiva-ui reads UIG-27 ✅ (it reads all three repos); §0, §13 and §15 updated in the `gates/27-close` PR, in the same session.
 
 ### What is ready for the next tickets
 
