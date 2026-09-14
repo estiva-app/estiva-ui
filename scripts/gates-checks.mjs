@@ -73,7 +73,7 @@ export default function define(h) {
     { ref: "UIG-2", owner: true, checks: [
       { what: "the guide is committed", run: () => h.committed("docs/GATES-GUIDE.md") },
       { what: "the guide has no wrong Base UI name", run: () => h.lacks("docs/GATES-GUIDE.md", "@base-ui-components", "docs/GATES-GUIDE.md has no @base-ui-components") },
-      { what: "GATES.md holds the 29-ticket route", run: () => h.contains("docs/GATES.md", "## §15 The route", "GATES.md §15 is the route") },
+      { what: "GATES.md holds the route", run: () => h.contains("docs/GATES.md", "## §15 The route", "GATES.md §15 is the route") },
       { what: "npm run gates:status is wired", run: () => h.script("package.json", "gates:status") },
     ] },
     { ref: "UIG-3", owner: false, checks: [

@@ -18,16 +18,16 @@ answer
 
 ## §0 Where we are
 
-**14 September 2026. UIG-27's package half is merged and released as `@estiva-app/ui` 0.13.0. Its app half — Peek and Ship adopting it — is the next session. UIG-30 is new.**
+**15 September 2026. UIG-27 is done: the package half released as `@estiva-app/ui` 0.13.0 and 0.13.1, the app half in peek PR #218 and ship PR #151. Next is UIG-28, then phase 1. UIG-30 is new.**
 
-> **Starting the adoption session?** Read this section to the end, then **UIG-27: adopting it in Peek and Ship** below. It is written for a session that remembers nothing.
+> **What UIG-27's app half did, and what it found**, is part 5 of **UIG-27: adopting it in Peek and Ship** below. The step-by-step handoff it followed stays above that, for the record.
 
 | | |
 |---|---|
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
-| 🚧 **UIG-27** | Package half merged: estiva-ui PR #29, released as 0.13.0. App half next: one PR in Peek, one in Ship. `Link` and `InlineChip` are built, and Katerina reviewed them ("looks good", 14 September). `ProgressBar` is built with Ship's look and Peek's; the quiet one is 4px by Katerina's ruling. EmptyState's page and story now say where a section's empty state goes (her ruling, 14 September). The cards are sorted, 18, and `Card` is built from her rulings on their frames; `AttachmentCard` is Peek's attachments moved in, and she reviewed it (rulings 16–18). The package half is done; the two app PRs are left. |
-| ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. |
+| ✅ **UIG-27** | Package half: estiva-ui PR #29 (0.13.0), PR #32 (0.13.1: `Card`'s `hovered`). App half: peek PR #218, ship PR #151 — both apps on 0.13.1, every link, chip, progress bar, card and attachment the package's, the code they replaced deleted, and no empty state padded. All 20 links fitted, none reasoned. `gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5. |
+| ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
 
@@ -43,15 +43,17 @@ answer
 2. Run `npm run gates:status` in estiva-ui. It reads every ticket from the code, in all three repos. §17 says how.
 3. Read the ticket in Ship, in full.
 
-On 14 September, on `gates/27-missing-components`, it printed:
+On 15 September, with peek PR #218 and ship PR #151 merged (run with `GATES_PEEK` and `GATES_SHIP` pointing at checkouts of the new mains, since the main checkouts lag), it printed:
 
 ```
-✅ 2 done · 🚧 1 started · ⬜ 27 not started · ❔ 0 could not check
+✅  UIG-27  The components the apps had to build themselves — Link, ProgressBar, EmptyState padding  estiva-ui 17 of 17
+⬜  UIG-30  RichText — one component that draws a message's text, for both apps                      estiva-ui 0 of 3
+✅ 3 done · 🚧 0 started · ⬜ 27 not started · ❔ 0 could not check
 30 tickets. Owned by estiva-ui 25, peek 3, ship 2.
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-UIG-27 read 2 of 10 then. With PR #29 it reads 6 of 12: `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` are exported, and EmptyState’s page places a section’s empty state. The other 6 are the app PRs.
+UIG-27's 17 checks: 6 in the package, 6 in Peek (the two packages it needs installed, the hand-made bar gone, `inlineChip.ts` and `PendingAttachmentChip.tsx` gone, a posted file drawing `AttachmentCard`), 5 in Ship (the two installed, its bar's file gone, mentions on `InlineChip`, files on `AttachmentCard`). UIG-30's 3 are one per repo, all "not yet".
 
 ### UIG-27: Katerina's rulings, 13 September
 
@@ -76,6 +78,15 @@ And on 14 September:
 16. **The ✕ on a waiting file is a button on Base UI's `Button`, like InputChip's ✕**, keeping Peek's 20px round badge. Not `IconButton`: its 24px square that fills on hover is a different control. The picture's preview button went on Base UI's `Button` too.
 17. **Storybook has a Components group, right below Inputs**: `AttachmentCard`, `InlineChip`, `Person`, `PersonTrigger`, `Reaction`, `ReactionPicker`. No rule is written for what goes there; ask Katerina where a new component goes.
 18. **An attachment card's name shows in full on hover only when it is cut off**, on every card, posted as well as waiting. A name that fits, and a size, show no tooltip ("i dont want tooltips on titles and size. only if title is too long"). Peek's posted cards had no way to read a cut-off name; its waiting card showed the name and the size on every hover. Measured like Breadcrumb's crumbs. Screenshots of every story are identical pixel for pixel before and after 16 and 18, but for 3 pixels: Peek clipped the last letter of the warning's note, and the package draws it whole.
+
+And during the app half, 14 and 15 September:
+
+19. **Peek's two router links are the package's `Link`**, followed through the router in `onClick` as `NavItem` does (Peek's `RouterLink`), not react-router's `Link` kept with a reason.
+20. **Ship's empty sections lose their own room** (`py-6`, `py-8`, `py-10` on Conversations, Activity, History, the project's Issues and the new-issue dialog): the line sits where a first row would.
+21. **An empty line in a list whose rows pad themselves stays level with the rows** ("keep them level"): Starred, the file tree and a project's tickets. The row's inset goes on a wrapper, never on `EmptyState`.
+22. **Ship's files open in a new tab and download, like Peek's**, fetched the way an image is — so a file is read when it is drawn, once, and cached. As its own commit in Ship's PR.
+23. **`Card` holds its hover look while its own menu is open, as 0.13.1, in UIG-27** (not in the migration's stage 6): `hovered`, and a selected clickable card keeps its pointer.
+24. **A selected huddle has the conversation card's softer hairline.**
 
 ### UIG-27: the cards, sorted
 
@@ -104,7 +115,14 @@ Counted by AST on 13 September, Peek `main` `ada8c91`, Ship `main` `21ec2a8`, te
 | **raw `<a>`** | **9** | **9** | **18** |
 | through Peek's router `Link`, the quiet look | 2 | 0 | **2** |
 
-UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`, 2 per app. The 2 router links in `ConversationCard.tsx` and `ThreadPanel.tsx` were never raw anchors, so no count saw them. The ticket's arithmetic, `fitted + reasoned = 20`, is written here when the app PRs land.
+UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`, 2 per app. The 2 router links in `ConversationCard.tsx` and `ThreadPanel.tsx` were never raw anchors, so no count saw them. **The arithmetic, 15 September: fitted 20 + reasoned 0 = 20.** Re-counted by AST on the adoption branches (Peek at `f4079b0`, Ship at `58732d4`): no raw `<a>` and no router `Link` left in either app's source.
+
+| app | fitted | as |
+|---|---|---|
+| Peek | 11 | `Link` `text` (a body's link) · `quiet` ×3 (a reply's timestamp, two titles) · `underlined` ("Open in app ↗") · `plain` (a ticket row) · inside `AttachmentCard` (the file row) · `InlineChip` with `href` ×2 · `RouterLink` ×2 (the package `Link` followed through the router, ruling 19) |
+| Ship | 9 | `Card` with `href` ×3 (a board card, a project card, an object) · `Link` `plain` ×2 (an issue row, its project chip) · `quiet` (a table title) · `underlined` ("Open it there") · `InlineChip` with `href` ×2 |
+
+Every Ship link keeps `linkTo`, and both of Peek's router links keep the router: proved with the window marker (a bare anchor, the control, loses it; every changed link keeps it). A story's `#/…` address never reloads, so each was pointed at a real path before the click.
 
 ### UIG-27: what building it found
 
@@ -119,9 +137,8 @@ UIG-1 counted 14 raw `<a>`. RIC-16 (13 September) added the 4 in `Reference.tsx`
 
 | when | what |
 |---|---|
-| ✅ done | estiva-ui PR #29 (the package half, rulings 1–18), merged and released as 0.13.0 |
-| **now, in UIG-27** | one PR in Peek and one in Ship, adopting 0.13.0 fully and deleting what it replaces (ruling 15). Everything the session needs is in **UIG-27: adopting it in Peek and Ship**, next |
-| after | UIG-28, then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 after UIG-27 |
+| ✅ done | UIG-27: estiva-ui PR #29 (0.13.0) and #32 (0.13.1); peek PR #218 and ship PR #151 adopt it fully |
+| **now** | **UIG-28** (its count is done, read-only, and waited for these PRs to merge: re-run it on the new mains), then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
@@ -233,15 +250,29 @@ A finding, not this ticket's to fix: some callers use `EmptyState` for a **failu
 
 The ticket's acceptance, with today's numbers:
 
-- [ ] All 20 links fitted or reasoned; `fitted + reasoned = 20` written above.
-- [ ] Every Ship link keeps `linkTo`, proved by the window marker; Peek's two router links too.
-- [ ] Both hand-made progress bars are gone.
-- [ ] The chips, the 18 cards and the attachments are the package's; `inlineChip.ts`, `PendingAttachmentChip.tsx` and Ship's `ui/ProgressBar.tsx` are deleted, with their stories and tests; `FileAttachmentCard.tsx` holds only Peek's own part, and Ship's `ui/Attachment.tsx` only its image and its fetch.
-- [ ] Every padded empty state sits inside its rows' box; Ship's six after Katerina's ruling on their room.
-- [ ] Every story photographed before and after, and the real screens; every difference is a ruling or fixed.
-- [ ] Both apps build, typecheck, lint and pass their tests; CI green on both PRs.
-- [ ] Both apps' `gates-checks.mjs` list UIG-30, and check that the deleted files stay deleted.
-- [ ] `npm run gates:status` in estiva-ui reads UIG-27 ✅ (it reads all three repos); §0, §13 and §15 updated in the `gates/27-close` PR, in the same session.
+- [x] All 20 links fitted or reasoned; `fitted + reasoned = 20` written above (20 + 0).
+- [x] Every Ship link keeps `linkTo`, proved by the window marker; Peek's two router links too.
+- [x] Both hand-made progress bars are gone.
+- [x] The chips, the 18 cards and the attachments are the package's; `inlineChip.ts`, `PendingAttachmentChip.tsx` and Ship's `ui/ProgressBar.tsx` are deleted, with their stories and tests; `FileAttachmentCard.tsx` holds only Peek's own part, and Ship's `ui/Attachment.tsx` its image, its fetch and (ruling 22) its file's open and download.
+- [x] Every padded empty state sits inside its rows' box, or level with rows that pad themselves (ruling 21); Ship's after her ruling on their room (20).
+- [x] Every story photographed before and after; every difference is a ruling, explained noise, or fixed (one bug, below). The real screens were not re-shot: see below.
+- [x] Both apps build, typecheck, lint and pass their tests; CI green on both PRs.
+- [x] Both apps' `gates-checks.mjs` list UIG-30, and check that the deleted files stay deleted.
+- [x] `npm run gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5; §0, §13 and §15 updated in the `gates/27-close` PR.
+
+#### 5. What the adoption did
+
+| | found | what happened |
+|---|---|---|
+| ✅ | **A feed card went dark under its own menu.** Peek's conversation, reply and huddle cards stay lit while their ⋯ menu or emoji picker is open; the menu opens outside the card, so `:hover` is false there (measured). `Card` lit only on `:hover`. | `Card` `hovered`, released as 0.13.1 (estiva-ui PR #32, ruling 23). A selected clickable card keeps its pointer in the same release. |
+| ✅ | **The first `RouterLink` threw without a router.** `useNavigate()` at the top of `ConversationCard` broke every card drawn outside one (the Files panel's "with activity" story). Caught by photographing every story. | The router is read inside `RouterLink`, which needs one exactly where react-router's `Link` did. 7 tests. |
+| ✅ | **Ship's description editor saves and closes on blur**, and a file card's link and Download button take focus: pressing Download while editing committed and left the editor (measured). | Inside the editor a file is drawn and never opened (`opens={false}`); measured again: a click selects it, Backspace deletes it, no commit. |
+| ✅ | **Two kinds of padded empty state in Peek.** 7 copy their list box's padding; 7 sit in lists whose rows pad themselves, where no padding would move the line 8–12px off the rows. The file tree's 4 arrived with FOL-19 on 14 September. | Ruling 21. Photographed identical. |
+| ✅ | **A document was deliberately not fetched in Ship** ("a PDF is not fetched to show its name"), and opening one needs its bytes. | Told Katerina before building; ruling 22 stands: fetched when drawn, once, cached, as Peek does. |
+| 📝 | Ship's chip that is a link no longer fills on hover: Peek's chip never did, and ruling 3 moved Peek's in unchanged. | Written in ship PR #151. A hover for a linked `InlineChip` would be a package change, if wanted. |
+| 📝 | Some callers use `EmptyState` for a failure ("This folder could not be read.", "What is in this could not be read.", the relay failure in Peek's Files panel, "This conversation could not be read.", `ErrorBoundary`), which its page says an empty state must not stand in for. | Listed in peek PR #218; changed only if Katerina says. |
+| 📝 | The real screens (a conversation with files, a Ship issue with a description, a project) were not re-photographed: the stories covered every changed component, and the one behaviour a story could not show (the editor's blur) was measured in a browser with a throwaway story. Full-Storybook photo runs cost a lot of reading; after the first full pass, only the stories that draw what changed were re-shot. | — |
+| 🧰 | Traps: a fresh `npm install` with npm 11.6 rewrites unrelated `peer` flags in a lock — bump the ui entry only; a `#/…` story address never reloads, so the window marker must first point it at a real path; Ship's `docker-context` and `trees-agree` root tests fail on Windows only (`K:\K:\…`), and CI runs them; a full test run beside another suite times out tests that pass alone. | — |
 
 ### What is ready for the next tickets
 
@@ -255,7 +286,7 @@ The ticket's acceptance, with today's numbers:
 | UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
 | every ticket | Update your own checks in `scripts/gates-checks.mjs` and your row in §15 in the same session. |
 
-**Not yet done for UIG-30:** Peek's and Ship's `scripts/gates-checks.mjs` still list 29 tickets. UIG-27's app PRs add it.
+**UIG-30 is listed everywhere:** Peek's and Ship's `scripts/gates-checks.mjs` gained its part in UIG-27's app PRs, and the status engine, the same file in all three repos, now says "every ticket" instead of a count.
 
 ---
 
@@ -1043,7 +1074,7 @@ inside them.
 
 | # | finding | where it lives now |
 |---|---|---|
-| **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count is 20 now (§0), and the apps adopt it in UIG-27's app PRs. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
+| **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count grew to 20 (§0), and all 20 are fitted: peek PR #218, ship PR #151. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
 | **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
 | **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). |
 | **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. |
@@ -1246,7 +1277,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-24 | Fingerprint — browser tooltip | estiva-ui | peek, ship | probe: `title=` names WithTooltip |
 | UIG-25 | Fingerprint — component copied by hand | estiva-ui | peek, ship | probe: SectionLabel's class list typed by hand is a **warning**, in all three repos |
 | UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
-| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` exported (0.13.0); `EmptyState.mdx` places a section's empty state inside its rows' box (no padding prop, Katerina, 14 September); each app installs a version that has them and its hand-made progress bar is gone |
+| UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` exported (0.13.0); `EmptyState.mdx` places a section's empty state inside its rows' box (no padding prop, Katerina, 14 September); each app installs a version that has them and its hand-made progress bar is gone; Peek's `inlineChip.ts` and `PendingAttachmentChip.tsx` stay deleted and a posted file draws `AttachmentCard`; Ship's mentions draw `InlineChip` and its files `AttachmentCard` (15 September) |
 | UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on the token lint: `text-[14px]` and an inline colour are errors, `h-[240px]` is a warning |
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
