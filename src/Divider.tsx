@@ -1,10 +1,14 @@
+import { Separator } from '@base-ui/react/separator'
 import { cn } from './cn'
 
 /**
  * Peek's Divider (2026-08-28): a hairline in `border-subtle`, inset 12px each
  * side. Plus what Ship added: `orientation="vertical"` — the same hairline
- * standing up, stretching to its row's height, no inset — and the separator
- * role for assistive tech.
+ * standing up, stretching to its row's height, no inset.
+ *
+ * On Base UI's `Separator` since stage 6 of the migration (2026-09-14). It
+ * writes the `separator` role and `aria-orientation` this component used to
+ * write by hand, and adds `data-orientation`. Nothing it draws changed.
  */
 export interface DividerProps {
   orientation?: 'horizontal' | 'vertical'
@@ -29,22 +33,20 @@ export function Divider({ orientation = 'horizontal', label, tone = 'default', c
   if (label && orientation === 'horizontal') {
     const line = tone === 'warning' ? 'bg-warning-muted' : 'bg-border-subtle'
     return (
-      <div
-        role="separator"
-        aria-orientation="horizontal"
+      <Separator
+        orientation="horizontal"
         aria-label={label}
         className={cn('flex shrink-0 items-center gap-2 mx-3', className)}
       >
         <span aria-hidden="true" className={cn('h-px flex-1', line)} />
         <span className={cn('shrink-0 text-caption', tone === 'warning' ? 'text-warning-default' : 'text-text-muted')}>{label}</span>
         <span aria-hidden="true" className={cn('h-px flex-1', line)} />
-      </div>
+      </Separator>
     )
   }
   return (
-    <div
-      role="separator"
-      aria-orientation={orientation}
+    <Separator
+      orientation={orientation}
       // shrink-0 on both orientations: a 1px flex child in an overflowing
       // column shrinks to nothing, and a hairline that renders 0px tall is a
       // hairline nobody can see — Peek's `/` menu had been drawing two of

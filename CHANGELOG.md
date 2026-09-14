@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased — migration stage 6, the rest of the primitive tier
+
+**The last primitives move onto Base UI.** Released on its own as `0.14.0`
+(Katerina, 2026-09-14, D69).
+
+### Changed
+
+- **`Divider` is Base UI's `Separator`** (D6, D66). It wrote the `separator`
+  role and `aria-orientation` by hand; Base UI writes both and adds
+  `data-orientation`. Props, classes and the labelled line are unchanged.
+  Proof: all 59 stories that draw a divider (its own, and every menu, toolbar,
+  popover, select, preview card and reaction picker) identical in both themes.
+  No caller changes.
 ## 0.13.1 — 2026-09-15 — UIG-27
 
 **`Card` holds its hover look while its own menu is open, and the selected
