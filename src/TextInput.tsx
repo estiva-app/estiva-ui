@@ -34,7 +34,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
       className={cn(
         'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg',
         // The small size is the small Select's trigger, class for class.
-        size === 'default' && 'px-3 py-2 text-[14px] leading-[1.4] font-normal',
+        size === 'default' && 'px-3 py-2 text-input-value',
         size === 'small' && 'h-6 px-2 text-[12px] leading-[1.4] font-normal',
         'text-text-primary placeholder:text-text-muted',
         'outline-none transition-colors',

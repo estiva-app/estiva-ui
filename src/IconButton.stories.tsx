@@ -41,7 +41,7 @@ export const AllVariants: Story = {
           <IconButton variant={variant} disabled aria-label="Settings">
             <IconSettings className="size-4" stroke={1.5} />
           </IconButton>
-          <span className="text-[12px] leading-[120%] text-text-muted">{variant}</span>
+          <span className="text-caption text-text-muted">{variant}</span>
         </div>
       ))}
     </div>

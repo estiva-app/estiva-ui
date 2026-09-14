@@ -23,7 +23,7 @@ describe('TextInput', () => {
   it('default size: 14px text with 12px by 8px padding', () => {
     render(<TextInput aria-label="Title" />)
     const classes = screen.getByRole('textbox').className.split(' ')
-    for (const c of ['px-3', 'py-2', 'text-[14px]']) expect(classes).toContain(c)
+    for (const c of ['px-3', 'py-2', 'text-input-value']) expect(classes).toContain(c)
     expect(classes).not.toContain('h-6')
   })
 
@@ -32,7 +32,7 @@ describe('TextInput', () => {
     const input = screen.getByRole('textbox')
     const classes = input.className.split(' ')
     for (const c of ['h-6', 'px-2', 'text-[12px]']) expect(classes).toContain(c)
-    for (const c of ['px-3', 'py-2', 'text-[14px]']) expect(classes).not.toContain(c)
+    for (const c of ['px-3', 'py-2', 'text-input-value']) expect(classes).not.toContain(c)
     expect(input.hasAttribute('size')).toBe(false)
   })
 })

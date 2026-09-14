@@ -45,11 +45,11 @@ export interface ToastProps {
 // Signal: every toast is the same dark overlay pill (v3) — the type lives in
 // the icon color + glow, not the surface.
 const SURFACE_STYLES: Record<ToastType, string> = {
-  success: 'bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
-  brand: 'bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
-  neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
-  warning: 'bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
-  error: 'bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-[shadow:var(--shadow-md)]',
+  success: 'bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
+  brand: 'bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
+  neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md',
+  warning: 'bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
+  error: 'bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
 }
 
 /**
@@ -86,7 +86,7 @@ const ACTION_BORDER_STYLES: Record<ToastType, string> = {
   error: 'signal:border signal:border-border-default signal:hover:border-border-strong',
 }
 
-const LABEL_CLASSES = 'font-normal text-[14px] leading-[1.4] text-text-primary whitespace-nowrap'
+const LABEL_CLASSES = 'text-body-2 text-text-primary whitespace-nowrap'
 
 const pillClassName = (type: ToastType, hasAction: boolean, className?: string) =>
   cn(
@@ -110,7 +110,7 @@ function LeadingIcon({ type }: { type: ToastType }) {
   return <Icon size={16} stroke={1.5} className={cn('text-text-primary shrink-0', ICON_STYLES[type])} />
 }
 
-const ACTION_LABEL_CLASSES = 'font-medium text-[12px] leading-[12px] text-text-primary whitespace-nowrap'
+const ACTION_LABEL_CLASSES = 'text-btn-small text-text-primary whitespace-nowrap'
 
 /**
  * One toast, drawn in place. What the provider shows is this pill; draw it

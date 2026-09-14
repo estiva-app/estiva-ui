@@ -44,7 +44,7 @@ export const Multiline: Story = {
     placeholder: 'Add a description',
     label: 'Description',
     multiline: true,
-    className: 'text-[14px] leading-[1.4]',
+    className: 'text-body-2',
   },
 }
 

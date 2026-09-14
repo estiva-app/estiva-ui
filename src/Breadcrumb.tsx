@@ -69,7 +69,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
   }, [measure, items])
 
   return (
-    <nav ref={navRef} aria-label="Breadcrumb" className={cn('flex min-w-0 items-center gap-1.5 text-[14px] leading-[140%]', className)}>
+    <nav ref={navRef} aria-label="Breadcrumb" className={cn('flex min-w-0 items-center gap-1.5 text-body-2', className)}>
       {items.map((item, index) => {
         const last = index === items.length - 1
         // The mono size is an arbitrary value (the caption token) because this
@@ -81,7 +81,7 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
           // A mono crumb is a ref — the identity. It never gives up width to a
           // long name beside it (the LongName story always claimed "the ref
           // stays"; flexbox was squeezing it anyway until this line).
-          item.mono && 'shrink-0 font-mono text-[12px] leading-[120%]',
+          item.mono && 'shrink-0 font-mono text-caption',
           tone,
         )
         const setLabelRef = (el: HTMLElement | null) => {

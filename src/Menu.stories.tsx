@@ -72,7 +72,7 @@ export const WithARow: Story = {
   render: () => (
     <MenuPanel className="w-64">
       <MenuRow>
-        <span className="min-w-0 flex-1 truncate text-[14px] leading-[140%] text-text-primary">Item one</span>
+        <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">Item one</span>
         <SectionLabel className="text-text-secondary">Label</SectionLabel>
       </MenuRow>
       <Divider className="my-1" />
@@ -134,7 +134,7 @@ export const OnACard: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex w-[420px] items-start gap-3 rounded-lg border border-border-default p-3">
-      <span className="min-w-0 flex-1 text-[14px] leading-[140%] text-text-primary">
+      <span className="min-w-0 flex-1 text-body-2 text-text-primary">
         A card. Press the control at the end of the row, then walk down the rows and out to the submenu.
       </span>
       <Menu

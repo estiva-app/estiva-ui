@@ -28,10 +28,10 @@ export const APanel: Story = {
         <Chip type="success" label="Done" />
       </Property>
       <Property label="Lead">
-        <Person name="Ana Duarte" size={16} className="text-[12px] leading-[120%] text-text-primary" />
+        <Person name="Ana Duarte" size={16} className="text-caption text-text-primary" />
       </Property>
       <Property label="Updated">
-        <span className="text-[12px] leading-[120%] text-text-secondary">2d ago</span>
+        <span className="text-caption text-text-secondary">2d ago</span>
       </Property>
     </div>
   ),
@@ -42,7 +42,7 @@ export const Stacked: Story = {
   args: {
     label: 'Assignee',
     layout: 'stacked',
-    children: <Person name="Ravi Mehta" size={20} className="text-[14px] leading-[140%] text-text-primary" />,
+    children: <Person name="Ravi Mehta" size={20} className="text-body-2 text-text-primary" />,
   },
 }
 
@@ -87,5 +87,5 @@ export const WithControls: Story = {
 
 /** No value: the em dash, muted — the same mark Person uses for the unnamed. */
 export const Empty: Story = {
-  args: { label: 'Folder', children: <span className="text-[12px] leading-[120%] text-text-muted">—</span> },
+  args: { label: 'Folder', children: <span className="text-caption text-text-muted">—</span> },
 }

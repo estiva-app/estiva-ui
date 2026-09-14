@@ -37,7 +37,7 @@ export const Sizes: Story = {
       {[16, 20, 22, 24, 28, 32, 36].map((size) => (
         <div key={size} className="flex flex-col items-center gap-1">
           <Avatar {...args} size={size} />
-          <span className="text-[12px] leading-[120%] text-text-muted">{size}</span>
+          <span className="text-caption text-text-muted">{size}</span>
         </div>
       ))}
     </div>

@@ -57,7 +57,7 @@ function Row({ label, note }: { label: string; note?: string }) {
   return (
     <div className="flex w-full items-center gap-2 rounded-lg border border-border-default px-3 py-2 hover:bg-bg-hover">
       <IconSquareRounded size={16} stroke={1.5} className="shrink-0 text-text-secondary" />
-      <span className="min-w-0 flex-1 truncate text-[14px] leading-[140%] text-text-primary">{label}</span>
+      <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{label}</span>
       {note && <span className="shrink-0 text-caption text-text-muted">{note}</span>}
     </div>
   )

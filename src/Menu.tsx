@@ -426,10 +426,10 @@ function MenuItemBody({ label, children, size = 'default', description, leading,
           colour. Ship's copy said `text-sm`, which was never the ramp. */}
       {children ?? (
         <span className={cn('flex min-w-0 flex-1 flex-col', size === 'tall' && 'gap-[2px]')}>
-          <span className={cn('truncate text-[14px] leading-[140%]', destructive ? 'text-error-default' : 'text-text-primary')}>
+          <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>
             {label}
           </span>
-          {description && <span className="truncate text-[12px] leading-[120%] text-text-secondary">{description}</span>}
+          {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
         </span>
       )}
       {(edge || hint) && (
@@ -538,7 +538,7 @@ export function EnterHint({ target }: { target?: string }) {
     <span className="flex shrink-0 items-center gap-1.5 text-text-muted">
       <Kbd>↩ Enter</Kbd>
       {target && (
-        <span className="text-[9px] font-medium leading-[115%] signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{target}</span>
+        <span className="text-menu signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{target}</span>
       )}
     </span>
   )
