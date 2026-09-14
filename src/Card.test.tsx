@@ -84,6 +84,47 @@ describe('Card', () => {
     expect(active.some((c) => c.startsWith('hover:'))).toBe(false)
   })
 
+  it('hovered holds the hover look without the pointer: a feed card stays lit, a link card keeps its stronger hairline', () => {
+    const feed = classesOf(card(<Card hover="fill" quietUntilHover hovered onClick={() => {}}>Item one</Card>))
+    expect(feed).toContain('bg-bg-hover')
+    expect(feed).toContain('border-border-default')
+    expect(feed).not.toContain('bg-bg-surface')
+    expect(feed).not.toContain('border-transparent')
+    cleanup()
+    const link = classesOf(card(<Card href="#" hovered>Item one</Card>))
+    expect(link).toContain('border-border-strong')
+    cleanup()
+    const inset = classesOf(card(<Card fill="inset" href="#" hovered>Item one</Card>))
+    expect(inset).toContain('border-border-default')
+    expect(inset).not.toContain('border-border-subtle')
+    cleanup()
+    // Nothing to hold on a card that does not answer the pointer.
+    const still = classesOf(card(<Card hovered>Item one</Card>))
+    expect(still).toContain('bg-bg-surface')
+    expect(still).not.toContain('bg-bg-hover')
+  })
+
+  it('hovered is ignored by the one you are on and the one being changed; attention still colours the hairline', () => {
+    const selected = classesOf(card(<Card hover="fill" hovered selected>Item one</Card>))
+    expect(selected).toContain('bg-bg-selected')
+    expect(selected).not.toContain('bg-bg-hover')
+    cleanup()
+    const active = classesOf(card(<Card hover="fill" hovered active>Item one</Card>))
+    expect(active).toContain('border-accent-primary')
+    expect(active).not.toContain('bg-bg-hover')
+    cleanup()
+    const urgent = classesOf(card(<Card hover="fill" quietUntilHover hovered attention="warning">Item one</Card>))
+    expect(urgent).toContain('bg-bg-hover')
+    expect(urgent).toContain('border-warning-muted')
+    expect(urgent).not.toContain('border-border-default')
+  })
+
+  it('the one you are on can still be clicked, and says so; the one being changed does not', () => {
+    expect(classesOf(card(<Card hover="fill" selected onClick={() => {}}>Item one</Card>))).toContain('cursor-pointer')
+    cleanup()
+    expect(classesOf(card(<Card hover="fill" active onClick={() => {}}>Item one</Card>))).not.toContain('cursor-pointer')
+  })
+
   it('attention recolours the hairline, at rest and on hover', () => {
     const classes = classesOf(card(<Card hover="fill" quietUntilHover attention="warning">Item one</Card>))
     expect(classes).toContain('border-warning-muted')

@@ -75,6 +75,9 @@ export const InAFeed: Story = {
   ),
 }
 
+/** Its menu is open: the pointer is on the menu, outside the card, and the card stays lit under it. */
+export const HeldWhileItsMenuIsOpen: Story = { args: { hover: 'fill', quietUntilHover: true, hovered: true, onClick: () => {}, className: 'p-3' } }
+
 /** Being changed in place: the selected fill and the accent hairline. */
 export const Active: Story = { args: { active: true, hover: 'fill' } }
 

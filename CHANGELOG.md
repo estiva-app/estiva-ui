@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased — UIG-27
+
+**`Card` holds its hover look while its own menu is open, and the selected
+card keeps its pointer.** Found adopting 0.13.0 in an app: a card in a feed
+stays lit while its ⋯ menu or emoji picker is open. The menu opens outside the
+card, so the pointer on it has left the card, and a card lit only by the
+pointer went dark under its own menu (measured: the card lit, `:hover` false).
+Katerina, 15 September: fix it in the package, as 0.13.1.
+
+### Added
+
+- **`Card` `hovered`** — draws the hover look now, whatever the pointer does:
+  `hover="fill"` lights up and shows its hairline; a link's hairline goes one
+  step stronger. Ignored while `selected` or `active`, as the pointer is. The
+  app sets it from its own state: on when the pointer enters, off when it
+  leaves and nothing of the card's is open. New story, *Held while its menu is
+  open*.
+
+### Fixed
+
+- **A selected `Card` with an `onClick` keeps `cursor-pointer`.** It can still
+  be clicked: it opens again. The one being changed (`active`) still has none.
+  0.13.0 took the pointer from both.
+
 ## 0.13.0 — 2026-09-14 — UIG-27
 
 **Five components the apps had to build themselves: `Link`, `InlineChip`,
