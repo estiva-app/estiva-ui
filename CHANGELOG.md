@@ -21,6 +21,21 @@
 
 ### Changed
 
+- **A section's empty state is the quiet line: 12px caption in the muted
+  colour** (Katerina, 2026-09-15, D71), where it was 14px body text in the
+  secondary colour. Beside rows it read as one more row. It is now the look a
+  `Field`'s helper line has. `page` is unchanged. Contrast: 3.94:1 on the page
+  background in signal, below AA for small text; 6.08:1 in ship — parked with
+  the rest of contrast (PLAN stage 0.10), and the two section stories carry the
+  exception. No caller writes anything; the line is 5.2px shorter, so a panel or
+  dialog holding one is shorter by that and what sits under it moves up. Callers:
+  Peek 12 (`TopicActivity`, `TopicProjectPanel` ×2, `ActivityTimeline`,
+  `ProjectTickets`, `StarredSection`, `FileThreadView` ×2, `FileTreeView`,
+  `FolderContentsView` ×3), Ship 5 (`Activity`, `ConversationThread`,
+  `History`, `NewIssueDialog`, `ProjectView`). Proof: of the package's stories,
+  only *Section* and *Inside the rows box* change, on the line alone; of the
+  apps' stories that draw one (65 Peek, 53 Ship), 17 and 4 change, each on the
+  line and what sits below it.
 - **`Divider` is Base UI's `Separator`** (D6, D66). It wrote the `separator`
   role and `aria-orientation` by hand; Base UI writes both and adds
   `data-orientation`. Props, classes and the labelled line are unchanged.
