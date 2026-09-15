@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, later. UIG-4 is done: a raw `<button>` is refused in Ship too, by the same rule — in the editor for a session started in Ship's top folder, in `npm --prefix web run lint:rules` and in CI. Ship had none, so the proof was a scratch commit, then dropped. ship PR #154, merged, on 0.15.0. Next: UIG-5, the same chain inside estiva-ui. See UIG-4: building it, below.**
+
 **16 September 2026. UIG-3 is done: a raw `<button>` is refused in Peek by the package's first lint rule, in the editor, in `npm run lint:rules` and in CI. The plugin was released as `@estiva-app/ui` 0.15.0 (estiva-ui PR #36); Peek took it in peek PR #225, deployed. Next: UIG-4, the same chain in Ship. See UIG-3: building it, below.**
 
 **15 September 2026. UIG-27 and UIG-28 are done. UIG-28's package part was released with migration stage 6 as `@estiva-app/ui` 0.14.0 (estiva-ui PR #34); its app part is peek PR #222 and ship PR #153. Next: phase 1, from UIG-3. UIG-30 is new.**
@@ -31,6 +33,7 @@ answer
 | ✅ **UIG-27** | Package half: estiva-ui PR #29 (0.13.0), PR #32 (0.13.1: `Card`'s `hovered`). App half: peek PR #218, ship PR #151 — both apps on 0.13.1, every link, chip, progress bar, card and attachment the package's, the code they replaced deleted, and no empty state padded. All 20 links fitted, none reasoned. `gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5. |
 | ✅ **UIG-28** | Package part: estiva-ui PR #34, released with stage 6 as 0.14.0. App part: peek PR #222, ship PR #153. The token lint stops hand-written type, corners, shadows and inline colours in all three repos and warns on hand-written heights and spacing; every error fixed or escaped with its reason. `gates:status` reads 23 of 23. See **UIG-28: building it**, below. |
 | ✅ **UIG-3** | Package part: estiva-ui PR #36, released as 0.15.0 — `@estiva-app/ui/eslint`, `no-raw-button`, the escape marker, `countGates`, and `InputChip`'s `removeLabel` and `truncate`. Peek part: peek PR #225, deployed — the gate lint, its CI step, `.gates-count.json`, the editor hook. 16 raw buttons = 8 replaced + 7 gone with the Signal Theme page + 1 escaped. `gates:status` reads 11 of 11. See **UIG-3: building it**, below. |
+| ✅ **UIG-4** | ship PR #154, on 0.15.0: the gate lint in `web/`, its CI step, `web/.gates-count.json`, the editor hook in Ship's top folder, the `CLAUDE.md` paragraph, and `docs/GATES-DEBT.md`, the first debt list (nothing owed). 0 raw buttons = 0 replaced + 0 escaped. `gates:status` reads 9 of 9. See **UIG-4: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -145,10 +148,46 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-27: estiva-ui PR #29 (0.13.0) and #32 (0.13.1); peek PR #218 and ship PR #151 adopt it fully |
 | ✅ done | UIG-28: estiva-ui PR #34 (0.14.0, with stage 6); peek PR #222 and ship PR #153 (**UIG-28: building it**, below) |
 | ✅ done | UIG-3: estiva-ui PR #36 (0.15.0); peek PR #225 (**UIG-3: building it**, below) |
-| **now** | phase 1: **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
+| ✅ done | UIG-4: ship PR #154 (**UIG-4: building it**, below) |
+| **now** | phase 1: **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
 | alongside phase 1, never blocking it | **UIG-29** (Katerina, 16 September: the package component is `CommandPalette`; its release comes after 0.15.0) |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-4: building it
+
+**Where.** ship branch `gates/04-ship-chain` → PR #154, built in its own worktree (`ship-uig04`) from main `cb091c8`. No package change: the rule is 0.15.0's.
+
+**Katerina's rulings, 16 September**
+
+| | question | ruling |
+|---|---|---|
+| W1 | The hook in Ship's top folder only, or also a copy in `web/`? | **The top folder only.** Ship's `CLAUDE.md` is there and written for a session started there; no session on her machine has started in either Ship folder; a copy is one more thing to keep in step. |
+| W2 | `^0.14.0` does not accept 0.15.0: change the range too, not only the lock entry? | **yes** |
+| W3 | Photograph the stories with a chip or a dropdown, though 0.15.0 changes no caller? | **no** |
+| W4 | This record in its own estiva-ui PR, after Ship's merges? | **yes** |
+
+**The count** (acceptance: enumerate with the rule). Every `.tsx` under `ship/web/src`, linted from git's copy of main `cb091c8` with `web/eslint.gates.config.js`: **127 = 74 source files + 19 stories**, the rule on in every one, **+ 34 tests**, the rule off in every one. **0 raw `<button>`**, as UIG-1 counted.
+
+**The arithmetic: 0 = 0 replaced + 0 escaped.** `web/.gates-count.json`: `estiva/no-raw-button` 0 errors, 0 warnings, 0 escapes.
+
+**What Ship's copy changes from Peek's.** The same five files, and only this: the lint's files live in `web/` and the hook in the top folder, so the hook checks `web/src/**/*.tsx` and loads ESLint and the package from `web/` (the top folder installs neither); the ignored folders are written in `eslint.gates.js`, since Ship has no `eslint.tokens.js` to import them from; CI's "Gate lint" is a step in the `web` job, after its lint.
+
+**Escapes, after.** Unchanged: the token lint's older form 37 (Ship 2); the plugin's 1, in Peek; none in Ship.
+
+**Lint, before → after** (Ship main `cb091c8` → the branch): `npm --prefix web run lint` 0 errors, 21 warnings → 0, 21, no difference in any file or rule (19 hand-written sizes or spaces, 2 hooks warnings). `npm --prefix web run build` passes; `npm --prefix web test` 51 files, 493 tests, both; `npm run typecheck` passes; the root's 12 test scripts that run on Windows pass, both (`docker-context` and `trees-agree` cannot find their files on Windows, both, and CI runs them).
+
+**Proof.** A scratch commit with a raw button in a component, a story and a test: `lint:rules` exit 1 (the component and the story), `lint` exit 1, the hook refused the two and passed the test; the commit was dropped and `lint:rules` exits 0. The hook, fed 16 Claude Code payloads through the command in `.claude/settings.json`: refused a raw button in source and in a story, a short escape, an `eslint-disable`, two Edits on a CRLF file (back to a raw button, removing an escape), a relative path; passed a test, two files outside `web/src`, a `.ts` file, a valid escape, `Button`, a words-only Edit, a missing `old_string`, an Edit that does not parse yet. CI on PR #154: `check` and `web` pass, and `web`'s "Gate lint" step printed `estiva/no-raw-button: 0 errors, 0 warnings, 0 escapes`, the count file unchanged. `gates:status` UIG-4 9 of 9; on main, with the same packages installed, 0 of 9.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **A session started below the repository's folder does not get the hook either.** Measured with two real headless Claude sessions asked to write the same raw button: started in Ship's top folder, the hook refused it; started in `web/`, the file was written. The docs say the same: "Hooks and other `.claude/settings.json` keys load from the current working directory's `.claude/` folder with no parent-directory fallback" (code.claude.com/docs/en/permissions). | Ruling W1. A session in `web/` reads the top folder's `CLAUDE.md` (it loads every `CLAUDE.md` above its folder), whose paragraph tells it to run `npm --prefix web run lint:rules`. §16's S1 note says so. |
+| ⚠️ | **Branch protection requires a check by its job's name, and no repo has a job named for the gate.** On PR #154 GitHub's checks are `check` and `web`; Peek's workflow runs `check` (and `publish` on main); estiva-ui's `check.yml` runs `check` and `a11y`. Ship's and Peek's "Gate lint" is a step inside a job. UIG-6's check (`protectedBranch`, the same in all three repos) looks for a required check whose name matches `gate` or `lint:rules`, which no check's name can match today. | For UIG-6: either the gate becomes a job of its own, named for it, or UIG-6 requires the job that holds the step and its checks change to match. |
+| 📝 | **The ticket's two hooks warnings are not both in `pages/ProjectPage.tsx`**: one is there, one in `pages/IssuePage.tsx`. | Untouched, as the ticket says. |
+| 📝 | **A new minor version under 1.0 always moves the range.** `^0.14.0` stops before 0.15.0, so taking it changes the lock entry, the range in the lock and the range in `package.json`, as Peek's PR #225 did. | Ruling W2. |
+| 🧰 | Traps: `node -e` with a backslash in it breaks in Git Bash — write a script file; a shell still inside a worktree blocks `git worktree remove` (it leaves the empty folder); Ship's root `npm test` stops at its first script on Windows, so run the scripts one by one. | — |
 
 ### UIG-3: building it
 
@@ -408,8 +447,8 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-4 | Its checks are written. It creates `ship/docs/GATES-DEBT.md`, the first debt list. Take `@estiva-app/ui` ≥ 0.15.0 and copy Peek's `eslint.gates.js`, `eslint.gates.config.js` (register every plugin the source's directives name, rules off), `scripts/gates-count.mjs` and `.claude/hooks/gates.mjs`. Put the hook where a Ship session starts — the repository root or `web/` — and say which; and add the `CLAUDE.md` line (UIG-3's first finding). |
-| UIG-5 | The plugin exists (`src/eslint/`): add the inward rules to it, and every rule calls `isEscaped`. The same hook-reach note applies. |
+| UIG-5 | The plugin exists (`src/eslint/`): add the inward rules to it, and every rule calls `isEscaped`. The same hook-reach note applies. Peek's and Ship's copies of the chain are two worked examples: Ship's shows the hook in one folder checking files in another (**UIG-4: building it**). |
+| UIG-6 | Both apps have a "Gate lint" step, but as a step inside a job (Peek `check`, Ship `web`), and branch protection requires a job by its name: its check for `gate` or `lint:rules` cannot pass as written (**UIG-4: building it**, what it found). |
 | UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
@@ -1410,7 +1449,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-1 | Count every candidate lint rule across all three repos | estiva-ui | | GATES.md §3 (the counts) and §14 (her verdicts) |
 | UIG-2 | The tracking rails | estiva-ui | peek, ship | the guide committed, no wrong Base UI name, §15 exists, `gates:status` wired in all three |
 | UIG-3 | Tracer bullet — one rule, end to end, blocking in Peek | peek | estiva-ui | the plugin in `src/eslint` with `no-raw-button` and an `./eslint` export; in Peek: the gate config loads, `lint:rules`, CI, the hook, `.gates-count.json`, and a lint probe: a raw `<button>` is an error in source and in a story, not in a test |
-| UIG-4 | The same chain, blocking in Ship | ship | | the same chain in `ship/web`, the hook at the root, the lint probes, `docs/GATES-DEBT.md` |
+| UIG-4 | The same chain, blocking in Ship | ship | | in `ship/web`: the gate config loads, `lint:rules`, CI runs it, `.gates-count.json`, and lint probes (a raw `<button>` is an error naming Button in source and in a story, not in a test); the hook in the top folder's `.claude/settings.json`; `docs/GATES-DEBT.md` (confirmed by UIG-4, 16 September) |
 | UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the same chain in estiva-ui, and a nested raw element is an error |
 | UIG-6 | Branch protection | estiva-ui | peek, ship | GitHub requires a check whose name has "gate" or "lint:rules", in each repo |
 | UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | probes: `<input>` names TextInput, `<a>` names Link |
@@ -1500,7 +1539,9 @@ package, 32 in Peek (29 in `CommandLauncher.tsx`, naming UIG-29), 2 in Ship — 
 1 plugin escape, in Peek.
 
 **S1, one reach it does not have.** The hook reaches a Claude session started in
-the repository's folder, not one started above it (§0, UIG-3's first finding).
+the repository's folder, not one started above it (§0, UIG-3's first finding),
+nor one started in a folder below it: in Ship, a session started in `web/` does
+not get the hook in the top folder (UIG-4, measured with two real sessions).
 
 S1 and S5 together are why building the starter before the catalogue costs
 nothing: every later lint rule reaches Leaf through the package, and every later
@@ -1850,12 +1891,12 @@ Each repo keeps its own, at `docs/GATES-DEBT.md`.
 
 | repo | debt list | created by |
 |---|---|---|
-| ship | not yet | UIG-4 creates it; its acceptance requires it |
+| ship | `docs/GATES-DEBT.md`, 16 September, 0 entries | UIG-4 (ship PR #154) |
 | peek | not yet | **no ticket names it** — see §22 |
 | estiva-ui | not yet | **no ticket names it** — see §22 |
 | leaf | not yet | UIG-10's starter generates an empty one |
 
-On 13 September there are **0** debt lists and **0** entries.
+On 13 September there are **0** debt lists and **0** entries. On 16 September, after UIG-4: **1** debt list, Ship's, with **0** entries.
 
 ---
 
