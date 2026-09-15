@@ -31,7 +31,7 @@ describe('TextInput', () => {
     render(<TextInput aria-label="Title" size="small" />)
     const input = screen.getByRole('textbox')
     const classes = input.className.split(' ')
-    for (const c of ['h-6', 'px-2', 'text-[12px]']) expect(classes).toContain(c)
+    for (const c of ['h-6', 'px-2', 'text-caption']) expect(classes).toContain(c)
     for (const c of ['px-3', 'py-2', 'text-input-value']) expect(classes).not.toContain(c)
     expect(input.hasAttribute('size')).toBe(false)
   })

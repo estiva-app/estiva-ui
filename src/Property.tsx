@@ -45,7 +45,7 @@ export function Property({ label, layout = 'row', children, className }: Propert
       // Peek's topic-details sections already sit at 12px, Ship's rail was
       // 6px, and unifying means the bigger, calmer one.
       <dl className={cn('flex flex-col gap-3', className)}>
-        <dt className="text-menu uppercase tracking-[0.08em] text-text-secondary">{label}</dt>
+        <dt className="text-menu uppercase tracking-widest text-text-secondary">{label}</dt>
         <dd className={VALUE_CLASSES}>{children}</dd>
       </dl>
     )

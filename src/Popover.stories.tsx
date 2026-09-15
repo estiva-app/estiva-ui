@@ -167,7 +167,7 @@ export const FromASelection: Story = {
             can, which is the real case; `-1` gives this one the same property
             without adding a Tab stop. Without it focus is left on the document
             body when the panel closes — measured. */}
-        <p ref={body} tabIndex={-1} onMouseUp={read} onKeyUp={readOnKey} className="text-[14px] leading-[1.6] text-text-primary outline-none">
+        <p ref={body} tabIndex={-1} onMouseUp={read} onKeyUp={readOnKey} className="text-body-2 text-text-primary outline-none">
           Select any part of this sentence with the pointer, and a panel appears
           above the selection rather than beside a button — because a selection
           is not a control and there is no trigger to hang from.

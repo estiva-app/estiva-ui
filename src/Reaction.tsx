@@ -87,7 +87,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
     >
       {/* Decorative: the control is named by `aria-label`, and a glyph read
           aloud is noise. 16px so the emoji is legible at chip scale. */}
-      <span aria-hidden="true" className="shrink-0 text-[16px] leading-none">
+      <span aria-hidden="true" className="shrink-0 text-body-1 leading-none">
         {emoji}
       </span>
       {/* `text-chip` stands alone here, so there is nothing to merge it with.

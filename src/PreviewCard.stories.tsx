@@ -40,11 +40,11 @@ function Detail() {
         ].map(([k, v], i) => (
           <div key={i} className="flex items-baseline gap-2">
             <span className="w-20 shrink-0 text-caption text-text-secondary">{k}</span>
-            <span className="min-w-0 flex-1 truncate text-[12px] leading-[1.45] text-text-primary">{v}</span>
+            <span className="min-w-0 flex-1 truncate text-caption text-text-primary">{v}</span>
           </div>
         ))}
       </div>
-      <span className="text-[12px] leading-[1.45] text-text-secondary">
+      <span className="text-caption text-text-secondary">
         This is the card. It opened because the pointer came to rest on the row
         and stayed there for 350ms, and it will close 200ms after the pointer
         leaves — long enough to move into the card without losing it.
@@ -131,7 +131,7 @@ export const Scrolling: Story = {
       content={
         <>
           <span className="text-body-2-strong text-text-primary">Item with more than fits</span>
-          <span className="text-[12px] leading-[1.45] text-text-secondary">
+          <span className="text-caption text-text-secondary">
             There is more here than the card's 300px cap allows, so it scrolls.
             You can reach that scrollbar because the pointer can enter this card.
             A tooltip cannot be entered, so a tooltip that scrolled would be a
@@ -140,7 +140,7 @@ export const Scrolling: Story = {
           {Array.from({ length: 14 }, (_, i) => (
             <div key={i} className="flex items-baseline gap-2">
               <span className="w-20 shrink-0 text-caption text-text-secondary">Label</span>
-              <span className="min-w-0 flex-1 truncate text-[12px] leading-[1.45] text-text-primary">Value {i + 1}</span>
+              <span className="min-w-0 flex-1 truncate text-caption text-text-primary">Value {i + 1}</span>
             </div>
           ))}
         </>

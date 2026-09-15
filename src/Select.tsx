@@ -89,7 +89,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
           size === 'default' && 'px-3 py-2 text-input-value',
-          size === 'small' && 'h-6 px-2 text-[12px] leading-[1.4] font-normal',
+          size === 'small' && 'h-6 px-2 text-caption',
           className,
         )}
       >
