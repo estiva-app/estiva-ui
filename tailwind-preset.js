@@ -100,6 +100,13 @@ export default {
         'input-value':  ['14px', { lineHeight: '140%', letterSpacing: '0', fontWeight: '400' }],
         'input-helper': ['12px', { lineHeight: '120%', letterSpacing: '0', fontWeight: '400' }],
         'chip':         ['11px', { lineHeight: '110%', letterSpacing: '0', fontWeight: '500' }],
+        // A size and nothing else (Katerina, 2026-09-15, UIG-28): a theme's
+        // smaller label. Under `signal:` or `ship:` it shrinks the token beside
+        // it to 10px and keeps that token's line height and weight
+        // (`text-caption signal:text-small`). Letter spacing, where a label
+        // wants some, is Tailwind's own step: `tracking-wide`, `tracking-widest`.
+        // Alone, it takes its line height and weight from the parent.
+        'small':        ['10px'],
       },
       borderRadius: {
         none: '0px',

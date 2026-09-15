@@ -18,7 +18,7 @@ export function SectionLabel({ children, className }: { children: ReactNode; cla
   return (
     <span
       className={cn(
-        'text-[12px] leading-[12px] font-medium text-text-primary signal:font-mono signal:text-[10px] signal:uppercase signal:tracking-[0.14em]',
+        'text-h5 leading-3 text-text-primary signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
         className,
       )}
     >

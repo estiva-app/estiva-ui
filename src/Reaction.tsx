@@ -94,7 +94,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
           The old note said it must NEVER be merged; that stopped being true
           when `cn()` was taught the ramp — `chip` is in it, and `cn.test.ts`
           pins that. */}
-      <span className="text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tabular-nums">
+      <span className="text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums">
         {count}
       </span>
     </Toggle>

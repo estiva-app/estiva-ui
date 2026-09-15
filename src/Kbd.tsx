@@ -31,8 +31,8 @@ export function Kbd({ children, className }: KbdProps) {
     <kbd
       className={cn(
         'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset px-1 py-px font-sans text-caption text-text-secondary',
-        'signal:border-b-2 signal:pt-[2px] signal:pb-px signal:bg-bg-wash signal:font-mono signal:text-[10px]',
-        'ship:border-b-2 ship:pt-[2px] ship:pb-px ship:bg-bg-wash ship:font-mono ship:text-[10px]',
+        'signal:border-b-2 signal:pt-[2px] signal:pb-px signal:bg-bg-wash signal:font-mono signal:text-small',
+        'ship:border-b-2 ship:pt-[2px] ship:pb-px ship:bg-bg-wash ship:font-mono ship:text-small',
         className,
       )}
     >

@@ -44,7 +44,7 @@ export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, class
         // the screenshot diff caught every descender cut off. `clip` is the
         // one overflow that leaves the other axis visible. A chip with no cap
         // draws exactly as before.
-        <span className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-chip signal:font-mono signal:text-[10px] signal:font-semibold signal:tracking-[0.02em] signal:tabular-nums">{label}</span>
+        <span className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-chip signal:font-mono signal:text-small signal:font-semibold signal:tracking-wide signal:tabular-nums">{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
     </div>

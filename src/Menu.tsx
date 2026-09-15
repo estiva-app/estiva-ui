@@ -538,7 +538,7 @@ export function EnterHint({ target }: { target?: string }) {
     <span className="flex shrink-0 items-center gap-1.5 text-text-muted">
       <Kbd>↩ Enter</Kbd>
       {target && (
-        <span className="text-menu signal:font-mono signal:text-[9.5px] signal:tracking-[0.04em]">{target}</span>
+        <span className="text-menu signal:font-mono signal:text-small signal:tracking-wider">{target}</span>
       )}
     </span>
   )

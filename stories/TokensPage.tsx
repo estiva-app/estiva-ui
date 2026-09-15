@@ -134,6 +134,7 @@ const TYPE_GROUPS: { label: string; blurb: string; tokens: TypeToken[] }[] = [
   { label: 'Headings', blurb: 'h1 is a page title, h2 a section, h3 a card or dialog title, h4 a row title, h5 a small label.', tokens: ['h1', 'h2', 'h3', 'h4', 'h5'].map((k) => ({ key: k, cls: `text-${k}` })) },
   { label: 'Body', blurb: 'body-1 for reading, body-2 for the interface, caption for what sits beside it.', tokens: ['body-1', 'body-2', 'body-2-strong', 'caption'].map((k) => ({ key: k, cls: `text-${k}` })) },
   { label: 'Controls', blurb: 'The sizes controls are set in, so a button, a field and a chip read the same everywhere.', tokens: ['btn-default', 'btn-small', 'input-label', 'input-value', 'input-helper', 'chip', 'menu'].map((k) => ({ key: k, cls: `text-${k}` })) },
+  { label: 'A theme\'s smaller label', blurb: 'small is a size and nothing else. Under signal: or ship: it shrinks the token beside it to 10px and keeps that token\'s line height and weight. Spacing, where a label wants some, is tracking-wide or tracking-widest.', tokens: [{ key: 'small', cls: 'text-small' }] },
 ]
 
 const RADII = [
