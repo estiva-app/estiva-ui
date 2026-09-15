@@ -133,6 +133,63 @@
   `text-box` draws the old line box; support was checked in Chrome 152 only.
   Both apps change wherever a face shows initials.
 
+## Unreleased — UIG-28, the two holes in the token lint
+
+**The lint now stops a size, a corner, a shadow or a colour written by hand.**
+`text-sm` was blocked and `text-[14px]` was not; `bg-[#fff]` was blocked and
+`style={{ color }}` was not (UI Guardrails UIG-28; Katerina's rulings B11, B12
+and C3 of 13 September, R1–R5 of 15 September; `docs/GATES.md` §0). Ships with
+stage 6 as one release.
+
+### Added
+
+- **`text-small`: 10px, a size and nothing else.** A theme's smaller label:
+  under `signal:` or `ship:` it shrinks the token beside it and keeps that
+  token's line height and weight (`text-caption signal:text-small`). Letter
+  spacing, where a label wants some, is Tailwind's own step. Katerina compared
+  three tokens, one and none side by side, and picked one. In `cn`'s ramp, and
+  on the Design Tokens page.
+- **Lint, errors:** type written by hand (`text-[…]`, `leading-[…]`,
+  `tracking-[…]`, under any variant, arbitrary ones included), corners
+  (`rounded-[…]`), shadows (`shadow-[…]`, `drop-shadow-[…]`), and an inline
+  `style` that sets a colour, a font size, a border or a shadow. A hand-written
+  size names its token: "`text-[14px]` … Use text-body-2 or …".
+- **Lint, warnings:** heights and spacing (`h-[240px]`), border and ring widths.
+  Reported, never blocking: the preset has no spacing token.
+- The new rules sit under their own names, `token-values` and `token-spacing`,
+  so the four older rules are unchanged (byte for byte) and an escape for a size
+  cannot silence a raw colour. Test files are not checked. Seven probes in
+  `gates:status`, each seen to fail with its rule removed.
+
+### Changed
+
+- **Every hand-written type size, corner and shadow in the package is a token:
+  93 of 93, none escaped.** 31 were a token already, written out (photos, every
+  story in both themes: identical). The rest, by Katerina's pick after photos:
+  - Chip, Kbd, Reaction, the Enter hint's target and SectionLabel take
+    `text-small` in signal (and ship, for Kbd) with Tailwind's spacing:
+    SectionLabel's capitals are a little tighter (0.14em → 0.1em), Chip 0.3px
+    wider (0.02em → 0.025em). Kbd and Reaction do not move.
+  - `AttachmentCard`: the name is `text-caption`; the "PDF · 2.3 MB" line is
+    `text-small tracking-wide leading-tight` and sits about a pixel higher; the
+    file tile's type label is `text-menu`. Its class maps are named
+    `…_CLASSES`, so the lint reads them.
+  - `Property`'s label: `tracking-widest` (0.08em → 0.1em), as are the Design
+    Tokens page's headings.
+  - The small `Select` and small `TextInput`: `text-caption`; the reaction and
+    picker emoji: `text-body-1` / `text-h3` with `leading-none`. No pixel moves.
+  - Stories: Popover's paragraph and PreviewCard's lines use the ramp's line
+    height, so they sit closer.
+- Three inline styles keep what they draw, with the reason in an escape:
+  `Avatar`'s per-person palette, `AvatarGroup`'s ring width from `ring`, and the
+  Design Tokens page's swatches.
+
+Photos, every story, signal and ship, each step against the one before: the
+exact tokens 0 of 576 changed; `text-small` changed 26 in signal (SectionLabel
+and what holds one, Chip) and 0 in ship; the rest changed 17 in each theme
+(AttachmentCard 13, Popover, PreviewCard, Property 2). Every difference was
+looked at.
+
 ## 0.13.1 — 2026-09-15 — UIG-27
 
 **`Card` holds its hover look while its own menu is open, and the selected
