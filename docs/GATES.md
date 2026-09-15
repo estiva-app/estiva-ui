@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**16 September 2026, later. UIG-4 is done: a raw `<button>` is refused in Ship too, by the same rule — in the editor for a session started in Ship's top folder, in `npm --prefix web run lint:rules` and in CI. Ship had none, so the proof was a scratch commit, then dropped. ship PR #154, merged, on 0.15.0. Next: UIG-5, the same chain inside estiva-ui. See UIG-4: building it, below.**
+**16 September 2026, later. UIG-4 is done: a raw `<button>` is refused in Ship too, by the same rule — in the editor for a session started in Ship's top folder, in `npm --prefix web run lint:rules` and in CI. Ship had none, so the proof was a scratch commit, then dropped. ship PR #154, merged and deployed, on 0.15.0. Next: UIG-5, the same chain inside estiva-ui. See UIG-4: building it, below.**
 
 **16 September 2026. UIG-3 is done: a raw `<button>` is refused in Peek by the package's first lint rule, in the editor, in `npm run lint:rules` and in CI. The plugin was released as `@estiva-app/ui` 0.15.0 (estiva-ui PR #36); Peek took it in peek PR #225, deployed. Next: UIG-4, the same chain in Ship. See UIG-3: building it, below.**
 
