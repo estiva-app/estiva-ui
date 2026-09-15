@@ -234,7 +234,7 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 ESLint rules whose error message **names the component to use**. Not "don't write a div" — *"use ContainerHeader"*. Four families: forbid the raw element (`<button>`, `<input>`, `<a>`, `<dialog>`, with no folder exempt: an exception is one marked line); forbid the reach (a direct Base UI import, `createPortal`, a keydown listener, `role="dialog"`, `tabIndex` on a div, `overflow-auto`); fingerprint rules for hand-made headers and hand-made empty states; and a `className` allow-list so only placement classes pass through a package component.
 
-A **PreToolUse hook** in each repo's `.claude/settings.json` runs the same lint rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session, mine or anyone's.
+A **PreToolUse hook** in each repo's `.claude/settings.json` runs the same lint rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session started in that repo, mine or anyone's. A session started in a folder above the repo does not load it; the repo's CLAUDE.md, CI and branch protection cover that one.
 
 The trick that makes this land in days rather than weeks: give the new lint rules **their own config and their own script**, exactly as `lint:tokens` has, so the gate is green on day one and Peek's 80-odd existing lint errors don't block a single deploy.
 
@@ -305,7 +305,7 @@ Every idea worth having, sized. S is half a day to a day · M is two to three da
 | T11 | **Forbid the reach** | No direct Base UI import in an app, no `createPortal`, no keydown listener, no `role="dialog"`, no `overflow-auto`. | S | ships |
 | T12 | **Fingerprint rules** | The hand-made header (#192), the hand-made "Nothing here", a native `title=`, a class list copied out of a component. | M | ships |
 | T13 | **className allow-list** | Only placement classes through a package component. Stops a colour or a size being smuggled in. | S | ships |
-| T14 | **PreToolUse hook** | Blocks the write *before the file lands*, in every Claude session in the repo. The deterministic layer. | S | ships |
+| T14 | **PreToolUse hook** | Blocks the write *before the file lands*, in every Claude session started in the repo. The deterministic layer. | S | ships |
 | T15 | **Its own config & script** · lint:rules | Green on day one, old backlog skipped — the same trick that let `lint:tokens` become a gate immediately. | S | ours |
 | T16 | **Branch protection** | Required check on every PR in both apps. Nothing merges broken, whoever wrote it. **You already said yes.** | XS | ours |
 | | **Gate 3 — See** | | | |
