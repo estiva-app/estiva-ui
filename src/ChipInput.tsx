@@ -38,14 +38,27 @@ export interface InputChipProps {
   leading?: ReactNode
   /** Draws the ✕; absent, the chip is display-only. */
   onRemove?: () => void
+  /**
+   * The ✕'s name for a screen reader. `Remove <label>` when not given. A chip
+   * whose ✕ does something other than remove it names what it does — a
+   * launcher's scope chip leaves the scope ("Leave Ship").
+   */
+  removeLabel?: string
+  /**
+   * Cut a long label with an ellipsis once the chip is capped, by a
+   * `max-w-*` on `className`. Off unless asked: cutting clips up to 4px of a
+   * letter's soft edge at 1x even when the label fits (measured 2026-09-15),
+   * so a chip that is never capped keeps every pixel.
+   */
+  truncate?: boolean
   className?: string
 }
 
-export function InputChip({ label, leading, onRemove, className }: InputChipProps) {
+export function InputChip({ label, leading, onRemove, removeLabel, truncate, className }: InputChipProps) {
   return (
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
-      <span className={CHIP_LABEL}>{label}</span>
+      <span className={cn(CHIP_LABEL, truncate && 'min-w-0 truncate')}>{label}</span>
       {/* Base UI's `Button`, as every button in the package is (D6). Base UI
           has no chip of its own — its only chips are `Combobox.Chip` and
           `ChipRemove`, which throw outside a combobox — so the ✕ is the one
@@ -57,8 +70,9 @@ export function InputChip({ label, leading, onRemove, className }: InputChipProp
             e.stopPropagation()
             onRemove()
           }}
-          className={CHIP_REMOVE}
-          aria-label={`Remove ${label}`}
+          // In a capped chip the label gives way, never the ✕.
+          className={cn(CHIP_REMOVE, truncate && 'shrink-0')}
+          aria-label={removeLabel ?? `Remove ${label}`}
         >
           <IconX size={10} stroke={1.5} />
         </BaseButton>

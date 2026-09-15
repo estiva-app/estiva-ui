@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { ChipInput, InputChip, type ChipInputOption } from './ChipInput'
 
@@ -94,6 +95,23 @@ export const TheChipItself: Story = {
       <InputChip label="Ana Duarte" leading={<Avatar size={16} name="Ana Duarte" alt="Ana Duarte" />} onRemove={() => {}} />
       <InputChip label="Amber" onRemove={() => {}} />
       <InputChip label="Display only" />
+    </div>
+  ),
+}
+
+/** A chip capped in width, its long label cut, and a ✕ named for what it does. */
+export const ALongLabelCut: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-center gap-2">
+      <InputChip
+        label="A label much longer than the chip may be"
+        leading={<IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />}
+        onRemove={() => {}}
+        removeLabel="Leave the label"
+        truncate
+        className="max-w-44"
+      />
     </div>
   ),
 }
