@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — UIG-3, the first lint rule as a plugin
+## 0.15.0 — 2026-09-15 — UIG-3, the first lint rule as a plugin
 
 The UI Guardrails' tracer (Ship UIG-3): one rule, carried end to end from the
 package to Peek's editor hook and CI. Peek takes it in its own PR, on this
