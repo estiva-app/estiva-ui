@@ -215,4 +215,22 @@ describe('InputChip', () => {
     render(<InputChip label="Label" />)
     expect(screen.queryByRole('button')).toBeNull()
   })
+
+  it('names its ✕ with removeLabel when given', async () => {
+    const user = userEvent.setup()
+    const onRemove = vi.fn()
+    render(<InputChip label="Label" onRemove={onRemove} removeLabel="Leave Label" />)
+    await user.click(screen.getByRole('button', { name: 'Leave Label' }))
+    expect(onRemove).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('button', { name: 'Remove Label' })).toBeNull()
+  })
+
+  it('cuts its label only when asked, and then the ✕ never gives way', () => {
+    const { rerender } = render(<InputChip label="Label" onRemove={() => {}} />)
+    expect(screen.getByText('Label').className).not.toMatch(/\btruncate\b/)
+    expect(screen.getByRole('button').className).not.toMatch(/\bshrink-0\b/)
+    rerender(<InputChip label="Label" onRemove={() => {}} truncate className="max-w-[160px]" />)
+    expect(screen.getByText('Label').className).toMatch(/\bmin-w-0\b.*\btruncate\b/)
+    expect(screen.getByRole('button').className).toMatch(/\bshrink-0\b/)
+  })
 })

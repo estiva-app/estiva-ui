@@ -32,6 +32,23 @@ function Controlled({ initial = 'todo', ...rest }: { initial?: string } & Partia
   return <Select value={value} onChange={setValue} options={STATUSES} ariaLabel="Status" {...rest} />
 }
 
+/**
+ * The open list, once it has focus.
+ *
+ * The list is findable as soon as it opens, but Base UI moves focus into it an
+ * animation frame later. A key pressed before that frame goes to the trigger:
+ * Tab then moves focus into the list instead of closing it, and an arrow or End
+ * is lost. A person presses keys at a list that has focus, so these tests wait
+ * for it. CI failed "Tab closes the list" this way on 15 September (PR #36);
+ * with every frame 100ms late the three tests that use this failed 3 runs of 3,
+ * focus measured still on the trigger when Tab was pressed.
+ */
+async function focusedList() {
+  const list = await screen.findByRole('listbox')
+  await waitFor(() => expect(list.contains(document.activeElement)).toBe(true))
+  return list
+}
+
 describe('Select', () => {
   it('is a button naming itself, showing the chosen label', () => {
     render(<Controlled initial="in_progress" />)
@@ -65,7 +82,7 @@ describe('Select', () => {
     const trigger = screen.getByRole('combobox', { name: 'Status' })
     trigger.focus()
     await user.keyboard('{ArrowDown}')
-    expect(await screen.findByRole('listbox')).toBeTruthy()
+    expect(await focusedList()).toBeTruthy()
     await user.keyboard('{ArrowDown}{Enter}')
     expect(onChange).toHaveBeenCalledWith('in_progress')
     expect(document.activeElement).toBe(trigger)
@@ -130,7 +147,7 @@ describe('Select', () => {
     render(<Controlled initial="in_progress" />)
     screen.getByRole('combobox', { name: 'Status' }).focus()
     await user.keyboard('{ArrowDown}')
-    expect(await screen.findByRole('listbox')).toBeTruthy()
+    expect(await focusedList()).toBeTruthy()
     const highlighted = () => screen.getAllByRole('option').find((o) => o.getAttribute('data-highlighted') !== null)?.textContent
     await user.keyboard('{End}')
     expect(highlighted()).toContain('Done')
@@ -142,7 +159,7 @@ describe('Select', () => {
     const user = userEvent.setup()
     render(<Controlled />)
     await user.click(screen.getByRole('combobox', { name: 'Status' }))
-    expect(await screen.findByRole('listbox')).toBeTruthy()
+    expect(await focusedList()).toBeTruthy()
     await user.tab()
     await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull())
   })
