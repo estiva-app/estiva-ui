@@ -55,6 +55,7 @@ export function AvatarGroup({ members, size = 24 }: AvatarGroupProps) {
         <span
           key={i}
           className="relative flex rounded-sm"
+          /* eslint-disable-next-line no-restricted-syntax -- the ring's width is the `ring` prop, so it cannot be a class; its colour is the surface token */
           style={{ marginRight: -overlap, boxShadow: `0 0 0 ${ring}px var(--bg-surface)` }}
         >
           {/* Each face says whose it is: a stack stands on its own, with no

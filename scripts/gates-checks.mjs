@@ -152,6 +152,12 @@ export default function define(h) {
     ] },
     { ref: "UIG-28", owner: true, checks: [
       { what: "text-[14px] is an error in the package", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"text-[14px]\">x</div>\n}\n", expect: "error" }) },
+      { what: "a hand-written line height behind an arbitrary variant is an error", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"[&_p]:leading-[1.4]\">x</div>\n}\n", expect: "error" }) },
+      { what: "h-[240px] is a warning", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"h-[240px]\">x</div>\n}\n", expect: "warning" }) },
+      { what: "h-[240px] is not an error", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"h-[240px]\">x</div>\n}\n", expect: "none" }) },
+      { what: "a colour in an inline style is an error", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe({ color }: { color: string }) {\n  return <div style={{ backgroundColor: color }}>x</div>\n}\n", expect: "error", mentions: "inline style" }) },
+      { what: "a width and height from a prop pass (Avatar)", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe({ size }: { size: number }) {\n  return <div style={{ width: size, height: size }}>x</div>\n}\n", expect: "none" }) },
+      { what: "a test file is not checked for hand-written values", run: () => h.lint({ config: "eslint.config.js", file: "src/__gates_probe__.test.tsx", code: "export function Probe() {\n  return <div className=\"text-[14px]\" style={{ color: 'red' }}>x</div>\n}\n", expect: "none" }) },
     ] },
     { ref: "UIG-30", owner: true, checks: [
       { what: "RichText is in the package", run: () => h.contains("src/index.ts", /\bRichText\b/, "src/index.ts exports RichText") },

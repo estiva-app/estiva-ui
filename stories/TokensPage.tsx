@@ -153,7 +153,7 @@ const RADII = [
 function Section({ label, blurb, children }: { label: string; blurb: string; children: ReactNode }) {
   return (
     <section className="mt-10 first:mt-0">
-      <h2 className="text-h5 uppercase tracking-[0.08em] text-text-secondary">{label}</h2>
+      <h2 className="text-h5 uppercase tracking-widest text-text-secondary">{label}</h2>
       <p className="mt-1.5 max-w-[640px] text-body-2 text-text-secondary">{blurb}</p>
       <div className="mt-3">{children}</div>
     </section>
@@ -172,6 +172,9 @@ function Users({ names }: { names: string[] }) {
 function SwatchBox({ token }: { token: Token }) {
   const v = `var(${token.cssVar})`
   const base = 'h-6 w-10 shrink-0 rounded-md'
+  /* eslint-disable no-restricted-syntax -- this page draws every token from its CSS
+     variable, so a swatch shows the value the theme holds, including a token no
+     class spells yet. */
   switch (token.swatch) {
     case 'fill':
       return <div className={`${base} border border-border-subtle`} style={{ background: v }} />
@@ -191,6 +194,7 @@ function SwatchBox({ token }: { token: Token }) {
     case 'drop-shadow':
       return <div className="my-1 h-8 w-12 shrink-0 rounded-md bg-bg-surface" style={{ filter: `drop-shadow(${v})` }} />
   }
+  /* eslint-enable no-restricted-syntax */
 }
 
 function TokenRow({ token, utilities }: { token: Token; utilities: string }) {
