@@ -1,11 +1,20 @@
 # Changelog
 
-## Unreleased — migration stage 6, the rest of the primitive tier
+## 0.14.0 — 2026-09-15 — migration stage 6 and UIG-28
 
-**The last primitives move onto Base UI.** Released on its own as `0.14.0`
-(Katerina, 2026-09-14, D69).
+Two pieces of work in one release, by Katerina's word (migration D69, amended
+2026-09-15): the migration's stage 6 — the last primitives onto Base UI, a
+small `TextInput`, three toasts at once, the avatar's initials centred, a
+quieter section empty state — and the UI Guardrails' UIG-28 — the token lint
+stops hand-written sizes, corners, shadows and inline colours, and the package
+gains `text-small`. What each app changes to take it: migration docs
+`ADOPTION.md` P34 (Peek) and S35 (Ship).
 
-### Added
+### Migration stage 6 — the rest of the primitive tier
+
+**The last primitives move onto Base UI.**
+
+#### Added
 
 - **`TextInput` takes `size="small"`: 24px tall, 12px text** — the small
   `Select`'s trigger, class for class (D67, ADOPTION B35). Peek's reference
@@ -19,7 +28,7 @@
   unchanged: 45 stories holding a text field identical in both themes. A first
   test file; making small 28px fails it.
 
-### Changed
+#### Changed
 
 - **A section's empty state is the quiet line: 12px caption in the muted
   colour** (Katerina, 2026-09-15, D71), where it was 14px body text in the
@@ -133,15 +142,14 @@
   `text-box` draws the old line box; support was checked in Chrome 152 only.
   Both apps change wherever a face shows initials.
 
-## Unreleased — UIG-28, the two holes in the token lint
+### UIG-28 — the two holes in the token lint
 
 **The lint now stops a size, a corner, a shadow or a colour written by hand.**
 `text-sm` was blocked and `text-[14px]` was not; `bg-[#fff]` was blocked and
 `style={{ color }}` was not (UI Guardrails UIG-28; Katerina's rulings B11, B12
-and C3 of 13 September, R1–R5 of 15 September; `docs/GATES.md` §0). Ships with
-stage 6 as one release.
+and C3 of 13 September, R1–R5 of 15 September; `docs/GATES.md` §0).
 
-### Added
+#### Added
 
 - **`text-small`: 10px, a size and nothing else.** A theme's smaller label:
   under `signal:` or `ship:` it shrinks the token beside it and keeps that
@@ -161,7 +169,7 @@ stage 6 as one release.
   cannot silence a raw colour. Test files are not checked. Seven probes in
   `gates:status`, each seen to fail with its rule removed.
 
-### Changed
+#### Changed
 
 - **Every hand-written type size, corner and shadow in the package is a token:
   93 of 93, none escaped.** 31 were a token already, written out (photos, every
