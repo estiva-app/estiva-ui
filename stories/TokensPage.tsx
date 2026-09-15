@@ -172,7 +172,7 @@ function Users({ names }: { names: string[] }) {
 function SwatchBox({ token }: { token: Token }) {
   const v = `var(${token.cssVar})`
   const base = 'h-6 w-10 shrink-0 rounded-md'
-  /* eslint-disable no-restricted-syntax -- this page draws every token from its CSS
+  /* eslint-disable no-restricted-syntax -- @estiva-escape: this page draws every token from its CSS
      variable, so a swatch shows the value the theme holds, including a token no
      class spells yet. */
   switch (token.swatch) {

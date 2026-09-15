@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**15 September 2026. UIG-27 is done: the package half released as `@estiva-app/ui` 0.13.0 and 0.13.1, the app half in peek PR #218 and ship PR #151. UIG-28 is being built: its package part rides on migration stage 6's branch, to ship as one 0.14.0; Peek and Ship follow the release. Then phase 1. UIG-30 is new.**
+**15 September 2026. UIG-27 and UIG-28 are done. UIG-28's package part was released with migration stage 6 as `@estiva-app/ui` 0.14.0 (estiva-ui PR #34); its app part is peek PR #222 and ship PR #153. Next: phase 1, from UIG-3. UIG-30 is new.**
 
 > **What UIG-27's app half did, and what it found**, is part 5 of **UIG-27: adopting it in Peek and Ship** below. The step-by-step handoff it followed stays above that, for the record.
 
@@ -27,7 +27,7 @@ answer
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
 | ✅ **UIG-27** | Package half: estiva-ui PR #29 (0.13.0), PR #32 (0.13.1: `Card`'s `hovered`). App half: peek PR #218, ship PR #151 — both apps on 0.13.1, every link, chip, progress bar, card and attachment the package's, the code they replaced deleted, and no empty state padded. All 20 links fitted, none reasoned. `gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5. |
-| 🚧 **UIG-28** | Package part built on branch `gates/28-token-holes`, on top of stage 6's `stage-6-primitives` (one push, one PR, one `0.14.0`, Katerina, 15 September). Peek and Ship part after the release. See **UIG-28: building it**, below. |
+| ✅ **UIG-28** | Package part: estiva-ui PR #34, released with stage 6 as 0.14.0. App part: peek PR #222, ship PR #153. The token lint stops hand-written type, corners, shadows and inline colours in all three repos and warns on hand-written heights and spacing; every error fixed or escaped with its reason. `gates:status` reads 23 of 23. See **UIG-28: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -44,17 +44,18 @@ answer
 2. Run `npm run gates:status` in estiva-ui. It reads every ticket from the code, in all three repos. §17 says how.
 3. Read the ticket in Ship, in full.
 
-On 15 September, with peek PR #218 and ship PR #151 merged (run with `GATES_PEEK` and `GATES_SHIP` pointing at checkouts of the new mains, since the main checkouts lag), it printed:
+On 15 September, with peek PR #222 and ship PR #153 merged (run with `GATES_PEEK` and `GATES_SHIP` pointing at checkouts of the new mains, since the main checkouts lag), it printed:
 
 ```
 ✅  UIG-27  The components the apps had to build themselves — Link, ProgressBar, EmptyState padding  estiva-ui 17 of 17
+✅  UIG-28  Close the two holes in the token contract — arbitrary values, and inline style           estiva-ui 23 of 23
 ⬜  UIG-30  RichText — one component that draws a message's text, for both apps                      estiva-ui 0 of 3
-✅ 3 done · 🚧 0 started · ⬜ 27 not started · ❔ 0 could not check
+✅ 4 done · 🚧 0 started · ⬜ 26 not started · ❔ 0 could not check
 30 tickets. Owned by estiva-ui 25, peek 3, ship 2.
 ✅ Each ticket is owned by exactly one repo, and every repo agrees.
 ```
 
-UIG-27's 17 checks: 6 in the package, 6 in Peek (the two packages it needs installed, the hand-made bar gone, `inlineChip.ts` and `PendingAttachmentChip.tsx` gone, a posted file drawing `AttachmentCard`), 5 in Ship (the two installed, its bar's file gone, mentions on `InlineChip`, files on `AttachmentCard`). UIG-30's 3 are one per repo, all "not yet".
+UIG-28's 23 checks: 7 in the package and 8 in each app (§15). UIG-27's 17 checks: 6 in the package, 6 in Peek (the two packages it needs installed, the hand-made bar gone, `inlineChip.ts` and `PendingAttachmentChip.tsx` gone, a posted file drawing `AttachmentCard`), 5 in Ship (the two installed, its bar's file gone, mentions on `InlineChip`, files on `AttachmentCard`). UIG-30's 3 are one per repo, all "not yet".
 
 ### UIG-27: Katerina's rulings, 13 September
 
@@ -139,8 +140,8 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | when | what |
 |---|---|
 | ✅ done | UIG-27: estiva-ui PR #29 (0.13.0) and #32 (0.13.1); peek PR #218 and ship PR #151 adopt it fully |
-| **now** | **UIG-28**: the package part with stage 6 as `0.14.0`, then Peek's and Ship's PRs on `0.14.0` (**UIG-28: building it**, below) |
-| after | phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time after UIG-27 |
+| ✅ done | UIG-28: estiva-ui PR #34 (0.14.0, with stage 6); peek PR #222 and ship PR #153 (**UIG-28: building it**, below) |
+| **now** | phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
 | alongside phase 1, never blocking it | **UIG-29** |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
@@ -196,16 +197,31 @@ UIG-1's "157 in Peek, type or spacing" does not split: its scripts were thrown a
 
 `npm run lint` exits 0: 0 errors, 131 warnings. Proof on screen, every story in both themes against the commit before: the 31 exact swaps changed nothing (576 of 576); `text-small` changed only SectionLabel and what holds one (a little tighter in signal) and Chip (0.3px wider in signal); ship unchanged.
 
-**Peek and Ship, after 0.14.0**
+**Peek and Ship: done, 15 September.** peek PR #222 and ship PR #153, merged. Each PR also took `0.14.0` and migration stage 6's app changes (ADOPTION P34, S35).
 
-1. Take `0.14.0`. Add the same block to Peek's `eslint.tokens.js` and Ship's `web/eslint.config.js`, with R1's pattern fix; add the probes to each `gates-checks.mjs`.
-2. R1 surfaces 5 raw colours in Peek: `CommandLauncher.tsx:818 :824` (escape, naming UIG-29), `ConversationCard.tsx`, `ResolveDialog.tsx`, `TopicState.tsx` (Signal glows and a border). Ship has 0.
-3. Signal's 18 small labels in Peek → `text-small` with the R3 spacing steps.
-4. Exact swaps, then photos of every size close to a token (Peek 18 strings, Ship 5) for Katerina's pick, as the package's were.
-5. R5: Ship's `IssuesTable.tsx` `const TH` and `prose.ts`; Peek's TipTap `editorProps.attributes.class` (three places, each also holding a `text-sm` today).
-6. Inline style: Peek's highlight colours are already tokens passed through `style` (`HIGHLIGHT_META`) → a class map; `SignalTheme.stories.tsx` and both apps' `stories/Swatches.tsx` → escapes.
-7. `CommandLauncher.tsx`'s 58 type classes: escapes naming UIG-29.
-8. Record each app's fixed + escaped = count here, and its warnings.
+Katerina's rulings for the apps, 15 September:
+
+| | question | ruling |
+|---|---|---|
+| A1 | One PR per app, or one for the version and one for UIG-28? | **one per app**, the two as groups of commits |
+| A2 | The escape form: GATES §16 S4 says `// @estiva-escape: <reason>`, but ESLint obeys only `eslint-disable` until UIG-3 | **`eslint-disable-next-line <rule> -- @estiva-escape: <reason>`**: it works today, and UIG-3 can find every one. The package's three escapes carry the marker since `gates/28-close` |
+| A3 | Ten looks, photographed as they are and with the named value | **yes to all**: Peek's resolved line (`text-h5`, an 8px corner, the theme's glow), the highlight squares at 4px, line heights to Tailwind's nearest step, the composer's hint `text-menu`, Signal's thread time 10px, the Resolve hover `success-outline`; Ship's table headings `tracking-widest`; code at `0.9em` kept and marked; the highlight tag's 13% tint kept and marked |
+| A4 | Why do the apps keep a Design Tokens page, when the package's Storybook has one? | **they don't**: both apps' pages and their `Swatches.tsx` are deleted, and each Introduction points at the package's page |
+
+Reconciled against the lint's own reports, counting the class lists it could not see before R5:
+
+| | Peek | Ship |
+|---|---|---|
+| type · error | 175 = 104 fixed + 11 gone with the Design Tokens page + **60 escaped** (`CommandLauncher.tsx` 58, naming UIG-29; `MessageBody.tsx` 2, code at `0.9em`) | 14 = 1 fixed + 11 gone with the page + **2 escaped** (`prose.ts`, code at `0.9em`) |
+| corners · error | 5 fixed | 0 |
+| shadows · error | 5 fixed | 0 |
+| raw colours (R1) · error | 5 = 3 fixed + **2 escaped** (`CommandLauncher.tsx`, UIG-29) | 0 |
+| inline style · error | 65 reports = 5 fixed + 3 gone with the page + **57 escaped** (`SignalTheme.stories.tsx` 56, one file-level disable; the highlight tag's tint 1) | 3, gone with the page |
+| warnings | 116 | 19 |
+
+On 15 September's mains (peek `3f5774f`, ship `cb091c8`): Peek `npm run lint:tokens`, Ship `npm run lint` and estiva-ui `npm run lint` exit 0. `gates:status`: **UIG-28 ✅ 23 of 23** (7 in the package, 8 in each app).
+
+Proof on screen, every story before and after each step, each difference looked at: taking `0.14.0` changed Peek 97 of 355 stories and Ship 15 of 101, all the package's ruled changes; UIG-28's app work changed only the looks in A3 and Signal's small labels (R3).
 
 ### UIG-27: adopting it in Peek and Ship
 
@@ -1142,8 +1158,8 @@ inside them.
 |---|---|---|
 | **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count grew to 20 (§0), and all 20 are fitted: peek PR #218, ship PR #151. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
 | **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
-| **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). 🚧 Package part built on the stage 6 branch (§0); Peek and Ship after `0.14.0`. |
-| **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. 🚧 Same. |
+| **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). ✅ Done: estiva-ui PR #34 (0.14.0), peek PR #222, ship PR #153 (§0). |
+| **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. ✅ Same. |
 | **5** | estiva-ui copying its own class lists. 14. | **UIG-25**, target set widened to include `estiva-ui/src`, with a second message for a primitive copying a sibling. |
 | **6** | "Rules" means two things. | **UIG-2**, item 5c. A wording pass over the guide, the Ship brief and every ambiguous ticket. |
 
@@ -1176,8 +1192,12 @@ nothing to do with UIG-1's count.
 
 | | finding | where it goes |
 |---|---|---|
-| ⛔ | **The raw-colour rule in Peek and Ship has matched nothing since it landed** (Ship 8 September, `3601f68`; Peek 11 September, `2edde1f`). Their pattern writes `[[][^]]*`, and in JavaScript `[^]` means "any one character", so `bg-[#5c69dc]` passes. estiva-ui's copy writes `\[[^\]]*` and works. The same probe gives 0 errors in Peek and Ship, 3 in estiva-ui. It hides 5 raw colours in Peek, 0 in Ship. | Katerina ruled the fix (R1). UIG-28's Peek and Ship PRs |
-| ⚠️ | **The token lint cannot see a class list in a variable it does not know.** It reads `className`, `cn()`/`clsx()` and maps named `…Classes`/`…Styles`. UIG-28's own example `IssuesTable.tsx:37` is a `const TH`; Ship's `prose.ts` is an array; estiva-ui's `AttachmentCard` held `NAME`, `NOTE` and `TILE`; Peek's TipTap `editorProps.attributes.class` holds `text-sm`, which also slips past the type-ramp rule. | R5. estiva-ui's renamed in UIG-28; the apps' in their PRs |
+| ⛔ | **The raw-colour rule in Peek and Ship has matched nothing since it landed** (Ship 8 September, `3601f68`; Peek 11 September, `2edde1f`). Their pattern writes `[[][^]]*`, and in JavaScript `[^]` means "any one character", so `bg-[#5c69dc]` passes. estiva-ui's copy writes `\[[^\]]*` and works. The same probe gives 0 errors in Peek and Ship, 3 in estiva-ui. It hides 5 raw colours in Peek, 0 in Ship. | ✅ Katerina ruled the fix (R1); fixed in peek PR #222 and ship PR #153. Peek's 5: 3 fixed, 2 escaped (UIG-29) |
+| ✅ | **The token lint cannot see a class list in a variable it does not know.** It reads `className`, `cn()`/`clsx()` and maps named `…Classes`/`…Styles`. UIG-28's own example `IssuesTable.tsx:37` is a `const TH`; Ship's `prose.ts` is an array; estiva-ui's `AttachmentCard` held `NAME`, `NOTE` and `TILE`; Peek's TipTap `editorProps.attributes.class` holds `text-sm`, which also slips past the type-ramp rule. | R5. estiva-ui's renamed in UIG-28; the apps' in their PRs (`TH_CLASSES`, `PROSE_BLOCK_CLASSES`, `PEEK_EDITOR_CLASSES`, `HIGHLIGHT_FILL_CLASSES` / `HIGHLIGHT_TEXT_CLASSES`) |
+| ✅ | **The lint cannot read a class list through `.join()`** either: Ship's `prose.ts` was `[...].join(' ')`, and a probe proved a string, an array and a template are read while the joined array is not. The list is a named array now, joined into the export. | ship PR #153 |
+| ✅ | **Both apps' Design Tokens pages drew every label and every type specimen at 16px** (measured, both mains): Storybook's docs container sets 16px on every `div` at the same specificity as a token class. The package's page had already fixed it with `<Unstyled>`. The app pages had also drifted from the tokens (no `text-small`). Katerina's call: deleted, the package's page is the one (§0, A4). | peek PR #222, ship PR #153 |
+| ✅ | **No story draws Peek's reference-widget text field**, the one field migration stage 6 changed there. A throwaway story photographed it before and after; it was not committed. | recorded |
+| ✅ | **Both app mains moved while the PRs were open** (Peek: FOL-25, PEE-31; Ship: SHI-25). Each branch was merged with its new main locally and linted before the PRs were merged: 0 errors. | recorded |
 | ✅ | **The ticket's reason for the package's hand-written sizes was out of date.** `cn()` names the ramp for tailwind-merge since 1 September, so a size token beside a text colour survives. Nothing in the package needed an escape for it. | recorded |
 | ✅ | **`eslint.tokens.js` and `lint:tokens` exist only in Peek.** Ship and estiva-ui keep the token rules inline in `eslint.config.js` and run `npm run lint`. The ticket named Peek's layout for all three. | recorded |
 | ✅ | **The preset has no spacing token.** Heights and spacing use Tailwind's default scale, so the warning names a step of that scale, not `tokens.css`. `InlineChip`'s `h-[1.4em]` and `h-[19.6px]` (§0, UIG-27's findings) are heights: warnings, no escape. | recorded |
@@ -1364,7 +1384,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-25 | Fingerprint — component copied by hand | estiva-ui | peek, ship | probe: SectionLabel's class list typed by hand is a **warning**, in all three repos |
 | UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
 | UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` exported (0.13.0); `EmptyState.mdx` places a section's empty state inside its rows' box (no padding prop, Katerina, 14 September); each app installs a version that has them and its hand-made progress bar is gone; Peek's `inlineChip.ts` and `PendingAttachmentChip.tsx` stay deleted and a posted file draws `AttachmentCard`; Ship's mentions draw `InlineChip` and its files `AttachmentCard` (15 September) |
-| UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on the token lint: `text-[14px]` and an inline colour are errors, `h-[240px]` is a warning |
+| UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on each repo's token lint (7 in the package, 8 in each app): `text-[14px]`, a hand-written line height behind an arbitrary variant and an inline colour are errors; `h-[240px]` is a warning and not an error; a width and height from a prop pass; a test file is not checked while source is; in the apps, a raw colour in a class is an error (R1). Each check of a rule was seen to fail with its rule removed (15 September) |
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
 
@@ -1418,6 +1438,13 @@ rework. They come from the roadmap artifact, §07.
 | **S3** | Every lint run writes its count | `.gates-count.json` per repo, committed from day one, even though nothing compares it yet. | The later ratchet is one CI step comparing two numbers, and the history of the number falling starts at the first commit. | UIG-3, UIG-4, UIG-5 |
 | **S4** | The escape marker is machine-readable | `// @estiva-escape: <reason>` — a fixed shape, parsed and reported. Never a free comment, never `eslint-disable`. | The adoption number can subtract sanctioned exceptions honestly, and the report lists every escape with its reason and age. | UIG-3 |
 | **S5** | The starter is generated, never copied | Assembled from the live repos on each run, not a folder snapshotted once. | This is what let the starter move from phase 5 to phase 2. Re-running it carries everything new into Leaf. A copy would be stale before Leaf's first commit. | UIG-10, UIG-26 |
+
+**S4 until UIG-3.** No parser reads the marker yet, and ESLint obeys only its
+own directives, so an escape is written today as
+`eslint-disable-next-line <rule> -- @estiva-escape: <reason>` (Katerina, 15
+September; §0, UIG-28, A2). The marker is in every one, so UIG-3 can find and
+count them all. After UIG-28 there are 3 markers in the package, 36 in Peek
+(32 in `CommandLauncher.tsx`, each naming UIG-29) and 2 in Ship.
 
 S1 and S5 together are why building the starter before the catalogue costs
 nothing: every later lint rule reaches Leaf through the package, and every later

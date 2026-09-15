@@ -118,7 +118,7 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
           */
           className="w-full h-full flex items-center justify-center font-semibold leading-none"
           style={{
-            /* eslint-disable no-restricted-syntax -- the per-person palette (the note at
+            /* eslint-disable no-restricted-syntax -- @estiva-escape: the per-person palette (the note at
                the top): eight hues picked from the name, the one ink that reads on all
                of them, and a size that follows `size`. None of it can be a token. */
             // The one ink colour that reads on all eight hues, which are a
