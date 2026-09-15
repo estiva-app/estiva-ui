@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026. UIG-3 is done: a raw `<button>` is refused in Peek by the package's first lint rule, in the editor, in `npm run lint:rules` and in CI. The plugin was released as `@estiva-app/ui` 0.15.0 (estiva-ui PR #36); Peek took it in peek PR #225, deployed. Next: UIG-4, the same chain in Ship. See UIG-3: building it, below.**
+
 **15 September 2026. UIG-27 and UIG-28 are done. UIG-28's package part was released with migration stage 6 as `@estiva-app/ui` 0.14.0 (estiva-ui PR #34); its app part is peek PR #222 and ship PR #153. Next: phase 1, from UIG-3. UIG-30 is new.**
 
 > **What UIG-27's app half did, and what it found**, is part 5 of **UIG-27: adopting it in Peek and Ship** below. The step-by-step handoff it followed stays above that, for the record.
@@ -28,6 +30,7 @@ answer
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
 | ✅ **UIG-27** | Package half: estiva-ui PR #29 (0.13.0), PR #32 (0.13.1: `Card`'s `hovered`). App half: peek PR #218, ship PR #151 — both apps on 0.13.1, every link, chip, progress bar, card and attachment the package's, the code they replaced deleted, and no empty state padded. All 20 links fitted, none reasoned. `gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5. |
 | ✅ **UIG-28** | Package part: estiva-ui PR #34, released with stage 6 as 0.14.0. App part: peek PR #222, ship PR #153. The token lint stops hand-written type, corners, shadows and inline colours in all three repos and warns on hand-written heights and spacing; every error fixed or escaped with its reason. `gates:status` reads 23 of 23. See **UIG-28: building it**, below. |
+| ✅ **UIG-3** | Package part: estiva-ui PR #36, released as 0.15.0 — `@estiva-app/ui/eslint`, `no-raw-button`, the escape marker, `countGates`, and `InputChip`'s `removeLabel` and `truncate`. Peek part: peek PR #225, deployed — the gate lint, its CI step, `.gates-count.json`, the editor hook. 16 raw buttons = 8 replaced + 7 gone with the Signal Theme page + 1 escaped. `gates:status` reads 11 of 11. See **UIG-3: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -141,10 +144,57 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 |---|---|
 | ✅ done | UIG-27: estiva-ui PR #29 (0.13.0) and #32 (0.13.1); peek PR #218 and ship PR #151 adopt it fully |
 | ✅ done | UIG-28: estiva-ui PR #34 (0.14.0, with stage 6); peek PR #222 and ship PR #153 (**UIG-28: building it**, below) |
-| **now** | phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
-| alongside phase 1, never blocking it | **UIG-29** |
+| ✅ done | UIG-3: estiva-ui PR #36 (0.15.0); peek PR #225 (**UIG-3: building it**, below) |
+| **now** | phase 1: **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
+| alongside phase 1, never blocking it | **UIG-29** (Katerina, 16 September: the package component is `CommandPalette`; its release comes after 0.15.0) |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-3: building it
+
+**Where.** estiva-ui branch `gates/03-tracer` → PR #36, merged, tagged `v0.15.0`, published. Peek branch `gates/03-tracer` → PR #225, merged, deployed (main's check ran "Gate lint": exit 0). Each built in its own worktree (`estiva-ui-uig03`, `peek-uig03`). Photos and crops: `K:\Estiva\uig03-review\`.
+
+**Katerina's rulings, 15 September**
+
+| | question | ruling |
+|---|---|---|
+| E1 | The 41 escapes written as `eslint-disable-next-line <rule> -- @estiva-escape: <reason>` (A2): should the plugin read them, or should they be converted? | **Neither: leave them alone.** They escape the token lint's rules, which are not the plugin's, and converting them would switch those rules back on. The plugin reads only `// @estiva-escape: <reason>` or `{/* @estiva-escape: <reason> */}`, and refuses the marker inside an `eslint-disable` for its own rules. |
+| E2 | Escape the launcher's 4 raw buttons naming UIG-29, as the ticket said? | **No, change them.** "I will think about what to do with the launcher later." The UIG-29 session was told first; it had built nothing in the file. |
+| E3 | Escape the 7 buttons in Storybook's `Docs/Signal Theme`? | **Delete the page** ("not needed"). Peek's Signal theme itself stays; estiva-ui documents it. |
+| E4 | The other raw buttons, each photographed as it is beside the nearest package part | Cancel and the tickets toggle → `Button` muted small. Add members → `MenuItem`, its hover fill 8px in from the dialog's sides "same we do in menus". The members pill → `Button` outlined at the default size, 3px around the faces (the small size is the faces' height and covered the hairline). The launcher's chips → `InputChip`. A source under an answer → `MenuItem`. The full-screen picture's ✕ → **kept, escaped**: the package's `IconButton` is small and unfilled on a photo, and the viewer becomes the Lightbox at migration stage 7. |
+| E5 | Release | 0.15.0 when PR #36 merged; fix the flaky Select test on that PR. |
+| E6 | Reaching sessions started outside the repo (below) | Nothing outside the repositories, nothing anyone has to be told: the hook in the repo, a line in `CLAUDE.md`, CI, and branch protection (UIG-6). |
+
+**The count** (acceptance: enumerate with the rule itself). Every `.tsx` under Peek's `src`, stories in, tests out, linted from git's copy of main `3f5774f` with `eslint.gates.config.js`: **16** in 7 files. UIG-1 counted 19 on `d094006`; 3 went since: `PendingAttachmentChip`'s and one of `FileAttachmentCard`'s in UIG-27 (`b9b1a6b`), one of `HuddleCreator`'s with the people picker (`2ab42d6`).
+
+**The arithmetic: 16 = 8 replaced + 7 deleted with the page + 1 escaped.** `.gates-count.json`: `estiva/no-raw-button` 0 errors, 0 warnings, 1 escape.
+
+| place | became |
+|---|---|
+| `HuddleCreator.tsx`, "Cancel Esc" | `Button` muted small |
+| `ui/ProjectTickets.tsx`, the tickets toggle | `Button` muted small, the chevron as `leadingIcon` |
+| `MembersDialog.tsx`, "Add members" | `MenuItem` tall in a `px-2` row (fill 8px in, square over the faces at 21px, 48px) |
+| `ui/MembersPill.tsx` | `Button` outlined, default, `gap-2 pl-[3px] pr-2` |
+| `CommandLauncher.tsx`, the Ask, scope and context chips (3) | `InputChip` with `removeLabel` (the ✕ keep "Leave Ask", "Leave <scope>", "Clear context") and, for Ask and context, `truncate` |
+| `CommandLauncher.tsx`, a source under an answer | `MenuItem` `px-3 py-2`, its words and their notes unchanged |
+| `ui/FileAttachmentCard.tsx`, the viewer's ✕ | escaped |
+| `stories/SignalTheme.stories.tsx` (7) | deleted with the page |
+
+**Escapes, after.** The token lint's notes in the older form: **37** (estiva-ui 3, Peek 32, Ship 2; the 41 less the Signal Theme page's 1 and the 3 on the launcher chips' text). The plugin's escapes: **1**, in Peek.
+
+**Lint, before → after** (Peek main `3f5774f` → the branch on `01ff162`): `eslint .` 89 errors, 116 warnings → 89, 112; `eslint src` 73, 116 → 73, 112; `lint:tokens` 0, 116 → 0, 112. The 4 warnings are hand-written sizes that left with the launcher's chips and the pill. `tsc -b`, `tsc -p convex` clean; `test:run` 124 files, 1,420 tests, as main.
+
+**Proof.** 23 RuleTester cases and 8 through ESLint's own API (estiva-ui); the rule's count on main by the rule itself; a raw button on disk fails `npm run lint:rules` (exit 1) and passes with an escape (exit 0); the hook, fed 15 Claude Code payloads through its own command line (refused: a raw button in source and in a story, a short escape, an `eslint-disable`, Edits back to a raw button, removing the escape; passed: a test, a file outside `src`, a valid escape, `Button`, a words-only Edit, a missing `old_string`, an Edit that leaves the file not parsing yet); every story that reaches a changed file photographed before and after (D70), every difference one of E4, each looked at.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ⚠️ | **A repo's hook reaches only sessions started in that repo's folder.** Claude Code reads `.claude/settings.json` from the session's primary working directory (code.claude.com/docs/en/settings). A session started in a folder above — a workspace holding several repositories, which is how Katerina works — never gets it, and nothing inside a repository can change that (`--add-dir`, plugins and nested settings do not). It does read the repository's `CLAUDE.md` when it works on the files. The ticket, the guide (T14, gate 2) and this plan said the committed hook reaches "every Claude session"; nobody checked. | Ruling E6. Peek's `CLAUDE.md` tells such a session to run `npm run lint:rules`; it asks rather than blocks. CI stops everyone; UIG-6 makes GitHub refuse the merge. The guide is corrected (§18, G1). **UIG-4 and UIG-5 carry the same assumption; their tickets get a note, wording shown to Katerina first.** An organisation's managed settings could enforce a hook everywhere; not pursued. |
+| ✅ | **`InputChip` could not name its ✕, nor cut a long label.** The launcher's chips needed both. | `removeLabel`, and `truncate` opt-in: cutting clips up to 4px of a letter's edge at 1x even when the label fits (the same chip, in place; identical at 2x), so a chip that is never capped keeps every pixel. |
+| ✅ | **`MenuItem` outside a `Menu` is a plain button with no role**, so `MembersDialog`'s comment ("would claim menu semantics") was stale. | It is the dialog's row now. |
+| ✅ | **Select's keyboard tests raced the list's focus.** CI failed "Tab closes the list" on PR #36; with every frame 100ms late, Tab, the arrow-and-Enter test and Home/End failed 3 of 3, focus still on the trigger. | `focusedList()` waits for focus inside the list before a key (on PR #36). |
+| 🧰 | Traps: `eslint -o /dev/null` from Git Bash writes a file named `nul`; the story picker (`stories-using.mjs`) matches text per line, so a comment phrase that wraps does not seed its file; a stopped Storybook task leaves its node process on the port (stop it by PID, after checking its command line); Tailwind in a running Storybook does not generate a class new to the app until `src/index.css` is touched. | — |
 
 ### UIG-28: building it
 
@@ -358,8 +408,8 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-3 | Its checks in `gates:status` are written, and proved to flip. Peek's lint today: `eslint src` **84**, `eslint .` **99** (the ticket's 79 / 94 is stale). |
-| UIG-4 | Its checks are written. It creates `ship/docs/GATES-DEBT.md`, the first debt list. |
+| UIG-4 | Its checks are written. It creates `ship/docs/GATES-DEBT.md`, the first debt list. Take `@estiva-app/ui` ≥ 0.15.0 and copy Peek's `eslint.gates.js`, `eslint.gates.config.js` (register every plugin the source's directives name, rules off), `scripts/gates-count.mjs` and `.claude/hooks/gates.mjs`. Put the hook where a Ship session starts — the repository root or `web/` — and say which; and add the `CLAUDE.md` line (UIG-3's first finding). |
+| UIG-5 | The plugin exists (`src/eslint/`): add the inward rules to it, and every rule calls `isEscaped`. The same hook-reach note applies. |
 | UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
@@ -1439,12 +1489,18 @@ rework. They come from the roadmap artifact, §07.
 | **S4** | The escape marker is machine-readable | `// @estiva-escape: <reason>` — a fixed shape, parsed and reported. Never a free comment, never `eslint-disable`. | The adoption number can subtract sanctioned exceptions honestly, and the report lists every escape with its reason and age. | UIG-3 |
 | **S5** | The starter is generated, never copied | Assembled from the live repos on each run, not a folder snapshotted once. | This is what let the starter move from phase 5 to phase 2. Re-running it carries everything new into Leaf. A copy would be stale before Leaf's first commit. | UIG-10, UIG-26 |
 
-**S4 until UIG-3.** No parser reads the marker yet, and ESLint obeys only its
-own directives, so an escape is written today as
-`eslint-disable-next-line <rule> -- @estiva-escape: <reason>` (Katerina, 15
-September; §0, UIG-28, A2). The marker is in every one, so UIG-3 can find and
-count them all. After UIG-28 there are 3 markers in the package, 36 in Peek
-(32 in `CommandLauncher.tsx`, each naming UIG-29) and 2 in Ship.
+**S4 since UIG-3.** The plugin reads the marker: a rule of `@estiva-app/ui/eslint`
+is escaped only by `// @estiva-escape: <reason>` or
+`{/* @estiva-escape: <reason> */}` directly above, with 10 characters of reason,
+and the count sees every one. The token lint's rules are not the plugin's, so
+ESLint's own directive still switches them off, and their escapes stay
+`eslint-disable-next-line <rule> -- @estiva-escape: <reason>` (A2; Katerina, 15
+September: leave them alone). After UIG-3 there are 37 of those — 3 in the
+package, 32 in Peek (29 in `CommandLauncher.tsx`, naming UIG-29), 2 in Ship — and
+1 plugin escape, in Peek.
+
+**S1, one reach it does not have.** The hook reaches a Claude session started in
+the repository's folder, not one started above it (§0, UIG-3's first finding).
 
 S1 and S5 together are why building the starter before the catalogue costs
 nothing: every later lint rule reaches Leaf through the package, and every later
@@ -1610,6 +1666,7 @@ research were left word for word.
 | ✏️ **F10** | §07 Peek | PR #193 — 29 commits, 0.9.0 to 0.12.3, and a month. | PR #193 — 29 commits, 0.9.0 to 0.12.3, over two days. | PR #193's first commit is 9 September 17:35 UTC and it merged on 11 September 17:59 UTC. It has 29 commits and moves `@estiva-app/ui` from `^0.9.0` to `^0.12.3`. |
 | ✏️ **D1** | §04 gate 2 | `<dialog>` outside a shim folder); forbid the reach | `<dialog>`, with no folder exempt: an exception is one marked line); forbid the reach | UIG-1 §6: app `components/ui` folders mix one-line re-exports with real components, so exempting the folder would hide the 7 real components that hold raw elements, `PendingAttachmentChip` among them. UIG-3 builds per-line escapes only. Ruled 13 September. |
 | ✏️ **D2** | §05 T10 | No `<button>`, `<input>`, `<a>`, `<dialog>` outside a shim folder. Error names the component. | No `<button>`, `<input>`, `<a>`, `<dialog>` in an app, and no folder is exempt: an exception is one marked line. Error names the component. | Same as D1. |
+| ✏️ **G1** | §04 gate 2; §05 T14 | in every Claude session, mine or anyone's. · in every Claude session in the repo. | in every Claude session started in that repo, mine or anyone's. A session started in a folder above the repo does not load it; the repo's CLAUDE.md, CI and branch protection cover that one. · in every Claude session started in the repo. | Added by UIG-3, 16 September (§0, its first finding): Claude Code reads a project's `.claude/settings.json` only from the folder a session starts in (code.claude.com/docs/en/settings). Katerina said yes to correcting it. |
 
 ### Facts checked and kept
 
