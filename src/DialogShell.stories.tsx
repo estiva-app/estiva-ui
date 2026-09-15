@@ -82,7 +82,7 @@ export const WithHeaderContent: Story = {
         <Button variant="primary">Save</Button>
       </>
     ),
-    children: <p className="text-body-2 leading-[1.4] text-text-primary">The header is the caller's, and the ✕ is still the dialog's.</p>,
+    children: <p className="text-body-2 text-text-primary">The header is the caller's, and the ✕ is still the dialog's.</p>,
   },
 }
 

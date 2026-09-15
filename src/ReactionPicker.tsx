@@ -77,7 +77,7 @@ export function ReactionPicker({ options, onSelect, 'aria-label': ariaLabel = 'R
           /* Peek's geometry, verbatim: a 28px square rather than the
              IconButton's 24, and the emoji at 18px — larger than a `Reaction`
              pill's 16, because here the emoji is the whole control. */
-          className="size-7 text-[18px] leading-none"
+          className="size-7 text-h3 leading-none"
         >
           {/* Decorative, as on `Reaction`: the control is named above. */}
           <span aria-hidden="true">{option.emoji}</span>

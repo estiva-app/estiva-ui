@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Avatar as BaseAvatar } from '@base-ui/react/avatar'
 import { IconUserFilled } from '@tabler/icons-react'
 import { cn } from './cn'
 
@@ -13,6 +13,10 @@ import { cn } from './cn'
  * from its caller and draws the initials in every theme. Peek keeps a
  * three-line wrapper that resolves the picture; Ship passes the relay's
  * `kind:0` picture straight in.
+ *
+ * On Base UI's `Avatar` since stage 6 of the migration (2026-09-14): Base UI
+ * loads the picture and says when it has arrived or failed, and the initials
+ * or the silhouette are its fallback. The hand-kept "broken" state is gone.
  *
  * Initials come from a *name*, never from a key: a component that accepted a
  * pubkey would eventually show one (Ship's ruling, 2026-08-24). An unnamed
@@ -44,7 +48,7 @@ export const initialsFor = (name: string) => {
 }
 
 export interface AvatarProps {
-  /** The picture URL, resolved by the caller. A picture that fails to load falls back to the initials. */
+  /** The picture URL, resolved by the caller. Until it arrives, and if it fails, the initials show. */
   src?: string
   /** The person's name — where the initials and the colour come from. */
   name?: string
@@ -68,11 +72,11 @@ export interface AvatarProps {
 }
 
 export function Avatar({ src, name, alt = '', size = 36, label: spoken, className }: AvatarProps) {
-  const [broken, setBroken] = useState(false)
   const label = name || alt
-  const picture = src && !broken ? src : undefined
   return (
-    <div
+    <BaseAvatar.Root
+      // A div, as it was drawn: Base UI's default is a span.
+      render={<div />}
       /* Named or silent, never half of either: with a `label` the tile is one
          image with one name, and everything inside it is that image's pixels;
          without one it is not in the accessibility tree at all. */
@@ -80,10 +84,25 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
       className={cn('rounded-sm overflow-hidden shrink-0 bg-bg-inset', className)}
       style={{ width: size, height: size }}
     >
-      {picture ? (
-        <img src={picture} alt="" className="w-full h-full object-cover" onError={() => setBroken(true)} />
-      ) : label ? (
-        <div
+      {src && (
+        <BaseAvatar.Image
+          src={src}
+          alt=""
+          /*
+            `keepMounted`: the <img> is in the tile from the first render, as it
+            always was, so a picture still loading leaves the tile empty rather
+            than flashing initials and swapping them out, and an app's test that
+            finds the <img> still finds it. The fallback is rendered after it,
+            below the tile's hidden overflow, until the picture arrives (then it
+            unmounts) or fails (then the picture is hidden and it moves up).
+          */
+          keepMounted
+          className="w-full h-full object-cover data-[error]:hidden"
+        />
+      )}
+      {label ? (
+        <BaseAvatar.Fallback
+          render={<div />}
           /*
             `leading-none` is load-bearing (2026-09-03). Centring a flex child
             centres its LINE BOX, and a line box reserves room under the
@@ -99,21 +118,38 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
           */
           className="w-full h-full flex items-center justify-center font-semibold leading-none"
           style={{
+            /* eslint-disable no-restricted-syntax -- the per-person palette (the note at
+               the top): eight hues picked from the name, the one ink that reads on all
+               of them, and a size that follows `size`. None of it can be a token. */
             // The one ink colour that reads on all eight hues, which are a
             // palette rather than tokens (see the note at the top) — so its
             // ink cannot be a token either.
             color: '#08121c',
             fontSize: Math.round(size * 0.36),
             background: `linear-gradient(160deg, color-mix(in srgb, ${hueFor(label)} 92%, #fff) 0%, color-mix(in srgb, ${hueFor(label)} 70%, #0b0d11) 100%)`,
+            /* eslint-enable no-restricted-syntax */
           }}
         >
-          {initialsFor(label)}
-        </div>
+          {/*
+            D27 (ruled 2026-09-08, built 2026-09-14): what is centred is the
+            capitals' own box, cap height to baseline, not the line box. The
+            line box's ascent and descent are rounded to whole pixels before
+            it is centred, which put the baseline up to 0.73px from where
+            centred capitals put it (at 24px: 14.5 against 15.23); trimmed, it
+            lands within 0.06px. On screen, averaged over eight sub-pixel
+            positions, the ink leaned 0.66px high at 24px, 0.44px at 28px and
+            0.27px low at 22px; now every size averages within 0.07px of the
+            middle. Any one face can still sit up to half a pixel off, because
+            the screen rounds text to its pixel grid wherever the tile falls.
+            A browser without `text-box` draws the old line box, as before.
+          */}
+          <span className="[text-box:trim-both_cap_alphabetic]">{initialsFor(label)}</span>
+        </BaseAvatar.Fallback>
       ) : (
-        <div className="w-full h-full bg-accent-muted flex items-center justify-center text-text-muted">
+        <BaseAvatar.Fallback render={<div />} className="w-full h-full bg-accent-muted flex items-center justify-center text-text-muted">
           <IconUserFilled size={Math.round(size * 0.5)} />
-        </div>
+        </BaseAvatar.Fallback>
       )}
-    </div>
+    </BaseAvatar.Root>
   )
 }

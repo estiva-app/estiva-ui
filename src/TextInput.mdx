@@ -14,6 +14,10 @@ border in every theme.
 
 - One line of text in a form or dialog — a name, a title, a URL. Label it
   with a **Field**.
+- **`size="small"`** in a dense row beside small **Select**s: 24px tall,
+  12px text, the small Select's padding. Default is 38px.
+
+<Canvas of={TextInputStories.BesideSmallSelects} />
 
 ## When not
 
@@ -39,6 +43,8 @@ import { TextInput } from '@estiva-app/ui'
 - **Outside a `Field`, name it yourself** with `aria-label`: a placeholder
   is not a name.
 - `disabled` gets the disabled surface and text; say why with a tooltip.
+- `size` is this component's (`default` or `small`), not the native attribute
+  that counts characters. Set a width with the layout around it.
 
 ## Props
 

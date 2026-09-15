@@ -1,5 +1,203 @@
 # Changelog
 
+## 0.14.0 — 2026-09-15 — migration stage 6 and UIG-28
+
+Two pieces of work in one release, by Katerina's word (migration D69, amended
+2026-09-15): the migration's stage 6 — the last primitives onto Base UI, a
+small `TextInput`, three toasts at once, the avatar's initials centred, a
+quieter section empty state — and the UI Guardrails' UIG-28 — the token lint
+stops hand-written sizes, corners, shadows and inline colours, and the package
+gains `text-small`. What each app changes to take it: migration docs
+`ADOPTION.md` P34 (Peek) and S35 (Ship).
+
+### Migration stage 6 — the rest of the primitive tier
+
+**The last primitives move onto Base UI.**
+
+#### Added
+
+- **`TextInput` takes `size="small"`: 24px tall, 12px text** — the small
+  `Select`'s trigger, class for class (D67, ADOPTION B35). Peek's reference
+  widget hand-built a 24.41px field beside two small selects because this was
+  37.59px; it swaps once it takes this release. `size` replaces the native
+  attribute of that name, which counts characters: no `TextInput` or
+  `ToolbarInput` in Peek or Ship passes one (both `main`s, 2026-09-14).
+  `ToolbarInput` passes `size` on to its field. Measured beside two small
+  selects in both themes: all three 24px, same radius, padding, fill and
+  hairline, and the words' ink on the same pixel rows. The default size is
+  unchanged: 45 stories holding a text field identical in both themes. A first
+  test file; making small 28px fails it.
+
+#### Changed
+
+- **A section's empty state is the quiet line: 12px caption in the muted
+  colour** (Katerina, 2026-09-15, D71), where it was 14px body text in the
+  secondary colour. Beside rows it read as one more row. It is now the look a
+  `Field`'s helper line has. `page` is unchanged. Contrast: 3.94:1 on the page
+  background in signal, below AA for small text; 6.08:1 in ship — parked with
+  the rest of contrast (PLAN stage 0.10), and the two section stories carry the
+  exception. No caller writes anything; the line is 5.2px shorter, so a panel or
+  dialog holding one is shorter by that and what sits under it moves up. Callers:
+  Peek 12 (`TopicActivity`, `TopicProjectPanel` ×2, `ActivityTimeline`,
+  `ProjectTickets`, `StarredSection`, `FileThreadView` ×2, `FileTreeView`,
+  `FolderContentsView` ×3), Ship 5 (`Activity`, `ConversationThread`,
+  `History`, `NewIssueDialog`, `ProjectView`). Proof: of the package's stories,
+  only *Section* and *Inside the rows box* change, on the line alone; of the
+  apps' stories that draw one (65 Peek, 53 Ship), 17 and 4 change, each on the
+  line and what sits below it.
+- **`Divider` is Base UI's `Separator`** (D6, D66). It wrote the `separator`
+  role and `aria-orientation` by hand; Base UI writes both and adds
+  `data-orientation`. Props, classes and the labelled line are unchanged.
+  Proof: all 59 stories that draw a divider (its own, and every menu, toolbar,
+  popover, select, preview card and reaction picker) identical in both themes.
+  No caller changes.
+- **`Property` is a name and its value in HTML's own markup** (PLAN stage 6):
+  a `<dl>` holding the label as `<dt>` and the value as `<dd>`, where it was two
+  `<div>`s and a `<span>`. Base UI has no part for it. The `<dd>` draws no box
+  (`display: contents`), so a caller's value still lays out as a child of the
+  row — Peek's reference widget passes a form with `flex-1` that must keep
+  filling it. Proof: 16 stories identical in both themes (Property, Select, the
+  tokens page); Chrome's accessibility tree reads `term("Status") · definition`
+  for every row; a first test file (5 tests) fails on the old component. No
+  caller changes.
+- **`Reaction` is Base UI's `Toggle`** (D6, Finding 19). It gains
+  `data-pressed` beside `aria-pressed`, a test file and a Keys table, which it
+  arrived without. `pressed` stays the caller's: a press calls `onClick` and
+  the pill keeps what `pressed` says. Two native props leave its type, because
+  `Toggle` ignores them: `type` (always `"button"`) and `value`. No caller in
+  Peek or Ship renders a `Reaction` (checked on both `main`s, 2026-09-14), so
+  nobody passes either. Its count doc said a `0` "is not drawn"; the component
+  always drew it, and the doc now says not to render a reaction with no count.
+  Proof: its 9 stories and `ReactionPicker`'s identical in both themes; 5 tests,
+  one failing on the old component and two when `pressed` becomes uncontrolled.
+- **`ToastProvider` is Base UI's `Toast`, and three toasts stand at once**
+  (D6, D7). Before, a new toast replaced the standing one and nothing was
+  announced. Now:
+  - up to **three** show, bottom-left, the newest nearest the corner; a fourth
+    hides the oldest until one of the three closes, so a warning kept up with
+    `durationMs: 0` comes back rather than being lost;
+  - the stack is a region named "Notifications", announced politely; an
+    `error` toast is announced at once;
+  - the timers pause while the pointer or focus is on the toasts, and while
+    the window is in the background;
+  - F6 moves focus to the toasts, Escape closes the focused one, and a toast
+    can be swiped away left or down;
+  - the portal, the timer and the one-toast state are gone from this file.
+
+  **API.** `showToast` returns the toast's id (it returned nothing).
+  `dismissToast(id?)` takes it: with an id it closes that toast, with none it
+  closes every toast. **The action closes its own toast** and runs `onAction`
+  only if given, so `actionLabel` alone is a Dismiss. `Toast`, the pill drawn
+  in place, is unchanged.
+
+  **Callers.** Peek passes `onAction: dismissToast` in two places —
+  `lib/reportDelete.ts:38` and `pages/TopicsPage.tsx:162`. Pressed with other
+  toasts on screen, that now closes all of them; drop the `onAction` and keep
+  `actionLabel: 'Dismiss'` (ADOPTION P34). Ship calls `showToast` once
+  (`App.tsx`) and its code needs no change, but **each toast is now a
+  `dialog`** to assistive tech (not modal), and `web/src/App.test.tsx:170` waits
+  for "no dialog" after creating a project — the toast answers it. Name the
+  dialog: `queryByRole('dialog', { name: 'New project' })` (ADOPTION S35,
+  measured 25/25).
+
+  Proof: a live toast from the provider photographed and style-diffed (every
+  element's box, colour, border, shadow, padding, type) before and after,
+  plain and with an action, both themes: identical. In Chrome: three stacked
+  8px apart, the fourth hid the kept-up warning, which came back once the
+  others expired; hovered for 6s nothing closed; F6, Tab, Escape; drag left
+  or down closes, right or up does not. 10 tests (it had none), 9 failing on
+  the old provider; breaking the one-toast close, the hidden class or the
+  error priority each fails one. Stories: every Toast and Banner story
+  identical but *From the provider*, which gained a *Keep one up* button.
+- **`Avatar` is Base UI's `Avatar`** (D6). Base UI watches the picture load
+  and draws the initials or the silhouette as its fallback; the hand-kept
+  `broken` state is gone, and a new `src` after a failed one is tried again
+  (the old tile stayed on the initials). The picture keeps today's three
+  moments, by Base UI's `keepMounted`: while it loads the tile is empty, when it
+  arrives it fills the tile, if it fails the initials show. Base UI's default
+  would have shown the initials while loading and swapped them out, and would
+  not put the `<img>` in the page until it had loaded — which Peek's
+  `TopBar.avatar.test.tsx` looks for. Measured live in Chrome with a picture
+  held back 3s and one answered 401. Props, classes and the tile's `div` are
+  unchanged. Every story, 287, identical in both themes.
+- **`Avatar`'s initials are centred on their capitals** (D27, ADOPTION B11) —
+  cap height to baseline, through CSS `text-box`, instead of the line box. This
+  moves pixels. Measured as ink against tile in Chrome, every size at eight
+  sub-pixel positions, both themes:
+
+  | size | before: average lean | after | worst, before → after |
+  |---|---|---|---|
+  | 22px | 0.27px low | 0.02px | 0.71 → 0.46px |
+  | 24px | 0.66px high | 0.03px | 1.10 → 0.47px |
+  | 28px | 0.44px high | 0.06px | 0.88 → 0.50px |
+  | 32px | 0.19px high | 0.06px | 0.63 → 0.50px |
+  | 16, 20, 36px | within 0.06px | within 0.07px | 0.50 either way |
+
+  Any one face can still be up to half a pixel off: the screen rounds text to
+  its pixel grid wherever the tile lands, and no CSS decides that. So a given
+  avatar can move down, up, or not at all. In the package's stories 11 of 287
+  change in each theme, each by the letters of one 24px face (Person, TopBar,
+  AppShell, IdentityMenu, Avatar sizes); in the top bar the letters went up a
+  pixel, where that position happened to round the other way. A browser without
+  `text-box` draws the old line box; support was checked in Chrome 152 only.
+  Both apps change wherever a face shows initials.
+
+### UIG-28 — the two holes in the token lint
+
+**The lint now stops a size, a corner, a shadow or a colour written by hand.**
+`text-sm` was blocked and `text-[14px]` was not; `bg-[#fff]` was blocked and
+`style={{ color }}` was not (UI Guardrails UIG-28; Katerina's rulings B11, B12
+and C3 of 13 September, R1–R5 of 15 September; `docs/GATES.md` §0).
+
+#### Added
+
+- **`text-small`: 10px, a size and nothing else.** A theme's smaller label:
+  under `signal:` or `ship:` it shrinks the token beside it and keeps that
+  token's line height and weight (`text-caption signal:text-small`). Letter
+  spacing, where a label wants some, is Tailwind's own step. Katerina compared
+  three tokens, one and none side by side, and picked one. In `cn`'s ramp, and
+  on the Design Tokens page.
+- **Lint, errors:** type written by hand (`text-[…]`, `leading-[…]`,
+  `tracking-[…]`, under any variant, arbitrary ones included), corners
+  (`rounded-[…]`), shadows (`shadow-[…]`, `drop-shadow-[…]`), and an inline
+  `style` that sets a colour, a font size, a border or a shadow. A hand-written
+  size names its token: "`text-[14px]` … Use text-body-2 or …".
+- **Lint, warnings:** heights and spacing (`h-[240px]`), border and ring widths.
+  Reported, never blocking: the preset has no spacing token.
+- The new rules sit under their own names, `token-values` and `token-spacing`,
+  so the four older rules are unchanged (byte for byte) and an escape for a size
+  cannot silence a raw colour. Test files are not checked. Seven probes in
+  `gates:status`, each seen to fail with its rule removed.
+
+#### Changed
+
+- **Every hand-written type size, corner and shadow in the package is a token:
+  93 of 93, none escaped.** 31 were a token already, written out (photos, every
+  story in both themes: identical). The rest, by Katerina's pick after photos:
+  - Chip, Kbd, Reaction, the Enter hint's target and SectionLabel take
+    `text-small` in signal (and ship, for Kbd) with Tailwind's spacing:
+    SectionLabel's capitals are a little tighter (0.14em → 0.1em), Chip 0.3px
+    wider (0.02em → 0.025em). Kbd and Reaction do not move.
+  - `AttachmentCard`: the name is `text-caption`; the "PDF · 2.3 MB" line is
+    `text-small tracking-wide leading-tight` and sits about a pixel higher; the
+    file tile's type label is `text-menu`. Its class maps are named
+    `…_CLASSES`, so the lint reads them.
+  - `Property`'s label: `tracking-widest` (0.08em → 0.1em), as are the Design
+    Tokens page's headings.
+  - The small `Select` and small `TextInput`: `text-caption`; the reaction and
+    picker emoji: `text-body-1` / `text-h3` with `leading-none`. No pixel moves.
+  - Stories: Popover's paragraph and PreviewCard's lines use the ramp's line
+    height, so they sit closer.
+- Three inline styles keep what they draw, with the reason in an escape:
+  `Avatar`'s per-person palette, `AvatarGroup`'s ring width from `ring`, and the
+  Design Tokens page's swatches.
+
+Photos, every story, signal and ship, each step against the one before: the
+exact tokens 0 of 576 changed; `text-small` changed 26 in signal (SectionLabel
+and what holds one, Chip) and 0 in ship; the rest changed 17 in each theme
+(AttachmentCard 13, Popover, PreviewCard, Property 2). Every difference was
+looked at.
+
 ## 0.13.1 — 2026-09-15 — UIG-27
 
 **`Card` holds its hover look while its own menu is open, and the selected

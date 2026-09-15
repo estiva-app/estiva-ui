@@ -48,12 +48,36 @@ const { showToast } = useToast()
 showToast({ label: 'Link copied', type: 'success' })
 ```
 
-- **One toast at a time** — a new one replaces the standing one; nothing
-  queues.
-- Auto-dismiss is 5s; `durationMs: 0` keeps one up until replaced or
-  dismissed (`dismissToast`).
+- **Three at once** (D7). The newest stands nearest the corner. A fourth
+  hides the oldest, which comes back when one of the three closes — so a
+  warning kept up with `durationMs: 0` is never lost under newer ones.
+- Auto-dismiss is 5s; `durationMs: 0` keeps one up until it is dismissed.
+  The timers pause while the pointer is over the toasts, while focus is in
+  them, and while the window is in the background.
+- **The action closes its own toast.** Pressing it runs `onAction`, if you
+  gave one, then closes that toast and no other. A Dismiss is just
+  `actionLabel: 'Dismiss'`.
+- `showToast` returns the toast's id. `dismissToast(id)` closes that toast;
+  `dismissToast()` with no id closes **every** toast on screen.
+- A toast can be swiped away towards its corner — left or down.
+- It is Base UI's `Toast`. The stack is a region named "Notifications" that
+  a screen reader announces politely; an `error` toast is announced at once.
+- **Each toast is a `dialog`** (not modal), so it can take focus. A test that
+  waits for "no dialog" after closing one will find the toast: ask for the
+  dialog by its name.
+- Focus on a toast shows the browser's own outline, as the package's buttons
+  do.
 - `useToast` outside a provider throws — mount the provider at the root,
   once.
+
+## Keys
+
+| Key | What happens |
+|---|---|
+| F6 | Moves focus to the toasts, from anywhere on the page |
+| Tab | Walks the toasts and their actions; Shift+Tab from the region goes back to where you were |
+| Enter, Space | On an action: presses it |
+| Escape | On a toast: closes it |
 
 ## Props
 

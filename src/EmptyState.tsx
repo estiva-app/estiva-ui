@@ -15,6 +15,9 @@ import { cn } from './cn'
  * - `section` — one section of a page is empty, and the page has other
  *   things on it: the line alone, left-aligned, no icon. A section's
  *   emptiness is a line among the page's content, not a stage of its own.
+ *   It is the quiet line — caption size in the muted colour, as a Field's
+ *   helper line is — so beside rows it reads as "nothing here", not as one
+ *   more row (Katerina, 2026-09-15: "not that intense", "smaller font").
  *
  * The message is the caller's — a shared component has no words of its own
  * for what is missing.
@@ -30,7 +33,7 @@ export interface EmptyStateProps {
 
 export function EmptyState({ icon, message, scope = 'page', className }: EmptyStateProps) {
   if (scope === 'section') {
-    return <p className={cn('text-body-2 text-text-secondary', className)}>{message}</p>
+    return <p className={cn('text-caption text-text-muted', className)}>{message}</p>
   }
   return (
     <div className={cn('flex flex-1 flex-col items-center justify-center gap-2', className)}>

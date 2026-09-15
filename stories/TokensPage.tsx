@@ -134,6 +134,7 @@ const TYPE_GROUPS: { label: string; blurb: string; tokens: TypeToken[] }[] = [
   { label: 'Headings', blurb: 'h1 is a page title, h2 a section, h3 a card or dialog title, h4 a row title, h5 a small label.', tokens: ['h1', 'h2', 'h3', 'h4', 'h5'].map((k) => ({ key: k, cls: `text-${k}` })) },
   { label: 'Body', blurb: 'body-1 for reading, body-2 for the interface, caption for what sits beside it.', tokens: ['body-1', 'body-2', 'body-2-strong', 'caption'].map((k) => ({ key: k, cls: `text-${k}` })) },
   { label: 'Controls', blurb: 'The sizes controls are set in, so a button, a field and a chip read the same everywhere.', tokens: ['btn-default', 'btn-small', 'input-label', 'input-value', 'input-helper', 'chip', 'menu'].map((k) => ({ key: k, cls: `text-${k}` })) },
+  { label: 'A theme\'s smaller label', blurb: 'small is a size and nothing else. Under signal: or ship: it shrinks the token beside it to 10px and keeps that token\'s line height and weight. Spacing, where a label wants some, is tracking-wide or tracking-widest.', tokens: [{ key: 'small', cls: 'text-small' }] },
 ]
 
 const RADII = [
@@ -152,7 +153,7 @@ const RADII = [
 function Section({ label, blurb, children }: { label: string; blurb: string; children: ReactNode }) {
   return (
     <section className="mt-10 first:mt-0">
-      <h2 className="text-h5 uppercase tracking-[0.08em] text-text-secondary">{label}</h2>
+      <h2 className="text-h5 uppercase tracking-widest text-text-secondary">{label}</h2>
       <p className="mt-1.5 max-w-[640px] text-body-2 text-text-secondary">{blurb}</p>
       <div className="mt-3">{children}</div>
     </section>
@@ -171,6 +172,9 @@ function Users({ names }: { names: string[] }) {
 function SwatchBox({ token }: { token: Token }) {
   const v = `var(${token.cssVar})`
   const base = 'h-6 w-10 shrink-0 rounded-md'
+  /* eslint-disable no-restricted-syntax -- this page draws every token from its CSS
+     variable, so a swatch shows the value the theme holds, including a token no
+     class spells yet. */
   switch (token.swatch) {
     case 'fill':
       return <div className={`${base} border border-border-subtle`} style={{ background: v }} />
@@ -190,6 +194,7 @@ function SwatchBox({ token }: { token: Token }) {
     case 'drop-shadow':
       return <div className="my-1 h-8 w-12 shrink-0 rounded-md bg-bg-surface" style={{ filter: `drop-shadow(${v})` }} />
   }
+  /* eslint-enable no-restricted-syntax */
 }
 
 function TokenRow({ token, utilities }: { token: Token; utilities: string }) {

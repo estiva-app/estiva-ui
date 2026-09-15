@@ -137,8 +137,10 @@ export function ToolbarButton({ ref, disabled, disabledReason, ...props }: Toolb
  */
 export type ToolbarInputProps = TextInputProps
 
-export function ToolbarInput(props: ToolbarInputProps) {
-  return <BaseToolbar.Input render={<TextInput />} {...props} />
+export function ToolbarInput({ size, ...props }: ToolbarInputProps) {
+  // `size` is TextInput's own (default or small), not the native attribute
+  // Base UI's part would take, so it goes to the field it draws.
+  return <BaseToolbar.Input render={<TextInput size={size} />} {...props} />
 }
 
 /**

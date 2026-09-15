@@ -88,8 +88,8 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
-          size === 'default' && 'px-3 py-2 text-[14px] leading-[1.4] font-normal',
-          size === 'small' && 'h-6 px-2 text-[12px] leading-[1.4] font-normal',
+          size === 'default' && 'px-3 py-2 text-input-value',
+          size === 'small' && 'h-6 px-2 text-caption',
           className,
         )}
       >
@@ -167,7 +167,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
               >
                 <span className="flex min-w-0 items-center gap-2">
                   {option.leading && <span className="flex shrink-0 items-center">{option.leading}</span>}
-                  <BaseSelect.ItemText className="truncate text-[14px] leading-[140%] text-text-primary">{option.label}</BaseSelect.ItemText>
+                  <BaseSelect.ItemText className="truncate text-body-2 text-text-primary">{option.label}</BaseSelect.ItemText>
                 </span>
                 <BaseSelect.ItemIndicator
                   render={<IconCheck size={16} stroke={1.5} className="shrink-0 text-text-secondary" />}

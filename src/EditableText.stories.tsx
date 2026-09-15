@@ -10,7 +10,7 @@ const meta = {
     placeholder: 'Add a title',
     label: 'Title',
     onCommit: () => true as boolean,
-    className: 'text-[16px] leading-[1.4] font-medium',
+    className: 'text-body-1 font-medium',
   },
   argTypes: { onCommit: { control: false } },
   decorators: [(Story) => <div className="w-80">{Story()}</div>],
@@ -44,7 +44,7 @@ export const Multiline: Story = {
     placeholder: 'Add a description',
     label: 'Description',
     multiline: true,
-    className: 'text-[14px] leading-[1.4]',
+    className: 'text-body-2',
   },
 }
 

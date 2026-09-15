@@ -12,6 +12,21 @@ describe('Divider', () => {
     expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe('horizontal')
   })
 
+  it('is Base UI’s Separator: the orientation is also a data attribute, for both orientations', () => {
+    render(
+      <>
+        <Divider />
+        <Divider orientation="vertical" />
+        <Divider label="Today" />
+      </>,
+    )
+    const [horizontal, vertical, labelled] = screen.getAllByRole('separator')
+    expect(horizontal.getAttribute('data-orientation')).toBe('horizontal')
+    expect(vertical.getAttribute('aria-orientation')).toBe('vertical')
+    expect(vertical.getAttribute('data-orientation')).toBe('vertical')
+    expect(labelled.getAttribute('data-orientation')).toBe('horizontal')
+  })
+
   it('with a label, the separator is named by it and the words are drawn once', () => {
     render(<Divider label="New since you last read this" tone="warning" />)
     const rule = screen.getByRole('separator', { name: 'New since you last read this' })

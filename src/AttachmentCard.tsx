@@ -80,9 +80,9 @@ const formatBytes = (bytes: number) => {
 /** `'PDF'`, `'ZIP'`, `'DOCX'`, `'FILE'`. */
 const typeLabelOf = (name: string) => extensionOf(name).toUpperCase() || 'FILE'
 
-const TILE = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
-const NAME = 'text-[12px] font-medium leading-[1.3] text-text-primary truncate'
-const NOTE = 'text-[10px] leading-[1.2] truncate'
+const TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
+const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
 
 function TypeIcon({ name }: { name: string }) {
   const Icon = ICON_BY_EXTENSION[extensionOf(name)] ?? IconFile
@@ -191,7 +191,7 @@ export function AttachmentCard({
         className={cn('group relative flex items-center gap-2 w-[200px] p-1.5 pr-3', failed ? 'border-error-default' : warning && 'border-warning-default', className)}
         {...props}
       >
-        <div className={cn(TILE, 'overflow-hidden')}>
+        <div className={cn(TILE_CLASSES, 'overflow-hidden')}>
           {state === 'uploading' ? (
             <IconLoader2 size={16} stroke={1.5} className="animate-spin" />
           ) : failed ? (
@@ -201,15 +201,15 @@ export function AttachmentCard({
           ) : image && src ? (
             <img src={src} alt={name} className="size-full object-cover" />
           ) : (
-            <span className="text-[9px] font-semibold">{typeLabelOf(name)}</span>
+            <span className="text-menu font-semibold">{typeLabelOf(name)}</span>
           )}
         </div>
         <div className="flex flex-col gap-[1px] min-w-0">
-          <Truncating text={name} className={NAME} />
+          <Truncating text={name} className={NAME_CLASSES} />
           <Truncating
             text={(failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)) ?? ''}
             hint={noteHint}
-            className={cn(NOTE, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
+            className={cn(NOTE_CLASSES, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
           />
         </div>
         {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
@@ -260,12 +260,12 @@ export function AttachmentCard({
   if (state === 'unreadable') {
     return (
       <Card fill="inset" unreadable className={cn('flex items-center gap-2 w-[240px] p-1.5 opacity-70', className)} {...props}>
-        <div className={TILE}>
+        <div className={TILE_CLASSES}>
           <TypeIcon name={name} />
         </div>
         <div className="flex flex-col gap-[1px] min-w-0 text-left">
-          <Truncating text={name} className={NAME} />
-          <span className={cn(NOTE, 'text-text-secondary')}>{note ?? 'Could not be loaded'}</span>
+          <Truncating text={name} className={NAME_CLASSES} />
+          <span className={cn(NOTE_CLASSES, 'text-text-secondary')}>{note ?? 'Could not be loaded'}</span>
         </div>
       </Card>
     )
@@ -291,7 +291,7 @@ export function AttachmentCard({
           <div className="block w-full">{picture}</div>
         )}
         <div className="flex items-center gap-1 pl-2 pr-1 py-1 min-w-0">
-          <Truncating text={name} className="flex-1 text-[12px] leading-[1.3] text-text-primary truncate" wrapperClassName="flex-1" />
+          <Truncating text={name} className="flex-1 text-caption text-text-primary truncate" wrapperClassName="flex-1" />
           {download}
         </div>
       </Card>
@@ -300,12 +300,12 @@ export function AttachmentCard({
 
   const body = (
     <>
-      <div className={TILE}>
+      <div className={TILE_CLASSES}>
         <TypeIcon name={name} />
       </div>
       <div className="flex flex-col gap-[1px] min-w-0 text-left">
-        <Truncating text={name} className={NAME} />
-        <span className={cn(NOTE, 'text-text-secondary')}>{note ?? `${typeLabelOf(name)} · ${sizeText}`}</span>
+        <Truncating text={name} className={NAME_CLASSES} />
+        <span className={cn(NOTE_CLASSES, 'text-text-secondary')}>{note ?? `${typeLabelOf(name)} · ${sizeText}`}</span>
       </div>
     </>
   )

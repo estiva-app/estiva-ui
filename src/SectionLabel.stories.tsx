@@ -22,7 +22,7 @@ export const HeadingAList: Story = {
         <SectionLabel>Recent</SectionLabel>
       </div>
       {['Quarterly plan', 'Reading list', 'Archive'].map((row) => (
-        <div key={row} className="rounded-lg px-2 py-1.5 text-[14px] leading-[140%] text-text-primary hover:bg-bg-hover">
+        <div key={row} className="rounded-lg px-2 py-1.5 text-body-2 text-text-primary hover:bg-bg-hover">
           {row}
         </div>
       ))}

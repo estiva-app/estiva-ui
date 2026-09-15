@@ -45,7 +45,7 @@ export function RailItem({ href, icon, label, active = false, className, ...prop
           {icon}
         </span>
       </div>
-      <span className={cn('text-center text-[9px] font-medium leading-[115%]', active ? 'text-text-primary' : 'text-text-secondary')}>
+      <span className={cn('text-center text-menu', active ? 'text-text-primary' : 'text-text-secondary')}>
         {label}
       </span>
     </a>

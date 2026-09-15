@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**15 September 2026. UIG-27 is done: the package half released as `@estiva-app/ui` 0.13.0 and 0.13.1, the app half in peek PR #218 and ship PR #151. Next is UIG-28, then phase 1. UIG-30 is new.**
+**15 September 2026. UIG-27 is done: the package half released as `@estiva-app/ui` 0.13.0 and 0.13.1, the app half in peek PR #218 and ship PR #151. UIG-28 is being built: its package part rides on migration stage 6's branch, to ship as one 0.14.0; Peek and Ship follow the release. Then phase 1. UIG-30 is new.**
 
 > **What UIG-27's app half did, and what it found**, is part 5 of **UIG-27: adopting it in Peek and Ship** below. The step-by-step handoff it followed stays above that, for the record.
 
@@ -27,6 +27,7 @@ answer
 | ✅ **UIG-1** | Done. Merged in estiva-ui PR #21. |
 | ✅ **UIG-2** | Done. Merged in estiva-ui PR #24, #25 and #27, peek PR #204, ship PR #148. |
 | ✅ **UIG-27** | Package half: estiva-ui PR #29 (0.13.0), PR #32 (0.13.1: `Card`'s `hovered`). App half: peek PR #218, ship PR #151 — both apps on 0.13.1, every link, chip, progress bar, card and attachment the package's, the code they replaced deleted, and no empty state padded. All 20 links fitted, none reasoned. `gates:status` reads Peek's part 6 of 6 and Ship's 5 of 5. |
+| 🚧 **UIG-28** | Package part built on branch `gates/28-token-holes`, on top of stage 6's `stage-6-primitives` (one push, one PR, one `0.14.0`, Katerina, 15 September). Peek and Ship part after the release. See **UIG-28: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -138,10 +139,73 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | when | what |
 |---|---|
 | ✅ done | UIG-27: estiva-ui PR #29 (0.13.0) and #32 (0.13.1); peek PR #218 and ship PR #151 adopt it fully |
-| **now** | **UIG-28** (its count is done, read-only, and waited for these PRs to merge: re-run it on the new mains), then phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time after UIG-27 |
+| **now** | **UIG-28**: the package part with stage 6 as `0.14.0`, then Peek's and Ship's PRs on `0.14.0` (**UIG-28: building it**, below) |
+| after | phase 1: **UIG-3** → **UIG-4** → **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time after UIG-27 |
 | alongside phase 1, never blocking it | **UIG-29** |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-28: building it
+
+**Where.** estiva-ui branch `gates/28-token-holes`, started from stage 6's `stage-6-primitives` at `fc0d15d` and built in its own worktree. At the end its commits go on top of stage 6's branch: one push, one PR, one `0.14.0` (Katerina, 15 September; the stage 6 session records it against D69). Peek and Ship each get a `gates/28-token-holes` branch **after** `0.14.0` is released, because Peek's Signal labels use the new `text-small`. The count, the scripts that made it and every class they found: `K:\Estiva\uig28-review\` (`COUNT.md`, `scripts/`, `data/`).
+
+**Katerina's rulings, 15 September**
+
+| | question | ruling |
+|---|---|---|
+| R1 | Fix the raw-colour pattern in Peek and Ship: it matches nothing (§13) | **yes**, although the ticket said the four rules stay as they are |
+| R2 | Corners and shadows block like type; border and ring widths only warn | **yes** |
+| R3 | Signal's small labels (24 places) get a token, not escapes | **yes**. Then, "do we really need to invent new tokens?": three tokens, one, and none were photographed side by side, and she picked **one: `text-small`, 10px and nothing else**, with Tailwind's own letter-spacing steps (0.02em → `tracking-wide`, 0.1–0.16em → `tracking-widest`, 9.5px → 10px) |
+| R4 | A size close to a token but not exact: photos first, then she picks in the package, every such place takes the named size (14 class strings, six of them in stories); `Property`'s label keeps wide letters as `tracking-widest` (0.08em → 0.1em), and so do the Design Tokens page's headings |
+| R5 | Rename the class maps the lint cannot see, and read the editor's `attributes.class` | **yes** |
+
+**The prefix list** (acceptance 1), from every utility Tailwind registers under the preset, each given an arbitrary value and sorted by the CSS it produced:
+
+| group | prefixes | the scale comes from | rule |
+|---|---|---|---|
+| type | `text` `leading` `tracking` | the preset's `fontSize` | error |
+| corners | `rounded` and its 14 sides and corners | the preset's `borderRadius` | error |
+| shadows | `shadow` `drop-shadow` | the preset's `boxShadow`, `dropShadow` | error |
+| heights and spacing | `w` `h` `size` `min-w` `min-h` `max-w` `max-h` `p*` `m*` `gap*` `space-x/y` `inset*` `top` `right` `bottom` `left` `translate-x/y` `basis` `indent` `scroll-m*` `scroll-p*` `border-spacing*` | **Tailwind's default spacing scale. The preset has no spacing token.** | warning |
+| border and ring widths | `border*` `divide-x/y` `outline` `ring` `ring-offset` | Tailwind's default | warning |
+
+**The rule.** A new block in `eslint.config.js`. The plugin is registered twice, as `token-values` (errors) and `token-spacing` (warnings), so the four older rules are untouched and an escape for a size cannot also silence a raw colour on the same line. The variant part reads arbitrary variants (`[&_pre]:`, `group-hover/row:`), which the older pattern does not. `text-[14px]` names its token, read from the preset through `tailwindcss/loadConfig`. The inline-style rule is `no-restricted-syntax` on a `style={{ }}` property that sets a colour, a font size, a border or a shadow; width, height and transforms pass. Tests are out. Every pattern was checked against every arbitrary class in the three repos: 714 classes, 0 mismatches. `gates:status` carries 7 package checks for it, each seen to fail with its rule removed.
+
+**The count** (acceptance 2), classes in `src` (estiva-ui also `stories/`), stories in, tests out, on estiva-ui `fc0d15d`, peek `64e989a`, ship `8ab75a3`:
+
+| | estiva-ui | peek | ship |
+|---|---|---|---|
+| type · error | 87 | **175** (58 in `CommandLauncher.tsx`) | 14 |
+| corners · error | 1 | 5 | 0 |
+| shadows · error | 5 | 5 | 0 |
+| inline style · error | 10 reports | 36 (27 in `SignalTheme.stories.tsx`) | 3 |
+| heights and spacing · warning | 131 reported | 130 | 19 |
+| border and ring widths · warning | 0 | 5 | 0 |
+
+UIG-1's "157 in Peek, type or spacing" does not split: its scripts were thrown away and its prefix list never written down. On 15 September's main the same words count **175 type and 78 spacing** in Peek's source (130 with stories).
+
+**estiva-ui, reconciled** (acceptance 7 and 8)
+
+| | count | fixed | escaped |
+|---|---|---|---|
+| type | 87 | **87** | 0 |
+| corners | 1 | **1** | 0 |
+| shadows | 5 | **5** | 0 |
+| inline style | 10 | 0 | **10**, in three places, each with its reason: `Avatar`'s per-person palette, `AvatarGroup`'s ring width from a prop, the Design Tokens page drawing each token from its variable |
+| heights and spacing | 131 warnings | recorded | — |
+
+`npm run lint` exits 0: 0 errors, 131 warnings. Proof on screen, every story in both themes against the commit before: the 31 exact swaps changed nothing (576 of 576); `text-small` changed only SectionLabel and what holds one (a little tighter in signal) and Chip (0.3px wider in signal); ship unchanged.
+
+**Peek and Ship, after 0.14.0**
+
+1. Take `0.14.0`. Add the same block to Peek's `eslint.tokens.js` and Ship's `web/eslint.config.js`, with R1's pattern fix; add the probes to each `gates-checks.mjs`.
+2. R1 surfaces 5 raw colours in Peek: `CommandLauncher.tsx:818 :824` (escape, naming UIG-29), `ConversationCard.tsx`, `ResolveDialog.tsx`, `TopicState.tsx` (Signal glows and a border). Ship has 0.
+3. Signal's 18 small labels in Peek → `text-small` with the R3 spacing steps.
+4. Exact swaps, then photos of every size close to a token (Peek 18 strings, Ship 5) for Katerina's pick, as the package's were.
+5. R5: Ship's `IssuesTable.tsx` `const TH` and `prose.ts`; Peek's TipTap `editorProps.attributes.class` (three places, each also holding a `text-sm` today).
+6. Inline style: Peek's highlight colours are already tokens passed through `style` (`HIGHLIGHT_META`) → a class map; `SignalTheme.stories.tsx` and both apps' `stories/Swatches.tsx` → escapes.
+7. `CommandLauncher.tsx`'s 58 type classes: escapes naming UIG-29.
+8. Record each app's fixed + escaped = count here, and its warnings.
 
 ### UIG-27: adopting it in Peek and Ship
 
@@ -827,6 +891,8 @@ them has a verdict yet.
 
 ### ⚠️ G1. Arbitrary values walk straight through the token gate
 
+> 🚧 **UIG-28 builds this rule, and G2's.** The counts below are UIG-1's, from 13 September; UIG-28's recount, its prefix list and its reconciliation are in §0, **UIG-28: building it**.
+
 This is the important one.
 
 `lint:tokens` has been a CI gate since D36 and D55. It blocks `text-sm`, blocks
@@ -1076,8 +1142,8 @@ inside them.
 |---|---|---|
 | **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count grew to 20 (§0), and all 20 are fitted: peek PR #218, ship PR #151. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
 | **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
-| **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). |
-| **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. |
+| **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). 🚧 Package part built on the stage 6 branch (§0); Peek and Ship after `0.14.0`. |
+| **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. 🚧 Same. |
 | **5** | estiva-ui copying its own class lists. 14. | **UIG-25**, target set widened to include `estiva-ui/src`, with a second message for a primitive copying a sibling. |
 | **6** | "Rules" means two things. | **UIG-2**, item 5c. A wording pass over the guide, the Ship brief and every ambiguous ticket. |
 
@@ -1105,6 +1171,19 @@ nothing to do with UIG-1's count.
 | **UIG-8** | Said "UIG-11's registry". The registry is **UIG-12**. UIG-11 is the Leaf repo. |
 | **UIG-5** | Same wrong reference, same fix. |
 | **UIG-5** | Said the package's four numbers "do not agree". They do. 44 `.tsx`, 46 `.mdx`, 46 stories, 45 export lines — the two extra are `FieldLine` and `MenuItem`, exported from a sibling file. Corrected. |
+
+### UIG-28: what building it found
+
+| | finding | where it goes |
+|---|---|---|
+| ⛔ | **The raw-colour rule in Peek and Ship has matched nothing since it landed** (Ship 8 September, `3601f68`; Peek 11 September, `2edde1f`). Their pattern writes `[[][^]]*`, and in JavaScript `[^]` means "any one character", so `bg-[#5c69dc]` passes. estiva-ui's copy writes `\[[^\]]*` and works. The same probe gives 0 errors in Peek and Ship, 3 in estiva-ui. It hides 5 raw colours in Peek, 0 in Ship. | Katerina ruled the fix (R1). UIG-28's Peek and Ship PRs |
+| ⚠️ | **The token lint cannot see a class list in a variable it does not know.** It reads `className`, `cn()`/`clsx()` and maps named `…Classes`/`…Styles`. UIG-28's own example `IssuesTable.tsx:37` is a `const TH`; Ship's `prose.ts` is an array; estiva-ui's `AttachmentCard` held `NAME`, `NOTE` and `TILE`; Peek's TipTap `editorProps.attributes.class` holds `text-sm`, which also slips past the type-ramp rule. | R5. estiva-ui's renamed in UIG-28; the apps' in their PRs |
+| ✅ | **The ticket's reason for the package's hand-written sizes was out of date.** `cn()` names the ramp for tailwind-merge since 1 September, so a size token beside a text colour survives. Nothing in the package needed an escape for it. | recorded |
+| ✅ | **`eslint.tokens.js` and `lint:tokens` exist only in Peek.** Ship and estiva-ui keep the token rules inline in `eslint.config.js` and run `npm run lint`. The ticket named Peek's layout for all three. | recorded |
+| ✅ | **The preset has no spacing token.** Heights and spacing use Tailwind's default scale, so the warning names a step of that scale, not `tokens.css`. `InlineChip`'s `h-[1.4em]` and `h-[19.6px]` (§0, UIG-27's findings) are heights: warnings, no escape. | recorded |
+| ✅ | **The older rules' variant part `(?:[a-z0-9-]+:)*` misses arbitrary variants and named groups.** The new block does not copy it. | the four older rules stay as they are (ticket) |
+| ✅ | `EnterHint`'s `target` is passed by nothing: no app, no story. | recorded |
+| ✅ | `src/MenuItem.stories.tsx` has `\r\r\n` on three lines, so ESLint's line numbers there run three ahead of an editor's. | matters only when placing an escape |
 
 ### What is still true
 
@@ -1210,6 +1289,13 @@ reconciles.
 
 UIG-3, UIG-4, UIG-5, UIG-23, UIG-25 and UIG-28. UIG-7 and UIG-8 already pointed
 here for the stories answer, and this section gives it, so they were left alone.
+
+### Later: UIG-28's rulings, 15 September
+
+R1 to R5 — the raw-colour fix, corners and shadows as errors and widths as
+warnings, one `text-small` token for Signal's small labels, her pick on every
+size close to a token, and the renamed class maps — are in §0, **UIG-28:
+building it**.
 
 ## §15 The route — phases and the tickets
 

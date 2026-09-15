@@ -31,6 +31,21 @@ describe('EmptyState', () => {
     expect(line.className).not.toContain('text-center')
   })
 
+  it('a section is the quiet line: caption size, muted colour (Katerina, 2026-09-15)', () => {
+    render(<EmptyState scope="section" message="Nothing here yet." />)
+    const classes = screen.getByText('Nothing here yet.').className.split(' ')
+    expect(classes).toContain('text-caption')
+    expect(classes).toContain('text-text-muted')
+    expect(classes).not.toContain('text-body-2')
+    expect(classes).not.toContain('text-text-secondary')
+  })
+
+  it('a caller’s placement class does not take the quiet look away', () => {
+    render(<EmptyState scope="section" className="py-8" message="Nothing here yet." />)
+    const classes = screen.getByText('Nothing here yet.').className.split(' ')
+    expect(classes).toEqual(expect.arrayContaining(['text-caption', 'text-text-muted', 'py-8']))
+  })
+
   it('a section carries no space of its own, so the box it sits in decides where it starts', () => {
     // Katerina, 2026-09-14: the box is written once and holds the rows or the empty
     // state; the empty state is never padded. So it may carry no padding or margin.

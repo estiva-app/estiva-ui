@@ -18,7 +18,7 @@ import { extendTailwindMerge } from 'tailwind-merge'
 const FONT_SIZE_TOKENS = [
   'h1', 'h2', 'h3', 'h4', 'h5',
   'body-1', 'body-2', 'body-2-strong', 'caption', 'menu',
-  'btn-default', 'btn-small', 'input-label', 'input-value', 'input-helper', 'chip',
+  'btn-default', 'btn-small', 'input-label', 'input-value', 'input-helper', 'chip', 'small',
 ]
 
 /**
