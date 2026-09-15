@@ -34,4 +34,21 @@ await build({
   logLevel: 'warning',
 })
 
-console.log('built dist/index.js')
+/**
+ * The lint plugin, `@estiva-app/ui/eslint` (UIG-3): its own bundle, for Node,
+ * so nothing of it reaches the components' browser bundle. It imports nothing
+ * at run time but Node's own `module`; `eslint` appears in its types only.
+ */
+await build({
+  entryPoints: ['src/eslint/index.ts'],
+  outfile: 'dist/eslint/index.js',
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  target: 'node20',
+  sourcemap: true,
+  external: ['eslint'],
+  logLevel: 'warning',
+})
+
+console.log('built dist/index.js, dist/eslint/index.js')

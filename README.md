@@ -63,6 +63,34 @@ export default {
 }
 ```
 
+### The lint rules — `@estiva-app/ui/eslint`
+
+The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
+gets a new rule with a version bump. Each rule names the component to use
+instead. Today there is one: `estiva/no-raw-button`.
+
+```js
+// eslint.config.js — alongside your own rules
+import estiva from '@estiva-app/ui/eslint'
+export default [
+  // …your config, with a parser that reads TSX
+  { files: ['src/**/*.tsx'], ignores: ['**/*.test.tsx'], ...estiva.configs.recommended },
+]
+```
+
+A place that keeps a raw element on purpose says why, on the line above:
+
+```tsx
+// @estiva-escape: the reason, at least ten characters
+<button …>
+```
+
+or, as a JSX child, `{/* @estiva-escape: the reason */}`. Not `eslint-disable`:
+it switches the rule off without saying why, and the gate counts it as a
+failure. `countGates(results)` counts errors and escapes for
+`.gates-count.json`; lint with `settings: { estiva: { reportEscapes: true } }`
+for the escapes to be counted.
+
 ## The rules
 
 ### Forking is allowed

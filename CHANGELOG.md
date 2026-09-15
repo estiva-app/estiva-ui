@@ -1,5 +1,41 @@
 # Changelog
 
+## Unreleased — UIG-3, the first lint rule as a plugin
+
+The UI Guardrails' tracer (Ship UIG-3): one rule, carried end to end from the
+package to Peek's editor hook and CI. Peek takes it in its own PR, on this
+release.
+
+### Added
+
+- **`@estiva-app/ui/eslint`**, an ESLint plugin (`meta`, `rules`, `configs.recommended`
+  and `configs.strict`), built on its own for Node into `dist/eslint/`, so nothing of
+  it reaches the components' bundle. Register it under `estiva`, as both configs do.
+  `recommended` puts every rule at the level it was ruled at; `strict` makes every
+  rule an error. With one rule, an error, they are the same today.
+- **`estiva/no-raw-button`**: a JSX `<button>` is an error, "Use `Button` from
+  @estiva-app/ui instead of a raw <button>." `<Button>`, `<Foo.button>` and
+  `createElement('button')` are not its business.
+- **The escape marker** (GATES.md §16, S4), read by `isEscaped`, which every rule
+  calls before it reports: `// @estiva-escape: <reason>` on the line directly above,
+  or `{/* @estiva-escape: <reason> */}` for a JSX child, with at least ten characters
+  of reason. A shorter reason is an error and hides nothing. A marker inside an
+  `eslint-disable` directive for one of these rules is an error too. The token lint's
+  own notes (`eslint-disable-next-line <rule> -- @estiva-escape: <reason>`, ruling A2)
+  are not read: they escape rules that are not this plugin's, and they stay as they
+  are (Katerina, 15 September).
+- **`countGates(results)`**: per rule, the errors, warnings and escapes a lint found,
+  and every report an `eslint-disable` silenced. Escapes are counted when the lint
+  runs with `settings: { estiva: { reportEscapes: true } }`.
+- **`InputChip` takes `removeLabel` and `truncate`.** `removeLabel` names the ✕ when
+  it does something other than remove the chip; `Remove <label>` stays the default.
+  `truncate` cuts a long label once `className` caps the chip, and keeps the ✕ at its
+  size. It is off unless asked: cutting clips up to 4px of a letter's soft edge at 1x
+  even when the label fits (the same chip, in place, with and without it; identical at
+  2x). For Peek's launcher, whose chips become `InputChip` in UIG-3 (Katerina, 15
+  September) and whose ✕ say "Leave Ask", "Leave Ship", "Clear context". No caller
+  changes: the default path draws the same classes as before.
+
 ## 0.14.0 — 2026-09-15 — migration stage 6 and UIG-28
 
 Two pieces of work in one release, by Katerina's word (migration D69, amended
