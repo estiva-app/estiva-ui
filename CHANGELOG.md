@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — UIG-7, every raw element
+## 0.17.0 — 2026-09-16 — UIG-7, every raw element
 
 ### Changed
 
