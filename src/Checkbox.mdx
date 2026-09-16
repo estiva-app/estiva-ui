@@ -27,9 +27,18 @@ the parent owns the state.
 
 <Canvas of={CheckboxStories.WithLabel} />
 
+- A list you tick several from, where the whole row is the target: pass
+  **`row`**, with `label` and, if the row has one, a `leading` picture. The
+  box sits at the end, and the row fills on hover and while checked.
+
+<Canvas of={CheckboxStories.Row} />
+
 ## When not
 
 - One choice out of several → **Select** (a value) or **Tabs** (a view).
+- A row drawn by hand with `role="option"` and a Checkbox picture inside it: it
+  tells a screen reader "an option in a list" where there is no list. That is
+  `row`.
 - Inside a **Menu** — a checkbox inside a `menuitem` is invalid HTML;
   a checkable list lives in a DialogShell.
 
@@ -56,6 +65,16 @@ import { Checkbox } from '@estiva-app/ui'
   the box. When disabled, only the box shows it; the words keep their colour
   and lose the pointer. It is a field of its own, so it does not go inside a
   **Field**.
+- With `row` it is the same `Field`, its `Field.Label` the whole row:
+  `leading`, 12px, the words in `body-2` (cut off with an ellipsis when too
+  long), the box at the end; 40px tall, 12px in from each side, 8px corners.
+  It needs `onChange`: without one, `row` is ignored. Put the rows in a
+  column with `gap-0.5`.
+
+```tsx
+<Checkbox row leading={<IconSquareRounded size={16} stroke={1.5} />} label="Item one" checked={on} onChange={setOn} />
+```
+
 - Inside a busy **Form** it is disabled, and looks it.
 - It does not move when it toggles: the tick is always in the box, hidden
   when unchecked, so both states hang on a line of text the same way.
@@ -64,7 +83,7 @@ import { Checkbox } from '@estiva-app/ui'
 
 | Key | Does |
 |---|---|
-| Tab | Onto the box. |
+| Tab | Onto the box (in a row too: the row is not a Tab stop of its own). |
 | Space | Toggles it. |
 | Enter | Nothing. As on a native checkbox, Enter is the form's key. |
 

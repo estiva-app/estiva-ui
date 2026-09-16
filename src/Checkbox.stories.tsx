@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 import { useState } from 'react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { Checkbox } from './Checkbox'
 
 const meta = {
@@ -31,6 +32,49 @@ export const WithLabel: Story = {
 
 /** Disabled with words: only the box shows it; the words keep their colour. */
 export const WithLabelDisabled: Story = { args: { label: 'Label', 'aria-label': undefined, disabled: true } }
+
+/**
+ * A list you tick several from: each row is the target — a picture, the words,
+ * the box at the end — and fills on hover and while checked.
+ */
+export const Row: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => {
+    const [ticked, setTicked] = useState(new Set(['Item two']))
+    const toggle = (item: string) =>
+      setTicked((prev) => {
+        const next = new Set(prev)
+        if (next.has(item)) next.delete(item)
+        else next.add(item)
+        return next
+      })
+    return (
+      <div className="flex w-80 flex-col gap-0.5">
+        {['Item one', 'Item two', 'Item three'].map((item) => (
+          <Checkbox
+            key={item}
+            row
+            leading={<IconSquareRounded size={16} stroke={1.5} />}
+            label={item}
+            checked={ticked.has(item)}
+            onChange={() => toggle(item)}
+          />
+        ))}
+      </div>
+    )
+  },
+}
+
+/** A row that cannot be changed: the box shows it, and the row neither fills nor points. */
+export const RowDisabled: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-80 flex-col gap-0.5">
+      <Checkbox row disabled leading={<IconSquareRounded size={16} stroke={1.5} />} label="Item one" checked onChange={() => {}} />
+      <Checkbox row disabled leading={<IconSquareRounded size={16} stroke={1.5} />} label="Item two" checked={false} onChange={() => {}} />
+    </div>
+  ),
+}
 
 /** Controlled, as always — the parent owns the state. */
 export const Toggles: Story = {
