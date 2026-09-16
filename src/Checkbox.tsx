@@ -24,11 +24,22 @@ import { cn } from './cn'
  * "it should be fixed"). With the tick always there, Base UI's `<span>` and
  * the `<button>` this used to be land on the same pixel, measured. In a flex
  * row nothing ever moved.
+ *
+ * With `label`, the words sit beside the box and are part of the target: an
+ * enclosing `<label>`, which Base UI calls "the simplest labeling pattern".
+ * The class list is Peek's Read state panel's, where it was written by hand
+ * (UIG-7, 16 September). The words keep their colour when the box is
+ * disabled (Katerina: "no need").
  */
 export interface CheckboxProps {
   checked: boolean
   onChange?: (checked: boolean) => void
   disabled?: boolean
+  /**
+   * Words beside the box. With `onChange`, clicking them toggles it too, and
+   * they name it, so no `aria-label` is needed. `className` stays on the box.
+   */
+  label?: string
   'aria-label'?: string
   /** Set by a `Field` with `required`; a caller inside one owes nothing. */
   'aria-required'?: boolean | 'true' | 'false'
@@ -48,17 +59,27 @@ function squareClasses(checked: boolean, disabled: boolean, interactive: boolean
 /** `flex`, so the icon is a flex item and not an inline box with a line height of its own. */
 const tickClasses = (checked: boolean) => cn('flex', !checked && 'invisible')
 
-export function Checkbox({ checked, onChange, disabled = false, className, ...aria }: CheckboxProps) {
+const WORDS_CLASSES = 'text-body-2 text-text-primary'
+
+export function Checkbox({ checked, onChange, disabled = false, label, className, ...aria }: CheckboxProps) {
   if (!onChange) {
-    return (
+    const picture = (
       <span aria-hidden="true" className={squareClasses(checked, disabled, false, className)}>
         <span className={tickClasses(checked)}>
           <IconCheck size={12} stroke={3} />
         </span>
       </span>
     )
+    if (label === undefined) return picture
+    // The row around it is the control and says the state; the words are only words.
+    return (
+      <span className="flex items-center gap-2">
+        {picture}
+        <span className={WORDS_CLASSES}>{label}</span>
+      </span>
+    )
   }
-  return (
+  const box = (
     <BaseCheckbox.Root
       checked={checked}
       disabled={disabled}
@@ -72,5 +93,13 @@ export function Checkbox({ checked, onChange, disabled = false, className, ...ar
         <IconCheck size={12} stroke={3} />
       </BaseCheckbox.Indicator>
     </BaseCheckbox.Root>
+  )
+  if (label === undefined) return box
+  return (
+    // No pointer over words that toggle nothing.
+    <label className={cn('flex items-center gap-2', !disabled && 'cursor-pointer')}>
+      {box}
+      <span className={WORDS_CLASSES}>{label}</span>
+    </label>
   )
 }

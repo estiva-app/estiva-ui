@@ -70,4 +70,58 @@ describe('Checkbox', () => {
     await user.click(square as HTMLElement)
     expect(onRow).toHaveBeenCalledTimes(1)
   })
+
+  describe('with label', () => {
+    it('is named by its words, and clicking the words toggles it', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Checkbox checked={false} onChange={onChange} label="Compare every time" />)
+      const box = screen.getByRole('checkbox', { name: 'Compare every time' })
+      await user.click(screen.getByText('Compare every time'))
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenCalledWith(true)
+      expect(box.getAttribute('aria-checked')).toBe('false')
+    })
+
+    it('toggles once, not twice, when the box itself is clicked inside its words', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Checkbox checked onChange={onChange} label="Label" />)
+      await user.click(screen.getByRole('checkbox', { name: 'Label' }))
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenCalledWith(false)
+    })
+
+    it('keeps Space on the box', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Checkbox checked={false} onChange={onChange} label="Label" />)
+      await user.tab()
+      expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Label' }))
+      await user.keyboard(' ')
+      expect(onChange).toHaveBeenCalledWith(true)
+    })
+
+    it('does nothing from its words when disabled, and shows no pointer over them', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      const { container } = render(<Checkbox checked={false} disabled onChange={onChange} label="Label" />)
+      await user.click(screen.getByText('Label'))
+      expect(onChange).not.toHaveBeenCalled()
+      expect(container.querySelector('label')?.className).not.toContain('cursor-pointer')
+    })
+
+    it('keeps className on the box', () => {
+      const { container } = render(<Checkbox checked={false} onChange={() => {}} label="Label" className="mt-1" />)
+      expect(container.querySelector('label')?.className).not.toContain('mt-1')
+      expect(screen.getByRole('checkbox', { name: 'Label' }).className).toContain('mt-1')
+    })
+
+    it('with no onChange draws the words beside the picture, and is still not a control', () => {
+      const { container } = render(<Checkbox checked label="Label" />)
+      expect(screen.queryByRole('checkbox')).toBeNull()
+      expect(container.querySelector('label')).toBeNull()
+      expect(screen.getByText('Label')).not.toBeNull()
+    })
+  })
 })
