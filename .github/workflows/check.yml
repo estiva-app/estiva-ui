@@ -23,6 +23,14 @@ jobs:
       # The token contract as a machine rule: no class Tailwind does not
       # generate, no Tailwind ramp or palette, no raw colour (eslint.config.js).
       - run: npm run lint
+      # The UI Guardrails' rules pointed inward (UIG-5, as Peek's UIG-3 and
+      # Ship's UIG-4): a raw element buried inside a component, behaviour Base UI
+      # owns written by hand, a component with no page or no story. `npm run
+      # lint:rules` builds the rules first, writes .gates-count.json, and fails
+      # on an eslint-disable that switches one of them off. Zero errors on the
+      # day this landed, so it stays zero.
+      - name: Gate lint
+        run: npm run lint:rules
       - run: npm test
       - run: npm run build
 
