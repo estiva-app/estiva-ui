@@ -42,6 +42,7 @@ const all = [
   { ref: "UIG-28", owner: "estiva-ui", parts: PEEK_SHIP, title: "Close the two holes in the token contract — arbitrary values, and inline style" },
   { ref: "UIG-29", owner: "peek", title: "CommandLauncher — 1,655 lines that will fail almost every lint rule" },
   { ref: "UIG-30", owner: "estiva-ui", parts: PEEK_SHIP, title: "RichText — one component that draws a message's text, for both apps" },
+  { ref: "UIG-31", owner: "estiva-ui", parts: ["peek"], title: "Editor menus — one shared part for the / @ [ menus" },
 ];
 
 const siblings = [
@@ -113,7 +114,8 @@ export default function define(h) {
       { what: "CI's job gate runs lint:rules", run: () => h.ciJob("gate", "lint:rules") },
     ] },
     { ref: "UIG-7", owner: true, checks: [
-      { what: "the apps' rule is no-raw-element, and it is the only app rule", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*\}/, "src/eslint/index.ts gives the apps exactly no-raw-element") },
+      // UIG-8 added a second app rule after it; this ticket's evidence is that no-raw-element is the apps'.
+      { what: "the apps get no-raw-element", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,/, "src/eslint/index.ts gives the apps no-raw-element") },
       { what: "every part the mapping names is exported", run: () => {
         // A map's `use`, and the parts its messages name after it (`InlineChip`, `ConfirmDialog`…).
         const map = h.read("src/eslint/no-raw-element.ts");
@@ -131,7 +133,21 @@ export default function define(h) {
         return missing.length === 0 ? h.PASS("Form and FilePicker exported; Checkbox takes label") : h.FAIL(`missing: ${missing.join(", ")}`);
       } },
     ] },
-    { ref: "UIG-8", owner: true, checks: [] },
+    { ref: "UIG-8", owner: true, checks: [
+      { what: "the apps' rules are no-raw-element and no-rebuilt-behaviour, and only those", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*\}/, "src/eslint/index.ts gives the apps exactly no-raw-element and no-rebuilt-behaviour") },
+      { what: "every part the rule names is exported", run: () => {
+        const rule = h.read("src/eslint/no-rebuilt-behaviour.ts");
+        // A component's name, PascalCase: not OWNED_BEHAVIOURS, which the rule's comments name too.
+        const named = [...new Set([...rule.matchAll(/use: '(\w+)'|`([A-Z][a-z]\w*)`/g)].map((m) => m[1] ?? m[2]))];
+        const exported = new Set([...h.read("src/index.ts").matchAll(/export \{([^}]*)\}/g)].flatMap((m) => m[1].split(",").map((x) => x.trim())));
+        const missing = named.filter((n) => !exported.has(n));
+        if (named.length === 0) return h.FAIL("the rule names no part");
+        return missing.length === 0 ? h.PASS(`${named.length} parts named, all exported`) : h.FAIL(`named but not exported: ${missing.join(", ")}`);
+      } },
+      { what: "the behaviour enumeration is exported, for UIG-12's registry", run: () => h.contains("src/eslint/index.ts", /export \{ OWNED_BEHAVIOURS\b/, "@estiva-app/ui/eslint exports OWNED_BEHAVIOURS") },
+      { what: "Checkbox has a row form, for a list you tick several from", run: () => h.contains("src/Checkbox.tsx", /\brow\?: boolean/, "Checkbox takes row") },
+      { what: "ScrollArea's bar sits above sticky rows", run: () => h.contains("src/ScrollArea.tsx", /const BAR = '[^']*\bz-10\b/, "ScrollArea's bar is z-10") },
+    ] },
     { ref: "UIG-9", owner: true, checks: [] },
     { ref: "UIG-10", owner: true, checks: [
       { what: "a create-app command exists", run: () => {
@@ -203,6 +219,10 @@ export default function define(h) {
     ] },
     { ref: "UIG-30", owner: true, checks: [
       { what: "RichText is in the package", run: () => h.contains("src/index.ts", /\bRichText\b/, "src/index.ts exports RichText") },
+    ] },
+    // A first guess, from the ticket's text (much later: Katerina, 16 September).
+    { ref: "UIG-31", owner: true, checks: [
+      { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
     ] },
   ];
 
