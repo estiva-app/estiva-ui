@@ -1,0 +1,49 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as FilePickerStories from './FilePicker.stories'
+
+<Meta of={FilePickerStories} />
+
+# FilePicker
+
+The browser's file picker, with nothing drawn. Your own button opens it; it
+hands you the files chosen.
+
+<Canvas of={FilePickerStories.Default} />
+
+## When
+
+- A button that opens the file picker — to attach, to upload, to import.
+- **`multiple`** to allow several at once; **`accept`** to limit the kinds
+  the picker offers.
+
+## When not
+
+- Showing a file that was chosen → **AttachmentCard**.
+- Dropping files onto an area: the package has no part for that yet.
+
+## How
+
+```tsx
+import { FilePicker, IconButton } from '@estiva-app/ui'
+
+const picker = useRef<HTMLInputElement>(null)
+
+<FilePicker ref={picker} multiple onPick={(files) => attach(files)} />
+<IconButton aria-label="Attach" tooltip="Attach" onClick={() => picker.current?.click()}>
+  <IconSquareRounded size={16} stroke={1.5} />
+</IconButton>
+```
+
+- **The button is the control.** The picker is hidden from Tab and from
+  screen readers, so the button's name is the only one read out. A hidden
+  input still opens its picker when the button clicks it.
+- **`onPick` gets an array**, in the order the picker gave the files, and is
+  not called when the picker is closed with nothing chosen.
+- **The same file can be chosen again** — after an upload failed, or after
+  it was removed. The picker clears itself before `onPick` runs, so there is
+  nothing to reset afterwards.
+- `data-*` attributes pass on to the input, for a test to find it.
+
+## Props
+
+<Controls of={FilePickerStories.Default} />
