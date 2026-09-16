@@ -1,0 +1,133 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CommandPaletteStories from './CommandPalette.stories'
+
+<Meta of={CommandPaletteStories} />
+
+# CommandPalette
+
+A window that searches and runs things: a field, rows in groups, and a footer
+naming the keys that work right now. It shows one level at a time — rows, or a
+form — and the app keeps the levels.
+
+<Canvas of={CommandPaletteStories.FirstLevel} />
+
+## When
+
+- **One place to find something and act on it**, from anywhere in an app,
+  opened by a shortcut the app binds.
+- **`CommandPaletteSearch`** — a level of rows. Without a `chip` it is the
+  first level; with one, you are inside something, and the chip names it.
+- **`CommandPaletteForm`** — a level that is a form: what a row creates or
+  changes, without leaving the palette.
+- **`CommandPaletteWorking`, `CommandPaletteAnswer`, `CommandPaletteQuote`** —
+  above the rows, for a result that is written rather than listed: a line while
+  it is on its way, an answer with marks pointing at the rows it came from, and
+  text written to be used somewhere else.
+
+<Canvas of={CommandPaletteStories.Answer} />
+
+<Canvas of={CommandPaletteStories.Form} />
+
+## When not
+
+- A short list of verbs from a trigger → **Menu**.
+- One value for a field → **Select**; several → **ChipInput**.
+- A form with a title and buttons of its own, not reached from a palette →
+  **DialogShell**. The palette is not built on it: a palette has no title bar,
+  no close button and no button row, and on the shell it would be the shell with
+  every slot switched off.
+- Filtering a list that stays on the page → **SearchInput**.
+
+## How
+
+```tsx
+import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
+
+<CommandPalette open={open} onOpenChange={setOpen} label="Command palette" where="In Item one" modKey="Ctrl">
+  <CommandPaletteSearch
+    query={query}
+    onQueryChange={setQuery}
+    placeholder="Search, or choose a place"
+    groups={[
+      { label: 'Recent', rows: [{ id: 'item-one', label: 'Item one', icon: <IconSquareRounded size={16} stroke={1.5} />, onSelect: open, onForget: forget }] },
+      { label: 'Places', rows: [{ id: 'place-one', label: 'Place one', icon, onSelect: goIn, onGoIn: goIn }] },
+    ]}
+  />
+</CommandPalette>
+```
+
+- **The app opens it.** The palette listens to nothing outside its own window:
+  bind the shortcut in the app, pass `open`, and give `modKey` the platform's
+  spelling (`Cmd` on a Mac). The keys answer to Ctrl and Cmd either way.
+- **One level at a time, and the app keeps the stack.** Render a
+  `CommandPaletteSearch` or a `CommandPaletteForm` as the only child, and keep
+  each level's query yourself, so going back puts back the text that was there.
+  A level inside another passes `chip` — its label, and `onBack`.
+- **A row says what it can do, and the keys and the footer follow.** `onSelect`
+  is Enter and a click. `onGoIn` makes Tab, and → at the end of the text, go in,
+  and draws the chevron. `onForget` makes Ctrl+Backspace forget it — for rows
+  that are the person's own history. The footer names only what the lit row
+  answers to.
+- **`icon` sits on the row's 32px tile; `leading` takes the same 32px with no
+  tile**, for something with a look of its own — a face, a status mark.
+- **`id` is unique in the level.** The lit row is followed by it, so a caller
+  that builds its rows again on every render still runs the handler of the row
+  on screen.
+- **`pending` while rows are still on their way; `empty` only once none are.**
+  Pass `empty` while a search is running and the page says "nothing" before it
+  knows.
+- **Rows that arrive late do not take the highlight.** Base UI keeps the
+  highlight's position rather than its row, so a group arriving above the lit
+  row would hand the highlight — and Enter — to something else. The palette
+  walks it back to the row you had. Typing starts again from the first row.
+- **Home and End move the text cursor, and nothing else.** Base UI would also
+  send the highlight to the first or last row; the palette stops that.
+- **The field is named by its placeholder**, so say what it asks for.
+- **A form's fields go in `Field`s.** Mark the missing ones with `error` inside
+  `onSubmit`, and the first of them takes focus. `working` locks the fields,
+  puts its words on the button and beside it, and holds focus on the form so
+  Esc still closes it; when it clears, focus goes to the first field that needs
+  something, or back where it was. `error` is what went wrong, beside the
+  button. `submitWaits` says why there is nothing to submit yet, on the button,
+  and Ctrl+Enter does nothing until it clears.
+- **Focus never falls out of a level.** When the element that had it goes — a
+  row picked, a level swapped — focus goes to the level's first control.
+
+## Keys
+
+| Where | Input | What happens |
+|---|---|---|
+| a level of rows | ↑ / ↓ | move between rows, and stop at the ends |
+| | Enter, or a click | what the lit row does |
+| | Tab | goes in, on a row that leads somewhere; anywhere else nothing, and focus stays in the field |
+| | → at the end of the text | goes in, on a row that leads somewhere; anywhere else it moves the cursor |
+| | Ctrl+Backspace | forgets the lit row, if it can be forgotten; otherwise deletes a word |
+| | Home / End | move the text cursor; the lit row stays |
+| inside a level | Backspace at the start of the field, or the chip's ✕ | back, with focus in the field |
+| a form | Tab / Shift+Tab | between the fields, never out of the window |
+| | Ctrl+Enter | submits; if a field needs something, focus goes to the first |
+| | Backspace in an empty text field | back. In a form that is one list, Backspace anywhere; in a list inside a form with text fields, nothing |
+| | while working | nothing but Esc |
+| | Esc in an open list | closes the list first |
+| anywhere | Esc, or a click outside | closes; focus returns to whatever opened it |
+
+## Props
+
+<Controls of={CommandPaletteStories.FirstLevel} />
+
+**`CommandPaletteSearch`** — `query` and `onQueryChange` (the field, controlled),
+`placeholder` (also the field's name), `groups` (`{ label, rows }`, a group
+with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`,
+`empty?`, and `children` for what sits above the rows.
+
+**A row** — `id`, `label`, `description?`, `icon?` or `leading?`, `onSelect`,
+`onGoIn?`, `onForget?`.
+
+**`CommandPaletteForm`** — `chip`, `icon?`, `submitLabel`, `onSubmit`,
+`submitWaits?`, `working?` (`{ button, line }`), `error?`, and the fields as
+`children`.
+
+**`CommandPaletteWorking`** — the words as `children`, `bars?` (0–3, default 2).
+**`CommandPaletteAnswer`** — the text as `children` (a blank line starts a
+paragraph; `[1]` is a mark), `note?`. **`CommandPaletteQuote`** — the text as
+`children`, line breaks kept.
