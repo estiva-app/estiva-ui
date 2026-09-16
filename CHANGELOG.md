@@ -1,8 +1,39 @@
 # Changelog
 
-## Unreleased — UIG-5, the rules pointed inward
+## 0.16.0 — 2026-09-16 — UIG-29 and UIG-5
 
-### Added
+Two pieces of the UI Guardrails in one release: UIG-29 — the command palette Peek's
+launcher will be rebuilt on — and UIG-5 — the four rules this package runs on itself,
+and the two places they found. Neither changes what an app's gate lint reports.
+
+### UIG-29 — the command palette
+
+The window Peek's launcher will be rebuilt on (Ship UIG-29). Katerina approved its
+design as a prototype and a key list on 16 September, and ruled how it is split: the
+palette owns every key and the footer, and a form's frame and keys; the app owns the
+words, the rows and the levels.
+
+#### Added
+
+- **`CommandPalette`**, on Base UI's `Dialog` with an `Autocomplete` inside, its list
+  drawn inline — Base UI's own command palette, and migration decision D8 brought
+  forward. With it: **`CommandPaletteSearch`** (a level of rows, with a chip for the
+  level you are in), **`CommandPaletteForm`** (a level that is a form: locks while
+  working, keeps focus, submits on Ctrl+Enter), and three parts for what sits above the
+  rows — **`CommandPaletteWorking`**, **`CommandPaletteAnswer`** and
+  **`CommandPaletteQuote`**.
+- Rows are the menu row, placed on `Autocomplete.Item` the way `Select` places it on
+  `Select.Item`; the lit row's fill sits 8px in, as in a menu.
+- Two things Base UI does that the key list does not want, stopped and pinned by a test:
+  Home and End moving the highlight, and a row arriving above the lit one taking the
+  highlight.
+
+No existing component changes. `Menu.tsx` exports its row body inside the package
+(not from the index), as it already did its class list.
+
+### UIG-5 — the rules pointed inward
+
+#### Added
 
 - **`configs.package`**, a second config on the same plugin, carrying four rules this
   package runs on itself. `configs.recommended` and `configs.strict` are unchanged and
@@ -18,7 +49,7 @@
   lists the app rules unless the caller names another set, so an app's
   `.gates-count.json` gains no rows for rules its gate does not run.
 
-### Changed
+#### Changed
 
 - **A toast's action is the package's `Button`** (`outlined`, `small`), in the toast
   drawn in place and in the one the provider shows (Katerina, 16 September). It was a
@@ -27,6 +58,8 @@
   the neutral toast had.
 - **A breadcrumb's crumb is the package's `Link`** (`plain`). Identical on screen, pixel
   for pixel, in both themes.
+
+## 0.15.0 — 2026-09-15 — UIG-3, the first lint rule as a plugin
 
 The UI Guardrails' tracer (Ship UIG-3): one rule, carried end to end from the
 package to Peek's editor hook and CI. Peek takes it in its own PR, on this

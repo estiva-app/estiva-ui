@@ -18,6 +18,23 @@ export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from '.
 export { Card, type CardAttention, type CardFill, type CardHover, type CardProps } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export { Chip, type ChipProps, type ChipType } from './Chip'
+export {
+  CommandPalette,
+  CommandPaletteAnswer,
+  CommandPaletteForm,
+  CommandPaletteQuote,
+  CommandPaletteSearch,
+  CommandPaletteWorking,
+  type CommandPaletteAnswerProps,
+  type CommandPaletteChip,
+  type CommandPaletteFormProps,
+  type CommandPaletteGroup,
+  type CommandPaletteProps,
+  type CommandPaletteQuoteProps,
+  type CommandPaletteRow,
+  type CommandPaletteSearchProps,
+  type CommandPaletteWorkingProps,
+} from './CommandPalette'
 export { ChipInput, InputChip, type ChipInputOption, type ChipInputProps, type InputChipProps } from './ChipInput'
 export {
   INLINE_CHIP_CLASSES,

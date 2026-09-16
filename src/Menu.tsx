@@ -409,8 +409,10 @@ export function menuItemClassName({ size, selected, className }: { size: 'defaul
   )
 }
 
-/** Everything inside the row — written once, for the same reason. */
-function MenuItemBody({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
+/** Everything inside the row — written once, for the same reason. Shared
+ *  inside the package like `menuItemClassName`: `CommandPalette` draws it
+ *  inside Base UI's `Autocomplete.Item`. Not exported from the index. */
+export function MenuItemBody({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
   const edge =
     trailing ??
     (shortcut ? (
