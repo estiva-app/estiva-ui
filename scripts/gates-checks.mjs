@@ -108,7 +108,8 @@ export default function define(h) {
       } },
     ] },
     { ref: "UIG-6", owner: true, checks: [
-      { what: "GitHub requires the gate lint to merge", run: () => h.protectedBranch(/gate|lint:rules/i) },
+      { what: "GitHub requires the check gate to merge into main", run: () => h.protectedBranch(/^gate$/) },
+      { what: "CI's job gate runs lint:rules", run: () => h.ciJob("gate", "lint:rules") },
     ] },
     { ref: "UIG-7", owner: true, checks: [] },
     { ref: "UIG-8", owner: true, checks: [] },
