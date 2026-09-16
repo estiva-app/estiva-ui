@@ -119,17 +119,24 @@ export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, class
   */
   const onKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
     props.onKeyDown?.(event)
-    if (event.key !== 'Enter' || event.defaultPrevented || event.nativeEvent.isComposing || event.altKey || event.shiftKey) return
+    if (event.key !== 'Enter' || event.defaultPrevented || event.nativeEvent.isComposing) return
     const target = event.target
+    const inInput = target instanceof HTMLInputElement
+    /*
+      In an input the browser sends a form on its own — on Enter with Shift or
+      Alt too (measured in Chrome: Shift+Enter sent Peek's comment box, 16
+      September) — so the form stops that every time and sends only by these
+      rules. A text area's Enter is a new line and a button's Enter presses it:
+      those are left to the browser.
+    */
+    if (inInput) event.preventDefault()
+    if (event.altKey || event.shiftKey) return
     if (event.ctrlKey || event.metaKey) {
       event.preventDefault()
       form.current?.requestSubmit()
       return
     }
-    // A text area's Enter is a new line; a button's Enter presses it.
-    if (!(target instanceof HTMLInputElement)) return
-    // Nothing else in an input sends on its own: not the browser's implicit submission either.
-    event.preventDefault()
+    if (!inInput) return
     const oneLine = ONE_LINE.has((target.getAttribute('type') ?? '').toLowerCase()) && target.getAttribute('role') !== 'combobox'
     if (enterSends && oneLine) form.current?.requestSubmit()
   }

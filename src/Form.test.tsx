@@ -126,6 +126,17 @@ describe('Form', () => {
       expect(onSubmit).toHaveBeenCalledTimes(1)
     })
 
+    it('Shift+Enter and Alt+Enter in a one-line field send nothing, even with a submit button', async () => {
+      const onSubmit = vi.fn()
+      render(<Harness onSubmit={onSubmit} />)
+      const field = screen.getByRole('textbox', { name: 'First' })
+      // The browser's implicit submission is the default action of this keydown: prevented, it does not happen.
+      for (const modifier of [{ shiftKey: true }, { altKey: true }]) {
+        expect(fireEvent.keyDown(field, { key: 'Enter', ...modifier })).toBe(false)
+      }
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+
     it('Enter with a submit button in the form sends once, not twice', async () => {
       const user = userEvent.setup()
       const onSubmit = vi.fn()
