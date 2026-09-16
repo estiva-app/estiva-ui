@@ -316,6 +316,21 @@ describe('CommandPaletteForm', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
 
+  it('sends nothing on a plain Enter in a field; the button sends, through the same Form submit', async () => {
+    const onSubmit = vi.fn()
+    const user = userEvent.setup()
+    render(<Form onSubmit={onSubmit} />)
+    const title = screen.getByRole('textbox', { name: 'Title' }) as HTMLInputElement
+    await waitFor(() => expect(document.activeElement).toBe(title))
+    await user.keyboard('A{Enter}')
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(title.value).toBe('A')
+    const button = screen.getByRole('button', { name: 'Create item' })
+    expect(button.getAttribute('type')).toBe('submit')
+    await user.click(button)
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+
   it('puts focus on the first field that needs something', async () => {
     const user = userEvent.setup()
     render(<Form />)

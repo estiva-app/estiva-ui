@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type FormHTMLAttributes, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, type FormHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react'
 import { Fieldset } from '@base-ui/react/fieldset'
 import { Form as BaseForm } from '@base-ui/react/form'
 import { cn } from './cn'
@@ -27,26 +27,57 @@ import { FormBusyContext, useFormBusy } from './formBusy'
  * When `busy` ends, focus goes to the first invalid field, else to what sent
  * the form, else to the first control. That is `CommandPalette`'s order
  * too, so the two read the same (UIG-29).
+ *
+ * The keys are ours, the same in every form (Katerina, 16 September): Enter in
+ * a one-line field sends; Enter in a text area is a new line; Enter in a list
+ * or a people picker picks; Ctrl+Enter (Cmd+Enter) sends from anywhere inside.
+ * The form sends on Enter itself rather than leaving it to the browser, whose
+ * implicit submission depends on whether the form has a submit button and how
+ * many fields it holds. `enterSends={false}` keeps Enter in a one-line field
+ * from sending, for a form where only Ctrl+Enter may send (`CommandPalette`).
+ * Every way of sending goes through the form's submit, so Base UI's field
+ * check runs for each.
  */
 export interface FormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children' | 'noValidate'> {
   /** Enter in a field, or a submit button. The page's own submit is already prevented. */
   onSubmit: () => void | Promise<void>
   /** While sending: every field and button inside is switched off, and focus waits on the form. */
   busy?: boolean
+  /**
+   * Whether Enter in a one-line field sends. On by default. Off where only
+   * Ctrl+Enter may send — a form inside `CommandPalette`. Ctrl+Enter sends either way.
+   */
+  enterSends?: boolean
   children: ReactNode
 }
 
 const CONTROL = 'input:not([type="hidden"]), textarea, select, button, [role="checkbox"], [role="combobox"], [tabindex]:not([tabindex="-1"])'
 
+/** The inputs a person types one line into; a picker's input (`role="combobox"`) is not one. */
+const ONE_LINE = new Set(['', 'text', 'search', 'email', 'url', 'tel', 'password', 'number'])
+
 function usable(element: Element | null): element is HTMLElement {
   return element instanceof HTMLElement && element.isConnected && element.matches(CONTROL) && !element.matches(':disabled') && element.getAttribute('aria-disabled') !== 'true'
 }
 
-export function Form({ onSubmit, busy: ownBusy = false, className, children, ...props }: FormProps) {
+/** A marked field's own control: Base UI marks the control and the `Field` around it. */
+function firstInvalid(form: HTMLElement): HTMLElement | undefined {
+  for (const marked of form.querySelectorAll('[data-invalid]')) {
+    if (usable(marked)) return marked
+    const inside = Array.from(marked.querySelectorAll(CONTROL)).find(usable)
+    if (inside) return inside
+  }
+  return undefined
+}
+
+export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, className, children, ...props }: FormProps) {
   // A form inside a busy form is busy too.
   const outerBusy = useFormBusy()
   const busy = ownBusy || outerBusy
   const form = useRef<HTMLFormElement>(null)
+  // Read at submit time: a form that is sending does not send again (Ctrl+Enter reaches it while busy).
+  const busyNow = useRef(busy)
+  busyNow.current = busy
   // What had focus when the form went busy, and whether the form took focus from it.
   const sender = useRef<Element | null>(null)
   const holding = useRef(false)
@@ -77,11 +108,38 @@ export function Form({ onSubmit, busy: ownBusy = false, className, children, ...
     holding.current = false
     // Someone who moved focus on while waiting keeps it where they put it.
     if (document.activeElement !== element && document.activeElement !== document.body) return
-    const invalid = Array.from(element.querySelectorAll('[data-invalid]')).find(usable)
-    const target = invalid ?? (usable(sender.current) ? sender.current : Array.from(element.querySelectorAll(CONTROL)).find(usable))
+    const target = firstInvalid(element) ?? (usable(sender.current) ? sender.current : Array.from(element.querySelectorAll(CONTROL)).find(usable))
     sender.current = null
     target?.focus()
   }, [busy])
+
+  /*
+    Bubble phase, after the field's own handler: a picker picks on Enter and
+    says so by preventing it, and a field that handles Enter itself does too.
+  */
+  const onKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    props.onKeyDown?.(event)
+    if (event.key !== 'Enter' || event.defaultPrevented || event.nativeEvent.isComposing) return
+    const target = event.target
+    const inInput = target instanceof HTMLInputElement
+    /*
+      In an input the browser sends a form on its own — on Enter with Shift or
+      Alt too (measured in Chrome: Shift+Enter sent Peek's comment box, 16
+      September) — so the form stops that every time and sends only by these
+      rules. A text area's Enter is a new line and a button's Enter presses it:
+      those are left to the browser.
+    */
+    if (inInput) event.preventDefault()
+    if (event.altKey || event.shiftKey) return
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault()
+      form.current?.requestSubmit()
+      return
+    }
+    if (!inInput) return
+    const oneLine = ONE_LINE.has((target.getAttribute('type') ?? '').toLowerCase()) && target.getAttribute('role') !== 'combobox'
+    if (enterSends && oneLine) form.current?.requestSubmit()
+  }
 
   return (
     <BaseForm
@@ -100,8 +158,10 @@ export function Form({ onSubmit, busy: ownBusy = false, className, children, ...
         if (next && !form.current?.contains(next)) lastInside.current = null
         props.onBlur?.(event)
       }}
+      onKeyDown={onKeyDown}
       onSubmit={(event) => {
         event.preventDefault()
+        if (busyNow.current) return
         void onSubmit()
       }}
     >
