@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.18.0 — 2026-09-16 — UIG-7, Form everywhere
+
+Katerina, 16 September: every form in the apps is the package `Form`, the command
+palette's included, with the same keys everywhere. Peek and Ship adopt it in their
+UIG-7 pull requests.
+
+### Added
+
+- **`Form`'s keys, the same in every form.** Enter in a one-line field sends — the form
+  does it, so it no longer depends on a submit button or on how many fields there are.
+  Enter in a text area is a new line; Enter in a list or a people picker picks; a field
+  that prevents its own Enter keeps it. Ctrl+Enter (Cmd+Enter) sends from anywhere
+  inside. Shift+Enter and Alt+Enter in a one-line field send nothing: the browser would
+  submit on its own, and the form stops it. A busy form ignores every send. All of
+  them go through the form's submit, so Base UI's field check runs for each.
+- **`Form`'s `enterSends`**, on by default: off, Enter in a one-line field does
+  nothing and only Ctrl+Enter sends.
+
+### Changed
+
+- **`CommandPaletteForm` is the package `Form`** (`enterSends={false}`), from the
+  fields to the button; the chip row stays outside, so its ✕ still goes back while the
+  form works. The button is `type="submit"` and Ctrl+Enter is the Form's, so both take
+  one path. The palette's own lock and focus effect is gone; the Form holds focus and
+  gives it back in the same order. Keys and look unchanged: walked against the key list
+  in Chrome, and the palette's stories identical, old code against new.
+  **Callers:** Peek's launcher. A form level whose missing marks are set on a send and
+  kept until the next one will not send again — Base UI's Form refuses to send while a
+  `Field` shows an error — so work a mark out from what is typed, as Peek's launcher
+  does. The palette's Form story now does too.
+
 ## 0.17.0 — 2026-09-16 — UIG-7, every raw element
 
 ### Changed
