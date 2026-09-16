@@ -90,7 +90,10 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
   send the highlight to the first or last row; the palette stops that.
 - **The field is named by its placeholder**, so say what it asks for.
 - **A form's fields go in `Field`s.** Mark the missing ones with `error` inside
-  `onSubmit`, and the first of them takes focus. `working` locks the fields,
+  `onSubmit`, and the first of them takes focus. The level is the package
+  **Form** (`enterSends={false}`), so work a mark out from what is typed — a
+  field that is filled must stop saying it is missing, or the Form will not
+  send again. `working` locks the fields,
   puts its words on the button and beside it, and holds focus on the form so
   Esc still closes it; when it clears, focus goes to the first field that needs
   something, or back where it was. `error` is what went wrong, beside the
@@ -111,7 +114,8 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 | | Home / End | move the text cursor; the lit row stays |
 | inside a level | Backspace at the start of the field, or the chip's ✕ | back, with focus in the field |
 | a form | Tab / Shift+Tab | between the fields, never out of the window |
-| | Ctrl+Enter | submits; if a field needs something, focus goes to the first |
+| | Enter in a text field | nothing; Enter in a text area is a new line |
+| | Ctrl+Enter, or the button | submits; if a field needs something, focus goes to the first |
 | | Backspace in an empty text field | back. In a form that is one list, Backspace anywhere; in a list inside a form with text fields, nothing |
 | | while working | nothing but Esc |
 | | Esc in an open list | closes the list first |

@@ -19,6 +19,7 @@ import { Button } from './Button'
 import { InputChip } from './ChipInput'
 import { EmptyState } from './EmptyState'
 import { FieldLine } from './Field'
+import { Form } from './Form'
 import { Kbd } from './Kbd'
 import { EnterHint, MenuItemBody, menuItemClassName } from './Menu'
 import { ScrollArea } from './ScrollArea'
@@ -484,15 +485,18 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
   const busy = !!working
   const busyRef = useRef(busy)
   busyRef.current = busy
-  const returnTo = useRef<HTMLElement | null>(null)
 
   /** A field that says it needs something: Base UI marks the `Field` itself. */
   const firstInvalid = () => frameRef.current?.querySelector<HTMLElement>('[data-invalid]')?.querySelector<HTMLElement>(CONTROL) ?? null
 
+  /*
+    The form's one way in: its button (type="submit") and Ctrl+Enter both
+    arrive here through the package Form's submit, so Base UI's field check
+    runs for both. The guard stays: a waiting button is focusable while
+    disabled, so it is not the browser that stops it.
+  */
   const submit = () => {
     if (busyRef.current || submitWaits) return
-    const active = document.activeElement
-    returnTo.current = active instanceof HTMLElement && frameRef.current?.contains(active) ? active : null
     onSubmit()
     // If the caller marked fields instead of starting, the first of them
     // takes focus: the key list's "focus goes to the first".
@@ -502,26 +506,12 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
   }
 
   /*
-    The lock must not lose focus.
-
-    Locking disables the fields, and a disabled field drops focus to the page
-    — measured in the prototype, where after Ctrl+Enter no key but Esc ever
-    worked again, even after the error came back. So while the form works,
-    focus sits on the form's own box, where its keys still arrive; when it
-    stops, focus goes to the first field that needs something, or back where
-    it was, or to the first field.
+    The lock must not lose focus — measured in the prototype, where after
+    Ctrl+Enter no key but Esc ever worked again. The package Form does it now
+    (UIG-7): while it works, focus sits on the form, where its keys still
+    arrive; when it stops, focus goes to the first field that needs something,
+    or back where it was, or to the first field.
   */
-  useLayoutEffect(() => {
-    if (busy) {
-      frameRef.current?.focus()
-      return
-    }
-    if (document.activeElement !== frameRef.current) return
-    const was = returnTo.current
-    const target = firstInvalid() ?? (was?.isConnected && !(was as HTMLButtonElement).disabled ? was : null) ?? firstControl(popupRef.current)
-    target?.focus()
-    // Runs when the lock changes, and reads the DOM it leaves behind.
-  }, [busy])
 
   /*
     Backspace goes back only where nothing typed is lost: from an empty text
@@ -541,12 +531,8 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
   const measure = () => setBackNamed(backWorksFrom(document.activeElement))
   useLayoutEffect(measure)
 
+  // Ctrl+Enter is the Form's; plain Enter in a field sends nothing here (`enterSends={false}`).
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault()
-      submit()
-      return
-    }
     if (e.key === 'Backspace' && !e.ctrlKey && !e.metaKey && !e.altKey && backWorksFrom(e.target as Element)) {
       e.preventDefault()
       back()
@@ -565,27 +551,29 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
         {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
         <LevelChip chip={chip} onBack={back} />
       </div>
-      <ScrollArea viewportClassName="max-h-[420px]" contentClassName="flex flex-col px-5 py-4">
-        {/* `contents`: the fieldset only locks; the fields lay out as if it
-            were not there. */}
-        <fieldset data-command-palette-fields="" disabled={busy} className="contents">
+      {/* The package Form, from the fields to the button (UIG-7). The chip row
+          stays outside it, so its ✕ still goes back while the form works; the
+          button row is inside it, so focus that was on the button is held.
+          The fields are found through data-command-palette-fields. */}
+      <Form data-command-palette-fields="" busy={busy} enterSends={false} onSubmit={submit} className="flex min-h-0 flex-col">
+        <ScrollArea viewportClassName="max-h-[420px]" contentClassName="flex flex-col px-5 py-4">
           <div className="flex flex-col gap-4">{children}</div>
-        </fieldset>
-      </ScrollArea>
-      <div className="flex shrink-0 items-center gap-3 px-5 pb-4">
-        <div className="min-w-0 flex-1">
-          {working ? <FieldLine>{working.line}</FieldLine> : error ? <FieldLine tone="error">{error}</FieldLine> : null}
+        </ScrollArea>
+        <div className="flex shrink-0 items-center gap-3 px-5 pb-4">
+          <div className="min-w-0 flex-1">
+            {working ? <FieldLine>{working.line}</FieldLine> : error ? <FieldLine tone="error">{error}</FieldLine> : null}
+          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={busy}
+            disabledReason={busy ? undefined : submitWaits}
+            leadingIcon={busy ? <IconLoader2 size={16} stroke={1.5} className="animate-spin" /> : undefined}
+          >
+            {working ? working.button : submitLabel}
+          </Button>
         </div>
-        <Button
-          variant="primary"
-          onClick={submit}
-          disabled={busy}
-          disabledReason={busy ? undefined : submitWaits}
-          leadingIcon={busy ? <IconLoader2 size={16} stroke={1.5} className="animate-spin" /> : undefined}
-        >
-          {working ? working.button : submitLabel}
-        </Button>
-      </div>
+      </Form>
       <Footer keys={keys} />
     </div>
   )

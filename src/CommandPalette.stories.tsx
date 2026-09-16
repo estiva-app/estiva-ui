@@ -155,7 +155,11 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
 
   // ── The form keeps what was typed while the palette is open.
   const [draft, setDraft] = useState({ title: '', notes: '', kind: 'one', group: '' })
-  const [missing, setMissing] = useState<{ title?: string; group?: string }>({})
+  // What a field needs is worked out from the draft once a send has been tried, so a field that is
+  // filled stops saying so at once. A mark left standing would keep the Form from ever sending.
+  const [tried, setTried] = useState(false)
+  const need = { title: draft.title.trim() ? undefined : 'Give it a title.', group: draft.group ? undefined : 'Choose a group.' }
+  const missing: { title?: string; group?: string } = tried ? need : {}
   const [working, setWorking] = useState(false)
   const [refused, setRefused] = useState(false)
   const [kind, setKind] = useState('one')
@@ -264,8 +268,7 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
   }, [frame, level, asked, recent, searching])
 
   const submitForm = async () => {
-    const need = { title: draft.title.trim() ? undefined : 'Give it a title.', group: draft.group ? undefined : 'Choose a group.' }
-    setMissing(need)
+    setTried(true)
     setRefused(false)
     if (need.title || need.group) return
     setWorking(true)
