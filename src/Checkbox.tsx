@@ -1,6 +1,8 @@
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox'
+import { Field as BaseField } from '@base-ui/react/field'
 import { IconCheck } from '@tabler/icons-react'
 import { cn } from './cn'
+import { useFormBusy } from './formBusy'
 
 /**
  * A 16px square that fills with the accent when checked — Peek's Checkbox
@@ -25,11 +27,13 @@ import { cn } from './cn'
  * the `<button>` this used to be land on the same pixel, measured. In a flex
  * row nothing ever moved.
  *
- * With `label`, the words sit beside the box and are part of the target: an
- * enclosing `<label>`, which Base UI calls "the simplest labeling pattern".
- * The class list is Peek's Read state panel's, where it was written by hand
- * (UIG-7, 16 September). The words keep their colour when the box is
- * disabled (Katerina: "no need").
+ * With `label`, the words sit beside the box and are part of the target: Base
+ * UI's `Field`, its `Field.Label` around the box and the words — the way its
+ * Checkbox page labels a checkbox inside a form. The class list is Peek's
+ * Read state panel's, where it was written by hand (UIG-7, 16 September). The
+ * words keep their colour when the box is disabled (Katerina: "no need").
+ *
+ * Inside a busy `Form` it is disabled, and looks it (`formBusy.ts`).
  */
 export interface CheckboxProps {
   checked: boolean
@@ -61,7 +65,9 @@ const tickClasses = (checked: boolean) => cn('flex', !checked && 'invisible')
 
 const WORDS_CLASSES = 'text-body-2 text-text-primary'
 
-export function Checkbox({ checked, onChange, disabled = false, label, className, ...aria }: CheckboxProps) {
+export function Checkbox({ checked, onChange, disabled: ownDisabled = false, label, className, ...aria }: CheckboxProps) {
+  const formBusy = useFormBusy()
+  const disabled = ownDisabled || formBusy
   if (!onChange) {
     const picture = (
       <span aria-hidden="true" className={squareClasses(checked, disabled, false, className)}>
@@ -96,10 +102,12 @@ export function Checkbox({ checked, onChange, disabled = false, label, className
   )
   if (label === undefined) return box
   return (
-    // No pointer over words that toggle nothing.
-    <label className={cn('flex items-center gap-2', !disabled && 'cursor-pointer')}>
-      {box}
-      <span className={WORDS_CLASSES}>{label}</span>
-    </label>
+    <BaseField.Root disabled={disabled}>
+      {/* No pointer over words that toggle nothing. */}
+      <BaseField.Label className={cn('flex items-center gap-2', !disabled && 'cursor-pointer')}>
+        {box}
+        <span className={WORDS_CLASSES}>{label}</span>
+      </BaseField.Label>
+    </BaseField.Root>
   )
 }

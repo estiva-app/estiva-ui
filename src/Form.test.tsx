@@ -14,6 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Button } from './Button'
+import { Checkbox } from './Checkbox'
+import { IconButton } from './IconButton'
 import { Field } from './Field'
 import { Form } from './Form'
 import { TextInput } from './TextInput'
@@ -104,6 +106,33 @@ describe('Form', () => {
     expect(controls().every((c) => c.matches(':disabled'))).toBe(true)
     rerender(<Harness />)
     expect(controls().every((c) => !c.matches(':disabled'))).toBe(true)
+  })
+
+  it("switches the package's own parts off in their own look, not only the browser's way", async () => {
+    // A disabled part has pointer-events: none; the click is tried anyway, as a person would.
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    const onTick = vi.fn()
+    const parts = (busy: boolean) => (
+      <Form onSubmit={() => {}} busy={busy} aria-label="Probe">
+        <Button type="submit">Send</Button>
+        <IconButton aria-label="Icon">x</IconButton>
+        <Checkbox checked={false} onChange={onTick} aria-label="Bare" />
+        <Checkbox checked={false} onChange={onTick} label="Words" />
+      </Form>
+    )
+    const { rerender, getByRole, getByText } = render(parts(false))
+    const drawnOff = () => ['Send', 'Icon'].map((name) => getByRole('button', { name }).hasAttribute('data-disabled'))
+    expect(drawnOff()).toEqual([false, false])
+    rerender(parts(true))
+    // Button and IconButton take their switched-off classes from Base UI's state, which data-disabled shows.
+    expect(drawnOff()).toEqual([true, true])
+    expect(getByRole('checkbox', { name: 'Bare' }).getAttribute('aria-disabled')).toBe('true')
+    // A checkbox is a span: the fieldset alone never stopped a click on it.
+    await user.click(getByRole('checkbox', { name: 'Bare' }))
+    await user.click(getByText('Words'))
+    expect(onTick).not.toHaveBeenCalled()
+    rerender(parts(false))
+    expect(drawnOff()).toEqual([false, false])
   })
 
   it('holds focus on the form while busy, never on a disabled field', () => {

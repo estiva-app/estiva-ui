@@ -23,8 +23,8 @@
 
 ### Added
 
-- **`Checkbox` takes `label`**: words beside the box, in an enclosing `<label>`, so
-  clicking them toggles it and they name it. The class list is Peek's Read state
+- **`Checkbox` takes `label`**: words beside the box, on Base UI's `Field` and
+  `Field.Label`, so clicking them toggles it and they name it. The class list is Peek's Read state
   panel's, which wrote it by hand. Disabled, only the box shows it; the words keep
   their colour (Katerina, 16 September) and lose the pointer. `className` stays on the
   box. Existing stories are identical pixel for pixel, both themes.
@@ -35,6 +35,11 @@
   ends, focus goes to the first invalid field, else back to what sent the form, else
   to the first control. The apps' five forms wrote this by hand. Storybook:
   `Inputs/Form`.
+- **`Button`, `IconButton` and `Checkbox` are disabled inside a busy `Form`**, and
+  wear their own disabled look. A fieldset switches a native control off but does
+  not tell Base UI, so these three — whose look follows Base UI's state — looked
+  usable while they could not be pressed, and a `Checkbox` could still be ticked
+  (Katerina, from the Busy story). Nothing changes outside a `Form`.
 - **`FilePicker`**: the browser's file picker with nothing drawn — a hidden
   `<input type="file">` your own button opens through its ref. `onPick` gets the
   chosen files as an array, only when something was chosen, and the picker clears

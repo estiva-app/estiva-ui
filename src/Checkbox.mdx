@@ -51,9 +51,12 @@ import { Checkbox } from '@estiva-app/ui'
 <Checkbox checked={on} onChange={setOn} label="Label" />
 ```
 
-- With `label` it draws an enclosing `<label>`: the box, 8px, then the
-  words in `body-2`. `className` stays on the box. When disabled, only the
-  box shows it; the words keep their colour and lose the pointer.
+- With `label` it is Base UI's `Field`, its `Field.Label` around the box and
+  the words: the box, 8px, then the words in `body-2`. `className` stays on
+  the box. When disabled, only the box shows it; the words keep their colour
+  and lose the pointer. It is a field of its own, so it does not go inside a
+  **Field**.
+- Inside a busy **Form** it is disabled, and looks it.
 - It does not move when it toggles: the tick is always in the box, hidden
   when unchecked, so both states hang on a line of text the same way.
 

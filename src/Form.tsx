@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, type FormHTMLAttributes, type ReactNode } from
 import { Fieldset } from '@base-ui/react/fieldset'
 import { Form as BaseForm } from '@base-ui/react/form'
 import { cn } from './cn'
+import { FormBusyContext, useFormBusy } from './formBusy'
 
 /**
  * A form: Enter in a field, or a submit button, sends it, and the page never
@@ -16,7 +17,9 @@ import { cn } from './cn'
  *
  * `busy` is ours. While it is on, the children sit in a disabled
  * `<fieldset>` (Base UI's `Fieldset`, with no box of its own), so every field
- * and button inside is switched off at once, and focus waits on the form
+ * and button inside is switched off at once — the package's Button,
+ * IconButton and Checkbox wearing their own switched-off look, which a
+ * fieldset alone does not give them (`formBusy.ts`) — and focus waits on the form
  * rather than falling to the page. Chrome drops focus to `<body>` the moment
  * the focused field is disabled, before any effect runs, and jsdom does not —
  * so the form remembers the last element inside it that had focus, and takes
@@ -39,7 +42,10 @@ function usable(element: Element | null): element is HTMLElement {
   return element instanceof HTMLElement && element.isConnected && element.matches(CONTROL) && !element.matches(':disabled') && element.getAttribute('aria-disabled') !== 'true'
 }
 
-export function Form({ onSubmit, busy = false, className, children, ...props }: FormProps) {
+export function Form({ onSubmit, busy: ownBusy = false, className, children, ...props }: FormProps) {
+  // A form inside a busy form is busy too.
+  const outerBusy = useFormBusy()
+  const busy = ownBusy || outerBusy
   const form = useRef<HTMLFormElement>(null)
   // What had focus when the form went busy, and whether the form took focus from it.
   const sender = useRef<Element | null>(null)
@@ -100,7 +106,7 @@ export function Form({ onSubmit, busy = false, className, children, ...props }: 
       }}
     >
       <Fieldset.Root disabled={busy} className="contents">
-        {children}
+        <FormBusyContext.Provider value={busy}>{children}</FormBusyContext.Provider>
       </Fieldset.Root>
     </BaseForm>
   )
