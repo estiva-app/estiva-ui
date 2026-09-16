@@ -86,7 +86,8 @@ export default function define(h) {
     { ref: "UIG-3", owner: false, checks: [
       { what: "the lint plugin lives in src/eslint", run: () => h.listFiles("src/eslint", (n) => /^index\.(m?[jt]s)$/.test(n)).length ? h.PASS("src/eslint has an index") : h.FAIL("src/eslint has no index file") },
       { what: "package.json exports ./eslint", run: () => h.contains("package.json", '"./eslint"', "package.json exports ./eslint") },
-      { what: "the plugin has no-raw-button", run: () => h.listFiles("src/eslint", () => true).some((f) => h.read(f).includes("no-raw-button")) ? h.PASS("src/eslint defines no-raw-button") : h.FAIL("no no-raw-button in src/eslint") },
+      // UIG-3's rule was no-raw-button; UIG-7 made it no-raw-element, which still refuses a raw <button> naming Button.
+      { what: "the plugin refuses a raw <button>, naming Button", run: () => h.contains("src/eslint/no-raw-element.ts", "button: { use: 'Button' }", "src/eslint/no-raw-element.ts maps <button> to Button") },
     ] },
     { ref: "UIG-5", owner: true, checks: [
       ...chain(),
@@ -111,7 +112,24 @@ export default function define(h) {
       { what: "GitHub requires the check gate to merge into main", run: () => h.protectedBranch(/^gate$/) },
       { what: "CI's job gate runs lint:rules", run: () => h.ciJob("gate", "lint:rules") },
     ] },
-    { ref: "UIG-7", owner: true, checks: [] },
+    { ref: "UIG-7", owner: true, checks: [
+      { what: "the apps' rule is no-raw-element, and it is the only app rule", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*\}/, "src/eslint/index.ts gives the apps exactly no-raw-element") },
+      { what: "every part the mapping names is exported", run: () => {
+        // A map's `use`, and the parts its messages name after it (`InlineChip`, `ConfirmDialog`…).
+        const map = h.read("src/eslint/no-raw-element.ts");
+        const named = [...new Set([...map.matchAll(/use: '(\w+)'|`([A-Z]\w+)`/g)].map((m) => m[1] ?? m[2]))];
+        const exported = new Set([...h.read("src/index.ts").matchAll(/export \{([^}]*)\}/g)].flatMap((m) => m[1].split(",").map((s) => s.trim())));
+        const missing = named.filter((n) => !exported.has(n));
+        if (named.length === 0) return h.FAIL("the mapping names no part");
+        return missing.length === 0 ? h.PASS(`${named.length} parts named, all exported: ${named.join(", ")}`) : h.FAIL(`named but not exported: ${missing.join(", ")}`);
+      } },
+      { what: "Form, FilePicker and Checkbox's label exist for the apps' forms, file pickers and tick-box words", run: () => {
+        const exported = new Set([...h.read("src/index.ts").matchAll(/export \{([^}]*)\}/g)].flatMap((m) => m[1].split(",").map((s) => s.trim())));
+        const missing = ["Form", "FilePicker"].filter((n) => !exported.has(n));
+        if (!/\blabel\?: string/.test(h.read("src/Checkbox.tsx"))) missing.push("Checkbox's label");
+        return missing.length === 0 ? h.PASS("Form and FilePicker exported; Checkbox takes label") : h.FAIL(`missing: ${missing.join(", ")}`);
+      } },
+    ] },
     { ref: "UIG-8", owner: true, checks: [] },
     { ref: "UIG-9", owner: true, checks: [] },
     { ref: "UIG-10", owner: true, checks: [
