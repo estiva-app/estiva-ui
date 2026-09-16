@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.19.0 — 2026-09-16 — UIG-8, behaviour rebuilt by hand
+
+Katerina, 16 September. Peek and Ship adopt it in their UIG-8 pull requests.
+
+### Changed
+
+- **A second lint rule for the apps, `estiva/no-rebuilt-behaviour`**, in
+  `configs.recommended` and `strict` beside `no-raw-element`. It refuses behaviour a
+  part of this package already owns, written by hand, and names the part:
+  - a Base UI import → the component built on that module (`@base-ui/react/dialog` →
+    `DialogShell`), or, for a module no component uses, "ask Katerina";
+  - `createPortal` → the floating parts, which carry their own;
+  - a press, key, focus, scroll or resize listener on `window` or `document` →
+    `Popover`, `Menu`, `Select`, `DialogShell`, `PreviewCard`, `Tabs`, `Toolbar`;
+  - the page's scroll locked by hand → `DialogShell`;
+  - arrow keys, Home, End, PageUp, PageDown or Tab compared by hand → `Menu`, `Select`,
+    `ChipInput`, `CommandPalette`, `Tabs`, `Toolbar` (Enter and Escape are typing, and
+    not read);
+  - a hand-written `role` a part sets (`option` → `Select`, `ChipInput`,
+    `CommandPalette` or `Checkbox` `row`; `alert` → `FieldLine`…), or one the
+    package has no part for yet;
+  - `tabIndex` 0 or more on an element that is not a control → `Button`,
+    `IconButton`, `Link`;
+  - `overflow-auto` / `-scroll`, behind any variant, or in a style → `ScrollArea`.
+
+  It cannot find a box that should scroll and does not: that has no class to read.
+  `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint`, lists each behaviour,
+  the Base UI parts that do it, the components that own it and what the rule reads.
+  **Callers:** an app that takes this release is refused on more than it was. On the
+  16 September mains it found **Peek 15**: `AddToOpenWorkDialog`, `FreshnessIndicator`,
+  `HuddleCreator` (2), `SelectionToolbar`, `layouts/AppShell`,
+  `ui/FileAttachmentCard`, `ui/SlashMenu` (2), `ui/FilesMenu` (2), `ui/MentionMenu`,
+  `extensions/SuggestionPopover`, `extensions/mention`, `ui/DateDivider.stories`;
+  **Ship 4**: `Composer`, `ui/DescriptionEditing`, `ui/DescriptionEditor`,
+  `ui/prose.ts`. Each app's count file gains the rule's row. Lint `.ts` as well as
+  `.tsx`: a listener in a hook file is behaviour too.
+
+- **`ScrollArea`'s bar sits above sticky rows** (`z-10`). A sticky row inside a
+  region — a date line, `sticky top-0 z-10` — hid the bar wherever it crossed it.
+  Measured in Chrome with the pointer over a scrolled region: without it the thumb is
+  cut under the heading, with it the thumb is whole. At rest nothing moves: every
+  existing `ScrollArea` story is identical, both themes.
+  **Callers:** Peek's topic and direct-message lists (`views/useTopicView.tsx`,
+  `views/useDmConversationView.tsx`) lose the gap; nothing else changes.
+
+### Added
+
+- **`Checkbox` `row`**, with `leading`: a list you tick several from, where the whole
+  row is the target — a picture, the words, the box at the end — and the row fills on
+  hover and while checked (Katerina's pick, 16 September). The class list is Peek's
+  "Add to Open work" rows, which drew it by hand as `role="option"`; on the package
+  part they are identical, pixel for pixel. Needs `label` and `onChange`. Existing
+  `Checkbox` stories identical, both themes.
+  **Callers:** Peek `AddToOpenWorkDialog` moves onto it.
+
 ## 0.18.0 — 2026-09-16 — UIG-7, Form everywhere
 
 Katerina, 16 September: every form in the apps is the package `Form`, the command
