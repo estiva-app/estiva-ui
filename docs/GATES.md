@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, night. UIG-7 is done: one lint rule, `estiva/no-raw-element`, refuses every raw interactive element in Peek and Ship and names the part to use — `Link`, `TextInput`, `Form`, `FilePicker`… — or, for an element the package has no part for yet, says to ask Katerina. It found 3 in Peek and 6 in Ship: all 9 replaced, none escaped. The package gained `Form`, `FilePicker`, `Checkbox`'s `label` and hover on the text fields (0.17.0, estiva-ui PR #45), and every form in both apps, the command palette's included, is the package `Form` with the same keys everywhere (0.18.0, estiva-ui PR #47; peek PR #234, ship PR #158, merged and deployed). See UIG-7: building it, below.**
+
 **16 September 2026, evening. UIG-29 is built: Peek's launcher sits on a new package component, `CommandPalette` — Base UI's `Dialog` with an `Autocomplete` inside, the list inline — released as `@estiva-app/ui` 0.16.0 and 0.16.1 (estiva-ui PR #43, #44), taken by Peek in peek PR #233, merged and deployed. The move and a UX review happened together: every key does what Katerina ruled, checked key by key in Chrome, and she tried it on real data before it merged. Every count UIG-1 made in the file is replaced and none escaped; the 60 token escapes and 29 escape notes naming UIG-29 went with the old file. Two parts of ruling C5 are not built: a chip in the composer for a created issue, and a "created an issue" line in the thread. See UIG-29: building it, below.**
 
 **16 September 2026, later again. UIG-6 is done: GitHub refuses a merge into `main` in all three repos unless the gate lint passes, and nobody can skip it, admins included. The gate is a CI job of its own, `gate`, because GitHub can require only a whole job (estiva-ui PR #40, peek PR #227, ship PR #155). Katerina set the rule in estiva-ui; Jan set it in Peek and Ship, where only he is admin. Proved in each repo: a pull request with one raw `<button>` was refused — "Required status check "gate" is failing" — and the three pull requests above merged under the rule, with Peek and Ship deploying after. Nothing was required before, and the typechecks and tests stay optional. `gates:status` reads 6 of 6 now that it reads rules the way anyone may (estiva-ui PR #42, peek PR #230, ship PR #157). Next: UIG-7. See UIG-6: building it, below.**
@@ -43,6 +45,7 @@ answer
 | ✅ **UIG-5** | estiva-ui PR #39: the package's own chain, with four inward rules in a config of its own (`configs.package`): a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. 2 found, both fixed, 0 escaped. `gates:status` reads 12 of 12. See **UIG-5: building it**, below. |
 | ✅ **UIG-6** | A ruleset, "gate on main", in each repo: a merge or push into `main` needs `gate` green, from GitHub Actions; nobody on the bypass list; `main` cannot be deleted or force-pushed. The gate lint is a CI job of its own, `gate`: estiva-ui PR #40, peek PR #227, ship PR #155. `gates:status` reads rulesets: estiva-ui PR #42, peek PR #230, ship PR #157. Refused 3 of 3, clean merges 3 of 3, deploys 2 of 2. `gates:status` reads 6 of 6. See **UIG-6: building it**, below. |
 | ✅ **UIG-29** | Package: estiva-ui PR #43 (0.16.0, `CommandPalette` and its parts) and PR #44 (0.16.1, `notes`, and the late-row rule narrowed). Peek: peek PR #233 — the launcher on the palette, with Katerina's UX rulings, recents, and a message result opening at the message. UIG-1's count for the file: every row replaced, 0 escaped. `gates:status` reads Peek's part 2 of 2. Not built: C5's composer chip and thread line. See **UIG-29: building it**, below. |
+| ✅ **UIG-7** | Package: estiva-ui PR #45 (0.17.0 — the rule `no-raw-element`, `Form`, `FilePicker`, `Checkbox`'s `label`, hover on text fields) and PR #47 (0.18.0 — `Form`'s keys, `CommandPaletteForm` on `Form`). Peek: peek PR #234. Ship: ship PR #158. Peek 3 = 3 replaced + 0 escaped; Ship 6 = 6 + 0; every form in both apps on `Form`. `gates:status` reads 18 of 18. See **UIG-7: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -161,9 +164,139 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-5: estiva-ui PR #39 (**UIG-5: building it**, below) |
 | ✅ done | UIG-6: estiva-ui PR #40 and #42, peek PR #227 and #230, ship PR #155 and #157, and a ruleset in each repo (**UIG-6: building it**, below) |
 | ✅ done | UIG-29: estiva-ui PR #43 (0.16.0) and #44 (0.16.1); peek PR #233 (**UIG-29: building it**, below) |
-| **now** | phase 1: **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
+| ✅ done | UIG-7: estiva-ui PR #45 (0.17.0) and #47 (0.18.0); peek PR #234 and ship PR #158 (**UIG-7: building it**, below) |
+| **now** | phase 1: **UIG-8** → **UIG-9**. UIG-30 any time |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-7: building it
+
+**Where.** estiva-ui: branch `gates/07-raw-elements` → PR #45, merged (`b51136a`), released as **0.17.0**; branch `gates/07-form-everywhere` → PR #47, merged (`3b84334`), released as **0.18.0**. Ship: branch `gates/07-raw-elements` → ship PR #158, merged (`27113cd`), deployed (run 35107662706). Peek: branch `gates/07-raw-elements` → peek PR #234, rebased on peek #233 (UIG-29) and #235, merged (`02e5f04`), deployed (run 35108023078). `gates:status` from estiva-ui with both apps' merged code: UIG-7 18 of 18; 10 done, 0 started, 20 not started. Built in worktrees `estiva-ui-uig07`, `ship-uig07` and `peek-uig07`, from mains `8f27208`, `15d3c04` and `0e65a5b`. Storybooks `:6520`, `:6522`, `:6521`. Photos: `K:\Estiva\uig07-review\`.
+
+**Katerina's rulings, 16 September**
+
+| | question | ruling |
+|---|---|---|
+| L1 | The launcher's search field: change it, or keep it with a reason naming UIG-29? | **Keep it with a reason.** Overtaken: UIG-29's rewrite (peek #233) merged first and left no raw `<input>`, so no escape was written. |
+| L2 | Peek's and Ship's three hidden file pickers: a package part, or keep them with a reason and a ticket? | **A package part**, named **`FilePicker`** — "file" allowed, because it means a file on the computer, not an app's Files. Base UI has no part for it (her question). |
+| L3 | Peek's tick box with words beside it: the Checkbox carries its own words? Grey words when disabled? | **Yes**, and **"no need"** for grey words. On her question, the words went onto Base UI's `Field.Label`. |
+| L4 | Forms: not refused, since a form draws nothing? | **"forms should be part of this ticket"**: a package `Form` on Base UI's `Form`, and the rule refuses a plain `<form>`. |
+| L5 | An element the package has no part for (a video, an embedded page, a slider, a date…) | **Refused, and she should know**: the message says to ask Katerina, and the part gets made in the package. An automatic Peek message when it happens: **"leave it out"**. |
+| L6 | Where `Form` and `FilePicker` go in Storybook | **Inputs.** |
+| L7 | The Busy story showed nothing | A defect, fixed in PR #45: a disabled fieldset left `Button`, `IconButton` and `Checkbox` looking usable (and a Checkbox tickable). They read `formBusy.ts` now. |
+| L8 | Text fields had no hover, where `Select` and `ChipInput` do | **"yes on this PR"**: `TextInput`, `Textarea` and `SearchInput` take `hover:border-border-strong`. |
+| L9 | Order with UIG-29 | UIG-29 took 0.16.0 and 0.16.1; UIG-7 took 0.17.0 and 0.18.0. UIG-29's Peek PR merged first (Katerina), and UIG-7's rebased on it. |
+| L10 | The places the checker cannot see — a dialog that sends without a plain `<form>` — in a new ticket? | **No new ticket: "form everywhere needs to happen now"**, in these PRs: every dialog or panel where fields are filled in and sent, the launcher's forms included. |
+| L11 | The command palette's form ("later", in UIG-29) | **"now not later"**, and its keys stay the key list's: Enter in a field does nothing, Ctrl+Enter sends. |
+| L12 | The keys, in every other form | **Yes**: Enter in a one-line field sends; Enter in a text area is a new line; Enter in a list or a picker picks; Ctrl+Enter sends from anywhere. |
+
+**The mapping** (acceptance: derived from `src/index.ts`, checked against the HTML standard's list of interactive content — "a, audio (if controls), button, details, embed, iframe, img (if usemap), input (if not hidden), label, select, textarea, video (if controls)" — plus the three elements the package has a part for that the list leaves out). It lives in the rule as `RAW_ELEMENT_PARTS` and `RAW_INPUT_PARTS`; a test generates one case per row.
+
+| raw element | the message names |
+|---|---|
+| `<a>` | `Link` — for a chip `InlineChip`, for a whole card `Card` with `href` |
+| `<button>` | `Button` (UIG-3's message, word for word) |
+| `<input>` — no type, text, email, password, url, tel, number, unknown | `TextInput` |
+| `<input type="search">` / `"checkbox"` / `"file"` | `SearchInput` / `Checkbox` / `FilePicker` |
+| `<input type="submit">`, `"button"`, `"reset"`, `"image"` | `Button` |
+| `<input>` with a computed type | `TextInput`, and the other three by type |
+| `<textarea>` / `<select>` | `Textarea` / `Select` |
+| `<dialog>` | `DialogShell` — to ask yes or no, `ConfirmDialog` |
+| `<label>` | `Field` — for words beside a tick box, `Checkbox` with `label` |
+| `<details>` / `<progress>` / `<form>` | `CollapsibleSection` / `ProgressBar` / `Form` |
+| `<iframe>`, `<embed>`, `<object>`, `<meter>`, `<audio>` or `<video>` with `controls`, `<img>` with `usemap`, `<input>` radio, range, color, date, datetime-local, month, week, time | **no part yet**: "Do not build one here: ask Katerina, and it gets made in @estiva-app/ui." |
+| **not reported** | `<input type="hidden">` (draws nothing); `<summary>` (its `<details>` is); `<option>`, `<optgroup>`, `<datalist>` (parts of another control); `<fieldset>`, `<legend>`; `<audio>`/`<video>` without `controls`; `<img>` without `usemap`; every element that is not a control |
+
+One rule: `estiva/no-raw-button` renamed `estiva/no-raw-element`. The escape helper and the config shape are UIG-3's. The id is in each app's `.gates-count.json` and Ship's `docs/GATES-DEBT.md`; UIG-3's own check in estiva-ui now reads that `<button>` maps to `Button`.
+
+**The count** (acceptance: count with the rule or an AST pass, never a line search). Every `.tsx` the gate lints, stories in, tests out, read from git's copy of each main with the TypeScript parser, then linted with the rule itself.
+
+| app | main | files | the rule refused |
+|---|---|---|---|
+| Ship | `15d3c04` | 93 (19 stories) | **6**: `<form>` in `Composer`, `NewIssueDialog`, `NewProjectDialog`, `PairFolderDialog`; `<input type="file">` in `Composer`, `ui/DescriptionEditing` |
+| Peek | `9b86ecd` | 187 (63 stories) | **3**: `<label>` in `ReadStatePanel`; `<input type="file">` in `ui/AttachFiles`; `<form>` in `ui/ForeignObjectWidget` |
+
+No raw `<a>`, `<textarea>`, `<select>`, `<dialog>` or `<details>` in either app, and nothing with no part yet. Peek's full-screen picture ✕ keeps UIG-3's escape. Not JSX, so not the rule's: one `document.createElement('a')` per app, for a download.
+
+**The arithmetic, against UIG-1's count (12 September).** Replaced + escaped = UIG-1's count, with what went since named.
+
+| element | app | UIG-1 | gone before UIG-7 | replaced | escaped |
+|---|---|---|---|---|---|
+| `<a>` | Peek / Ship | 7 / 7 | 7 / 7 — UIG-27 (peek #218, ship #151) | 0 | 0 |
+| `<input>` | Peek | 4 | 3 — the people picker (peek #201), the reference widget's field (peek #222), the launcher's field (peek #233) | 1 | 0 |
+| `<input>` | Ship | 2 | 0 | 2 | 0 |
+| `<textarea>` | Peek | 1, a story | 1 — the Signal Theme page (peek #225) | 0 | 0 |
+| `<select>`, `<dialog>` | both | 0 | — | 0 | 0 |
+| `<form>` | Peek / Ship | not counted (L4) | — | 1 / 4 | 0 |
+| `<label>` | Peek | not counted for apps | — | 1 | 0 |
+
+**Peek: 3 = 3 replaced + 0 escaped. Ship: 6 = 6 replaced + 0 escaped.** `.gates-count.json`: Peek 0 errors, 1 escape (UIG-3's); Ship 0, 0.
+
+**Form everywhere (L10).** What the checker cannot see — a dialog or a row that sends its fields without a plain `<form>` — found by reading every file that draws a field beside a send button, in the apps and the package:
+
+| where | now |
+|---|---|
+| Peek: Start topic, Create topic, Resolve, Add members, Move file, Add to open work | the fields are a `Form`; the footer's send button is `type="submit"` for it; busy where the send waits |
+| Peek: Topic details' rename, the comment box, the new-folder row, the selection toolbar's link field | `Form` (with `busy` where a send waits); their hand-written Enter handlers are gone |
+| Peek: the launcher's forms | the palette's `Form`, from the package |
+| Ship: editing a message | `Form` with `busy` |
+| estiva-ui: `CommandPaletteForm` | the package `Form`, `enterSends={false}` (L11) |
+| not a form, unchanged | Peek's huddle starter (its message box sends); `EditableText` (commits on Enter or blur); a Select that saves on change |
+
+What a person notices: Enter in Create topic's title creates (it did nothing); Ctrl+Enter sends every form; Shift+Enter in the new-folder field no longer creates; while a send waits, the row's field locks with its button.
+
+**What the package gained**
+
+| release | part | what |
+|---|---|---|
+| 0.17.0 | `Form` | Base UI's `Form`: the page's submit prevented; a field showing its error stops it sending and takes focus. `busy` switches everything inside off (a Base UI `Fieldset`, `display: contents`) and holds focus on the form; when it ends, focus goes to the first invalid field, else back to what sent it, else the first control — `CommandPalette`'s order. |
+| 0.17.0 | `FilePicker` | A hidden `<input type="file">` the caller's button opens through its ref; `onPick(File[])` only when something was chosen; clears itself, so the same file can be chosen again. |
+| 0.17.0 | `Checkbox` `label` | The words beside the box, on Base UI's `Field` and `Field.Label`. Peek's class list. |
+| 0.17.0 | `formBusy.ts` | Not exported: `Button`, `IconButton` and `Checkbox` are disabled, and look it, inside a busy `Form`. |
+| 0.17.0 | hover on text fields | `TextInput`, `Textarea`, `SearchInput`: `hover:border-border-strong`, as `Select` and `ChipInput`. |
+| 0.18.0 | `Form`'s keys | L12, done by the form rather than left to the browser: Enter in a one-line field sends whatever the buttons and fields; Shift+Enter and Alt+Enter there send nothing; Ctrl+Enter sends from anywhere; a busy form ignores every send; each goes through the submit, so Base UI's field check runs. `enterSends={false}` turns off the plain Enter. |
+| 0.18.0 | `CommandPaletteForm` | On `Form` (L11). The chip row stays outside, so its ✕ still goes back while the form works; the button row is inside, so focus on the button is held; the button is a submit and Ctrl+Enter the Form's, one path. |
+
+**Proof**
+
+- **The rule.** 119 cases in `src/eslint`, every row of the mapping and every input type generated from the exported maps. Old files against the new rule: Ship 6 errors, Peek 3, each naming its part; the apps' branches: 0.
+- **The package.** 524 tests at 0.18.0; `lint` 0 errors, 135 warnings, none from changed files; `lint:rules` 0 with its count file unchanged; typecheck, build; CI green on both PRs (check, gate, a11y). Each published tarball checked for its parts.
+- **In Chrome.**
+  - `Form`: focus waits on the form while busy and comes back. A jsdom-only test passed while Chrome dropped focus to the page; see findings.
+  - `FilePicker`: opens the picker, takes the same file twice, ignores an empty pick.
+  - `Checkbox` `label`: each click on the words or the box toggles once.
+  - Hover: 12% → 22% white on hover only; rest, focus, focus with hover and disabled identical (32 of 40 photos; the 8 that differ are the hovered ones).
+  - The palette's form, walked against the key list: Enter in a field nothing, a text area's Enter a new line, Ctrl+Enter with a missing field marks and focuses it, while creating focus on the form and the chip ✕ usable, refused → focus back where it was.
+  - Ship, old code against new with one script: every control's colours and cursor identical while sending and after; focus, which dropped to the page, now waits and comes back; choose, remove, choose again → 1, 0, 1 chips.
+  - Peek's forms, counting the browser's submit events: each sends on its keys and not on a picker's Enter, a text area's Enter or Shift+Enter; the link field applies on Enter and discards on Escape; the Read state switch is named by its words.
+- **Photos** (D70).
+  - Checkbox: the stories identical before and after, and the plain label against `Field.Label` identical, 8 of 8, both themes.
+  - The palette, old code against new: signal 10 of 10; ship 9 of 10 (the rows-arriving story, caught either side of its timer).
+  - Ship: 63 stories reaching a form, a file input or a toast identical, and 53 reaching the message edit.
+  - Peek: 153 stories, 151 identical, the other 2 differing between two shots of the same code; 90 reaching the Form-everywhere files, identical.
+- **The apps, on 0.18.0.**
+  - Ship: `lint:rules` 0; `lint` 0 errors, 21 warnings, as before; 51 files, 494 tests; typecheck; build.
+  - Peek, rebased on main `f94bfa0`: `lint:rules` 0; `tsc -b`, `tsc -p convex`; 130 files, 1,492 tests.
+  - New tests, each failing on the old code: the text action's form, the new-folder Enter, the message edit's Ctrl+Enter.
+- **`gates:status`.** UIG-7's checks:
+  - estiva-ui, 4: the apps get exactly `no-raw-element`; every part the mapping names is exported; `Form`, `FilePicker` and `Checkbox`'s `label` exist; the palette's form is `<Form enterSends={false}>`.
+  - Peek and Ship, 7 each: `<input>`, `<a>`, `<form>` and a file input; `<textarea>`/`<select>`/`<dialog>`/`<label>`; an element with no part; an escape against its control; a real page with no error.
+  - Each estiva-ui check was seen to fail with its part broken. In Ship, the installed rule's `<form>` row and its no-part message broken → 5 of 7.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **The ticket's counts were UIG-1's.** `<a>` had gone in UIG-27, three of Peek's four inputs in three other PRs, the launcher's last one in UIG-29 the same day. | Counted with the rule on each main (the arithmetic above). |
+| ✅ | **A disabled `<fieldset>` does not tell Base UI.** `Button`, `IconButton` and `Checkbox` take their disabled look from Base UI's state: inside a busy form the button looked usable, and a Checkbox (a `<span>`) could still be ticked. Text fields, `Select` and `Reaction` style `:disabled` and were right. | `formBusy.ts` (L7). |
+| ✅ | **Chrome blurs a focused field the moment it is disabled, before any React effect runs; jsdom never does.** The first `Form` held focus in every test and lost it in Chrome. | The form remembers the last element inside it that had focus; a test blurs by hand and failed before the fix (UIG-29 measured the same trap). |
+| ✅ | **In an input the browser submits a form on Shift+Enter and Alt+Enter too.** On Peek's comment box, Shift+Enter sent the comment. | 0.18.0's Form stops the browser's submission for every Enter in an input; a test fails without it. |
+| ✅ | **Base UI's `Form` refuses to send while a `Field` shows an error.** A form that marks a missing field on a send and keeps the mark until the next send can never send again — the palette's own Form story did. The apps clear their marks when the field changes, or work them out from the draft (Peek's launcher). | The story works the marks out from the draft; `Form`'s and the palette's pages say so. |
+| ✅ | **The text fields had no hover** while `Select` and `ChipInput` did. | L8. On `SearchInput` hover now looks like its focus, which was already the stronger border. |
+| ✅ | **The checker cannot see a form that is not a `<form>`.** Ten places in Peek and one in Ship sent their fields by hand-written Enter handlers or buttons. | L10: all on `Form`. |
+| 📝 | **UIG-5's inward set is narrower than the apps' rule.** `raw-element-outside-a-wrapper` reads `a, button, input, textarea, select, dialog, form, label`, not `<fieldset>`, `<details>`, `<progress>` or the elements with no part; `CommandPalette`'s plain `<fieldset>` was never reported. | Not changed here; UIG-8 or a later inward ticket. |
+| 📝 | **Ship's `Description.test.tsx` flaked once** under load (ProseMirror asking jsdom for `getClientRects` after a test ended), then passed 4 of 4. | Unrelated to this ticket; noted. |
+| 🧰 | Traps: a `git rebase` in a worktree failed once with "update_ref failed for ref 'HEAD'" and left the index and files at the new base with HEAD on the old commits — back up the branch, `reset --hard` to it, retry; `autocrlf` makes a script's exact-text edit miss — normalise line endings first; `\b` in a JavaScript template literal written through a shell heredoc becomes a backspace character — write such edits with `String.raw`; `RuleTester` refuses two identical cases; the React 19 `element.ref` warning comes from Storybook building a code sample from a story that passes `ref` (`docs.source.type: 'code'`); npm lists a new version a minute or two after `+ @estiva-app/ui@…`; Storybook's action events are not a way to see a story's handler run — count the page's `submit` events. | — |
 
 ### UIG-29: building it
 
@@ -627,10 +760,10 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-7 | The plugin has two configs now: `recommended`/`strict` for the apps and `package` for this repo (UIG-5). A rule the apps must run goes in the app set, and `src/eslint/index.test.ts` is the test that says which is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
-| UIG-7, UIG-8, UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). |
+| UIG-8, UIG-9 | The apps' rules are `configs.recommended`/`strict`: one so far, `no-raw-element` (UIG-7). A new app rule goes beside it, and `src/eslint/index.test.ts` is the test that says which set is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
+| UIG-8, UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). |
 | every pull request | Nothing merges into `main` without `gate` green, and nobody can skip it. Never rename the job `gate` without changing the ruleset in each repo with it; `gates:status` UIG-6 reads both. In Peek and Ship only Jan can change the ruleset. |
-| UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
+| UIG-8 | Every form in the apps is the package `Form` (UIG-7): a hand-written Enter handler that sends is now the thing to look for. UIG-5's inward set does not read `<fieldset>`, `<details>`, `<progress>` or the elements with no part — `CommandPalette` kept a plain `<fieldset>` until UIG-7 — so an inward rule for those is open. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
 | UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
@@ -1652,7 +1785,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-4 | The same chain, blocking in Ship | ship | | in `ship/web`: the gate config loads, `lint:rules`, CI runs it, `.gates-count.json`, and lint probes (a raw `<button>` is an error naming Button in source and in a story, not in a test); the hook in the top folder's `.claude/settings.json`; `docs/GATES-DEBT.md` (confirmed by UIG-4, 16 September) |
 | UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the chain (config, `lint:rules`, CI, the hook, `.gates-count.json`) and six probes: a nested raw element is an error and a component's own outermost element is not, a Base UI `render` prop is not, hand-rolled behaviour is, a component with no page and one with no story are errors naming the file they want, and `FieldLine` and `MenuItem` are not orphans (confirmed by UIG-5, 16 September) |
 | UIG-6 | Branch protection | estiva-ui | peek, ship | in each repo: `main` requires exactly the check `gate` (rulesets and classic protection, read the way anyone who can read the repo may), and CI's job `gate` runs `lint:rules` (confirmed by UIG-6, 16 September) |
-| UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | probes: `<input>` names TextInput, `<a>` names Link |
+| UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element`, every part its mapping names is exported, `Form`, `FilePicker` and `Checkbox`'s `label` exist, and the command palette's form is `<Form enterSends={false}>`; in Peek and Ship, probes: `<input>` names TextInput, `<a>` Link, `<form>` Form and a file input FilePicker, `<textarea>`/`<select>`/`<dialog>`/`<label>` their parts, an element with no part says to ask, an escape passes while the same element is refused, and a real page gets no error (confirmed by UIG-7, 16 September) |
 | UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | probes: `createPortal` is an error; `tabIndex={0}` is, `tabIndex={-1}` is not |
 | UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | probe: a border passed into `Button` is an error naming Button |
 | UIG-10 | create-app | estiva-ui | | a `create-app` command in the package |
