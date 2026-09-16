@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased — UIG-29, the command palette
+
+The window Peek's launcher will be rebuilt on (Ship UIG-29). Katerina approved its
+design as a prototype and a key list on 16 September, and ruled how it is split: the
+palette owns every key and the footer, and a form's frame and keys; the app owns the
+words, the rows and the levels.
+
+### Added
+
+- **`CommandPalette`**, on Base UI's `Dialog` with an `Autocomplete` inside, its list
+  drawn inline — Base UI's own command palette, and migration decision D8 brought
+  forward. With it: **`CommandPaletteSearch`** (a level of rows, with a chip for the
+  level you are in), **`CommandPaletteForm`** (a level that is a form: locks while
+  working, keeps focus, submits on Ctrl+Enter), and three parts for what sits above the
+  rows — **`CommandPaletteWorking`**, **`CommandPaletteAnswer`** and
+  **`CommandPaletteQuote`**.
+- Rows are the menu row, placed on `Autocomplete.Item` the way `Select` places it on
+  `Select.Item`; the lit row's fill sits 8px in, as in a menu.
+- Two things Base UI does that the key list does not want, stopped and pinned by a test:
+  Home and End moving the highlight, and a row arriving above the lit one taking the
+  highlight.
+
+No existing component changes. `Menu.tsx` exports its row body inside the package
+(not from the index), as it already did its class list.
+
 ## Unreleased — UIG-5, the rules pointed inward
 
 ### Added
