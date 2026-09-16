@@ -39,6 +39,7 @@ function Search({
   onOpenChange = () => {},
   modKey,
   pending,
+  notes,
   empty,
 }: {
   groups: CommandPaletteGroup[]
@@ -47,12 +48,13 @@ function Search({
   onOpenChange?: (open: boolean) => void
   modKey?: string
   pending?: string
+  notes?: string[]
   empty?: string
 }) {
   const [query, setQuery] = useState(initialQuery)
   return (
     <CommandPalette open onOpenChange={onOpenChange} label="Palette" where="In Item one" modKey={modKey}>
-      <CommandPaletteSearch query={query} onQueryChange={setQuery} placeholder="Search" groups={groups} chip={chip} pending={pending} empty={empty} />
+      <CommandPaletteSearch query={query} onQueryChange={setQuery} placeholder="Search" groups={groups} chip={chip} pending={pending} notes={notes} empty={empty} />
     </CommandPalette>
   )
 }
@@ -201,6 +203,17 @@ describe('CommandPaletteSearch — rows', () => {
     await waitFor(() => expect(lit()).toBe('Two'))
   })
 
+  it('lets rows arriving above take the first place while the highlight has not been moved', async () => {
+    const early: CommandPaletteGroup = { label: 'Early', rows: [row('One'), row('Two')] }
+    const late: CommandPaletteGroup = { label: 'Late', rows: [row('Late one')] }
+    const { rerender } = render(<Search groups={[early]} />)
+    await focusedField()
+    await waitFor(() => expect(lit()).toBe('One'))
+    rerender(<Search groups={[late, early]} />)
+    await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(3))
+    await waitFor(() => expect(lit()).toBe('Late one'))
+  })
+
   it('names in the footer only the keys that work on the lit row', async () => {
     const user = userEvent.setup()
     render(
@@ -230,6 +243,16 @@ describe('CommandPaletteSearch — rows', () => {
     expect(footer()).toContain('Esc')
     expect(footer()).not.toContain('open')
     expect(await screen.findByText('Nothing here yet.')).toBeTruthy()
+  })
+
+  it('draws notes as lines under the rows, which the arrows do not stop on', async () => {
+    const user = userEvent.setup()
+    render(<Search groups={[{ label: 'Group', rows: [row('One'), row('Two')] }]} notes={['2 more you cannot open.']} />)
+    await focusedField()
+    expect(await screen.findByText('2 more you cannot open.')).toBeTruthy()
+    expect(screen.getAllByRole('option')).toHaveLength(2)
+    await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}')
+    expect(lit()).toBe('Two')
   })
 
   it('says rows are on their way', async () => {

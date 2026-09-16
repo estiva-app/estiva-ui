@@ -365,6 +365,8 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
                     : undefined
             }
             pending={level.kind === 'first' && searching ? 'Searching…' : undefined}
+            // What the later group left out: a line to read, not a row to pick.
+            notes={level.kind === 'first' && q && !searching && LATER.some((l) => l.toLowerCase().includes(q)) ? ['1 more in a place you cannot open.'] : undefined}
             empty={
               level.kind === 'first' && q && !searching
                 ? `Nothing is called “${q}”.`
@@ -388,7 +390,7 @@ const story = (start: Start): Story => ({
 /** The first level: rows in groups, the first one lit. ↑ ↓ stop at the ends, Tab goes into a place, Ctrl+Backspace forgets a recent row. */
 export const FirstLevel: Story = story('first')
 
-/** Typing: the rows that match now, a line while a later group is on its way, and that group arriving without moving the lit row. */
+/** Typing: the rows that match now, a line while a later group is on its way, that group arriving without moving the lit row, and a note about what it left out. */
 export const WhileRowsArrive: Story = story('arriving')
 
 /** Nothing matches: the empty line, where the first row would be. */
