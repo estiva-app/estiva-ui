@@ -29,6 +29,24 @@ export const Default: Story = {
   ),
 }
 
+/** Rows that stick to the top as the list moves under them. The bar stays above them. */
+export const StickyHeadings: Story = {
+  render: () => (
+    <ScrollArea className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+      {['Group one', 'Group two'].map((group) => (
+        <div key={group} className="flex flex-col">
+          <p className="sticky top-0 z-10 bg-bg-surface px-4 py-2 text-caption text-text-secondary">{group}</p>
+          {rows.slice(0, 8).map((row) => (
+            <p key={row} className="px-4 py-1.5 text-body-2 text-text-primary">
+              {row}
+            </p>
+          ))}
+        </div>
+      ))}
+    </ScrollArea>
+  ),
+}
+
 /** Nothing to scroll: the region draws exactly as a plain box would, and no bar. */
 export const Fits: Story = {
   render: () => (

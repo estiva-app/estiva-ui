@@ -21,9 +21,11 @@ import type { ESLint, Linter } from 'eslint'
 import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
 import { noRawElement } from './no-raw-element'
+import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
 import { rawElementOutsideAWrapper } from './raw-element-outside-a-wrapper'
 
 export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings } from './escape'
+export { OWNED_BEHAVIOURS, type OwnedBehaviour } from './no-rebuilt-behaviour'
 
 const { version } = createRequire(import.meta.url)('../../package.json') as { version: string }
 
@@ -32,10 +34,12 @@ export const PLUGIN_KEY = 'estiva'
 
 /**
  * The rules an **app** runs: they say an app must not build what the package
- * already has. `recommended` and `strict` carry these and only these.
+ * already has — a raw control (UIG-7), or a behaviour one of its parts owns
+ * (UIG-8). `recommended` and `strict` carry these and only these.
  */
 const appRules = {
   'no-raw-element': noRawElement,
+  'no-rebuilt-behaviour': noRebuiltBehaviour,
 }
 
 /**
@@ -73,7 +77,7 @@ export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGI
 /**
  * `recommended` switches every **app** rule on at the level it was ruled at: an
  * error blocks, a warning is reported and never blocks. `strict` makes every app
- * rule an error. With one rule, an error, the two are the same today; they part
+ * rule an error. With every app rule an error, the two are the same today; they part
  * when the first warning-level rule arrives (UIG-25).
  *
  * `package` is the inward set (UIG-5), which only this package runs.
@@ -81,7 +85,10 @@ export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGI
 plugin.configs.recommended = {
   name: '@estiva-app/ui/recommended',
   plugins: { [PLUGIN_KEY]: plugin },
-  rules: { [`${PLUGIN_KEY}/no-raw-element`]: 'error' },
+  rules: {
+    [`${PLUGIN_KEY}/no-raw-element`]: 'error',
+    [`${PLUGIN_KEY}/no-rebuilt-behaviour`]: 'error',
+  },
 }
 plugin.configs.strict = {
   name: '@estiva-app/ui/strict',

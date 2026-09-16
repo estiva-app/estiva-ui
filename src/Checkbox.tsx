@@ -1,6 +1,7 @@
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox'
 import { Field as BaseField } from '@base-ui/react/field'
 import { IconCheck } from '@tabler/icons-react'
+import type { ReactNode } from 'react'
 import { cn } from './cn'
 import { useFormBusy } from './formBusy'
 
@@ -33,6 +34,12 @@ import { useFormBusy } from './formBusy'
  * Read state panel's, where it was written by hand (UIG-7, 16 September). The
  * words keep their colour when the box is disabled (Katerina: "no need").
  *
+ * With `row`, the whole row is the target: an optional `leading` picture, the
+ * words, the box at the end, and the row fills on hover and while checked — a
+ * list you tick several from. The class list is Peek's "Add to Open work" rows,
+ * which drew it by hand as a `role="option"` in a list that was not one (UIG-8,
+ * Katerina's pick B, 16 September: the same pixels, on the package part).
+ *
  * Inside a busy `Form` it is disabled, and looks it (`formBusy.ts`).
  */
 export interface CheckboxProps {
@@ -44,6 +51,14 @@ export interface CheckboxProps {
    * they name it, so no `aria-label` is needed. `className` stays on the box.
    */
   label?: string
+  /**
+   * The whole row is the target: `leading`, then the words, then the box at
+   * the end; the row fills on hover and while checked. For a list you tick
+   * several from. Needs `label` and `onChange`; without `onChange` it is ignored.
+   */
+  row?: boolean
+  /** In a `row`, a picture before the words: an icon, a status. */
+  leading?: ReactNode
   'aria-label'?: string
   /** Set by a `Field` with `required`; a caller inside one owes nothing. */
   'aria-required'?: boolean | 'true' | 'false'
@@ -65,7 +80,9 @@ const tickClasses = (checked: boolean) => cn('flex', !checked && 'invisible')
 
 const WORDS_CLASSES = 'text-body-2 text-text-primary'
 
-export function Checkbox({ checked, onChange, disabled: ownDisabled = false, label, className, ...aria }: CheckboxProps) {
+const ROW_CLASSES = 'flex shrink-0 items-center gap-3 h-10 px-3 rounded-lg transition-colors'
+
+export function Checkbox({ checked, onChange, disabled: ownDisabled = false, label, row, leading, className, ...aria }: CheckboxProps) {
   const formBusy = useFormBusy()
   const disabled = ownDisabled || formBusy
   if (!onChange) {
@@ -101,6 +118,18 @@ export function Checkbox({ checked, onChange, disabled: ownDisabled = false, lab
     </BaseCheckbox.Root>
   )
   if (label === undefined) return box
+  if (row) {
+    return (
+      <BaseField.Root disabled={disabled}>
+        {/* No fill under the pointer, and no pointer, over a row that toggles nothing. */}
+        <BaseField.Label className={cn(ROW_CLASSES, checked && 'bg-bg-selected', !disabled && 'cursor-pointer hover:bg-bg-hover')}>
+          {leading}
+          <span className={cn('flex-1 min-w-0 truncate', WORDS_CLASSES)}>{label}</span>
+          {box}
+        </BaseField.Label>
+      </BaseField.Root>
+    )
+  }
   return (
     <BaseField.Root disabled={disabled}>
       {/* No pointer over words that toggle nothing. */}

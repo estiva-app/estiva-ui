@@ -67,20 +67,28 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. Today there is one: `estiva/no-raw-element`, which refuses a raw
-interactive element (`<a>`, `<input>`, `<form>`, `<dialog>`…) and names the part to
-use, or says the package has none yet.
+instead. There are two:
+
+- `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
+  `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
+- `estiva/no-rebuilt-behaviour` refuses behaviour a part already owns, written by
+  hand: a Base UI import, `createPortal`, a click or key listener on the whole
+  page, arrow keys compared by hand, a hand-written `role` (`option`, `menu`,
+  `dialog`, `alert`…), `tabIndex` 0 or more on a box, and a scrolling box
+  (`overflow-auto`, behind any variant). `OWNED_BEHAVIOURS` lists each behaviour,
+  the Base UI parts that do it, and the components that own it. It cannot find a
+  box that should scroll and does not: that has no class to read.
 
 ```js
 // eslint.config.js — alongside your own rules
 import estiva from '@estiva-app/ui/eslint'
 export default [
   // …your config, with a parser that reads TSX
-  { files: ['src/**/*.tsx'], ignores: ['**/*.test.tsx'], ...estiva.configs.recommended },
+  { files: ['src/**/*.{ts,tsx}'], ignores: ['**/*.test.{ts,tsx}'], ...estiva.configs.recommended },
 ]
 ```
 
-A place that keeps a raw element on purpose says why, on the line above:
+A place that keeps one on purpose says why, on the line above:
 
 ```tsx
 // @estiva-escape: the reason, at least ten characters

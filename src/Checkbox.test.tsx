@@ -124,4 +124,67 @@ describe('Checkbox', () => {
       expect(screen.getByText('Label')).not.toBeNull()
     })
   })
+
+  describe('with row', () => {
+    const picture = <svg data-testid="picture" />
+
+    it('is named by its words, and a click anywhere on the row toggles it once', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Checkbox row leading={picture} checked={false} onChange={onChange} label="Item one" />)
+      const box = screen.getByRole('checkbox', { name: 'Item one' })
+      await user.click(screen.getByText('Item one'))
+      await user.click(screen.getByTestId('picture'))
+      await user.click(box)
+      expect(onChange).toHaveBeenCalledTimes(3)
+      expect(onChange).toHaveBeenNthCalledWith(1, true)
+    })
+
+    it('draws the picture, the words, then the box, in one row', () => {
+      const { container } = render(<Checkbox row leading={picture} checked={false} onChange={() => {}} label="Item one" />)
+      const children = [...(container.querySelector('label')?.children ?? [])]
+      expect(children[0]?.getAttribute('data-testid')).toBe('picture')
+      expect(children[1]?.textContent).toBe('Item one')
+      expect(children[2]?.getAttribute('role')).toBe('checkbox')
+      expect(container.querySelector('label')?.className).toContain('h-10')
+    })
+
+    it('fills while checked, and on hover', () => {
+      const { container, rerender } = render(<Checkbox row checked={false} onChange={() => {}} label="Item one" />)
+      const row = () => container.querySelector('label')?.className ?? ''
+      expect(row()).not.toContain('bg-bg-selected')
+      expect(row()).toContain('hover:bg-bg-hover')
+      rerender(<Checkbox row checked onChange={() => {}} label="Item one" />)
+      expect(row()).toContain('bg-bg-selected')
+    })
+
+    it('does nothing when disabled, and neither fills under the pointer nor points', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      const { container } = render(<Checkbox row disabled checked={false} onChange={onChange} label="Item one" />)
+      await user.click(screen.getByText('Item one'))
+      expect(onChange).not.toHaveBeenCalled()
+      const className = container.querySelector('label')?.className ?? ''
+      expect(className).not.toContain('cursor-pointer')
+      expect(className).not.toContain('hover:bg-bg-hover')
+    })
+
+    it('keeps Space on the box, and adds no Tab stop of its own', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Checkbox row checked={false} onChange={onChange} label="Item one" />)
+      await user.tab()
+      expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Item one' }))
+      await user.keyboard(' ')
+      expect(onChange).toHaveBeenCalledWith(true)
+      await user.tab()
+      expect(document.activeElement).toBe(document.body)
+    })
+
+    it('is ignored with no onChange', () => {
+      const { container } = render(<Checkbox row checked label="Item one" />)
+      expect(container.querySelector('label')).toBeNull()
+      expect(screen.queryByRole('checkbox')).toBeNull()
+    })
+  })
 })
