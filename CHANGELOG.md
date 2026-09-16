@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.16.1 — 2026-09-16 — UIG-29, what Peek's launcher needed
+
+Found while Peek's launcher moved onto the palette: one addition, and one narrowing of
+the late-row fix. No prop changes name or type.
+
+### Added
+
+- **`notes` on `CommandPaletteSearch`**: quiet lines under the rows, for what a person
+  should know about them and cannot act on — "2 more where you cannot open them", "the
+  search was refused, so this list is incomplete". Lines, never rows: the arrows do not
+  stop on them. The approved design draws Peek's message-search notes this way.
+
+### Changed
+
+- **A row arriving above the lit one takes the first place until the person has moved the
+  highlight.** 0.16.0 kept the lit row lit whenever rows arrived above it (F7). Opened from
+  a conversation, that left the first app lit under the conversation's own rows, which
+  arrive a moment later — where the approved design lights "Ask about this conversation".
+  Once the person has moved the highlight on a level, the lit row stays theirs, as before.
+
 ## 0.16.0 — 2026-09-16 — UIG-29 and UIG-5
 
 Two pieces of the UI Guardrails in one release: UIG-29 — the command palette Peek's
