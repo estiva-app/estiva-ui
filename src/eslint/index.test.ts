@@ -6,8 +6,8 @@ import estiva, { APP_RULE_IDS, countGates, PACKAGE_RULE_IDS, PLUGIN_KEY } from '
 
 /**
  * The plugin as an app uses it: a flat config with `configs.recommended`,
- * linting text the way Peek's editor hook does (`lintText`). The rule's own
- * cases are in no-raw-element.test.ts.
+ * linting text the way Peek's editor hook does (`lintText`). The rules' own
+ * cases are in no-raw-element.test.ts and no-rebuilt-behaviour.test.ts.
  */
 const tsx: Linter.Config = {
   files: ['**/*.tsx'],
@@ -35,6 +35,7 @@ describe('the plugin object', () => {
   it('carries every rule, the app ones and the inward ones', () => {
     expect(Object.keys(estiva.rules)).toEqual([
       'no-raw-element',
+      'no-rebuilt-behaviour',
       'raw-element-outside-a-wrapper',
       'no-hand-rolled-behaviour',
       'component-has-a-page',
@@ -54,9 +55,9 @@ describe('the plugin object', () => {
   it('gives an app only the app rules, as errors, under estiva/', () => {
     for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
       expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
-      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error' })
+      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error' })
     }
-    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element'])
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour'])
   })
 
   it('gives this package its own set, as errors, and it reaches no app config', () => {
@@ -90,6 +91,25 @@ describe('an app lint with configs.recommended', () => {
     ])
   })
 
+  it('reports behaviour rebuilt by hand, naming the part', async () => {
+    const [result] = await lint(component('    <div className="h-64 overflow-y-auto" />'))
+    expect(result.messages.map((m) => [m.ruleId, m.severity, m.message])).toEqual([
+      ['estiva/no-rebuilt-behaviour', 2, "`overflow-y-auto` scrolls with the browser's scrollbar. Use `ScrollArea` from @estiva-app/ui, which draws ours."],
+    ])
+  })
+
+  /**
+   * UIG-8's acceptance: a separator inside Divider is not a hand-written role.
+   * The package is exempt from the apps' rules; this runs them on Divider anyway,
+   * to show the role branch has nothing to say there (its Base UI import is the
+   * package's job, and reported only because the apps' config is not meant for it).
+   */
+  it("finds no hand-written role in Divider's own source", async () => {
+    const source = readFileSync(new URL('../Divider.tsx', import.meta.url), 'utf8')
+    const [result] = await lint(source)
+    expect(result.messages.filter((m) => m.messageId === 'role' || m.messageId === 'roleNoPart')).toEqual([])
+  })
+
   it('passes the same element under an escape', async () => {
     const [result] = await lint(component('    // @estiva-escape: a preview drawn from its own palette\n    <button type="button">x</button>'))
     expect(result.messages).toEqual([])
@@ -99,8 +119,9 @@ describe('an app lint with configs.recommended', () => {
 describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
     const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
-    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 } })
-    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 } })
+    const none = { errors: 0, warnings: 0, escapes: 0 }
+    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none })
+    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none })
   })
 
   it('lists a report an eslint-disable silenced, and counts it as neither an error nor an escape', async () => {
@@ -118,6 +139,9 @@ describe('countGates', () => {
   })
 
   it('lists every rule of the plugin, even with nothing found', () => {
-    expect(countGates([])).toEqual({ rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 } }, disabled: [] })
+    expect(countGates([])).toEqual({
+      rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': { errors: 0, warnings: 0, escapes: 0 } },
+      disabled: [],
+    })
   })
 })
