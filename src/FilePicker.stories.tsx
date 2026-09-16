@@ -8,7 +8,9 @@ import { IconButton } from './IconButton'
 const meta = {
   title: 'Inputs/FilePicker',
   component: FilePicker,
-  parameters: { layout: 'padded' },
+  // The code tab shows each story's own code: building it from the rendered
+  // element reads `element.ref`, which React 19 warns about.
+  parameters: { layout: 'padded', docs: { source: { type: 'code' } } },
   args: { onPick: () => {} },
   argTypes: { onPick: { control: false } },
 } satisfies Meta<typeof FilePicker>
