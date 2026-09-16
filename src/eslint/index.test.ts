@@ -7,7 +7,7 @@ import estiva, { APP_RULE_IDS, countGates, PACKAGE_RULE_IDS, PLUGIN_KEY } from '
 /**
  * The plugin as an app uses it: a flat config with `configs.recommended`,
  * linting text the way Peek's editor hook does (`lintText`). The rule's own
- * cases are in no-raw-button.test.ts.
+ * cases are in no-raw-element.test.ts.
  */
 const tsx: Linter.Config = {
   files: ['**/*.tsx'],
@@ -34,7 +34,7 @@ describe('the plugin object', () => {
 
   it('carries every rule, the app ones and the inward ones', () => {
     expect(Object.keys(estiva.rules)).toEqual([
-      'no-raw-button',
+      'no-raw-element',
       'raw-element-outside-a-wrapper',
       'no-hand-rolled-behaviour',
       'component-has-a-page',
@@ -44,17 +44,19 @@ describe('the plugin object', () => {
 
   /**
    * The apps spread `recommended`. A rule added for the package (UIG-5) must not
-   * arrive in Peek or Ship with the next version bump: an app is full of raw
-   * elements it may keep until UIG-7, and has no `.mdx` pages at all. This is
+   * arrive in Peek or Ship with the next version bump: an app's components are
+   * not primitives, so "buried inside a component" means nothing there
+   * (`no-raw-element` is the app's version, UIG-7), and an app has no `.mdx`
+   * pages at all. This is
    * the test that holds that line — if you add an app-facing rule on purpose,
    * change it deliberately, here.
    */
   it('gives an app only the app rules, as errors, under estiva/', () => {
     for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
       expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
-      expect(config.rules).toEqual({ 'estiva/no-raw-button': 'error' })
+      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error' })
     }
-    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-button'])
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element'])
   })
 
   it('gives this package its own set, as errors, and it reaches no app config', () => {
@@ -77,7 +79,14 @@ describe('an app lint with configs.recommended', () => {
   it('reports a raw <button>, naming Button', async () => {
     const [result] = await lint(component('    <button type="button">x</button>'))
     expect(result.messages.map((m) => [m.ruleId, m.severity, m.message])).toEqual([
-      ['estiva/no-raw-button', 2, 'Use `Button` from @estiva-app/ui instead of a raw <button>.'],
+      ['estiva/no-raw-element', 2, 'Use `Button` from @estiva-app/ui instead of a raw <button>.'],
+    ])
+  })
+
+  it('reports a raw <a>, naming Link', async () => {
+    const [result] = await lint(component('    <a href="/x">x</a>'))
+    expect(result.messages.map((m) => [m.ruleId, m.severity, m.message])).toEqual([
+      ['estiva/no-raw-element', 2, 'Use `Link` from @estiva-app/ui instead of a raw <a>. For a chip, `InlineChip`; for a whole card, `Card` with `href`.'],
     ])
   })
 
@@ -90,25 +99,25 @@ describe('an app lint with configs.recommended', () => {
 describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
     const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
-    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-button': { errors: 1, warnings: 0, escapes: 0 } })
-    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-button': { errors: 1, warnings: 0, escapes: 1 } })
+    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 } })
+    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 } })
   })
 
   it('lists a report an eslint-disable silenced, and counts it as neither an error nor an escape', async () => {
-    const results = await lint(component('    // eslint-disable-next-line estiva/no-raw-button\n    <button>x</button>'), [countMode])
+    const results = await lint(component('    // eslint-disable-next-line estiva/no-raw-element\n    <button>x</button>'), [countMode])
     const count = countGates(results)
-    expect(count.rules['estiva/no-raw-button']).toEqual({ errors: 0, warnings: 0, escapes: 0 })
-    expect(count.disabled).toEqual([{ filePath: results[0].filePath, line: 4, ruleId: 'estiva/no-raw-button' }])
+    expect(count.rules['estiva/no-raw-element']).toEqual({ errors: 0, warnings: 0, escapes: 0 })
+    expect(count.disabled).toEqual([{ filePath: results[0].filePath, line: 4, ruleId: 'estiva/no-raw-element' }])
   })
 
   it('counts a marker inside that directive as an error of the rule', async () => {
-    const results = await lint(component('    // eslint-disable-next-line estiva/no-raw-button -- @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'), [countMode])
+    const results = await lint(component('    // eslint-disable-next-line estiva/no-raw-element -- @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'), [countMode])
     const count = countGates(results)
-    expect(count.rules['estiva/no-raw-button']).toEqual({ errors: 1, warnings: 0, escapes: 0 })
+    expect(count.rules['estiva/no-raw-element']).toEqual({ errors: 1, warnings: 0, escapes: 0 })
     expect(count.disabled).toHaveLength(1)
   })
 
   it('lists every rule of the plugin, even with nothing found', () => {
-    expect(countGates([])).toEqual({ rules: { 'estiva/no-raw-button': { errors: 0, warnings: 0, escapes: 0 } }, disabled: [] })
+    expect(countGates([])).toEqual({ rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 } }, disabled: [] })
   })
 })
