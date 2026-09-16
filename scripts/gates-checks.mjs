@@ -123,6 +123,7 @@ export default function define(h) {
         if (named.length === 0) return h.FAIL("the mapping names no part");
         return missing.length === 0 ? h.PASS(`${named.length} parts named, all exported: ${named.join(", ")}`) : h.FAIL(`named but not exported: ${missing.join(", ")}`);
       } },
+      { what: "the command palette's form is the package Form, sending only on Ctrl+Enter", run: () => h.contains("src/CommandPalette.tsx", /<Form\b[^>]*\benterSends=\{false\}/, "CommandPaletteForm renders <Form enterSends={false}>") },
       { what: "Form, FilePicker and Checkbox's label exist for the apps' forms, file pickers and tick-box words", run: () => {
         const exported = new Set([...h.read("src/index.ts").matchAll(/export \{([^}]*)\}/g)].flatMap((m) => m[1].split(",").map((s) => s.trim())));
         const missing = ["Form", "FilePicker"].filter((n) => !exported.has(n));
