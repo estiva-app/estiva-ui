@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, late night. UIG-8 is done: a second lint rule, `estiva/no-rebuilt-behaviour`, refuses behaviour a package part already owns when an app writes it by hand — a Base UI import, a portal, a click or key listener on the whole page, arrow keys, a hand-written role, a Tab stop on a box, a scrolling box — and names the part. The list of behaviours comes from Base UI's own source and the parts each component imports (`OWNED_BEHAVIOURS`). It found 15 in Peek and 4 in Ship: Peek 2 fixed and 13 kept with reasons, Ship 3 fixed and 1 kept. Katerina picked from photos: Add to Open work's rows became the package `Checkbox`'s new row form, pixel for pixel; Ship's code blocks wrap, like Peek's; the package's scrollbar now sits above sticky rows. Both apps' gates read `.ts` too. Released as 0.19.0 (estiva-ui PR #49); peek PR #236 and ship PR #159, merged and deployed. **It cannot find a box that should scroll and does not** — see UIG-8: building it, below. UIG-31 is new: one shared part for the / @ [ menus, much later.**
+
 **16 September 2026, night. UIG-7 is done: one lint rule, `estiva/no-raw-element`, refuses every raw interactive element in Peek and Ship and names the part to use — `Link`, `TextInput`, `Form`, `FilePicker`… — or, for an element the package has no part for yet, says to ask Katerina. It found 3 in Peek and 6 in Ship: all 9 replaced, none escaped. The package gained `Form`, `FilePicker`, `Checkbox`'s `label` and hover on the text fields (0.17.0, estiva-ui PR #45), and every form in both apps, the command palette's included, is the package `Form` with the same keys everywhere (0.18.0, estiva-ui PR #47; peek PR #234, ship PR #158, merged and deployed). See UIG-7: building it, below.**
 
 **16 September 2026, evening. UIG-29 is built: Peek's launcher sits on a new package component, `CommandPalette` — Base UI's `Dialog` with an `Autocomplete` inside, the list inline — released as `@estiva-app/ui` 0.16.0 and 0.16.1 (estiva-ui PR #43, #44), taken by Peek in peek PR #233, merged and deployed. The move and a UX review happened together: every key does what Katerina ruled, checked key by key in Chrome, and she tried it on real data before it merged. Every count UIG-1 made in the file is replaced and none escaped; the 60 token escapes and 29 escape notes naming UIG-29 went with the old file. Two parts of ruling C5 are not built: a chip in the composer for a created issue, and a "created an issue" line in the thread. See UIG-29: building it, below.**
@@ -46,7 +48,9 @@ answer
 | ✅ **UIG-6** | A ruleset, "gate on main", in each repo: a merge or push into `main` needs `gate` green, from GitHub Actions; nobody on the bypass list; `main` cannot be deleted or force-pushed. The gate lint is a CI job of its own, `gate`: estiva-ui PR #40, peek PR #227, ship PR #155. `gates:status` reads rulesets: estiva-ui PR #42, peek PR #230, ship PR #157. Refused 3 of 3, clean merges 3 of 3, deploys 2 of 2. `gates:status` reads 6 of 6. See **UIG-6: building it**, below. |
 | ✅ **UIG-29** | Package: estiva-ui PR #43 (0.16.0, `CommandPalette` and its parts) and PR #44 (0.16.1, `notes`, and the late-row rule narrowed). Peek: peek PR #233 — the launcher on the palette, with Katerina's UX rulings, recents, and a message result opening at the message. UIG-1's count for the file: every row replaced, 0 escaped. `gates:status` reads Peek's part 2 of 2. Not built: C5's composer chip and thread line. See **UIG-29: building it**, below. |
 | ✅ **UIG-7** | Package: estiva-ui PR #45 (0.17.0 — the rule `no-raw-element`, `Form`, `FilePicker`, `Checkbox`'s `label`, hover on text fields) and PR #47 (0.18.0 — `Form`'s keys, `CommandPaletteForm` on `Form`). Peek: peek PR #234. Ship: ship PR #158. Peek 3 = 3 replaced + 0 escaped; Ship 6 = 6 + 0; every form in both apps on `Form`. `gates:status` reads 18 of 18. See **UIG-7: building it**, below. |
+| ✅ **UIG-8** | Package: estiva-ui PR #49 (0.19.0 — the rule `no-rebuilt-behaviour` and `OWNED_BEHAVIOURS`, `Checkbox` `row`, `ScrollArea`'s bar above sticky rows). Peek: peek PR #236. Ship: ship PR #159. Peek 15 = 2 fixed + 13 escaped; Ship 4 = 3 fixed + 1 escaped; both gates read `.ts`. `gates:status` reads 23 of 23. See **UIG-8: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
+| ⬜ **UIG-31** | New, 16 September: one shared part for the / @ !@ [ menus, which UIG-8 kept with reasons. "Much later" (Katerina): not before a second app needs an @ or / menu. Listed in estiva-ui's and Peek's `gates-checks.mjs`. |
 
 ### What happened since UIG-2 closed
 
@@ -165,9 +169,135 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-6: estiva-ui PR #40 and #42, peek PR #227 and #230, ship PR #155 and #157, and a ruleset in each repo (**UIG-6: building it**, below) |
 | ✅ done | UIG-29: estiva-ui PR #43 (0.16.0) and #44 (0.16.1); peek PR #233 (**UIG-29: building it**, below) |
 | ✅ done | UIG-7: estiva-ui PR #45 (0.17.0) and #47 (0.18.0); peek PR #234 and ship PR #158 (**UIG-7: building it**, below) |
-| **now** | phase 1: **UIG-8** → **UIG-9**. UIG-30 any time |
+| ✅ done | UIG-8: estiva-ui PR #49 (0.19.0); peek PR #236 and ship PR #159 (**UIG-8: building it**, below) |
+| **now** | phase 1: **UIG-9**. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-8: building it
+
+**Where.** estiva-ui: branch `gates/08-the-reach` → PR #49, merged (`d76b30b`), released as **0.19.0**. Peek: branch `gates/08-the-reach` → peek PR #236, merged (`230042a`), deployed (run 35131022066). Ship: branch `gates/08-the-reach` → ship PR #159, merged (`25a38cc`), deployed (run 35131017665). Built in worktrees `estiva-ui-uig08`, `peek-uig08` and `ship-uig08`, from mains `15216a6`, `02e5f04` and `27113cd`. Storybooks `:6530`, `:6531`, `:6532`. `gates:status` from estiva-ui with both apps' merged code: UIG-8 **23 of 23**; 11 done, 0 started, 20 not started; 31 tickets, every repo agreeing. The explainer Katerina read, with every photo she picked from: the artifact "What UIG-8 Stops".
+
+**Katerina's rulings, 16 September**
+
+| | question | ruling |
+|---|---|---|
+| M1 | The / @ !@ [ menus: keep their hand-written roles and keys with reasons, as the ticket said? | **Yes.** And, on her question whether Base UI and Tiptap could do it one day: a shared part, **UIG-31**, created for "much later". |
+| M2 | Add to Open work's rows onto the package `Checkbox` | **Yes**, and from the photos **B**: `Checkbox` gains a row form, pixel for pixel today's rows. A (the Checkbox as it was: box on the left, no icon, no fill) was not taken. |
+| M3 | The other places that keep their behaviour, each with its reason | **Yes.** |
+| M4 | Ship's code blocks: kept with a reason, as first proposed? | **No — they wrap, like Peek's.** Her question "why do they need to stay?" found the reason wrong: Peek has wrapped a long code line since her ruling of 11 September, Ship never took it, and Ship's own editor already wrapped while its reading surface scrolled. |
+| M5 | The scroll example in Peek's Storybook onto `ScrollArea` | **Yes.** |
+| M6 | Our scrollbar hides behind sticky date lines, in Peek's message lists too: fix it in this release? | **Yes.** |
+| M7 | The first plan, in tables | "I dont even understand you at all" — redone as a page of photos and drawings in plain words; the decisions a designer does not need to take (the rule reads `.ts`; Enter and Escape while typing are not read; `aria-expanded` and `aria-pressed` wait for UIG-14) were taken and said on the page. |
+| M8 | Push, merge and publish | "Do everything yourself, all the prs and the merges." |
+
+**The behaviour list** (acceptance: derived from the package source). Which `@base-ui/react` module each component imports was read with the TypeScript parser; what each module owns was read from Base UI 1.8.0's own source (roles, keys, `useDismiss`, `FloatingFocusManager`, `useListNavigation`, `CompositeRoot`, `useScrollLock`, each Positioner's `autoUpdate`). It lives in the rule as `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint` for UIG-12's registry, and a test holds its tables to the source.
+
+| behaviour | Base UI does it in | the error names | the rule reads |
+|---|---|---|---|
+| is built on Base UI | every module (the table below) | the component built on it; "ask Katerina" for one no component uses | an import from `@base-ui/react` (and `@base-ui-components`) |
+| floats on top of the page | Dialog, AlertDialog, Popover, Menu, Select, Combobox, Autocomplete, Tooltip, PreviewCard, Toast | `DialogShell`, `ConfirmDialog`, `CommandPalette`, `Popover`, `Menu`, `Select`, `ChipInput`, `Tooltip`, `PreviewCard`, `Toast` | `createPortal`, called, or imported and never called |
+| closes on a press outside | Dialog, AlertDialog, Popover, Menu, Select, Combobox, Tooltip, PreviewCard | `Popover`, `Menu`, `Select`, `DialogShell`, `PreviewCard` | a `mousedown`, `pointerdown`, `click` or `touchstart` listener on `window` or `document` |
+| closes on Escape and takes its keys | the same, and Toast | `DialogShell`, `Popover`, `Menu`, `Select`, `Tabs`, `Toolbar` | a `keydown`, `keyup` or `keypress` listener on `window` or `document` |
+| holds focus inside, gives it back | Dialog, AlertDialog, Popover, Menu, Select, Combobox | `DialogShell`, `CommandPalette` | a `focusin` or `focusout` listener on the page; the Tab key compared by hand |
+| stops the page scrolling behind | Dialog, AlertDialog | `DialogShell` | `overflow` written into `document.body`'s style |
+| stays attached to its anchor | every Positioner | `Popover`, `Menu`, `Select`, `Tooltip`, `PreviewCard` | a `scroll` or `resize` listener on the page |
+| moves through items with the arrow keys | Menu, Select, Combobox, Autocomplete, Tabs, Toolbar | `Menu`, `Select`, `ChipInput`, `CommandPalette`, `Tabs`, `Toolbar` | ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, End, PageUp or PageDown compared by hand, once per handler |
+| says what it is | the part that sets each role | `DialogShell`, `ConfirmDialog`, `Menu`, `Select`, `ChipInput`, `CommandPalette`, `Checkbox` `row`, `Tabs`, `Toolbar`, `ProgressBar`, `Checkbox`, `Divider`, `Button`, `IconButton`, `Link`, `Tooltip`, `WithTooltip`, `FieldLine`, `Banner`, `Toast` | a hand-written `role`: dialog, alertdialog, menu, menuitem, menuitemcheckbox, menuitemradio, listbox, option, combobox, tablist, tab, tabpanel, toolbar, progressbar, checkbox, separator, button, link, tooltip, alert, status; and, with "ask Katerina", menubar, switch, radio, radiogroup, slider, spinbutton, meter |
+| is reachable with Tab | Button, Toggle, Checkbox, Tabs, Toolbar, ScrollArea | `Button`, `IconButton`, `Link` | `tabIndex` that can be 0 or more, on an element that is not a control |
+| scrolls with our scrollbar | ScrollArea | `ScrollArea` | `overflow-auto` / `-scroll` (x or y, behind any variant, `[&_pre]:` included) in any string, or `overflow: 'auto'`/`'scroll'` in a style |
+
+Three facts from Base UI's source the list rests on, each different from what one would assume: **Base UI's Tooltip sets no role at all** (the package's `Tooltip` writes `role="tooltip"` itself); **Dialog never writes `aria-modal`**; `alert` and `status` on a line of words are the package's own (`FieldLine`, `Banner`), not Base UI's.
+
+The Base UI modules, and the component each error names: alert-dialog `DialogShell` · autocomplete `CommandPalette` · avatar `Avatar` · button `Button` · checkbox `Checkbox` · collapsible `CollapsibleSection` · combobox `ChipInput` · dialog `DialogShell` · field `Field` · fieldset and form `Form` · input `TextInput` · menu `Menu` · popover `Popover` · preview-card `PreviewCard` · progress `ProgressBar` · scroll-area `ScrollArea` · select `Select` · separator `Divider` · tabs `Tabs` · toast `Toast` · toggle `Reaction` · toolbar `Toolbar` · tooltip `Tooltip`. **No part yet** (ask Katerina): accordion, checkbox-group, context-menu, drawer, menubar, meter, navigation-menu, number-field, otp-field, radio, radio-group, slider, switch, toggle-group, and Base UI's helpers (use-render, merge-props, types…).
+
+**What this rule cannot see.** Said plainly, because a lint that looks for scrolling boxes is easy to mistake for one that finds scrolling bugs:
+
+- **A box that should scroll and does not.** A class rule finds the scrolling box built by hand; it cannot find the one that was never built. Peek's Folders column is the case: at `72c999c`, the commit before `3dc663b` fixed it, `FoldersPage.tsx` has **no overflow class at all** (read with the TypeScript parser; the page's other column already sat in a `ScrollArea`). Only a check that opens the page and scrolls it — the route probe, a later phase — can find that.
+- Opening after a hover delay (Tooltip 600 ms, PreviewCard 600 / 300 ms), the open and close animation, a toast's timers.
+- Measuring and placing by hand, for UIG-5's reason: `Popover` takes a rectangle to hang from.
+- A listener on a variable that holds the document.
+- **Not read on purpose:** Enter and Escape compared by hand (in a field or an editor they are typing; `Form` and `EditableText` own the ones that send or cancel), and `aria-expanded` / `aria-pressed` written on a package component (the component is already the package's; UIG-14's usage rules).
+
+**The count** (acceptance: with the rule or an AST pass). The built rule, on git's copy of each main, `.ts` and `.tsx`, stories in, tests out.
+
+| repo | main | files | reported |
+|---|---|---|---|
+| Peek | `02e5f04` | 284 | **15**, in 13 files |
+| Ship | `27113cd` | 131 | **4** |
+| estiva-ui (exempt; the acceptance's proof) | `15216a6` | 116 | **36** Base UI imports in 29 files — 34 naming a part, 2 helpers. The ticket's **22** was UIG-1's. |
+
+**The arithmetic, against UIG-1's count** (Peek `d094006`, Ship `6693025`, recounted on those commits with the same script: every number in UIG-1's table reproduced). Fixed + escaped + gone + not reported = UIG-1's count, per behaviour; what UIG-1 did not count is named.
+
+| behaviour | app | UIG-1 | gone before UIG-8 | fixed | escaped | not reported, by design |
+|---|---|---|---|---|---|---|
+| Base UI import | both | 0 / 0 | — | 0 | 0 | — |
+| `createPortal` | Peek | 2 | 1 — the launcher (peek #233) | 0 | 1 — the picture viewer | — |
+| key listener on the page | Peek | 2 | — | 0 | 2 — the huddle starter, Ctrl+K | — |
+| press listener on the page | Peek | not counted | — | 0 | 2 — the huddle starter, the selection toolbar | — |
+| arrow keys by hand | Peek | not counted | — | 0 | 3 — the / @ [ menus | — |
+| hand-written role | Peek | 7 | 2 — `alert` in the launcher (peek #233), `progressbar` (peek #218) | 1 — Add to Open work's `option` | 1 — the freshness dot's `status` | 3 — `img` on the logos |
+| hand-written role, added since | Peek | — (stage 5, peek #201) | — | 0 | 4 — the menus' `option` ×3 and `listbox` | 6 `group` |
+| `tabIndex` 0 | Ship | 1 | — | 0 | 1 — the description's reading surface | — |
+| scrolling box | Peek | 2 | 2 — the launcher's list (peek #233), the huddle picker's (peek #201) | 1 — the DateDivider story (UIG-1 left stories out) | 0 | — |
+| scrolling box | Ship | 1 | — | 1 — `prose.ts`, which now wraps | 0 | — |
+| hand-written role | Ship | 4 | 1 — `progressbar` (ship #151) | 2 — the two upload error lines | 0 | 1 — `img` on a status shape |
+
+**Peek: 15 = 2 fixed + 13 escaped. Ship: 4 = 3 fixed + 1 escaped.** `.gates-count.json`: Peek `no-rebuilt-behaviour` 0 errors, 13 escapes (and UIG-3's one on `no-raw-element`); Ship 0, 1.
+
+**What changed in the apps**
+
+| where | now | why |
+|---|---|---|
+| Peek: Add to Open work | `Checkbox` `row` with the status icon as `leading` | M2. Each row is a tick box named by its title, reached with Tab and Space; it was an `option` in a list that was not one, and no row could be reached from the keyboard |
+| Peek: DateDivider's sticky-in-scroll story | `ScrollArea` | M5 |
+| Ship: the two upload error lines | `FieldLine tone="error"` | an exact copy of it; the `data-*="upload-error"` attributes went, nothing read them |
+| Ship: code blocks in a description | `whitespace-pre-wrap break-words` | M4 |
+| Peek: the full-screen picture viewer | escaped | becomes the package Lightbox at migration stage 7 (B22) |
+| Peek: the huddle starter (2) | escaped | a panel inside the page, not floating; no part closes that |
+| Peek: the selection toolbar | escaped | it follows a text selection; the Popover it opens in has no trigger for that |
+| Peek: Ctrl+K | escaped | no part owns an app-wide shortcut; opening the palette is Peek's |
+| Peek: the / @ !@ [ menus (7) | escaped | Base UI's lists need a text field of their own; UIG-31 |
+| Peek: the freshness dot | escaped | `FieldLine` and `Banner` are lines of words |
+| Ship: the description's reading surface | escaped | it holds headings and lists, which a button cannot (D37) |
+| both apps: the gate | lints `src/**/*.{ts,tsx}`, and the editor hook checks `.ts` | a listener in a hook file, or a class list in a `.ts` file (`prose.ts`), is behaviour too |
+
+**What the package gained** (0.19.0)
+
+| part | what |
+|---|---|
+| `estiva/no-rebuilt-behaviour` | the apps' second rule, in `recommended` and `strict`; `OWNED_BEHAVIOURS` exported |
+| `Checkbox` `row`, `leading` | a list you tick several from: picture, words, box at the end; the row fills on hover and while checked. Peek's row class list, verbatim |
+| `ScrollArea`'s bar `z-10` | the bar paints above a sticky row (`sticky top-0 z-10`), which hid part of the thumb in Peek's topic and direct-message lists |
+
+**Proof**
+
+- **The rule.** 149 cases, every table row generated. The tables are read against the package source by the TypeScript parser; broken on purpose three ways (a module said to have no part while a component imports it; a part naming a component that does not import it; a message naming a component the package does not export), each failed.
+- **The package.** 681 tests; lint 0 errors, 137 warnings (2 new: the StickyHeadings box is the file's other stories' `h-[240px] w-[280px]`); `lint:rules` 0; typecheck; build; CI green. The published tarball checked for the rule, the table, the row classes and the bar's `z-10`.
+- **In Chrome.**
+  - `ScrollArea`: a scrolled region with the pointer over it — bar `z-index` `auto`, the thumb cut under the sticky heading; `10`, whole.
+  - Add to Open work on B against today's, a row ticked and another hovered: identical, pixel for pixel.
+  - Ship's refused upload, a file picked for real: the old line (its `data-composer` present) and `FieldLine` identical, pixel for pixel; the same element, role, classes, font and colour.
+  - Ship's code block: reading scrolled and editing wrapped before; both wrap after.
+- **Photos** (D70). Package: every `Checkbox` and `ScrollArea` story, both themes, 13 of 13 identical. Peek: 106 stories reaching a changed file, 104 identical — the DateDivider story (only the text's smoothing changed: Chrome draws text in a scrolling layer grayscale; every box measured in place) and `conversationcard--resolved` (1px, known to differ between two shots of the same code). Ship: 61, 60 identical and the throwaway code-block story, which showed the ruling and was never committed.
+- **The editor hook**, fed 8 payloads in each app: a key listener in a `.ts` hook file, a `role="option"` row, an `overflow-y-auto` story and a raw `<button>` refused; an escaped listener, a `.test.ts`, a `.d.ts` and a file outside `src` passed.
+- **The apps, on 0.19.0.** Peek: `lint:rules` 0; `tsc -b`, `tsc -p convex`; 131 files, 1,493 tests — a new test fails on the old rows (8 `option`s found). Ship: `lint:rules` 0; lint 0 errors / 21 warnings as before; typecheck; 51 files, 494 tests; build.
+- **`gates:status`.** UIG-8's checks: estiva-ui 5 (the apps get exactly the two rules; every part named is exported; `OWNED_BEHAVIOURS` exported; `Checkbox` `row`; the bar's `z-10`), each seen to fail with its part broken; Peek and Ship 9 each (a Base UI import names `Popover`; `createPortal` names `DialogShell`; a key listener in a `.ts` file; arrow keys yes and Enter no; `option` names `Select`; `tabIndex` 0 yes and -1 no; `overflow-y-auto` names `ScrollArea`; an escape against its control; a real page with none). **23 of 23.**
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **The ticket's numbers were UIG-1's.** Three PRs had removed a portal, two scroll boxes, an alert and two progress bars since; stage 5 had added the menus' roles; the package had 36 Base UI imports, not 22. | Counted with the rule on each main, and UIG-1's commits recounted to make the arithmetic add up. |
+| ✅ | **D47 had happened.** The ticket said to escape the type-ahead menus "until their real fix"; peek #198 and #201 had moved them onto `Popover` and made them listboxes. What is left is what Base UI has no part for. | M1; UIG-31. |
+| ✅ | **The gate never read a `.ts` file.** Ship's `prose.ts`, a scrolling class, was invisible to it. | Both apps lint `.ts`. |
+| ✅ | **Ship's code block scrolled while read and wrapped while written**, against Peek's ruling that it wraps. | M4. |
+| ✅ | **The package's scrollbar hid behind sticky rows**, in Peek's message lists. | M6: 0.19.0. |
+| ✅ | **Add to Open work's rows could not be reached from the keyboard.** | M2: each is a tick box now. |
+| ✅ | **UIG-7's own check said `no-raw-element` was the only app rule**, and would have failed the day a second arrived. | It reads that the apps get `no-raw-element`. |
+| ✅ | **Ship's real-page probe read from the repository root**, where Ship's `src` is not. | `cwd: WEB`, reading `web/src`. |
+| ✅ | **My first reason for Ship's code blocks was wrong** ("ScrollArea cannot go around it"): its reading surface is React. | Katerina asked why; M4. |
+| 🧰 | Traps: **Playwright hides scrollbars in headless Chrome** (`--hide-scrollbars`) — a photo of a native scrollbar needs `ignoreDefaultArgs`; jsdom mounts no `ScrollArea` bar (it measures no overflow), so the bar's order is proved in Chrome; a before/after photo of an edited file must confirm which code rendered (a changed attribute) before it is trusted; a Bash call over ~8KB fails with a quoting error — write the script to a file; muted text on a surface is 3.94:1, which CI's axe run refuses in a new story. | — |
 
 ### UIG-7: building it
 
@@ -760,11 +890,14 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-8, UIG-9 | The apps' rules are `configs.recommended`/`strict`: one so far, `no-raw-element` (UIG-7). A new app rule goes beside it, and `src/eslint/index.test.ts` is the test that says which set is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
-| UIG-8, UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). |
+| UIG-9 | The apps' rules are `configs.recommended`/`strict`: two so far, `no-raw-element` (UIG-7) and `no-rebuilt-behaviour` (UIG-8). A new app rule goes beside them, and `src/eslint/index.test.ts` is the test that says which set is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
+| UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). The apps' gates lint `.ts` as well as `.tsx` since UIG-8. |
 | every pull request | Nothing merges into `main` without `gate` green, and nobody can skip it. Never rename the job `gate` without changing the ruleset in each repo with it; `gates:status` UIG-6 reads both. In Peek and Ship only Jan can change the ruleset. |
-| UIG-8 | Every form in the apps is the package `Form` (UIG-7): a hand-written Enter handler that sends is now the thing to look for. UIG-5's inward set does not read `<fieldset>`, `<details>`, `<progress>` or the elements with no part — `CommandPalette` kept a plain `<fieldset>` until UIG-7 — so an inward rule for those is open. |
-| UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
+| UIG-9, UIG-14 | Every form in the apps is the package `Form` (UIG-7): a hand-written Enter handler that sends is the thing to look for; UIG-8 does not read Enter or Escape. UIG-5's inward set does not read `<fieldset>`, `<details>`, `<progress>` or the elements with no part — `CommandPalette` kept a plain `<fieldset>` until UIG-7 — so an inward rule for those is open. |
+| UIG-12 | `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint`: each behaviour, the Base UI parts that do it, the components that own it, what the rule reads — the shape the registry can read (UIG-8). |
+| UIG-14 | `aria-expanded` and `aria-pressed` written on a package component (Peek's file tree, `ProjectTickets`, the selection toolbar) are not read by UIG-8: the component is already the package's, and how to use it is a usage rule. |
+| the route probe (later phase) | **A box that should scroll and does not** has no class for a lint to read — Peek's Folders column at `72c999c`. Only opening the page and scrolling it finds that (UIG-8). |
+| UIG-31 | The / @ !@ [ menus' 7 escapes name it; its first-guess check reads that SlashMenu keeps none. |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
 | UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
 | every ticket | Update your own checks in `scripts/gates-checks.mjs` and your row in §15 in the same session. |
@@ -864,6 +997,8 @@ Guide T10. Tickets UIG-3, UIG-4, UIG-7.
 ### Family B — forbid the reach
 
 Guide T11. Ticket UIG-8.
+
+> **Built 16 September as one rule, `estiva/no-rebuilt-behaviour`**, from the behaviour list rather than these candidates; the counts below are UIG-1's, and **UIG-8: building it** in §0 reconciles every one of them.
 
 | rule | repo | count | samples | message | verdict |
 |---|---|---|---|---|---|
@@ -1786,7 +1921,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the chain (config, `lint:rules`, CI, the hook, `.gates-count.json`) and six probes: a nested raw element is an error and a component's own outermost element is not, a Base UI `render` prop is not, hand-rolled behaviour is, a component with no page and one with no story are errors naming the file they want, and `FieldLine` and `MenuItem` are not orphans (confirmed by UIG-5, 16 September) |
 | UIG-6 | Branch protection | estiva-ui | peek, ship | in each repo: `main` requires exactly the check `gate` (rulesets and classic protection, read the way anyone who can read the repo may), and CI's job `gate` runs `lint:rules` (confirmed by UIG-6, 16 September) |
 | UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element`, every part its mapping names is exported, `Form`, `FilePicker` and `Checkbox`'s `label` exist, and the command palette's form is `<Form enterSends={false}>`; in Peek and Ship, probes: `<input>` names TextInput, `<a>` Link, `<form>` Form and a file input FilePicker, `<textarea>`/`<select>`/`<dialog>`/`<label>` their parts, an element with no part says to ask, an escape passes while the same element is refused, and a real page gets no error (confirmed by UIG-7, 16 September) |
-| UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | probes: `createPortal` is an error; `tabIndex={0}` is, `tabIndex={-1}` is not |
+| UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element` and `no-rebuilt-behaviour`, every part the rule names is exported, `OWNED_BEHAVIOURS` exported, `Checkbox` has `row`, `ScrollArea`'s bar is `z-10`; in Peek and Ship, probes: a Base UI import names `Popover`, `createPortal` names `DialogShell`, a key listener in a `.ts` file is an error, arrow keys are and Enter is not, `role="option"` names `Select`, `tabIndex={0}` names `Button` and `{-1}` passes, `overflow-y-auto` names `ScrollArea`, an escape passes against its control, a real page gets none (confirmed by UIG-8, 16 September) |
 | UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | probe: a border passed into `Button` is an error naming Button |
 | UIG-10 | create-app | estiva-ui | | a `create-app` command in the package |
 | UIG-11 | Create the Leaf repo from it | estiva-ui | | `estiva-app/leaf` exists on GitHub; a `leaf` checkout beside estiva-ui |
@@ -1809,6 +1944,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on each repo's token lint (7 in the package, 8 in each app): `text-[14px]`, a hand-written line height behind an arbitrary variant and an inline colour are errors; `h-[240px]` is a warning and not an error; a width and height from a prop pass; a test file is not checked while source is; in the apps, a raw colour in a class is an error (R1). Each check of a rule was seen to fail with its rule removed (15 September) |
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `CommandPalette` from the package (it read `DialogShell` until UIG-29 found DialogShell did not fit, 16 September) |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
+| UIG-31 | Editor menus | estiva-ui | peek | the package exports the editor-menu part; Peek's SlashMenu keeps no escape naming UIG-31 (a first guess, 16 September) |
 
 The five sections are *What it is*, *When*, *When not*, *How* and *What it owns*,
 from UIG-14.
@@ -1822,13 +1958,13 @@ session. Every ticket already says so in its acceptance criteria.
 
 | | |
 |---|---|
-| tickets | **30** |
-| owned by estiva-ui | **25** — UIG-1, 2, 5 to 16, 19 to 28, 30 |
+| tickets | **31** |
+| owned by estiva-ui | **26** — UIG-1, 2, 5 to 16, 19 to 28, 30, 31 |
 | owned by peek | **3** — UIG-3, 17, 29 |
 | owned by ship | **2** — UIG-4, 18 |
-| **25 + 3 + 2** | **30** ✅ |
+| **26 + 3 + 2** | **31** ✅ |
 | parts checked in estiva-ui | 1 — UIG-3 |
-| parts checked in peek | 15 |
+| parts checked in peek | 16 |
 | parts checked in ship | 15 |
 
 `gates:status` proves this on every run rather than trusting this table. It
