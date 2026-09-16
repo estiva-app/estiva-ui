@@ -23,14 +23,6 @@ jobs:
       # The token contract as a machine rule: no class Tailwind does not
       # generate, no Tailwind ramp or palette, no raw colour (eslint.config.js).
       - run: npm run lint
-      # The UI Guardrails' rules pointed inward (UIG-5, as Peek's UIG-3 and
-      # Ship's UIG-4): a raw element buried inside a component, behaviour Base UI
-      # owns written by hand, a component with no page or no story. `npm run
-      # lint:rules` builds the rules first, writes .gates-count.json, and fails
-      # on an eslint-disable that switches one of them off. Zero errors on the
-      # day this landed, so it stays zero.
-      - name: Gate lint
-        run: npm run lint:rules
       - run: npm test
       - run: npm run build
 
@@ -63,6 +55,29 @@ jobs:
               console.log(g, '->', hits.length, 'files')
             }
           "
+
+  # The UI Guardrails' rules pointed inward (UIG-5, as Peek's UIG-3 and Ship's
+  # UIG-4): a raw element buried inside a component, behaviour Base UI owns
+  # written by hand, a component with no page or no story. `npm run lint:rules`
+  # builds the rules first, writes .gates-count.json, and fails on an
+  # eslint-disable that switches one of them off. Zero errors on the day this
+  # landed, so it stays zero.
+  #
+  # A job of its own, not a step in `check`, because GitHub can require only a
+  # whole job, by its name (UIG-6): branch protection on main requires `gate`.
+  # Renaming this job leaves every pull request waiting for a check that never
+  # reports.
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Gate lint
+        run: npm run lint:rules
 
   # Every story rendered in Chromium and run through axe, once per product
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
