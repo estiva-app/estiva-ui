@@ -39,6 +39,7 @@ export function EmptyState({ icon, message, scope = 'page', className }: EmptySt
     <div className={cn('flex flex-1 flex-col items-center justify-center gap-2', className)}>
       <span className="text-text-secondary">{icon ?? <IconMessage2 size={16} stroke={1.5} />}</span>
       <p className="text-body-2 text-text-secondary text-center">{message}</p>
+      <button type="button">UIG-6 proof</button>
     </div>
   )
 }
