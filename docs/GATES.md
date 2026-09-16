@@ -1436,7 +1436,7 @@ inside them.
 | # | finding | where it lives now |
 |---|---|---|
 | **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count grew to 20 (§0), and all 20 are fitted: peek PR #218, ship PR #151. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
-| **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
+| **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. ✅ **Fixed 16 September**: on `CommandPalette`, 14 of 14 replaced, 0 escaped (§0, UIG-29: building it). |
 | **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). ✅ Done: estiva-ui PR #34 (0.14.0), peek PR #222, ship PR #153 (§0). |
 | **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. ✅ Same. |
 | **5** | estiva-ui copying its own class lists. 14. | **UIG-25**, target set widened to include `estiva-ui/src`, with a second message for a primitive copying a sibling. |
@@ -1483,6 +1483,16 @@ nothing to do with UIG-1's count.
 | ✅ | **The older rules' variant part `(?:[a-z0-9-]+:)*` misses arbitrary variants and named groups.** The new block does not copy it. | the four older rules stay as they are (ticket) |
 | ✅ | `EnterHint`'s `target` is passed by nothing: no app, no story. | recorded |
 | ✅ | `src/MenuItem.stories.tsx` has `\r\r\n` on three lines, so ESLint's line numbers there run three ahead of an editor's. | matters only when placing an escape |
+
+### UIG-29: what building it found
+
+| | finding | where it went |
+|---|---|---|
+| ✅ | Base UI `Autocomplete` moves the highlight on Home and End, and keeps the highlight's position rather than its row when rows arrive above it. | fixed in `CommandPalette` (0.16.0, 0.16.1), each pinned by a test |
+| ✅ | The approved prototype had three bugs: focus to the wrong missing field, focus lost after Ctrl+Enter, a footer naming keys that did nothing. | not carried into the build |
+| ✅ | A message search hit dropped the tags naming its thread, so a reply could not be opened at. | fixed in peek PR #233 (`MessageHit.root`) |
+| ⬜ | C5 is half built: a created issue lands in the composer as raw `nostr:naddr…` text, and nothing records in the thread that it was created there (the issue event has no thread tag; a reply has no `a` tag). | Katerina, 16 September: a new session builds the composer chip and the thread line; the line as a real record needs Jan (`@estiva-app/protocol`) |
+| ⬜ | The Make proposal card's two lines are token classes inside `Card`, not a palette part. | recorded; a palette part when next touched |
 
 ### What is still true
 
