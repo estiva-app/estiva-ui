@@ -20,7 +20,7 @@ import { createRequire } from 'node:module'
 import type { ESLint, Linter } from 'eslint'
 import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
-import { noRawButton } from './no-raw-button'
+import { noRawElement } from './no-raw-element'
 import { rawElementOutsideAWrapper } from './raw-element-outside-a-wrapper'
 
 export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings } from './escape'
@@ -35,7 +35,7 @@ export const PLUGIN_KEY = 'estiva'
  * already has. `recommended` and `strict` carry these and only these.
  */
 const appRules = {
-  'no-raw-button': noRawButton,
+  'no-raw-element': noRawElement,
 }
 
 /**
@@ -45,8 +45,9 @@ const appRules = {
  *
  * They are in `configs.package`, never in `recommended`, on purpose. Peek and
  * Ship spread `recommended`, so a rule added here must not arrive in an app
- * with the next version bump: an app is full of raw elements it is allowed to
- * have until UIG-7, and has no `.mdx` pages at all. `index.test.ts` holds the
+ * with the next version bump: an app's components are not primitives, so
+ * "buried inside a component" means nothing there (`no-raw-element` is the
+ * app's version, UIG-7), and an app has no `.mdx` pages at all. `index.test.ts` holds the
  * apps' list to exactly the app rules.
  */
 const packageRules = {
@@ -80,7 +81,7 @@ export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGI
 plugin.configs.recommended = {
   name: '@estiva-app/ui/recommended',
   plugins: { [PLUGIN_KEY]: plugin },
-  rules: { [`${PLUGIN_KEY}/no-raw-button`]: 'error' },
+  rules: { [`${PLUGIN_KEY}/no-raw-element`]: 'error' },
 }
 plugin.configs.strict = {
   name: '@estiva-app/ui/strict',

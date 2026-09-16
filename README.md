@@ -67,7 +67,9 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. Today there is one: `estiva/no-raw-button`.
+instead. Today there is one: `estiva/no-raw-element`, which refuses a raw
+interactive element (`<a>`, `<input>`, `<form>`, `<dialog>`…) and names the part to
+use, or says the package has none yet.
 
 ```js
 // eslint.config.js — alongside your own rules

@@ -25,6 +25,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | One value for a form field | **Select** | a Menu — Select's trigger shows the value |
 | Several values, typed then removable | **ChipInput** | checkboxes in a Menu |
 | Yes or no | **Checkbox** | a toggle we don't have |
+| Yes or no, with words beside it that toggle it too | **Checkbox** `label` | words written beside it by hand — they name nothing and toggle nothing |
 | Switching between views of one thing | **Tabs** | a row of Buttons |
 | View options behind a `…` | **Menu**, `selected` on the current row | Select |
 | Rows of checkboxes that stay open | a list in a **DialogShell** | a Menu — a Checkbox inside a `menuitem` is invalid HTML |
@@ -39,6 +40,8 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | Typing that filters a list | **SearchInput** |
 | A title edited in place | **EditableText** |
 | Label and required-mark around any control | **Field** |
+| The fields and the button that sends them | **Form** — Enter sends; `busy` switches everything inside off while it waits |
+| A button that opens the file picker | **FilePicker**, opened by your own **Button** or **IconButton** |
 | A hint or a failure under **one** control | **Field**'s `helper` / `error` — wired to it, and announced |
 | A hint or an outcome under a **group** of controls | **FieldLine** — the same line on its own, with a `warning` tone Field has not got |
 

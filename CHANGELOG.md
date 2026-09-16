@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.17.0 — 2026-09-16 — UIG-7, every raw element
+
+### Changed
+
+- **`estiva/no-raw-button` is now `estiva/no-raw-element`**, one rule for every raw
+  interactive element, not only `<button>` (Ship UIG-7). An app that takes this release
+  is refused on more than it was, and each message names the part to use:
+  `<a>` → `Link` (`InlineChip`, `Card` with `href`), `<button>` → `Button` (the same
+  message as before), `<input>` → `TextInput`, or by its `type` `SearchInput`,
+  `Checkbox`, `FilePicker`, `Button`, `<textarea>` → `Textarea`, `<select>` → `Select`,
+  `<dialog>` → `DialogShell` (`ConfirmDialog`), `<label>` → `Field` (`Checkbox` with
+  `label`), `<details>` → `CollapsibleSection`, `<progress>` → `ProgressBar`, `<form>` →
+  `Form`. An element the package has no part for yet (`<iframe>`, `<embed>`,
+  `<object>`, `<meter>`, an `<audio>` or `<video>` with `controls`, an image map, and
+  an `<input>` that is a radio, a slider, a colour or a date) is refused with a message
+  that says so and asks for one. `<input type="hidden">` is not reported: it draws
+  nothing. The escape marker is unchanged.
+  **Callers:** the rule's id is in each app's count file — Peek `.gates-count.json`,
+  Ship `web/.gates-count.json` — which `lint:rules` rewrites, and in Ship's
+  `docs/GATES-DEBT.md`.
+
+- **`TextInput`, `Textarea` and `SearchInput` strengthen their border on hover**, as
+  `Select` and `ChipInput` already did (`border-border-strong`; Katerina, 16 September).
+  A focused field keeps its focus border under the pointer; a disabled one does not
+  react. On `SearchInput` the hover look is the same as its focus look, which was
+  already the stronger border. Every text field in both apps changes on hover and
+  nowhere else: measured in both themes, the border goes from 12% to 22% white on
+  hover, and rest, focus, focus with hover and disabled are identical before and
+  after (32 of 40 photos identical, the 8 that differ are the hovered ones).
+
+### Added
+
+- **`Checkbox` takes `label`**: words beside the box, on Base UI's `Field` and
+  `Field.Label`, so clicking them toggles it and they name it. The class list is Peek's Read state
+  panel's, which wrote it by hand. Disabled, only the box shows it; the words keep
+  their colour (Katerina, 16 September) and lose the pointer. `className` stays on the
+  box. Existing stories are identical pixel for pixel, both themes.
+- **`Form`**, on Base UI's `Form`: Enter in a field or a submit button sends it,
+  the page's own submit is prevented, and a field showing its `error` stops it from
+  sending. `busy` switches off every field and button inside at once (a disabled
+  Base UI `Fieldset` with no box) and holds focus on the form while it waits; when it
+  ends, focus goes to the first invalid field, else back to what sent the form, else
+  to the first control. The apps' five forms wrote this by hand. Storybook:
+  `Inputs/Form`.
+- **`Button`, `IconButton` and `Checkbox` are disabled inside a busy `Form`**, and
+  wear their own disabled look. A fieldset switches a native control off but does
+  not tell Base UI, so these three — whose look follows Base UI's state — looked
+  usable while they could not be pressed, and a `Checkbox` could still be ticked
+  (Katerina, from the Busy story). Nothing changes outside a `Form`.
+- **`FilePicker`**: the browser's file picker with nothing drawn — a hidden
+  `<input type="file">` your own button opens through its ref. `onPick` gets the
+  chosen files as an array, only when something was chosen, and the picker clears
+  itself so the same file can be chosen again. Base UI has no part for it. The apps'
+  three paperclips wrote this by hand. Storybook: `Inputs/FilePicker`.
+- **`stories/Choosing.mdx`**: rows for `Form`, `FilePicker` and `Checkbox`'s `label`.
+
 ## 0.16.1 — 2026-09-16 — UIG-29, what Peek's launcher needed
 
 Found while Peek's launcher moved onto the palette: one addition, and one narrowing of

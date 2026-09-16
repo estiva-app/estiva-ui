@@ -20,6 +20,18 @@ export const Checked: Story = { args: { checked: true } }
 export const Disabled: Story = { args: { disabled: true } }
 export const DisabledChecked: Story = { args: { checked: true, disabled: true } }
 
+/** Words beside the box. Clicking them toggles it too, and they name it. */
+export const WithLabel: Story = {
+  args: { label: 'Label', 'aria-label': undefined },
+  render: (args) => {
+    const [checked, setChecked] = useState(args.checked)
+    return <Checkbox {...args} checked={checked} onChange={setChecked} />
+  },
+}
+
+/** Disabled with words: only the box shows it; the words keep their colour. */
+export const WithLabelDisabled: Story = { args: { label: 'Label', 'aria-label': undefined, disabled: true } }
+
 /** Controlled, as always — the parent owns the state. */
 export const Toggles: Story = {
   parameters: { controls: { disable: true } },

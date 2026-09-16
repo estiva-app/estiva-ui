@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as FormStories from './Form.stories'
+
+<Meta of={FormStories} />
+
+# Form
+
+The fields and the button that sends them. Enter in a field, or a submit
+button, sends it; the page never reloads; while it sends, everything inside
+is switched off at once.
+
+<Canvas of={FormStories.WhileSending} />
+
+## When
+
+- Any set of fields that is sent: a dialog's fields, a one-line field with
+  its button, a composer.
+- **`busy`** while the sending is waited on.
+
+## When not
+
+- One field that saves itself as you leave it → **EditableText**.
+- A field that filters a list as you type → **SearchInput**; nothing is sent.
+
+## How
+
+```tsx
+import { Button, Field, Form, TextInput } from '@estiva-app/ui'
+
+<Form onSubmit={send} busy={sending} className="flex flex-col gap-6">
+  <Field label="Title" required error={titleError}>
+    <TextInput value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(undefined) }} />
+  </Field>
+  <Button variant="primary" type="submit">Send</Button>
+</Form>
+```
+
+- **`onSubmit` takes nothing.** The page's own submit is already prevented;
+  there is no event to stop.
+- **`busy` switches off every field and button inside**, so they do not
+  each need `disabled={busy}`. A button outside the form that sends it —
+  a dialog's footer, with `form="<id>"` and the form's `id` — is outside,
+  and keeps its own `disabled`.
+- **Focus waits on the form while it is busy.** A browser drops focus to the
+  page the moment the focused field is switched off; the form holds it
+  instead. When `busy` ends, focus goes to the first field showing an error,
+  else back to what sent the form, else to the first control. If focus was
+  moved somewhere else while it waited, it stays there.
+- **A field showing its `error` stops the form from sending**, and Enter moves
+  focus to that field instead (Base UI checks every field before it sends).
+  Clear the error when the field changes, as in the example; an error left
+  standing keeps the form from ever sending.
+- The browser's own validation bubbles are off (`noValidate`). `Field`'s
+  `required` marks a field; it does not block sending by itself.
+- `className` places the fields: the form draws no box, and neither does the
+  `<fieldset>` inside it.
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Enter, in a one-line field | Sends the form. |
+| Enter, in a Textarea | A new line; it does not send. |
+| Tab, while busy | Nothing inside takes focus. |
+
+## Props
+
+<Controls of={FormStories.Default} />

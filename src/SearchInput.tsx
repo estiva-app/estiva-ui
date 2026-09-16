@@ -33,7 +33,9 @@ export function SearchInput({ shortcut, className, placeholder = 'Search…', ..
       className={cn(
         'flex gap-2 items-center px-3 py-2 rounded-lg',
         'bg-bg-inset border border-border-default',
-        'focus-within:border-border-strong transition-colors',
+        // Hover strengthens the border as it does on every other field (16 September). Here that
+        // is also the focus look, which was the stronger border before hover existed.
+        'hover:border-border-strong focus-within:border-border-strong transition-colors',
         className,
       )}
     >

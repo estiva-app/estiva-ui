@@ -32,7 +32,10 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
       ref={ref}
       type={type}
       className={cn(
-        'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg',
+        // The border strengthens on hover, as Select's and ChipInput's do (Katerina, 16 September:
+        // "aren't there hover states in text input and text area?"). Focus comes after hover in
+        // Tailwind's order, so a focused field keeps the focus border under the pointer.
+        'bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg',
         // The small size is the small Select's trigger, class for class.
         size === 'default' && 'px-3 py-2 text-input-value',
         size === 'small' && 'h-6 px-2 text-caption',

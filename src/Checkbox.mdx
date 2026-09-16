@@ -21,6 +21,12 @@ the parent owns the state.
 
 <Canvas of={CheckboxStories.InsideARow} />
 
+- With words beside it: pass **`label`**. The words are part of the
+  target — clicking them toggles the box — and they name it, so no
+  `aria-label` is needed.
+
+<Canvas of={CheckboxStories.WithLabel} />
+
 ## When not
 
 - One choice out of several → **Select** (a value) or **Tabs** (a view).
@@ -38,7 +44,19 @@ import { Checkbox } from '@estiva-app/ui'
 - Built on Base UI Checkbox, as Base UI renders it: a `<span>` with
   `role="checkbox"` and `aria-checked`, and a hidden `<input>` beside it
   for forms. Its click never reaches the row around it.
-- Give it an `aria-label` unless visible text right beside it names it.
+- Give it an `aria-label`, or words of its own with `label`. Words written
+  beside it by hand name nothing and toggle nothing; `label` does both.
+
+```tsx
+<Checkbox checked={on} onChange={setOn} label="Label" />
+```
+
+- With `label` it is Base UI's `Field`, its `Field.Label` around the box and
+  the words: the box, 8px, then the words in `body-2`. `className` stays on
+  the box. When disabled, only the box shows it; the words keep their colour
+  and lose the pointer. It is a field of its own, so it does not go inside a
+  **Field**.
+- Inside a busy **Form** it is disabled, and looks it.
 - It does not move when it toggles: the tick is always in the box, hidden
   when unchecked, so both states hang on a line of text the same way.
 

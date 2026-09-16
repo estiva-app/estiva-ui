@@ -35,4 +35,11 @@ describe('TextInput', () => {
     for (const c of ['px-3', 'py-2', 'text-input-value']) expect(classes).not.toContain(c)
     expect(input.hasAttribute('size')).toBe(false)
   })
+
+  it("a stronger border on hover, as Select's, and the focus border still wins while focused", () => {
+    render(<TextInput aria-label="Title" />)
+    const classes = screen.getByRole('textbox').className.split(' ')
+    // Both survive cn(); Tailwind emits focus after hover, so the order in CSS decides, not here.
+    for (const c of ['border-border-default', 'hover:border-border-strong', 'focus:border-border-focus']) expect(classes).toContain(c)
+  })
 })

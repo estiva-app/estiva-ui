@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
+import { useFormBusy } from './formBusy'
 import { TooltipTrigger } from './Tooltip'
 
 /**
@@ -59,10 +60,12 @@ export function Button({
   ...props
 }: ButtonProps) {
   const hasLeadingIcon = !!leadingIcon
+  // Inside a busy Form: switched off, and looking it (formBusy.ts).
+  const formBusy = useFormBusy()
   const button = (
     <BaseButton
       type={type}
-      disabled={disabled || !!disabledReason}
+      disabled={disabled || !!disabledReason || formBusy}
       focusableWhenDisabled={!!disabledReason}
       className={(state) =>
         cn(

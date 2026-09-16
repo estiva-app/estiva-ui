@@ -21,7 +21,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       ref={ref as React.Ref<HTMLElement>}
       render={<textarea />}
       className={cn(
-        'bg-bg-inset border border-border-default focus:border-border-focus rounded-lg px-3 py-2',
+        // The border strengthens on hover, as Select's and ChipInput's do (Katerina, 16 September:
+        // "aren't there hover states in text input and text area?"). Focus comes after hover in
+        // Tailwind's order, so a focused field keeps the focus border under the pointer.
+        'bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg px-3 py-2',
         'text-input-value text-text-primary placeholder:text-text-muted',
         'resize-none outline-none transition-colors',
         'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
