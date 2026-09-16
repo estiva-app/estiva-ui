@@ -18,7 +18,10 @@
  */
 import { createRequire } from 'node:module'
 import type { ESLint, Linter } from 'eslint'
+import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
+import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
 import { noRawButton } from './no-raw-button'
+import { rawElementOutsideAWrapper } from './raw-element-outside-a-wrapper'
 
 export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings } from './escape'
 
@@ -27,23 +30,52 @@ const { version } = createRequire(import.meta.url)('../../package.json') as { ve
 /** The name the configs register the plugin under, so every rule id is `estiva/<rule>`. */
 export const PLUGIN_KEY = 'estiva'
 
-const rules = {
+/**
+ * The rules an **app** runs: they say an app must not build what the package
+ * already has. `recommended` and `strict` carry these and only these.
+ */
+const appRules = {
   'no-raw-button': noRawButton,
 }
+
+/**
+ * The rules the **package itself** runs, pointed inward (UIG-5): don't bury a
+ * raw element inside a component, don't rebuild what Base UI owns, don't ship a
+ * component without a page or a story.
+ *
+ * They are in `configs.package`, never in `recommended`, on purpose. Peek and
+ * Ship spread `recommended`, so a rule added here must not arrive in an app
+ * with the next version bump: an app is full of raw elements it is allowed to
+ * have until UIG-7, and has no `.mdx` pages at all. `index.test.ts` holds the
+ * apps' list to exactly the app rules.
+ */
+const packageRules = {
+  'raw-element-outside-a-wrapper': rawElementOutsideAWrapper,
+  'no-hand-rolled-behaviour': noHandRolledBehaviour,
+  'component-has-a-page': componentHasAPage,
+  'component-has-a-story': componentHasAStory,
+}
+
+const rules = { ...appRules, ...packageRules }
 
 const plugin = {
   meta: { name: '@estiva-app/ui/eslint', version },
   rules,
-  configs: {} as { recommended: Linter.Config; strict: Linter.Config },
+  configs: {} as { recommended: Linter.Config; strict: Linter.Config; package: Linter.Config },
 } satisfies ESLint.Plugin
 
-const ruleIds = Object.keys(rules).map((name) => `${PLUGIN_KEY}/${name}`)
+/** The ids `recommended` and `strict` carry — what an app's gate runs and counts. */
+export const APP_RULE_IDS = Object.keys(appRules).map((name) => `${PLUGIN_KEY}/${name}`)
+/** The ids `package` carries — what this package's own gate runs and counts (UIG-5). */
+export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGIN_KEY}/${name}`)
 
 /**
- * `recommended` switches every rule on at the level it was ruled at: an error
- * blocks, a warning is reported and never blocks. `strict` makes every rule an
- * error. With one rule, an error, the two are the same today; they part when
- * the first warning-level rule arrives (UIG-25).
+ * `recommended` switches every **app** rule on at the level it was ruled at: an
+ * error blocks, a warning is reported and never blocks. `strict` makes every app
+ * rule an error. With one rule, an error, the two are the same today; they part
+ * when the first warning-level rule arrives (UIG-25).
+ *
+ * `package` is the inward set (UIG-5), which only this package runs.
  */
 plugin.configs.recommended = {
   name: '@estiva-app/ui/recommended',
@@ -53,7 +85,12 @@ plugin.configs.recommended = {
 plugin.configs.strict = {
   name: '@estiva-app/ui/strict',
   plugins: { [PLUGIN_KEY]: plugin },
-  rules: Object.fromEntries(ruleIds.map((id) => [id, 'error'])),
+  rules: Object.fromEntries(APP_RULE_IDS.map((id) => [id, 'error'])),
+}
+plugin.configs.package = {
+  name: '@estiva-app/ui/package',
+  plugins: { [PLUGIN_KEY]: plugin },
+  rules: Object.fromEntries(PACKAGE_RULE_IDS.map((id) => [id, 'error'])),
 }
 
 export default plugin
@@ -80,20 +117,28 @@ export interface GateCount {
  * Run the lint with `settings: { estiva: { reportEscapes: true } }` for the
  * escapes to be counted; without it they are silent and count 0. A marker
  * with no reason, or inside a directive, counts as an error of its rule.
+ *
+ * `seed` is which rules the count lists when they found nothing, and it is the
+ * app rules unless a caller says otherwise: an app's count file must not gain
+ * rows for the inward rules (UIG-5) that its gate does not run. This package's
+ * own count script passes `PACKAGE_RULE_IDS`.
  */
-export function countGates(results: ESLint.LintResult[]): GateCount {
-  const counts: Record<string, GateRuleCount> = Object.fromEntries(ruleIds.map((id) => [id, { errors: 0, warnings: 0, escapes: 0 }]))
+export function countGates(results: ESLint.LintResult[], seed: readonly string[] = APP_RULE_IDS): GateCount {
+  const counts: Record<string, GateRuleCount> = Object.fromEntries(seed.map((id) => [id, { errors: 0, warnings: 0, escapes: 0 }]))
   const disabled: GateCount['disabled'] = []
+  const ours = (ruleId: string | null | undefined): ruleId is string => typeof ruleId === 'string' && ruleId.startsWith(`${PLUGIN_KEY}/`)
   for (const result of results) {
     for (const message of result.messages) {
-      const count = message.ruleId ? counts[message.ruleId] : undefined
-      if (!count) continue
+      // Seeded or not: every rule of this plugin that reported is counted, so a
+      // lint of a set the caller did not name is still counted in full.
+      if (!ours(message.ruleId)) continue
+      const count = (counts[message.ruleId] ??= { errors: 0, warnings: 0, escapes: 0 })
       if (message.messageId === 'escaped') count.escapes += 1
       else if (message.severity === 2) count.errors += 1
       else count.warnings += 1
     }
     for (const message of result.suppressedMessages ?? []) {
-      if (message.ruleId && counts[message.ruleId]) disabled.push({ filePath: result.filePath, line: message.line, ruleId: message.ruleId })
+      if (ours(message.ruleId)) disabled.push({ filePath: result.filePath, line: message.line, ruleId: message.ruleId })
     }
   }
   return { rules: counts, disabled }
