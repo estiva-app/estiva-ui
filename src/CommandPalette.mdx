@@ -76,10 +76,16 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 - **`pending` while rows are still on their way; `empty` only once none are.**
   Pass `empty` while a search is running and the page says "nothing" before it
   knows.
-- **Rows that arrive late do not take the highlight.** Base UI keeps the
-  highlight's position rather than its row, so a group arriving above the lit
-  row would hand the highlight — and Enter — to something else. The palette
-  walks it back to the row you had. Typing starts again from the first row.
+- **`notes` are what a person should know about the rows and cannot act on** —
+  "2 more where you cannot open them", "the search was refused, so this list
+  is incomplete". Quiet lines under the rows, never rows: the arrows do not stop
+  on them.
+- **Rows that arrive late do not take the highlight you moved to.** Base UI keeps
+  the highlight's position rather than its row, so a group arriving above the
+  lit row would hand the highlight — and Enter — to something else. Once you have
+  moved the highlight on a level, the palette walks it back to the row you had.
+  Until you have, the first row is lit, whichever row that becomes. Typing starts
+  again from the first row.
 - **Home and End move the text cursor, and nothing else.** Base UI would also
   send the highlight to the first or last row; the palette stops that.
 - **The field is named by its placeholder**, so say what it asks for.
@@ -117,7 +123,7 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 
 **`CommandPaletteSearch`** — `query` and `onQueryChange` (the field, controlled),
 `placeholder` (also the field's name), `groups` (`{ label, rows }`, a group
-with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`,
+with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`, `notes?`,
 `empty?`, and `children` for what sits above the rows.
 
 **A row** — `id`, `label`, `description?`, `icon?` or `leading?`, `onSelect`,

@@ -221,6 +221,13 @@ export interface CommandPaletteSearchProps {
   chip?: CommandPaletteChip
   /** A line under the rows while more are on their way — "Searching…". */
   pending?: string
+  /**
+   * Quiet lines under the rows, for what a person should know about them and
+   * cannot act on — "2 more where you cannot open them", "the search was
+   * refused, so this list is incomplete". Plain lines, never rows: the arrows
+   * do not stop on them.
+   */
+  notes?: string[]
   /** The line when there are no rows. Leave it out while rows are still on their way. */
   empty?: string
   /** Above the rows: a `CommandPaletteWorking`, `CommandPaletteAnswer` or `CommandPaletteQuote`. */
@@ -229,7 +236,7 @@ export interface CommandPaletteSearchProps {
 
 type ListGroup = { value: string; items: CommandPaletteRow[] }
 
-export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, empty, children }: CommandPaletteSearchProps) {
+export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children }: CommandPaletteSearchProps) {
   const { modKey, popupRef } = usePalette('CommandPaletteSearch')
   const back = useBack(chip, popupRef)
   const items = useMemo<ListGroup[]>(() => groups.filter((g) => g.rows.length > 0).map((g) => ({ value: g.label, items: g.rows })), [groups])
@@ -254,14 +261,22 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
     arrow keys, exactly as a person would. It does so only when Base UI moved
     the highlight by itself ("none") — never after an arrow, the pointer, or
     typing, which starts again from the first row.
+
+    And only once the person has moved the highlight on this level. Until then
+    the lit row is simply the first one, and a row that arrives above it — a
+    thread's own rows, a moment after opening — becomes the first one.
   */
   const inputRef = useRef<HTMLInputElement>(null)
   const reported = useRef<{ id?: string; reason?: string }>({})
   const settled = useRef<{ id?: string; query: string; level?: string } | null>(null)
+  /** The person has moved the highlight since the text or the level last changed. */
+  const moved = useRef(false)
   useLayoutEffect(() => {
     const before = settled.current
     const now = reported.current
-    if (before?.id && now.reason === 'none' && now.id !== before.id && before.query === query && before.level === chip?.label) {
+    const sameLevel = before?.query === query && before?.level === chip?.label
+    if (!sameLevel) moved.current = false
+    if (moved.current && before?.id && now.reason === 'none' && now.id !== before.id && sameLevel) {
       const ids = rows.map((r) => r.id)
       const want = ids.indexOf(before.id)
       const at = now.id === undefined ? -1 : ids.indexOf(now.id)
@@ -347,6 +362,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
       onItemHighlighted={(row, details) => {
         const id = (row as CommandPaletteRow | undefined)?.id
         reported.current = { id, reason: details.reason }
+        if (details.reason !== 'none') moved.current = true
         setLitId(id)
       }}
     >
@@ -410,6 +426,11 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
             </>
           )}
         </Autocomplete.Status>
+        {notes.map((note) => (
+          <div key={note} className="flex min-h-8 items-center px-3">
+            <FieldLine>{note}</FieldLine>
+          </div>
+        ))}
         <Autocomplete.Empty className="flex items-center px-3 [&:not(:empty)]:min-h-10">
           {empty && <EmptyState scope="section" message={empty} />}
         </Autocomplete.Empty>
