@@ -54,6 +54,98 @@ describe('Form', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1)
   })
 
+  describe('the keys, the same in every form', () => {
+    function Keys({ onSubmit, enterSends }: { onSubmit: () => void; enterSends?: boolean }) {
+      return (
+        <Form onSubmit={onSubmit} enterSends={enterSends} aria-label="Probe">
+          <Field label="One">
+            <TextInput />
+          </Field>
+          <Field label="Two">
+            <TextInput />
+          </Field>
+          <Field label="Words">
+            <Textarea />
+          </Field>
+          <input role="combobox" aria-label="Pick" aria-expanded="false" aria-controls="none" />
+        </Form>
+      )
+    }
+
+    it('Enter in a one-line field sends, even with two fields and no submit button', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<Keys onSubmit={onSubmit} />)
+      await user.type(screen.getByRole('textbox', { name: 'Two' }), 'x{Enter}')
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+    })
+
+    it('Enter in a text area is a new line; Ctrl+Enter and Cmd+Enter there send', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<Keys onSubmit={onSubmit} />)
+      const words = screen.getByRole('textbox', { name: 'Words' }) as HTMLTextAreaElement
+      await user.type(words, 'a{Enter}b')
+      expect(words.value).toBe('a\nb')
+      expect(onSubmit).not.toHaveBeenCalled()
+      await user.keyboard('{Control>}{Enter}{/Control}')
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+      await user.keyboard('{Meta>}{Enter}{/Meta}')
+      expect(onSubmit).toHaveBeenCalledTimes(2)
+    })
+
+    it("Enter in a picker's input does not send", async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<Keys onSubmit={onSubmit} />)
+      await user.type(screen.getByRole('combobox', { name: 'Pick' }), 'x{Enter}')
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+
+    it('a field that handles its own Enter keeps it', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(
+        <Form onSubmit={onSubmit} aria-label="Probe">
+          <TextInput aria-label="Own" onKeyDown={(event) => event.key === 'Enter' && event.preventDefault()} />
+        </Form>,
+      )
+      await user.type(screen.getByRole('textbox', { name: 'Own' }), 'x{Enter}')
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+
+    it('with enterSends off, Enter in a one-line field does nothing and Ctrl+Enter sends', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<Keys onSubmit={onSubmit} enterSends={false} />)
+      const one = screen.getByRole('textbox', { name: 'One' }) as HTMLInputElement
+      await user.type(one, 'x{Enter}')
+      expect(onSubmit).not.toHaveBeenCalled()
+      expect(one.value).toBe('x')
+      await user.keyboard('{Control>}{Enter}{/Control}')
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+    })
+
+    it('Enter with a submit button in the form sends once, not twice', async () => {
+      const user = userEvent.setup()
+      const onSubmit = vi.fn()
+      render(<Harness onSubmit={onSubmit} />)
+      await user.type(screen.getByRole('textbox', { name: 'First' }), 'x{Enter}')
+      expect(onSubmit).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not send again while busy', async () => {
+      const onSubmit = vi.fn()
+      const { rerender } = render(<Harness onSubmit={onSubmit} />)
+      act(() => screen.getByRole('textbox', { name: 'First' }).focus())
+      rerender(<Harness onSubmit={onSubmit} busy />)
+      const form = screen.getByRole('form', { name: 'Probe' })
+      fireEvent.keyDown(form, { key: 'Enter', ctrlKey: true })
+      fireEvent.submit(form)
+      expect(onSubmit).not.toHaveBeenCalled()
+    })
+  })
+
   it('does not send while a field shows its error', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()

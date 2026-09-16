@@ -36,7 +36,10 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
 ```
 
 - **`onSubmit` takes nothing.** The page's own submit is already prevented;
-  there is no event to stop.
+  there is no event to stop. Every way of sending — Enter, Ctrl+Enter, a
+  submit button — arrives here the same way, after the same field check.
+- **`enterSends={false}`** keeps Enter in a one-line field from sending, where
+  only Ctrl+Enter may: a form inside **CommandPalette**, which uses it.
 - **`busy` switches off every field and button inside**, so they do not
   each need `disabled={busy}`. A button outside the form that sends it —
   a dialog's footer, with `form="<id>"` and the form's `id` — is outside,
@@ -57,10 +60,16 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
 
 ## Keys
 
+The same in every form (Katerina, 16 September).
+
 | Key | Does |
 |---|---|
-| Enter, in a one-line field | Sends the form. |
+| Enter, in a one-line field | Sends the form — with or without a submit button, however many fields. Not with `enterSends={false}`. |
 | Enter, in a Textarea | A new line; it does not send. |
+| Enter, in a list or a people picker | Picks; it does not send. |
+| Enter, in a field that handles Enter itself | What the field does; the form does not send. |
+| Ctrl+Enter (Cmd+Enter), anywhere inside | Sends the form. |
+| Any of these, while busy | Nothing: a form that is sending does not send again. |
 | Tab, while busy | Nothing inside takes focus. |
 
 ## Props
