@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, evening. UIG-29 is built: Peek's launcher sits on a new package component, `CommandPalette` — Base UI's `Dialog` with an `Autocomplete` inside, the list inline — released as `@estiva-app/ui` 0.16.0 and 0.16.1 (estiva-ui PR #43, #44), taken by Peek in peek PR #233, merged and deployed. The move and a UX review happened together: every key does what Katerina ruled, checked key by key in Chrome, and she tried it on real data before it merged. Every count UIG-1 made in the file is replaced and none escaped; the 60 token escapes and 29 escape notes naming UIG-29 went with the old file. Two parts of ruling C5 are not built: a chip in the composer for a created issue, and a "created an issue" line in the thread. See UIG-29: building it, below.**
+
 **16 September 2026, later again. UIG-6 is done: GitHub refuses a merge into `main` in all three repos unless the gate lint passes, and nobody can skip it, admins included. The gate is a CI job of its own, `gate`, because GitHub can require only a whole job (estiva-ui PR #40, peek PR #227, ship PR #155). Katerina set the rule in estiva-ui; Jan set it in Peek and Ship, where only he is admin. Proved in each repo: a pull request with one raw `<button>` was refused — "Required status check "gate" is failing" — and the three pull requests above merged under the rule, with Peek and Ship deploying after. Nothing was required before, and the typechecks and tests stay optional. `gates:status` reads 6 of 6 now that it reads rules the way anyone may (estiva-ui PR #42, peek PR #230, ship PR #157). Next: UIG-7. See UIG-6: building it, below.**
 
 **16 September 2026, later still. UIG-5 is done: the package now runs the same chain on itself, with four rules of its own — a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. The two it found are fixed, not escaped: a crumb is the package's `Link` and a toast's action is its `Button` (Katerina, from the two side by side). Nothing is escaped anywhere, `docs/GATES-DEBT.md` is empty, and `gates:status` reads 12 of 12. The apps are untouched: the inward rules live in a config of their own. Next: UIG-6, branch protection — read what UIG-4 found about it first. See UIG-5: building it, below.**
@@ -40,6 +42,7 @@ answer
 | ✅ **UIG-4** | ship PR #154, on 0.15.0: the gate lint in `web/`, its CI step, `web/.gates-count.json`, the editor hook in Ship's top folder, the `CLAUDE.md` paragraph, and `docs/GATES-DEBT.md`, the first debt list (nothing owed). 0 raw buttons = 0 replaced + 0 escaped. `gates:status` reads 9 of 9. See **UIG-4: building it**, below. |
 | ✅ **UIG-5** | estiva-ui PR #39: the package's own chain, with four inward rules in a config of its own (`configs.package`): a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. 2 found, both fixed, 0 escaped. `gates:status` reads 12 of 12. See **UIG-5: building it**, below. |
 | ✅ **UIG-6** | A ruleset, "gate on main", in each repo: a merge or push into `main` needs `gate` green, from GitHub Actions; nobody on the bypass list; `main` cannot be deleted or force-pushed. The gate lint is a CI job of its own, `gate`: estiva-ui PR #40, peek PR #227, ship PR #155. `gates:status` reads rulesets: estiva-ui PR #42, peek PR #230, ship PR #157. Refused 3 of 3, clean merges 3 of 3, deploys 2 of 2. `gates:status` reads 6 of 6. See **UIG-6: building it**, below. |
+| ✅ **UIG-29** | Package: estiva-ui PR #43 (0.16.0, `CommandPalette` and its parts) and PR #44 (0.16.1, `notes`, and the late-row rule narrowed). Peek: peek PR #233 — the launcher on the palette, with Katerina's UX rulings, recents, and a message result opening at the message. UIG-1's count for the file: every row replaced, 0 escaped. `gates:status` reads Peek's part 2 of 2. Not built: C5's composer chip and thread line. See **UIG-29: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -157,10 +160,74 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-4: ship PR #154 (**UIG-4: building it**, below) |
 | ✅ done | UIG-5: estiva-ui PR #39 (**UIG-5: building it**, below) |
 | ✅ done | UIG-6: estiva-ui PR #40 and #42, peek PR #227 and #230, ship PR #155 and #157, and a ruleset in each repo (**UIG-6: building it**, below) |
+| ✅ done | UIG-29: estiva-ui PR #43 (0.16.0) and #44 (0.16.1); peek PR #233 (**UIG-29: building it**, below) |
 | **now** | phase 1: **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
-| alongside phase 1, never blocking it | **UIG-29** (Katerina, 16 September: the package component is `CommandPalette`; its release comes after 0.15.0) |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-29: building it
+
+**What it was.** Peek's `CommandLauncher.tsx`, 1,767 lines (1,655 when UIG-1 counted), hand-built its own dialog, field, chips, list and keyboard. It is now 1,075 lines on the package's `CommandPalette`. Katerina asked for the move and a UX review in one rewrite: *"I dont wanna build something that is going to change anyway."*
+
+**How it was decided.** A UX review of the old launcher (25 walks, 9 bugs F1–F9, 15 choices R1–R15), a clickable prototype in Peek's Storybook, and a design proposal, all ruled by Katerina on 15–16 September. The key list the build is checked against, with every ruling, is `K:\Estiva\uig29-review\KEY-LIST.md`.
+
+| ruling | what |
+|---|---|
+| Option C | a new package component on Base UI `Dialog` + `Autocomplete`, the list inline, the way Base UI's own command palette is built. cmdk stays rejected (D8) |
+| name | `CommandPalette`, exported from the package root |
+| rows | the menu row, placed on `Autocomplete.Item` the way `Select` places it on `Select.Item` |
+| C1–C7 | Esc always closes; Ask first for a sentence, last for a word; recents, forgettable; an action found by name; after creating, a toast, a thread line and a composer chip; typed prefixes and a per-row actions menu later |
+| R1–R15 | as the review advised: R1 A, R5 C, R11 A, R15 B, the rest yes |
+| P1–P4 | the palette owns every key and writes the footer from the lit row; it owns a form's frame and keys; the Ask, Draft and Make pieces are its parts; the lit row's fill sits 8px in, as in a menu |
+| 16 September | Esc closes rather than going back; "Ask about this conversation" is lit first when opened from a thread; Recent leaves out the page you are on; the Launcher stories are deleted (not representative without a relay or a model) |
+
+**Why `DialogShell`, `SearchInput` and `ChipInput` did not fit** (the ticket asks this be said here):
+
+- **`DialogShell`** is a titled card with a close button and a button row. A palette has none of the three: its top is a field and its bottom is a key footer. Built on the shell it would be the shell with every slot switched off and a second card drawn inside — "a very custom dialog", Katerina's words.
+- **`SearchInput`** is a field on a page that filters a list beside it. The palette's field drives a list that is always open inside the window, owns the arrow keys and Enter, and changes level. That is Base UI's `Autocomplete`, inline.
+- **`ChipInput`** chooses several values and opens a popup list under its field. The launcher's chip is the level you are in, not a chosen value, and its list is never a popup.
+
+**Reconciliation — UIG-1's count for this file, per rule** (§3, §9 finding 3, and the ticket's table):
+
+| rule | UIG-1 | replaced | escaped | by |
+|---|---|---|---|---|
+| raw `<button>` | 4 | 4 | 0 | UIG-3 (peek PR #225): the 3 chips to `InputChip`, a source row to `MenuItem` |
+| raw `<input>` | 1 | 1 | 0 | the palette's `Autocomplete.Input` |
+| `createPortal` | 1 | 1 | 0 | Base UI `Dialog` |
+| `overflow-auto` | 1 | 1 | 0 | `ScrollArea`, inside the palette |
+| hand-made empty state | 1 | 1 | 0 | `EmptyState`, inside the palette |
+| hand-written `role="alert"` | 1 | 1 | 0 | `FieldLine`, inside `CommandPaletteForm` |
+| copied class lists | 5 | 5 | 0 | they matched `DialogShell`, `ChipInput` and `SearchInput` (§9 finding 3); the window and field are the palette's now, the chips `InputChip` |
+| **total** | **14** | **14** | **0** | |
+
+Also gone with the old file: the **58** hand-typed sizes and **2** raw colours UIG-28 escaped naming UIG-29, and all **29** `@estiva-escape` lines naming it. Peek's gate lint count is unchanged; `gates:status` reads UIG-29 **2 of 2** (its second check now looks for `CommandPalette`, not `DialogShell`).
+
+**What was built.**
+
+| where | what |
+|---|---|
+| estiva-ui PR #43, 0.16.0 | `CommandPalette`, `CommandPaletteSearch`, `CommandPaletteForm`, `CommandPaletteWorking`, `CommandPaletteAnswer`, `CommandPaletteQuote`; page, 10 stories, 24 tests. `Menu.tsx` exports its row body inside the package |
+| estiva-ui PR #44, 0.16.1 | `notes` under the rows; a late row keeps the highlight in place only after the person has moved it |
+| peek PR #233 | the launcher on the palette with the rulings; `ActionFormFields` and `lib/formDraft.ts` (what was typed survives going back); `lib/recents.ts`; a message result opens its topic at the message, a reply at the reply; the prototype and the Launcher stories deleted |
+
+**Proof.** The package: every key in the key list walked in Chrome on its stories; 26 tests, six of the fixes broken on purpose each failing its test; CI's axe run green (the footer's muted text takes the same contrast exception as 21 other story files, PLAN stage 0.10). Peek: every level walked on the launcher harness (search, recents, Ship's form, Set status, Ask, Draft, Make, the model download offer, focus back in the composer on close); 1,470 tests; typecheck, token lint, gate lint and build on a clean `npm ci`; Katerina on the running app with real data.
+
+**What building it found.**
+
+1. **Base UI's `Autocomplete` moves the highlight on Home and End**, as well as the text cursor. The key list says the cursor only; the palette stops Base UI's handling there.
+2. **Base UI keeps the highlight's position, not its row**, when rows arrive above it — the old launcher's F7, again. The palette walks it back with the arrow keys, but only after the person has moved it: opened from a thread, Peek's own rows arrive a moment late, and pinning the first app under them was wrong (0.16.1).
+3. **The approved prototype had three bugs**, not carried: focus went to the wrong field when only a later one was missing; Ctrl+Enter disabled the focused field, which drops focus to the page for good; the footer named keys that did nothing there.
+4. **jsdom does not move focus off a field that becomes disabled; Chrome does.** A test of "focus is held while the form works" passes in jsdom even when broken, unless it checks focus is not on a `:disabled` element.
+5. **Peek had no recents.** `lastSelection` remembers one topic and one person, in memory. Recents are new, in localStorage.
+6. **A message search hit dropped the tags naming its thread**, so a reply could not be opened at. Hits carry `root` now.
+7. **Storybook's Vite cache keeps an old `@estiva-app/ui`** after the package in `node_modules` changes: "does not provide an export named CommandPalette". Delete `node_modules/.cache/storybook` and restart.
+
+**Not built, and why.**
+
+- **C5's chip in the composer.** Peek's composer inserts a created issue as raw `nostr:naddr…` text. A chip needs a composer node (like the message mention's) that sends the same text, and the text reader taught to rebuild it for drafts and edits.
+- **C5's "created an issue" line in the thread.** It looks like the "resolved" line, but that line is a record — a Convex row and a kind 9101 assertion on the relay. Nothing records that an issue was created from a thread: the issue event carries no thread tag, and a reply carries no `a` tag. A real record would be a new 9101 subtype in `@estiva-app/protocol` (estiva-foundation, shared with Ship), which needs Jan.
+- **The Make proposal card's two lines** are token classes inside the package's `Card`, not a palette part.
+- **C6 and C7**, by ruling: later.
 
 ### UIG-6: building it
 
@@ -953,7 +1020,9 @@ can never regress.
 
 Fix the guide when UIG-2 commits it.
 
-### 🚧 3. `CommandLauncher.tsx` is where the rules will actually hurt.
+### ✅ 3. `CommandLauncher.tsx` is where the rules will actually hurt.
+
+**Done by UIG-29, 16 September:** the file is on the package's `CommandPalette` (peek PR #233), every count below replaced, none escaped. See §0, UIG-29: building it.
 
 One file holds 4 of Peek's 12 raw `<button>`, 1 of its 4 raw `<input>`, 1 of its
 2 `createPortal`, 1 of its 2 `overflow-auto`, 1 of its 7 hand-made empty states,
@@ -1367,7 +1436,7 @@ inside them.
 | # | finding | where it lives now |
 |---|---|---|
 | **1** | No Link component. 14 raw `<a>`. | **UIG-27** (new). `Link` is in the package since 0.13.0; the count grew to 20 (§0), and all 20 are fitted: peek PR #218, ship PR #151. Also **UIG-7** now waits on it, and its acceptance says all 14 anchors are replaced or escaped — **not** recorded as "allowed". |
-| **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. |
+| **2** | `CommandLauncher.tsx`, 1,655 lines. | **UIG-29** (new). Runs alongside phase 1 and is explicitly told never to block it. ✅ **Fixed 16 September**: on `CommandPalette`, 14 of 14 replaced, 0 escaped (§0, UIG-29: building it). |
 | **3** | Arbitrary values outside a package component. Peek 157. | **UIG-28** (new). ✅ Done: estiva-ui PR #34 (0.14.0), peek PR #222, ship PR #153 (§0). |
 | **4** | Inline `style` that sets a colour. | **UIG-28** (new), same ticket. ✅ Same. |
 | **5** | estiva-ui copying its own class lists. 14. | **UIG-25**, target set widened to include `estiva-ui/src`, with a second message for a primitive copying a sibling. |
@@ -1414,6 +1483,16 @@ nothing to do with UIG-1's count.
 | ✅ | **The older rules' variant part `(?:[a-z0-9-]+:)*` misses arbitrary variants and named groups.** The new block does not copy it. | the four older rules stay as they are (ticket) |
 | ✅ | `EnterHint`'s `target` is passed by nothing: no app, no story. | recorded |
 | ✅ | `src/MenuItem.stories.tsx` has `\r\r\n` on three lines, so ESLint's line numbers there run three ahead of an editor's. | matters only when placing an escape |
+
+### UIG-29: what building it found
+
+| | finding | where it went |
+|---|---|---|
+| ✅ | Base UI `Autocomplete` moves the highlight on Home and End, and keeps the highlight's position rather than its row when rows arrive above it. | fixed in `CommandPalette` (0.16.0, 0.16.1), each pinned by a test |
+| ✅ | The approved prototype had three bugs: focus to the wrong missing field, focus lost after Ctrl+Enter, a footer naming keys that did nothing. | not carried into the build |
+| ✅ | A message search hit dropped the tags naming its thread, so a reply could not be opened at. | fixed in peek PR #233 (`MessageHit.root`) |
+| ⬜ | C5 is half built: a created issue lands in the composer as raw `nostr:naddr…` text, and nothing records in the thread that it was created there (the issue event has no thread tag; a reply has no `a` tag). | Katerina, 16 September: a new session builds the composer chip and the thread line; the line as a real record needs Jan (`@estiva-app/protocol`) |
+| ⬜ | The Make proposal card's two lines are token classes inside `Card`, not a palette part. | recorded; a palette part when next touched |
 
 ### What is still true
 
@@ -1595,7 +1674,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-26 | Re-run the starter, close the loop | estiva-ui | | every other ticket is done (worked out by estiva-ui's run) |
 | UIG-27 | Link, ProgressBar, EmptyState padding | estiva-ui | peek, ship | `Link`, `InlineChip`, `ProgressBar`, `Card` and `AttachmentCard` exported (0.13.0); `EmptyState.mdx` places a section's empty state inside its rows' box (no padding prop, Katerina, 14 September); each app installs a version that has them and its hand-made progress bar is gone; Peek's `inlineChip.ts` and `PendingAttachmentChip.tsx` stay deleted and a posted file draws `AttachmentCard`; Ship's mentions draw `InlineChip` and its files `AttachmentCard` (15 September) |
 | UIG-28 | The two holes in the token contract | estiva-ui | peek, ship | probes on each repo's token lint (7 in the package, 8 in each app): `text-[14px]`, a hand-written line height behind an arbitrary variant and an inline colour are errors; `h-[240px]` is a warning and not an error; a width and height from a prop pass; a test file is not checked while source is; in the apps, a raw colour in a class is an error (R1). Each check of a rule was seen to fail with its rule removed (15 September) |
-| UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `DialogShell` from the package |
+| UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `CommandPalette` from the package (it read `DialogShell` until UIG-29 found DialogShell did not fit, 16 September) |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
 
 The five sections are *What it is*, *When*, *When not*, *How* and *What it owns*,
