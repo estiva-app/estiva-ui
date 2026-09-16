@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, later again. UIG-6 is done: GitHub refuses a merge into `main` in all three repos unless the gate lint passes, and nobody can skip it, admins included. The gate is a CI job of its own, `gate`, because GitHub can require only a whole job (estiva-ui PR #40, peek PR #227, ship PR #155). Katerina set the rule in estiva-ui; Jan set it in Peek and Ship, where only he is admin. Proved in each repo: a pull request with one raw `<button>` was refused — "Required status check "gate" is failing" — and the three pull requests above merged under the rule, with Peek and Ship deploying after. Nothing was required before, and the typechecks and tests stay optional. `gates:status` reads 6 of 6 now that it reads rules the way anyone may (estiva-ui PR #42, peek PR #230, ship PR #157). Next: UIG-7. See UIG-6: building it, below.**
+
 **16 September 2026, later still. UIG-5 is done: the package now runs the same chain on itself, with four rules of its own — a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. The two it found are fixed, not escaped: a crumb is the package's `Link` and a toast's action is its `Button` (Katerina, from the two side by side). Nothing is escaped anywhere, `docs/GATES-DEBT.md` is empty, and `gates:status` reads 12 of 12. The apps are untouched: the inward rules live in a config of their own. Next: UIG-6, branch protection — read what UIG-4 found about it first. See UIG-5: building it, below.**
 
 **16 September 2026, later. UIG-4 is done: a raw `<button>` is refused in Ship too, by the same rule — in the editor for a session started in Ship's top folder, in `npm --prefix web run lint:rules` and in CI. Ship had none, so the proof was a scratch commit, then dropped. ship PR #154, merged and deployed, on 0.15.0. Next: UIG-5, the same chain inside estiva-ui. See UIG-4: building it, below.**
@@ -36,7 +38,8 @@ answer
 | ✅ **UIG-28** | Package part: estiva-ui PR #34, released with stage 6 as 0.14.0. App part: peek PR #222, ship PR #153. The token lint stops hand-written type, corners, shadows and inline colours in all three repos and warns on hand-written heights and spacing; every error fixed or escaped with its reason. `gates:status` reads 23 of 23. See **UIG-28: building it**, below. |
 | ✅ **UIG-3** | Package part: estiva-ui PR #36, released as 0.15.0 — `@estiva-app/ui/eslint`, `no-raw-button`, the escape marker, `countGates`, and `InputChip`'s `removeLabel` and `truncate`. Peek part: peek PR #225, deployed — the gate lint, its CI step, `.gates-count.json`, the editor hook. 16 raw buttons = 8 replaced + 7 gone with the Signal Theme page + 1 escaped. `gates:status` reads 11 of 11. See **UIG-3: building it**, below. |
 | ✅ **UIG-4** | ship PR #154, on 0.15.0: the gate lint in `web/`, its CI step, `web/.gates-count.json`, the editor hook in Ship's top folder, the `CLAUDE.md` paragraph, and `docs/GATES-DEBT.md`, the first debt list (nothing owed). 0 raw buttons = 0 replaced + 0 escaped. `gates:status` reads 9 of 9. See **UIG-4: building it**, below. |
-| ✅ **UIG-5** | The package's own chain, with four inward rules in a config of its own (`configs.package`): a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. 2 found, both fixed, 0 escaped. `gates:status` reads 12 of 12. See **UIG-5: building it**, below. |
+| ✅ **UIG-5** | estiva-ui PR #39: the package's own chain, with four inward rules in a config of its own (`configs.package`): a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. 2 found, both fixed, 0 escaped. `gates:status` reads 12 of 12. See **UIG-5: building it**, below. |
+| ✅ **UIG-6** | A ruleset, "gate on main", in each repo: a merge or push into `main` needs `gate` green, from GitHub Actions; nobody on the bypass list; `main` cannot be deleted or force-pushed. The gate lint is a CI job of its own, `gate`: estiva-ui PR #40, peek PR #227, ship PR #155. `gates:status` reads rulesets: estiva-ui PR #42, peek PR #230, ship PR #157. Refused 3 of 3, clean merges 3 of 3, deploys 2 of 2. `gates:status` reads 6 of 6. See **UIG-6: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -152,15 +155,75 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-28: estiva-ui PR #34 (0.14.0, with stage 6); peek PR #222 and ship PR #153 (**UIG-28: building it**, below) |
 | ✅ done | UIG-3: estiva-ui PR #36 (0.15.0); peek PR #225 (**UIG-3: building it**, below) |
 | ✅ done | UIG-4: ship PR #154 (**UIG-4: building it**, below) |
-| ✅ done | UIG-5: estiva-ui PR (**UIG-5: building it**, below) |
-| **now** | phase 1: **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
+| ✅ done | UIG-5: estiva-ui PR #39 (**UIG-5: building it**, below) |
+| ✅ done | UIG-6: estiva-ui PR #40 and #42, peek PR #227 and #230, ship PR #155 and #157, and a ruleset in each repo (**UIG-6: building it**, below) |
+| **now** | phase 1: **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
 | alongside phase 1, never blocking it | **UIG-29** (Katerina, 16 September: the package component is `CommandPalette`; its release comes after 0.15.0) |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
 
+### UIG-6: building it
+
+**Where.** Round 1, the gate lint as a CI job of its own: branch `gates/06-gate-job` → estiva-ui PR #40 (`808fd93`), peek PR #227 (`66d38f7`), ship PR #155 (`d82d1ea`), merged. Round 2, `gates:status` reads rulesets: branch `gates/06-status-reads-rulesets` → estiva-ui PR #42 (with this record), peek PR #230, ship PR #157. Built in worktrees `estiva-ui-uig06`, `peek-uig06` and `ship-uig06`, from mains `a2cf385`, `3e3d130` and `d96eaf2`. The rulesets are GitHub settings, not code.
+
+**Katerina's rulings, 16 September**
+
+| | question | ruling |
+|---|---|---|
+| K1 | Give the gate a CI job of its own, or require the job it already sits in (`check`, `web`)? | **A job of its own, `gate`, in all three repos.** A red `gate` can only mean the rules. Requiring `check` or `web` would require the typechecks, tests and build with it, and a later move of the step would leave GitHub guarding nothing. |
+| K2 | Can anyone skip it? | **No.** "Admins can disable it but should not skip the checks": the bypass list is empty. An admin can switch the ruleset off, and that shows. |
+| K3 | Who switches it on in Peek and Ship, where only Jan is admin? | **Jan**, from the steps in her message to him, sent the same day. She set estiva-ui's herself. |
+| K4 | The ticket says to keep the typechecks, token lint and tests required. None were. Require them now? | **No.** They stay optional, as her message to Jan says. |
+
+**Before** (read 16 September, before any change): no classic protection and no ruleset on `main` in any of the three repos. Nothing was required, so nothing stopped a merge on a red pull request. All three repos are private, on the Team plan, where protected branches and rulesets are available. Katerina is admin in estiva-ui and has write access in Peek and Ship; Jan (`miky-btc`) is admin in all three. Direct pushes to `main` since 15 August: estiva-ui 10 (the last on 7 September, release commits), Ship 2 (16 August), Peek 0.
+
+**The rule now**, read back from GitHub — the same ruleset in each repo:
+
+| repo | ruleset | set by | at (UTC+3) |
+|---|---|---|---|
+| estiva-ui | "gate on main", id 23534324 | Katerina | 11:58 |
+| ship | "gate on main", id 23534509 | Jan | 12:04 |
+| peek | "gate on main", id 23534558 | Jan | 12:05 |
+
+Each is **Active** on the default branch, with three rules: `required_status_checks` — `gate`, from integration 15368 (GitHub Actions), not strict — and `deletion` and `non_fast_forward`, which a new ruleset switches on by default. estiva-ui's bypass list reads `[]`. Peek's and Ship's read `null` to someone who is not an admin, so Katerina cannot see them; GitHub tells her `current_user_can_bypass: never`.
+
+**The CI job.** In each workflow the "Gate lint" step left `check` (estiva-ui, Peek) or `web` (Ship) and became the job `gate`: checkout, setup-node, `npm ci`, `npm run lint:rules`. In Peek and Ship, `publish` now needs `gate` too, as it needed the job that held the step. Ship's `gate` installs `web/` only: the root install is for compiling `../lib/nostr`, and the lint compiles nothing. Both versions of each workflow were parsed and compared, job by job and step by step: only that step moved. `lint:rules` passed on a bare `npm ci` in a fresh worktree of each repo (Ship's with no root install). On the pull requests `gate` took 23 s in estiva-ui, 33 s in Peek and 24 s in Ship, beside the other jobs.
+
+**gates:status.** UIG-6's check had two faults, both measured:
+
+- it asked `branches/main/protection`, which answers **"Not Found" to anyone who is not an admin**: for Katerina, in Peek and Ship, "not protected" whatever was set;
+- that endpoint knows only classic protection. **With estiva-ui's ruleset active it still said "Branch not protected"**, and `branches/main` said `protected: true` with no checks listed.
+
+`protectedBranch` now reads `rules/branches/<branch>` — the rules in force; "Anyone with read access to a repository can view its active rulesets" (GitHub docs, about rulesets) — and classic protection as `branches/<branch>` reports it. A new helper, `ciJob`, finds a workflow job by its id and a step in it that runs a script. UIG-6's checks in each repo: `main` requires exactly `gate`, and CI's job `gate` runs `lint:rules`. The pair catches a renamed job, which would leave every pull request waiting for a check that never reports. **6 of 6**, from Katerina's account. Seen to fail: Peek's job renamed → "no workflow has a job gate"; Ship's step commented out → "the job gate does not run npm run lint:rules"; a scratch repository pointed at estiva-docs, which has no rules → "requires no check to merge". No repo uses classic protection, so that half was never seen with a check in it.
+
+**Acceptance, line by line**
+
+| | criterion | evidence |
+|---|---|---|
+| ✅ | A pull request with one violation cannot be merged, in all three repos | estiva-ui #41 (a raw `<button>` buried in `EmptyState`), peek #228 (`ComposerBanner`), ship #156 (`Activity`): `gate` failed, the merge state read BLOCKED, and a merge through the API was refused with HTTP 405, "Repository rule violations found — Required status check "gate" is failing." estiva-ui's refusal was to an admin. All three closed, never merged, their branches deleted. |
+| ✅ | Every previously required check is still required | None was required (**Before**, above). |
+| ✅ | A normal, clean pull request still merges | estiva-ui #40, peek #227 and ship #155 merged after each repo's ruleset was active. The deploys that followed succeeded (Peek run 35077756244, Ship run 35077769745): the rule does not stop the deploy that runs on the push to `main`. |
+| ✅ | Jan has been told | Katerina's message, 16 September: what changes, the hook, how to escape a line, and the ruleset steps. He set Peek and Ship the same day. |
+| ✅ | The change and its date are recorded here | this section |
+| ✅ | `gates:status` reports it done in all three repos | 6 of 6 |
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **GitHub requires a whole job, by its name** (UIG-4's finding): "Workflow: The name format is `<job name>`" (GitHub docs, troubleshooting rules). | Ruling K1: the job `gate`. |
+| ✅ | **Nothing was required before**, though the ticket said to keep the typechecks, token lint and tests required. | Ruling K4. |
+| ⚠️ | **Only an admin can set a ruleset, and Jan is the only admin in Peek and Ship.** | Ruling K3. A change to Peek's or Ship's rule goes through Jan. |
+| ✅ | **The status check could not see protection** (the two faults above). | Fixed in round 2. |
+| ✅ | **All three rulesets went on before the job was on `main`.** A pull request whose run had no `gate` job would have waited for a check that never reports; none was open, and the three that added the job merged first. Once the job is on `main`, an older branch is fine: Jan's peek #229, branched before it, reported `gate` — GitHub runs a pull request's workflow as merged into `main`. | Next time: the job lands, then the rule. |
+| 📝 | **A draft pull request proves nothing**: GitHub never merges a draft. The proofs were ordinary pull requests titled THROWAWAY. | — |
+| 📝 | **In estiva-ui and Ship the everyday lint fails too** on a raw element, since the gate config is appended to `eslint.config.js`, so `check` or `web` failed beside `gate`. Peek's CI does not run `npm run lint`: on peek #228 `gate` was the only failure, which shows the ruleset, not another check, refused it. | — |
+| 📝 | **No direct push was tried.** One that got through would put a raw button on `main`, and in Peek and Ship deploy it. The docs: "When enabled, commits must first be pushed to another ref where the checks pass" (GitHub REST docs, rules). | — |
+| 🧰 | Traps: a script that tries to merge a proof must first check that its `gate` failed; `gh pr close --delete-branch` run from a worktree deletes the remote branch and leaves the local one; renaming the job `gate` needs each ruleset changed with it. | — |
+
 ### UIG-5: building it
 
-**Where.** estiva-ui branch `gates/05-package-chain`, built in its own worktree (`estiva-ui-uig05`) from main `ee14bab`, Storybook on `:6515`. No release: the apps take nothing from this.
+**Where.** estiva-ui branch `gates/05-package-chain` → PR #39, merged (`a2cf385`), built in its own worktree (`estiva-ui-uig05`) from main `ee14bab`, Storybook on `:6515`. No release: the apps take nothing from this.
 
 **Katerina's rulings, 16 September**
 
@@ -234,7 +297,7 @@ The package writes **14** raw elements, as UIG-1 counted: 2 buried (the two abov
 | | finding | what happened |
 |---|---|---|
 | ✅ | **A session started below the repository's folder does not get the hook either.** Measured with two real headless Claude sessions asked to write the same raw button: started in Ship's top folder, the hook refused it; started in `web/`, the file was written. The docs say the same: "Hooks and other `.claude/settings.json` keys load from the current working directory's `.claude/` folder with no parent-directory fallback" (code.claude.com/docs/en/permissions). | Ruling W1. A session in `web/` reads the top folder's `CLAUDE.md` (it loads every `CLAUDE.md` above its folder), whose paragraph tells it to run `npm --prefix web run lint:rules`. §16's S1 note says so. |
-| ⚠️ | **Branch protection requires a check by its job's name, and no repo has a job named for the gate.** On PR #154 GitHub's checks are `check` and `web`; Peek's workflow runs `check` (and `publish` on main); estiva-ui's `check.yml` runs `check` and `a11y`. Ship's and Peek's "Gate lint" is a step inside a job. UIG-6's check (`protectedBranch`, the same in all three repos) looks for a required check whose name matches `gate` or `lint:rules`, which no check's name can match today. | For UIG-6: either the gate becomes a job of its own, named for it, or UIG-6 requires the job that holds the step and its checks change to match. |
+| ✅ | **Branch protection requires a check by its job's name, and no repo has a job named for the gate.** On PR #154 GitHub's checks are `check` and `web`; Peek's workflow runs `check` (and `publish` on main); estiva-ui's `check.yml` runs `check` and `a11y`. Ship's and Peek's "Gate lint" is a step inside a job. UIG-6's check (`protectedBranch`, the same in all three repos) looks for a required check whose name matches `gate` or `lint:rules`, which no check's name can match today. | For UIG-6: either the gate becomes a job of its own, named for it, or UIG-6 requires the job that holds the step and its checks change to match. Ruled in UIG-6 (K1): a job of its own, `gate`. |
 | 📝 | **The ticket's two hooks warnings are not both in `pages/ProjectPage.tsx`**: one is there, one in `pages/IssuePage.tsx`. | Untouched, as the ticket says. |
 | 📝 | **A new minor version under 1.0 always moves the range.** `^0.14.0` stops before 0.15.0, so taking it changes the lock entry, the range in the lock and the range in `package.json`, as Peek's PR #225 did. | Ruling W2. |
 | 🧰 | Traps: `node -e` with a backslash in it breaks in Git Bash — write a script file; a shell still inside a worktree blocks `git worktree remove` (it leaves the empty folder); Ship's root `npm test` stops at its first script on Windows, so run the scripts one by one. | — |
@@ -498,7 +561,8 @@ The ticket's acceptance, with today's numbers:
 | ticket | what it gets |
 |---|---|
 | UIG-7 | The plugin has two configs now: `recommended`/`strict` for the apps and `package` for this repo (UIG-5). A rule the apps must run goes in the app set, and `src/eslint/index.test.ts` is the test that says which is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
-| UIG-6 | Both apps have a "Gate lint" step, but as a step inside a job (Peek `check`, Ship `web`), and branch protection requires a job by its name: its check for `gate` or `lint:rules` cannot pass as written (**UIG-4: building it**, what it found). |
+| UIG-7, UIG-8, UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). |
+| every pull request | Nothing merges into `main` without `gate` green, and nobody can skip it. Never rename the job `gate` without changing the ruleset in each repo with it; `gates:status` UIG-6 reads both. In Peek and Ship only Jan can change the ruleset. |
 | UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15). |
@@ -1508,7 +1572,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-3 | Tracer bullet — one rule, end to end, blocking in Peek | peek | estiva-ui | the plugin in `src/eslint` with `no-raw-button` and an `./eslint` export; in Peek: the gate config loads, `lint:rules`, CI, the hook, `.gates-count.json`, and a lint probe: a raw `<button>` is an error in source and in a story, not in a test |
 | UIG-4 | The same chain, blocking in Ship | ship | | in `ship/web`: the gate config loads, `lint:rules`, CI runs it, `.gates-count.json`, and lint probes (a raw `<button>` is an error naming Button in source and in a story, not in a test); the hook in the top folder's `.claude/settings.json`; `docs/GATES-DEBT.md` (confirmed by UIG-4, 16 September) |
 | UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the chain (config, `lint:rules`, CI, the hook, `.gates-count.json`) and six probes: a nested raw element is an error and a component's own outermost element is not, a Base UI `render` prop is not, hand-rolled behaviour is, a component with no page and one with no story are errors naming the file they want, and `FieldLine` and `MenuItem` are not orphans (confirmed by UIG-5, 16 September) |
-| UIG-6 | Branch protection | estiva-ui | peek, ship | GitHub requires a check whose name has "gate" or "lint:rules", in each repo |
+| UIG-6 | Branch protection | estiva-ui | peek, ship | in each repo: `main` requires exactly the check `gate` (rulesets and classic protection, read the way anyone who can read the repo may), and CI's job `gate` runs `lint:rules` (confirmed by UIG-6, 16 September) |
 | UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | probes: `<input>` names TextInput, `<a>` names Link |
 | UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | probes: `createPortal` is an error; `tabIndex={0}` is, `tabIndex={-1}` is not |
 | UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | probe: a border passed into `Button` is an error naming Button |
@@ -1648,7 +1712,8 @@ is unread.
 | CI runs it | `npm run lint:rules` | a step in `.github/workflows/*.yml` — a word in a comment does not count |
 | the hook runs it | the gates hook | `PreToolUse` in `.claude/settings.json` — any other hook does not count |
 | a lint rule fires | a raw `<button>` | a line of code is linted **in memory, never written to disk**, with the repo's own config, the way the hook will |
-| a GitHub setting | branch protection | `gh api`; ❔ without `gh` |
+| CI has the job | the job `gate` | a job by its id under `jobs:` in `.github/workflows/*.yml`, with a step that runs the script — a comment line does not count |
+| a GitHub setting | branch protection | `gh api` on `rules/branches/<branch>` and `branches/<branch>`, which anyone who can read the repo may ask — not `…/protection`, which answers only an admin and knows no rulesets; ❔ without `gh` |
 
 **Nothing is read from a list someone ticks.** GATES.md itself is read only for
 UIG-1 and UIG-2, whose deliverable is this document.
