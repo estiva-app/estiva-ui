@@ -51,9 +51,16 @@ const siblings = [
 ];
 
 export default function define(h) {
-  const PROBE = "src/__gates_probe__.tsx";
+  // A probe is linted as text at a path; nothing is written. That path is a real
+  // component with a page and a story beside it, so UIG-5's component-has-a-page
+  // and component-has-a-story do not report on every probe and turn a "this must
+  // not be an error" check into a false failure. ORPHAN is the opposite — a path
+  // with neither — which is how those two rules are proved.
+  const PROBE = "src/Button.tsx";
+  const ORPHAN = "src/__gates_probe__.tsx";
   const componentFiles = () => h.listFiles("src", (n) => /\.tsx$/.test(n) && !/\.(stories|test)\.tsx$/.test(n)).filter((f) => !f.includes("/", 4));
   const pages = () => h.listFiles("src", (n) => n.endsWith(".mdx")).filter((f) => !f.includes("/", 4));
+  const gate = (code, expect, mentions) => () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code, expect, mentions });
   const fiveSections = (mdx) => ["What it is", "When", "When not", "How", "What it owns"].every((s) => new RegExp(`^#+\\s*${s}\\s*$`, "m").test(h.read(mdx)));
 
   // The chain every repo carries once its lint rules are live (UIG-3, UIG-4, UIG-5).
@@ -83,7 +90,22 @@ export default function define(h) {
     ] },
     { ref: "UIG-5", owner: true, checks: [
       ...chain(),
-      { what: "a raw element nested in a component is an error", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe() {\n  return <div><button type=\"button\">x</button></div>\n}\n", expect: "error" }) },
+      { what: "a raw element nested in a component is an error", run: gate("export function Probe() {\n  return <div><button type=\"button\">x</button></div>\n}\n", "error", "raw") },
+      { what: "a component's own outermost element is not, while a nested one is", run: async () => {
+        const nested = await gate("export function Probe() {\n  return <div><a href=\"/x\">x</a></div>\n}\n", "error", "raw")();
+        if (nested.result !== "pass") return h.FAIL(`a nested element is not caught yet, so this proves nothing: ${nested.detail}`);
+        return gate("export function Probe() {\n  return <a href=\"/x\">x</a>\n}\n", "none")();
+      } },
+      { what: "one handed to a Base UI render prop is not", run: gate("export function Probe() {\n  return <BaseMenu.Item render={<button type=\"button\" />} />\n}\n", "none") },
+      { what: "behaviour Base UI owns, written by hand, is an error", run: gate("export function Probe() {\n  window.addEventListener('scroll', () => {})\n  return null\n}\n", "error", "Positioner") },
+      { what: "a component with no page is an error naming it", run: () => h.lint({ config: "eslint.gates.config.js", file: ORPHAN, code: "export function Probe() {\n  return null\n}\n", expect: "error", mentions: "__gates_probe__.mdx" }) },
+      { what: "a component with no story is an error naming it", run: () => h.lint({ config: "eslint.gates.config.js", file: ORPHAN, code: "export function Probe() {\n  return null\n}\n", expect: "error", mentions: "__gates_probe__.stories.tsx" }) },
+      { what: "a page and a story with no component of their own are not orphans", run: () => {
+        const both = ["FieldLine", "MenuItem"].filter((n) => h.exists(`src/${n}.mdx`) && h.exists(`src/${n}.stories.tsx`) && !h.exists(`src/${n}.tsx`));
+        return both.length === 2
+          ? h.PASS("FieldLine and MenuItem have a page and a story and no .tsx; both rules read the component file, never the page")
+          : h.FAIL(`expected FieldLine and MenuItem to have a page and a story with no .tsx; found ${both.join(", ") || "neither"}`);
+      } },
     ] },
     { ref: "UIG-6", owner: true, checks: [
       { what: "GitHub requires the gate lint to merge", run: () => h.protectedBranch(/gate|lint:rules/i) },

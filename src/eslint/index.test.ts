@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { ESLint, type Linter } from 'eslint'
 import { parser } from 'typescript-eslint'
 import { describe, expect, it } from 'vitest'
-import estiva, { countGates, PLUGIN_KEY } from './index'
+import estiva, { APP_RULE_IDS, countGates, PACKAGE_RULE_IDS, PLUGIN_KEY } from './index'
 
 /**
  * The plugin as an app uses it: a flat config with `configs.recommended`,
@@ -32,11 +32,43 @@ describe('the plugin object', () => {
     expect(estiva.meta).toEqual({ name: '@estiva-app/ui/eslint', version: pkg.version })
   })
 
-  it('has no-raw-button, and both configs switch it on as an error under estiva/', () => {
-    expect(Object.keys(estiva.rules)).toEqual(['no-raw-button'])
+  it('carries every rule, the app ones and the inward ones', () => {
+    expect(Object.keys(estiva.rules)).toEqual([
+      'no-raw-button',
+      'raw-element-outside-a-wrapper',
+      'no-hand-rolled-behaviour',
+      'component-has-a-page',
+      'component-has-a-story',
+    ])
+  })
+
+  /**
+   * The apps spread `recommended`. A rule added for the package (UIG-5) must not
+   * arrive in Peek or Ship with the next version bump: an app is full of raw
+   * elements it may keep until UIG-7, and has no `.mdx` pages at all. This is
+   * the test that holds that line — if you add an app-facing rule on purpose,
+   * change it deliberately, here.
+   */
+  it('gives an app only the app rules, as errors, under estiva/', () => {
     for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
       expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
       expect(config.rules).toEqual({ 'estiva/no-raw-button': 'error' })
+    }
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-button'])
+  })
+
+  it('gives this package its own set, as errors, and it reaches no app config', () => {
+    expect(estiva.configs.package.plugins?.[PLUGIN_KEY]).toBe(estiva)
+    expect(estiva.configs.package.rules).toEqual({
+      'estiva/raw-element-outside-a-wrapper': 'error',
+      'estiva/no-hand-rolled-behaviour': 'error',
+      'estiva/component-has-a-page': 'error',
+      'estiva/component-has-a-story': 'error',
+    })
+    expect(PACKAGE_RULE_IDS).toEqual(Object.keys(estiva.configs.package.rules ?? {}))
+    for (const id of PACKAGE_RULE_IDS) {
+      expect(estiva.configs.recommended.rules?.[id]).toBeUndefined()
+      expect(estiva.configs.strict.rules?.[id]).toBeUndefined()
     }
   })
 })

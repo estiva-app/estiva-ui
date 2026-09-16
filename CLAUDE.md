@@ -5,6 +5,8 @@ This is Estiva's design package: the tokens every Estiva app must use and the co
 **The UI Guardrails project:** `docs/GATES.md` §0 says where it stands, and `docs/GATES-GUIDE.md` is its source of truth.
 `npm run gates:status` reads the real state of every ticket from the code, here and in the `peek` and `ship` checkouts beside this one.
 
+**The gate lint, and a session opened above this folder.** This package's own rules (UIG-5) refuse a raw element buried inside a component — a component of the package owns its outermost element, or hands one to a Base UI `render` prop, and anything else is a component of its own — behaviour Base UI owns written by hand, and a component with no `.mdx` page or no `.stories.tsx`. They run in `npm run lint:rules`, in CI's "Gate lint", and before the write by `.claude/hooks/gates.mjs` — but that hook runs only in a Claude session started in this folder. A session started in a folder above it (a workspace holding several repositories) does not get the hook, so: after changing any `.tsx` under `src/`, run `npm run lint:rules` in this repository and fix everything it reports before you finish. Keep something only with its reason on the line above, `// @estiva-escape: <reason>` or `{/* @estiva-escape: <reason> */}` (at the top of the file where the rule is about the file), never with `eslint-disable`.
+
 ---
 
 ## 1. What the package is, in three sentences

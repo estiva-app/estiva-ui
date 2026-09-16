@@ -36,7 +36,11 @@
     "test:watch": "vitest --project unit",
     "test:a11y": "vitest run --project storybook-signal --project storybook-ship",
     "typecheck": "tsc --noEmit",
+    "prelint": "node build.mjs",
     "lint": "eslint .",
+    "prelint:rules": "node build.mjs",
+    "lint:rules": "eslint --config eslint.gates.config.js .",
+    "postlint:rules": "node scripts/gates-count.mjs",
     "gates:status": "node scripts/gates-status.mjs",
     "prepublishOnly": "npm run build"
   },

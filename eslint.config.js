@@ -4,6 +4,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { parser as typescriptParser } from 'typescript-eslint'
+import { gateLint } from './eslint.gates.js'
 
 // Tailwind's own loader: the preset imports `tailwindcss/plugin`, which a plain
 // `import` cannot resolve.
@@ -206,4 +207,8 @@ export default defineConfig([
     },
   },
   tokenValues,
+  // The UI Guardrails' inward rules (UIG-5), so an editor shows them where the
+  // element is typed. `npm run lint:rules` runs these alone, and that is the CI
+  // gate. They come from `dist/eslint`, which `prelint` builds.
+  gateLint,
 ])

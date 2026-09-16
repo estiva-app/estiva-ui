@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**16 September 2026, later still. UIG-5 is done: the package now runs the same chain on itself, with four rules of its own — a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. The two it found are fixed, not escaped: a crumb is the package's `Link` and a toast's action is its `Button` (Katerina, from the two side by side). Nothing is escaped anywhere, `docs/GATES-DEBT.md` is empty, and `gates:status` reads 12 of 12. The apps are untouched: the inward rules live in a config of their own. Next: UIG-6, branch protection — read what UIG-4 found about it first. See UIG-5: building it, below.**
+
 **16 September 2026, later. UIG-4 is done: a raw `<button>` is refused in Ship too, by the same rule — in the editor for a session started in Ship's top folder, in `npm --prefix web run lint:rules` and in CI. Ship had none, so the proof was a scratch commit, then dropped. ship PR #154, merged and deployed, on 0.15.0. Next: UIG-5, the same chain inside estiva-ui. See UIG-4: building it, below.**
 
 **16 September 2026. UIG-3 is done: a raw `<button>` is refused in Peek by the package's first lint rule, in the editor, in `npm run lint:rules` and in CI. The plugin was released as `@estiva-app/ui` 0.15.0 (estiva-ui PR #36); Peek took it in peek PR #225, deployed. Next: UIG-4, the same chain in Ship. See UIG-3: building it, below.**
@@ -34,6 +36,7 @@ answer
 | ✅ **UIG-28** | Package part: estiva-ui PR #34, released with stage 6 as 0.14.0. App part: peek PR #222, ship PR #153. The token lint stops hand-written type, corners, shadows and inline colours in all three repos and warns on hand-written heights and spacing; every error fixed or escaped with its reason. `gates:status` reads 23 of 23. See **UIG-28: building it**, below. |
 | ✅ **UIG-3** | Package part: estiva-ui PR #36, released as 0.15.0 — `@estiva-app/ui/eslint`, `no-raw-button`, the escape marker, `countGates`, and `InputChip`'s `removeLabel` and `truncate`. Peek part: peek PR #225, deployed — the gate lint, its CI step, `.gates-count.json`, the editor hook. 16 raw buttons = 8 replaced + 7 gone with the Signal Theme page + 1 escaped. `gates:status` reads 11 of 11. See **UIG-3: building it**, below. |
 | ✅ **UIG-4** | ship PR #154, on 0.15.0: the gate lint in `web/`, its CI step, `web/.gates-count.json`, the editor hook in Ship's top folder, the `CLAUDE.md` paragraph, and `docs/GATES-DEBT.md`, the first debt list (nothing owed). 0 raw buttons = 0 replaced + 0 escaped. `gates:status` reads 9 of 9. See **UIG-4: building it**, below. |
+| ✅ **UIG-5** | The package's own chain, with four inward rules in a config of its own (`configs.package`): a raw element buried inside a component, behaviour Base UI owns written by hand, a component with no page, a component with no story. 2 found, both fixed, 0 escaped. `gates:status` reads 12 of 12. See **UIG-5: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 
 ### What happened since UIG-2 closed
@@ -149,10 +152,57 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-28: estiva-ui PR #34 (0.14.0, with stage 6); peek PR #222 and ship PR #153 (**UIG-28: building it**, below) |
 | ✅ done | UIG-3: estiva-ui PR #36 (0.15.0); peek PR #225 (**UIG-3: building it**, below) |
 | ✅ done | UIG-4: ship PR #154 (**UIG-4: building it**, below) |
-| **now** | phase 1: **UIG-5** → **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
+| ✅ done | UIG-5: estiva-ui PR (**UIG-5: building it**, below) |
+| **now** | phase 1: **UIG-6** → **UIG-7** → **UIG-8** → **UIG-9**. UIG-30 any time |
 | alongside phase 1, never blocking it | **UIG-29** (Katerina, 16 September: the package component is `CommandPalette`; its release comes after 0.15.0) |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-5: building it
+
+**Where.** estiva-ui branch `gates/05-package-chain`, built in its own worktree (`estiva-ui-uig05`) from main `ee14bab`, Storybook on `:6515`. No release: the apps take nothing from this.
+
+**Katerina's rulings, 16 September**
+
+| | question | ruling |
+|---|---|---|
+| I1 | Start UIG-5 now? | **yes** |
+| I2 | Photograph the breadcrumb and the toast before changing them, and pick? | **yes** |
+| I3 | Anything kept raw: a written reason, and the list comes to her? | **yes** |
+| I4 | The toast's action: keep it as it is with a reason, or the package's `Button`? | **`Button`** — the right-hand column of the two side by side, borders in the ship theme and all. And the rule behind it: *"nothing in estiva-ui that requires an existing component already in the package should be left out. They should be used."* |
+
+**The count** (acceptance: enumerate with the rule). Every `.tsx` under `src`, stories in, tests out, on main `ee14bab`: **100 files**.
+
+| rule | the ticket said | today | why it moved |
+|---|---|---|---|
+| P4 · a raw element outside a wrapper | 4 | **2** — `Breadcrumb.tsx:91` `<a>`, `Toast.tsx:129` `<button>` | `ChipInput`'s two went with stage 5 (PR #22, merged 12 September) |
+| P1 · hand-rolled behaviour (D6) | 2 components, 1 escape expected | **0** | `ChipInput` at stage 5 and `Toast` at stage 6: no `createPortal`, no `window`/`document` listener and no `react-dom` import is left in `src` |
+| P2 · no doc page | 0 | **0** | |
+| P3 · no story | 0 | **0** | |
+
+The package writes **14** raw elements, as UIG-1 counted: 2 buried (the two above), 4 handed to a Base UI `render` prop, 8 a component's own outermost element.
+
+**The arithmetic: 2 = 2 fixed + 0 escaped.** `.gates-count.json`: four rules, 0 errors, 0 warnings, 0 escapes. `docs/GATES-DEBT.md` exists and is empty.
+
+| place | became |
+|---|---|
+| `Breadcrumb.tsx`, a crumb that leads somewhere | `Link` `plain` — 5 stories in both themes identical pixel for pixel, same markup |
+| `Toast.tsx`, the action on a toast, in place and in the provider | `Button` `outlined` `small`; in the provider it is handed to Base UI's `Toast.Action` through `render`. 40×24 → 44×24, side padding 4px → 6px, the pill 4px wider, and in the ship theme the four coloured toasts gain the border only the neutral one had. 2 of the 8 toast stories changed; the 6 without an action are identical |
+
+**The apps are untouched, on purpose.** Peek and Ship spread `configs.recommended`, which still carries exactly `no-raw-button`; `configs.strict` the same. The inward set is `configs.package`. A test holds that line, and `countGates` now takes the rules to list, so an app's `.gates-count.json` gains no rows either. An app that took these would fail on raw elements it may keep until UIG-7 and on pages it does not have.
+
+**What the rules do not try to read.** `no-hand-rolled-behaviour` reads portals and global listeners, not measuring arithmetic: `Popover` hands Base UI a virtual anchor with a `getBoundingClientRect`, which is the documented way to anchor to a rectangle, and a rule that guessed would report it.
+
+**Proof.** 41 cases in the new rules' testers and 71 in `src/eslint` altogether; a scratch commit with a buried element, a portal, a global listener and a component with neither page nor story — 6 errors across all four rules, dropped after; the hook fed 16 Claude Code payloads through the command in `.claude/settings.json` (refused: a buried element in source and in a story, a portal, a component with no page or story, a short escape, an `eslint-disable`, an Edit removing an escape on a CRLF file; passed: a component's own element, a `render` prop, a valid escape, a test, a file outside `src`, a `.ts`, a words-only Edit, a missing `old_string`, an Edit that does not parse yet). `npm run lint` 0 errors and 131 warnings, as before; 410 tests; typecheck and build clean. `gates:status` 12 of 12, each rule and each carve-out proved, the carve-outs with the reporting case as their control.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **The ticket's numbers were stale.** It named 4 raw elements and expected `Toast.tsx:174` to be escaped until stage 6. Stage 5 and stage 6 have both landed since, so the count is 2 and P1 is already at zero — the ticket's one planned escape was not needed. | Counted with the rule, not with the ticket. |
+| ⚠️ | **A file-system rule breaks probes.** `component-has-a-page` and `component-has-a-story` read the disk, so linting a probe as `src/__gates_probe__.tsx` reports "no page" on every probe — which would turn every "this must **not** be an error" check, here and in UIG-7 to UIG-9, into a false failure. | Probes are linted at a real component's path; `ORPHAN` is the made-up path, kept for the two checks that need it. |
+| ✅ | **Nothing else in the package hand-builds what it already has.** Every class list in `src` was compared with every other: the only near-match between two components is `Reaction` against `Chip`, and `Reaction` is a toggle control at a control's height, which its comment says. The rest are story scaffolding. | Katerina's rule (I4) holds today, and the gate holds it from here. |
+| 🧰 | Traps: in a `RuleTester` a rule's id is `rule-to-test/<name>`, so a directive naming the rule must use that; an escape sits above the **statement**, so a `return createPortal(…)` needs the statement as its anchor, not the call; an `eslint-disable` silences the rule's own report, so only `escapeInDirective` is seen — the count sees the silenced one and fails. | — |
 
 ### UIG-4: building it
 
@@ -447,7 +497,7 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-5 | The plugin exists (`src/eslint/`): add the inward rules to it, and every rule calls `isEscaped`. The same hook-reach note applies. Peek's and Ship's copies of the chain are two worked examples: Ship's shows the hook in one folder checking files in another (**UIG-4: building it**). |
+| UIG-7 | The plugin has two configs now: `recommended`/`strict` for the apps and `package` for this repo (UIG-5). A rule the apps must run goes in the app set, and `src/eslint/index.test.ts` is the test that says which is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
 | UIG-6 | Both apps have a "Gate lint" step, but as a step inside a job (Peek `check`, Ship `web`), and branch protection requires a job by its name: its check for `gate` or `lint:rules` cannot pass as written (**UIG-4: building it**, what it found). |
 | UIG-7 | `<a>` has a component to name now: `Link`, or `InlineChip` for a chip. |
 | UIG-8 | Its acceptance line about the Folders scroll bug is corrected (§22). |
@@ -680,6 +730,12 @@ them. Measured against `estiva-ui/src`.
 | **P3** | a component with no `.stories.tsx` | **0** | All 44 have one. Same two extras, same reason. | **on** |
 | **P4** | a raw element outside a wrapper | **9** or **4** | The package has 14 raw elements. 5 are handed to a Base UI `render` prop, which is fine. Of the other 9, **4 sit nested inside a bigger component**: `Breadcrumb.tsx:91`, `ChipInput.tsx:43`, `ChipInput.tsx:205`, `Toast.tsx:105`. The other 5 are the component's own root element: `NavItem`, `RailItem`, `Reaction`, `EditableText`, `Menu.tsx:480`. | **on** · the tracer |
 
+**Re-counted on 16 September, when UIG-5 built them** (main `ee14bab`): P4 is **2**
+(`Breadcrumb.tsx:91`, `Toast.tsx:129`) and P1 is **0** — `ChipInput` moved onto Base
+UI's Combobox at stage 5 and `Toast` onto Base UI's Toast at stage 6, so the two
+`createPortal`s, the `window` listeners and `fit.ts` are all gone. P2 and P3 are still
+0. The 14 raw elements split 2 buried, 4 in a `render` prop, 8 a component's own root.
+
 P2 and P3 are at zero. That is good news, but it means neither can be the tracer:
 a rule with nothing to fix proves nothing about the fix-or-escape path. Turn them
 on in UIG-5 anyway. They cost nothing and they hold the line.
@@ -755,7 +811,8 @@ Why P4:
   is correct.
 
 The four: `Breadcrumb.tsx:91` (`<a>`), `ChipInput.tsx:43` (`<button>`),
-`ChipInput.tsx:205` (`<input>`), `Toast.tsx:105` (`<button>`).
+`ChipInput.tsx:205` (`<input>`), `Toast.tsx:105` (`<button>`). **By the time UIG-5 built
+it, 16 September, it was 2**: `ChipInput`'s went with stage 5 (§0, UIG-5: building it).
 
 ---
 
@@ -1450,7 +1507,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-2 | The tracking rails | estiva-ui | peek, ship | the guide committed, no wrong Base UI name, §15 exists, `gates:status` wired in all three |
 | UIG-3 | Tracer bullet — one rule, end to end, blocking in Peek | peek | estiva-ui | the plugin in `src/eslint` with `no-raw-button` and an `./eslint` export; in Peek: the gate config loads, `lint:rules`, CI, the hook, `.gates-count.json`, and a lint probe: a raw `<button>` is an error in source and in a story, not in a test |
 | UIG-4 | The same chain, blocking in Ship | ship | | in `ship/web`: the gate config loads, `lint:rules`, CI runs it, `.gates-count.json`, and lint probes (a raw `<button>` is an error naming Button in source and in a story, not in a test); the hook in the top folder's `.claude/settings.json`; `docs/GATES-DEBT.md` (confirmed by UIG-4, 16 September) |
-| UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the same chain in estiva-ui, and a nested raw element is an error |
+| UIG-5 | The same chain inside estiva-ui, pointed inward | estiva-ui | | the chain (config, `lint:rules`, CI, the hook, `.gates-count.json`) and six probes: a nested raw element is an error and a component's own outermost element is not, a Base UI `render` prop is not, hand-rolled behaviour is, a component with no page and one with no story are errors naming the file they want, and `FieldLine` and `MenuItem` are not orphans (confirmed by UIG-5, 16 September) |
 | UIG-6 | Branch protection | estiva-ui | peek, ship | GitHub requires a check whose name has "gate" or "lint:rules", in each repo |
 | UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | probes: `<input>` names TextInput, `<a>` names Link |
 | UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | probes: `createPortal` is an error; `tabIndex={0}` is, `tabIndex={-1}` is not |
@@ -1893,10 +1950,10 @@ Each repo keeps its own, at `docs/GATES-DEBT.md`.
 |---|---|---|
 | ship | `docs/GATES-DEBT.md`, 16 September, 0 entries | UIG-4 (ship PR #154) |
 | peek | not yet | **no ticket names it** — see §22 |
-| estiva-ui | not yet | **no ticket names it** — see §22 |
+| estiva-ui | `docs/GATES-DEBT.md`, 16 September, 0 entries | UIG-5, closing §22's open row |
 | leaf | not yet | UIG-10's starter generates an empty one |
 
-On 13 September there are **0** debt lists and **0** entries. On 16 September, after UIG-4: **1** debt list, Ship's, with **0** entries.
+On 13 September there are **0** debt lists and **0** entries. On 16 September, after UIG-4 and UIG-5: **2** debt lists, Ship's and the package's, with **0** entries between them. Peek still has none, and no ticket names it (§22).
 
 ---
 
