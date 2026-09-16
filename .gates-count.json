@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "repo": "estiva-ui",
+  "generatedAt": "2026-09-16T08:06:11.284Z",
+  "rules": {
+    "estiva/raw-element-outside-a-wrapper": {
+      "errors": 0,
+      "warnings": 0,
+      "escapes": 0
+    },
+    "estiva/no-hand-rolled-behaviour": {
+      "errors": 0,
+      "warnings": 0,
+      "escapes": 0
+    },
+    "estiva/component-has-a-page": {
+      "errors": 0,
+      "warnings": 0,
+      "escapes": 0
+    },
+    "estiva/component-has-a-story": {
+      "errors": 0,
+      "warnings": 0,
+      "escapes": 0
+    }
+  }
+}

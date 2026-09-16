@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useLayoutEffect, useRef, useState, type MouseEventHandler, type ReactNode } from 'react'
 import { cn } from './cn'
+import { Link } from './Link'
 import { WithTooltip } from './Tooltip'
 
 /**
@@ -88,9 +89,12 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
           labelRefs.current[index] = el
         }
         const crumb = item.href ? (
-          <a ref={setLabelRef} href={item.href} onClick={item.onClick} className={cn(text, 'hover:text-text-primary')}>
+          // `plain` adds no look of its own: a crumb keeps the trail's size and
+          // tone, and brightens on hover. The package's own Link, so a trail
+          // follows whatever a link learns to do (UIG-5).
+          <Link ref={setLabelRef} variant="plain" href={item.href} onClick={item.onClick} className={cn(text, 'hover:text-text-primary')}>
             {item.label}
-          </a>
+          </Link>
         ) : (
           <span ref={setLabelRef} className={text} aria-current={last ? 'page' : undefined}>
             {item.label}

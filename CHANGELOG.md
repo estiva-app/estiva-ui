@@ -1,6 +1,32 @@
 # Changelog
 
-## 0.15.0 — 2026-09-15 — UIG-3, the first lint rule as a plugin
+## Unreleased — UIG-5, the rules pointed inward
+
+### Added
+
+- **`configs.package`**, a second config on the same plugin, carrying four rules this
+  package runs on itself. `configs.recommended` and `configs.strict` are unchanged and
+  still carry only the app rules, so an app that takes this release is judged by exactly
+  what it was judged by before.
+  - `estiva/raw-element-outside-a-wrapper`: a raw element that is neither a component's
+    own outermost element nor handed to a Base UI `render` prop.
+  - `estiva/no-hand-rolled-behaviour`: `createPortal`, and a `window` or `document`
+    listener for the events a floating part lives on (D6).
+  - `estiva/component-has-a-page` and `estiva/component-has-a-story`: a component file
+    with no `.mdx` or no `.stories.tsx` beside it.
+- **`APP_RULE_IDS` and `PACKAGE_RULE_IDS`**, and `countGates(results, seed)`: a count
+  lists the app rules unless the caller names another set, so an app's
+  `.gates-count.json` gains no rows for rules its gate does not run.
+
+### Changed
+
+- **A toast's action is the package's `Button`** (`outlined`, `small`), in the toast
+  drawn in place and in the one the provider shows (Katerina, 16 September). It was a
+  hand-written button with the toast's own border: 4px of side padding becomes 6px, the
+  pill grows 4px, and in the ship theme every action now carries the border that only
+  the neutral toast had.
+- **A breadcrumb's crumb is the package's `Link`** (`plain`). Identical on screen, pixel
+  for pixel, in both themes.
 
 The UI Guardrails' tracer (Ship UIG-3): one rule, carried end to end from the
 package to Peek's editor hook and CI. Peek takes it in its own PR, on this

@@ -60,7 +60,7 @@ export const componentHasAPage: Rule.RuleModule = {
   },
   create(context) {
     return {
-      Program(node: Rule.Node) {
+      Program(node) {
         const filename = context.filename
         if (!componentFile(filename)) return
         const page = sibling(filename, '.mdx')
@@ -84,7 +84,7 @@ export const componentHasAStory: Rule.RuleModule = {
   },
   create(context) {
     return {
-      Program(node: Rule.Node) {
+      Program(node) {
         const filename = context.filename
         if (!componentFile(filename)) return
         const story = sibling(filename, '.stories.tsx')

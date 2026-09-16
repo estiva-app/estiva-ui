@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { Toast as BaseToast } from '@base-ui/react/toast'
 import { IconAlertCircle, IconCircleCheck, IconCircleX } from '@tabler/icons-react'
+import { Button } from './Button'
 import { cn } from './cn'
 
 /**
@@ -78,14 +79,6 @@ const ICON_STYLES: Record<ToastType, string> = {
   error: 'signal:text-error-default',
 }
 
-const ACTION_BORDER_STYLES: Record<ToastType, string> = {
-  success: 'signal:border signal:border-border-default signal:hover:border-border-strong',
-  brand: 'signal:border signal:border-border-default signal:hover:border-border-strong',
-  neutral: 'border border-border-default',
-  warning: 'signal:border signal:border-border-default signal:hover:border-border-strong',
-  error: 'signal:border signal:border-border-default signal:hover:border-border-strong',
-}
-
 const LABEL_CLASSES = 'text-body-2 text-text-primary whitespace-nowrap'
 
 const pillClassName = (type: ToastType, hasAction: boolean, className?: string) =>
@@ -98,19 +91,10 @@ const pillClassName = (type: ToastType, hasAction: boolean, className?: string) 
     className,
   )
 
-const actionClassName = (type: ToastType) =>
-  cn(
-    'h-6 flex items-center justify-center gap-1 px-1 py-1 rounded-md shrink-0 transition-colors',
-    ACTION_BORDER_STYLES[type],
-    type === 'neutral' ? 'hover:border-border-strong' : 'hover:opacity-80',
-  )
-
 function LeadingIcon({ type }: { type: ToastType }) {
   const Icon = ICONS[type]
   return <Icon size={16} stroke={1.5} className={cn('text-text-primary shrink-0', ICON_STYLES[type])} />
 }
-
-const ACTION_LABEL_CLASSES = 'text-btn-small text-text-primary whitespace-nowrap'
 
 /**
  * One toast, drawn in place. What the provider shows is this pill; draw it
@@ -126,9 +110,9 @@ export function Toast({ label, type = 'neutral', leadingIcon = true, actionLabel
         <span className={LABEL_CLASSES}>{label}</span>
       </div>
       {hasAction && (
-        <button type="button" onClick={onAction} className={actionClassName(type)}>
-          <span className={ACTION_LABEL_CLASSES}>{actionLabel}</span>
-        </button>
+        <Button variant="outlined" size="small" onClick={onAction}>
+          {actionLabel}
+        </Button>
       )}
     </div>
   )
@@ -229,10 +213,14 @@ function ToastList() {
               onAction?.()
               close(toast.id)
             }}
-            className={actionClassName(type)}
-          >
-            <span className={ACTION_LABEL_CLASSES}>{actionLabel}</span>
-          </BaseToast.Action>
+            // The same Button the toast drawn in place uses, told to *be* the
+            // Base UI action rather than sit inside one (Katerina, 16 September).
+            render={
+              <Button variant="outlined" size="small">
+                {actionLabel}
+              </Button>
+            }
+          />
         )}
       </BaseToast.Root>
     )
