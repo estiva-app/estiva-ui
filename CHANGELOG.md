@@ -21,6 +21,15 @@
   Ship `web/.gates-count.json` — which `lint:rules` rewrites, and in Ship's
   `docs/GATES-DEBT.md`.
 
+- **`TextInput`, `Textarea` and `SearchInput` strengthen their border on hover**, as
+  `Select` and `ChipInput` already did (`border-border-strong`; Katerina, 16 September).
+  A focused field keeps its focus border under the pointer; a disabled one does not
+  react. On `SearchInput` the hover look is the same as its focus look, which was
+  already the stronger border. Every text field in both apps changes on hover and
+  nowhere else: measured in both themes, the border goes from 12% to 22% white on
+  hover, and rest, focus, focus with hover and disabled are identical before and
+  after (32 of 40 photos identical, the 8 that differ are the hovered ones).
+
 ### Added
 
 - **`Checkbox` takes `label`**: words beside the box, on Base UI's `Field` and
