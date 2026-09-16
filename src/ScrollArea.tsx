@@ -30,6 +30,12 @@ import { cn } from './cn'
  * the thin scrollbar both apps had styled by hand in their `index.css`, drawn
  * once here instead.
  *
+ * The bar sits above the content (`z-10`). A sticky row inside — a date line
+ * in a conversation, `sticky top-0 z-10` — is at the same level, and the bar
+ * comes after the content in the page, so it paints on top. Without it the
+ * row hid the bar wherever it crossed it: a gap in the thumb, in Peek's topic
+ * and direct-message lists (UIG-8, 16 September).
+ *
  * `orientation` says which way the region scrolls; a table that is wider
  * than its box scrolls `horizontal`, a list `vertical` (the default), a board
  * `both`. A vertical region keeps its content no wider than itself, so a
@@ -58,7 +64,7 @@ export interface ScrollAreaProps {
   children: ReactNode
 }
 
-const BAR = 'flex touch-none select-none rounded-full opacity-0 transition-opacity delay-300 data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[scrolling]:opacity-100 data-[scrolling]:delay-0'
+const BAR = 'z-10 flex touch-none select-none rounded-full opacity-0 transition-opacity delay-300 data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[scrolling]:opacity-100 data-[scrolling]:delay-0'
 const THUMB = 'rounded-full bg-border-strong'
 
 export function ScrollArea({ orientation = 'vertical', className, viewportClassName, contentClassName, viewportRef, onScroll, children }: ScrollAreaProps) {
