@@ -734,6 +734,13 @@ The app must first be registered with that Estiva ID as its own app.
 The gates are the package's, imported rather than copied, so a rule written later
 arrives with an ordinary version bump. A Claude session started in this folder is
 stopped before it writes code the gate refuses (\`.claude/settings.json\`).
+
+## Once it is on GitHub
+
+Require the check \`gate\` before anything merges into \`main\`: a ruleset on \`main\`
+(Settings → Rules → Rulesets) with "Require status checks to pass", the check
+\`gate\`, and no one allowed to bypass it. Until then \`npm run gates:status\` shows
+UIG-6 as not done.
 `,
     'CLAUDE.md': `# ${title}, for Claude Code
 
@@ -752,7 +759,8 @@ only with its reason on the line above, \`// @estiva-escape: <reason>\`, never w
 
 **The count starts at zero and stays there** (\`.gates-count.json\`, \`docs/GATES-DEBT.md\`).
 
-The reasoning is the UI Guardrails guide, \`docs/GATES-GUIDE.md\` in estiva-ui.
+What each gate is and how it is wired: the package's README,
+\`node_modules/@estiva-app/ui/README.md\`.
 `,
   }
 }
