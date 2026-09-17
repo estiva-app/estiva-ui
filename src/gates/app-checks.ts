@@ -54,6 +54,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-27': 'The components the apps had to build themselves — Link, ProgressBar, EmptyState padding',
   'UIG-28': 'Close the two holes in the token contract — arbitrary values, and inline style',
   'UIG-30': 'RichText — one component that draws a message\'s text, for both apps',
+  'UIG-32': 'Peek and Ship take their gate pieces from the package',
 }
 
 /** Run several checks as one: the first that does not pass is the answer. */
@@ -208,6 +209,16 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
     ]),
     ticket('UIG-30', [
       { what: 'the installed package has RichText', run: () => h.contains(installed, /\bRichText\b/, 'the installed @estiva-app/ui exports RichText') },
+    ]),
+    // Katerina's ruling of 17 September (docs/GATES.md §23): one copy, in the package. An app made
+    // by create-estiva-app passes this from its first commit; Peek and Ship do once UIG-32 lands.
+    ticket('UIG-32', [
+      { what: 'the gate pieces come from the package, and no repo keeps a copy', run: all(h, [
+        () => h.contains(at('eslint.gates.config.js'), /from '@estiva-app\/ui\/gates'/, 'the gate config imports @estiva-app/ui/gates'),
+        () => h.hook('.claude/settings.json', '@estiva-app/ui/dist/gates/cli.js'),
+        () => h.contains('package.json', /"gates:status":\s*"estiva-gates status"/, 'gates:status runs estiva-gates'),
+        () => (h.exists('scripts/gates-status.mjs') ? h.FAIL('scripts/gates-status.mjs is a copy of the status engine: run estiva-gates status instead') : h.PASS('no copy of the status engine')),
+      ], 'the gate config, the hook and gates:status are the package\'s; no copy of the engine') },
     ]),
   ]
 }

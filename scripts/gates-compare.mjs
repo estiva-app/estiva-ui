@@ -170,7 +170,12 @@ for (const source of sources) {
     else groups.unplaced.push({ ...row, calls: check.sig.join(' ; ').slice(0, 300) })
   }
 }
-const extra = app.filter((_, i) => !used.has(i)).map((a) => ({ ref: a.ref, what: a.what }))
+// A check for a ticket whose work is to bring Peek and Ship onto the package (UIG-32) is in the
+// package before it is in either app. It is listed, not failed; every other check must come from them.
+const NOT_IN_THE_APPS_YET = new Set(['UIG-32'])
+const unused = app.filter((_, i) => !used.has(i)).map((a) => ({ ref: a.ref, what: a.what }))
+const extra = unused.filter((a) => !NOT_IN_THE_APPS_YET.has(a.ref))
+const waiting = unused.filter((a) => NOT_IN_THE_APPS_YET.has(a.ref))
 
 const out = []
 out.push(`gates:compare · Peek ${peek.commit} and Ship ${ship.commit} (${ref}) against the package's appChecks`)
@@ -182,6 +187,7 @@ list('Carried inside:', groups.inside, (r) => `  ${r.repo} ${r.ref} ${r.what}  �
 list("About the app's own code (the app keeps these in its own list):", groups.own, (r) => `  ${r.repo} ${r.ref} ${r.what}  (${r.reads})`)
 list('With nowhere to go — add them to appChecks, or show they are the app\'s own:', groups.unplaced, (r) => `  ${r.repo} ${r.ref} ${r.what}\n      ${r.calls}`)
 list('In appChecks, but neither app runs them:', extra, (r) => `  ${r.ref} ${r.what}`)
+list('In appChecks for a ticket that brings Peek and Ship onto the package, so not in them yet:', waiting, (r) => `  ${r.ref} ${r.what}`)
 if (args.includes('--same')) list('The same:', groups.same, (r) => `  ${r.repo} ${r.ref} ${r.what}`)
 console.log(out.join('\n'))
 process.exitCode = groups.unplaced.length || extra.length ? 1 : 0
