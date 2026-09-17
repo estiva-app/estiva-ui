@@ -170,13 +170,22 @@ export default function define(h) {
         return missing.length === 0 ? h.PASS("IconButton current, resolve, pressed, glow; Button resolve; Card clip; SectionLabel tone; Link truncate") : h.FAIL(`missing: ${missing.join("; ")}`);
       } },
     ] },
+    // Confirmed by UIG-10, 17 September (GATES.md §23 and "UIG-10: building it").
     { ref: "UIG-10", owner: true, checks: [
-      { what: "a create-app command exists", run: () => {
-        const bin = JSON.parse(h.read("package.json")).bin;
-        const inBin = bin && (typeof bin === "string" || Object.keys(bin).some((k) => /create-app/.test(k)));
-        const file = ["create-app", "packages/create-app"].some(h.exists) || h.listFiles("scripts", (n) => /^create-app\./.test(n)).length > 0;
-        return inBin || file ? h.PASS("a create-app command is in the package") : h.FAIL("no create-app command yet");
+      { what: "create-estiva-app is a command of the package", run: () => {
+        const bin = JSON.parse(h.read("package.json")).bin ?? {};
+        return bin["create-estiva-app"] === "dist/gates/create-app.js" && bin["estiva-gates"] === "dist/gates/cli.js"
+          ? h.PASS("package.json has the bins create-estiva-app and estiva-gates")
+          : h.FAIL("package.json has no create-estiva-app and estiva-gates bins");
       } },
+      { what: "it reads only the package: no Peek, no Ship, no sibling checkout", run: () => h.lacks("src/gates/create-app.ts", /\.\.\/(peek|ship)\b|GATES_PEEK|GATES_SHIP/, "src/gates/create-app.ts names no sibling repo") },
+      { what: "every gate piece an app needs ships in @estiva-app/ui/gates", run: () => {
+        const index = h.read("src/gates/index.ts");
+        const missing = ["tokenLint", "tokenValues", "gateLint", "gateConfig", "writeGateCount", "runHook", "runStatus", "appChecks"].filter((n) => !new RegExp(`\\b${n}\\b`).test(index));
+        if (!JSON.parse(h.read("package.json")).exports?.["./gates"]) missing.push("the ./gates export");
+        return missing.length === 0 ? h.PASS("the token lint, the gate config, the count, the hook, the status engine and the app checks") : h.FAIL(`missing: ${missing.join(", ")}`);
+      } },
+      { what: "the checks every app runs are held to Peek's and Ship's", run: () => h.script("package.json", "gates:compare") },
     ] },
     { ref: "UIG-11", owner: true, checks: [
       { what: "the leaf repository exists on GitHub", run: () => h.gh(["repo", "view", "estiva-app/leaf", "--json", "name"], "estiva-app/leaf exists") },
@@ -245,9 +254,24 @@ export default function define(h) {
     { ref: "UIG-31", owner: true, checks: [
       { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
     ] },
-    // A first guess (Katerina, 17 September, GATES.md §23): every gate piece ships in the package, for the apps to import.
+    // Set by UIG-10, 17 September (GATES.md §23); UIG-32 confirms or changes them. Peek and Ship are
+    // read from their checkouts until UIG-32 gives each its own row: these must fail until both have moved.
     { ref: "UIG-32", owner: true, checks: [
-      { what: "the package exports its gate pieces for the apps to import", run: () => h.contains("package.json", /"\.\/gates[\w/-]*"/, "package.json exports the gate pieces") },
+      { what: "the package exports its gate pieces for the apps to import", run: () => h.contains("package.json", '"./gates"', "package.json exports ./gates") },
+      ...[
+        { name: "Peek", dir: process.env.GATES_PEEK ?? "../peek", app: "" },
+        { name: "Ship", dir: process.env.GATES_SHIP ?? "../ship", app: "web/" },
+      ].flatMap(({ name, dir, app }) => {
+        const at = (rel) => `${dir.replace(/\\/g, "/").replace(/\/$/, "")}/${rel}`;
+        const found = (run) => () => (h.exists(at("package.json")) ? run() : h.UNKNOWN(`${name} is not at ${dir}`));
+        return [
+          { what: `${name}'s gate config comes from @estiva-app/ui/gates`, run: found(() => h.contains(at(`${app}eslint.gates.config.js`), "@estiva-app/ui/gates", `${name}'s eslint.gates.config.js imports @estiva-app/ui/gates`)) },
+          { what: `${name} carries no copy of the status engine or the count`, run: found(() => {
+            const copies = ["scripts/gates-status.mjs", `${app}scripts/gates-count.mjs`, `${app}eslint.gates.js`].filter((f) => h.exists(at(f)));
+            return copies.length ? h.FAIL(`${name} still has ${copies.join(", ")}`) : h.PASS(`${name} has no copy`);
+          }) },
+        ];
+      }),
     ] },
   ];
 

@@ -1,68 +1,24 @@
 /**
- * The editor gate (UIG-5 here; UIG-3 in Peek, UIG-4 in Ship): before Claude
- * writes a `.tsx` under `src/`, lint the text it is about to write with the UI
- * Guardrails' inward rules, and refuse the write on an error. Exit 2 blocks the
- * write and hands the messages back to Claude.
+ * The editor gate for this package (UIG-5): before Claude writes a `.tsx` under
+ * `src/`, the inward gate lints the text it is about to write and refuses the
+ * write on an error.
  *
- * It runs `eslint.gates.config.js`, the very config CI's "Gate lint" runs, and
- * reimplements nothing: a hook and a lint that could disagree would be worse
- * than neither.
+ * The gate itself is the package's own piece, `runHook` in `src/gates/hook.ts`
+ * (UIG-10, docs/GATES.md §23) — the one copy an app runs too. This file only
+ * makes sure it is built: the rules and the hook are the built files in
+ * `dist/`, the very files published, and a fresh checkout has none.
  *
- * It reaches a Claude session whose project directory is this repository: Claude
- * Code reads `.claude/settings.json` from the directory a session starts in,
- * with no fallback to a folder above or below. A session started elsewhere is
- * told by `CLAUDE.md` to run `npm run lint:rules` instead.
- *
- * The rules are built, not read from source: the config imports
- * `dist/eslint/index.js`, which is the published `@estiva-app/ui/eslint`. So a
- * change to a rule reaches this hook only once it is built, and the hook builds
- * it when it is missing altogether. `npm run lint:rules` builds first, every
- * time.
- *
- * Input, from Claude Code on stdin: `tool_name` and `tool_input` — `file_path`
- * and `content` for Write; `file_path`, `old_string`, `new_string` and
- * `replace_all` for Edit. An Edit carries no whole file, so the edit is applied
- * to the file on disk here. Anything it cannot read passes, and the tool itself
- * reports its own failure.
+ * It reaches a Claude session whose project directory is this repository.
+ * A session started elsewhere is told by `CLAUDE.md` to run `npm run lint:rules`.
  */
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { existsSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
-
-let input
-try {
-  input = JSON.parse(readFileSync(0, 'utf8'))
-} catch {
-  process.exit(0)
-}
-const { tool_name: tool, tool_input: args = {}, cwd } = input
-if (typeof args.file_path !== 'string') process.exit(0)
-
-const file = isAbsolute(args.file_path) ? args.file_path : resolve(cwd ?? root, args.file_path)
-const rel = relative(root, file).split(sep).join('/')
-if (rel.startsWith('../') || !/^src\/.+\.tsx$/.test(rel) || /\.test\.tsx$/.test(rel)) process.exit(0)
-
-/** The file as it will be after this tool call, or null when that cannot be known. */
-function proposed() {
-  if (tool === 'Write') return typeof args.content === 'string' ? args.content : null
-  if (tool !== 'Edit' || typeof args.old_string !== 'string' || typeof args.new_string !== 'string') return null
-  const current = existsSync(file) ? readFileSync(file, 'utf8') : ''
-  // A checkout on Windows has CRLF on disk; an edit is written with LF.
-  for (const text of [current, current.replace(/\r\n/g, '\n')]) {
-    if (!text.includes(args.old_string)) continue
-    return args.replace_all ? text.split(args.old_string).join(args.new_string) : text.replace(args.old_string, () => args.new_string)
-  }
-  return null
-}
-
-const text = proposed()
-if (text === null) process.exit(0)
-
-// The rules are the built ones. Without them there is nothing to lint with.
-if (!existsSync(join(root, 'dist', 'eslint', 'index.js'))) {
+const built = join(root, 'dist', 'gates', 'index.js')
+if (!existsSync(built)) {
   try {
     execFileSync(process.execPath, [join(root, 'build.mjs')], { cwd: root, stdio: 'ignore' })
   } catch {
@@ -70,18 +26,7 @@ if (!existsSync(join(root, 'dist', 'eslint', 'index.js'))) {
   }
 }
 
-const { ESLint } = await import('eslint')
-const { countGates } = await import('./../../dist/eslint/index.js')
-const eslint = new ESLint({ cwd: root, overrideConfigFile: join(root, 'eslint.gates.config.js') })
-const results = await eslint.lintText(text, { filePath: file })
-// A rule's errors only. Code that does not parse yet (one edit of several) is
-// the typecheck's to judge; the gate looks again at the edit that completes it.
-const errors = results.flatMap((r) => r.messages.filter((m) => m.severity === 2 && m.ruleId))
-const { disabled } = countGates(results)
-if (errors.length === 0 && disabled.length === 0) process.exit(0)
-
-const lines = [`${rel} was not written: the UI Guardrails refuse it (eslint.gates.config.js).`]
-for (const m of errors) lines.push(`  ${m.line}:${m.column}  ${m.message}${m.ruleId ? `  (${m.ruleId})` : ''}`)
-for (const d of disabled) lines.push(`  ${d.line}  an eslint-disable switches ${d.ruleId} off. Keep it only with its reason on the line above: // @estiva-escape: <reason>`)
-process.stderr.write(`${lines.join('\n')}\n`)
-process.exit(2)
+const { runHook } = await import(pathToFileURL(built).href)
+const { code, message } = await runHook({ root, audience: 'package' })
+if (code === 2) process.stderr.write(message)
+process.exit(code)

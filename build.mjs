@@ -51,4 +51,36 @@ await build({
   logLevel: 'warning',
 })
 
-console.log('built dist/index.js, dist/eslint/index.js')
+/**
+ * The gate pieces, `@estiva-app/ui/gates`, and the two commands on them
+ * (UIG-10; docs/GATES.md §23): everything an app needs to run a gate, shipped
+ * once, here, instead of pasted into every repo. For Node, like the plugin.
+ *
+ * Every package they name stays external (`packages: 'external'`): ESLint, its
+ * plugins, Tailwind and TypeScript are the app's own installs, resolved from
+ * the app's `node_modules`. The plugin itself is imported from
+ * `../eslint/index.js`, never bundled a second time, so a config that registers
+ * both holds one plugin object and ESLint sees one `estiva`.
+ */
+const thePluginOnce = {
+  name: 'the-plugin-once',
+  setup(b) {
+    b.onResolve({ filter: /^\.\.\/eslint\/index(\.ts)?$/ }, () => ({ path: '../eslint/index.js', external: true }))
+  },
+}
+await build({
+  entryPoints: { index: 'src/gates/index.ts', cli: 'src/gates/cli.ts', 'create-app': 'src/gates/create-app-cli.ts' },
+  outdir: 'dist/gates',
+  bundle: true,
+  splitting: true,
+  format: 'esm',
+  platform: 'node',
+  target: 'node20',
+  sourcemap: true,
+  packages: 'external',
+  plugins: [thePluginOnce],
+  banner: { js: '#!/usr/bin/env node' },
+  logLevel: 'warning',
+})
+
+console.log('built dist/index.js, dist/eslint/index.js, dist/gates/')

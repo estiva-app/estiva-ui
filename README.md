@@ -102,9 +102,40 @@ A place that keeps one on purpose says why, on the line above:
 or, as a JSX child, `{/* @estiva-escape: the reason */}`. Not `eslint-disable`:
 it switches the rule off without saying why, and the gate counts it as a
 failure. `countGates(results)` counts errors and escapes for
-`.gates-count.json` (the script that writes the file is still copied into each
-app; it moves into the package with UIG-10, `docs/GATES.md` §23); lint with `settings: { estiva: { reportEscapes: true } }`
-for the escapes to be counted.
+`.gates-count.json`; lint with `settings: { estiva: { reportEscapes: true } }`
+for the escapes to be counted. `estiva-gates count` does both for you (below).
+
+### The gate pieces — `@estiva-app/ui/gates`
+
+Everything else an app needs to be gated ships here too, once, so an app never
+carries a copy (`docs/GATES.md` §23). It needs `eslint`, `typescript-eslint` and
+`eslint-plugin-better-tailwindcss` installed beside it.
+
+- `tokenLint()` and `tokenValues()` — the token contract as lint: only the
+  preset's names, no hand-written values, no colour in an inline style.
+- `gateConfig()` — the gate lint on its own (`eslint.gates.config.js`): the
+  plugin's rules, with the token plugins registered so their disable comments
+  still resolve.
+- `estiva-gates count --repo <name>` — lint with the gate config and write
+  `.gates-count.json`; fails if an error or an unwritten reason appears.
+- `estiva-gates hook` — the same refusal before a file is written, for a Claude
+  Code `PreToolUse` hook in `.claude/settings.json`.
+- `estiva-gates status` — `gates:status`, read from the code.
+- `appChecks(h)` — the checks every app runs in its `scripts/gates-checks.mjs`.
+  `npm run gates:compare` holds them to the checks Peek and Ship run.
+
+### A new app — `create-estiva-app`
+
+```bash
+npx -p @estiva-app/ui create-estiva-app leaf --title Leaf
+```
+
+It makes a folder that builds, runs and signs in with Estiva ID, with every gate
+on from its first commit: the lint rules and the token lint at zero, the count
+file, the editor hook, the CI job `gate`, and `gates:status`. It reads nothing
+but this package. The frame is `AppShell` with a `Sidebar`, one theme
+(`--theme`, default `light`) set once in `index.html`. Its README says what is
+left to do by hand: register the app with Estiva ID, and protect `main`.
 
 ## The rules
 

@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.21.0 — 2026-09-17 — UIG-10, a new app from the package alone
+
+Katerina, 17 September (`docs/GATES.md` §23): every gate piece ships in the
+package, once. An app imports it; nothing is pasted into two repos.
+
+### Added
+
+- **`@estiva-app/ui/gates`** — the pieces each repo used to carry its own copy of:
+  `tokenLint()` and `tokenValues()` (the token contract), `gateLint()` and
+  `gateConfig()` (the gate lint on its own), `writeGateCount()`, `runHook()`,
+  `runStatus()`, and `appChecks()` (the checks every app runs). They need
+  `eslint`, `typescript-eslint` and `eslint-plugin-better-tailwindcss`, now
+  optional peer dependencies.
+- **`estiva-gates`**, a command: `count` writes `.gates-count.json`, `hook` is the
+  editor gate for a Claude Code `PreToolUse` hook, `status` is `gates:status`.
+- **`create-estiva-app <name>`**, a command that makes a new Estiva app: the
+  `AppShell` and `Sidebar` frame, one theme, sign-in with Estiva ID, and every gate
+  on at zero — lint, token lint, count, hook, the CI job `gate`, `gates:status`.
+  It reads nothing but this package.
+
+### Changed inside the package
+
+- The package's own token lint, gate config, count, hook and status engine are
+  the ones above. Lint output, the hook's refusal and `gates:status` were compared
+  before and after: identical, bar one line that now says Peek and Ship still run
+  their own copy of the status engine.
+- `npm run gates:compare` holds `appChecks` to the checks Peek and Ship run (81
+  the same, 20 carried inside a check that does more, 19 about their own code).
+
+**Callers:** none change. Peek and Ship keep their copies until UIG-32 moves them
+onto these pieces; `gates:status` shows UIG-32 as started until both have.
+
 ## 0.20.0 — 2026-09-17 — UIG-9, a part is placed, never restyled
 
 Katerina, 16 and 17 September. Peek and Ship adopt it in their UIG-9 pull requests.
