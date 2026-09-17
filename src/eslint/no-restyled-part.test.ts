@@ -96,7 +96,7 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'a look behind a variant, and an extra layer',
       filename: app,
       code: ui('Link', '    <Link href="/x" className="signal:hover:bg-success-muted after:absolute [&>*]:shrink-0">x</Link>'),
-      errors: [{ message: restyled('`signal:hover:bg-success-muted` `after:absolute` `[&>*]:shrink-0`', '`Link`', ' Use its `variant`.') }],
+      errors: [{ message: restyled('`signal:hover:bg-success-muted` `after:absolute` `[&>*]:shrink-0`', '`Link`', ' Use its `variant` or `truncate`.') }],
     },
     {
       name: 'an inner box’s class prop',
@@ -108,7 +108,7 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'cn, both sides of a condition, a template and a clsx object',
       filename: app,
       code: ui('Card, cn', "    <Card className={cn('p-3', active ? 'bg-bg-active' : 'text-h5', `flex ${big ? 'rounded-lg' : ''}`, { 'text-text-muted': muted })} />"),
-      errors: [{ message: restyled('`bg-bg-active` `text-h5` `rounded-lg` `text-text-muted`', '`Card`', ` Use its ${'`fill`, `hover`, `attention`, `selected`, `active`, `hovered`, `quietUntilHover` or `unreadable`'}.`) }],
+      errors: [{ message: restyled('`bg-bg-active` `text-h5` `rounded-lg` `text-text-muted`', '`Card`', ` Use its ${'`fill`, `hover`, `attention`, `selected`, `active`, `hovered`, `quietUntilHover`, `unreadable` or `clip`'}.`) }],
     },
     {
       name: 'a const in the same file, and a class map read from one',
@@ -159,13 +159,13 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'an app component that hands its className on to a part',
       filename: app,
       code: local('ConversationCard', '@/components/ConversationCard', '    <ConversationCard title="t" className="mt-2 bg-bg-hover" />'),
-      errors: [{ message: restyled('`bg-bg-hover`', '`ConversationCard` (it hands its `className` to `Card`)', ` Use its ${'`fill`, `hover`, `attention`, `selected`, `active`, `hovered`, `quietUntilHover` or `unreadable`'}.`) }],
+      errors: [{ message: restyled('`bg-bg-hover`', '`ConversationCard` (it hands its `className` to `Card`)', ` Use its ${'`fill`, `hover`, `attention`, `selected`, `active`, `hovered`, `quietUntilHover`, `unreadable` or `clip`'}.`) }],
     },
     {
       name: 'a wrapper declared in the same file',
       filename: app,
       code: "import { Link, type LinkProps } from '@estiva-app/ui'\nfunction RouterLink({ href, ...props }: LinkProps) {\n  return <Link href={href} {...props} />\n}\nexport function Probe() {\n  return <RouterLink href=\"/x\" className=\"text-h5\">x</RouterLink>\n}\n",
-      errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant`.') }],
+      errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant` or `truncate`.') }],
     },
     {
       name: 'EmptyState padded directly',
@@ -177,19 +177,19 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'an escape with no reason is reported, and so is the class',
       filename: app,
       code: ui('Link', '    // @estiva-escape:\n    <Link href="/x" className="text-h2">x</Link>'),
-      errors: [{ messageId: 'escapeWithoutReason' }, { message: restyled('`text-h2`', '`Link`', ' Use its `variant`.') }],
+      errors: [{ messageId: 'escapeWithoutReason' }, { message: restyled('`text-h2`', '`Link`', ' Use its `variant` or `truncate`.') }],
     },
     {
       name: 'inside the package: a part imported from a sibling',
       filename: pkg,
       code: local('Link', './Link', '    <Link href="/x" className="rounded-lg border">x</Link>'),
-      errors: [{ message: restyled('`rounded-lg` `border`', '`Link`', ' Use its `variant`.') }],
+      errors: [{ message: restyled('`rounded-lg` `border`', '`Link`', ' Use its `variant` or `truncate`.') }],
     },
     {
       name: 'inside the package: a part used in the file that declares it',
       filename: pkg,
       code: 'export function Link() {\n  return null\n}\nexport function Probe() {\n  return <Link className="text-caption" />\n}\n',
-      errors: [{ message: restyled('`text-caption`', '`Link`', ' Use its `variant`.') }],
+      errors: [{ message: restyled('`text-caption`', '`Link`', ' Use its `variant` or `truncate`.') }],
     },
   ],
 })

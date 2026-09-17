@@ -128,7 +128,7 @@ describe('an app lint with configs.recommended', () => {
       [
         'estiva/no-restyled-part',
         2,
-        '`text-h2` on `Link` changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled: only space, size, flex and grid, and position pass in. Use its `variant`. A look for what is around it goes on your own element around it.',
+        '`text-h2` on `Link` changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled: only space, size, flex and grid, and position pass in. Use its `variant` or `truncate`. A look for what is around it goes on your own element around it.',
       ],
     ])
   })

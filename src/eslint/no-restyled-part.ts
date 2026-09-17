@@ -100,15 +100,15 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   AvatarGroup: ['size'],
   Banner: ['tone'],
   Button: ['variant', 'size'],
-  Card: ['fill', 'hover', 'attention', 'selected', 'active', 'hovered', 'quietUntilHover', 'unreadable'],
+  Card: ['fill', 'hover', 'attention', 'selected', 'active', 'hovered', 'quietUntilHover', 'unreadable', 'clip'],
   Checkbox: ['row'],
   Chip: ['type'],
   Divider: ['tone', 'orientation'],
   EmptyState: ['scope'],
   FieldLine: ['tone'],
-  IconButton: ['variant'],
+  IconButton: ['variant', 'pressed', 'glow'],
   InputChip: ['truncate'],
-  Link: ['variant'],
+  Link: ['variant', 'truncate'],
   MenuItem: ['size', 'selected', 'destructive'],
   MenuSub: ['selected'],
   NavItem: ['active'],
@@ -118,12 +118,13 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   RailItem: ['active'],
   Reaction: ['pressed'],
   ReactionPicker: ['surface'],
+  SectionLabel: ['tone'],
   Select: ['size'],
   Tabs: ['size'],
   TextInput: ['size'],
   Toast: ['type'],
   Toolbar: ['surface'],
-  ToolbarButton: ['variant'],
+  ToolbarButton: ['variant', 'pressed', 'glow'],
   TopBar: ['variant'],
 }
 
@@ -496,7 +497,7 @@ function constantOf(identifier: Node, scope: Scope.Scope | null): Node | undefin
   while (current) {
     const variable = current.set.get(identifier.name as string)
     if (variable) {
-      const definition = variable.defs[0] as { type: string; node: Node; parent?: Node } | undefined
+      const definition = variable.defs[0] as unknown as { type: string; node: Node; parent?: Node } | undefined
       if (variable.defs.length !== 1 || definition?.type !== 'Variable') return undefined
       if ((definition.parent as Node | undefined)?.kind !== 'const') return undefined
       return child(definition.node, 'init') ?? undefined
@@ -616,7 +617,7 @@ export const noRestyledPart: Rule.RuleModule = {
     }
 
     return {
-      Program(program: Rule.Node) {
+      Program(program) {
         locals = moduleParts(file, program as unknown as Node, parser, new Set([file])).locals
       },
       JSXOpeningElement(ruleNode: Rule.Node) {

@@ -24,7 +24,12 @@ import { TooltipTrigger } from './Tooltip'
  * (Base UI's `focusableWhenDisabled`), and shows the reason as a tooltip on
  * hover. Ship wrote that wrapper by hand six times.
  */
-export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive'
+/**
+ * `resolve` is `primary` in every theme but Signal, where it is outlined at rest
+ * and green when pointed at — Peek's Resolve (UIG-9, 17 September; Peek passed
+ * it as classes before). `IconButton` has the same look.
+ */
+export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive' | 'resolve'
 export type ButtonSize = 'default' | 'small'
 
 /**
@@ -86,7 +91,7 @@ export function Button({
           // Extra right padding beside a leading icon, for optical balance.
           size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
           size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
-          !state.disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+          !state.disabled && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
@@ -98,6 +103,9 @@ export function Button({
           // and a prevented `onClick`), so nothing else needs it.
           state.disabled && !disabledReason && 'pointer-events-none',
           state.disabled && variant === 'outlined' && 'border border-border-default',
+          // Disabled too, as it always drew.
+          variant === 'resolve' &&
+            'signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors',
           className,
         )
       }

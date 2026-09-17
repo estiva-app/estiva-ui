@@ -14,11 +14,21 @@ import { TooltipTrigger } from './Tooltip'
  * `disabledReason` disables it, keeps it reachable by keyboard, and shows
  * the reason in place of the tooltip — see Button.
  */
-export type IconButtonVariant = 'muted' | 'outlined' | 'primary'
+export type IconButtonVariant = 'muted' | 'outlined' | 'primary' | 'current' | 'resolve'
 
 /** `ComponentPropsWithRef` so a `ref` reaches the element — see Button. */
 export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
+  /**
+   * `current` takes the colour of what it sits in — the ✕ on a `Banner` wears
+   * the banner's tone. `resolve` is `muted` that turns green when pointed at in
+   * Signal, Peek's Resolve (UIG-9, 17 September; before, each app passed these
+   * as classes).
+   */
   variant?: IconButtonVariant
+  /** On, like a Bold button while the selection is bold: the active fill, and `aria-pressed`. */
+  pressed?: boolean
+  /** A glow in Signal — the send arrow while there is something to send. */
+  glow?: boolean
   tooltip?: string
   /** A key hint drawn as the `Kbd` chip inside the tooltip — for a button
    *  whose only other affordance is a keyboard shortcut. */
@@ -33,6 +43,8 @@ export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
 
 export function IconButton({
   variant = 'muted',
+  pressed,
+  glow = false,
   className,
   children,
   disabled,
@@ -65,11 +77,17 @@ export function IconButton({
           // stretched and carries no `self-center` — see the note there.
           'flex items-center justify-center p-1 rounded-lg transition-colors shrink-0 self-center cursor-pointer',
           !state.disabled && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse',
-          !state.disabled && variant === 'muted' && 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+          !state.disabled && (variant === 'muted' || variant === 'resolve') && 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-secondary',
+          !state.disabled && variant === 'current' && 'hover:bg-bg-hover',
           state.disabled && variant === 'primary' && 'bg-bg-disabled text-text-disabled',
-          state.disabled && variant === 'muted' && 'text-text-disabled',
+          state.disabled && (variant === 'muted' || variant === 'resolve') && 'text-text-disabled',
           state.disabled && variant === 'outlined' && 'border border-border-default text-text-disabled',
+          // Always, disabled too: the colour of where it sits, and Resolve's green.
+          variant === 'current' && 'text-current',
+          variant === 'resolve' && 'signal:hover:bg-success-muted signal:hover:text-success-default',
+          pressed && 'bg-bg-active text-text-primary',
+          glow && 'signal:shadow-glow-accent',
           // `pointer-events-none` only where the button is truly out of reach:
           // with a `disabledReason` the button IS the tooltip's trigger, and a
           // trigger the pointer cannot land on never opens one. Base UI already
@@ -79,6 +97,7 @@ export function IconButton({
           className,
         )
       }
+      aria-pressed={pressed}
       {...props}
     >
       {children}

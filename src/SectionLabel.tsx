@@ -9,16 +9,21 @@ import { cn } from './cn'
  * micro-label under Signal. Metrics as arbitrary values for the tw-merge
  * reason the README records.
  *
+ * `tone="secondary"` is a heading inside a menu or a list of results: it labels
+ * the rows, it is not one of them (Katerina, 2026-09-01). `MenuSection` and
+ * `CommandPalette` passed it as a class before UIG-9 (17 September).
+ *
  * Deliberately NOT the same thing as Property's stacked field label (the
  * 9px `menu`-token one): they were merged for a day and unmerged by
  * Katerina's ruling (2026-09-01) — a section title and a field label are
  * different voices, at different sizes, on purpose.
  */
-export function SectionLabel({ children, className }: { children: ReactNode; className?: string }) {
+export function SectionLabel({ children, tone = 'primary', className }: { children: ReactNode; tone?: 'primary' | 'secondary'; className?: string }) {
   return (
     <span
       className={cn(
-        'text-h5 leading-3 text-text-primary signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
+        'text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
+        tone === 'secondary' ? 'text-text-secondary' : 'text-text-primary',
         className,
       )}
     >
