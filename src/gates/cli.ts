@@ -4,13 +4,19 @@
  *
  *   estiva-gates count --repo <name> [--package]   write .gates-count.json (postlint:rules)
  *   estiva-gates hook [--app <dir>] [--package]    the editor gate, run by a PreToolUse hook
- *   estiva-gates status [--json] [--detail]        gates:status
+ *   estiva-gates status [--app <dir>] [--json] [--detail]   gates:status
  *
  * An app's `package.json` runs the first and the last through npm, which finds
  * the command in `node_modules/.bin`. The hook is run by path, from the
  * committed `.claude/settings.json`:
  *
  *   node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook
+ *
+ * A repo whose app sits in a folder of its own runs both by path, from the
+ * repo's top folder, and says where the app is — Ship (UIG-32):
+ *
+ *   node "$CLAUDE_PROJECT_DIR/web/node_modules/@estiva-app/ui/dist/gates/cli.js" hook --app web
+ *   node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web
  */
 import { writeGateCount } from './count'
 import { runHook } from './hook'
@@ -43,7 +49,7 @@ async function main(): Promise<number> {
       return result.code
     }
     case 'status': {
-      process.stdout.write(`${await runStatus({ json: flag('json'), detail: flag('detail') })}${flag('json') ? '' : '\n'}`)
+      process.stdout.write(`${await runStatus({ app: value('app'), json: flag('json'), detail: flag('detail') })}${flag('json') ? '' : '\n'}`)
       return 0
     }
     default:

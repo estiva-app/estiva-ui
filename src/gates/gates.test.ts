@@ -180,4 +180,15 @@ describe('gates:status', () => {
     const json = JSON.parse(await runStatus({ root: dir, json: true }))
     expect(json.engine).toMatch(/^@estiva-app\/ui@\d+\.\d+\.\d+$/)
   })
+
+  it('finds the checks file beside the app, and still reads the repo from its top (Ship, UIG-32)', async () => {
+    // The checks file sits in `web/`, where the install is; what it names is read from the top folder.
+    const top = join(scratch, 'status-web')
+    mkdirSync(join(top, 'web', 'scripts'), { recursive: true })
+    writeFileSync(join(top, 'package.json'), JSON.stringify({ name: 'status-web', scripts: { 'gates:status': 'node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web' } }))
+    writeFileSync(join(top, 'web', 'scripts', 'gates-checks.mjs'), "export default (h) => ({ repo: 'shipish', tickets: [\n  { ref: 'UIG-4', title: 'The chain', owner: true, checks: [{ what: 'the top folder is read', run: () => h.script('package.json', 'gates:status') }] },\n] })\n")
+    const out = await runStatus({ root: top, app: 'web' })
+    expect(out).toContain('Tickets shipish owns (1):')
+    expect(out).toContain('✅  UIG-4')
+  })
 })

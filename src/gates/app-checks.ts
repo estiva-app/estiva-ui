@@ -216,7 +216,9 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'the gate pieces come from the package, and no repo keeps a copy', run: all(h, [
         () => h.contains(at('eslint.gates.config.js'), /from '@estiva-app\/ui\/gates'/, 'the gate config imports @estiva-app/ui/gates'),
         () => h.hook('.claude/settings.json', '@estiva-app/ui/dist/gates/cli.js'),
-        () => h.contains('package.json', /"gates:status":\s*"estiva-gates status"/, 'gates:status runs estiva-gates'),
+        // `estiva-gates status` where npm can find the command; by path where it cannot,
+        // because the install is in the app's folder and the script is in the repo's top one (Ship).
+        () => h.contains('package.json', /"gates:status":\s*"[^"]*(?:estiva-gates|@estiva-app\/ui\/dist\/gates\/cli\.js)[^"]*status/, "gates:status runs the package's engine"),
         () => (h.exists('scripts/gates-status.mjs') ? h.FAIL('scripts/gates-status.mjs is a copy of the status engine: run estiva-gates status instead') : h.PASS('no copy of the status engine')),
       ], 'the gate config, the hook and gates:status are the package\'s; no copy of the engine') },
     ]),
