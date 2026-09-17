@@ -395,7 +395,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
               {/* A heading labels the rows, it is not one of them: read
                   secondary, as in a menu (MenuSection). */}
               <Autocomplete.GroupLabel className="flex h-7 shrink-0 items-center px-3">
-                <SectionLabel className="text-text-secondary">{group.value}</SectionLabel>
+                <SectionLabel tone="secondary">{group.value}</SectionLabel>
               </Autocomplete.GroupLabel>
               <Autocomplete.Collection>
                 {(row: CommandPaletteRow) => (

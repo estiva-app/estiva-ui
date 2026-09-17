@@ -339,8 +339,8 @@ describe('Menu, padding', () => {
     )
     await userEvent.click(screen.getByRole('button', { name: 'Open' }))
     const row = await screen.findByRole('menuitem', { name: 'Item one' })
-    // The scrolling content is the box that carries the separator rule.
-    const content = row.closest('[class*="role=separator"]') as HTMLElement
+    // The scrolling content is the box the rows sit in directly.
+    const content = row.parentElement as HTMLElement
     const classes = content.className.split(/\s+/)
     expect(classes).toContain('p-1')
     expect(classes).not.toContain('p-2')

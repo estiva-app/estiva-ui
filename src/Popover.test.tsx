@@ -233,8 +233,8 @@ describe('Popover, centred on its anchor', () => {
  * as on 0.12.5.
  */
 describe('Popover, padding', () => {
-  // The scrolling content is the box that carries the separator rule.
-  const contentOf = (child: HTMLElement) => child.closest('[class*="role=separator"]') as HTMLElement
+  // The scrolling content is the box the children sit in directly.
+  const contentOf = (child: HTMLElement) => child.parentElement as HTMLElement
 
   it('pads its content 8px by default', async () => {
     render(

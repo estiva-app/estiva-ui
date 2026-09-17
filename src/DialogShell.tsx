@@ -147,13 +147,12 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
                 the caller's layout go on the content, so the bar is drawn over
                 the padding rather than beside it. */}
             {bodyMaxHeight ? (
-              <ScrollArea
-                className={cn(footer != null && 'border-b border-border-subtle')}
-                viewportClassName={bodyMaxHeight}
-                contentClassName={cn('pl-5 pr-4 py-4', bodyClassName)}
-              >
-                {children}
-              </ScrollArea>
+              // The line above the footer on a box of the shell's own, not pushed into ScrollArea (UIG-9).
+              <div className={cn(footer != null && 'border-b border-border-subtle')}>
+                <ScrollArea viewportClassName={bodyMaxHeight} contentClassName={cn('pl-5 pr-4 py-4', bodyClassName)}>
+                  {children}
+                </ScrollArea>
+              </div>
             ) : (
               <div className={cn('pl-5 pr-4 py-4', footer != null && 'border-b border-border-subtle', bodyClassName)}>{children}</div>
             )}

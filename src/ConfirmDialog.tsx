@@ -43,7 +43,6 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
       alert
       title={title}
       onClose={onClose}
-      bodyClassName="flex flex-col gap-3 text-body-2 text-text-primary"
       footer={
         <>
           <Button variant="muted" onClick={onClose} disabled={busy}>
@@ -55,7 +54,8 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
         </>
       }
     >
-      {children}
+      {/* The words' look on a box of the dialog's own, not pushed into DialogShell's body (UIG-9). */}
+      <div className="flex flex-col gap-3 text-body-2 text-text-primary">{children}</div>
     </DialogShell>
   )
 }

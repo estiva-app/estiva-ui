@@ -73,7 +73,7 @@ export const WithARow: Story = {
     <MenuPanel className="w-64">
       <MenuRow>
         <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">Item one</span>
-        <SectionLabel className="text-text-secondary">Label</SectionLabel>
+        <SectionLabel tone="secondary">Label</SectionLabel>
       </MenuRow>
       <Divider className="my-1" />
       <MenuItem label="An action" onClick={() => {}} />

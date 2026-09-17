@@ -1,6 +1,7 @@
 import { useMemo, type ReactElement, type ReactNode, type RefObject } from 'react'
 import { Popover as BasePopover } from '@base-ui/react/popover'
 import { cn } from './cn'
+import { DividerInPanel } from './Divider'
 import { triggerDisabled } from './triggerDisabled'
 import { ScrollArea } from './ScrollArea'
 import { MenuPanel } from './Menu'
@@ -200,9 +201,9 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
                 — see the props. */}
             <ScrollArea
               viewportClassName={maxHeight ?? 'max-h-[var(--available-height)]'}
-              contentClassName={cn('flex flex-col p-2 [&>[role=separator]]:mx-0', contentClassName)}
+              contentClassName={cn('flex flex-col p-2', contentClassName)}
             >
-              {children}
+              <DividerInPanel.Provider value={true}>{children}</DividerInPanel.Provider>
             </ScrollArea>
           </BasePopover.Popup>
         </BasePopover.Positioner>
