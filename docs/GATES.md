@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**17 September 2026. UIG-9 is done, and with it phase 1, the wall: a third lint rule, `estiva/no-restyled-part`, lets an app only place a part of the package — space, size, flex and grid, position — and refuses a colour, a text size, a border, a corner or a shadow passed in through `className` or an inner box's class prop, naming the part's look props or saying it has none yet. `EmptyState` takes no padding at all. Parts are found by where they come from, never by name, so every part is covered, and a part added later too (Katerina asked; the rule was built for it). At her word it also runs inside the package, on its own parts. It found Peek 23, Ship 13 and the package 34: 46 look exactly the same after, 10 use six new props that draw what the classes drew, 4 are her picks from photos (Ship's link fields plain like Peek's, its loading block with a bar's corners), and 10 keep a written reason. Released as 0.20.0 (estiva-ui PR #51); peek PR #237 and ship PR #160, merged and deployed. **A look-alike built from plain boxes passes nothing into a part, and this rule cannot see it** — UIG-25's copied part, still only a warning — see UIG-9: building it, below. Next: phase 2, UIG-10.**
+
 **16 September 2026, late night. UIG-8 is done: a second lint rule, `estiva/no-rebuilt-behaviour`, refuses behaviour a package part already owns when an app writes it by hand — a Base UI import, a portal, a click or key listener on the whole page, arrow keys, a hand-written role, a Tab stop on a box, a scrolling box — and names the part. The list of behaviours comes from Base UI's own source and the parts each component imports (`OWNED_BEHAVIOURS`). It found 15 in Peek and 4 in Ship: Peek 2 fixed and 13 kept with reasons, Ship 3 fixed and 1 kept. Katerina picked from photos: Add to Open work's rows became the package `Checkbox`'s new row form, pixel for pixel; Ship's code blocks wrap, like Peek's; the package's scrollbar now sits above sticky rows. Both apps' gates read `.ts` too. Released as 0.19.0 (estiva-ui PR #49); peek PR #236 and ship PR #159, merged and deployed. **It cannot find a box that should scroll and does not** — see UIG-8: building it, below. UIG-31 is new: one shared part for the / @ [ menus, much later.**
 
 **16 September 2026, night. UIG-7 is done: one lint rule, `estiva/no-raw-element`, refuses every raw interactive element in Peek and Ship and names the part to use — `Link`, `TextInput`, `Form`, `FilePicker`… — or, for an element the package has no part for yet, says to ask Katerina. It found 3 in Peek and 6 in Ship: all 9 replaced, none escaped. The package gained `Form`, `FilePicker`, `Checkbox`'s `label` and hover on the text fields (0.17.0, estiva-ui PR #45), and every form in both apps, the command palette's included, is the package `Form` with the same keys everywhere (0.18.0, estiva-ui PR #47; peek PR #234, ship PR #158, merged and deployed). See UIG-7: building it, below.**
@@ -49,6 +51,7 @@ answer
 | ✅ **UIG-29** | Package: estiva-ui PR #43 (0.16.0, `CommandPalette` and its parts) and PR #44 (0.16.1, `notes`, and the late-row rule narrowed). Peek: peek PR #233 — the launcher on the palette, with Katerina's UX rulings, recents, and a message result opening at the message. UIG-1's count for the file: every row replaced, 0 escaped. `gates:status` reads Peek's part 2 of 2. Not built: C5's composer chip and thread line. See **UIG-29: building it**, below. |
 | ✅ **UIG-7** | Package: estiva-ui PR #45 (0.17.0 — the rule `no-raw-element`, `Form`, `FilePicker`, `Checkbox`'s `label`, hover on text fields) and PR #47 (0.18.0 — `Form`'s keys, `CommandPaletteForm` on `Form`). Peek: peek PR #234. Ship: ship PR #158. Peek 3 = 3 replaced + 0 escaped; Ship 6 = 6 + 0; every form in both apps on `Form`. `gates:status` reads 18 of 18. See **UIG-7: building it**, below. |
 | ✅ **UIG-8** | Package: estiva-ui PR #49 (0.19.0 — the rule `no-rebuilt-behaviour` and `OWNED_BEHAVIOURS`, `Checkbox` `row`, `ScrollArea`'s bar above sticky rows). Peek: peek PR #236. Ship: ship PR #159. Peek 15 = 2 fixed + 13 escaped; Ship 4 = 3 fixed + 1 escaped; both gates read `.ts`. `gates:status` reads 23 of 23. See **UIG-8: building it**, below. |
+| ✅ **UIG-9** | Package: estiva-ui PR #51 (0.20.0 — the rule `no-restyled-part` for the apps and inward, `PART_LOOK_PROPS` and `PLACEMENT`; `IconButton` `current`, `resolve`, `pressed`, `glow`; `Button` `resolve`; `Card` `clip`; `SectionLabel` `tone`; `Link` `truncate`; the package's own 34 places). Peek: peek PR #237. Ship: ship PR #160. Peek 23 = 16 fixed + 5 new props + 2 escaped; Ship 13 = 7 fixed + 4 picked + 2 escaped; estiva-ui 34 = 23 + 5 + 6. `gates:status` reads 21 of 21. See **UIG-9: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 | ⬜ **UIG-31** | New, 16 September: one shared part for the / @ !@ [ menus, which UIG-8 kept with reasons. "Much later" (Katerina): not before a second app needs an @ or / menu. Listed in estiva-ui's and Peek's `gates-checks.mjs`. |
 
@@ -170,9 +173,119 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-29: estiva-ui PR #43 (0.16.0) and #44 (0.16.1); peek PR #233 (**UIG-29: building it**, below) |
 | ✅ done | UIG-7: estiva-ui PR #45 (0.17.0) and #47 (0.18.0); peek PR #234 and ship PR #158 (**UIG-7: building it**, below) |
 | ✅ done | UIG-8: estiva-ui PR #49 (0.19.0); peek PR #236 and ship PR #159 (**UIG-8: building it**, below) |
-| **now** | phase 1: **UIG-9**. UIG-30 any time. UIG-31 much later |
+| ✅ done | UIG-9: estiva-ui PR #51 (0.20.0); peek PR #237 and ship PR #160 (**UIG-9: building it**, below). Phase 1 is done |
+| **now** | phase 2: **UIG-10**. UIG-25 (a copied part, a warning) is the gap UIG-9 names — worth taking early, with its count, for Katerina to rule warn or block again. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-9: building it
+
+**Where.** estiva-ui: branch `gates/09-classname` → PR #51, merged (`673526c`), released as **0.20.0** (tag `v0.20.0`, release run 35220018399; npm latest). Peek: branch `gates/09-classname` → peek PR #237, merged (`e411b77`), deployed (run 35221444918). Ship: branch `gates/09-classname` → ship PR #160, merged (`e371a0d`), deployed (run 35221482761). Built in worktrees `estiva-ui-uig09`, `peek-uig09` and `ship-uig09`, from mains `fcc9b1b`, `230042a` and `25a38cc`. Storybooks `:6540`, `:6541`, `:6542`. `gates:status` from estiva-ui with both apps' merged code: UIG-9 **21 of 21**; 12 done, 0 started, 19 not started; 31 tickets, every repo agreeing. The explainer and the picks Katerina read: the artifact "What UIG-9 Stops".
+
+**Katerina's rulings, 16 and 17 September**
+
+| | question | ruling |
+|---|---|---|
+| N1 | The first plan, in chat | "i am not technical… last time you made me an artifact" — redone as a page of real photos, drawings and plain words. |
+| N2 | "Why not all the components? The goal was to prevent custom ones" | The page's "16 of our 73 parts" read as if the rule covered 16. It covers **every part** (74, not 73: `EnterHint` had been missed): parts are found by where they come from, so a part added later is covered. 16 was only where a look is passed in today. The other ways a custom part gets built were set out ticket by ticket, with **UIG-25 (a copied part) only warning** named as the gap. |
+| N3 | Check the package too? | **"Yes to all … I agree to cover all of the parts"**: the rule runs inward, and the package's own 34 places are fixed or kept with a reason. |
+| N4 | Build it and photograph; fix what looks the same without asking; merge and publish when picked and green | **Yes**, **yes**, **yes**. |
+| N5 | Pick 1: Ship's link fields, monospace or plain like Peek's | **B, plain** — no `TextInput` prop. |
+| N6 | Pick 2: Ship's loading block, 8px card corners or 4px like the other bars | **B, 4px** — no `SkeletonBar` prop. |
+| N7 | Pick 3: a long web address, breaking mid-address as today, or kept whole on the next line | **A, as today**: "if link is too long, i want it to break in a new line anyway". Told that B also breaks a link longer than a line; A stands. |
+| N8 | Six new props that look exactly the same | **Yes.** `Link truncate` was added beside them, for five title links, and she was told. |
+| N9 | `AttachmentCard`'s own state looks and `Card` with `href` kept with a reason | **Yes.** |
+
+**The rule, `estiva/no-restyled-part`** (acceptance: the allow-list recorded here). In `configs.recommended`, `strict` and `package`. A class passed into a part through `className` or an inner box's class prop (`contentClassName`, `bodyClassName`, `viewportClassName`, `wrapperClassName`) may only place it. `PLACEMENT`, exported from `@estiva-app/ui/eslint`:
+
+| goes through | the utilities |
+|---|---|
+| space around | `m-*`, `mx-*` … `-m*` |
+| space inside | `p-*`, `px-*` … (never on `EmptyState`) |
+| width and height | `w-*`, `h-*`, `size-*`, `min-*`, `max-*` |
+| shown, and how it lays out | `hidden`, `block`, `inline`, `inline-block`, `inline-flex`, `inline-grid`, `flex`, `grid`, `contents`, `flow-root` |
+| its place in a row or a grid | `grow`, `shrink`, `flex-*`, `basis-*`, `order-*`, `gap-*`, `space-x-*`, `space-y-*`, `col-*`, `row-*`, `grid-cols-*`, `grid-rows-*`, `grid-flow-*`, `auto-cols-*`, `auto-rows-*` |
+| alignment | `self-*`, `justify-*`, `items-*`, `content-*` (not `content-[…]`), `place-*` |
+| position | `static`, `relative`, `absolute`, `fixed`, `sticky`, `inset-*`, `top-*`, `right-*`, `bottom-*`, `left-*`, `start-*`, `end-*`, `z-*` — ruling B8 says "position and spacing" |
+| a name for hover | `group`, `peer` (and `/name`): they draw nothing |
+
+Everything else is refused — colour, type, border, corner, shadow, cut-off and wrapping, clipping, effects — and so is any class behind a variant that draws another box or reaches inside (`before:`, `after:`, `[&…]:`, `*:`). A placement class behind a breakpoint, a theme (`signal:`) or a state variant goes through. Hand-written sizes (`w-[244px]`) go through; the token lint already warns on them. The message names the part's look props (`PART_LOOK_PROPS`, exported, held to the package's source by a test) or says the part has none yet, and says a look for what is around a part goes on your own element around it.
+
+**Parts by where they come from, never by name.** An import from `@estiva-app/ui` (named or `* as`); an app file that re-exports one (`export { X } from`, `export *`, `export const Y = X`); a component that spreads its rest or props onto a part (Peek's `EmptyState`, `Avatar`, `SearchInput`, `RouterLink`); a component that hands its own class prop into a part's (Peek's `ConversationCard` into `Card`). Relative imports and `@/` (the `src` beside the nearest `package.json`) are followed, reading and parsing the file with the lint's own parser. Inside the package — a nearest `package.json` named `@estiva-app/ui` — a part is a name `src/index.ts` exports, imported from a sibling or declared in the file. A test generates one case per exported part, so a part added later has one.
+
+**What it reads.** A string, a template, `cn()`/`clsx()`/`twMerge()` arguments, both sides of a condition, a `const` in the same file, a class map read from one (`MAP.key`, `MAP[key]`), a `const` object spread onto a part.
+
+**What it cannot see.** A class worked out while the app runs, or imported from another file's `const`; props spread from a call (`{...linkTo(href)}`); `cloneElement`; a wrapper shaped differently from the two above. And, the big one: **a look-alike built from plain boxes**, which passes nothing into a part at all — UIG-25's copied part (a warning, ruling C2) and the registry and skill (UIG-12, UIG-20). Found while counting: Peek's `HuddleCard.tsx` still has `MemberAvatars`, the hand-drawn face stack `AvatarGroup` replaced; this rule cannot see it.
+
+**The count** (acceptance: import analysis, following re-exports). The built rule, stories in, tests out, `.ts` and `.tsx` in the apps.
+
+| repo | main | files | reported |
+|---|---|---|---|
+| Peek | `230042a` | 284 | **23**, in 18 files |
+| Ship | `25a38cc` | 131 | **13**, in 10 files |
+| estiva-ui (inward, N3) | `fcc9b1b` | 106 | **34**, in 17 files — 20 in components, 14 in stories |
+
+Before building the rule, an independent TypeScript pass over git's copy of each main found the same 23 and 13: 234 class props reach a part in the apps (Peek 166, Ship 68); 198 only place it. Of the package's 74 parts, 16 have a look passed in, 19 are only placed, 39 are given no class by the apps.
+
+**The arithmetic, against UIG-1** (§3 Family D: estiva-ui 8, Peek 15, Ship 8 — `className` only, stories out, padding allowed on `EmptyState`). The rule on UIG-1's commits (Peek `d094006`, Ship `6693025`, estiva-ui `89d27d6`): Peek 27 = **15** + 10 paddings on `EmptyState` (ruling 6 came after UIG-1) + 2 inner class props. Ship 14 = **7** + 6 `EmptyState` paddings + 1 story. estiva-ui 24 = **7** + 13 stories + 4 inner class props. Peek reproduces UIG-1's 15 exactly; Ship and the package come to one under UIG-1's 8 each, and UIG-1 did not record its list, so that one cannot be named. UIG-1's nine samples are all in today's count: Peek's reference widget `Person`, `FoldersPage`'s `EditableText`, `ComposeBox`'s glow; Ship's `IssueView` title, `NewProjectDialog`'s mono field, `IssuesTable`'s frame; the package's `Banner` ✕, `DialogShell`'s line, `Tooltip`'s motion. Every `EmptyState` padding had gone with UIG-27 (peek #218, ship #151).
+
+**Peek: 23 = 16 fixed + 5 new props + 2 escaped. Ship: 13 = 7 fixed + 4 picked + 2 escaped. estiva-ui: 34 = 23 fixed + 5 new props + 6 escaped.** `.gates-count.json`: Peek `no-restyled-part` 0 errors, 2 escapes; Ship 0, 2; estiva-ui 0, 6.
+
+**What changed in the apps**
+
+| where | now | why |
+|---|---|---|
+| Peek: a huddle's and a thread's topic link, a reply's time, the reference widget's person and title | the look on a `contents` box around the part; `Link truncate` | the words take their look from where they sit; the part stays in the layout where it was |
+| Peek: the Files panel's project name; Ship: the issues table's title | a box around the link; `Link truncate` | the same |
+| Peek and Ship: the card that could not be read | its words in a box inside the card | `Card` draws the frame only (UIG-27 ruling 9) |
+| Peek: the comment row; Ship: the issues table's frame | the line / the frame on a box of the app's own | a `Form` draws nothing; a region is not a frame |
+| Peek: a long link in a message | its breaking on an inline box around the link | N7 |
+| Peek: the folder name; Ship: a project's and an issue's title | the size on the box around `EditableText` (`contents` in Ship) | a field inherits the page's font, so no prop |
+| Peek: the huddle card's reply faces | `AvatarGroup` | the conversation card's same row since 3 September; photographed identical |
+| Peek: Resolve (dialog, quick menu), send, Bold/Italic/Underline, the huddle card | `resolve`, `glow`, `pressed`, `clip` | N8 |
+| Peek: Textarea's `resize-none`, the Highlights label's `whitespace-nowrap`, Topic details' `[&>*]:shrink-0` | gone | each did nothing |
+| Ship: the Peek link fields | plain | N5 |
+| Ship: the loading block | 4px corners | N6 |
+| Peek: the top bar's search | escaped | a picture of a field that opens the launcher; no part is a button that looks like a search field |
+| Peek: the Files panel's ticket rows; Ship: the issue row and its project chip | escaped | a whole row that is one link, drawn by a layer over it; no part does that, and these rows are not cards |
+
+**What the package gained** (0.20.0)
+
+| part | what |
+|---|---|
+| `estiva/no-restyled-part` | the apps' third rule, and the package's fifth; `PART_LOOK_PROPS`, `PLACEMENT` exported |
+| `IconButton` | variant `current` (the colour of where it sits: `Banner`'s ✕) and `resolve` (muted, green on hover in Signal); `pressed` (active fill, `aria-pressed`); `glow` (Signal). `ToolbarButton` has them all |
+| `Button` | variant `resolve` (primary; outlined, green on hover in Signal) |
+| `Card` | `clip` |
+| `SectionLabel` | `tone` (`secondary` in `MenuSection` and `CommandPalette`: her ruling of 1 September, one fix for both, as estiva-35 pointed out) |
+| `Link` | `truncate` |
+| `Divider` | no inset inside a `Menu` or `Popover`, which tell it so (`DividerInPanel`), instead of reaching in with `[&>[role=separator]]:mx-0` |
+| the package's own places | `ConfirmDialog`, `DialogShell`, `IdentityMenu`, `Breadcrumb`, `ReactionPicker` and the `Person`, `Property`, `ScrollArea` stories: the look on a box of their own. `Tooltip`'s motion on Base UI's popup. `PreviewCard`'s `[&>*]:shrink-0` and a file link's `cursor-pointer` gone, doing nothing. Escaped: `Card` with `href` drawn on `Link` (UIG-27 ruling 1); `AttachmentCard`'s failed or warning hairline, loading pulse, faded ×2, Download shown on the card's hover |
+
+**Proof**
+
+- **The rule.** 383 lint tests in `src/eslint`: every allowed and refused family, every route to a part (re-export by `@/` and relative path, barrel, renamed, wrapper, className-handing component, namespace, same-file wrapper), inner class props, a `const`, a class map, a spread object, `EmptyState`'s padding, an escape without a reason, both package cases; one generated case per exported part (74); the look-props table held to the package's source.
+- **The package.** 794 tests; typecheck; `lint` 0 errors, 137 warnings as before; `lint:rules` 0 errors, 6 escapes; CI green (check, gate, a11y). The published tarball checked for the rule, the table, `DividerInPanel`, the resolve classes and the new props' types.
+- **Photos** (D70). Package: every story in both themes, **620 of 620 identical**. Peek: all 352 stories, **345 identical**, the 7 others the huddle faces (sub-pixel ring edge, looked at). Ship: all 101, **97 identical**, the 4 others the link fields (N5). Each before-run confirmed to render the old code by a class this ticket removes.
+- **In Chrome** (what a photo at rest cannot show): a divider in an open menu, 0 margins; a shown tooltip carries its motion and pill classes; a file link shows the pointer; a breadcrumb's crumbs cut, colour and size exactly as on the old code (run on both).
+- **The apps, on published 0.20.0.** Peek: `lint:rules` 0; `tsc -b`; 131 files, 1,493 tests (one launcher test timed out once beside Ship's suite and passed alone). Ship: `lint:rules` 0; `lint` 0 errors, 21 warnings; `tsc -b`; 51 files, 494 tests; build. CI green on both; merged and deployed.
+- **`gates:status`.** UIG-9's checks: estiva-ui 8 (the apps get exactly the three rules; the rule in the package's own set; the exports; a look refused naming the part; placement passing; `EmptyState`'s padding; an escape; the new props); Peek 7 and Ship 6 (a border into `Button`; placement; a re-export, a wrapper and a className-handing component followed; an escape against its control; a real page with none). **21 of 21.** UIG-8's check "the apps get exactly two rules" now reads that they get its two, as UIG-7's was widened.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **The ticket's counts were UIG-1's**, its `cn()` trap was retired on 1 September, and "shared components use arbitrary values" ended with UIG-28. | Counted with the rule; the arithmetic above. |
+| ✅ | **Wrappers and forwarders.** On the mains, five app components spread their props onto a part (Peek's `EmptyState`, `Avatar`, `SearchInput`, `RouterLink`; Ship's `NavItem`) and 24 hand their own `className` on (13 in Peek, 11 in Ship). A name search and a re-export search both miss them. | The rule follows both shapes. |
+| ✅ | **My page said "16 of our 73 parts"**, which read as a rule for 16; and the package has 74 parts. | N2; corrected on the page. |
+| ✅ | **The huddle card's clip is needed**: without it the "Huddle" strip's square corners stick out of the round card (photographed). | `Card clip`. |
+| ✅ | **The huddle card's reply faces were a hand-drawn copy** of a row the conversation card had moved to `AvatarGroup` on 3 September, four faces where the rule is three. | `AvatarGroup`, photographed identical. |
+| ✅ | **`EditableText` needs no size prop**: a field inherits the page's font, so the size goes on the box around it. | No prop; its page says so. |
+| ✅ | **A box around a link can shift a layout** — a flex item's `min-width`, or a line box's strut under an inline wrapper with a different font. | Boxes that only hand a look on are `display: contents`; a box that must draw (a line, a frame) or carry text is a block. |
+| ✅ | **Menus reached into their dividers** (`[&>[role=separator]]:mx-0`). | `DividerInPanel`; checked in Chrome. |
+| 📝 | **Package gaps, for later tickets:** a row that is one link (Peek's ticket rows, Ship's issue row); a search field that is a button (Peek's top bar); `Card` with a failed, loading or faded state and `IconButton` shown on its card's hover (`AttachmentCard`). | Escaped with reasons; listed in "What is ready". |
+| 📝 | **Peek's `MemberAvatars`** (in `HuddleCard.tsx`) is the face stack `AvatarGroup` replaced, drawn from plain boxes. | Not this rule's to see; UIG-25's. |
+| 🧰 | Traps: a patch script's exact-text edit misses on CRLF files — normalise first and write back with the file's own line endings; a Storybook started from a background task keeps its child server alive after the task stops — stop the process on the port; backticks inside a generated HTML template literal break the page builder; two test suites side by side time a launcher test out. | — |
 
 ### UIG-8: building it
 
@@ -890,8 +1003,11 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| UIG-9 | The apps' rules are `configs.recommended`/`strict`: two so far, `no-raw-element` (UIG-7) and `no-rebuilt-behaviour` (UIG-8). A new app rule goes beside them, and `src/eslint/index.test.ts` is the test that says which set is which. A rule that reads the file system must not report on a probe — see UIG-5's second finding. |
-| UIG-9 | A rule added to `lint:rules` is required on `main` in all three repos the day it lands, with no GitHub change. So it must land at zero errors, fixed or escaped: its own pull request cannot merge while `gate` is red (UIG-6). The apps' gates lint `.ts` as well as `.tsx` since UIG-8. |
+| every rule ticket | The apps' rules are `configs.recommended`/`strict`: three, `no-raw-element` (UIG-7), `no-rebuilt-behaviour` (UIG-8), `no-restyled-part` (UIG-9), which is also in `configs.package`. A new rule goes beside them; `src/eslint/index.test.ts` says which set is which, and each of UIG-7's, UIG-8's and UIG-9's `gates:status` checks reads that the apps get *its* rules, not *only* them. A rule added to `lint:rules` is required on `main` the day it lands, so it lands at zero errors, fixed or escaped (UIG-6). The apps' gates lint `.ts` and `.tsx`. |
+| UIG-12 | `PART_LOOK_PROPS` (each part's look props, held to the source) and `PLACEMENT` (what may pass into a part), exported from `@estiva-app/ui/eslint` beside `OWNED_BEHAVIOURS`. UIG-9's rule already resolves an app's re-exports, wrappers and className-handing components to the part they draw: the registry can reuse that reading. |
+| UIG-25 | **The gap UIG-9 names**: a look-alike built from plain boxes passes nothing into a part, so no rule sees it. Peek's `MemberAvatars` (`HuddleCard.tsx`) is one, the face stack `AvatarGroup` replaced. Ruling C2 made UIG-25 a warning; Katerina may rule again once it is counted. |
+| later tickets | **Package gaps UIG-9 kept with reasons**: a row that is one link (Peek's `ProjectTickets`, Ship's `IssueRow` ×2); a search field that is a button (Peek's `TopBar`); `Card` with a failed, loading or faded state and `IconButton` shown on its card's hover (`AttachmentCard` ×5); `Card` with `href` drawn on `Link`. |
+| UIG-14 | `IconButton` and `ToolbarButton` take `pressed`, which writes `aria-pressed`: Peek's text toolbar uses it. Peek's file tree and `ProjectTickets` still write `aria-expanded` / `aria-pressed` by hand. |
 | every pull request | Nothing merges into `main` without `gate` green, and nobody can skip it. Never rename the job `gate` without changing the ruleset in each repo with it; `gates:status` UIG-6 reads both. In Peek and Ship only Jan can change the ruleset. |
 | UIG-9, UIG-14 | Every form in the apps is the package `Form` (UIG-7): a hand-written Enter handler that sends is the thing to look for; UIG-8 does not read Enter or Escape. UIG-5's inward set does not read `<fieldset>`, `<details>`, `<progress>` or the elements with no part — `CommandPalette` kept a plain `<fieldset>` until UIG-7 — so an inward rule for those is open. |
 | UIG-12 | `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint`: each behaviour, the Base UI parts that do it, the components that own it, what the rule reads — the shape the registry can read (UIG-8). |
@@ -1078,6 +1194,8 @@ Guide T13. Ticket UIG-9.
 | **className-placement-only** | estiva-ui | **8** | `src/Banner.tsx:62` (IconButton `text-current`) · `src/DialogShell.tsx:150` (ScrollArea `border-b`) · `src/Tooltip.tsx:115` (Tooltip `transition-[…]`) | `Only placement passes through IconButton's className. "text-current" changes how it looks. Ask for a prop on IconButton instead.` | **on** |
 | | **peek** | **15** | `components/ui/ForeignObjectWidget.tsx:91` (Person `text-caption`) · `pages/FoldersPage.tsx:260` (EditableText `text-body-2-strong`) · `components/ui/ComposeBox.tsx:407` (IconButton `signal:shadow-glow-accent`) | same, with the component's own name | |
 | | **ship** | **8** | `views/IssueView.tsx:120` (EditableText `text-h2`) · `components/NewProjectDialog.tsx:89` (TextInput `font-mono`) · `components/IssuesTable.tsx:47` (ScrollArea `border rounded-lg`) | same | |
+
+> **Recounted by UIG-9, 17 September**, with the built rule: Peek 23, Ship 13, estiva-ui 34 on that day's mains, and UIG-1's numbers reproduced on UIG-1's commits — see §0, **UIG-9: building it**.
 
 **Padding is allowed. That was already decided and I missed it.**
 
@@ -1922,7 +2040,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-6 | Branch protection | estiva-ui | peek, ship | in each repo: `main` requires exactly the check `gate` (rulesets and classic protection, read the way anyone who can read the repo may), and CI's job `gate` runs `lint:rules` (confirmed by UIG-6, 16 September) |
 | UIG-7 | Lint rule — every remaining raw element | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element`, every part its mapping names is exported, `Form`, `FilePicker` and `Checkbox`'s `label` exist, and the command palette's form is `<Form enterSends={false}>`; in Peek and Ship, probes: `<input>` names TextInput, `<a>` Link, `<form>` Form and a file input FilePicker, `<textarea>`/`<select>`/`<dialog>`/`<label>` their parts, an element with no part says to ask, an escape passes while the same element is refused, and a real page gets no error (confirmed by UIG-7, 16 September) |
 | UIG-8 | Lint rule — forbid the reach | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element` and `no-rebuilt-behaviour`, every part the rule names is exported, `OWNED_BEHAVIOURS` exported, `Checkbox` has `row`, `ScrollArea`'s bar is `z-10`; in Peek and Ship, probes: a Base UI import names `Popover`, `createPortal` names `DialogShell`, a key listener in a `.ts` file is an error, arrow keys are and Enter is not, `role="option"` names `Select`, `tabIndex={0}` names `Button` and `{-1}` passes, `overflow-y-auto` names `ScrollArea`, an escape passes against its control, a real page gets none (confirmed by UIG-8, 16 September) |
-| UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | probe: a border passed into `Button` is an error naming Button |
+| UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element`, `no-rebuilt-behaviour` and `no-restyled-part`, the rule is in the package's own set, `PART_LOOK_PROPS` and `PLACEMENT` exported, a look passed into a part is an error naming it, placement is not, padding on `EmptyState` is an error, an escape passes, the new props exist; in Peek and Ship, probes: a border into `Button` names Button, placement passes, a re-export, a props-handing wrapper and a className-handing component are followed, an escape passes against its control, a real page gets none (confirmed by UIG-9, 17 September) |
 | UIG-10 | create-app | estiva-ui | | a `create-app` command in the package |
 | UIG-11 | Create the Leaf repo from it | estiva-ui | | `estiva-app/leaf` exists on GitHub; a `leaf` checkout beside estiva-ui |
 | UIG-12 | The registry, thin and proved | estiva-ui | | `registry.json` committed, versioned, with entries; `ui:find` wired |
@@ -2361,9 +2479,9 @@ Each repo keeps its own, at `docs/GATES-DEBT.md`.
 
 | repo | debt list | created by |
 |---|---|---|
-| ship | `docs/GATES-DEBT.md`, 16 September, 0 entries | UIG-4 (ship PR #154) |
+| ship | `docs/GATES-DEBT.md`, 16 September, 0 entries (17 September, UIG-9: still 0; its 2 escapes are counted, not owed) | UIG-4 (ship PR #154) |
 | peek | not yet | **no ticket names it** — see §22 |
-| estiva-ui | `docs/GATES-DEBT.md`, 16 September, 0 entries | UIG-5, closing §22's open row |
+| estiva-ui | `docs/GATES-DEBT.md`, 16 September, 0 entries (17 September, UIG-9: still 0; its 6 escapes are counted, not owed) | UIG-5, closing §22's open row |
 | leaf | not yet | UIG-10's starter generates an empty one |
 
 On 13 September there are **0** debt lists and **0** entries. On 16 September, after UIG-4 and UIG-5: **2** debt lists, Ship's and the package's, with **0** entries between them. Peek still has none, and no ticket names it (§22).
