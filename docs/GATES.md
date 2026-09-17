@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**18 September 2026. UIG-12 is done: the package has a catalogue, `registry.json`, that a machine writes by reading the code.** One entry per exported name — what it is, what it is for in one line, what it can do, which behaviours it owns, where to look at it, and the line to import it with. It is **generated, never written**: `npm run registry` builds it and CI runs `npm run registry:check`, which rebuilds it and fails if the committed file is not what the code produces, so it cannot drift from what it describes. It ships in the package (§23) — `estiva-ui find "floating panel"`, the `./registry` export, and `registry.json` in the tarball — so an app can ask the question without a checkout of this repo. **The ticket's counts were from 12 September and were stale: 45 / 44 / 46 / 46 then, 81 / 52 / 54 / 54 now.** The whole difference is that **a file is not a component** — eleven files export more than one name, `Menu.tsx` alone exports seven — and it is reconciled name by name under **UIG-12: building it**, below. Nothing is unexported, undocumented or without a story. The 81 are **74 components, 6 helpers and 1 hook**, which is UIG-9's count of 74 parts reached a second way. **Three things it found**, each now a test: 11 story ids resolved nowhere until the builder learnt Storybook's `startCase` (`--with-counts`, not `--withcounts`); "scrolling" found `Avatar`, because `person's` puts the word "s" in its text and every query starts with some letter; and `SkeletonBar` was given its file's header paragraph, which describes the whole Skeleton family. **13 one-line comments were written**, for the names documented on a sibling's page. **`migrationStage` is carried and always null** — the migration's plan is not in this repo and not in CI, and a copy kept here by hand is the drifting list this project exists to remove. Next: **UIG-13**, which widens this registry to Peek's and Ship's components. See **UIG-12: building it**, below.
+
 **17 September 2026, night. UIG-32 is done: Peek and Ship run on the package's gate pieces, and no gate text sits in two repos any more.** Each app deleted its editor hook, its count writer, its copy of the status engine, its "where the rules apply" file and its size-and-colour settings — **967 lines out of Peek, 957 out of Ship**, 135 and 118 in — and imports the package's instead (peek PR #245, ship PR #161, both on 0.21.1). Nothing moved: each app's `gates:status` reads the same, check by check (Peek 62 checks before and 64 after, Ship 58 and 59, the additions being the new "no copy is left" check and, in Peek, the debt list); neither `.gates-count.json` changed by a byte; and both apps' lint reads exactly as before (Peek 92 errors and 102 warnings, Ship 0 and 21). The size-and-colour settings were held to the package's, character for character, before they were deleted. A raw `<button>` is still refused in both by the editor hook and by CI. **Two things it found:** Peek never had a debt list — Ship has carried one since UIG-4, and Peek's own check list never asked for it; and the status engine could only find a checks file in a repo's top folder, while Ship's app and its install are in `web/`, so the engine, and estiva-ui's reading of a sibling, learned the `--app` the hook already knew (estiva-ui PR #58, released as 0.21.1). `gates:status` reads 13 of 13, and 14 tickets are done. Next: UIG-11. See **UIG-32: building it**, below.
 
 **17 September 2026, evening. UIG-10 is done: `create-estiva-app` makes a new Estiva app from the package alone, with every gate on from its first commit.** Every gate piece now ships in `@estiva-app/ui/gates`: the token lint, the gate config, the count, the editor hook, the status engine, and the checks every app runs. estiva-ui runs on them itself, and its own copies are deleted. A made app has the sidebar frame, one theme, sign-in with Estiva ID, Storybook, tests, and the CI job `gate`. It was proved on a private throwaway repo. It was made in a clean container from the package alone, with no Peek or Ship. It was green on its first commit, and it signed in against the local Estiva ID. A raw button was refused by the editor hook, by CI, and by GitHub, admins included. The checks every app runs were held to Peek's and Ship's by a comparison test, not by eye: 81 the same, 20 inside a check that does more, 19 about an app's own code, 0 with nowhere to go. Released as 0.21.0 (estiva-ui PR #53, #54 and #55). Peek and Ship do not change until UIG-32. **UIG-6 cannot be checked on an app that has no GitHub repo yet**, and real sign-in for Leaf needs Jan (see UIG-10: building it, below). Next: UIG-11 and UIG-32.
@@ -60,6 +62,7 @@ answer
 | ✅ **UIG-9** | Package: estiva-ui PR #51 (0.20.0 — the rule `no-restyled-part` for the apps and inward, `PART_LOOK_PROPS` and `PLACEMENT`; `IconButton` `current`, `resolve`, `pressed`, `glow`; `Button` `resolve`; `Card` `clip`; `SectionLabel` `tone`; `Link` `truncate`; the package's own 34 places). Peek: peek PR #237. Ship: ship PR #160. Peek 23 = 16 fixed + 5 new props + 2 escaped; Ship 13 = 7 fixed + 4 picked + 2 escaped; estiva-ui 34 = 23 + 5 + 6. `gates:status` reads 21 of 21. See **UIG-9: building it**, below. |
 | ✅ **UIG-10** | estiva-ui PR #53 (§23, the ruling), PR #54 (0.21.0: `@estiva-app/ui/gates`, the commands `estiva-gates` and `create-estiva-app`, `gates:compare`) and PR #55 (`npm test` builds first, so the release could run). estiva-ui on its own pieces, its copies deleted. A made app is green on its first commit, signs in, and is refused a raw button by the hook, CI and GitHub. `gates:compare`: 81 + 20 + 19, 0 unplaced. `gates:status` reads 4 of 4. See **UIG-10: building it**, below. |
 | ✅ **UIG-32** | estiva-ui PR #58 (0.21.1: `estiva-gates status --app`, a sibling read from its app's folder, and the shared check widened), peek PR #245 (967 lines out, 135 in) and ship PR #161 (957 out, 118 in). Every gate piece in both apps is one import now; Ship's checks file moved to `web/scripts/`, where the package resolves. Peek gained the debt list it never had. `gates:status` reads 13 of 13. See **UIG-32: building it**, below. |
+| ✅ **UIG-12** | estiva-ui branch `gates/12-registry`: `registry.json` (81 entries, schema 1), the builder and the schema in `src/registry/`, `estiva-ui find` as a bin of the package, and `registry:check` in CI. 81 names over 53 files = 74 components + 6 helpers + 1 hook; 53 take their line from their own page, 28 from the comment above them. Every docs and story id was checked against a real `storybook build`. `gates:status` reads 6 of 6. See **UIG-12: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 | ⬜ **UIG-31** | New, 16 September: one shared part for the / @ !@ [ menus, which UIG-8 kept with reasons. "Much later" (Katerina): not before a second app needs an @ or / menu. Listed in estiva-ui's and Peek's `gates-checks.mjs`. |
 
@@ -184,9 +187,89 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-9: estiva-ui PR #51 (0.20.0); peek PR #237 and ship PR #160 (**UIG-9: building it**, below). Phase 1 is done |
 | ✅ done | UIG-10: estiva-ui PR #53, #54 and #55 (0.21.0) (**UIG-10: building it**, below) |
 | ✅ done | UIG-32: estiva-ui PR #58 (0.21.1); peek PR #245 and ship PR #161 (**UIG-32: building it**, below) |
-| **now** | phase 2: **UIG-11** (Leaf, made with `create-estiva-app`). UIG-25 (a copied part, a warning) is the gap UIG-9 names, but it reads the merged registry, so it waits for UIG-13 and **cannot be taken early** (corrected 17 September). UIG-30 any time. UIG-31 much later |
+| ✅ done | UIG-12: estiva-ui branch `gates/12-registry` — the catalogue, taken ahead of UIG-11 because three later tickets read it (**UIG-12: building it**, below). Phase 3 starts |
+| **now** | **UIG-13** (widen the registry to Peek and Ship), which UIG-20 and UIG-25 both wait on. **UIG-11** (Leaf, made with `create-estiva-app`) is still open and needs Jan for sign-in on the real Estiva ID. UIG-14 to UIG-16 (estiva-ui's usage rules) can run beside either. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-12: building it
+
+**Where.** estiva-ui branch `gates/12-registry`, worktree `estiva-ui-uig12`, from `cf215a6`. One PR. The doc pages themselves were not touched — writing their content is UIG-14 to UIG-16; this ticket only reads them.
+
+**What it is.** `registry.json` at the package's root, committed and shipped, plus `src/registry/` — the schema, the builder, the search and the command — and `estiva-ui` as a bin of the package beside `estiva-gates` and `create-estiva-app` (§23: one copy, in the package). An app runs `estiva-ui find` against the `registry.json` inside its installed `@estiva-app/ui`, with no checkout of this repo.
+
+**Why a parser and not a filename.** The components are flat in `src/`, with `.tsx`, `.mdx`, `.stories.tsx` and sometimes `.test.tsx` side by side, and the ticket warned that pairing by filename gets `FieldLine` and `MenuItem` wrong. It is worse than that: **a file is not a component.** The target set is what `src/index.ts` exports, read with TypeScript's own parser, and every other file is looked up from there.
+
+#### The four counts, reconciled
+
+The ticket's counts were taken on 12 September. Both columns are real; nothing was averaged away.
+
+| thing | 12 Sept | 18 Sept | what it is |
+|---|---|---|---|
+| value exports from `index.ts` | 45 | **81** | the target set. 91 further exports are types, which are not entries |
+| component `.tsx` files | 44 | **52** | plus `cn.ts`, which is a helper, makes **53** files that export a value |
+| `.mdx` doc pages | 46 | **54** | |
+| `.stories.tsx` files | 46 | **54** | the same 54 names as the pages |
+
+**81 names over 53 files.** Eleven files export more than one name; the 28 extra names are the entire difference between 53 and 81.
+
+| file | names | which |
+|---|---|---|
+| `Menu.tsx` | 7 | `EnterHint`, `Menu`, `MenuItem`, `MenuPanel`, `MenuRow`, `MenuSection`, `MenuSub` |
+| `CommandPalette.tsx` | 6 | `CommandPalette`, `CommandPaletteAnswer`, `CommandPaletteForm`, `CommandPaletteQuote`, `CommandPaletteSearch`, `CommandPaletteWorking` |
+| `InlineChip.tsx` | 4 | `INLINE_CHIP_CLASSES`, `INLINE_CHIP_TONE_CLASSES`, `InlineChip`, `inlineChipClassName` |
+| `Toolbar.tsx` | 4 | `Toolbar`, `ToolbarButton`, `ToolbarInput`, `ToolbarSeparator` |
+| `Avatar.tsx` | 3 | `Avatar`, `hueFor`, `initialsFor` |
+| `Skeleton.tsx` | 3 | `SkeletonBar`, `SkeletonList`, `SkeletonRow` |
+| `Toast.tsx` | 3 | `Toast`, `ToastProvider`, `useToast` |
+| `Tooltip.tsx` | 3 | `Tooltip`, `TooltipProvider`, `WithTooltip` |
+| `ChipInput.tsx` | 2 | `ChipInput`, `InputChip` |
+| `Field.tsx` | 2 | `Field`, `FieldLine` |
+| `IdentityMenu.tsx` | 2 | `IdentityMenu`, `IdentityPanel` |
+
+**54 pages over 53 files, and 53 of them named after an export.** The four names a filename would get wrong, each checked:
+
+| name | what it is |
+|---|---|
+| `FieldLine` | a page and stories of its own, declared in `Field.tsx`. Not a file |
+| `MenuItem` | a page and stories of its own, declared in `Menu.tsx`. Not a file |
+| `Skeleton` | `Skeleton.mdx` and `Skeleton.stories.tsx` exist and **no export is called `Skeleton`**: the page is for the family `SkeletonBar` / `SkeletonList` / `SkeletonRow`. It is the one page of the 54 that is not an entry's name |
+| `cn` | `cn.ts`, the only module with no page and no stories. A helper, and the one entry with no id — see below |
+
+**81 = 74 components + 6 helpers + 1 hook.** The helpers are `cn`, `hueFor`, `initialsFor`, `INLINE_CHIP_CLASSES`, `INLINE_CHIP_TONE_CLASSES` and `inlineChipClassName`; the hook is `useToast`. **74 is UIG-9's count of the package's parts, reached a second way and by a different route** — UIG-9 counted what the rule covers, this counts what `index.ts` exports.
+
+**Nothing is excluded.** Every one of the 81 is an entry, helpers and the hook included, each marked by `kind`. The schema still fails the build unless `entries + excluded` equals the value exports of `index.ts`, so the count has to reconcile out loud rather than by eye.
+
+#### Where each line comes from
+
+`purpose` is one sentence. **53 names have a page of their own** and take it from the page's opening paragraph. **28 are documented inside a sibling's page** — `MenuSub` is explained in `Menu.mdx`, not on a page of its own — and take it from the doc comment above the export.
+
+Of those 28, **15 already had a comment and 13 did not**. The thirteen were written here, one line each, in the component files: `hueFor`, `InputChip`, `WithTooltip`, `MenuPanel`, `MenuSub`, `CommandPaletteSearch`, `CommandPaletteForm`, `IdentityPanel`, `ToolbarButton`, `ToolbarInput`, `ToastProvider`, `useToast`, `SkeletonBar`. Nothing rendered changed, and no doc page was edited.
+
+**A comment, not a page, on purpose.** Those thirteen are parts of something else — `MenuSub` is a row of `Menu`, `ToolbarButton` an item of `Toolbar` — and a page each would put thirteen entries in Storybook's sidebar for things that are not separate components. The sentence lives next to the code instead, where whoever edits it sees it. **The builder fails the build when an export has neither**, so this cannot quietly rot.
+
+#### What it found
+
+| | what | now |
+|---|---|---|
+| ✅ | **11 of the 81 story ids resolved nowhere.** Storybook runs an export name through lodash's `startCase` before the id: `WithCounts` is the story "With Counts" and the id `navigation-tabs--with-counts`, not `--withcounts`. Only a real `storybook build` said so. | The builder does the same. **Every one of the 81 docs and story ids was then checked against that build**, and all resolve. Seven of them are written into the test, so CI holds the derivation without building a Storybook |
+| ✅ | **"scrolling" found `Avatar`.** The search matched a query word against any word one was a prefix of, and `person's` puts the word **"s"** in Avatar's text — which every query on earth begins with | A prefix match now needs three letters at least |
+| ✅ | **`SkeletonBar` was given its file's header paragraph**, which describes the whole Skeleton family. `Skeleton.tsx` opens with it and the export follows directly, so it read as that export's own — right-looking, and wrong | The builder refuses a file header, which turned it into a build failure naming the export. `SkeletonBar` then got a line of its own. `INLINE_CHIP_CLASSES`, which has a header above it *and* a comment of its own, keeps the comment |
+
+#### What it does not carry
+
+**`migrationStage` is in the schema and is always `null`.** The migration's plan lives in `K:/Estiva/migration docs`, which is not in this repo and is not in CI, and a copy kept here by hand is exactly the drifting list this project exists to remove. A reader gets an honest `null` rather than a stale number. The field stays because a later ticket may have a source a build can read.
+
+**`storyUrl` is `storyId` and `docsId`, not a URL.** There is no Storybook on the internet yet (UIG-19), so an absolute link committed here would resolve nowhere. The registry carries the ids and the two path templates, and a reader joins its own base. The ticket's "every `storyUrl` resolves, or is recorded as absent with a reason" is kept, and the reason is **enforced rather than written**: the schema refuses a `component` with no page or story, so only a helper or a hook may have none. One entry has none — `cn`.
+
+#### Commands
+
+```
+npm run registry           # write registry.json
+npm run registry:check     # rebuild and compare; CI runs this
+npm run ui:find -- "floating panel"
+npx estiva-ui find "a list of actions"     # from an app, against the installed package
+```
 
 ### UIG-32: building it
 
@@ -1183,7 +1266,8 @@ The ticket's acceptance, with today's numbers:
 | UIG-14 | `IconButton` and `ToolbarButton` take `pressed`, which writes `aria-pressed`: Peek's text toolbar uses it. Peek's file tree and `ProjectTickets` still write `aria-expanded` / `aria-pressed` by hand. |
 | every pull request | Nothing merges into `main` without `gate` green, and nobody can skip it. Never rename the job `gate` without changing the ruleset in each repo with it; `gates:status` UIG-6 reads both. In Peek and Ship only Jan can change the ruleset. |
 | UIG-9, UIG-14 | Every form in the apps is the package `Form` (UIG-7): a hand-written Enter handler that sends is the thing to look for; UIG-8 does not read Enter or Escape. UIG-5's inward set does not read `<fieldset>`, `<details>`, `<progress>` or the elements with no part — `CommandPalette` kept a plain `<fieldset>` until UIG-7 — so an inward rule for those is open. |
-| UIG-12 | `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint`: each behaviour, the Base UI parts that do it, the components that own it, what the rule reads — the shape the registry can read (UIG-8). |
+| UIG-12 | `OWNED_BEHAVIOURS`, exported from `@estiva-app/ui/eslint`: each behaviour, the Base UI parts that do it, the components that own it, what the rule reads — the shape the registry can read (UIG-8). **Used: the registry reads it and keeps no list of its own.** |
+| UIG-13, UIG-19, UIG-20, UIG-25 | **The catalogue (UIG-12).** `registry.json` at the package's root, schema 1, 81 entries; `@estiva-app/ui/registry` exports `buildRegistry`, `findInRegistry` and `validateRegistry`; the bin `estiva-ui` runs `find`, `build` and `check`. Read it, never parse the source again — and when a field is added, raise `SCHEMA_VERSION`, because a reader that knows version *n* has to be able to say so. **UIG-13 widens the same schema:** `repo` and `importPath` are already per entry, and `excluded` is there for a name Peek or Ship exports that is deliberately not an entry. Note what the builder learnt the hard way, all three now tests: Storybook's ids run the export name through `startCase`; a prefix search on words shorter than three letters matches everything; a file's header comment is not its first export's description. |
 | UIG-14 | `aria-expanded` and `aria-pressed` written on a package component (Peek's file tree, `ProjectTickets`, the selection toolbar) are not read by UIG-8: the component is already the package's, and how to use it is a usage rule. |
 | the route probe (later phase) | **A box that should scroll and does not** has no class for a lint to read — Peek's Folders column at `72c999c`. Only opening the page and scrolling it finds that (UIG-8). |
 | UIG-31 | The / @ !@ [ menus' 7 escapes name it; its first-guess check reads that SlashMenu keeps none. |
@@ -2219,7 +2303,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-9 | Lint rule — the className allow-list | estiva-ui | peek, ship | in estiva-ui: the apps get exactly `no-raw-element`, `no-rebuilt-behaviour` and `no-restyled-part`, the rule is in the package's own set, `PART_LOOK_PROPS` and `PLACEMENT` exported, a look passed into a part is an error naming it, placement is not, padding on `EmptyState` is an error, an escape passes, the new props exist; in Peek and Ship, probes: a border into `Button` names Button, placement passes, a re-export, a props-handing wrapper and a className-handing component are followed, an escape passes against its control, a real page gets none (confirmed by UIG-9, 17 September) |
 | UIG-10 | create-app | estiva-ui | | the package's bins are `create-estiva-app` and `estiva-gates`; `src/gates/create-app.ts` names no sibling repo (`../peek`, `../ship`, `GATES_PEEK`, `GATES_SHIP`); `@estiva-app/ui/gates` exports the token lint, the gate config, the count, the hook, the status engine and `appChecks`, and `./gates` is in `exports`; `gates:compare` is wired (confirmed by UIG-10, 17 September) |
 | UIG-11 | Create the Leaf repo from it | estiva-ui | | `estiva-app/leaf` exists on GitHub; a `leaf` checkout beside estiva-ui |
-| UIG-12 | The registry, thin and proved | estiva-ui | | `registry.json` committed, versioned, with entries; `ui:find` wired |
+| UIG-12 | The registry, thin and proved | estiva-ui | | `registry.json` committed at schema 1, with `entries + excluded` equal to the value exports of `index.ts` and no entry without a purpose; `ui:find` wired; the catalogue ships in the package (the `estiva-ui` bin, the `./registry` export, `registry.json` in `files`); CI runs `registry:check`, which rebuilds and fails on a difference; the builder reads `OWNED_BEHAVIOURS` rather than a list of its own (confirmed by UIG-12, 18 September) |
 | UIG-13 | The registry widens to Peek's and Ship's | estiva-ui | peek, ship | the registry has Peek and Ship entries; each app has its own `registry.json` |
 | UIG-14 | Usage rules — components that own a behaviour | estiva-ui | | every component importing `@base-ui/react` has a page with the five sections |
 | UIG-15 | Usage rules — frame and layout | estiva-ui | | `EmptyState.mdx` has the five sections |
