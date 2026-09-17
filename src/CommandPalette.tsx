@@ -237,6 +237,9 @@ export interface CommandPaletteSearchProps {
 
 type ListGroup = { value: string; items: CommandPaletteRow[] }
 
+/** The palette as a search: a query field, rows in labelled groups walked with
+ *  the arrow keys, and what to show while nothing has arrived and when nothing
+ *  matches. */
 export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children }: CommandPaletteSearchProps) {
   const { modKey, popupRef } = usePalette('CommandPaletteSearch')
   const back = useBack(chip, popupRef)
@@ -478,6 +481,9 @@ function isTextField(el: Element | null): el is HTMLInputElement | HTMLTextAreaE
   return el instanceof HTMLInputElement && TEXT_TYPES.has(el.getAttribute('type') ?? '') && el.getAttribute('role') !== 'combobox' && el.tabIndex >= 0
 }
 
+/** The palette as a form: fields, one submit button, and Ctrl+Enter — both ways
+ *  in run Base UI's field check. It shows what it is working on and what failed,
+ *  and sends focus to the first field that needs something. */
 export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWaits, working, error, children }: CommandPaletteFormProps) {
   const { modKey, popupRef } = usePalette('CommandPaletteForm')
   const back = useBack(chip, popupRef)

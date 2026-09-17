@@ -62,6 +62,9 @@ export interface IdentityPanelProps extends Omit<IdentityMenuProps, 'compact'> {
   onClose?: () => void
 }
 
+/** The identity rows on a panel of their own, with no menu around them — for a
+ *  docs page, or anywhere the panel is already placed. `IdentityMenu` is the
+ *  same rows inside a real menu. */
 export function IdentityPanel({ className, onClose = () => {}, ...rest }: IdentityPanelProps) {
   return (
     <MenuPanel className={cn('w-72', className)}>

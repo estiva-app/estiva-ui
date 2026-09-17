@@ -104,6 +104,8 @@ export interface ToolbarButtonProps extends IconButtonProps {
   ref?: Ref<HTMLButtonElement>
 }
 
+/** An `IconButton` that is an item of a `Toolbar`: the arrow keys reach it, and
+ *  a disabled one stays in the walk so its reason can still be read. */
 export function ToolbarButton({ ref, disabled, disabledReason, ...props }: ToolbarButtonProps) {
   return (
     <BaseToolbar.Button
@@ -137,6 +139,8 @@ export function ToolbarButton({ ref, disabled, disabledReason, ...props }: Toolb
  */
 export type ToolbarInputProps = TextInputProps
 
+/** A `TextInput` that is an item of a `Toolbar`, so the arrow keys walk into the
+ *  field and out of it again. */
 export function ToolbarInput({ size, ...props }: ToolbarInputProps) {
   // `size` is TextInput's own (default or small), not the native attribute
   // Base UI's part would take, so it goes to the field it draws.

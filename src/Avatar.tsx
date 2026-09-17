@@ -29,6 +29,9 @@ import { cn } from './cn'
  */
 const HUES = ['#56c8ff', '#ff8f6b', '#4ade8c', '#b18cff', '#ffc94d', '#ff7eb0', '#7ea8ff', '#5fdfd6']
 
+/** The colour a person's initials sit on, chosen from a key: the same key
+ *  always gives the same hue, so a face reads as theirs in every app. The
+ *  eight are a fallback palette, not tokens — see the note above `HUES`. */
 export const hueFor = (key: string) => {
   let h = 0
   for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0
