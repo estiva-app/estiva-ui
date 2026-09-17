@@ -193,8 +193,19 @@ export default function define(h) {
       { what: "a leaf checkout sits beside estiva-ui", run: () => h.file("../leaf/package.json") },
     ] },
     { ref: "UIG-12", owner: true, checks: [
-      { what: "registry.json is committed, versioned and has entries", run: () => h.json("registry.json", (d) => (d.schemaVersion ?? d.version) !== undefined && (d.entries ?? d.components ?? []).length > 0, "registry.json has a schema version and entries") },
+      { what: "registry.json is committed, versioned, and every export is accounted for", run: () => h.json("registry.json", (d) => d.schemaVersion === 1 && Array.isArray(d.entries) && d.entries.length > 0 && d.entries.length + (d.excluded?.length ?? 0) === d.builtFrom?.exports, "registry.json reconciles: entries + explained exclusions = the value exports of index.ts") },
+      { what: "every entry says what it is for", run: () => h.json("registry.json", (d) => (d.entries ?? []).every((e) => typeof e.purpose === "string" && e.purpose.trim() !== ""), "no entry has an empty purpose") },
       { what: "npm run ui:find is wired", run: () => h.script("package.json", "ui:find") },
+      { what: "the catalogue ships in the package, not as a script pasted into each repo", run: () => {
+        const pkg = JSON.parse(h.read("package.json"));
+        const missing = [];
+        if (pkg.bin?.["estiva-ui"] !== "dist/registry/cli.js") missing.push("the estiva-ui bin");
+        if (!pkg.exports?.["./registry"]) missing.push("the ./registry export");
+        if (!(pkg.files ?? []).includes("registry.json")) missing.push("registry.json in files");
+        return missing.length === 0 ? h.PASS("bin estiva-ui, the ./registry export, and registry.json shipped") : h.FAIL(`missing: ${missing.join(", ")}`);
+      } },
+      { what: "CI rebuilds it and fails when the committed file has drifted", run: () => h.contains(".github/workflows/check.yml", /npm run registry:check/, "check.yml runs registry:check") },
+      { what: "it reads UIG-8's behaviour enumeration rather than keeping a list of its own", run: () => h.contains("src/registry/build.ts", /OWNED_BEHAVIOURS/, "src/registry/build.ts reads OWNED_BEHAVIOURS") },
     ] },
     { ref: "UIG-13", owner: true, checks: [
       { what: "the merged registry lists Peek's and Ship's components", run: () => h.json("registry.json", (d) => ["peek", "ship"].every((r) => (d.entries ?? d.components ?? []).some((e) => e.repo === r)), "registry.json has entries from peek and ship") },

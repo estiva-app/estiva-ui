@@ -26,6 +26,14 @@ jobs:
       - run: npm test
       - run: npm run build
 
+      # The catalogue (UIG-12) is generated, never written: this rebuilds it
+      # from the source and fails if the committed `registry.json` is not what
+      # the code produces, or if it does not match its own schema. A registry
+      # that can drift from what it describes is worse than none — the skill
+      # (UIG-20) and the copy detector (UIG-25) read it and nothing else.
+      - name: The registry is current and valid
+        run: npm run registry:check
+
       # The published entry point must not drag React in. Bundling a peer would
       # put a second React in a consuming app, which breaks hooks at runtime and
       # is invisible at build time.
