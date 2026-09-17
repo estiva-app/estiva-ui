@@ -36,6 +36,7 @@ describe('the plugin object', () => {
     expect(Object.keys(estiva.rules)).toEqual([
       'no-raw-element',
       'no-rebuilt-behaviour',
+      'no-restyled-part',
       'raw-element-outside-a-wrapper',
       'no-hand-rolled-behaviour',
       'component-has-a-page',
@@ -55,21 +56,27 @@ describe('the plugin object', () => {
   it('gives an app only the app rules, as errors, under estiva/', () => {
     for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
       expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
-      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error' })
+      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error', 'estiva/no-restyled-part': 'error' })
     }
-    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour'])
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part'])
   })
 
-  it('gives this package its own set, as errors, and it reaches no app config', () => {
+  /**
+   * `no-restyled-part` is the one rule in both sets (UIG-9): the package restyles
+   * none of its own parts either (Katerina, 17 September). Every other inward
+   * rule still reaches no app.
+   */
+  it('gives this package its own set, as errors, and only the shared rule reaches an app config', () => {
     expect(estiva.configs.package.plugins?.[PLUGIN_KEY]).toBe(estiva)
     expect(estiva.configs.package.rules).toEqual({
       'estiva/raw-element-outside-a-wrapper': 'error',
       'estiva/no-hand-rolled-behaviour': 'error',
       'estiva/component-has-a-page': 'error',
       'estiva/component-has-a-story': 'error',
+      'estiva/no-restyled-part': 'error',
     })
     expect(PACKAGE_RULE_IDS).toEqual(Object.keys(estiva.configs.package.rules ?? {}))
-    for (const id of PACKAGE_RULE_IDS) {
+    for (const id of PACKAGE_RULE_IDS.filter((id) => id !== 'estiva/no-restyled-part')) {
       expect(estiva.configs.recommended.rules?.[id]).toBeUndefined()
       expect(estiva.configs.strict.rules?.[id]).toBeUndefined()
     }
@@ -110,6 +117,22 @@ describe('an app lint with configs.recommended', () => {
     expect(result.messages.filter((m) => m.messageId === 'role' || m.messageId === 'roleNoPart')).toEqual([])
   })
 
+  /**
+   * The probe is linted inside this package's folder, so its part is a sibling
+   * (`./Link`), the way the package's own files import one; in an app the same
+   * rule reads an import from `@estiva-app/ui` (no-restyled-part.test.ts).
+   */
+  it('reports a part restyled, naming its look props', async () => {
+    const [result] = await lint(`import { Link } from './Link'\n${component('    <Link href="/x" className="mt-2 text-h2">x</Link>')}`)
+    expect(result.messages.map((m) => [m.ruleId, m.severity, m.message])).toEqual([
+      [
+        'estiva/no-restyled-part',
+        2,
+        '`text-h2` on `Link` changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled: only space, size, flex and grid, and position pass in. Use its `variant`. A look for what is around it goes on your own element around it.',
+      ],
+    ])
+  })
+
   it('passes the same element under an escape', async () => {
     const [result] = await lint(component('    // @estiva-escape: a preview drawn from its own palette\n    <button type="button">x</button>'))
     expect(result.messages).toEqual([])
@@ -120,8 +143,8 @@ describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
     const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
     const none = { errors: 0, warnings: 0, escapes: 0 }
-    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none })
-    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none })
+    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none })
+    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none })
   })
 
   it('lists a report an eslint-disable silenced, and counts it as neither an error nor an escape', async () => {
@@ -140,7 +163,9 @@ describe('countGates', () => {
 
   it('lists every rule of the plugin, even with nothing found', () => {
     expect(countGates([])).toEqual({
-      rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': { errors: 0, warnings: 0, escapes: 0 } },
+      rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': { errors: 0, warnings: 0, escapes: 0 },
+        'estiva/no-restyled-part': { errors: 0, warnings: 0, escapes: 0 },
+      },
       disabled: [],
     })
   })

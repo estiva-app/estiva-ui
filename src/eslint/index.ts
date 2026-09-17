@@ -22,10 +22,12 @@ import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
 import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
+import { noRestyledPart } from './no-restyled-part'
 import { rawElementOutsideAWrapper } from './raw-element-outside-a-wrapper'
 
 export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings } from './escape'
 export { OWNED_BEHAVIOURS, type OwnedBehaviour } from './no-rebuilt-behaviour'
+export { PART_LOOK_PROPS, PLACEMENT } from './no-restyled-part'
 
 const { version } = createRequire(import.meta.url)('../../package.json') as { version: string }
 
@@ -35,11 +37,13 @@ export const PLUGIN_KEY = 'estiva'
 /**
  * The rules an **app** runs: they say an app must not build what the package
  * already has — a raw control (UIG-7), or a behaviour one of its parts owns
- * (UIG-8). `recommended` and `strict` carry these and only these.
+ * (UIG-8) — nor restyle a part it uses (UIG-9). `recommended` and `strict`
+ * carry these and only these.
  */
 const appRules = {
   'no-raw-element': noRawElement,
   'no-rebuilt-behaviour': noRebuiltBehaviour,
+  'no-restyled-part': noRestyledPart,
 }
 
 /**
@@ -53,12 +57,16 @@ const appRules = {
  * "buried inside a component" means nothing there (`no-raw-element` is the
  * app's version, UIG-7), and an app has no `.mdx` pages at all. `index.test.ts` holds the
  * apps' list to exactly the app rules.
+ *
+ * One rule is in both sets: `no-restyled-part` (UIG-9). The package restyles
+ * none of its own parts either (Katerina, 17 September).
  */
 const packageRules = {
   'raw-element-outside-a-wrapper': rawElementOutsideAWrapper,
   'no-hand-rolled-behaviour': noHandRolledBehaviour,
   'component-has-a-page': componentHasAPage,
   'component-has-a-story': componentHasAStory,
+  'no-restyled-part': noRestyledPart,
 }
 
 const rules = { ...appRules, ...packageRules }
@@ -88,6 +96,7 @@ plugin.configs.recommended = {
   rules: {
     [`${PLUGIN_KEY}/no-raw-element`]: 'error',
     [`${PLUGIN_KEY}/no-rebuilt-behaviour`]: 'error',
+    [`${PLUGIN_KEY}/no-restyled-part`]: 'error',
   },
 }
 plugin.configs.strict = {
