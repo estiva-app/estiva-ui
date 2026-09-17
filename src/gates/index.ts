@@ -13,7 +13,9 @@
  * - `runHook` — the editor gate a `PreToolUse` hook runs.
  * - `runStatus`, `helpers` — gates:status and the helpers a checks file is written with.
  *
- * `estiva-gates` (`cli.ts`) runs the last three as one command.
+ * - `appChecks` — the gate checks every app runs, for its `scripts/gates-checks.mjs`.
+ *
+ * `estiva-gates` (`cli.ts`) runs the count, the hook and the status as one command.
  *
  * Built by build.mjs into `dist/gates/`, for Node. Nothing here reaches the
  * components' browser bundle.
@@ -23,3 +25,4 @@ export { gateConfig, gateLint, type GateConfigOptions } from './gate-config'
 export { writeGateCount, type CountOptions, type CountResult } from './count'
 export { runHook, type HookOptions, type HookResult } from './hook'
 export { ENGINE, helpers, runStatus, type CheckResult, type GateCheck, type GateHelpers, type GateSpec, type GateTicket, type LintProbe, type StatusOptions, type TicketListEntry } from './status'
+export { APP_TICKET_TITLES, appChecks, type AppCheckOptions } from './app-checks'

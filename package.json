@@ -43,6 +43,8 @@
     "postlint:rules": "node dist/gates/cli.js count --repo estiva-ui --package",
     "pregates:status": "node build.mjs",
     "gates:status": "node dist/gates/cli.js status",
+    "pregates:compare": "node build.mjs",
+    "gates:compare": "node scripts/gates-compare.mjs",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
