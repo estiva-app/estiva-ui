@@ -16,8 +16,8 @@ import { tokenLint, tokenValues } from './token-lint'
  * hold the behaviour from here on.
  *
  * A config *file* is needed where ESLint loads one (the count, the hook): it
- * imports the built `dist/gates`, which `npm run lint` builds before `npm test`
- * in CI. The app folder sits inside this repository, so it resolves ESLint and
+ * imports the built `dist/gates`, which `npm test` builds first (`pretest`):
+ * the release job runs the tests with no lint before them. The app folder sits inside this repository, so it resolves ESLint and
  * the plugins from this repository's `node_modules`, as an app resolves its own.
  */
 const root = process.cwd()
