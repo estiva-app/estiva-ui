@@ -1483,7 +1483,15 @@
       "sourceFile": "src/SectionLabel.tsx",
       "purpose": "The section-title span. Every section heading — sidebar sections, menu headings, panel titles — renders through it, so a change of voice is one edit. 12px / 500, primary text; some themes restyle it (the toolbar shows how).",
       "purposeFrom": "page",
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "primary",
+            "secondary"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -1673,7 +1681,15 @@
       "sourceFile": "src/TextInput.tsx",
       "purpose": "The single-line field: inset surface, 8px radius, 14px text, a stronger border on hover, the focus border in every theme.",
       "purposeFrom": "page",
-      "variants": [],
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
       "ownsBehaviours": [
         {
           "id": "base-ui",

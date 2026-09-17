@@ -88,6 +88,34 @@ describe('the registry builds', () => {
     expect(entry('Menu').variants).toEqual([{ prop: 'align', values: ['left', 'right'] }])
   })
 
+  it('reads them however the component was written', () => {
+    // Written out at the parameter, with no named type at all.
+    expect(entry('SectionLabel').variants).toEqual([{ prop: 'tone', values: ['primary', 'secondary'] }])
+    // forwardRef: the props are its second type argument, and the inner
+    // function's parameter is bare.
+    expect(entry('TextInput').variants).toEqual([{ prop: 'size', values: ['default', 'small'] }])
+  })
+
+  it('misses no set of words any component file declares', () => {
+    // Both of the above were found this way, in the ten-entry spot check and
+    // then in a sweep. The sweep stays: it is the thing that notices a way of
+    // writing a component the builder has not met yet.
+    const declared = new Map<string, Set<string>>()
+    for (const one of registry.entries) {
+      const props = declared.get(one.sourceFile) ?? new Set<string>()
+      for (const variant of one.variants) props.add(variant.prop)
+      declared.set(one.sourceFile, props)
+    }
+    const missed: string[] = []
+    for (const [file, read] of declared) {
+      const source = readFileSync(join(root, file), 'utf8')
+      for (const match of source.matchAll(/(\w+)\??:\s*'[^']+'\s*\|\s*'[^']+'/g)) {
+        if (!read.has(match[1])) missed.push(`${file}: ${match[1]}`)
+      }
+    }
+    expect(missed).toEqual([])
+  })
+
   it('leaves migrationStage null, because no source a build can read holds it', () => {
     expect(registry.entries.every((one) => one.migrationStage === null)).toBe(true)
   })

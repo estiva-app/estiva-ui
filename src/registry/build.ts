@@ -41,8 +41,12 @@ interface Declared {
   /** The doc comment, cleaned, or `''`. */
   doc: string
   deprecated: boolean
-  /** The name of its props type, when its first parameter has one. */
-  propsType?: string
+  /**
+   * Its first parameter's type, as written. Kept as the node and resolved after
+   * the whole file is walked: a props interface is often declared *below* the
+   * component that takes it.
+   */
+  propsType?: ts.TypeNode
 }
 
 const PACKAGE_IMPORT = '@estiva-app/ui'
@@ -202,15 +206,25 @@ function readModule(source: string) {
   const aliases = new Map<string, ts.TypeNode>()
   const shapes = new Map<string, ts.TypeElement[]>()
 
-  const propsTypeOf = (parameters: readonly ts.ParameterDeclaration[]): string | undefined => {
-    const type = parameters[0]?.type
-    if (!type) return undefined
-    // `{ … }: ButtonProps` — and `Omit<ButtonProps, 'x'>`, whose first argument is the shape.
-    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
-      const named = type.typeName.text
-      const first = type.typeArguments?.[0]
-      if (named === 'Omit' || named === 'Pick') return first && ts.isTypeReferenceNode(first) && ts.isIdentifier(first.typeName) ? first.typeName.text : undefined
-      return named
+  const propsTypeOf = (parameters: readonly ts.ParameterDeclaration[]): ts.TypeNode | undefined => parameters[0]?.type
+
+  /**
+   * The props type of `const X = …`.
+   *
+   * A plain function expression carries it on its first parameter. `forwardRef`
+   * carries it as its **second type argument** and leaves the inner function's
+   * parameter bare — `TextInput`, whose `size` was missed until this read it.
+   */
+  const propsOfInitializer = (initializer: ts.Expression | undefined): ts.TypeNode | undefined => {
+    if (!initializer) return undefined
+    if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) return propsTypeOf(initializer.parameters)
+    if (ts.isCallExpression(initializer)) {
+      const callee = ts.isPropertyAccessExpression(initializer.expression) ? initializer.expression.name.text : ts.isIdentifier(initializer.expression) ? initializer.expression.text : ''
+      if (callee === 'forwardRef' && initializer.typeArguments?.[1]) return initializer.typeArguments[1]
+      // `memo(function X({ … }: Props) { … })` and anything else that wraps a
+      // function written out at the call.
+      const wrapped = initializer.arguments.find((argument) => ts.isArrowFunction(argument) || ts.isFunctionExpression(argument))
+      if (wrapped) return propsTypeOf((wrapped as ts.ArrowFunction | ts.FunctionExpression).parameters)
     }
     return undefined
   }
@@ -237,15 +251,39 @@ function readModule(source: string) {
     if (ts.isVariableStatement(statement)) {
       for (const declaration of statement.declarationList.declarations) {
         if (!ts.isIdentifier(declaration.name)) continue
-        const initializer = declaration.initializer
-        const parameters = initializer && (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) ? initializer.parameters : undefined
-        declarations.set(declaration.name.text, { doc, deprecated, propsType: parameters ? propsTypeOf(parameters) : undefined })
+        declarations.set(declaration.name.text, { doc, deprecated, propsType: propsOfInitializer(declaration.initializer) })
       }
     }
   }
 
-  const variantsOf = (propsType: string | undefined): EntryVariant[] => {
-    const members = propsType ? shapes.get(propsType) : undefined
+  /**
+   * The properties a parameter's type has, however it was written: an interface
+   * by name, `Omit<…>` of one, an intersection of both, or — `SectionLabel`,
+   * `SkeletonRow` and others — the shape written out at the parameter itself.
+   * Reading only named types missed `SectionLabel`'s `tone`, found in the
+   * ten-entry spot check.
+   */
+  const membersOf = (type: ts.TypeNode, depth = 0): ts.TypeElement[] | undefined => {
+    if (depth > 4) return undefined
+    if (ts.isTypeLiteralNode(type)) return [...type.members]
+    if (ts.isIntersectionTypeNode(type)) {
+      const sides = type.types.flatMap((side) => membersOf(side, depth + 1) ?? [])
+      return sides.length ? sides : undefined
+    }
+    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
+      const named = type.typeName.text
+      // `Omit<ButtonProps, 'x'>` and `Pick<…>`: the shape is the first argument.
+      if (named === 'Omit' || named === 'Pick') {
+        const first = type.typeArguments?.[0]
+        return first ? membersOf(first, depth + 1) : undefined
+      }
+      return shapes.get(named)
+    }
+    return undefined
+  }
+
+  const variantsOf = (propsType: ts.TypeNode | undefined): EntryVariant[] => {
+    const members = propsType ? membersOf(propsType) : undefined
     if (!members) return []
     const variants: EntryVariant[] = []
     for (const member of members) {
