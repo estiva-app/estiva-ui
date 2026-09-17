@@ -43,6 +43,7 @@ const all = [
   { ref: "UIG-29", owner: "peek", title: "CommandLauncher — 1,655 lines that will fail almost every lint rule" },
   { ref: "UIG-30", owner: "estiva-ui", parts: PEEK_SHIP, title: "RichText — one component that draws a message's text, for both apps" },
   { ref: "UIG-31", owner: "estiva-ui", parts: ["peek"], title: "Editor menus — one shared part for the / @ [ menus" },
+  { ref: "UIG-32", owner: "estiva-ui", parts: PEEK_SHIP, title: "Peek and Ship take their gate pieces from the package" },
 ];
 
 const siblings = [
@@ -243,6 +244,10 @@ export default function define(h) {
     // A first guess, from the ticket's text (much later: Katerina, 16 September).
     { ref: "UIG-31", owner: true, checks: [
       { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
+    ] },
+    // A first guess (Katerina, 17 September, GATES.md §23): every gate piece ships in the package, for the apps to import.
+    { ref: "UIG-32", owner: true, checks: [
+      { what: "the package exports its gate pieces for the apps to import", run: () => h.contains("package.json", /"\.\/gates[\w/-]*"/, "package.json exports the gate pieces") },
     ] },
   ];
 

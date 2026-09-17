@@ -67,7 +67,7 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. There are two:
+instead. There are three:
 
 - `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
   `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
@@ -78,6 +78,10 @@ instead. There are two:
   (`overflow-auto`, behind any variant). `OWNED_BEHAVIOURS` lists each behaviour,
   the Base UI parts that do it, and the components that own it. It cannot find a
   box that should scroll and does not: that has no class to read.
+- `estiva/no-restyled-part` refuses a look passed into a part through
+  `className` or an inner box's class prop — a colour, a text size, a border, a
+  corner, a shadow — and names the part's look props (`PART_LOOK_PROPS`). Only
+  placement goes through (`PLACEMENT`), and `EmptyState` takes no padding.
 
 ```js
 // eslint.config.js — alongside your own rules
@@ -98,7 +102,8 @@ A place that keeps one on purpose says why, on the line above:
 or, as a JSX child, `{/* @estiva-escape: the reason */}`. Not `eslint-disable`:
 it switches the rule off without saying why, and the gate counts it as a
 failure. `countGates(results)` counts errors and escapes for
-`.gates-count.json`; lint with `settings: { estiva: { reportEscapes: true } }`
+`.gates-count.json` (the script that writes the file is still copied into each
+app; it moves into the package with UIG-10, `docs/GATES.md` §23); lint with `settings: { estiva: { reportEscapes: true } }`
 for the escapes to be counted.
 
 ## The rules
