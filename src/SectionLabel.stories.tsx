@@ -29,3 +29,6 @@ export const HeadingAList: Story = {
     </div>
   ),
 }
+
+/** `tone="secondary"`: a heading inside a menu or a list of results labels the rows, it is not one of them. */
+export const Secondary: Story = { args: { tone: 'secondary', children: 'Section' } }

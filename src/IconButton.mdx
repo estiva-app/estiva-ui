@@ -40,6 +40,15 @@ import { IconPencil } from '@tabler/icons-react'
   control. The `tooltip` shows sighted hover users the same word; it does
   not replace the label.
 - The icon is 16px at stroke 1.5.
+- `variant="current"` takes the colour of what it sits in — the ✕ on a
+  `Banner` wears the banner's tone. `variant="resolve"` is `muted` that turns
+  green when pointed at in Signal: Resolve, wherever it appears.
+- `pressed` is a toggle that is on — Bold while the selection is bold: the
+  active fill, and `aria-pressed`. A `ToolbarButton` takes it too.
+- `glow` lights it in Signal — the send arrow while there is something to send.
+- **Placed from outside, never restyled.** `className` takes space, size,
+  flex and grid, and position; a colour, a text size, a border, a corner or a
+  shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9).
 - `type` defaults to `"button"`; it is a native `<button>` on Base UI's
   Button, and every native prop passes through.
 - `disabledReason="Read only"` disables it, keeps it reachable by Tab,
