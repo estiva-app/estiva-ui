@@ -69,7 +69,7 @@ const thePluginOnce = {
   },
 }
 await build({
-  entryPoints: { index: 'src/gates/index.ts', cli: 'src/gates/cli.ts' },
+  entryPoints: { index: 'src/gates/index.ts', cli: 'src/gates/cli.ts', 'create-app': 'src/gates/create-app-cli.ts' },
   outdir: 'dist/gates',
   bundle: true,
   splitting: true,

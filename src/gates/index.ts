@@ -14,6 +14,7 @@
  * - `runStatus`, `helpers` — gates:status and the helpers a checks file is written with.
  *
  * - `appChecks` — the gate checks every app runs, for its `scripts/gates-checks.mjs`.
+ * - `appFiles`, `createApp`, `themes` — a new app with every gate on (`create-estiva-app`).
  *
  * `estiva-gates` (`cli.ts`) runs the count, the hook and the status as one command.
  *
@@ -26,3 +27,4 @@ export { writeGateCount, type CountOptions, type CountResult } from './count'
 export { runHook, type HookOptions, type HookResult } from './hook'
 export { ENGINE, helpers, runStatus, type CheckResult, type GateCheck, type GateHelpers, type GateSpec, type GateTicket, type LintProbe, type StatusOptions, type TicketListEntry } from './status'
 export { APP_TICKET_TITLES, appChecks, type AppCheckOptions } from './app-checks'
+export { appFiles, askNpm, createApp, themes, type CreateAppOptions } from './create-app'
