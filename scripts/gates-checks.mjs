@@ -134,7 +134,8 @@ export default function define(h) {
       } },
     ] },
     { ref: "UIG-8", owner: true, checks: [
-      { what: "the apps' rules are no-raw-element and no-rebuilt-behaviour, and only those", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*\}/, "src/eslint/index.ts gives the apps exactly no-raw-element and no-rebuilt-behaviour") },
+      // UIG-9 added a third app rule after it; this ticket's evidence is that the apps get these two.
+      { what: "the apps get no-raw-element and no-rebuilt-behaviour", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,/, "src/eslint/index.ts gives the apps no-raw-element and no-rebuilt-behaviour") },
       { what: "every part the rule names is exported", run: () => {
         const rule = h.read("src/eslint/no-rebuilt-behaviour.ts");
         // A component's name, PascalCase: not OWNED_BEHAVIOURS, which the rule's comments name too.
@@ -148,7 +149,26 @@ export default function define(h) {
       { what: "Checkbox has a row form, for a list you tick several from", run: () => h.contains("src/Checkbox.tsx", /\brow\?: boolean/, "Checkbox takes row") },
       { what: "ScrollArea's bar sits above sticky rows", run: () => h.contains("src/ScrollArea.tsx", /const BAR = '[^']*\bz-10\b/, "ScrollArea's bar is z-10") },
     ] },
-    { ref: "UIG-9", owner: true, checks: [] },
+    { ref: "UIG-9", owner: true, checks: [
+      { what: "the apps' rules are no-raw-element, no-rebuilt-behaviour and no-restyled-part, and only those", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*'no-restyled-part': noRestyledPart,\s*\}/, "src/eslint/index.ts gives the apps exactly the three rules") },
+      { what: "the package runs no-restyled-part on itself too", run: () => h.contains("src/eslint/index.ts", /const packageRules = \{[^}]*'no-restyled-part': noRestyledPart,/, "src/eslint/index.ts puts no-restyled-part in the package's own set") },
+      { what: "the look props and the placement list are exported, for UIG-12's registry", run: () => h.contains("src/eslint/index.ts", /export \{ PART_LOOK_PROPS, PLACEMENT \}/, "@estiva-app/ui/eslint exports PART_LOOK_PROPS and PLACEMENT") },
+      { what: "a look passed into a part is an error naming the part", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"rounded-lg border\">x</Link>\n}\n", "error", "on `Link` changes how it looks") },
+      { what: "placement passed into a part is not", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"mt-2 w-full flex-1 relative\">x</Link>\n}\n", "none") },
+      { what: "padding on EmptyState is an error", run: gate("import { EmptyState } from './EmptyState'\nexport function Probe() {\n  return <EmptyState className=\"py-6\" message=\"Nothing yet\" />\n}\n", "error", "EmptyState takes no padding") },
+      { what: "an escape passes the same look", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return (\n    // @estiva-escape: a whole row that is one link, and no part does that yet\n    <Link href=\"/x\" className=\"after:absolute after:inset-0\">x</Link>\n  )\n}\n", "none") },
+      { what: "the props that replaced the apps' classes exist", run: () => {
+        const missing = [];
+        const icon = h.read("src/IconButton.tsx");
+        if (!/'current' \| 'resolve'/.test(icon)) missing.push("IconButton current, resolve");
+        if (!/\bpressed\?: boolean/.test(icon) || !/\bglow\?: boolean/.test(icon)) missing.push("IconButton pressed, glow");
+        if (!/'destructive' \| 'resolve'/.test(h.read("src/Button.tsx"))) missing.push("Button resolve");
+        if (!/\bclip\?: boolean/.test(h.read("src/Card.tsx"))) missing.push("Card clip");
+        if (!/tone\?: 'primary' \| 'secondary'/.test(h.read("src/SectionLabel.tsx"))) missing.push("SectionLabel tone");
+        if (!/\btruncate\?: boolean/.test(h.read("src/Link.tsx"))) missing.push("Link truncate");
+        return missing.length === 0 ? h.PASS("IconButton current, resolve, pressed, glow; Button resolve; Card clip; SectionLabel tone; Link truncate") : h.FAIL(`missing: ${missing.join("; ")}`);
+      } },
+    ] },
     { ref: "UIG-10", owner: true, checks: [
       { what: "a create-app command exists", run: () => {
         const bin = JSON.parse(h.read("package.json")).bin;

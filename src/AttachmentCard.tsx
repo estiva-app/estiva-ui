@@ -186,6 +186,7 @@ export function AttachmentCard({
     const failed = state === 'failed'
     const warning = state === 'warning'
     return (
+      // @estiva-escape: a failed or warning file's strong hairline is AttachmentCard's own state; Card's attention hairlines are the soft ones (UIG-9, Katerina 17 September)
       <Card
         fill="elevated"
         className={cn('group relative flex items-center gap-2 w-[200px] p-1.5 pr-3', failed ? 'border-error-default' : warning && 'border-warning-default', className)}
@@ -233,6 +234,7 @@ export function AttachmentCard({
 
   // Fades in with the card's hover or keyboard focus, and keeps its slot when hidden, so revealing it never shifts the row.
   const download = onDownload ? (
+    // @estiva-escape: Download shows when its card is pointed at or focused, AttachmentCard's own action; IconButton has no reveal on its card's hover (UIG-9, Katerina 17 September)
     <IconButton
       variant="muted"
       tooltip="Download"
@@ -251,6 +253,7 @@ export function AttachmentCard({
     return (
       // `role="status"`: a plain box may not carry a name (axe, aria-prohibited-attr), and a
       // status says what it is doing — loading — to a reader that cannot see the pulse.
+      // @estiva-escape: the loading pulse is AttachmentCard's own state; Card has no loading state (UIG-9, Katerina 17 September)
       <Card role="status" fill="inset" aria-busy="true" aria-label={`Loading ${name}`} className={cn('w-[180px] h-28 animate-pulse', className)} {...props}>
         {null}
       </Card>
@@ -259,6 +262,7 @@ export function AttachmentCard({
 
   if (state === 'unreadable') {
     return (
+      // @estiva-escape: a file that could not be read is faded as well as dashed, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
       <Card fill="inset" unreadable className={cn('flex items-center gap-2 w-[240px] p-1.5 opacity-70', className)} {...props}>
         <div className={TILE_CLASSES}>
           <TypeIcon name={name} />
@@ -274,7 +278,7 @@ export function AttachmentCard({
   if (image && src) {
     const picture = <img src={src} alt={name} className="w-full h-28 object-cover" />
     return (
-      <Card fill="inset" hover="hairline" className={cn('group relative flex flex-col w-[180px] overflow-hidden', className)} {...props}>
+      <Card fill="inset" hover="hairline" clip className={cn('group relative flex flex-col w-[180px]', className)} {...props}>
         {onOpen ? (
           <BaseButton
             type="button"
@@ -310,9 +314,10 @@ export function AttachmentCard({
     </>
   )
   return (
+    // @estiva-escape: a file that cannot be opened is faded, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
     <Card fill="inset" hover={href ? 'hairline' : 'none'} className={cn('group flex items-center gap-2 w-[240px] p-1.5 pr-1', !href && 'opacity-70', className)} {...props}>
       {href ? (
-        <Link href={href} external variant="plain" className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer" onClick={(event) => event.stopPropagation()}>
+        <Link href={href} external variant="plain" className="flex items-center gap-2 min-w-0 flex-1" onClick={(event) => event.stopPropagation()}>
           {body}
         </Link>
       ) : (

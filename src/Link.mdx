@@ -54,6 +54,12 @@ import { Link } from '@estiva-app/ui'
   draw the border, the fill and the hover.
 - If your router also exports a `Link`, rename one of them on import.
 
+- `truncate` keeps a title that is a link on one line, cut with an ellipsis.
+  Its size and colour still come from the text around it.
+- `quiet`, `underlined` and `plain` take their size and colour from where they
+  sit, so put those on your own element around the link, not on the link —
+  the lint refuses a look passed in `className` (UIG-9).
+
 ## Props
 
 <Controls of={LinkStories.Text} />

@@ -100,3 +100,15 @@ export const AllVariants: Story = {
     </div>
   ),
 }
+
+/** `truncate`: a title that is a link, on one line. Its size and colour come from the box around it. */
+export const Truncate: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="w-[200px] text-body-2 text-text-primary">
+      <Link href="#" variant="quiet" truncate className="block">
+        Assignee avatar and full name is missing in the files panel
+      </Link>
+    </div>
+  ),
+}

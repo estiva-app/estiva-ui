@@ -80,6 +80,11 @@ export interface CardProps extends ComponentPropsWithRef<'div'> {
   attention?: CardAttention
   /** It stands for something that could not be read: the hairline is dashed. */
   unreadable?: boolean
+  /**
+   * What is inside is cut to the card's rounded corners: a strip or a picture that
+   * runs edge to edge (UIG-9, 17 September; the apps passed `overflow-hidden`).
+   */
+  clip?: boolean
   children: ReactNode
 }
 
@@ -93,6 +98,7 @@ export function Card({
   active = false,
   attention,
   unreadable = false,
+  clip = false,
   className,
   children,
   ...props
@@ -114,12 +120,14 @@ export function Card({
     active && 'bg-bg-selected border-accent-primary',
     !active && attention && ATTENTION_CLASSES[attention],
     unreadable && 'border-dashed',
+    clip && 'overflow-hidden',
     href && 'block',
     className,
   )
   if (href !== undefined) {
     const { ref, ...anchorProps } = props as ComponentPropsWithRef<'a'>
     return (
+      // @estiva-escape: a card that leads somewhere is drawn on Link's anchor (UIG-27 ruling 1), so this frame is Card's own look, not Link restyled
       <Link href={href} variant="plain" ref={ref} className={classes} {...anchorProps}>
         {children}
       </Link>

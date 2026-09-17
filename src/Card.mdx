@@ -69,6 +69,13 @@ import { Card } from '@estiva-app/ui'
   state: set it when the pointer enters, and clear it when the pointer leaves
   and nothing of the card's is open.
 
+- `clip` cuts what is inside to the card's rounded corners — a strip or a
+  picture that runs edge to edge. Without it their square corners show.
+- **Placed from outside, never restyled.** `className` takes space, size,
+  flex and grid, and position; a colour, a text size, a border, a corner or a
+  shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9). What is inside the card is yours: its padding and its words go on
+  your own element inside.
+
 ## Props
 
 <Controls of={CardStories.Surface} />

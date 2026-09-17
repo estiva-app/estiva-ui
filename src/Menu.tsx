@@ -2,6 +2,7 @@ import { createContext, useContext, type ComponentPropsWithRef, type ReactElemen
 import { IconChevronRight } from '@tabler/icons-react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
+import { DividerInPanel } from './Divider'
 import { triggerDisabled } from './triggerDisabled'
 import { ScrollArea } from './ScrollArea'
 import { Kbd } from './Kbd'
@@ -241,8 +242,10 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
              * sentence was written at 0.12.6 and the prop was not: a `p-1` on
              * `className` added 4px to these 8px instead of replacing them
              * (PLAN Finding 60). The prop exists now. */}
-            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName={cn('flex flex-col p-2 [&>[role=separator]]:mx-0', contentClassName)}>
-              <MenuContext.Provider value={{ openOnHover }}>{children}</MenuContext.Provider>
+            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName={cn('flex flex-col p-2', contentClassName)}>
+              <MenuContext.Provider value={{ openOnHover }}>
+                <DividerInPanel.Provider value={true}>{children}</DividerInPanel.Provider>
+              </MenuContext.Provider>
             </ScrollArea>
           </BaseMenu.Popup>
         </BaseMenu.Positioner>
@@ -561,7 +564,7 @@ export function MenuSection({ label, children, className }: { label: string; chi
   const inMenu = useContext(MenuContext) !== null
   const heading = (
     <div className={cn('flex h-8 items-center px-2', className)}>
-      <SectionLabel className="text-text-secondary">{label}</SectionLabel>
+      <SectionLabel tone="secondary">{label}</SectionLabel>
     </div>
   )
   if (!inMenu) {

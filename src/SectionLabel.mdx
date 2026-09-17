@@ -34,8 +34,9 @@ import { SectionLabel } from '@estiva-app/ui'
 ```
 
 It is a bare span: the caller owns the row it sits in and the spacing
-around it. Read it `secondary` (via `className`) where it labels rather
-than leads — menu headings do.
+around it. Read it `tone="secondary"` where it labels rather than leads — menu
+headings and the command palette's groups do (Katerina, 2026-09-01). A colour
+passed in `className` is refused by the lint (UIG-9).
 
 ## Props
 

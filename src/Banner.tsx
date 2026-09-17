@@ -57,9 +57,9 @@ export function Banner({ tone, children, onDismiss, dismissLabel = 'Dismiss', cl
   return (
     <div role={role} className={cn('flex items-center gap-3 px-4 py-2 text-body-2', TONE_STYLES[tone], className)}>
       <span className="min-w-0 flex-1">{children}</span>
-      {/* `text-current` so the ✕ takes the tone's colour rather than the
+      {/* `current` so the ✕ takes the tone's colour rather than the
           muted grey an IconButton wears on a neutral surface. */}
-      <IconButton aria-label={dismissLabel} onClick={onDismiss} className="-mr-1 shrink-0 text-current hover:text-current">
+      <IconButton variant="current" aria-label={dismissLabel} onClick={onDismiss} className="-mr-1 shrink-0">
         <IconX size={16} stroke={1.5} />
       </IconButton>
     </div>

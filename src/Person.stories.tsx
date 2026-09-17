@@ -26,15 +26,15 @@ export const OwnFallback: Story = {
   parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
 }
 
-/** The text size is the caller's, so face and words are set together. */
+/** The text size is where it sits: the box around it sets the words, `size` sets the face. */
 export const Sizes: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <div className="flex flex-col items-start gap-3">
-      <Person name="Ana Duarte" size={16} className="text-caption" />
-      <Person name="Ana Duarte" size={20} className="text-body-2" />
-      <Person name="Ravi Mehta" size={22} className="text-body-2" />
-      <Person name="Ravi Mehta" size={28} className="text-body-1" />
+      <div className="flex text-caption"><Person name="Ana Duarte" size={16} /></div>
+      <div className="flex text-body-2"><Person name="Ana Duarte" size={20} /></div>
+      <div className="flex text-body-2"><Person name="Ravi Mehta" size={22} /></div>
+      <div className="flex text-body-1"><Person name="Ravi Mehta" size={28} /></div>
     </div>
   ),
 }

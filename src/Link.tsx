@@ -41,15 +41,20 @@ export interface LinkProps extends ComponentPropsWithRef<'a'> {
    * noreferrer` so the page it opens cannot reach back into this one.
    */
   external?: boolean
+  /**
+   * One line, cut with an ellipsis when it does not fit — a title that is a link.
+   * Its size and colour still come from the text around it (UIG-9, 17 September).
+   */
+  truncate?: boolean
   children: ReactNode
 }
 
-export function Link({ href, variant = 'text', external = false, className, children, ...props }: LinkProps) {
+export function Link({ href, variant = 'text', external = false, truncate = false, className, children, ...props }: LinkProps) {
   return (
     <a
       href={href}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      className={cn(VARIANT_CLASSES[variant], className)}
+      className={cn(VARIANT_CLASSES[variant], truncate && 'truncate', className)}
       {...props}
     >
       {children}

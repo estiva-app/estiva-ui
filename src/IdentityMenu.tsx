@@ -95,7 +95,10 @@ export function IdentityRows({ me, signedIn, relayUrl, idBase, onCopyKey, onSign
     <>
       <MenuSection label={signedIn ? 'Signed in as' : 'Acting as'}>
         <MenuRow>
-          <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} className="text-body-2-strong" />
+          {/* A name takes the size of where it sits (UIG-9). */}
+          <div className="flex min-w-0 text-body-2-strong">
+            <Person name={me.name} picture={me.picture} fallback="Anonymous" size={28} />
+          </div>
         </MenuRow>
         <Note>
           {signedIn

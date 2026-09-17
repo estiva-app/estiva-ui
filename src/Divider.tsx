@@ -1,5 +1,14 @@
+import { createContext, useContext } from 'react'
 import { Separator } from '@base-ui/react/separator'
 import { cn } from './cn'
+
+/**
+ * Inside a `Menu` or a `Popover` a hairline runs edge to edge of the rows,
+ * with no inset of its own. The two panels used to reach in for it
+ * (`[&>[role=separator]]:mx-0`); they say so through this instead (UIG-9,
+ * 17 September). Not exported: only those two panels set it.
+ */
+export const DividerInPanel = createContext(false)
 
 /**
  * Peek's Divider (2026-08-28): a hairline in `border-subtle`, inset 12px each
@@ -30,13 +39,14 @@ export interface DividerProps {
 }
 
 export function Divider({ orientation = 'horizontal', label, tone = 'default', className }: DividerProps) {
+  const inset = useContext(DividerInPanel) ? 'mx-0' : 'mx-3'
   if (label && orientation === 'horizontal') {
     const line = tone === 'warning' ? 'bg-warning-muted' : 'bg-border-subtle'
     return (
       <Separator
         orientation="horizontal"
         aria-label={label}
-        className={cn('flex shrink-0 items-center gap-2 mx-3', className)}
+        className={cn('flex shrink-0 items-center gap-2', inset, className)}
       >
         <span aria-hidden="true" className={cn('h-px flex-1', line)} />
         <span className={cn('shrink-0 text-caption', tone === 'warning' ? 'text-warning-default' : 'text-text-muted')}>{label}</span>
@@ -51,7 +61,7 @@ export function Divider({ orientation = 'horizontal', label, tone = 'default', c
       // column shrinks to nothing, and a hairline that renders 0px tall is a
       // hairline nobody can see — Peek's `/` menu had been drawing two of
       // them, measured 0px, since it was built (2026-09-05).
-      className={cn('shrink-0 bg-border-subtle', orientation === 'horizontal' ? 'h-px mx-3' : 'w-px self-stretch', className)}
+      className={cn('shrink-0 bg-border-subtle', orientation === 'horizontal' ? cn('h-px', inset) : 'w-px self-stretch', className)}
     />
   )
 }

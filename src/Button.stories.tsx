@@ -7,7 +7,7 @@ const meta = {
   component: Button,
   args: { children: 'Button', variant: 'muted', size: 'default', disabled: false },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['primary', 'outlined', 'muted', 'destructive'] },
+    variant: { control: 'inline-radio', options: ['primary', 'outlined', 'muted', 'destructive', 'resolve'] },
     size: { control: 'inline-radio', options: ['default', 'small'] },
     leadingIcon: { control: false },
   },
@@ -83,3 +83,6 @@ export const AllVariants: Story = {
     </div>
   ),
 }
+
+/** `resolve`: primary, and in Signal outlined at rest and green when pointed at — Resolve. */
+export const Resolve: Story = { args: { variant: 'resolve', children: 'Resolve' } }

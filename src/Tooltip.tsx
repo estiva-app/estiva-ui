@@ -111,11 +111,8 @@ function TooltipSurface({ label, shortcut, placement }: { label: string; shortcu
         className="pointer-events-none z-[9999]"
       >
         <BaseTooltip.Popup
-          render={
-            <Tooltip
-              label={label}
-              shortcut={shortcut}
-              /*
+          render={<Tooltip label={label} shortcut={shortcut} />}
+          /*
                * The motion (Katerina, D26, 2026-09-07). It had none — it was
                * mounted and instantly there — and Base UI is what makes one
                * possible: `data-starting-style` on the opening frame,
@@ -132,16 +129,17 @@ function TooltipSurface({ label, shortcut, placement }: { label: string; shortcu
                * tooltip was dismissed. Sweeping a toolbar therefore moves the
                * pill without re-animating it, which is the whole point of the
                * shared delay (D23).
+               *
+               * On Base UI's popup, which hands its class to the pill it renders,
+               * rather than pushed into the pill from outside (UIG-9).
                */
-              className={cn(
-                'transition-[opacity,transform] duration-[120ms] ease-out motion-reduce:transition-none',
-                'data-[ending-style]:duration-[80ms] data-[instant]:duration-0',
-                'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-                'data-[side=top]:data-[starting-style]:translate-y-[4px] data-[side=top]:data-[ending-style]:translate-y-[4px]',
-                'data-[side=bottom]:data-[starting-style]:-translate-y-[4px] data-[side=bottom]:data-[ending-style]:-translate-y-[4px]',
-              )}
-            />
-          }
+          className={cn(
+            'transition-[opacity,transform] duration-[120ms] ease-out motion-reduce:transition-none',
+            'data-[ending-style]:duration-[80ms] data-[instant]:duration-0',
+            'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
+            'data-[side=top]:data-[starting-style]:translate-y-[4px] data-[side=top]:data-[ending-style]:translate-y-[4px]',
+            'data-[side=bottom]:data-[starting-style]:-translate-y-[4px] data-[side=bottom]:data-[ending-style]:-translate-y-[4px]',
+          )}
         />
       </BaseTooltip.Positioner>
     </BaseTooltip.Portal>

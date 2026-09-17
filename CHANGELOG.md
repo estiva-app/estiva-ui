@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.20.0 — 2026-09-17 — UIG-9, a part is placed, never restyled
+
+Katerina, 16 and 17 September. Peek and Ship adopt it in their UIG-9 pull requests.
+
+### Changed
+
+- **A third lint rule, `estiva/no-restyled-part`**, in `configs.recommended`,
+  `strict` and, pointed inward, `package`. A class passed into a part of this
+  package — through `className` or an inner box's class prop (`contentClassName`,
+  `bodyClassName`, `viewportClassName`, `wrapperClassName`) — may only place it:
+  space around and inside, width and height, shown or hidden, flex and grid,
+  alignment, position, and `group`. A colour, type, border, corner, shadow,
+  cut-off or wrapping, clipping or effect is refused, and so is anything behind
+  `before:`, `after:` or `[&…]:`. The message names the part's look props, or
+  says it has none yet. `EmptyState` takes no padding at all (ruling 6 of 14
+  September).
+
+  Parts are found by where they come from, never by name: an import from
+  `@estiva-app/ui`, an app file that re-exports one, a wrapper that hands its
+  props on (`{...rest}`), or a component that hands its own `className` on;
+  relative imports and `@/` are followed. So a part added later is covered.
+  Inside the package, the names `src/index.ts` exports. `PART_LOOK_PROPS` and
+  `PLACEMENT` are exported from `@estiva-app/ui/eslint`.
+
+  **Callers:** on the 16 September mains it finds **Peek 23** and **Ship 13**. Each
+  app's count file gains the rule's row.
+
+### Added
+
+- `IconButton` `variant="current"` and `variant="resolve"`, `pressed` and
+  `glow` (also on `ToolbarButton`); `Button` `variant="resolve"`; `Card`
+  `clip`; `SectionLabel` `tone`; `Link` `truncate`. Each draws exactly what
+  the classes the apps passed drew.
+
+### Fixed inside the package
+
+- Its own 34 places: `ConfirmDialog`, `DialogShell`, `IdentityMenu`,
+  `Breadcrumb`, `ReactionPicker`, `Tooltip`, `PreviewCard`, `Menu`, `Popover`,
+  `CommandPalette`, `Banner`, `AttachmentCard` and the `Person`, `Property`,
+  `ScrollArea` and `Menu` stories. A `Divider` inside a `Menu` or `Popover`
+  drops its inset itself. Six keep a written reason: `Card` with `href` drawn
+  on `Link`, and `AttachmentCard`'s own states. Every story, both themes,
+  photographed identical before and after (620 of 620).
+
 ## 0.19.0 — 2026-09-16 — UIG-8, behaviour rebuilt by hand
 
 Katerina, 16 September. Peek and Ship adopt it in their UIG-8 pull requests.

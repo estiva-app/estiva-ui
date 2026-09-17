@@ -50,6 +50,11 @@ import { EditableText } from '@estiva-app/ui'
   raw references, rendered richer when read) without losing the original
   on commit.
 
+- **Its text size is where it sits**, like `Person`'s: put `text-h2` on your own
+  element around it, and the text and the field both take it (a field inherits
+  the page's font). `className` places it — `-mx-2` to line its text up with
+  a header's inset — and a size passed there is refused by the lint (UIG-9).
+
 ## Keys
 
 | Input | What happens |

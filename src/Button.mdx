@@ -61,6 +61,13 @@ import { IconPlus } from '@tabler/icons-react'
   wrapper — what a caller gets is the `<button>`, and a `Menu.Trigger` or
   a `Dialog.Close` can be it.
 
+- `variant="resolve"` is `primary` in every theme but Signal, where it is
+  outlined at rest and green when pointed at — the Resolve button. `IconButton`
+  has the same look.
+- **Placed from outside, never restyled.** `className` takes space, size,
+  flex and grid, and position; a colour, a text size, a border, a corner or a
+  shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9).
+
 ## Keys
 
 | Key | Does |

@@ -110,3 +110,14 @@ export const AllFills: Story = {
     </div>
   ),
 }
+
+/** `clip`: a strip that runs edge to edge is cut to the card's rounded corners. */
+export const Clip: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Card clip className="flex w-[240px] flex-col">
+      <div className="flex h-6 items-center bg-bg-inset px-2 text-caption text-text-primary">Huddle</div>
+      <div className="p-3 text-body-2 text-text-primary">What the card is about.</div>
+    </Card>
+  ),
+}

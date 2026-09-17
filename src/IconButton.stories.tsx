@@ -8,7 +8,7 @@ const meta = {
   // An icon-only button owes its name; axe's button-name rule fails without it.
   args: { variant: 'muted', disabled: false, 'aria-label': 'Settings', children: <IconSettings className="size-4" stroke={1.5} /> },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['muted', 'outlined', 'primary'] },
+    variant: { control: 'inline-radio', options: ['muted', 'outlined', 'primary', 'current', 'resolve'] },
     tooltipPlacement: { control: 'inline-radio', options: ['top', 'bottom'] },
     children: { control: false },
   },
@@ -63,3 +63,12 @@ export const InATallRow: Story = {
     </div>
   ),
 }
+
+/** `resolve`: muted, and green when pointed at in Signal — Resolve. (`current` takes the colour it sits in: see Banner's ✕.) */
+export const Resolve: Story = { args: { variant: 'resolve', 'aria-label': 'Resolve', tooltip: 'Resolve' } }
+
+/** `pressed`: on — the active fill and `aria-pressed`, like Bold while the selection is bold. */
+export const Pressed: Story = { args: { pressed: true, 'aria-label': 'Bold' } }
+
+/** `glow`: Signal's glow, on the send arrow while there is something to send. */
+export const Glow: Story = { args: { variant: 'primary', glow: true, 'aria-label': 'Send' } }

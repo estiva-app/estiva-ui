@@ -91,10 +91,15 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
         const crumb = item.href ? (
           // `plain` adds no look of its own: a crumb keeps the trail's size and
           // tone, and brightens on hover. The package's own Link, so a trail
-          // follows whatever a link learns to do (UIG-5).
-          <Link ref={setLabelRef} variant="plain" href={item.href} onClick={item.onClick} className={cn(text, 'hover:text-text-primary')}>
-            {item.label}
-          </Link>
+          // follows whatever a link learns to do (UIG-5). The size and tone are
+          // on a box around it, which the link takes them from, rather than
+          // pushed into it (UIG-9); the link is still the one element that
+          // truncates and is measured.
+          <span className={cn('flex min-w-0', item.mono && 'shrink-0 font-mono text-caption', tone, 'hover:text-text-primary')}>
+            <Link ref={setLabelRef} variant="plain" truncate href={item.href} onClick={item.onClick}>
+              {item.label}
+            </Link>
+          </span>
         ) : (
           <span ref={setLabelRef} className={text} aria-current={last ? 'page' : undefined}>
             {item.label}

@@ -28,7 +28,7 @@ export const APanel: Story = {
         <Chip type="success" label="Done" />
       </Property>
       <Property label="Lead">
-        <Person name="Ana Duarte" size={16} className="text-caption text-text-primary" />
+        <div className="flex text-caption text-text-primary"><Person name="Ana Duarte" size={16} /></div>
       </Property>
       <Property label="Updated">
         <span className="text-caption text-text-secondary">2d ago</span>
@@ -42,7 +42,7 @@ export const Stacked: Story = {
   args: {
     label: 'Assignee',
     layout: 'stacked',
-    children: <Person name="Ravi Mehta" size={20} className="text-body-2 text-text-primary" />,
+    children: <div className="flex text-body-2 text-text-primary"><Person name="Ravi Mehta" size={20} /></div>,
   },
 }
 
