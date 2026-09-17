@@ -2547,7 +2547,7 @@ Planning UIG-10 found a mistake that ran through phase 1. This section records i
 | the status engine (`gates-status.mjs`) | 392 | 392 | 392 — identical, copied by hand (§20, decision 8) |
 | the check list (`gates-checks.mjs`) | 176 | 167 | 250 |
 | which folders the rules check (`eslint.gates.js`, `eslint.gates.config.js`) | 76 | 77 | its own |
-| the token lint settings (UIG-28) | the same block, byte for byte, in all three repos | | |
+| the token lint settings (UIG-28) | the same block as Ship, byte for byte | the same block as Peek, byte for byte | the same patterns, seven messages worded for the package, and `d` for `[0-9]` twice |
 
 Each copy was a reasonable step on its own day (UIG-3 proved the chain in one app; UIG-2 chose one engine file per repo; UIG-28 pasted the package's block). Nobody consolidated them while there were two apps. A third app turns them into a copying problem.
 
@@ -2586,4 +2586,6 @@ Found by reading every UIG ticket in full, the project description, and every do
 
 Every ticket edit was made from the ticket's own stored text by exact replacement, each required to match once, and read back byte for byte.
 
-**Still copied, for UIG-32 or UIG-21:** the same gate paragraph is pasted into `CLAUDE.md` in estiva-ui, Peek and Ship. **For Plan C:** when the ratchet, visual regression and the route probe are built, their shared code follows R1 too.
+**Still copied, for UIG-32 or UIG-21:** each repo's `CLAUDE.md` carries its own version of the same gate paragraph.
+
+**Corrected the same evening, by measuring the whole block:** this section first said the token lint settings were "the same block, byte for byte, in all three repos". They are byte for byte the same in Peek and Ship; estiva-ui's has the same patterns with seven messages worded for the package (the first check compared only up to the first closing brace). The Ship tickets, the memory and the plan page were corrected with it. **For Plan C:** when the ratchet, visual regression and the route probe are built, their shared code follows R1 too.
