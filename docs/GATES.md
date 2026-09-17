@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**17 September 2026, night. UIG-32 is done: Peek and Ship run on the package's gate pieces, and no gate text sits in two repos any more.** Each app deleted its editor hook, its count writer, its copy of the status engine, its "where the rules apply" file and its size-and-colour settings — **967 lines out of Peek, 957 out of Ship**, 135 and 118 in — and imports the package's instead (peek PR #245, ship PR #161, both on 0.21.1). Nothing moved: each app's `gates:status` reads the same, check by check (Peek 62 checks before and 64 after, Ship 58 and 59, the additions being the new "no copy is left" check and, in Peek, the debt list); neither `.gates-count.json` changed by a byte; and both apps' lint reads exactly as before (Peek 92 errors and 102 warnings, Ship 0 and 21). The size-and-colour settings were held to the package's, character for character, before they were deleted. A raw `<button>` is still refused in both by the editor hook and by CI. **Two things it found:** Peek never had a debt list — Ship has carried one since UIG-4, and Peek's own check list never asked for it; and the status engine could only find a checks file in a repo's top folder, while Ship's app and its install are in `web/`, so the engine, and estiva-ui's reading of a sibling, learned the `--app` the hook already knew (estiva-ui PR #58, released as 0.21.1). `gates:status` reads 13 of 13, and 14 tickets are done. Next: UIG-11. See **UIG-32: building it**, below.
+
 **17 September 2026, evening. UIG-10 is done: `create-estiva-app` makes a new Estiva app from the package alone, with every gate on from its first commit.** Every gate piece now ships in `@estiva-app/ui/gates`: the token lint, the gate config, the count, the editor hook, the status engine, and the checks every app runs. estiva-ui runs on them itself, and its own copies are deleted. A made app has the sidebar frame, one theme, sign-in with Estiva ID, Storybook, tests, and the CI job `gate`. It was proved on a private throwaway repo. It was made in a clean container from the package alone, with no Peek or Ship. It was green on its first commit, and it signed in against the local Estiva ID. A raw button was refused by the editor hook, by CI, and by GitHub, admins included. The checks every app runs were held to Peek's and Ship's by a comparison test, not by eye: 81 the same, 20 inside a check that does more, 19 about an app's own code, 0 with nowhere to go. Released as 0.21.0 (estiva-ui PR #53, #54 and #55). Peek and Ship do not change until UIG-32. **UIG-6 cannot be checked on an app that has no GitHub repo yet**, and real sign-in for Leaf needs Jan (see UIG-10: building it, below). Next: UIG-11 and UIG-32.
 
 **17 September 2026, later. Before UIG-10 is built, Katerina ruled: one copy, in the package (§23).** The rules were always package code, but the files that switch them on — the editor hook, the problem count, the status script and its checks, which folders are checked, the size-and-colour settings — were copied into each repo from UIG-3 on. **Every gate piece now ships in `@estiva-app/ui`, and the same gate text pasted into two repos is a defect.** The starter reads only the package, never Peek or Ship, which are private; they are only the yardstick in a comparison test. A new app uses the sidebar frame and one theme. UIG-10 was rewritten to match, and UIG-32 is new: Peek and Ship take the pieces from the package. Next: UIG-10.
@@ -57,7 +59,7 @@ answer
 | ✅ **UIG-8** | Package: estiva-ui PR #49 (0.19.0 — the rule `no-rebuilt-behaviour` and `OWNED_BEHAVIOURS`, `Checkbox` `row`, `ScrollArea`'s bar above sticky rows). Peek: peek PR #236. Ship: ship PR #159. Peek 15 = 2 fixed + 13 escaped; Ship 4 = 3 fixed + 1 escaped; both gates read `.ts`. `gates:status` reads 23 of 23. See **UIG-8: building it**, below. |
 | ✅ **UIG-9** | Package: estiva-ui PR #51 (0.20.0 — the rule `no-restyled-part` for the apps and inward, `PART_LOOK_PROPS` and `PLACEMENT`; `IconButton` `current`, `resolve`, `pressed`, `glow`; `Button` `resolve`; `Card` `clip`; `SectionLabel` `tone`; `Link` `truncate`; the package's own 34 places). Peek: peek PR #237. Ship: ship PR #160. Peek 23 = 16 fixed + 5 new props + 2 escaped; Ship 13 = 7 fixed + 4 picked + 2 escaped; estiva-ui 34 = 23 + 5 + 6. `gates:status` reads 21 of 21. See **UIG-9: building it**, below. |
 | ✅ **UIG-10** | estiva-ui PR #53 (§23, the ruling), PR #54 (0.21.0: `@estiva-app/ui/gates`, the commands `estiva-gates` and `create-estiva-app`, `gates:compare`) and PR #55 (`npm test` builds first, so the release could run). estiva-ui on its own pieces, its copies deleted. A made app is green on its first commit, signs in, and is refused a raw button by the hook, CI and GitHub. `gates:compare`: 81 + 20 + 19, 0 unplaced. `gates:status` reads 4 of 4. See **UIG-10: building it**, below. |
-| 🚧 **UIG-32** | New, 17 September (§23): Peek and Ship take their gate pieces from the package. The pieces are out (0.21.0). Its checks now read Peek and Ship: each app's gate config imports `@estiva-app/ui/gates`, and no copy is left. 1 of 5 until both apps move. |
+| ✅ **UIG-32** | estiva-ui PR #58 (0.21.1: `estiva-gates status --app`, a sibling read from its app's folder, and the shared check widened), peek PR #245 (967 lines out, 135 in) and ship PR #161 (957 out, 118 in). Every gate piece in both apps is one import now; Ship's checks file moved to `web/scripts/`, where the package resolves. Peek gained the debt list it never had. `gates:status` reads 13 of 13. See **UIG-32: building it**, below. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 | ⬜ **UIG-31** | New, 16 September: one shared part for the / @ !@ [ menus, which UIG-8 kept with reasons. "Much later" (Katerina): not before a second app needs an @ or / menu. Listed in estiva-ui's and Peek's `gates-checks.mjs`. |
 
@@ -181,9 +183,50 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-8: estiva-ui PR #49 (0.19.0); peek PR #236 and ship PR #159 (**UIG-8: building it**, below) |
 | ✅ done | UIG-9: estiva-ui PR #51 (0.20.0); peek PR #237 and ship PR #160 (**UIG-9: building it**, below). Phase 1 is done |
 | ✅ done | UIG-10: estiva-ui PR #53, #54 and #55 (0.21.0) (**UIG-10: building it**, below) |
-| **now** | phase 2: **UIG-11** (Leaf, made with `create-estiva-app`) and **UIG-32** (Peek and Ship onto the package's pieces), in either order. UIG-25 (a copied part, a warning) is the gap UIG-9 names, but it reads the merged registry, so it waits for UIG-13 and **cannot be taken early** (corrected 17 September). UIG-30 any time. UIG-31 much later |
+| ✅ done | UIG-32: estiva-ui PR #58 (0.21.1); peek PR #245 and ship PR #161 (**UIG-32: building it**, below) |
+| **now** | phase 2: **UIG-11** (Leaf, made with `create-estiva-app`). UIG-25 (a copied part, a warning) is the gap UIG-9 names, but it reads the merged registry, so it waits for UIG-13 and **cannot be taken early** (corrected 17 September). UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-32: building it
+
+**Where.** estiva-ui branch `gates/32-app-folder` → PR #58, merged (`bd0a582`), released **0.21.1**; peek branch `gates/32-take-the-pieces` → PR #245; ship branch `gates/32-take-the-pieces` → PR #161. Built in worktrees `estiva-ui-uig32`, `peek-uig32` and `ship-uig32`, from the three mains `f1ef3ed`, `bf49e91` and `e371a0d`. Both apps were proved against a packed 0.21.1 before it was published, then moved onto the published one with a lockfile patched by hand — never regenerated on Windows, which drops the Linux-only entries CI needs.
+
+**What each app replaced**
+
+| piece | Peek | Ship | now |
+|---|---|---|---|
+| the editor hook | `.claude/hooks/gates.mjs`, 70 lines | 79 lines | `.claude/settings.json` runs the package's `dist/gates/cli.js hook` (Ship adds `--app web`) |
+| the count writer | `scripts/gates-count.mjs`, 48 | 48 | `postlint:rules` runs `estiva-gates count --repo <name>` |
+| the status engine | `scripts/gates-status.mjs`, 392 | 392 | `gates:status` runs `estiva-gates status` (Ship by path, `--app web`) |
+| where the rules apply | `eslint.gates.js`, 41 | 41 | `gateConfig()`, with Peek's two extra folders passed in |
+| the size-and-colour settings | `eslint.tokens.js`, 215 | 145 lines inside `web/eslint.config.js` | `tokenLint()` and `tokenValues()` |
+| the check list | `scripts/gates-checks.mjs`, 176 | 167, moved to `web/scripts/` | `appChecks(h, …)` plus the app's own: Peek 12 checks, Ship 7 |
+
+Which checks are an app's own was decided by `npm run gates:compare`, not by eye: a check stays in the app only if it reads a file only that app has.
+
+**Nothing moved.** Each app's `gates:status` was photographed before the switch and compared check by check after it.
+
+| | before | after | the difference |
+|---|---|---|---|
+| Peek | 62 checks | 64 | the new "no copy is left" check and "the debt list exists", both passing; and UIG-22's wording — "naming `ContainerHeader`" became "naming the header part", the same probe, still waiting on UIG-22 |
+| Ship | 58 | 59 | the new "no copy is left" check, passing; and the same UIG-22 wording |
+
+`.gates-count.json` did not change by a byte in either app. Peek's `npm run lint` read 92 errors and 102 warnings before and after, its token lint 0 errors, its gate lint clean; Ship's read 0 and 21, its gate lint clean. The editor hook refused a raw `<button>` in both, with the same message, and let the package's `Button` through.
+
+**And CI still refuses one.** A scratch commit with a raw `<button>` was pushed to each pull request and dropped again: peek's job `gate` failed ("Use `Button` from @estiva-app/ui instead of a raw `<button>`", `estiva/no-raw-element`, run 35273767296), ship's the same, and its `web` job with it (run 35273725215). Both pull requests were green before the scratch commit and after it was dropped.
+
+**The settings were measured, not assumed.** Before either copy was deleted, each app's token block was loaded beside the package's and compared as text: Peek's `tokenLint` and `tokenValues` were the package's character for character (10,942 and 7,131 characters), and Ship's, which sits inside its one lint config, matched piece by piece — the plugin's settings, each rule's setting, and where they apply. §23's table was right.
+
+**What building it found**
+
+| | finding | what happened |
+|---|---|---|
+| ✅ | **Peek never had a debt list.** Ship has carried `docs/GATES-DEBT.md` since UIG-4; Peek's own check list never asked for it, so nobody noticed. The checks every app runs do. | Peek has one, and owes nothing: 0 errors from all three rules and from the token contract, no file excused, and its 16 escapes listed with what found them. Peek's `docs/` is not tracked at all (internal product docs), so that one file is excepted in `.gitignore` — a promise nobody else can read is not one. |
+| ⛔ | **The status engine could only find a checks file in a repo's top folder**, and estiva-ui could only resolve a sibling's install there. Ship's app, its install and therefore its checks file are in `web/`. Ship could not have moved at all. | The engine, and estiva-ui's reading of a sibling, learned `--app`, the option the hook already had (0.21.1, PR #58, with a test). Ship's checks file is `web/scripts/gates-checks.mjs`; everything it names is still read from the repo's top folder. |
+| ✅ | **Ship runs `gates:status` by path**, not by name: `estiva-gates` is a command in `web/node_modules/.bin`, while the script is in the top folder's `package.json`. Installing the package at the top folder instead would put React, Tailwind and the whole lint stack in a folder that has no app. | The shared UIG-32 check accepts either: `estiva-gates status`, or the package's `cli.js status` run by path. The hook was already written that way. |
+| ✅ | **Peek's gate ignored two folders Ship's did not** — `demo-scenarios` and `convex/_generated`, written into its `eslint.tokens.js`. | `gateConfig({ ignores })` existed for exactly this; Peek passes them in. The gate reads the same files as before, proved by the identical counts. |
+| 🧰 | Traps: a checks file must sit where `@estiva-app/ui` resolves, which is what decides where it lives in a repo whose app is in a folder of its own; and a consumer lockfile is patched by hand — 0.21.0 gave the package two commands and three more peers, so the entry needs its `bin` and `peerDependencies` as well as the version, the tarball and the integrity, or `npm ci` links no command. | — |
 
 ### UIG-10: building it
 
@@ -855,7 +898,7 @@ The package writes **14** raw elements, as UIG-1 counted: 2 buried (the two abov
 
 **The arithmetic: 0 = 0 replaced + 0 escaped.** `web/.gates-count.json`: `estiva/no-raw-button` 0 errors, 0 warnings, 0 escapes.
 
-**What Ship's copy changes from Peek's.** (A copy, ruled a defect on 17 September, §23; UIG-32 replaces it with the package's pieces.) The same five files, and only this: the lint's files live in `web/` and the hook in the top folder, so the hook checks `web/src/**/*.tsx` and loads ESLint and the package from `web/` (the top folder installs neither); the ignored folders are written in `eslint.gates.js`, since Ship has no `eslint.tokens.js` to import them from; CI's "Gate lint" is a step in the `web` job, after its lint.
+**What Ship's copy changes from Peek's.** (A copy, ruled a defect on 17 September, §23; **UIG-32 replaced all of it with the package's pieces** the same night — this stays as the record of what was copied.) The same five files, and only this: the lint's files live in `web/` and the hook in the top folder, so the hook checks `web/src/**/*.tsx` and loads ESLint and the package from `web/` (the top folder installs neither); the ignored folders are written in `eslint.gates.js`, since Ship has no `eslint.tokens.js` to import them from; CI's "Gate lint" is a step in the `web` job, after its lint.
 
 **Escapes, after.** Unchanged: the token lint's older form 37 (Ship 2); the plugin's 1, in Peek; none in Ship.
 
@@ -1131,7 +1174,7 @@ The ticket's acceptance, with today's numbers:
 
 | ticket | what it gets |
 |---|---|
-| every ticket | **One copy, in the package (§23).** A gate piece — a rule, its settings, the hook, the count, the status engine, a check every app runs — goes into `@estiva-app/ui`, and the apps import it. Never paste it into each repo, and never add to the copies Peek and Ship still carry until UIG-32. "In all three repos" means "in the package, imported by all three". Only a check about an app's own code stays in that app's list. |
+| every ticket | **One copy, in the package (§23).** A gate piece — a rule, its settings, the hook, the count, the status engine, a check every app runs — goes into `@estiva-app/ui`, and the apps import it. Never paste it into a repo: since UIG-32 there is no copy left to add to. "In all three repos" means "in the package, imported by all three". Only a check about an app's own code stays in that app's list. |
 | every rule ticket | The apps' rules are `configs.recommended`/`strict`: three, `no-raw-element` (UIG-7), `no-rebuilt-behaviour` (UIG-8), `no-restyled-part` (UIG-9), which is also in `configs.package`. A new rule goes beside them; `src/eslint/index.test.ts` says which set is which, and each of UIG-7's, UIG-8's and UIG-9's `gates:status` checks reads that the apps get *its* rules, not *only* them. A rule added to `lint:rules` is required on `main` the day it lands, so it lands at zero errors, fixed or escaped (UIG-6). The apps' gates lint `.ts` and `.tsx`. |
 | UIG-12 | `PART_LOOK_PROPS` (each part's look props, held to the source) and `PLACEMENT` (what may pass into a part), exported from `@estiva-app/ui/eslint` beside `OWNED_BEHAVIOURS`. UIG-9's rule already resolves an app's re-exports, wrappers and className-handing components to the part they draw: the registry can reuse that reading. |
 | UIG-25 | **The gap UIG-9 names**: a look-alike built from plain boxes passes nothing into a part, so no rule sees it. Peek's `MemberAvatars` (`HuddleCard.tsx`) is one, the face stack `AvatarGroup` replaced. Ruling C2 made UIG-25 a warning; Katerina may rule again once it is counted. |
@@ -1144,8 +1187,8 @@ The ticket's acceptance, with today's numbers:
 | the route probe (later phase) | **A box that should scroll and does not** has no class for a lint to read — Peek's Folders column at `72c999c`. Only opening the page and scrolling it finds that (UIG-8). |
 | UIG-31 | The / @ !@ [ menus' 7 escapes name it; its first-guess check reads that SlashMenu keeps none. |
 | UIG-11 | **`npx -p @estiva-app/ui create-estiva-app leaf --title Leaf`** (0.21.0), then `npm install` on Linux or in a container, and `git init -b main`. Still to do by hand, each proved on the UIG-10 throwaway: the GitHub repo; its ruleset, copied from estiva-ui's "gate on main" (`gh api repos/estiva-app/estiva-ui/rulesets/23534324`, then POST it to the new repo); and `leaf` in the ticket list's parts wherever it runs a check. **Sign-in on the real Estiva ID needs Jan to register Leaf** (a `client_id` and its exact redirect URI). Locally it is one `app_credentials` row and `pnpm invite` in estiva-id. |
-| UIG-32 | Everything Peek and Ship replace is in `@estiva-app/ui/gates` (0.21.0). What a made app's thin files look like is `appFiles()` in `src/gates/create-app.ts`. estiva-ui's `gates:status` already reads a sibling through its installed engine once its own copy is gone. `npm run gates:compare` lists the checks that are only Peek's or Ship's (19): those stay in each app's list. |
-| every rule or fingerprint ticket | A probe every app runs goes into `appChecks` (`src/gates/app-checks.ts`), and a made app gets it with a version bump. Until UIG-32, Peek and Ship do not get it that way. Never paste it into their copies. `gates:compare` fails on a check in `appChecks` that neither app runs, so list the ticket in `NOT_IN_THE_APPS_YET` (`scripts/gates-compare.mjs`) until UIG-32 lands. |
+| every ticket, again | **Where a repo's gate files are, after UIG-32.** Peek: `eslint.gates.config.js`, `eslint.tokens.config.js`, `scripts/gates-checks.mjs`, `.claude/settings.json`, `docs/GATES-DEBT.md`. Ship: the same, but in `web/` — including `web/scripts/gates-checks.mjs`, because it imports the package and Ship's install is there — while `.claude/settings.json`, `gates:status` and the workflows stay in the top folder, and both the hook and `gates:status` name `--app web`. A made app: `appFiles()` in `src/gates/create-app.ts`. Nothing else is a gate file; if you find one, it is a copy. |
+| every rule or fingerprint ticket | A probe every app runs goes into `appChecks` (`src/gates/app-checks.ts`), and every app — Peek, Ship and a made one — gets it with a version bump (UIG-32). Never paste it into a repo. `gates:compare` fails on a check in `appChecks` that neither app runs, so a check the apps cannot run yet is listed in `NOT_IN_THE_APPS_YET` (`scripts/gates-compare.mjs`) until they take the release that carries it. |
 | UIG-10, UIG-11, UIG-26 | "Same row set" now reads "same gate checks" (§15), proved by `npm run gates:compare`. The starter reads only the package, never Peek or Ship; they are the yardstick of that comparison (§23). |
 | UIG-21 | Its line counts are measured with imports: Peek **273**, Ship **298**, estiva-ui **192** (§22). |
 | every ticket | Update your own checks and your row in §15 in the same session. A check every app runs belongs in the package's shared list (§23, from UIG-10); only a check about a repo's own code goes in that repo's `scripts/gates-checks.mjs`. |
@@ -2195,7 +2238,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-29 | CommandLauncher | peek | | the file passes the gate lint with no escape naming UIG-29, and imports `CommandPalette` from the package (it read `DialogShell` until UIG-29 found DialogShell did not fit, 16 September) |
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
 | UIG-31 | Editor menus | estiva-ui | peek | the package exports the editor-menu part; Peek's SlashMenu keeps no escape naming UIG-31 (a first guess, 16 September) |
-| UIG-32 | Peek and Ship take their gate pieces from the package | estiva-ui | peek, ship | the package exports `./gates`; read from estiva-ui until UIG-32 gives each app its own row: Peek's `eslint.gates.config.js` and Ship's `web/eslint.gates.config.js` import `@estiva-app/ui/gates`, and neither keeps `scripts/gates-status.mjs`, a `gates-count.mjs` or `eslint.gates.js`. In every made app, `appChecks` checks the same of the app (set by UIG-10, 17 September; UIG-32 confirms) |
+| UIG-32 | Peek and Ship take their gate pieces from the package | estiva-ui | peek, ship | the package exports `./gates`; and, read from estiva-ui in each app: its gate config and its full lint config import `@estiva-app/ui/gates`, its committed hook runs the package's `cli.js`, its `gates:status` runs the package's engine, and it keeps no copy of the hook, the status engine, the count, `eslint.gates.js` or `eslint.tokens.js` (11 checks). In each app, `appChecks` checks the same of itself (1 each) — 13 in all |
 
 The five sections are *What it is*, *When*, *When not*, *How* and *What it owns*,
 from UIG-14.
@@ -2289,14 +2332,17 @@ does not include `scripts/`.
 runs, move into the package in UIG-10; each repo keeps a one-line script and a
 list of the checks about its own code. UIG-32 moves Peek and Ship onto them.
 
-**Since UIG-10 (0.21.0)** the table above is Peek's and Ship's until UIG-32. In
-estiva-ui and in a made app, `npm run gates:status` runs `estiva-gates status`,
-the engine in `@estiva-app/ui/gates` (`src/gates/status.ts`); only
-`scripts/gates-checks.mjs` stays in the repo. A made app's list is
-`appChecks(h, { page })` plus its own. estiva-ui reads a sibling through that
-sibling's own `scripts/gates-status.mjs` while it has one, and otherwise
-through the engine the sibling has installed; the line under each sibling says
-which, and names a sibling still on its own copy.
+**Since UIG-32 (0.21.1) every repo runs the one engine.** `npm run gates:status`
+runs `estiva-gates status`, the engine in `@estiva-app/ui/gates`
+(`src/gates/status.ts`); only `gates-checks.mjs` stays in the repo, and it is
+`appChecks(h, …)` plus the checks about that repo's own code — Peek 12, Ship 7,
+a made app none yet. The checks file sits **beside the app**, because it imports
+the package: `scripts/` in Peek and in a made app, `web/scripts/` in Ship, whose
+install is in `web/`; everything it names is still read from the repo's top
+folder, and Ship's hook and `gates:status` say `--app web`. estiva-ui reads a
+sibling through the engine that sibling has installed, and would read one still
+carrying `scripts/gates-status.mjs` through that copy — none does now. The line
+under each sibling says which.
 
 Flags: `-- --detail` prints every check under every row. `-- --json` prints
 machine output; estiva-ui's run reads the other repos that way. `GATES_PEEK`,
@@ -2695,7 +2741,7 @@ Each copy was a reasonable step on its own day (UIG-3 proved the chain in one ap
 | R2 | **The starter reads only the package.** It never reads Peek or Ship. They are only the yardstick in a comparison test that proves a made app has the same gate checks. |
 | R3 | A new app uses the **sidebar frame** (`AppShell` solid + `Sidebar` + `NavItem`), not the rail. |
 | R4 | A new app has **one theme**, chosen from the package's themes when it is made, set on `<html>`, with no switcher. |
-| R5 | UIG-10 moves the pieces into the package. **UIG-32** (new) moves Peek and Ship onto them. |
+| R5 | UIG-10 moves the pieces into the package. **UIG-32** (new) moves Peek and Ship onto them. ✅ Both done, 17 September: 0.21.0 and 0.21.1, peek PR #245 and ship PR #161. |
 
 ### What changes for every later ticket
 
@@ -2722,6 +2768,6 @@ Found by reading every UIG ticket in full, the project description, and every do
 
 Every ticket edit was made from the ticket's own stored text by exact replacement, each required to match once, and read back byte for byte.
 
-**Still copied, for UIG-32 or UIG-21:** each repo's `CLAUDE.md` carries its own version of the same gate paragraph.
+**Still copied, for UIG-21:** each repo's `CLAUDE.md` carries its own version of the same gate paragraph. UIG-32 left it there on purpose — it is a paragraph a person reads, not a file a gate runs — and only corrected the line in each that named a hook file which no longer exists. Everything else this table lists is one copy now, in the package.
 
 **Corrected the same evening, by measuring the whole block:** this section first said the token lint settings were "the same block, byte for byte, in all three repos". They are byte for byte the same in Peek and Ship; estiva-ui's has the same patterns with seven messages worded for the package (the first check compared only up to the first closing brace). The Ship tickets, the memory and the plan page were corrected with it. **For Plan C:** when the ratchet, visual regression and the route probe are built, their shared code follows R1 too.
