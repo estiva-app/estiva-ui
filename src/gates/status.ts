@@ -5,6 +5,7 @@
  *   estiva-gates status              one row per ticket
  *   estiva-gates status --detail     every check under every row
  *   estiva-gates status --json       machine output, read by estiva-ui's run
+ *   estiva-gates status --app web    the app sits in `web/`, as Ship's does
  *
  * Every row is decided by checks on real files, a real lint run or a real
  * GitHub setting. Nothing here reads a list that someone ticks by hand.
@@ -16,8 +17,10 @@
  * copy is named as one when estiva-ui runs it; UIG-32 moves Peek and Ship off
  * theirs.
  *
- * What differs per repo is `scripts/gates-checks.mjs`, in the repo: its checks,
- * or the checks every app runs (`appChecks`) plus its own.
+ * What differs per repo is `scripts/gates-checks.mjs`, beside the app: its
+ * checks, or the checks every app runs (`appChecks`) plus its own. It sits with
+ * the app because it imports the package — `web/scripts/` in Ship, whose app,
+ * and whose install, are in `web/` (UIG-32).
  *
  * The rows and the reasons for each check are in estiva-ui docs/GATES.md §15
  * and §17.
@@ -93,7 +96,8 @@ export interface GateSpec {
   tickets: GateTicket[]
   /** estiva-ui only: every ticket, and the repos it joins in. */
   all?: TicketListEntry[]
-  siblings?: { name: string; path: string; env: string }[]
+  /** estiva-ui only: the repos beside it. `app` is the folder its app sits in: `web` in Ship. */
+  siblings?: { name: string; path: string; env: string; app?: string }[]
 }
 
 interface Row {
@@ -356,8 +360,11 @@ function statusOf(checks: CheckResult[]) {
   return fail > 0 ? 'none' : 'unknown'
 }
 
-async function runRepo(ROOT: string, h: GateHelpers): Promise<{ spec: GateSpec; report: Report }> {
-  const checksFile = join(ROOT, 'scripts', 'gates-checks.mjs')
+async function runRepo(ROOT: string, app: string, h: GateHelpers): Promise<{ spec: GateSpec; report: Report }> {
+  // The checks file sits with the app, because it imports `appChecks` from the
+  // package: in Ship that install is `web/node_modules`, not the repo's top
+  // folder (UIG-32). Everything it names is still read from the repo's top.
+  const checksFile = join(ROOT, app, 'scripts', 'gates-checks.mjs')
   const define = ((await import(pathToFileURL(checksFile).href)) as { default: (h: GateHelpers) => GateSpec }).default
   const spec = define(h)
   const git = (...a: string[]) => {
@@ -388,18 +395,22 @@ async function runRepo(ROOT: string, h: GateHelpers): Promise<{ spec: GateSpec; 
 /**
  * Another repository's report. A repo on the package's engine runs it from its
  * own install; a repo still carrying `scripts/gates-status.mjs` runs that copy.
+ *
+ * `app` is the folder that repo's app sits in — `web` in Ship — where its
+ * install and its checks file are. The report is still of the whole repo.
  */
-function runSibling(dir: string, shown: string): { report?: Report; error?: string } {
+function runSibling(dir: string, app: string, shown: string): { report?: Report; error?: string } {
   const copy = join(dir, 'scripts', 'gates-status.mjs')
-  const installed = createRequire(join(dir, 'package.json'))
+  const installed = createRequire(join(dir, app, 'package.json'))
   let script = copy
   const args = ['--json']
   if (!existsSync(copy)) {
     try {
       script = join(installed.resolve('@estiva-app/ui/package.json'), '..', 'dist', 'gates', 'cli.js')
       args.unshift('status')
+      if (app !== '.') args.push('--app', app)
     } catch {
-      return { error: `${shown} has neither its own gates-status.mjs nor @estiva-app/ui installed` }
+      return { error: `${shown} has neither its own gates-status.mjs nor @estiva-app/ui installed${app === '.' ? '' : ` in ${app}`}` }
     }
     if (!existsSync(script)) return { error: `${shown} has an @estiva-app/ui with no gates engine: install 0.21.0 or later` }
   }
@@ -442,16 +453,18 @@ function summary(rows: Row[]) {
 export interface StatusOptions {
   /** The repository to report on. */
   root?: string
+  /** The folder that holds the app, relative to `root`: `web` in Ship, `.` elsewhere. */
+  app?: string
   json?: boolean
   detail?: boolean
 }
 
 /** Print where the project stands. Returns what was printed, or the JSON report. */
-export async function runStatus({ root = process.cwd(), json = false, detail = false }: StatusOptions = {}): Promise<string> {
+export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false }: StatusOptions = {}): Promise<string> {
   const ROOT = resolve(root)
   const h = helpers(ROOT)
   const shown = (dir: string) => (relative(ROOT, dir) || dir).replace(/\\/g, '/')
-  const { spec, report } = await runRepo(ROOT, h)
+  const { spec, report } = await runRepo(ROOT, app, h)
 
   if (json) return JSON.stringify(report)
 
@@ -478,7 +491,7 @@ export async function runStatus({ root = process.cwd(), json = false, detail = f
       found.push({ name: s.name, note: `not found at ${shown(dir)} (set ${s.env} to point at it)`, missing: true })
       continue
     }
-    const r = runSibling(dir, shown(dir))
+    const r = runSibling(dir, s.app ?? '.', shown(dir))
     if (!r.report) {
       found.push({ name: s.name, note: r.error ?? 'no report', missing: true })
       continue
