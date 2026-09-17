@@ -109,11 +109,16 @@ function gitHas(repo, path) {
   }
 }
 
-async function loadRepo(name, env, fallback) {
+async function loadRepo(name, env, fallback, app = '') {
   const repo = resolve(ROOT, process.env[env] ?? fallback)
   const dir = mkdtempSync(join(tmpdir(), `gates-compare-${name}-`))
   const file = join(dir, 'gates-checks.mjs')
-  writeFileSync(file, gitRead(repo, 'scripts/gates-checks.mjs'))
+  // Since UIG-32 an app's checks file imports `appChecks` from the package, and it is read
+  // here from git into a folder where nothing resolves. The import is pointed at this
+  // repository's own build, which is the list being compared anyway.
+  const built = pathToFileURL(join(ROOT, 'dist', 'gates', 'index.js')).href
+  const text = gitRead(repo, `${app}scripts/gates-checks.mjs`).replace(/(['"])@estiva-app\/ui\/gates\1/g, JSON.stringify(built))
+  writeFileSync(file, text)
   const define = (await import(pathToFileURL(file).href)).default
   rmSync(dir, { recursive: true, force: true })
   const commit = execFileSync('git', ['-C', repo, 'rev-parse', '--short', ref]).toString().trim()
@@ -142,7 +147,8 @@ function ownPaths(check) {
 }
 
 const peek = await loadRepo('peek', 'GATES_PEEK', '../peek')
-const ship = await loadRepo('ship', 'GATES_SHIP', '../ship')
+// Ship's checks file sits with its app, because it imports the package (UIG-32).
+const ship = await loadRepo('ship', 'GATES_SHIP', '../ship', 'web/')
 const sources = [
   { ...peek, strip: '', has: (p) => gitHas(peek.repo, p) },
   { ...ship, strip: 'web/', has: (p) => gitHas(ship.repo, p) || gitHas(ship.repo, `web/${p}`) },
@@ -170,9 +176,10 @@ for (const source of sources) {
     else groups.unplaced.push({ ...row, calls: check.sig.join(' ; ').slice(0, 300) })
   }
 }
-// A check for a ticket whose work is to bring Peek and Ship onto the package (UIG-32) is in the
-// package before it is in either app. It is listed, not failed; every other check must come from them.
-const NOT_IN_THE_APPS_YET = new Set(['UIG-32'])
+// A check that is in the package before the apps can run it — because the ticket that makes them
+// run it is the one being built — is listed, not failed; every other check must come from them.
+// Empty since UIG-32: both apps run every check in `appChecks`.
+const NOT_IN_THE_APPS_YET = new Set([])
 const unused = app.filter((_, i) => !used.has(i)).map((a) => ({ ref: a.ref, what: a.what }))
 const extra = unused.filter((a) => !NOT_IN_THE_APPS_YET.has(a.ref))
 const waiting = unused.filter((a) => NOT_IN_THE_APPS_YET.has(a.ref))
