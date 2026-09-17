@@ -83,4 +83,28 @@ await build({
   logLevel: 'warning',
 })
 
-console.log('built dist/index.js, dist/eslint/index.js, dist/gates/')
+/**
+ * The catalogue and the command on it, `@estiva-app/ui/registry` (UIG-12).
+ *
+ * The builder reads TypeScript with TypeScript's own parser — a file is not a
+ * component here, so nothing else is accurate — and `typescript` stays external
+ * like every other tool the gate pieces name: it is the app's own install. The
+ * data it produces, `registry.json`, is committed at the package's root and
+ * shipped, so `estiva-ui find` answers inside an app that never checks this out.
+ */
+await build({
+  entryPoints: { index: 'src/registry/index.ts', cli: 'src/registry/cli.ts' },
+  outdir: 'dist/registry',
+  bundle: true,
+  splitting: true,
+  format: 'esm',
+  platform: 'node',
+  target: 'node20',
+  sourcemap: true,
+  packages: 'external',
+  plugins: [thePluginOnce],
+  banner: { js: '#!/usr/bin/env node' },
+  logLevel: 'warning',
+})
+
+console.log('built dist/index.js, dist/eslint/index.js, dist/gates/, dist/registry/')

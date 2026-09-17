@@ -1,0 +1,1958 @@
+{
+  "schemaVersion": 1,
+  "builtFrom": {
+    "repo": "estiva-ui",
+    "package": "@estiva-app/ui",
+    "packageVersion": "0.21.1",
+    "exports": 81,
+    "typeExports": 91
+  },
+  "storybook": {
+    "docsPath": "/?path=/docs/{docsId}",
+    "storyPath": "/?path=/story/{storyId}",
+    "devUrl": "http://localhost:6008"
+  },
+  "entries": [
+    {
+      "name": "AppShell",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AppShell.tsx",
+      "purpose": "The frame of an app, in the two manners that pair: `solid` — the structured frame, a solid TopBar over a Sidebar and the content beside it — and `floating` — the TopBar floating over the top edge, a Rail standing on the background, and the content living in the rounded card.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "solid",
+            "floating"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-appshell--docs",
+      "storyId": "frame-appshell--solid",
+      "docPage": "src/AppShell.mdx"
+    },
+    {
+      "name": "AttachmentCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AttachmentCard.tsx",
+      "purpose": "Something attached — a document or an image — drawn as a card: posted, or waiting to be sent.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "state",
+          "values": [
+            "ready",
+            "loading",
+            "unreadable",
+            "uploading",
+            "failed",
+            "warning"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-attachmentcard--docs",
+      "storyId": "components-attachmentcard--document",
+      "docPage": "src/AttachmentCard.mdx"
+    },
+    {
+      "name": "Avatar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Avatar.tsx",
+      "purpose": "A person's face: their picture, or their initials on a colour that is theirs, or — when there is no name to take initials from — a silhouette.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-avatar--docs",
+      "storyId": "primitives-avatar--initials",
+      "docPage": "src/Avatar.mdx"
+    },
+    {
+      "name": "AvatarGroup",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AvatarGroup.tsx",
+      "purpose": "Up to three overlapping 24px faces with a surface-coloured ring — the member stack for anywhere a group is shown at a glance.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-avatargroup--docs",
+      "storyId": "primitives-avatargroup--three-members",
+      "docPage": "src/AvatarGroup.mdx"
+    },
+    {
+      "name": "Banner",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Banner.tsx",
+      "purpose": "The strip under the header where the app says something happened: one line, one of four tones, gone when there is nothing to say.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "ok",
+            "error",
+            "info",
+            "warning"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-banner--docs",
+      "storyId": "feedback-banner--ok",
+      "docPage": "src/Banner.mdx"
+    },
+    {
+      "name": "Breadcrumb",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Breadcrumb.tsx",
+      "purpose": "A trail: where you are, and the way back up.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-breadcrumb--docs",
+      "storyId": "navigation-breadcrumb--on-an-item",
+      "docPage": "src/Breadcrumb.mdx"
+    },
+    {
+      "name": "Button",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Button.tsx",
+      "purpose": "The push-button for an action: a verb, clicked once — \"Create\", \"Save\", \"Delete project\".",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "primary",
+            "outlined",
+            "muted",
+            "destructive",
+            "resolve"
+          ]
+        },
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-button--docs",
+      "storyId": "primitives-button--primary",
+      "docPage": "src/Button.mdx"
+    },
+    {
+      "name": "Card",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Card.tsx",
+      "purpose": "A box that stands for one thing — drawn as its frame: 8px corners, a fill and a hairline.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "fill",
+          "values": [
+            "surface",
+            "elevated",
+            "inset",
+            "none"
+          ]
+        },
+        {
+          "prop": "hover",
+          "values": [
+            "none",
+            "hairline",
+            "fill"
+          ]
+        },
+        {
+          "prop": "attention",
+          "values": [
+            "accent",
+            "warning"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-card--docs",
+      "storyId": "primitives-card--surface",
+      "docPage": "src/Card.mdx"
+    },
+    {
+      "name": "Checkbox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Checkbox.tsx",
+      "purpose": "A 16px square that fills with the accent when checked.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-checkbox--docs",
+      "storyId": "inputs-checkbox--unchecked",
+      "docPage": "src/Checkbox.mdx"
+    },
+    {
+      "name": "Chip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Chip.tsx",
+      "purpose": "A 20px pill for a small piece of standing information — a status, a count, a category — in one of six colour types.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "type",
+          "values": [
+            "neutral",
+            "brand",
+            "info",
+            "warning",
+            "success",
+            "error"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-chip--docs",
+      "storyId": "primitives-chip--neutral",
+      "docPage": "src/Chip.mdx"
+    },
+    {
+      "name": "ChipInput",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ChipInput.tsx",
+      "purpose": "A multi-select input: chips for the chosen, a typeahead for the rest.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-chipinput--docs",
+      "storyId": "inputs-chipinput--type-to-search",
+      "docPage": "src/ChipInput.mdx"
+    },
+    {
+      "name": "cn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/cn.ts",
+      "purpose": "Merge class names, last-one-wins on conflicting Tailwind utilities.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null
+    },
+    {
+      "name": "CollapsibleSection",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CollapsibleSection.tsx",
+      "purpose": "A section that opens and closes: a SectionHeader whose title is the toggle, and the rows under it, sliding shut and open.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "showActions",
+          "values": [
+            "hover",
+            "always"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-collapsiblesection--docs",
+      "storyId": "navigation-collapsiblesection--default",
+      "docPage": "src/CollapsibleSection.mdx"
+    },
+    {
+      "name": "CommandPalette",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "A window that searches and runs things: a field, rows in groups, and a footer naming the keys that work right now.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": "src/CommandPalette.mdx"
+    },
+    {
+      "name": "CommandPaletteAnswer",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "A written answer, with marks that point at the rows it came from.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null
+    },
+    {
+      "name": "CommandPaletteForm",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "The palette as a form: fields, one submit button, and Ctrl+Enter — both ways in run Base UI's field check.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null
+    },
+    {
+      "name": "CommandPaletteQuote",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "Text written to be used elsewhere, set off by a rule at its left edge.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null
+    },
+    {
+      "name": "CommandPaletteSearch",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "The palette as a search: a query field, rows in labelled groups walked with the arrow keys, and what to show while nothing has arrived and when nothing matches.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null
+    },
+    {
+      "name": "CommandPaletteWorking",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "A line saying what is being worked on, with grey bars where the result will land.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null
+    },
+    {
+      "name": "ConfirmDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConfirmDialog.tsx",
+      "purpose": "A question with two answers, asked before something a person would want back.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-confirmdialog--docs",
+      "storyId": "overlays-confirmdialog--destructive",
+      "docPage": "src/ConfirmDialog.mdx"
+    },
+    {
+      "name": "DialogShell",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/DialogShell.tsx",
+      "purpose": "The dialog, minus what it says: the portal, the backdrop, a 502px card, a 48px header with the title and a close button, a body, and a 48px footer for the buttons.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-dialogshell--docs",
+      "storyId": "overlays-dialogshell--default",
+      "docPage": "src/DialogShell.mdx"
+    },
+    {
+      "name": "Divider",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Divider.tsx",
+      "purpose": "A hairline in `border-subtle`. Horizontal it is inset 12px each side; `orientation=\"vertical\"` stands it up to its row's height, no inset.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "orientation",
+          "values": [
+            "horizontal",
+            "vertical"
+          ]
+        },
+        {
+          "prop": "tone",
+          "values": [
+            "default",
+            "warning"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-divider--docs",
+      "storyId": "primitives-divider--default",
+      "docPage": "src/Divider.mdx"
+    },
+    {
+      "name": "EditableText",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EditableText.tsx",
+      "purpose": "Text you click to edit. It reads as text until clicked; then it is a field.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-editabletext--docs",
+      "storyId": "inputs-editabletext--title",
+      "docPage": "src/EditableText.mdx"
+    },
+    {
+      "name": "EmptyState",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EmptyState.tsx",
+      "purpose": "The place where content will be once there is some, in two manners: a 16px icon over a centred line when the whole page is empty, the line alone and left-aligned when one section of a page is.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "scope",
+          "values": [
+            "page",
+            "section"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-emptystate--docs",
+      "storyId": "feedback-emptystate--page",
+      "docPage": "src/EmptyState.mdx"
+    },
+    {
+      "name": "EnterHint",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "The keyboard hint a picker row shows while highlighted — hand-rolled in five files before this (2026-09-01), and drawn as its own thing until 2026-09-05, when it became the `Kbd` chip every other key hint uses.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null
+    },
+    {
+      "name": "Field",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Field.tsx",
+      "purpose": "A label over a control — the form row. The label is the `input-label` token; `required` marks it with the error-coloured asterisk.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-field--docs",
+      "storyId": "inputs-field--default",
+      "docPage": "src/Field.mdx"
+    },
+    {
+      "name": "FieldLine",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Field.tsx",
+      "purpose": "The small line a Field draws under a control — on its own, for the places where there is no single control to draw it under.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "helper",
+            "warning",
+            "error"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-field-line--docs",
+      "storyId": "inputs-field-line--helper",
+      "docPage": "src/FieldLine.mdx"
+    },
+    {
+      "name": "FilePicker",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/FilePicker.tsx",
+      "purpose": "The browser's file picker, with nothing drawn.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-filepicker--docs",
+      "storyId": "inputs-filepicker--default",
+      "docPage": "src/FilePicker.mdx"
+    },
+    {
+      "name": "Form",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Form.tsx",
+      "purpose": "The fields and the button that sends them.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-form--docs",
+      "storyId": "inputs-form--default",
+      "docPage": "src/Form.mdx"
+    },
+    {
+      "name": "hueFor",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Avatar.tsx",
+      "purpose": "The colour a person's initials sit on, chosen from a key: the same key always gives the same hue, so a face reads as theirs in every app.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-avatar--docs",
+      "storyId": "primitives-avatar--initials",
+      "docPage": null
+    },
+    {
+      "name": "IconButton",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/IconButton.tsx",
+      "purpose": "A square button around a 16px icon: 4px padding, 8px radius, three variants.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "muted",
+            "outlined",
+            "primary",
+            "current",
+            "resolve"
+          ]
+        },
+        {
+          "prop": "tooltipPlacement",
+          "values": [
+            "top",
+            "bottom"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-iconbutton--docs",
+      "storyId": "primitives-iconbutton--muted",
+      "docPage": "src/IconButton.mdx"
+    },
+    {
+      "name": "IdentityMenu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/IdentityMenu.tsx",
+      "purpose": "Who you are, and where you are: the identity trigger for a top bar, and the menu it opens — ready-made, because every app needs one and it is built of nothing but shared parts.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-identitymenu--docs",
+      "storyId": "navigation-identitymenu--anonymous",
+      "docPage": "src/IdentityMenu.mdx"
+    },
+    {
+      "name": "IdentityPanel",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/IdentityMenu.tsx",
+      "purpose": "The identity rows on a panel of their own, with no menu around them — for a docs page, or anywhere the panel is already placed.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-identitymenu--docs",
+      "storyId": "navigation-identitymenu--anonymous",
+      "docPage": null
+    },
+    {
+      "name": "initialsFor",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Avatar.tsx",
+      "purpose": "Peek's rule, sharpened: the first letter of the first two words — counting only words that begin with a letter or digit, so \"Claude (steered by Katerina Kelepouri)\" shows \"C\", never \"C(\" (Katerina, 2026-09-01: a name carrying such symbols gets a single letter rather than one of them).",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-avatar--docs",
+      "storyId": "primitives-avatar--initials",
+      "docPage": null
+    },
+    {
+      "name": "INLINE_CHIP_CLASSES",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/InlineChip.tsx",
+      "purpose": "The shape every tone shares. Exported for a rich-text editor that renders chips from strings.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-inlinechip--docs",
+      "storyId": "components-inlinechip--neutral",
+      "docPage": null
+    },
+    {
+      "name": "INLINE_CHIP_TONE_CLASSES",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/InlineChip.tsx",
+      "purpose": "What a chip is made of, by what it stands for.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-inlinechip--docs",
+      "storyId": "components-inlinechip--neutral",
+      "docPage": null
+    },
+    {
+      "name": "InlineChip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/InlineChip.tsx",
+      "purpose": "A word in a sentence that stands for something — a person, a place, a thing — drawn as a small tinted box exactly one line high, with its words level with the text around it.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-inlinechip--docs",
+      "storyId": "components-inlinechip--neutral",
+      "docPage": "src/InlineChip.mdx"
+    },
+    {
+      "name": "inlineChipClassName",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/InlineChip.tsx",
+      "purpose": "The chip's classes for a tone, with anything the caller adds.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-inlinechip--docs",
+      "storyId": "components-inlinechip--neutral",
+      "docPage": null
+    },
+    {
+      "name": "InputChip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ChipInput.tsx",
+      "purpose": "A chip standing on its own: a label, an optional leading icon, an optional ✕.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-chipinput--docs",
+      "storyId": "inputs-chipinput--type-to-search",
+      "docPage": null
+    },
+    {
+      "name": "Kbd",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Kbd.tsx",
+      "purpose": "The small chip that names the key which does the same thing.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-kbd--docs",
+      "storyId": "primitives-kbd--default",
+      "docPage": "src/Kbd.mdx"
+    },
+    {
+      "name": "Link",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Link.tsx",
+      "purpose": "A link, in one of four looks. It is a real anchor with a real address, and the app decides how it navigates.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "text",
+            "quiet",
+            "underlined",
+            "plain"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-link--docs",
+      "storyId": "navigation-link--text",
+      "docPage": "src/Link.mdx"
+    },
+    {
+      "name": "Menu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "A list of actions from a trigger. The menu owns the trigger, so a caller writes no open state, no placement and no dismiss — it hands over the control and the rows, and everything else is Base UI's.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "align",
+          "values": [
+            "left",
+            "right"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": "src/Menu.mdx"
+    },
+    {
+      "name": "MenuItem",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "The row of a menu: label, and around it everything a row can carry — a `leading` icon or face, a `description` second line, a `shortcut` kbd chip, a `submenu` chevron, a `trailing` anything (which wins over the other two), `destructive` in the error colour, `selected` as the fill.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "tall"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menuitem--docs",
+      "storyId": "overlays-menuitem--default",
+      "docPage": "src/MenuItem.mdx"
+    },
+    {
+      "name": "MenuPanel",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "The menu's surface without the menu: the elevated box, the rows' padding, and a divider that runs the full width of what it separates.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null
+    },
+    {
+      "name": "MenuRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "A non-interactive row inside a menu, at the item's own geometry.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null
+    },
+    {
+      "name": "MenuSection",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "A section heading inside a menu: the 32px row with a SectionLabel, read secondary — a heading inside a menu labels the rows, it is not one of them (Katerina, 2026-09-01).",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null
+    },
+    {
+      "name": "MenuSub",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "A row that opens another menu beside it; its rows are this row's children.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null
+    },
+    {
+      "name": "NavItem",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/NavItem.tsx",
+      "purpose": "One row of a sidebar: an optional 16px icon, a label, and an optional count — a muted mono number whose tooltip says what it counts.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-navitem--docs",
+      "storyId": "frame-navitem--default",
+      "docPage": "src/NavItem.mdx"
+    },
+    {
+      "name": "Person",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Person.tsx",
+      "purpose": "A face beside a name — the inline mention of a human.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-person--docs",
+      "storyId": "components-person--named",
+      "docPage": "src/Person.mdx"
+    },
+    {
+      "name": "PersonTrigger",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PersonTrigger.tsx",
+      "purpose": "The person, as the button that opens a menu.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-persontrigger--docs",
+      "storyId": "components-persontrigger--row",
+      "docPage": "src/PersonTrigger.mdx"
+    },
+    {
+      "name": "Popover",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Popover.tsx",
+      "purpose": "A floating panel from a trigger: the same elevated surface a Menu draws, with none of a menu's semantics.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "align",
+          "values": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        {
+          "prop": "side",
+          "values": [
+            "top",
+            "bottom"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-popover--docs",
+      "storyId": "overlays-popover--default",
+      "docPage": "src/Popover.mdx"
+    },
+    {
+      "name": "PreviewCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PreviewCard.tsx",
+      "purpose": "More of a thing, on hover.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "side",
+          "values": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-previewcard--docs",
+      "storyId": "overlays-previewcard--default",
+      "docPage": "src/PreviewCard.mdx"
+    },
+    {
+      "name": "ProgressBar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ProgressBar.tsx",
+      "purpose": "How much of something is done: a thin rounded track with a success-coloured fill.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "default",
+            "quiet"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-progressbar--docs",
+      "storyId": "feedback-progressbar--default",
+      "docPage": "src/ProgressBar.mdx"
+    },
+    {
+      "name": "Property",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Property.tsx",
+      "purpose": "A labelled property — \"Status\", \"Lead\", and whatever else a surface declares.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "layout",
+          "values": [
+            "row",
+            "stacked"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-property--docs",
+      "storyId": "primitives-property--row",
+      "docPage": "src/Property.mdx"
+    },
+    {
+      "name": "Rail",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Rail.tsx",
+      "purpose": "The 64px strip of icon tiles down the left of an app.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-rail--docs",
+      "storyId": "frame-rail--default",
+      "docPage": "src/Rail.mdx"
+    },
+    {
+      "name": "RailItem",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/RailItem.tsx",
+      "purpose": "One tile of an icon rail: the icon in its hover tile, a 9px label under it.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-railitem--docs",
+      "storyId": "frame-railitem--default",
+      "docPage": "src/RailItem.mdx"
+    },
+    {
+      "name": "Reaction",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Reaction.tsx",
+      "purpose": "An emoji, how many people chose it, and whether you are one of them.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-reaction--docs",
+      "storyId": "components-reaction--default",
+      "docPage": "src/Reaction.mdx"
+    },
+    {
+      "name": "ReactionPicker",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionPicker.tsx",
+      "purpose": "The reactions on offer, to choose one from — icon buttons holding emoji, on a Toolbar.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-reactionpicker--docs",
+      "storyId": "components-reactionpicker--default",
+      "docPage": "src/ReactionPicker.mdx"
+    },
+    {
+      "name": "ScrollArea",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ScrollArea.tsx",
+      "purpose": "A region that scrolls without taking width for its scrollbar.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "orientation",
+          "values": [
+            "vertical",
+            "horizontal",
+            "both"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "scroll",
+          "behaviour": "Scrolls with our scrollbar"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "layout-scrollarea--docs",
+      "storyId": "layout-scrollarea--default",
+      "docPage": "src/ScrollArea.mdx"
+    },
+    {
+      "name": "SearchInput",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/SearchInput.tsx",
+      "purpose": "An inset field with a hairline border that strengthens on hover and on focus, and an optional keyboard hint at the right edge.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-searchinput--docs",
+      "storyId": "inputs-searchinput--default",
+      "docPage": "src/SearchInput.mdx"
+    },
+    {
+      "name": "SectionHeader",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/SectionHeader.tsx",
+      "purpose": "The 32px row a section starts with: a SectionLabel, and actions that appear on hover or focus as IconButtons with tooltips.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "showActions",
+          "values": [
+            "hover",
+            "always"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-sectionheader--docs",
+      "storyId": "navigation-sectionheader--plain",
+      "docPage": "src/SectionHeader.mdx"
+    },
+    {
+      "name": "SectionLabel",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/SectionLabel.tsx",
+      "purpose": "The section-title span. Every section heading — sidebar sections, menu headings, panel titles — renders through it, so a change of voice is one edit. 12px / 500, primary text; some themes restyle it (the toolbar shows how).",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-sectionlabel--docs",
+      "storyId": "primitives-sectionlabel--default",
+      "docPage": "src/SectionLabel.mdx"
+    },
+    {
+      "name": "Select",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Select.tsx",
+      "purpose": "One value for a form field: a button that shows the choice and opens a portalled listbox under itself.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-select--docs",
+      "storyId": "inputs-select--default",
+      "docPage": "src/Select.mdx"
+    },
+    {
+      "name": "Sidebar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Sidebar.tsx",
+      "purpose": "The navigation column: 240px, a hairline on its right, the surface behind it, scrolling independently of the content beside it.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-sidebar--docs",
+      "storyId": "frame-sidebar--composed",
+      "docPage": "src/Sidebar.mdx"
+    },
+    {
+      "name": "SkeletonBar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Skeleton.tsx",
+      "purpose": "One pulsing bar at the inset colour: the piece every placeholder here is built from.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-skeleton--docs",
+      "storyId": "feedback-skeleton--list",
+      "docPage": null
+    },
+    {
+      "name": "SkeletonList",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Skeleton.tsx",
+      "purpose": "Rows of varied widths, so the placeholder does not read as a pattern.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-skeleton--docs",
+      "storyId": "feedback-skeleton--list",
+      "docPage": null
+    },
+    {
+      "name": "SkeletonRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Skeleton.tsx",
+      "purpose": "A 32px row: a 16px square and a bar, like a row with a face and a name.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-skeleton--docs",
+      "storyId": "feedback-skeleton--list",
+      "docPage": null
+    },
+    {
+      "name": "Tabs",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Tabs.tsx",
+      "purpose": "A row of tabs for switching between views of one thing.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-tabs--docs",
+      "storyId": "navigation-tabs--with-counts",
+      "docPage": "src/Tabs.mdx"
+    },
+    {
+      "name": "Textarea",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Textarea.tsx",
+      "purpose": "TextInput's look on a multi-line field that does not resize.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-textarea--docs",
+      "storyId": "inputs-textarea--empty",
+      "docPage": "src/Textarea.mdx"
+    },
+    {
+      "name": "TextInput",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/TextInput.tsx",
+      "purpose": "The single-line field: inset surface, 8px radius, 14px text, a stronger border on hover, the focus border in every theme.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "inputs-textinput--docs",
+      "storyId": "inputs-textinput--empty",
+      "docPage": "src/TextInput.mdx"
+    },
+    {
+      "name": "Toast",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toast.tsx",
+      "purpose": "A pill that says what just happened — three types, an optional leading check, an optional action — and ToastProvider/useToast, which own the positioning (bottom-left), the portal, and the auto-dismiss.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "type",
+          "values": [
+            "success",
+            "brand",
+            "neutral",
+            "warning",
+            "error"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-toast--docs",
+      "storyId": "feedback-toast--neutral",
+      "docPage": "src/Toast.mdx"
+    },
+    {
+      "name": "ToastProvider",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toast.tsx",
+      "purpose": "Mount once, near the top of an app. It owns the stack, the timers and the portal every toast goes through, and it is what `useToast` talks to.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-toast--docs",
+      "storyId": "feedback-toast--neutral",
+      "docPage": null
+    },
+    {
+      "name": "Toolbar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toolbar.tsx",
+      "purpose": "A strip of controls that behaves as one control: Tab in, arrow keys along, Tab out — on the elevated box a floating strip needs.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "orientation",
+          "values": [
+            "horizontal",
+            "vertical"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Closes on Escape, and takes its keys, by itself"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-toolbar--docs",
+      "storyId": "primitives-toolbar--default",
+      "docPage": "src/Toolbar.mdx"
+    },
+    {
+      "name": "ToolbarButton",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toolbar.tsx",
+      "purpose": "An `IconButton` that is an item of a `Toolbar`: the arrow keys reach it, and a disabled one stays in the walk so its reason can still be read.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-toolbar--docs",
+      "storyId": "primitives-toolbar--default",
+      "docPage": null
+    },
+    {
+      "name": "ToolbarInput",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toolbar.tsx",
+      "purpose": "A `TextInput` that is an item of a `Toolbar`, so the arrow keys walk into the field and out of it again.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-toolbar--docs",
+      "storyId": "primitives-toolbar--default",
+      "docPage": null
+    },
+    {
+      "name": "ToolbarSeparator",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toolbar.tsx",
+      "purpose": "The hairline between two groups of controls.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-toolbar--docs",
+      "storyId": "primitives-toolbar--default",
+      "docPage": null
+    },
+    {
+      "name": "Tooltip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Tooltip.tsx",
+      "purpose": "A 30px elevated pill with a caption, and WithTooltip, the wrapper that shows it beside a trigger — on hover, and on keyboard focus.",
+      "purposeFrom": "page",
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-tooltip--docs",
+      "storyId": "primitives-tooltip--default",
+      "docPage": "src/Tooltip.mdx"
+    },
+    {
+      "name": "TooltipProvider",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Tooltip.tsx",
+      "purpose": "Mount once at the top of an app: it makes every tooltip below it share one delay, so the second and third open instantly while the group is warm.",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-tooltip--docs",
+      "storyId": "primitives-tooltip--default",
+      "docPage": null
+    },
+    {
+      "name": "TopBar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/TopBar.tsx",
+      "purpose": "The 52px top bar: `menu` and `logo` on the left, a `search` slot in the centre, the identity cluster on the right.",
+      "purposeFrom": "page",
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "solid",
+            "floating"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-topbar--docs",
+      "storyId": "frame-topbar--solid",
+      "docPage": "src/TopBar.mdx"
+    },
+    {
+      "name": "useToast",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toast.tsx",
+      "purpose": "How anything under a `ToastProvider` raises a toast (`showToast`) or takes one away (`dismissToast`).",
+      "purposeFrom": "comment",
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-toast--docs",
+      "storyId": "feedback-toast--neutral",
+      "docPage": null
+    },
+    {
+      "name": "WithTooltip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Tooltip.tsx",
+      "purpose": "A tooltip on something that cannot be its own trigger — a span, a `Chip`, an icon.",
+      "purposeFrom": "comment",
+      "variants": [
+        {
+          "prop": "placement",
+          "values": [
+            "top",
+            "bottom"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-tooltip--docs",
+      "storyId": "primitives-tooltip--default",
+      "docPage": null
+    }
+  ],
+  "excluded": []
+}
