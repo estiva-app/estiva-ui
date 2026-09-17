@@ -278,6 +278,7 @@ Nothing local needs Jan. **Registering Leaf with the real Estiva ID does**, and 
   - `gate` and `check` both failed, naming `Button`
   - the merge was refused ("the base branch policy prohibits the merge"), and refused with `--admin` too
 - **A package change reaches the app with a version bump.** The throwaway took a tarball with UIG-32's check by changing `package.json` and its lockfile only: 17 rows became 18.
+- **From npm, after the release.** The reproduce command below made the same app from published 0.21.0 in a clean `node:24` container: `npm install`, `lint:rules` 0 (count unchanged), `typecheck`, and `build` all passed. File by file it differs from the throwaway in three ways only: the package version, the two doc lines #54 changed, and the count file's timestamp.
 
 **What building it found**
 
@@ -290,6 +291,7 @@ Nothing local needs Jan. **Registering Leaf with the real Estiva ID does**, and 
 | ✅ | **§23's first wording** said the token block was the same in all three repos. It is the same in Peek and Ship only. | Corrected in #53 before merging, with the tickets. |
 | ⚠️ | **The local Estiva ID could not issue a token**: "No available key-encryption key for this envelope (needs one of: test-1)". Its signing key had been sealed with a test key the local settings do not hold. | Retired locally so a new key was minted; put back after. For Katerina (and Jan, if it recurs): a local database carrying a key from a test run. |
 | 📝 | **The made app asks for `/favicon.ico` and gets a 404**: there is no favicon. | Left; an app adds its own. |
+| 📝 | **npm 11.19 holds back esbuild's install script** in a fresh install ("npm warn install-scripts … `npm install-scripts approve <pkg>` to allow"). `lint:rules`, `typecheck` and `build` passed without it; Storybook was not started from that install. | Watch for it in UIG-11; approve esbuild if Storybook needs it. |
 | 🧰 | Traps: a running dev server holds a native binary, so `npm ci` fails with EPERM (stop it first); an esbuild split chunk cannot tell whether it was invoked (give a command its own entry); a heredoc or `node -e` mangles backslashes in a regex (write the file); `git show <ref>:<path>` needs `MSYS_NO_PATHCONV=1` in Git Bash; the main checkouts lag `origin/main` (run with `GATES_PEEK`/`GATES_SHIP` at fresh worktrees); jsdom warns about the engine on node 24.11 locally, CI is fine. | — |
 
 **Reproduce.**
