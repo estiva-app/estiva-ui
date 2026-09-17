@@ -205,7 +205,7 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 *The answer to "should this be a skill, or CLAUDE.md?" — it's both, doing different jobs.*
 
-**A Claude Skill**, committed to each app repo. It triggers on any UI task. Step 1 is *search the registry before creating anything new*. It carries a *Gotchas* section listing exactly where sessions keep erring here — the hand-made header, the column that should scroll, the raw element. Anthropic's guidance is to move procedure out of CLAUDE.md and into skills once CLAUDE.md passes ~200 lines.
+**A Claude Skill**, shipped inside the package and loaded by each app repo — its text lives once, in the package (corrected 17 September, `docs/GATES.md` §23). It triggers on any UI task. Step 1 is *search the registry before creating anything new*. It carries a *Gotchas* section listing exactly where sessions keep erring here — the hand-made header, the column that should scroll, the raw element. Anthropic's guidance is to move procedure out of CLAUDE.md and into skills once CLAUDE.md passes ~200 lines.
 
 **CLAUDE.md becomes a thin index** pointing at the skill, plus *path-scoped instructions* (`paths:` frontmatter; Claude Code calls them rules) so page-specific instructions only load when someone touches `src/pages/**`. Fewer tokens per session, not more.
 
@@ -234,9 +234,9 @@ Covering all three repos is the part that matters for your case: `PendingAttachm
 
 ESLint rules whose error message **names the component to use**. Not "don't write a div" — *"use ContainerHeader"*. Four families: forbid the raw element (`<button>`, `<input>`, `<a>`, `<dialog>`, with no folder exempt: an exception is one marked line); forbid the reach (a direct Base UI import, `createPortal`, a keydown listener, `role="dialog"`, `tabIndex` on a div, `overflow-auto`); fingerprint rules for hand-made headers and hand-made empty states; and a `className` allow-list so only placement classes pass through a package component.
 
-A **PreToolUse hook** in each repo's `.claude/settings.json` runs the same lint rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session started in that repo, mine or anyone's. A session started in a folder above the repo does not load it; the repo's CLAUDE.md, CI and branch protection cover that one.
+A **PreToolUse hook**, shipped in the package and switched on in each repo's `.claude/settings.json` (corrected 17 September, `docs/GATES.md` §23), runs the same lint rules on the content of an Edit or Write and exits 2 to block it — *before the file lands*, in every Claude session started in that repo, mine or anyone's. A session started in a folder above the repo does not load it; the repo's CLAUDE.md, CI and branch protection cover that one.
 
-The trick that makes this land in days rather than weeks: give the new lint rules **their own config and their own script**, exactly as `lint:tokens` has, so the gate is green on day one and Peek's 80-odd existing lint errors don't block a single deploy.
+The trick that makes this land in days rather than weeks: give the new lint rules **their own config and their own script**, exactly as `lint:tokens` has — the config shipped in the package, the script one line in each app (corrected 17 September, `docs/GATES.md` §23) — so the gate is green on day one and Peek's 80-odd existing lint errors don't block a single deploy.
 
 > **In plain words**
 >
@@ -306,7 +306,7 @@ Every idea worth having, sized. S is half a day to a day · M is two to three da
 | T12 | **Fingerprint rules** | The hand-made header (#192), the hand-made "Nothing here", a native `title=`, a class list copied out of a component. | M | ships |
 | T13 | **className allow-list** | Only placement classes through a package component. Stops a colour or a size being smuggled in. | S | ships |
 | T14 | **PreToolUse hook** | Blocks the write *before the file lands*, in every Claude session started in the repo. The deterministic layer. | S | ships |
-| T15 | **Its own config & script** · lint:rules | Green on day one, old backlog skipped — the same trick that let `lint:tokens` become a gate immediately. | S | ours |
+| T15 | **Its own config & script** · lint:rules | Green on day one, old backlog skipped — the same trick that let `lint:tokens` become a gate immediately. The config ships in the package; each app's script runs it (17 September, `docs/GATES.md` §23). | S | ships |
 | T16 | **Branch protection** | Required check on every PR in both apps. Nothing merges broken, whoever wrote it. **You already said yes.** | XS | ours |
 | | **Gate 3 — See** | | | |
 | T17 | **Page stories from generators** | 81 folders, 0 folders, loading. The states that break, drawn. Peek has 5 pages and 3 page stories, none for Folders and none empty or loading. | M | ours |
@@ -386,7 +386,7 @@ Peek and Ship were both fixed *afterwards*. That is the expensive way, and we ha
 
 *The "paved road" pattern: make the correct road the only easy one to drive.*
 
-Leaf is created from a template that already carries every gate switched on: the lint rules and their config, the PreToolUse hook in `.claude/settings.json`, the skill, CLAUDE.md as an index, the token import, `AppShell`, the page contract, the CI workflow with all the gates wired, and branch protection.
+Leaf is created by a starter that switches every gate on: the lint rules and their config, the PreToolUse hook in `.claude/settings.json`, the skill, CLAUDE.md as an index, the token import, `AppShell` with the sidebar and one theme, the page contract, the CI workflow with all the gates wired, and branch protection. **Every one of these gate pieces ships in `@estiva-app/ui`; the starter writes only thin files that import them, and it reads only the package** (corrected 17 September, `docs/GATES.md` §23).
 
 The decisive difference is the **ratchet's starting number**. Peek's starts at whatever it is today and has to fall. **Leaf's starts at zero and may never rise.** "Never any violations" is a far easier rule to hold than "reduce the violations" — there is no backlog to argue about and no exception anyone can point at.
 
@@ -406,7 +406,7 @@ The contribution path comes with it: anything Leaf needs that doesn't exist goes
 **The one real risk**
 
 - A template rots. If Leaf is scaffolded in six months from something nobody maintained, it starts wrong anyway
-- Fix: the template is generated from the live repos, not copied once
+- Fix: the starter holds no gate text of its own. Every gate ships in `@estiva-app/ui`, so a version bump carries each change, and the starter reads only the package (corrected 17 September, `docs/GATES.md` §23; it said "generated from the live repos")
 
 ### The timing point, and it is the sharpest thing on this page
 
