@@ -53,6 +53,10 @@ import { IconPlus } from '@tabler/icons-react'
 - `render` swaps the title's element in Base UI's manner; it is how
   CollapsibleSection makes the title a `Collapsible.Trigger`.
 
+- `hover="none"` keeps the row still under the pointer: for a heading whose
+  actions are always shown (`showActions="always"`), where the buttons light up
+  on their own. The default, `fill`, lights a row that toggles or has actions.
+
 ## What it owns
 
 It does these by itself. Write none of them around it.

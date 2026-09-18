@@ -60,6 +60,12 @@ export interface SectionHeaderProps {
   /** `hover` reveals the actions while the row is hovered or focused; `always` keeps them. */
   showActions?: 'hover' | 'always'
   /**
+   * `fill` lights the row under the pointer when it does something (a toggle,
+   * actions); `none` keeps it still — a heading whose actions are always shown,
+   * where the buttons light up on their own (UIG-14, Katerina, 19 September).
+   */
+  hover?: 'fill' | 'none'
+  /**
    * What the title renders as, in Base UI's manner. A plain button with
    * `onToggle` by default; `CollapsibleSection` hands in `Collapsible.Trigger`.
    */
@@ -67,7 +73,7 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', hover = 'fill', render, className }: SectionHeaderProps) {
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
@@ -97,7 +103,7 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
         // The fill says "this does something": a row with a toggle or actions
         // lights up, a fixed heading over rows does not (2026-09-09, the
         // Sidebar's fixed group).
-        (chevron || (actions && actions.length > 0)) && 'hover:bg-bg-hover',
+        hover === 'fill' && (chevron || (actions && actions.length > 0)) && 'hover:bg-bg-hover',
         className,
       )}
     >

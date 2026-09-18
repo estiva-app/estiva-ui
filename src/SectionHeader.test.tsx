@@ -23,6 +23,15 @@ describe('SectionHeader', () => {
     expect(onToggle).toHaveBeenCalledTimes(2)
   })
 
+  it('fills under the pointer when it does something, and hover="none" keeps it still', () => {
+    const actions = [{ icon: <i />, tooltip: 'Add', onClick: () => {} }]
+    const lit = render(<SectionHeader title="Section" actions={actions} />)
+    expect((lit.container.firstElementChild as HTMLElement).className).toContain('hover:bg-bg-hover')
+    cleanup()
+    const still = render(<SectionHeader title="Section" actions={actions} hover="none" />)
+    expect((still.container.firstElementChild as HTMLElement).className).not.toContain('hover:bg-bg-hover')
+  })
+
   it('an action beside the title acts, and never toggles', async () => {
     const onToggle = vi.fn()
     const add = vi.fn()

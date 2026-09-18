@@ -3600,6 +3600,12 @@
           "note": "`hover` reveals the actions while the row is hovered or focused; `always` keeps them."
         },
         {
+          "name": "hover",
+          "takes": "fill | none",
+          "required": false,
+          "note": "`fill` lights the row under the pointer when it does something (a toggle, actions); `none` keeps it still — a heading whose actions are always shown, where the buttons light up on their own (UIG-14, Katerina, 19 September)."
+        },
+        {
           "name": "render",
           "takes": "useRender.RenderProp",
           "required": false,
@@ -3618,6 +3624,13 @@
           "values": [
             "hover",
             "always"
+          ]
+        },
+        {
+          "prop": "hover",
+          "values": [
+            "fill",
+            "none"
           ]
         }
       ],
