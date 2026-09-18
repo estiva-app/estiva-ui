@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.24.0 — 2026-09-19 — UIG-14, every component page says what it owns; the parts Peek and Ship needed to follow them
+
+### Added
+
+- **What it owns**, on every component page: what the part does by itself,
+  what you never write around it, and a tick where the checker refuses that
+  thing written by hand. `src/pages.test.ts` holds the page contract — an
+  opening line, When, When not, How with code that compiles, What it owns — and
+  reads the ticks back against `OWNED_BEHAVIOURS`.
+- **`IconButton` `href`**: a link that looks like an icon button — an anchor
+  in the button's exact look, the button again while it cannot be used.
+- **`WithTooltip` `inline`**: the wrapper is a `<span>`, for a trigger inside
+  a line of text.
+- **`Select` `disabledReason`**, as `Button`'s: held shut, reachable by Tab,
+  the reason as its tooltip.
+- **`SectionHeader` `hover="none"`**: the row stays still under the pointer.
+- **`PreviewCard` `contentClassName`**: the padding and rhythm of what it holds.
+- **The Signal canvas**: in the Signal theme, the floating `AppShell` draws the
+  control-room dot grid (Peek's), from the Tailwind preset.
+
+### Changed
+
+- **A tooltip wraps at 320px.** One line is still 30px.
+- **`PreviewCard`'s padding sits inside its scrolling box**, so the scrollbar
+  hugs the card's edge (its thumb 3px in, like every panel's). `className` is
+  the card's width; padding goes on `contentClassName`.
+- The checker's behaviour "Closes on Escape, and takes its keys, by itself" is
+  "Takes its keys by itself": Tabs and Toolbar own it and do not close.
+- Component pages: the When and When not lines Katerina ruled on (UIG-14).
+
+### Fixed
+
+- **A `Form` sends only its own submit.** A Form inside a Popover inside a Form
+  sent both: Enter in a link field sent the message around it.
+- **A waiting file's ✕** (`AttachmentCard` `pending`) shows when the keyboard
+  reaches it, and a cut name's tooltip no longer covers it.
+- Four code examples on the pages that did not compile.
+
 ## 0.23.0 — 2026-09-18 — UIG-13, the apps' catalogues and three parts from Peek; UIG-10, a made app on the relay
 
 ### Added
