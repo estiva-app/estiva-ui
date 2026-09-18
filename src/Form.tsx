@@ -160,6 +160,13 @@ export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, class
       }}
       onKeyDown={onKeyDown}
       onSubmit={(event) => {
+        /*
+          A form's own send only. React carries a submit up the component tree,
+          through a portal too, so a Form in a Popover inside this Form sent both:
+          Enter in a link field sent the whole message around it (UIG-14, C1,
+          Katerina 19 September). The inner Form has already handled its own.
+        */
+        if (event.target !== event.currentTarget) return
         event.preventDefault()
         if (busyNow.current) return
         void onSubmit()
