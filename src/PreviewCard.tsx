@@ -35,8 +35,15 @@ export interface PreviewCardProps {
   delay?: number
   /** After the pointer leaves, in ms — the grace that lets you cross the gap into the card. */
   closeDelay?: number
-  /** On the card's surface: its width, its padding, a max height. */
+  /** On the card's surface: its width. */
   className?: string
+  /**
+   * On the scrolling content: its padding (default 12px) and rhythm. The
+   * padding sits inside the scrolling box, as in `Popover`, so the scrollbar
+   * hugs the card's edge — its thumb 3px from it, like every panel's
+   * (Katerina, 19 September; it sat 12px in, behind the card's padding).
+   */
+  contentClassName?: string
   /** Extra classes on the trigger wrapper — e.g. `block w-full` for a row. */
   wrapperClassName?: string
 }
@@ -58,7 +65,7 @@ const OPEN_DELAY = 350
  *  here the card can be reached, so it can. */
 const CLOSE_DELAY = 200
 
-export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, wrapperClassName }: PreviewCardProps) {
+export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName }: PreviewCardProps) {
   return (
     <BasePreviewCard.Root>
       {/* The part renders an `<a>` by default, which a row is not; `render`
@@ -80,10 +87,10 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
           className="z-50 data-[anchor-hidden]:hidden"
         >
           <BasePreviewCard.Popup
-            className={cn('w-[360px] p-3 outline-none', className)}
+            className={cn('w-[360px] p-0 outline-none', className)}
             render={<MenuPanel />}
           >
-            <ScrollArea viewportClassName="max-h-[calc(min(300px,var(--available-height))_-_1.5rem)]" contentClassName="flex flex-col gap-3">
+            <ScrollArea viewportClassName="max-h-[min(300px,var(--available-height))]" contentClassName={cn('flex flex-col gap-3 p-3', contentClassName)}>
               {content}
             </ScrollArea>
           </BasePreviewCard.Popup>

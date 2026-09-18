@@ -57,9 +57,12 @@ import { PreviewCard } from '@estiva-app/ui'
 - **It prefers the right of the trigger and flips** when that side has no room,
   staying 12px from the trigger and 8px clear of every screen edge. `side`
   changes the preference, not the promise.
-- **Width, padding and height are yours** through `className`. The default is
-  360px wide, capped at 300px or the room available, whichever is smaller — a
-  preview of one kind of thing is not the size of a preview of another.
+- **Width is yours** through `className`; **padding and rhythm** through
+  `contentClassName`. The default is 360px wide, 12px of padding, capped at
+  300px or the room available, whichever is smaller — a preview of one kind of
+  thing is not the size of a preview of another.
+- The padding sits inside the scrolling box, as in `Popover`, so the
+  scrollbar hugs the card's edge: its thumb 3px from it, like every panel's.
 - The trigger wrapper is `inline-flex`; a full-width row wants
   `wrapperClassName="block w-full"`.
 
