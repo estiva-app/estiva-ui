@@ -1,11 +1,13 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "builtFrom": {
+    "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.22.0",
     "exports": 81,
-    "typeExports": 91
+    "typeExports": 91,
+    "files": null
   },
   "storybook": {
     "docsPath": "/?path=/docs/{docsId}",
@@ -85,7 +87,8 @@
       "migrationStage": null,
       "docsId": "frame-appshell--docs",
       "storyId": "frame-appshell--solid",
-      "docPage": "src/AppShell.mdx"
+      "docPage": "src/AppShell.mdx",
+      "app": null
     },
     {
       "name": "AttachmentCard",
@@ -187,7 +190,8 @@
       "migrationStage": null,
       "docsId": "components-attachmentcard--docs",
       "storyId": "components-attachmentcard--document",
-      "docPage": "src/AttachmentCard.mdx"
+      "docPage": "src/AttachmentCard.mdx",
+      "app": null
     },
     {
       "name": "Avatar",
@@ -246,7 +250,8 @@
       "migrationStage": null,
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
-      "docPage": "src/Avatar.mdx"
+      "docPage": "src/Avatar.mdx",
+      "app": null
     },
     {
       "name": "AvatarGroup",
@@ -276,7 +281,8 @@
       "migrationStage": null,
       "docsId": "primitives-avatargroup--docs",
       "storyId": "primitives-avatargroup--three-members",
-      "docPage": "src/AvatarGroup.mdx"
+      "docPage": "src/AvatarGroup.mdx",
+      "app": null
     },
     {
       "name": "Banner",
@@ -339,7 +345,8 @@
       "migrationStage": null,
       "docsId": "feedback-banner--docs",
       "storyId": "feedback-banner--ok",
-      "docPage": "src/Banner.mdx"
+      "docPage": "src/Banner.mdx",
+      "app": null
     },
     {
       "name": "Breadcrumb",
@@ -369,7 +376,8 @@
       "migrationStage": null,
       "docsId": "navigation-breadcrumb--docs",
       "storyId": "navigation-breadcrumb--on-an-item",
-      "docPage": "src/Breadcrumb.mdx"
+      "docPage": "src/Breadcrumb.mdx",
+      "app": null
     },
     {
       "name": "Button",
@@ -448,7 +456,8 @@
       "migrationStage": null,
       "docsId": "primitives-button--docs",
       "storyId": "primitives-button--primary",
-      "docPage": "src/Button.mdx"
+      "docPage": "src/Button.mdx",
+      "app": null
     },
     {
       "name": "Card",
@@ -557,7 +566,8 @@
       "migrationStage": null,
       "docsId": "primitives-card--docs",
       "storyId": "primitives-card--surface",
-      "docPage": "src/Card.mdx"
+      "docPage": "src/Card.mdx",
+      "app": null
     },
     {
       "name": "Checkbox",
@@ -638,7 +648,8 @@
       "migrationStage": null,
       "docsId": "inputs-checkbox--docs",
       "storyId": "inputs-checkbox--unchecked",
-      "docPage": "src/Checkbox.mdx"
+      "docPage": "src/Checkbox.mdx",
+      "app": null
     },
     {
       "name": "Chip",
@@ -698,7 +709,8 @@
       "migrationStage": null,
       "docsId": "primitives-chip--docs",
       "storyId": "primitives-chip--neutral",
-      "docPage": "src/Chip.mdx"
+      "docPage": "src/Chip.mdx",
+      "app": null
     },
     {
       "name": "ChipInput",
@@ -799,7 +811,8 @@
       "migrationStage": null,
       "docsId": "inputs-chipinput--docs",
       "storyId": "inputs-chipinput--type-to-search",
-      "docPage": "src/ChipInput.mdx"
+      "docPage": "src/ChipInput.mdx",
+      "app": null
     },
     {
       "name": "cn",
@@ -816,7 +829,8 @@
       "migrationStage": null,
       "docsId": null,
       "storyId": null,
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "CollapsibleSection",
@@ -913,7 +927,8 @@
       "migrationStage": null,
       "docsId": "navigation-collapsiblesection--docs",
       "storyId": "navigation-collapsiblesection--default",
-      "docPage": "src/CollapsibleSection.mdx"
+      "docPage": "src/CollapsibleSection.mdx",
+      "app": null
     },
     {
       "name": "CommandPalette",
@@ -988,7 +1003,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": "src/CommandPalette.mdx"
+      "docPage": "src/CommandPalette.mdx",
+      "app": null
     },
     {
       "name": "CommandPaletteAnswer",
@@ -1018,7 +1034,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "CommandPaletteForm",
@@ -1084,7 +1101,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "CommandPaletteQuote",
@@ -1108,7 +1126,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "CommandPaletteSearch",
@@ -1180,7 +1199,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "CommandPaletteWorking",
@@ -1210,7 +1230,8 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "ConfirmDialog",
@@ -1277,7 +1298,8 @@
       "migrationStage": null,
       "docsId": "overlays-confirmdialog--docs",
       "storyId": "overlays-confirmdialog--destructive",
-      "docPage": "src/ConfirmDialog.mdx"
+      "docPage": "src/ConfirmDialog.mdx",
+      "app": null
     },
     {
       "name": "DialogShell",
@@ -1378,7 +1400,8 @@
       "migrationStage": null,
       "docsId": "overlays-dialogshell--docs",
       "storyId": "overlays-dialogshell--default",
-      "docPage": "src/DialogShell.mdx"
+      "docPage": "src/DialogShell.mdx",
+      "app": null
     },
     {
       "name": "Divider",
@@ -1444,7 +1467,8 @@
       "migrationStage": null,
       "docsId": "primitives-divider--docs",
       "storyId": "primitives-divider--default",
-      "docPage": "src/Divider.mdx"
+      "docPage": "src/Divider.mdx",
+      "app": null
     },
     {
       "name": "EditableText",
@@ -1516,7 +1540,8 @@
       "migrationStage": null,
       "docsId": "inputs-editabletext--docs",
       "storyId": "inputs-editabletext--title",
-      "docPage": "src/EditableText.mdx"
+      "docPage": "src/EditableText.mdx",
+      "app": null
     },
     {
       "name": "EmptyState",
@@ -1566,7 +1591,8 @@
       "migrationStage": null,
       "docsId": "feedback-emptystate--docs",
       "storyId": "feedback-emptystate--page",
-      "docPage": "src/EmptyState.mdx"
+      "docPage": "src/EmptyState.mdx",
+      "app": null
     },
     {
       "name": "EnterHint",
@@ -1590,7 +1616,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "Field",
@@ -1643,7 +1670,8 @@
       "migrationStage": null,
       "docsId": "inputs-field--docs",
       "storyId": "inputs-field--default",
-      "docPage": "src/Field.mdx"
+      "docPage": "src/Field.mdx",
+      "app": null
     },
     {
       "name": "FieldLine",
@@ -1693,7 +1721,8 @@
       "migrationStage": null,
       "docsId": "inputs-field-line--docs",
       "storyId": "inputs-field-line--helper",
-      "docPage": "src/FieldLine.mdx"
+      "docPage": "src/FieldLine.mdx",
+      "app": null
     },
     {
       "name": "FilePicker",
@@ -1717,7 +1746,8 @@
       "migrationStage": null,
       "docsId": "inputs-filepicker--docs",
       "storyId": "inputs-filepicker--default",
-      "docPage": "src/FilePicker.mdx"
+      "docPage": "src/FilePicker.mdx",
+      "app": null
     },
     {
       "name": "Form",
@@ -1764,7 +1794,8 @@
       "migrationStage": null,
       "docsId": "inputs-form--docs",
       "storyId": "inputs-form--default",
-      "docPage": "src/Form.mdx"
+      "docPage": "src/Form.mdx",
+      "app": null
     },
     {
       "name": "hueFor",
@@ -1781,7 +1812,8 @@
       "migrationStage": null,
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "IconButton",
@@ -1878,7 +1910,8 @@
       "migrationStage": null,
       "docsId": "primitives-iconbutton--docs",
       "storyId": "primitives-iconbutton--muted",
-      "docPage": "src/IconButton.mdx"
+      "docPage": "src/IconButton.mdx",
+      "app": null
     },
     {
       "name": "IdentityMenu",
@@ -1950,7 +1983,8 @@
       "migrationStage": null,
       "docsId": "navigation-identitymenu--docs",
       "storyId": "navigation-identitymenu--anonymous",
-      "docPage": "src/IdentityMenu.mdx"
+      "docPage": "src/IdentityMenu.mdx",
+      "app": null
     },
     {
       "name": "IdentityPanel",
@@ -2022,7 +2056,8 @@
       "migrationStage": null,
       "docsId": "navigation-identitymenu--docs",
       "storyId": "navigation-identitymenu--anonymous",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "initialsFor",
@@ -2039,7 +2074,8 @@
       "migrationStage": null,
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "INLINE_CHIP_CLASSES",
@@ -2056,7 +2092,8 @@
       "migrationStage": null,
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "INLINE_CHIP_TONE_CLASSES",
@@ -2073,7 +2110,8 @@
       "migrationStage": null,
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "InlineChip",
@@ -2115,7 +2153,8 @@
       "migrationStage": null,
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
-      "docPage": "src/InlineChip.mdx"
+      "docPage": "src/InlineChip.mdx",
+      "app": null
     },
     {
       "name": "inlineChipClassName",
@@ -2132,7 +2171,8 @@
       "migrationStage": null,
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "InputChip",
@@ -2186,7 +2226,8 @@
       "migrationStage": null,
       "docsId": "inputs-chipinput--docs",
       "storyId": "inputs-chipinput--type-to-search",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "Kbd",
@@ -2216,7 +2257,8 @@
       "migrationStage": null,
       "docsId": "primitives-kbd--docs",
       "storyId": "primitives-kbd--default",
-      "docPage": "src/Kbd.mdx"
+      "docPage": "src/Kbd.mdx",
+      "app": null
     },
     {
       "name": "Link",
@@ -2283,7 +2325,8 @@
       "migrationStage": null,
       "docsId": "navigation-link--docs",
       "storyId": "navigation-link--text",
-      "docPage": "src/Link.mdx"
+      "docPage": "src/Link.mdx",
+      "app": null
     },
     {
       "name": "Menu",
@@ -2392,7 +2435,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": "src/Menu.mdx"
+      "docPage": "src/Menu.mdx",
+      "app": null
     },
     {
       "name": "MenuItem",
@@ -2484,7 +2528,8 @@
       "migrationStage": null,
       "docsId": "overlays-menuitem--docs",
       "storyId": "overlays-menuitem--default",
-      "docPage": "src/MenuItem.mdx"
+      "docPage": "src/MenuItem.mdx",
+      "app": null
     },
     {
       "name": "MenuPanel",
@@ -2508,7 +2553,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "MenuRow",
@@ -2538,7 +2584,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "MenuSection",
@@ -2574,7 +2621,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "MenuSub",
@@ -2622,7 +2670,8 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "NavItem",
@@ -2682,7 +2731,8 @@
       "migrationStage": null,
       "docsId": "frame-navitem--docs",
       "storyId": "frame-navitem--default",
-      "docPage": "src/NavItem.mdx"
+      "docPage": "src/NavItem.mdx",
+      "app": null
     },
     {
       "name": "Person",
@@ -2730,7 +2780,8 @@
       "migrationStage": null,
       "docsId": "components-person--docs",
       "storyId": "components-person--named",
-      "docPage": "src/Person.mdx"
+      "docPage": "src/Person.mdx",
+      "app": null
     },
     {
       "name": "PersonTrigger",
@@ -2784,7 +2835,8 @@
       "migrationStage": null,
       "docsId": "components-persontrigger--docs",
       "storyId": "components-persontrigger--row",
-      "docPage": "src/PersonTrigger.mdx"
+      "docPage": "src/PersonTrigger.mdx",
+      "app": null
     },
     {
       "name": "Popover",
@@ -2917,7 +2969,8 @@
       "migrationStage": null,
       "docsId": "overlays-popover--docs",
       "storyId": "overlays-popover--default",
-      "docPage": "src/Popover.mdx"
+      "docPage": "src/Popover.mdx",
+      "app": null
     },
     {
       "name": "PreviewCard",
@@ -3004,7 +3057,8 @@
       "migrationStage": null,
       "docsId": "overlays-previewcard--docs",
       "storyId": "overlays-previewcard--default",
-      "docPage": "src/PreviewCard.mdx"
+      "docPage": "src/PreviewCard.mdx",
+      "app": null
     },
     {
       "name": "ProgressBar",
@@ -3069,7 +3123,8 @@
       "migrationStage": null,
       "docsId": "feedback-progressbar--docs",
       "storyId": "feedback-progressbar--default",
-      "docPage": "src/ProgressBar.mdx"
+      "docPage": "src/ProgressBar.mdx",
+      "app": null
     },
     {
       "name": "Property",
@@ -3119,7 +3174,8 @@
       "migrationStage": null,
       "docsId": "primitives-property--docs",
       "storyId": "primitives-property--row",
-      "docPage": "src/Property.mdx"
+      "docPage": "src/Property.mdx",
+      "app": null
     },
     {
       "name": "Rail",
@@ -3155,7 +3211,8 @@
       "migrationStage": null,
       "docsId": "frame-rail--docs",
       "storyId": "frame-rail--default",
-      "docPage": "src/Rail.mdx"
+      "docPage": "src/Rail.mdx",
+      "app": null
     },
     {
       "name": "RailItem",
@@ -3203,7 +3260,8 @@
       "migrationStage": null,
       "docsId": "frame-railitem--docs",
       "storyId": "frame-railitem--default",
-      "docPage": "src/RailItem.mdx"
+      "docPage": "src/RailItem.mdx",
+      "app": null
     },
     {
       "name": "Reaction",
@@ -3250,7 +3308,8 @@
       "migrationStage": null,
       "docsId": "components-reaction--docs",
       "storyId": "components-reaction--default",
-      "docPage": "src/Reaction.mdx"
+      "docPage": "src/Reaction.mdx",
+      "app": null
     },
     {
       "name": "ReactionPicker",
@@ -3298,7 +3357,8 @@
       "migrationStage": null,
       "docsId": "components-reactionpicker--docs",
       "storyId": "components-reactionpicker--default",
-      "docPage": "src/ReactionPicker.mdx"
+      "docPage": "src/ReactionPicker.mdx",
+      "app": null
     },
     {
       "name": "ScrollArea",
@@ -3376,7 +3436,8 @@
       "migrationStage": null,
       "docsId": "layout-scrollarea--docs",
       "storyId": "layout-scrollarea--default",
-      "docPage": "src/ScrollArea.mdx"
+      "docPage": "src/ScrollArea.mdx",
+      "app": null
     },
     {
       "name": "SearchInput",
@@ -3411,7 +3472,8 @@
       "migrationStage": null,
       "docsId": "inputs-searchinput--docs",
       "storyId": "inputs-searchinput--default",
-      "docPage": "src/SearchInput.mdx"
+      "docPage": "src/SearchInput.mdx",
+      "app": null
     },
     {
       "name": "SectionHeader",
@@ -3491,7 +3553,8 @@
       "migrationStage": null,
       "docsId": "navigation-sectionheader--docs",
       "storyId": "navigation-sectionheader--plain",
-      "docPage": "src/SectionHeader.mdx"
+      "docPage": "src/SectionHeader.mdx",
+      "app": null
     },
     {
       "name": "SectionLabel",
@@ -3535,7 +3598,8 @@
       "migrationStage": null,
       "docsId": "primitives-sectionlabel--docs",
       "storyId": "primitives-sectionlabel--default",
-      "docPage": "src/SectionLabel.mdx"
+      "docPage": "src/SectionLabel.mdx",
+      "app": null
     },
     {
       "name": "Select",
@@ -3644,7 +3708,8 @@
       "migrationStage": null,
       "docsId": "inputs-select--docs",
       "storyId": "inputs-select--default",
-      "docPage": "src/Select.mdx"
+      "docPage": "src/Select.mdx",
+      "app": null
     },
     {
       "name": "Sidebar",
@@ -3680,7 +3745,8 @@
       "migrationStage": null,
       "docsId": "frame-sidebar--docs",
       "storyId": "frame-sidebar--composed",
-      "docPage": "src/Sidebar.mdx"
+      "docPage": "src/Sidebar.mdx",
+      "app": null
     },
     {
       "name": "SkeletonBar",
@@ -3710,7 +3776,8 @@
       "migrationStage": null,
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "SkeletonList",
@@ -3740,7 +3807,8 @@
       "migrationStage": null,
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "SkeletonRow",
@@ -3764,7 +3832,8 @@
       "migrationStage": null,
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "Tabs",
@@ -3849,7 +3918,8 @@
       "migrationStage": null,
       "docsId": "navigation-tabs--docs",
       "storyId": "navigation-tabs--with-counts",
-      "docPage": "src/Tabs.mdx"
+      "docPage": "src/Tabs.mdx",
+      "app": null
     },
     {
       "name": "Textarea",
@@ -3866,7 +3936,8 @@
       "migrationStage": null,
       "docsId": "inputs-textarea--docs",
       "storyId": "inputs-textarea--empty",
-      "docPage": "src/Textarea.mdx"
+      "docPage": "src/Textarea.mdx",
+      "app": null
     },
     {
       "name": "TextInput",
@@ -3903,7 +3974,8 @@
       "migrationStage": null,
       "docsId": "inputs-textinput--docs",
       "storyId": "inputs-textinput--empty",
-      "docPage": "src/TextInput.mdx"
+      "docPage": "src/TextInput.mdx",
+      "app": null
     },
     {
       "name": "Toast",
@@ -3981,7 +4053,8 @@
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
-      "docPage": "src/Toast.mdx"
+      "docPage": "src/Toast.mdx",
+      "app": null
     },
     {
       "name": "ToastProvider",
@@ -4005,7 +4078,8 @@
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "Toolbar",
@@ -4084,7 +4158,8 @@
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
-      "docPage": "src/Toolbar.mdx"
+      "docPage": "src/Toolbar.mdx",
+      "app": null
     },
     {
       "name": "ToolbarButton",
@@ -4174,7 +4249,8 @@
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "ToolbarInput",
@@ -4206,7 +4282,8 @@
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "ToolbarSeparator",
@@ -4230,7 +4307,8 @@
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "Tooltip",
@@ -4277,7 +4355,8 @@
       "migrationStage": null,
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
-      "docPage": "src/Tooltip.mdx"
+      "docPage": "src/Tooltip.mdx",
+      "app": null
     },
     {
       "name": "TooltipProvider",
@@ -4319,7 +4398,8 @@
       "migrationStage": null,
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "TopBar",
@@ -4381,7 +4461,8 @@
       "migrationStage": null,
       "docsId": "frame-topbar--docs",
       "storyId": "frame-topbar--solid",
-      "docPage": "src/TopBar.mdx"
+      "docPage": "src/TopBar.mdx",
+      "app": null
     },
     {
       "name": "useToast",
@@ -4398,7 +4479,8 @@
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
-      "docPage": null
+      "docPage": null,
+      "app": null
     },
     {
       "name": "WithTooltip",
@@ -4463,8 +4545,10 @@
       "migrationStage": null,
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
-      "docPage": null
+      "docPage": null,
+      "app": null
     }
   ],
-  "excluded": []
+  "excluded": [],
+  "filesWithoutParts": []
 }

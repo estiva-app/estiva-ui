@@ -24,7 +24,7 @@ import { SCHEMA_VERSION, type EntryBehaviour, type EntryKind, type EntryProp, ty
 export interface BuildOptions {
   /** The repository's top folder. */
   root?: string
-  /** The name this registry's entries are recorded under. One repo per registry until UIG-13. */
+  /** The name this registry's entries are recorded under. */
   repo?: string
 }
 
@@ -36,7 +36,7 @@ interface RawExport {
   isType: boolean
 }
 
-/** What the parser found above and about one exported declaration. */
+/** What the parser found above and about one top-level declaration. */
 interface Declared {
   /** The doc comment, cleaned, or `''`. */
   doc: string
@@ -49,7 +49,7 @@ interface Declared {
   propsType?: ts.TypeNode
 }
 
-const PACKAGE_IMPORT = '@estiva-app/ui'
+export const PACKAGE_IMPORT = '@estiva-app/ui'
 
 /**
  * Storybook's own `sanitize`, which is what turns a title and a story's export
@@ -58,7 +58,7 @@ const PACKAGE_IMPORT = '@estiva-app/ui'
  * builder, which apps run. A test holds this to the ids a real Storybook build
  * produces.
  */
-function sanitize(name: string): string {
+export function sanitize(name: string): string {
   return name
     .toLowerCase()
     .replace(/[ ’–—―′¿'`~!@#$%^&*()_|+\-=?;:'",.<>{}[\]\\/]/g, '-')
@@ -87,7 +87,7 @@ function storyNameFromExport(key: string): string {
     .trim()
 }
 
-const toId = (title: string, name: string) => `${sanitize(title)}--${sanitize(storyNameFromExport(name))}`
+export const toId = (title: string, name: string) => `${sanitize(title)}--${sanitize(storyNameFromExport(name))}`
 
 /** Read `src/index.ts`. Its `export { … } from './Sibling'` statements are the target set. */
 export function readIndexExports(source: string): RawExport[] {
@@ -122,9 +122,11 @@ function docAbove(source: string, node: ts.Node, headerPos: number | null = null
   if (!jsdoc) return ''
   if (headerPos !== null && jsdoc.pos === headerPos) return ''
   // Only a comment that sits against the declaration describes it: anything
-  // with a blank line or another statement between them is about something else.
+  // with another statement between them is about something else. A `//` line
+  // between is still its own — the written note an escape needs sits there, and
+  // TypeScript attaches the doc comment through it too.
   const between = source.slice(jsdoc.end, node.getStart())
-  if (between.trim() !== '') return ''
+  if (between.replace(/\/\/[^\n]*/g, '').trim() !== '') return ''
   return source
     .slice(jsdoc.pos, jsdoc.end)
     .split(/\r?\n/)
@@ -141,7 +143,7 @@ function docAbove(source: string, node: ts.Node, headerPos: number | null = null
  * "A list of actions from a trigger." is a purpose; "One row, two parts." is
  * not, on its own.
  */
-function firstSentence(prose: string): string {
+export function firstSentence(prose: string): string {
   const flat = prose
     .split(/\n\s*\n/)[0]
     .split('\n')
@@ -157,7 +159,7 @@ function firstSentence(prose: string): string {
 }
 
 /** A page's opening paragraph: everything between its `# Heading` and the first blank line. */
-function pageOpening(mdx: string): string {
+export function pageOpening(mdx: string): string {
   const lines = mdx.split(/\r?\n/)
   const heading = lines.findIndex((line) => /^#\s+\S/.test(line))
   if (heading < 0) return ''
@@ -214,17 +216,20 @@ function literalUnion(type: ts.TypeNode | undefined, aliases: Map<string, ts.Typ
   return values.length > 1 ? values : null
 }
 
-/** Everything one sibling file says about the names it exports. */
 /** A type’s finished props and word-choices, read by the module that declares them. */
-interface Resolved {
+export interface Resolved {
   props: EntryProp[]
   variants: EntryVariant[]
 }
 
-/** Ask another file of this package for a type it declares, already resolved. */
-type Sibling = (module: string, typeName: string) => Resolved | undefined
+/**
+ * Ask another file for a type it declares, already resolved. `specifier` is the
+ * import as written (`./IconButton`, `@/lib/types`); the caller decides what it
+ * points at, and answers `undefined` for anything outside the library it reads.
+ */
+export type Sibling = (specifier: string, typeName: string) => Resolved | undefined
 
-function readModule(source: string, sibling: Sibling = () => undefined) {
+export function readModule(source: string, sibling: Sibling = () => undefined) {
   const file = ts.createSourceFile('module.tsx', source, ts.ScriptTarget.Latest, true)
   const declarations = new Map<string, Declared>()
   const aliases = new Map<string, ts.TypeNode>()
@@ -232,7 +237,7 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
   /** What each interface extends, as written — `Omit<IdentityMenuProps, 'compact'>` and all. */
   const bases = new Map<string, ts.ExpressionWithTypeArguments[]>()
   /** Which module each imported name came from. */
-  const importedFrom = new Map<string, string>()
+  const importedFrom = new Map<string, { specifier: string; imported: string }>()
 
   const propsTypeOf = (parameters: readonly ts.ParameterDeclaration[]): ts.TypeNode | undefined => parameters[0]?.type
 
@@ -261,13 +266,23 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
   // not an import. It belongs to the file, whatever export happens to follow it.
   const opening = file.statements.find((statement) => !ts.isImportDeclaration(statement))
   const headerPos = opening ? ((ts.getLeadingCommentRanges(source, opening.getFullStart()) ?? []).find((range) => source.slice(range.pos, range.pos + 3) === '/**')?.pos ?? null) : null
+  // A file that opens with its own comment, above its imports — Peek's and Ship's
+  // way — has its header there, so the comment on its first declaration is that
+  // declaration's own. Only a file with no such comment lends the first one it has.
+  const topPos = file.statements[0] ? ((ts.getLeadingCommentRanges(source, file.statements[0].getFullStart()) ?? []).find((range) => source.slice(range.pos, range.pos + 3) === '/**')?.pos ?? null) : null
+  const refused = topPos ?? headerPos
 
   for (const statement of file.statements) {
     if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
       const bindings = statement.importClause?.namedBindings
       if (bindings && ts.isNamedImports(bindings)) {
-        for (const element of bindings.elements) importedFrom.set(element.name.text, statement.moduleSpecifier.text)
+        for (const element of bindings.elements) importedFrom.set(element.name.text, { specifier: statement.moduleSpecifier.text, imported: (element.propertyName ?? element.name).text })
       }
+    }
+    // `export type { TopicRowProps } from './TopicRow'` hands a type on without
+    // declaring it: a file that asks this one for it is sent on to the next.
+    if (ts.isExportDeclaration(statement) && statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+      for (const element of statement.exportClause.elements) importedFrom.set(element.name.text, { specifier: statement.moduleSpecifier.text, imported: (element.propertyName ?? element.name).text })
     }
     if (ts.isTypeAliasDeclaration(statement)) aliases.set(statement.name.text, statement.type)
     if (ts.isInterfaceDeclaration(statement)) {
@@ -280,9 +295,19 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
     }
     if (ts.isTypeAliasDeclaration(statement) && ts.isTypeLiteralNode(statement.type)) shapes.set(statement.name.text, [...statement.type.members])
 
-    const exported = ts.canHaveModifiers(statement) && ts.getModifiers(statement)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
-    if (!exported) continue
-    const doc = docAbove(source, statement, headerPos)
+    // Every top-level function, class and constant, exported or not. The package
+    // exports at the declaration, so for it the two are the same; an app also
+    // writes `function Row() {…}` and `export { Row }` or `export default Row`
+    // further down, and the name is still read here, with its comment and props.
+    if (ts.isClassDeclaration(statement) && statement.name) {
+      // `class ErrorBoundary extends Component<Props, State>`: its props are the
+      // first type argument of what it extends.
+      const base = (statement.heritageClauses ?? []).find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword)?.types[0]
+      declarations.set(statement.name.text, { doc: docAbove(source, statement, refused), deprecated: false, propsType: base?.typeArguments?.[0] })
+      continue
+    }
+    if (!ts.isFunctionDeclaration(statement) && !ts.isVariableStatement(statement)) continue
+    const doc = docAbove(source, statement, refused)
     const deprecated = /(^|\n)@deprecated\b/.test(doc) || /\*\s*@deprecated\b/.test(source.slice(Math.max(0, statement.getFullStart()), statement.getStart()))
 
     if (ts.isFunctionDeclaration(statement) && statement.name) {
@@ -427,19 +452,34 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
     // `type ToolbarInputProps = TextInputProps` — an alias, not an interface.
     const alias = aliases.get(name)
     if (alias) return resolveNode(alias, seen)
-    // Not declared here at all. Follow the import, but only into this package.
+    // Not declared here at all. Follow the import; the caller says where it may go.
     const from = importedFrom.get(name)
-    return (from?.startsWith('./') ? sibling(from.slice(2), name) : undefined) ?? EMPTY
+    return (from ? sibling(from.specifier, from.imported) : undefined) ?? EMPTY
   }
 
   /** What one declaration's first parameter takes. */
   const resolve = (propsType: ts.TypeNode | undefined): Resolved => resolveNode(propsType, new Set())
 
-  return { declarations, resolve, resolveName: (name: string) => resolveName(name, new Set()) }
+  // The file's own description, for an app's file of one part: the first `/**`
+  // at the very top, above the imports — where Peek and Ship write it — or else
+  // the one directly above the first thing that is not an import.
+  const jsdocAt = (node: ts.Node | undefined) => (node ? (ts.getLeadingCommentRanges(source, node.getFullStart()) ?? []).find((range) => source.slice(range.pos, range.pos + 3) === '/**') : undefined)
+  const headerRange = jsdocAt(file.statements[0]) ?? jsdocAt(opening)
+  return { declarations, headerDoc: headerRange ? headerComment(source, headerRange) : '', resolve, resolveName: (name: string) => resolveName(name, new Set()) }
+}
+
+/** The file's own header comment, cleaned the way `docAbove` cleans a declaration's. */
+function headerComment(source: string, range: ts.CommentRange): string {
+  return source
+    .slice(range.pos, range.end)
+    .split(/\r?\n/)
+    .map((line) => line.trim().replace(/^\/\*\*/, '').replace(/\*\/$/, '').replace(/^\*/, '').trim())
+    .join('\n')
+    .trim()
 }
 
 /** The `title` a stories file gives Storybook, and the stories it exports. */
-function readStories(source: string): { title: string | null; stories: string[] } {
+export function readStories(source: string): { title: string | null; stories: string[] } {
   const file = ts.createSourceFile('x.stories.tsx', source, ts.ScriptTarget.Latest, true)
   let title: string | null = null
   const stories: string[] = []
@@ -502,7 +542,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
     // The callback lets one file's props type reach a type declared in another
     // — `ToolbarButtonProps extends IconButtonProps`. It is only called later,
     // by which time this module is in the cache, so the recursion terminates.
-    const read = { ...readModule(readFileSync(join(src, file), 'utf8'), (module, typeName) => moduleOf(module).resolveName(typeName)), file: `src/${file}` }
+    const read = { ...readModule(readFileSync(join(src, file), 'utf8'), (specifier, typeName) => (specifier.startsWith('./') ? moduleOf(specifier.slice(2)).resolveName(typeName) : undefined)), file: `src/${file}` }
     modules.set(name, read)
     return read
   }
@@ -555,6 +595,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
       docsId: title ? `${sanitize(title)}--docs` : null,
       storyId: title && story ? toId(title, story) : null,
       docPage: pageFile,
+      app: null,
     })
   }
 
@@ -565,11 +606,13 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
   return {
     schemaVersion: SCHEMA_VERSION,
     builtFrom: {
+      kind: 'package',
       repo,
       package: manifest.name,
       packageVersion: manifest.version,
       exports: values.length,
       typeExports: exported.length - values.length,
+      files: null,
     },
     storybook: {
       docsPath: '/?path=/docs/{docsId}',
@@ -581,6 +624,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
     // hook included, each marked by `kind`. The field stays because the count
     // has to reconcile out loud — see validateRegistry.
     excluded: [],
+    filesWithoutParts: [],
   }
 }
 
