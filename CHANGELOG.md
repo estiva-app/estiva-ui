@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.23.0 — 2026-09-18 — UIG-13, the apps' catalogues and three parts from Peek; UIG-10, a made app on the relay
+
+### Added
+
+- **An app's catalogue.** `estiva-ui find`, run in an app, searches the
+  package's parts and the app's own, built from its code each time and never
+  committed (the package is public, the apps are private — Katerina). Every
+  part a `.tsx` file exports is listed with its one-line purpose, where the app
+  uses it, what ties it to the app, and its kind: handed on from the package,
+  used in one place, used in several, a candidate to move into the package, or
+  unused. `--also [name=]<folder>` adds an app beside this one.
+- **`estiva-ui check` in an app** fails on a part with no one-line
+  description (a `/** … */` directly above it). Put it in CI's job `gate`.
+  `estiva-ui build` writes an app's `registry.json` only when asked.
+- **`@estiva-app/ui/registry`**: `buildAppRegistry`, `findInRegistries`,
+  `CLASSES`, and the types `AppFacts`, `EntryClass`, `FileWithoutPart`.
+- **`EmptyState` `action`**: one thing to do about it, drawn 16px under the
+  line as the package's Button, outlined (Katerina). A `page` only.
+- **`Banner` `icon` and `action`**: a 16px icon before the line and one small
+  muted Button after it, in the tone. With either, the banner is one line and
+  the text truncates. `children` takes a node.
+- **`ContainerHeader`**: the bar across the top of a column — a title, an
+  optional chevron, the column's own buttons at the right edge. Peek's, moved
+  in exactly as it looks.
+- **`create-estiva-app`**: a made app is connected to the relay (UIG-10,
+  reopened) — `protocol`, `platform` and `interop`, one relay client for the
+  tab, `VITE_RELAY_URL` empty by default, and a home page that says whether it
+  is connected; its empty state sits in the middle of the frame; and it gets
+  `ui:find`, `registry`, `registry:check` in its job `gate`, and ignores
+  `registry.json`.
+- **Gates**: `appChecks` for UIG-10 (one relay client per tab) and UIG-13 (the
+  catalogue's commands, CI, the ignore line, and every part described); the
+  helper `h.catalogue(folder)`.
+
+### Changed
+
+- `registry.json` is schema 2: `builtFrom.kind` and `files`,
+  `filesWithoutParts`, and `app` on every entry (`null` on the package's own).
+  The package's entries are otherwise unchanged; there are 82 now.
+- `formatFindings` takes one catalogue or several.
+
+**Callers:** nothing an app imports today changes. To take the catalogue: add
+`"ui:find": "estiva-ui find"` and `"registry:check": "estiva-ui check"`, run
+`registry:check` in job `gate`, ignore `registry.json`, and describe every part.
+
 ## 0.22.0 — 2026-09-18 — UIG-12, the component catalogue
 
 A list of everything the package exports, written by a machine that reads the
