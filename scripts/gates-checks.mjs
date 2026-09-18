@@ -187,6 +187,8 @@ export default function define(h) {
         return missing.length === 0 ? h.PASS("the token lint, the gate config, the count, the hook, the status engine and the app checks") : h.FAIL(`missing: ${missing.join(", ")}`);
       } },
       { what: "the checks every app runs are held to Peek's and Ship's", run: () => h.script("package.json", "gates:compare") },
+      // Reopened 18 September (GATES.md §0): a made app bakes in the relay packages and is connected.
+      { what: "a made app bakes in protocol, platform and interop, and holds one relay client", run: () => h.contains("src/gates/create-app.ts", /'@estiva-app\/protocol': own\('@estiva-app\/protocol'\)[\s\S]*'src\/relay\/client\.ts'[\s\S]*const holder = createLiveClientHolder\(\)/, "create-app writes the three packages and src/relay/client.ts") },
     ] },
     { ref: "UIG-11", owner: true, checks: [
       { what: "the leaf repository exists on GitHub", run: () => h.gh(["repo", "view", "estiva-app/leaf", "--json", "name"], "estiva-app/leaf exists") },

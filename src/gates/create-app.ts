@@ -15,13 +15,20 @@
  * import them, and a gate added later arrives with a version bump.
  *
  * What only a new app has is written here: its first page in the sidebar frame
- * (ruled the same day), its one theme, sign-in the way Ship signs in, one test,
- * one story, the CI workflow with the job `gate`, and its README and CLAUDE.md.
+ * (ruled the same day), its one theme, sign-in the way Ship signs in, its one
+ * relay connection the way Peek and Ship hold theirs, its tests, its stories,
+ * the CI workflow with the job `gate`, and its README and CLAUDE.md.
+ *
+ * The relay (UIG-10, reopened 18 September): a made app gets `protocol`,
+ * `platform` and `interop` and is connected from its first commit, or runs alone
+ * when no relay is set. The wiring is the app's own file, using `platform` as it
+ * is — not a helper in `platform` — because a package takes code a real app has
+ * already run (ADR 0002 §10), and Peek and Ship each hold theirs the same way.
  *
  * Tool versions are this package's own (its devDependencies build and test the
- * same tools). The two it does not use itself — `@estiva-app/identity` and
- * `eslint-plugin-react-hooks` — are asked of the npm registry when the app is
- * made. The lockfile is the app's first `npm install`; make it on Linux.
+ * same tools). The ones it does not use itself ({@link ASKED_OF_NPM}) are asked of
+ * the npm registry when the app is made. The lockfile is the app's first
+ * `npm install`; make it on Linux.
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -51,6 +58,9 @@ export interface CreateAppOptions {
 
 const here = dirname(fileURLToPath(import.meta.url))
 const packageRoot = resolve(here, '..', '..')
+
+/** What a made app depends on that this package does not use itself: asked of npm when the app is made. */
+export const ASKED_OF_NPM = ['@estiva-app/identity', '@estiva-app/interop', '@estiva-app/platform', '@estiva-app/protocol', 'eslint-plugin-react-hooks']
 
 /** The package's themes, read from its tokens.css: `light` is the block with no attribute. */
 export function themes(): string[] {
@@ -93,6 +103,9 @@ export function appFiles({ name, title = name, theme = 'light', ui, versions = {
     },
     dependencies: {
       '@estiva-app/identity': own('@estiva-app/identity'),
+      '@estiva-app/interop': own('@estiva-app/interop'),
+      '@estiva-app/platform': own('@estiva-app/platform'),
+      '@estiva-app/protocol': own('@estiva-app/protocol'),
       '@estiva-app/ui': ui ?? `^${pkg.version}`,
       ...deps(['@tabler/icons-react', 'react', 'react-dom']),
     },
@@ -140,6 +153,16 @@ export function appFiles({ name, title = name, theme = 'light', ui, versions = {
 # server; a local one (http://localhost:8787) in its database.
 VITE_ESTIVA_ID_ORIGIN=
 VITE_ESTIVA_ID_CLIENT_ID=${name}
+
+# The relay: the workspace this app reads and writes.
+#
+# Left empty, the app runs alone. It opens no connection, and its home page says
+# so. It also needs sign-in above: the relay refuses anything before sign-in, so
+# with a relay and no sign-in there is still no connection. And Estiva ID must
+# allow this app to sign in to that relay (the README says how).
+#
+# A relay running on this machine is http://localhost:3000.
+VITE_RELAY_URL=
 `,
 
     'index.html': `<!doctype html>
@@ -374,6 +397,7 @@ body,
 interface ImportMetaEnv {
   readonly VITE_ESTIVA_ID_ORIGIN?: string
   readonly VITE_ESTIVA_ID_CLIENT_ID?: string
+  readonly VITE_RELAY_URL?: string
 }
 `,
     'src/config.ts': `/** What the app is called on screen. */
@@ -388,6 +412,22 @@ export const ID_CONFIG: { base: string; clientId: string } | null =
   import.meta.env.VITE_ESTIVA_ID_ORIGIN && import.meta.env.VITE_ESTIVA_ID_CLIENT_ID
     ? { base: import.meta.env.VITE_ESTIVA_ID_ORIGIN.replace(/\\/+$/, ''), clientId: import.meta.env.VITE_ESTIVA_ID_CLIENT_ID }
     : null
+
+/**
+ * The relay, the workspace this app reads and writes, or \`null\` when this build
+ * has none. Empty is a real mode too: the app runs alone and opens no connection,
+ * and a local build can never reach the real relay by accident. See .env.example.
+ */
+export const RELAY_URL: string | null = import.meta.env.VITE_RELAY_URL?.trim().replace(/\\/+$/, '') || null
+
+/** The relay as a person would name it: host and port, no scheme. */
+export function relayLabel(url: string): string {
+  try {
+    return new URL(url).host
+  } catch {
+    return url
+  }
+}
 `,
     'src/auth/estivaId.ts': `import { createEstivaId, type ShellReason, type StoredToken } from '@estiva-app/identity'
 import { ID_CONFIG } from '../config'
@@ -573,6 +613,131 @@ export function AuthShell({ state, onContinue }: AuthShellProps) {
   )
 }
 `,
+    'src/relay/client.ts': `import { signViaEstivaId } from '@estiva-app/identity'
+import { browserOnlineSource, createLiveClientHolder, type LiveClient } from '@estiva-app/platform'
+import { currentToken } from '../auth/estivaId'
+import { ID_CONFIG, RELAY_URL } from '../config'
+
+/**
+ * The event kinds this app reads. They are the app's own decision, and the one
+ * blank a new app fills in: Ship reads seven (projects, issues, changes,
+ * messages, comments, deletions and edits), Peek its own. Until there are kinds
+ * here the app is connected and reads nothing, which is a correct state.
+ */
+export const KINDS: number[] = []
+
+/**
+ * The tab's one relay client. \`@estiva-app/platform\` hands out a holder and
+ * keeps nothing, so this line is where "one connection per tab" lives. The relay
+ * signs a connection in once and caps subscriptions per connection, so a
+ * connection per component is wrong, not only wasteful; React's StrictMode,
+ * which mounts everything twice, is what would show it.
+ *
+ * Peek and Ship hold theirs the same way. Everything the client needs is handed
+ * in and nothing here reads the app's own data, so it could move into
+ * \`@estiva-app/platform\` as it is, if that is ever worth doing.
+ */
+const holder = createLiveClientHolder()
+
+/**
+ * The client, or \`null\` when this build cannot have one: no relay is set, or
+ * there is no sign-in. The relay refuses anything before sign-in, so a socket
+ * without it would only connect, be refused and retry.
+ */
+export function relayClient(): LiveClient | null {
+  const base = ID_CONFIG?.base
+  if (!RELAY_URL || !base) return null
+  return holder.get({
+    relayUrl: RELAY_URL,
+    // Read on every connect, never kept: a token kept from the first connect
+    // outlives a silent renewal as a dead one, and the next reconnect fails.
+    getCredential: () => {
+      const token = currentToken()
+      return token ? { accessToken: token.accessToken, pubkey: token.pubkey } : null
+    },
+    // \`expectedPubkey\` is a check, not a request. Estiva ID signs as the token's
+    // owner whatever it is handed, so a mismatch comes back as a valid event
+    // signed by somebody else. Always pass it.
+    sign: (unsigned, token, expectedPubkey) => signViaEstivaId(unsigned, { base, token, expectedPubkey }),
+    online: typeof window === 'undefined' ? undefined : browserOnlineSource(window),
+    // Names this app in the relay's own logs.
+    subscriptionPrefix: '${name}-',
+    log: (message, detail) => console.debug('[relay]', message, detail ?? ''),
+  })
+}
+`,
+    'src/relay/useRelayState.ts': `import type { RelayState } from '@estiva-app/protocol'
+import { useSyncExternalStore } from 'react'
+import { relayClient } from './client'
+
+const subscribe = (onChange: () => void): (() => void) => relayClient()?.onState(onChange) ?? (() => {})
+const snapshot = (): RelayState | 'off' => relayClient()?.state() ?? 'off'
+
+/** The connection's state, for a page to show: \`'off'\` when this build has no client. */
+export function useRelayState(): RelayState | 'off' {
+  return useSyncExternalStore(subscribe, snapshot, () => 'off')
+}
+`,
+    'src/relay/client.test.ts': `import { afterEach, describe, expect, it, vi } from 'vitest'
+
+/**
+ * The tab's one relay connection. A fake socket stands in for the relay, so this
+ * runs with no network, and counts the sockets opened.
+ */
+class FakeSocket {
+  static opened = 0
+  onopen: (() => void) | null = null
+  onmessage: ((event: { data: unknown }) => void) | null = null
+  onclose: (() => void) | null = null
+  onerror: (() => void) | null = null
+  constructor() {
+    FakeSocket.opened += 1
+  }
+  send() {}
+  close() {}
+}
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+  vi.unstubAllGlobals()
+  vi.resetModules()
+  FakeSocket.opened = 0
+})
+
+describe('the relay client', () => {
+  it('opens no connection when no relay is set', async () => {
+    vi.stubEnv('VITE_RELAY_URL', '')
+    vi.stubEnv('VITE_ESTIVA_ID_ORIGIN', 'http://localhost:8787')
+    vi.stubEnv('VITE_ESTIVA_ID_CLIENT_ID', '${name}')
+    vi.stubGlobal('WebSocket', FakeSocket)
+    const { relayClient } = await import('./client')
+    expect(relayClient()).toBeNull()
+    expect(FakeSocket.opened).toBe(0)
+  })
+
+  it('opens no connection with a relay and no sign-in', async () => {
+    vi.stubEnv('VITE_RELAY_URL', 'http://localhost:3000')
+    vi.stubEnv('VITE_ESTIVA_ID_ORIGIN', '')
+    vi.stubGlobal('WebSocket', FakeSocket)
+    const { relayClient } = await import('./client')
+    expect(relayClient()).toBeNull()
+    expect(FakeSocket.opened).toBe(0)
+  })
+
+  it('holds one connection per tab, however often it is asked', async () => {
+    vi.stubEnv('VITE_RELAY_URL', 'http://localhost:3000')
+    vi.stubEnv('VITE_ESTIVA_ID_ORIGIN', 'http://localhost:8787')
+    vi.stubEnv('VITE_ESTIVA_ID_CLIENT_ID', '${name}')
+    vi.stubGlobal('WebSocket', FakeSocket)
+    const { relayClient } = await import('./client')
+    const first = relayClient()
+    expect(first).not.toBeNull()
+    expect(relayClient()).toBe(first)
+    expect(FakeSocket.opened).toBe(1)
+    first?.close()
+  })
+})
+`,
     'src/main.tsx': `import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -605,13 +770,15 @@ void (async () => {
 import { IconHome } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { beginSignOut, currentToken, whoAmI } from './auth/estivaId'
-import { APP_TITLE, ID_CONFIG } from './config'
+import { APP_TITLE, ID_CONFIG, RELAY_URL } from './config'
 import { HomePage } from './pages/HomePage'
+import { useRelayState } from './relay/useRelayState'
 
 /** The frame: the package's AppShell with a sidebar, and the one page. */
 export function App() {
   const signedIn = currentToken() !== null
   const [me, setMe] = useState<Identity>({})
+  const relayState = useRelayState()
 
   useEffect(() => {
     if (!signedIn) return
@@ -634,18 +801,46 @@ export function App() {
         </Sidebar>
       }
     >
-      <HomePage />
+      <HomePage relay={RELAY_URL} state={relayState} name={me.name} />
     </AppShell>
   )
 }
 `,
-    'src/pages/HomePage.tsx': `import { EmptyState } from '@estiva-app/ui'
+    'src/pages/HomePage.tsx': `import type { RelayState } from '@estiva-app/protocol'
+import { EmptyState } from '@estiva-app/ui'
+import { relayLabel } from '../config'
 
-/** The first page. What it becomes is this app's own work. */
-export function HomePage() {
+export interface HomePageProps {
+  /** The relay this build is set to, or \`null\` when the app runs alone. */
+  relay: string | null
+  /** The connection's state: \`'off'\` when this build has no client. */
+  state: RelayState | 'off'
+  /** The signed-in person's name, once Estiva ID has said it. */
+  name?: string
+}
+
+const SAYS: Record<RelayState, (host: string, name?: string) => string> = {
+  connecting: (host) => \`Connecting to \${host}…\`,
+  authenticating: (host) => \`Signing in to \${host}…\`,
+  live: (host, name) => (name ? \`Connected to \${host} as \${name}.\` : \`Connected to \${host}.\`),
+  reconnecting: (host) => \`Reconnecting to \${host}…\`,
+  failed: (host) => \`Could not connect to \${host}.\`,
+}
+
+/**
+ * The first page. What it becomes is this app's own work; until then it says
+ * whether the app is connected to the relay, and as whom.
+ */
+export function HomePage({ relay, state, name }: HomePageProps) {
+  const line = !relay
+    ? 'Running alone: no relay is set. Set VITE_RELAY_URL in .env.local to connect.'
+    : state === 'off'
+      ? \`Not connected: \${relayLabel(relay)} needs sign-in, and this build has none.\`
+      : SAYS[state](relayLabel(relay), name)
   return (
-    <div className="flex justify-center px-6 py-16">
+    <div className="flex flex-col items-center gap-3 px-6 py-16">
       <EmptyState message="Nothing here yet." />
+      <p className="text-body-2 text-text-secondary">{line}</p>
     </div>
   )
 }
@@ -662,7 +857,14 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Empty: Story = {}
+/** No relay set: the app runs alone, the way it starts. */
+export const RunningAlone: Story = { args: { relay: null, state: 'off' } }
+
+/** A relay set, before it has signed the connection in. */
+export const Connecting: Story = { args: { relay: 'http://localhost:3000', state: 'connecting' } }
+
+/** Connected, as the person who signed in. */
+export const Connected: Story = { args: { relay: 'http://localhost:3000', state: 'live', name: 'Alex Kim' } }
 `,
     'src/App.test.tsx': `import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
@@ -674,6 +876,7 @@ describe('${title}', () => {
     render(<App />)
     expect(screen.getAllByText(APP_TITLE).length).toBeGreaterThan(0)
     expect(screen.getByText('Nothing here yet.')).toBeTruthy()
+    expect(screen.getByText(/^Running alone/)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Home' })).toBeTruthy()
   })
 })
@@ -719,6 +922,40 @@ With no settings it runs **anonymous**: no sign-in is offered, and nothing reach
 the real Estiva ID. To sign in, copy \`.env.example\` to \`.env.local\` and fill it in.
 The app must first be registered with that Estiva ID as its own app.
 
+## The relay
+
+${title} is connected to the relay, the workspace, from its first commit, as
+whoever signed in. \`src/relay/client.ts\` holds the tab's one connection: ask it
+for \`relayClient()\`, and never open a socket of your own. The home page shows the
+connection's state.
+
+With \`VITE_RELAY_URL\` empty it runs alone and opens no connection. The relay
+also needs sign-in, so with a relay and no sign-in there is no connection either.
+
+Three packages come with it: \`@estiva-app/protocol\` (the wire: events, ids,
+signing, the relay clients), \`@estiva-app/platform\` (the one connection a tab
+holds) and \`@estiva-app/interop\` (showing another app's objects, from the
+manifest that app publishes).
+
+## What you fill in
+
+1. \`.env.local\`: Estiva ID and the relay (see \`.env.example\`).
+2. \`KINDS\` in \`src/relay/client.ts\`: the event kinds ${title} reads. Until then
+   it is connected and reads nothing.
+3. The product: its pages, and the fold that turns what arrives on the
+   connection into the app's state.
+
+Before ${title} can sign in on the real Estiva ID it has to be registered there
+as its own app, with:
+
+- its exact redirect address
+- every event kind it will sign, **including 22242**, the relay's sign-in handshake
+- the relay's address, allowed for that handshake. Estiva ID signs a handshake
+  only for a relay both the app and the deployment allow.
+
+Anything left out fails at the very last step: every screen looks right, and
+nothing arrives.
+
 ## The checks
 
 | command | what |
@@ -757,6 +994,10 @@ only with its reason on the line above, \`// @estiva-escape: <reason>\`, never w
 
 **Tokens only.** Colours, type, corners and shadows come from the package's preset.
 
+**One relay connection per tab.** \`relayClient()\` in \`src/relay/client.ts\` is the
+connection. Never open a socket and never make a second holder: the relay signs a
+connection in once, and caps subscriptions per connection.
+
 **The count starts at zero and stays there** (\`.gates-count.json\`, \`docs/GATES-DEBT.md\`).
 
 What each gate is and how it is wired: the package's README,
@@ -785,7 +1026,7 @@ export function createApp(options: CreateAppOptions): string {
   const dir = resolve(options.parent ?? process.cwd(), options.name)
   if (existsSync(dir)) throw new Error(`${dir} already exists: create-estiva-app never writes into a folder that is there`)
   const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8')) as PackageJson
-  const missing = ['@estiva-app/identity', 'eslint-plugin-react-hooks'].filter((n) => !pkg.devDependencies[n] && !options.versions?.[n])
+  const missing = ASKED_OF_NPM.filter((n) => !pkg.devDependencies[n] && !options.versions?.[n])
   const versions = { ...(missing.length ? askNpm(missing) : {}), ...options.versions }
   const files = appFiles({ ...options, versions })
   for (const [rel, text] of Object.entries(files)) {
