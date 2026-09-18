@@ -15,9 +15,20 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildRegistry, serializeRegistry } from './build'
 import { findInRegistry, formatFindings } from './find'
 import { validateRegistry, type Registry } from './schema'
+
+/**
+ * The builder, loaded only when it is used.
+ *
+ * It reads TypeScript with TypeScript, and `typescript` is a dev dependency of
+ * the app that installs this package — a real one in Peek, Ship and this repo,
+ * and possibly absent elsewhere. `find` needs none of it: it reads a JSON file.
+ * A static import made the bundler put the whole builder in the same chunk as
+ * `find`, so `npx estiva-ui find …` died with ERR_MODULE_NOT_FOUND before
+ * opening the file it needed.
+ */
+const builder = () => import('./build')
 
 const [command, ...rest] = process.argv.slice(2)
 const flag = (name: string) => rest.includes(`--${name}`)
@@ -58,7 +69,7 @@ function readRegistry(): Registry {
   return registry
 }
 
-function main(): number {
+async function main(): Promise<number> {
   switch (command) {
     case 'find': {
       const query = plain().join(' ')
@@ -80,6 +91,7 @@ function main(): number {
     }
 
     case 'build': {
+      const { buildRegistry, serializeRegistry } = await builder()
       const out = resolve(value('out') ?? 'registry.json')
       const registry = buildRegistry()
       const problems = validateRegistry(registry)
@@ -93,6 +105,7 @@ function main(): number {
     }
 
     case 'check': {
+      const { buildRegistry, serializeRegistry } = await builder()
       const path = registryPath()
       const built = buildRegistry()
       const problems = validateRegistry(built)
@@ -121,7 +134,7 @@ function main(): number {
 }
 
 try {
-  process.exitCode = main()
+  process.exitCode = await main()
 } catch (error) {
   process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
   process.exitCode = 1

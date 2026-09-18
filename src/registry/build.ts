@@ -215,16 +215,22 @@ function literalUnion(type: ts.TypeNode | undefined, aliases: Map<string, ts.Typ
 }
 
 /** Everything one sibling file says about the names it exports. */
-/** Resolve a type that lives in another file of this package to its properties. */
-type Sibling = (module: string, typeName: string) => ts.TypeElement[] | undefined
+/** A type’s finished props and word-choices, read by the module that declares them. */
+interface Resolved {
+  props: EntryProp[]
+  variants: EntryVariant[]
+}
+
+/** Ask another file of this package for a type it declares, already resolved. */
+type Sibling = (module: string, typeName: string) => Resolved | undefined
 
 function readModule(source: string, sibling: Sibling = () => undefined) {
   const file = ts.createSourceFile('module.tsx', source, ts.ScriptTarget.Latest, true)
   const declarations = new Map<string, Declared>()
   const aliases = new Map<string, ts.TypeNode>()
   const shapes = new Map<string, ts.TypeElement[]>()
-  /** What each interface extends, by name. */
-  const bases = new Map<string, string[]>()
+  /** What each interface extends, as written — `Omit<IdentityMenuProps, 'compact'>` and all. */
+  const bases = new Map<string, ts.ExpressionWithTypeArguments[]>()
   /** Which module each imported name came from. */
   const importedFrom = new Map<string, string>()
 
@@ -266,10 +272,10 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
     if (ts.isTypeAliasDeclaration(statement)) aliases.set(statement.name.text, statement.type)
     if (ts.isInterfaceDeclaration(statement)) {
       shapes.set(statement.name.text, [...statement.members])
-      const extended = (statement.heritageClauses ?? [])
-        .flatMap((clause) => [...clause.types])
-        .map((base) => (ts.isIdentifier(base.expression) ? base.expression.text : null))
-        .filter((name): name is string => name !== null)
+      // The whole clause, not its name: `extends Omit<IdentityMenuProps,
+      // 'compact'>` reads as the name `Omit` and loses both the type it wraps
+      // and the key it drops.
+      const extended = (statement.heritageClauses ?? []).flatMap((clause) => [...clause.types])
       if (extended.length) bases.set(statement.name.text, extended)
     }
     if (ts.isTypeAliasDeclaration(statement) && ts.isTypeLiteralNode(statement.type)) shapes.set(statement.name.text, [...statement.type.members])
@@ -290,69 +296,56 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
       }
     }
   }
+  /**
+   * A type's props and its word-choices, **resolved in the file that declares
+   * them**.
+   *
+   * This is the whole shape of the thing, and the reason for it is a bug that
+   * looked like nothing: a `ts.TypeElement` carries positions into *its own*
+   * source text, so handing a sibling's node to this file's `getText`, `aliases`
+   * and `docAbove` reads the wrong file at those offsets. `ToolbarButton` came
+   * out with `variant: "ats over what it a"` and `children: "omeAndEndK"` —
+   * real prop names, and slices of another file for their types. Nothing caught
+   * it: the names were right, and the cross-check against `react-docgen`
+   * compared names.
+   *
+   * So a sibling never returns nodes. It returns finished props, read by the
+   * module that owns them, and this file only merges them.
+   */
+  const EMPTY: Resolved = { props: [], variants: [] }
 
-  /**
-   * The properties a parameter's type has, however it was written: an interface
-   * by name, `Omit<…>` of one, an intersection of both, or — `SectionLabel`,
-   * `SkeletonRow` and others — the shape written out at the parameter itself.
-   * Reading only named types missed `SectionLabel`'s `tone`, found in the
-   * ten-entry spot check.
-   */
-  /**
-   * A named type's properties: its own, plus everything it extends **within
-   * this package**.
-   *
-   * It stops at React and Base UI on purpose. `ToolbarButtonProps extends
-   * IconButtonProps` is ours, and `variant`, `pressed` and `tooltip` are things
-   * `ToolbarButton` genuinely takes; `ButtonProps extends
-   * ComponentPropsWithRef<'button'>` is the DOM, and listing `onCopy` and
-   * `spellCheck` would bury the answer. The rule is where the type is declared,
-   * not what it is called.
-   *
-   * Found by `react-docgen`, which inherits everything: `ToolbarButton` carried
-   * one prop here and eight there, and `ToolbarInput` — `type ToolbarInputProps
-   * = TextInputProps`, a straight alias to another file — carried none.
-   */
-  const shapeMembers = (name: string, seen = new Set<string>()): ts.TypeElement[] | undefined => {
-    if (seen.has(name) || seen.size > 8) return undefined
-    seen.add(name)
-    const own = shapes.get(name)
-    if (!own) {
-      // `type ToolbarInputProps = TextInputProps` — an alias, not an interface.
-      const alias = aliases.get(name)
-      if (alias) {
-        if (ts.isTypeLiteralNode(alias)) return [...alias.members]
-        if (ts.isTypeReferenceNode(alias) && ts.isIdentifier(alias.typeName)) return shapeMembers(alias.typeName.text, seen)
-        return undefined
-      }
-      // Not declared here at all. Follow the import, but only into this package.
-      const from = importedFrom.get(name)
-      return from?.startsWith('./') ? sibling(from.slice(2), name) : undefined
+  /** The keys named by an `Omit`/`Pick` argument: `'a'` or `'a' | 'b'`. */
+  const keysOf = (type: ts.TypeNode | undefined): string[] | null => {
+    if (!type) return null
+    if (ts.isLiteralTypeNode(type) && ts.isStringLiteral(type.literal)) return [type.literal.text]
+    if (!ts.isUnionTypeNode(type)) return null
+    const keys: string[] = []
+    for (const member of type.types) {
+      if (!ts.isLiteralTypeNode(member) || !ts.isStringLiteral(member.literal)) return null
+      keys.push(member.literal.text)
     }
-    const inherited = (bases.get(name) ?? []).flatMap((base) => shapeMembers(base, seen) ?? [])
-    if (!inherited.length) return own
-    // Own members win over an inherited one of the same name.
-    const mine = new Set(own.map((member) => propName(member)).filter((text): text is string => text !== null))
-    return [...own, ...inherited.filter((member) => { const text = propName(member); return text !== null && !mine.has(text) })]
+    return keys
   }
 
-  const membersOf = (type: ts.TypeNode, depth = 0): ts.TypeElement[] | undefined => {
-    if (depth > 4) return undefined
-    if (ts.isTypeLiteralNode(type)) return [...type.members]
-    if (ts.isIntersectionTypeNode(type)) {
-      const sides = type.types.flatMap((side) => membersOf(side, depth + 1) ?? [])
-      return sides.length ? sides : undefined
+  /** `Omit` drops the keys it names, `Pick` keeps only them. Unreadable keys change nothing. */
+  const narrow = (resolved: Resolved, how: 'Omit' | 'Pick', keys: string[] | null): Resolved => {
+    if (!keys) return resolved
+    const named = new Set(keys)
+    const keep = (name: string) => (how === 'Omit' ? !named.has(name) : named.has(name))
+    return { props: resolved.props.filter((prop) => keep(prop.name)), variants: resolved.variants.filter((variant) => keep(variant.prop)) }
+  }
+
+  /** The first of each name wins, so what a type declares itself beats what it inherits. */
+  const merge = (parts: Resolved[]): Resolved => {
+    const props: EntryProp[] = []
+    const variants: EntryVariant[] = []
+    const seenProp = new Set<string>()
+    const seenVariant = new Set<string>()
+    for (const part of parts) {
+      for (const prop of part.props) if (!seenProp.has(prop.name)) (seenProp.add(prop.name), props.push(prop))
+      for (const variant of part.variants) if (!seenVariant.has(variant.prop)) (seenVariant.add(variant.prop), variants.push(variant))
     }
-    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
-      const named = type.typeName.text
-      // `Omit<ButtonProps, 'x'>` and `Pick<…>`: the shape is the first argument.
-      if (named === 'Omit' || named === 'Pick') {
-        const first = type.typeArguments?.[0]
-        return first ? membersOf(first, depth + 1) : undefined
-      }
-      return shapeMembers(named)
-    }
-    return undefined
+    return { props, variants }
   }
 
   /**
@@ -360,47 +353,89 @@ function readModule(source: string, sibling: Sibling = () => undefined) {
    * fallback, not the answer: `(next: string) => void` tells a reader nothing
    * they cannot guess, and "a handler" tells them what to pass.
    */
-  const takes = (type: ts.TypeNode | undefined): string => {
-    if (!type) return 'anything'
-    const values = literalUnion(type, aliases)
+  const takes = (type: ts.TypeNode | undefined, values: string[] | null): string => {
     if (values) return values.join(' | ')
+    if (!type) return 'anything'
     const written = type.getText(file).replace(/\s+/g, ' ').trim()
     if (written === 'boolean') return 'true/false'
     if (written === 'number') return 'number'
     if (written === 'string') return 'text'
-    if (/^React(Node|Element)\b/.test(written) || written === 'ReactNode') return 'anything'
+    if (/^React(Node|Element)\b/.test(written)) return 'anything'
     if (written.includes('=>')) return 'a handler'
     return written.length > 60 ? `${written.slice(0, 57)}…` : written
   }
 
-  const propsOf = (propsType: ts.TypeNode | undefined): EntryProp[] => {
-    const members = propsType ? membersOf(propsType) : undefined
-    if (!members) return []
+  /** Members of this file, read with this file's text and aliases. */
+  const fromMembers = (members: readonly ts.TypeElement[]): Resolved => {
     const props: EntryProp[] = []
-    for (const member of members) {
-      const name = propName(member)
-      if (name === null || !ts.isPropertySignature(member)) continue
-      const note = firstSentence(docAbove(source, member))
-      props.push({ name, takes: takes(member.type), required: !member.questionToken, note: note || null })
-    }
-    return props
-  }
-
-  /** The word-choice props, structured — a view of `propsOf`, never a second reading. */
-  const variantsOf = (propsType: ts.TypeNode | undefined): EntryVariant[] => {
-    const members = propsType ? membersOf(propsType) : undefined
-    if (!members) return []
     const variants: EntryVariant[] = []
     for (const member of members) {
       const name = propName(member)
       if (name === null || !ts.isPropertySignature(member)) continue
       const values = literalUnion(member.type, aliases)
+      const note = firstSentence(docAbove(source, member))
+      props.push({ name, takes: takes(member.type, values), required: !member.questionToken, note: note || null })
       if (values) variants.push({ prop: name, values })
     }
-    return variants
+    return { props, variants }
   }
 
-  return { declarations, propsOf, variantsOf, shapeMembers }
+  const resolveNode = (type: ts.TypeNode | undefined, seen: Set<string>): Resolved => {
+    if (!type || seen.size > 12) return EMPTY
+    // `{ tone?: 'primary' | 'secondary' }` written out at the parameter.
+    if (ts.isTypeLiteralNode(type)) return fromMembers(type.members)
+    if (ts.isIntersectionTypeNode(type)) return merge(type.types.map((side) => resolveNode(side, seen)))
+    if (ts.isTypeReferenceNode(type) && ts.isIdentifier(type.typeName)) {
+      const named = type.typeName.text
+      if (named === 'Omit' || named === 'Pick') {
+        return narrow(resolveNode(type.typeArguments?.[0], seen), named, keysOf(type.typeArguments?.[1]))
+      }
+      return resolveName(named, seen)
+    }
+    return EMPTY
+  }
+
+  /** A heritage clause is not a `TypeNode`, and carries the same `Omit<…>` shapes. */
+  const resolveBase = (base: ts.ExpressionWithTypeArguments, seen: Set<string>): Resolved => {
+    if (!ts.isIdentifier(base.expression)) return EMPTY
+    const named = base.expression.text
+    if (named === 'Omit' || named === 'Pick') {
+      return narrow(resolveNode(base.typeArguments?.[0], seen), named, keysOf(base.typeArguments?.[1]))
+    }
+    return resolveName(named, seen)
+  }
+
+  /**
+   * A named type: its own props, plus everything it extends **within this
+   * package**.
+   *
+   * It stops at React and Base UI on purpose. `ToolbarButtonProps extends
+   * IconButtonProps` is ours, and `variant`, `pressed` and `tooltip` are things
+   * `ToolbarButton` genuinely takes; `ButtonProps extends
+   * ComponentPropsWithRef<'button'>` is the DOM, and listing `onCopy` and
+   * `spellCheck` would bury the answer. The rule is where the type is declared,
+   * not what it is called.
+   */
+  function resolveName(name: string, seen: Set<string>): Resolved {
+    if (seen.has(name) || seen.size > 12) return EMPTY
+    seen.add(name)
+    const own = shapes.get(name)
+    if (own) {
+      const inherited = (bases.get(name) ?? []).map((base) => resolveBase(base, seen))
+      return merge([fromMembers(own), ...inherited])
+    }
+    // `type ToolbarInputProps = TextInputProps` — an alias, not an interface.
+    const alias = aliases.get(name)
+    if (alias) return resolveNode(alias, seen)
+    // Not declared here at all. Follow the import, but only into this package.
+    const from = importedFrom.get(name)
+    return (from?.startsWith('./') ? sibling(from.slice(2), name) : undefined) ?? EMPTY
+  }
+
+  /** What one declaration's first parameter takes. */
+  const resolve = (propsType: ts.TypeNode | undefined): Resolved => resolveNode(propsType, new Set())
+
+  return { declarations, resolve, resolveName: (name: string) => resolveName(name, new Set()) }
 }
 
 /** The `title` a stories file gives Storybook, and the stories it exports. */
@@ -467,7 +502,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
     // The callback lets one file's props type reach a type declared in another
     // — `ToolbarButtonProps extends IconButtonProps`. It is only called later,
     // by which time this module is in the cache, so the recursion terminates.
-    const read = { ...readModule(readFileSync(join(src, file), 'utf8'), (module, typeName) => moduleOf(module).shapeMembers(typeName)), file: `src/${file}` }
+    const read = { ...readModule(readFileSync(join(src, file), 'utf8'), (module, typeName) => moduleOf(module).resolveName(typeName)), file: `src/${file}` }
     modules.set(name, read)
     return read
   }
@@ -502,6 +537,8 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
     const title = stories.title
     const story = stories.stories.includes(value.name) ? value.name : stories.stories[0]
 
+    const shape = module.resolve(declared.propsType)
+
     entries.push({
       name: value.name,
       repo,
@@ -510,8 +547,8 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
       sourceFile: module.file,
       purpose,
       purposeFrom: fromPage ? 'page' : 'comment',
-      props: module.propsOf(declared.propsType),
-      variants: module.variantsOf(declared.propsType),
+      props: shape.props,
+      variants: shape.variants,
       ownsBehaviours: behavioursOf(value.name),
       status: declared.deprecated ? 'deprecated' : 'stable',
       migrationStage: null,

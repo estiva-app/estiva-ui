@@ -1966,6 +1966,54 @@
           "takes": "a handler",
           "required": false,
           "note": "Called when a row asks the menu to close."
+        },
+        {
+          "name": "me",
+          "takes": "Identity",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "signedIn",
+          "takes": "true/false",
+          "required": true,
+          "note": "Signed in through Estiva ID, as opposed to a browser-held key."
+        },
+        {
+          "name": "relayUrl",
+          "takes": "text",
+          "required": false,
+          "note": "Names the workspace; absent hides the workspace section."
+        },
+        {
+          "name": "idBase",
+          "takes": "text",
+          "required": false,
+          "note": "Estiva ID's base URL when this build offers sign-in; absent = anonymous-only build."
+        },
+        {
+          "name": "onCopyKey",
+          "takes": "a handler",
+          "required": false,
+          "note": "\"Copy public key\" appears only when the app can supply one."
+        },
+        {
+          "name": "onSignOut",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "App-specific rows, drawn as their own group between the workspace section and the actions."
         }
       ],
       "variants": [],
@@ -2704,6 +2752,30 @@
           "takes": "true/false",
           "required": false,
           "note": "Face only — no chevron, no hover fill. Defaults the face to 36px; the row shape to 22px."
+        },
+        {
+          "name": "name",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "picture",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "fallback",
+          "takes": "text",
+          "required": false,
+          "note": "Shown in place of a missing name."
+        },
+        {
+          "name": "size",
+          "takes": "number",
+          "required": false,
+          "note": null
         }
       ],
       "variants": [],
@@ -4031,33 +4103,33 @@
         },
         {
           "name": "variant",
-          "takes": "ats over what it a",
+          "takes": "muted | outlined | primary | current | resolve",
           "required": false,
-          "note": null
+          "note": "`current` takes the colour of what it sits in — the ✕ on a `Banner` wears the banner's tone."
         },
         {
           "name": "pressed",
-          "takes": "the sam",
+          "takes": "true/false",
           "required": false,
-          "note": null
+          "note": "On, like a Bold button while the selection is bold: the active fill, and `aria-pressed`."
         },
         {
           "name": "glow",
-          "takes": "ame box.",
+          "takes": "true/false",
           "required": false,
-          "note": null
+          "note": "A glow in Signal — the send arrow while there is something to send."
         },
         {
           "name": "tooltip",
-          "takes": "lt this",
+          "takes": "text",
           "required": false,
           "note": null
         },
         {
           "name": "tooltipShortcut",
-          "takes": "th `sha",
+          "takes": "text",
           "required": false,
-          "note": null
+          "note": "A key hint drawn as the `Kbd` chip inside the tooltip — for a button whose only other affordance is a keyboard shortcut."
         },
         {
           "name": "tooltipPlacement",
@@ -4067,18 +4139,28 @@
         },
         {
           "name": "disabledReason",
-          "takes": "em *",
+          "takes": "text",
           "required": false,
-          "note": null
+          "note": "Why the action cannot succeed right now."
         },
         {
           "name": "children",
-          "takes": "omeAndEndK",
+          "takes": "anything",
           "required": true,
-          "note": null
+          "note": "The icon: 16px, stroke 1.5."
         }
       ],
       "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "muted",
+            "outlined",
+            "primary",
+            "current",
+            "resolve"
+          ]
+        },
         {
           "prop": "tooltipPlacement",
           "values": [
@@ -4107,7 +4189,7 @@
           "name": "size",
           "takes": "default | small",
           "required": false,
-          "note": null
+          "note": "`small` is 24px tall with 12px text — the small `Select`'s size, so a field can share a dense row with small selects (D67, 2026-09-13: Peek's reference widget hand-built one because this was 38px)."
         }
       ],
       "variants": [

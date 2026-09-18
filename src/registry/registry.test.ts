@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { OWNED_BEHAVIOURS } from '../eslint/index'
 import { buildRegistry, readIndexExports, serializeRegistry } from './build'
@@ -111,6 +112,56 @@ describe('the registry builds', () => {
     expect(takes('Link', 'children')).toBe('anything')
     expect(takes('Button', 'variant')).toBe('primary | outlined | muted | destructive | resolve')
     expect(takes('Popover', 'actionsRef')).toBe('a handler')
+  })
+
+  it('gives every prop a type that is actually a type', () => {
+    // The guard for a whole class of fault. A `ts.TypeElement` carries offsets
+    // into its *own* file, so reading a sibling's node with this file's text
+    // slices the wrong source: `ToolbarButton` came out with `variant: "ats
+    // over what it a"` and `children: "omeAndEndK"`. Real names, prose for
+    // types, and every name-based check passed.
+    const FRIENDLY = new Set(['anything', 'a handler', 'true/false', 'number', 'text'])
+    const sources = readdirSync(join(root, 'src'))
+      .filter((file) => file.endsWith('.tsx') || file.endsWith('.ts'))
+      .map((file) => readFileSync(join(root, 'src', file), 'utf8'))
+      .join('\n')
+    const bad: string[] = []
+    for (const one of registry.entries) {
+      for (const prop of one.props) {
+        if (FRIENDLY.has(prop.takes)) continue
+        const parsed = ts.createSourceFile('t.ts', `type X = ${prop.takes}`, ts.ScriptTarget.Latest, false)
+        // @ts-expect-error parseDiagnostics is internal, and is the only thing that says "this is not a type".
+        const errors = (parsed.parseDiagnostics ?? []) as unknown[]
+        if (errors.length) {
+          bad.push(`${one.name}.${prop.name}: ${JSON.stringify(prop.takes)} does not parse as a type`)
+          continue
+        }
+        // A name that parses but names nothing: `omeAndEndK`, a slice of
+        // `HomeAndEndKeys`, is a legal type reference and not a real one.
+        if (/^[A-Za-z_$][\w$]*$/.test(prop.takes) && !new RegExp(`\\b${prop.takes}\\b`).test(sources)) {
+          bad.push(`${one.name}.${prop.name}: ${JSON.stringify(prop.takes)} is not a word anywhere in src/`)
+        }
+      }
+    }
+    expect(bad).toEqual([])
+  })
+
+  it('reads an inherited prop exactly as the file that declares it does', () => {
+    // Every one of these was wrong at once, and all four had the same cause.
+    const prop = (name: string, key: string) => entry(name).props.find((one) => one.name === key)
+
+    // ToolbarButtonProps extends IconButtonProps, in another file.
+    expect(prop('ToolbarButton', 'variant')).toEqual(prop('IconButton', 'variant'))
+    expect(entry('ToolbarButton').variants).toContainEqual({ prop: 'variant', values: ['muted', 'outlined', 'primary', 'current', 'resolve'] })
+    // type ToolbarInputProps = TextInputProps — an alias to another file, note and all.
+    expect(prop('ToolbarInput', 'size')).toEqual(prop('TextInput', 'size'))
+    // extends Omit<IdentityMenuProps, 'compact'>: the base was read as the name
+    // `Omit`, so everything it wraps was lost.
+    expect(entry('IdentityPanel').props.filter((one) => one.required).map((one) => one.name).sort()).toEqual(['me', 'signedIn'])
+    // …and `Omit` drops what it names.
+    expect(entry('IdentityPanel').props.some((one) => one.name === 'compact')).toBe(false)
+    expect(entry('IdentityMenu').props.some((one) => one.name === 'compact')).toBe(true)
+    expect(entry('PersonTrigger').props.map((one) => one.name)).toEqual(expect.arrayContaining(['name', 'picture', 'fallback', 'size']))
   })
 
   it('keeps variants a view of props, never a second reading', () => {
@@ -249,7 +300,7 @@ describe('a second parser agrees', async () => {
         const theirs = new Set(Object.keys(doc.props ?? {}))
         const mine = new Set(entry.props.map((prop) => prop.name))
         for (const prop of theirs) if (!mine.has(prop) && !INHERITED_WITH_A_DEFAULT.has(`${entry.name}.${prop}`)) differences.push(`${entry.name}.${prop} is docgen's and not ours`)
-        for (const prop of mine) if (!theirs.has(prop)) differences.push(`${entry.name}.${prop} is ours and not docgen's`)
+        for (const prop of mine) if (!theirs.has(prop) && !DOCGEN_STOPS_AT_OMIT.has(`${entry.name}.${prop}`)) differences.push(`${entry.name}.${prop} is ours and not docgen's`)
       }
     }
 
@@ -268,6 +319,34 @@ describe('a second parser agrees', async () => {
  * carries `onCopy` and `spellCheck` and buries its own answer.
  */
 const INHERITED_WITH_A_DEFAULT = new Set(['Button.type', 'IconButton.type', 'TextInput.type', 'SearchInput.placeholder'])
+
+/**
+ * The twelve where **this registry is right and `react-docgen` is not**.
+ *
+ * `IdentityPanelProps extends Omit<IdentityMenuProps, 'compact'>` and
+ * `PersonTriggerProps extends Omit<PersonProps, 'className'>`: docgen does not
+ * follow a heritage clause wrapped in `Omit`, so it reports neither `me` nor
+ * `signedIn`, which `IdentityPanel` *requires*. Checked against the source —
+ * `IdentityMenuProps` declares both, and `IdentityPanel` spreads `...rest`
+ * straight into `IdentityRows`, which destructures them.
+ *
+ * Listed rather than waved through, so the day docgen learns to follow them
+ * this fails and the list goes.
+ */
+const DOCGEN_STOPS_AT_OMIT = new Set([
+  'IdentityPanel.me',
+  'IdentityPanel.signedIn',
+  'IdentityPanel.relayUrl',
+  'IdentityPanel.idBase',
+  'IdentityPanel.onCopyKey',
+  'IdentityPanel.onSignOut',
+  'IdentityPanel.className',
+  'IdentityPanel.children',
+  'PersonTrigger.name',
+  'PersonTrigger.picture',
+  'PersonTrigger.fallback',
+  'PersonTrigger.size',
+])
 
 describe('ui:find', () => {
   const names = (query: string) => findInRegistry(registry, query).map((finding) => finding.entry.name)
