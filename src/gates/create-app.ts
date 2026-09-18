@@ -830,6 +830,12 @@ const SAYS: Record<RelayState, (host: string, name?: string) => string> = {
 /**
  * The first page. What it becomes is this app's own work; until then it says
  * whether the app is connected to the relay, and as whom.
+ *
+ * The empty state goes straight into the frame's \`main\`, with no box around it:
+ * \`main\` is a flex column, so the empty state takes the room left and centres
+ * in it both ways, as its own page says. A box around it would place it
+ * instead, and no gate reads a box. The connection is a quiet caption after it,
+ * at the foot of the page.
  */
 export function HomePage({ relay, state, name }: HomePageProps) {
   const line = !relay
@@ -838,10 +844,10 @@ export function HomePage({ relay, state, name }: HomePageProps) {
       ? \`Not connected: \${relayLabel(relay)} needs sign-in, and this build has none.\`
       : SAYS[state](relayLabel(relay), name)
   return (
-    <div className="flex flex-col items-center gap-3 px-6 py-16">
+    <>
       <EmptyState message="Nothing here yet." />
-      <p className="text-body-2 text-text-secondary">{line}</p>
-    </div>
+      <p className="px-6 pb-6 text-center text-caption text-text-muted">{line}</p>
+    </>
   )
 }
 `,
@@ -852,6 +858,15 @@ const meta = {
   title: 'Pages/Home',
   component: HomePage,
   parameters: { layout: 'fullscreen' },
+  // Stands in for the frame's main: a flex column the height of the screen,
+  // which is what the page is drawn into in the app.
+  decorators: [
+    (Story) => (
+      <div className="flex h-screen flex-col">
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof HomePage>
 
 export default meta
