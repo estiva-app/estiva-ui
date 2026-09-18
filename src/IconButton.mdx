@@ -54,6 +54,10 @@ import { IconPencil } from '@tabler/icons-react'
 - `disabledReason="Read only"` disables it, keeps it reachable by Tab,
   and shows the reason in place of the tooltip — **on keyboard focus as
   well as on hover**.
+- **`href`** makes it a link that looks like the button: an anchor, so the
+  address stays real for a modified click or a new tab. A router app passes
+  `onClick`, prevents the default and navigates. While it cannot be used it
+  is the button — a link cannot be disabled.
 - `tooltip` costs no wrapper: the button is the tooltip's trigger, so
   this component's root is the `<button>` whether it carries one or not,
   and both sit at the same height. A `Dialog.Close` or a `Menu.Trigger`

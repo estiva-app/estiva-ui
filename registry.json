@@ -1928,6 +1928,12 @@
           "note": "Why the action cannot succeed right now."
         },
         {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -4278,6 +4284,12 @@
           "takes": "text",
           "required": false,
           "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
         },
         {
           "name": "children",
