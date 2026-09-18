@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
 import { MenuPanel, menuItemClassName } from './Menu'
+import { TooltipTrigger } from './Tooltip'
 
 /**
  * Peek's Select (2026-08-28), verbatim, plus what Ship added: an option may
@@ -29,8 +30,9 @@ import { MenuPanel, menuItemClassName } from './Menu'
  * highlight is managed rather than counted, and a value that can be part of a
  * form.
  *
- * Two sizes; `disabled` explains nothing by itself — wrap it in a tooltip
- * that does.
+ * Two sizes. `disabled` explains nothing by itself; `disabledReason` says
+ * why, as Button's does: the select looks disabled, will not open, stays
+ * reachable by Tab, and shows the reason on hover and on keyboard focus.
  */
 export interface SelectOption {
   value: string
@@ -49,6 +51,13 @@ export interface SelectProps {
   'aria-required'?: boolean | 'true' | 'false'
   placeholder?: string
   disabled?: boolean
+  /**
+   * Why it cannot be changed right now (UIG-14, Katerina, 19 September). It
+   * looks disabled and will not open, but Tab still reaches it, and the reason
+   * shows as its tooltip — a native disabled button cannot be focused, so it
+   * could never say why. Takes the place of wrapping it in `WithTooltip`.
+   */
+  disabledReason?: string
   className?: string
 }
 
@@ -57,20 +66,16 @@ export interface SelectProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, className, ...aria }: SelectProps) {
+export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, disabledReason, className, ...aria }: SelectProps) {
   const selected = options.find((o) => o.value === value)
-  return (
-    <BaseSelect.Root
-      value={value}
-      onValueChange={(next) => onChange(next as string)}
-      disabled={disabled}
-      // Non-modal, as it has always been: the page behind stays scrollable and
-      // keeps its scrollbar, so opening a select never shifts the layout.
-      modal={false}
-    >
+  // With a reason it is held shut rather than disabled: a disabled trigger is
+  // a native `disabled` button, which Tab skips and a tooltip cannot open on.
+  const held = Boolean(disabledReason) && !disabled
+  const trigger = (
       <BaseSelect.Trigger
         aria-label={ariaLabel}
         aria-required={aria['aria-required']}
+        aria-disabled={held || undefined}
         className={cn(
           /*
            * `min-w-0 max-w-full`: a trigger must never outgrow its container
@@ -85,7 +90,9 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           // The focused border survives a hover: hover alone strengthens the
           // hairline, but hover while focused must not grey the focus colour —
           // the stacked variant outranks plain hover by specificity.
-          'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
+          !held && 'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus',
+          'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
+          held && 'cursor-not-allowed bg-bg-disabled text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
           size === 'default' && 'px-3 py-2 text-input-value',
@@ -101,6 +108,20 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           render={<IconChevronDown size={size === 'small' ? 14 : 16} stroke={1.5} className="shrink-0 text-text-secondary" />}
         />
       </BaseSelect.Trigger>
+  )
+  return (
+    <BaseSelect.Root
+      value={value}
+      onValueChange={(next) => {
+        if (!held) onChange(next as string)
+      }}
+      {...(held ? { open: false, onOpenChange: () => {} } : {})}
+      disabled={disabled}
+      // Non-modal, as it has always been: the page behind stays scrollable and
+      // keeps its scrollbar, so opening a select never shifts the layout.
+      modal={false}
+    >
+      {held ? <TooltipTrigger label={disabledReason ?? ''}>{trigger}</TooltipTrigger> : trigger}
 
       <BaseSelect.Portal>
         <BaseSelect.Positioner

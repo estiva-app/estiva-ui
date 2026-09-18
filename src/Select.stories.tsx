@@ -89,8 +89,11 @@ export const InAField: Story = {
   ),
 }
 
-/** Unavailable — the same disabled treatment as every other control. Say why, with a tooltip around it. */
+/** Unavailable — the same disabled treatment as every other control. To say why, `WithAReason`. */
 export const Disabled: Story = { render: (args) => <Demo {...args} initial="done" disabled /> }
+
+/** `disabledReason`: it looks disabled and will not open, but Tab reaches it and the reason shows on hover and on focus. */
+export const WithAReason: Story = { render: (args) => <Demo {...args} initial="done" disabledReason="Read only: you are a guest here" /> }
 
 /** Longer labels than the trigger is wide: the trigger truncates rather than growing; the menu takes the trigger's width as a minimum and grows past it. */
 export const LongLabels: Story = {

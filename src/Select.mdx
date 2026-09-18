@@ -29,8 +29,9 @@ corners and scrolling panels.
   things.
 - Several values → **ChipInput**.
 - Switching views of one thing → **Tabs**.
-- `disabled` explains nothing by itself — wrap it in a **WithTooltip** that
-  gives the reason. Busy for a moment while an action runs needs no reason.
+- `disabled` explains nothing by itself — give it `disabledReason`, which says
+  why and keeps it reachable by Tab. Busy for a moment while an action runs
+  needs no reason.
 - Ticking several on and off in a list → **Checkbox** with `row`.
 
 ## How
@@ -60,6 +61,9 @@ import { Select } from '@estiva-app/ui'
   smaller — and scrolls inside that. Measured in a bottom-right corner:
   the list flips above the trigger, slides left to stay on screen, and
   stands at its full 288.
+- **`disabledReason="Read only"`** holds it shut and keeps it reachable by Tab,
+  showing the reason on hover and on keyboard focus — as `Button` does. Plain
+  `disabled` is a native disabled control: Tab skips it, so it cannot say why.
 - **The trigger is a `combobox`, not a `button`.** That is the ARIA pattern
   for this control and Base UI's doing; a test looking for it by role has
   to ask for `combobox`.

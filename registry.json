@@ -3082,7 +3082,13 @@
           "name": "className",
           "takes": "text",
           "required": false,
-          "note": "On the card's surface: its width, its padding, a max height."
+          "note": "On the card's surface: its width."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the scrolling content: its padding (default 12px) and rhythm."
         },
         {
           "name": "wrapperClassName",
@@ -3724,6 +3730,12 @@
           "takes": "true/false",
           "required": false,
           "note": null
+        },
+        {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why it cannot be changed right now (UIG-14, Katerina, 19 September)."
         },
         {
           "name": "className",
@@ -4587,6 +4599,12 @@
           "takes": "text",
           "required": false,
           "note": "Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it."
+        },
+        {
+          "name": "inline",
+          "takes": "true/false",
+          "required": false,
+          "note": "For a trigger inside a line of text — a reference, a name in a sentence: the wrapper is a `<span>`, because a `<div>` is not allowed inside a paragraph (UIG-14, Katerina, 19 September)."
         },
         {
           "name": "children",
