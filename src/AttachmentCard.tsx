@@ -98,7 +98,7 @@ function TypeIcon({ name }: { name: string }) {
  * the fallback face can fit and then not, in a line whose box never changes. The wrapper is `flex-col` so the
  * text stretches across it, as wide as it is without one.
  */
-function Truncating({ text, hint, className, wrapperClassName }: { text: string; hint?: string; className: string; wrapperClassName?: string }) {
+function Truncating({ text, hint, className, wrapperClassName, placement }: { text: string; hint?: string; className: string; wrapperClassName?: string; placement?: 'top' | 'bottom' }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [cut, setCut] = useState(false)
   useLayoutEffect(() => {
@@ -127,7 +127,7 @@ function Truncating({ text, hint, className, wrapperClassName }: { text: string;
   )
   if (!hint && !cut) return line
   return (
-    <WithTooltip label={hint ?? text} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
+    <WithTooltip label={hint ?? text} placement={placement} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
       {line}
     </WithTooltip>
   )
@@ -206,7 +206,8 @@ export function AttachmentCard({
           )}
         </div>
         <div className="flex flex-col gap-[1px] min-w-0">
-          <Truncating text={name} className={NAME_CLASSES} />
+          {/* Below, not above: above, a cut name's tooltip covered the ✕ on the corner (UIG-14, C4). */}
+          <Truncating text={name} className={NAME_CLASSES} placement={onRemove ? 'bottom' : undefined} />
           <Truncating
             text={(failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)) ?? ''}
             hint={noteHint}
@@ -219,7 +220,9 @@ export function AttachmentCard({
           <BaseButton
             type="button"
             aria-label={`Remove ${name}`}
-            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+            // Shows with the card's hover and with keyboard focus, as Download does: hover-only left it invisible to
+            // the keyboard that had reached it (UIG-14, C4, Katerina 19 September).
+            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
             onClick={(event) => {
               event.stopPropagation()
               onRemove()
