@@ -58,6 +58,31 @@ const isStory = (file: string) => /\.stories\.[cm]?[jt]sx?$/.test(file)
 const isTest = (file: string) => /\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || /(^|\/)__(tests|mocks)__\//.test(file)
 const isPascal = (name: string) => /^[A-Z][A-Za-z0-9]*$/.test(name) && !/^[A-Z0-9_]+$/.test(name)
 /**
+ * What a dynamic `import('./x')` takes from its file. Written as
+ * `import('./Settings').then((m) => ({ default: m.SettingsPage }))`, only the names
+ * read off the module; otherwise the whole module (`*`), whose default a caller
+ * then takes.
+ */
+function pickedFrom(call: ts.CallExpression): { imported: string; local: string }[] {
+  const then = call.parent
+  const invoked = then?.parent
+  if (then && ts.isPropertyAccessExpression(then) && then.name.text === 'then' && invoked && ts.isCallExpression(invoked)) {
+    const callback = invoked.arguments[0]
+    const param = callback && (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) ? callback.parameters[0]?.name : undefined
+    if (param && ts.isIdentifier(param)) {
+      const names = new Set<string>()
+      const visit = (n: ts.Node) => {
+        if (ts.isPropertyAccessExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === param.text) names.add(n.name.text)
+        ts.forEachChild(n, visit)
+      }
+      visit(callback)
+      if (names.size) return [...names].map((imported) => ({ imported, local: '(dynamic)' }))
+    }
+  }
+  return [{ imported: '*', local: '(dynamic)' }]
+}
+
+/**
  * `export default memo(TopicRow)`: the default is TopicRow, wrapped. A call on
  * a name, with no function written into it, hands that name out, so the export
  * is read as if it named it — one part, whose comment and props are its own.
@@ -70,6 +95,11 @@ function unwrapDefault<T extends { isDefault: boolean; local: string | null; nod
 
 /** `memo-page` → `MemoPage`, `topic_view` → `TopicView`. */
 const pascalOf = (stem: string) => stem.split(/[^A-Za-z0-9]+/).filter(Boolean).map((word) => word[0].toUpperCase() + word.slice(1)).join('')
+/** A default with no name of its own takes its file's — or, for `settings/index.tsx`, its folder's. */
+const defaultNameOf = (file: string) => {
+  const stem = basename(file, extname(file))
+  return pascalOf(stem === 'index' ? basename(dirname(file)) : stem)
+}
 const CODE = ['.tsx', '.ts', '.jsx', '.js', '.mts', '.cts']
 
 /** `@scope/name/sub` → `@scope/name`; `name/sub` → `name`. */
@@ -87,20 +117,25 @@ function packageSelf(): { dependencies: string[]; registry: Registry | null } {
   return { dependencies: [manifest.name, ...Object.keys(manifest.dependencies ?? {}), ...Object.keys(manifest.peerDependencies ?? {})], registry }
 }
 
-/** The import aliases an app's `tsconfig*.json` files declare: `@/*` → `<root>/src/*`. */
-function readAliases(root: string): { prefix: string; target: string }[] {
+/**
+ * The import aliases an app's `tsconfig*.json` files declare — `@/*` →
+ * `<root>/src/*` — and the `baseUrl` folders a bare `src/Card` is read from.
+ */
+function readAliases(root: string): { aliases: { prefix: string; target: string }[]; bases: string[] } {
   const aliases: { prefix: string; target: string }[] = []
+  const bases: string[] = []
   for (const name of readdirSync(root).filter((file) => /^tsconfig.*\.json$/.test(file)).sort()) {
     const read = ts.readConfigFile(join(root, name), ts.sys.readFile)
     const options = (read.config?.compilerOptions ?? {}) as { paths?: Record<string, string[]>; baseUrl?: string }
     const base = resolve(root, options.baseUrl ?? '.')
+    if (options.baseUrl !== undefined && !bases.includes(base)) bases.push(base)
     for (const [pattern, targets] of Object.entries(options.paths ?? {})) {
       if (!pattern.endsWith('/*') || !targets[0]?.endsWith('/*')) continue
       const prefix = pattern.slice(0, -1)
       if (!aliases.some((alias) => alias.prefix === prefix)) aliases.push({ prefix, target: resolve(base, targets[0].slice(0, -2)) })
     }
   }
-  return aliases
+  return { aliases, bases }
 }
 
 function walk(dir: string): string[] {
@@ -145,6 +180,8 @@ interface FileFacts {
   /** Pass-ons and barrel entries: `export { A } from '…'`. */
   reexports: { name: string; source: string; specifier: string; target: string | null }[]
   starFrom: { specifier: string; target: string | null }[]
+  /** `export * as Parts from './parts'`: a name that stands for another file's parts. */
+  namespaces: { name: string; target: string | null }[]
   /** Every name drawn as a JSX tag in this file. */
   tags: Set<string>
   /** Each imported value name → where it came from, for `import { X } from '…'` then `export { X }`. */
@@ -197,15 +234,51 @@ function mentions(sf: ts.SourceFile, local: string, home: ts.Node | null): boole
       }
       let inType = false
       for (let a: ts.Node | undefined = parent; a && a !== sf; a = a.parent) if (ts.isTypeNode(a)) inType = true
-      if (!isName && !inType) named = true
+      if (!isName && !inType && !shadowed(n, local, sf)) named = true
     }
     ts.forEachChild(n, visit)
   }
   for (const s of sf.statements) {
-    if (s === home || ts.isExportDeclaration(s) || ts.isExportAssignment(s) || ts.isImportDeclaration(s)) continue
+    if (s === home || ts.isExportDeclaration(s) || ts.isImportDeclaration(s)) continue
+    // `export default Row` and `export default memo(Row)` hand the part out; they do
+    // not use it. Anything else written into the default is code like any other.
+    if (ts.isExportAssignment(s)) {
+      const e = s.expression
+      if (ts.isIdentifier(e) || (ts.isCallExpression(e) && e.arguments[0] && ts.isIdentifier(e.arguments[0]))) continue
+    }
     visit(s)
   }
   return named
+}
+
+/** Whether a binding name — `Icon`, `{ icon: Icon }`, `[Icon]` — binds `local`. */
+function binds(name: ts.BindingName | undefined, local: string): boolean {
+  if (!name) return false
+  if (ts.isIdentifier(name)) return name.text === local
+  return name.elements.some((element) => !ts.isOmittedExpression(element) && binds(element.name, local))
+}
+
+/**
+ * Whether `n` means something declared closer than the file: a parameter
+ * (`Item({ icon: Icon }) { return <Icon /> }`), or a constant, function or class
+ * of an enclosing block. That `Icon` is not the file's part called Icon.
+ */
+function shadowed(n: ts.Node, local: string, sf: ts.SourceFile): boolean {
+  for (let a: ts.Node | undefined = n.parent; a && a !== sf; a = a.parent) {
+    if (ts.isFunctionLike(a)) {
+      if (a.parameters.some((p) => binds(p.name, local))) return true
+      if ((ts.isFunctionExpression(a) || ts.isClassExpression(a)) && a.name?.text === local) return true
+    }
+    if (ts.isCatchClause(a) && binds(a.variableDeclaration?.name, local)) return true
+    if (ts.isBlock(a) || ts.isModuleBlock(a) || ts.isCaseClause(a) || ts.isDefaultClause(a)) {
+      for (const s of a.statements) {
+        if (ts.isVariableStatement(s) && s.declarationList.declarations.some((d) => binds(d.name, local))) return true
+        if ((ts.isFunctionDeclaration(s) || ts.isClassDeclaration(s)) && s.name?.text === local) return true
+      }
+    }
+    if ((ts.isForStatement(a) || ts.isForOfStatement(a) || ts.isForInStatement(a)) && a.initializer && ts.isVariableDeclarationList(a.initializer) && a.initializer.declarations.some((d) => binds(d.name, local))) return true
+  }
+  return false
 }
 
 /**
@@ -243,7 +316,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   const theRegistry = packageRegistry === undefined ? (self?.registry ?? null) : packageRegistry
   const allowed = new Set(packageDependencies ?? self?.dependencies ?? [])
   const repoName = repo ?? manifest.name ?? basename(app)
-  const aliases = readAliases(app)
+  const { aliases, bases } = readAliases(app)
   const rel = (abs: string) => relative(app, abs).split(sep).join('/')
 
   const files = walk(src)
@@ -260,13 +333,23 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       const alias = aliases.find((a) => specifier.startsWith(a.prefix))
       if (alias) base = join(alias.target, specifier.slice(alias.prefix.length))
     }
-    if (base === null) return null
-    const stem = base.replace(/\.(js|jsx)$/, '')
-    for (const candidate of [base, ...CODE.map((e) => stem + e), ...CODE.map((e) => join(base, `index${e}`))]) {
-      const r = rel(candidate)
-      if (known.has(r)) return r
+    const lookUp = (at: string): string | null => {
+      const stem = at.replace(/\.(js|jsx)$/, '')
+      for (const candidate of [at, ...CODE.map((e) => stem + e), ...CODE.map((e) => join(at, `index${e}`))]) {
+        const r = rel(candidate)
+        if (known.has(r)) return r
+      }
+      return null
     }
-    return '?'
+    if (base === null) {
+      // A bare `src/Card` is the app's own when its tsconfig's baseUrl says so; otherwise a package.
+      for (const folder of bases) {
+        const hit = lookUp(join(folder, specifier))
+        if (hit) return hit
+      }
+      return null
+    }
+    return lookUp(base) ?? '?'
   }
 
   // ── Read every file once ────────────────────────────────────────────────
@@ -278,6 +361,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     const exports: FileFacts['exports'] = []
     const reexports: FileFacts['reexports'] = []
     const starFrom: FileFacts['starFrom'] = []
+    const namespaces: FileFacts['namespaces'] = []
     for (const statement of sf.statements) {
       if (ts.isImportDeclaration(statement)) {
         if (!ts.isStringLiteral(statement.moduleSpecifier)) continue
@@ -308,6 +392,9 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
         if (!statement.exportClause) starFrom.push({ specifier, target })
         else if (ts.isNamedExports(statement.exportClause)) {
           for (const e of statement.exportClause.elements) if (!e.isTypeOnly) reexports.push({ name: e.name.text, source: (e.propertyName ?? e.name).text, specifier, target })
+        } else if (ts.isNamespaceExport(statement.exportClause)) {
+          // `export * as Parts from './parts'`: a caller's `Parts.Card` is the parts file's Card.
+          namespaces.push({ name: statement.exportClause.name.text, target })
         }
         continue
       }
@@ -319,6 +406,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       const mods = ts.canHaveModifiers(statement) ? (ts.getModifiers(statement) ?? []) : []
       if (!mods.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) continue
       const isDefault = mods.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword)
+      // An overload's signature is not a part of its own: the part is the one with a body.
+      if (ts.isFunctionDeclaration(statement) && !statement.body) continue
       if (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) {
         exports.push({ name: isDefault ? 'default' : (statement.name?.text ?? 'default'), local: statement.name?.text ?? null, isDefault, node: statement })
       } else if (ts.isVariableStatement(statement)) {
@@ -329,7 +418,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     const visit = (n: ts.Node) => {
       if (ts.isCallExpression(n) && n.expression.kind === ts.SyntaxKind.ImportKeyword && n.arguments[0] && ts.isStringLiteralLike(n.arguments[0])) {
         const specifier = n.arguments[0].text
-        links.push({ specifier, target: resolveSpecifier(file, specifier), names: [{ imported: '*', local: '(dynamic)' }], typeOnly: false, kind: 'dynamic' })
+        links.push({ specifier, target: resolveSpecifier(file, specifier), names: pickedFrom(n), typeOnly: false, kind: 'dynamic' })
       }
       if ((ts.isJsxOpeningElement(n) || ts.isJsxSelfClosingElement(n)) && ts.isIdentifier(n.tagName)) tags.add(n.tagName.text)
       ts.forEachChild(n, visit)
@@ -337,7 +426,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     visit(sf)
     const bindings: FileFacts['bindings'] = new Map()
     for (const link of links) if (link.kind === 'import') for (const n of link.names) if (n.imported !== '*') bindings.set(n.local, { specifier: link.specifier, imported: n.imported, target: link.target })
-    facts.set(file, { file, source, sf, links, exports, reexports, starFrom, tags, bindings })
+    facts.set(file, { file, source, sf, links, exports, reexports, starFrom, namespaces, tags, bindings })
   }
 
   const drawnAnywhere = new Set<string>()
@@ -346,6 +435,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   /** A top-level declaration of a file, by its local name. */
   const declarationOf = (f: FileFacts, local: string): ts.Node | null => {
     for (const s of f.sf.statements) {
+      // Past an overload's signature, to the function with a body.
+      if (ts.isFunctionDeclaration(s) && s.name?.text === local && !s.body) continue
       if ((ts.isFunctionDeclaration(s) || ts.isClassDeclaration(s)) && s.name?.text === local) return s
       if (ts.isVariableStatement(s)) for (const d of s.declarationList.declarations) if (ts.isIdentifier(d.name) && d.name.text === local) return d
     }
@@ -360,11 +451,17 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     const f = facts.get(file)!
     for (const written of f.exports) {
       const ex = unwrapDefault(written)
+      // `export default memo(Avatar)` with Avatar imported: not Avatar handed on, but a
+      // new part of this file that wraps it, named after the file.
+      if (ex !== written && ex.local && !declarationOf(f, ex.local) && f.bindings.has(ex.local)) {
+        found.push({ file, name: defaultNameOf(file), local: null, defaultExport: true, from: null })
+        continue
+      }
       // `export function App` and `export default App` — or `export default memo(App)`: one part, not two.
       if (ex.isDefault && ex.local && f.exports.some((other) => !other.isDefault && other.local === ex.local)) continue
       const node = ex.node ?? (ex.local ? declarationOf(f, ex.local) : null)
       // A default with no name of its own takes its file's, as a name: `memo-page.tsx` → MemoPage.
-      const own = ex.local ?? (ex.isDefault ? pascalOf(basename(file, extname(file))) : ex.name)
+      const own = ex.local ?? (ex.isDefault ? defaultNameOf(file) : ex.name)
       const name = ex.isDefault ? own : ex.name
       if (!isPascal(name)) continue
       // `import { SkeletonBar } from '@estiva-app/ui'` and later `export { SkeletonBar }`:
@@ -435,7 +532,20 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     const out = [...partsIn(file)]
     for (const re of f.reexports) if (re.target && re.target !== '?') { const o = origin(re.target, re.source); if (o) out.push(o) }
     for (const star of f.starFrom) if (star.target && star.target !== '?') out.push(...everyPartOf(star.target, seen))
+    for (const ns of f.namespaces) if (ns.target && ns.target !== '?') out.push(...everyPartOf(ns.target, seen))
     return out
+  }
+  /** The parts a namespace export stands for, followed through barrels. */
+  const namespaceParts = (file: string, name: string, seen = new Set<string>()): Found[] => {
+    if (seen.has(`${file}#${name}`)) return []
+    seen.add(`${file}#${name}`)
+    const f = facts.get(file)
+    if (!f) return []
+    const ns = f.namespaces.find((x) => x.name === name)
+    if (ns) return ns.target && ns.target !== '?' ? everyPartOf(ns.target) : []
+    const re = f.reexports.find((r) => r.name === name)
+    if (re?.target && re.target !== '?') return namespaceParts(re.target, re.source, seen)
+    return f.starFrom.flatMap((star) => (star.target && star.target !== '?' ? namespaceParts(star.target, name, seen) : []))
   }
 
   const users = new Map<string, { app: Set<string>; stories: Set<string>; tests: Set<string> }>()
@@ -458,7 +568,13 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
         const p = origin(link.target, n.imported)
         // A file that imports a part only to export it again hands it on; it does not use it.
         const handsOn = f.exports.some((e) => e.local === n.local && e.node === null) && !mentions(f.sf, n.local, null)
-        if (p && p.file !== f.file && !handsOn) bucket(p).add(f.file)
+        if (handsOn) continue
+        if (p) {
+          if (p.file !== f.file) bucket(p).add(f.file)
+          continue
+        }
+        // `import { Parts } from './barrel'`, where the barrel says `export * as Parts from './parts'`.
+        for (const part of namespaceParts(link.target, n.imported)) if (part.file !== f.file) bucket(part).add(f.file)
       }
     }
   }

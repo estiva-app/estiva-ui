@@ -350,6 +350,90 @@ describe('what the first descriptions found', () => {
   })
 })
 
+// The third /code-review pass, 18 September: ten more ways a real file can mislead the
+// catalogue, each confirmed there on a throwaway app, each one case here.
+describe('what the third review found', () => {
+  const third = buildAppRegistry({
+    root: app({
+      'tsconfig.json': '{ "compilerOptions": { "baseUrl": "." } }\n',
+      'src/Choice.tsx': "/** A choice, taken as text or as a number. */\nexport function Choice(props: { value: string }): JSX.Element\nexport function Choice(props: { value: number }): JSX.Element\nexport function Choice(props: { value: string | number }) {\n  return <span>{String(props.value)}</span>\n}\n",
+      'src/Kbd.tsx': '/** One key, drawn as a keycap. */\nexport function Kbd() {\n  return <kbd />\n}\n\n/** Keys in a row. */\nexport function KbdRow() {\n  return <span><Kbd /></span>\n}\n',
+      'src/Guard.tsx': "import { Component } from 'react'\n\ninterface Props {\n  /** What it guards. */\n  label: string\n}\n\n/** Something else in the file. */\nexport function Other() {\n  return <i />\n}\n\n/** Catches what crashes below it. */\nexport default class extends Component<Props> {\n  render() {\n    return <div>{this.props.label}</div>\n  }\n}\n",
+      'src/List.tsx': "import { memo } from 'react'\n\n/** One row of the list. */\nexport function Row() {\n  return <li />\n}\n\n/** The list, drawing its rows. */\nexport default memo(function List() {\n  return <ul><Row /></ul>\n})\n",
+      'src/parts/Card.tsx': '/** A card. */\nexport function Card() {\n  return <div />\n}\n',
+      'src/parts/index.ts': "export * as Parts from './Card'\n",
+      'src/UsesCard.tsx': "import { Parts } from './parts'\n\n/** Draws a card through a namespace. */\nexport function UsesCard() {\n  return <Parts.Card />\n}\n",
+      'src/Badge.tsx': '/** A small badge. */\nexport function Badge() {\n  return <b />\n}\n',
+      'src/UsesBadge.tsx': "import { Badge } from 'src/Badge'\n\n/** Draws a badge, imported through baseUrl. */\nexport function UsesBadge() {\n  return <Badge />\n}\n",
+      'src/Settings.tsx': '/** The settings page. */\nexport function SettingsPage() {\n  return <main />\n}\n\n/** One settings row. */\nexport function SettingsRow() {\n  return <li />\n}\n',
+      'src/routes.tsx': "import { lazy } from 'react'\n\nconst Page = lazy(() => import('./Settings').then((m) => ({ default: m.SettingsPage })))\n\n/** The routes. */\nexport function Routes() {\n  return <Page />\n}\n",
+      'src/Icon.tsx': '/** An icon nothing uses. */\nexport function Icon() {\n  return <svg />\n}\n\n/** An item that draws the icon it is given. */\nexport function Item({ icon: Icon }: { icon: () => JSX.Element }) {\n  return <Icon />\n}\n',
+      'src/profile/index.tsx': "/** The profile folder's page. */\nexport default function () {\n  return <section />\n}\n",
+      'src/Wrapped.tsx': "import { memo } from 'react'\nimport { Avatar } from '@estiva-app/ui'\n\n/** The package's avatar, memoised for long lists. */\nexport default memo(Avatar)\n",
+      'src/Tag.tsx': "import type { FC } from 'react'\n\ninterface TagProps {\n  /** The words on the tag. */\n  label: string\n}\n\n/** A tag, typed as a function component. */\nexport const Tag: FC<TagProps> = ({ label }) => <em>{label}</em>\n",
+    }),
+    repo: 'third',
+    packageRegistry,
+  })
+  const one = (name: string) => third.entries.find((entry) => entry.name === name)
+
+  it('builds and validates', () => {
+    expect(validateRegistry(third)).toEqual([])
+  })
+
+  it('an overloaded part is one entry, described by its first signature', () => {
+    expect(third.entries.filter((entry) => entry.name === 'Choice')).toHaveLength(1)
+    expect(one('Choice')).toMatchObject({ purpose: 'A choice, taken as text or as a number.' })
+    expect(one('Choice')?.props.map((prop) => prop.name)).toEqual(['value'])
+  })
+
+  it('in a file with no imports, the first part keeps its own comment', () => {
+    expect(one('Kbd')).toMatchObject({ purpose: 'One key, drawn as a keycap.', purposeFrom: 'comment' })
+  })
+
+  it('an unnamed default class is a part, named after its file, with its comment and props', () => {
+    expect(one('Guard')).toMatchObject({ purpose: 'Catches what crashes below it.' })
+    expect(one('Guard')?.props.map((prop) => prop.name)).toEqual(['label'])
+  })
+
+  it('a use inside a default written as an expression counts', () => {
+    expect(one('Row')?.app?.usedIn).toEqual(['src/List.tsx'])
+    expect(one('List')?.purpose).toBe('The list, drawing its rows.')
+  })
+
+  it('`export * as Parts` is followed to the parts', () => {
+    expect(one('Card')?.app?.usedIn).toEqual(['src/UsesCard.tsx'])
+  })
+
+  it("an import through tsconfig's baseUrl is the app's own file, not a package", () => {
+    expect(one('Badge')?.app?.usedIn).toEqual(['src/UsesBadge.tsx'])
+    expect(one('UsesBadge')?.app?.tiedTo).toEqual([])
+  })
+
+  it('a lazy page that picks one name uses that part only', () => {
+    expect(one('SettingsPage')?.app?.usedIn).toEqual(['src/routes.tsx'])
+    expect(one('SettingsRow')?.app?.usedIn).toEqual([])
+  })
+
+  it("a local name that shadows a part's is not a use of it", () => {
+    expect(one('Icon')?.app).toMatchObject({ class: 'unused', usedIn: [] })
+  })
+
+  it("an unnamed default in a folder's index.tsx is named after the folder", () => {
+    expect(one('Profile')).toMatchObject({ purpose: "The profile folder's page.", sourceFile: 'src/profile/index.tsx' })
+  })
+
+  it("a part typed `FC<Props>` takes the annotation's props", () => {
+    expect(one('Tag')?.props).toEqual([{ name: 'label', takes: 'text', required: true, note: 'The words on the tag.' }])
+  })
+
+  it('memo of a package part is a new part of the app, not a pass-on', () => {
+    expect(one('Wrapped')?.app).toMatchObject({ class: 'unused', handsOn: null, defaultExport: true })
+    expect(one('Wrapped')?.purpose).toBe("The package's avatar, memoised for long lists.")
+    expect(third.entries.some((entry) => entry.name === 'Avatar')).toBe(false)
+  })
+})
+
 describe('an app the catalogue refuses', () => {
   const refused = (files: Record<string, string>) => {
     try {

@@ -273,6 +273,17 @@ export function readModule(source: string, sibling: Sibling = () => undefined, {
     return undefined
   }
 
+  /**
+   * `const Row: FC<RowProps> = ({ … }) => …` leaves the parameter bare: the
+   * props are the annotation's type argument — `FC`, `FunctionComponent`,
+   * `React.FC`, `React.FunctionComponent`.
+   */
+  const propsOfAnnotation = (type: ts.TypeNode | undefined): ts.TypeNode | undefined => {
+    if (!type || !ts.isTypeReferenceNode(type)) return undefined
+    const named = ts.isIdentifier(type.typeName) ? type.typeName.text : type.typeName.right.text
+    return named === 'FC' || named === 'FunctionComponent' ? type.typeArguments?.[0] : undefined
+  }
+
   // The file's header comment: the first `/**` above the first thing that is
   // not an import. It belongs to the file, whatever export happens to follow it.
   const opening = file.statements.find((statement) => !ts.isImportDeclaration(statement))
@@ -281,7 +292,10 @@ export function readModule(source: string, sibling: Sibling = () => undefined, {
   // way — has its header there, so the comment on its first declaration is that
   // declaration's own. Only a file with no such comment lends the first one it has.
   const topPos = file.statements[0] ? ((ts.getLeadingCommentRanges(source, file.statements[0].getFullStart()) ?? []).find((range) => source.slice(range.pos, range.pos + 3) === '/**')?.pos ?? null) : null
-  const refused = topPos ?? (lendFirstComment ? headerPos : null)
+  // An app lends no comment to the file but one above its imports: in a file
+  // with no imports the first comment sits on the first part, and is the part's.
+  const aboveImports = !!file.statements[0] && ts.isImportDeclaration(file.statements[0])
+  const refused = lendFirstComment ? (topPos ?? headerPos) : aboveImports ? topPos : null
 
   for (const statement of file.statements) {
     if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
@@ -310,11 +324,13 @@ export function readModule(source: string, sibling: Sibling = () => undefined, {
     // exports at the declaration, so for it the two are the same; an app also
     // writes `function Row() {…}` and `export { Row }` or `export default Row`
     // further down, and the name is still read here, with its comment and props.
-    if (ts.isClassDeclaration(statement) && statement.name) {
+    if (ts.isClassDeclaration(statement)) {
       // `class ErrorBoundary extends Component<Props, State>`: its props are the
-      // first type argument of what it extends.
+      // first type argument of what it extends. `export default class extends …`
+      // has no name of its own, and is kept under `default`.
       const base = (statement.heritageClauses ?? []).find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword)?.types[0]
-      declarations.set(statement.name.text, { doc: docAbove(source, statement, refused), deprecated: false, propsType: base?.typeArguments?.[0] })
+      const name = statement.name?.text ?? (ts.getModifiers(statement)?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword) ? 'default' : null)
+      if (name) declarations.set(name, { doc: docAbove(source, statement, refused), deprecated: false, propsType: base?.typeArguments?.[0] })
       continue
     }
     // `export default memo(() => …)` and `export default function () {…}`: a part
@@ -333,13 +349,20 @@ export function readModule(source: string, sibling: Sibling = () => undefined, {
     const deprecated = /(^|\n)@deprecated\b/.test(doc) || /\*\s*@deprecated\b/.test(source.slice(Math.max(0, statement.getFullStart()), statement.getStart()))
 
     if (ts.isFunctionDeclaration(statement) && statement.name) {
+      // Overloads: the first signature carries the comment and the props a caller
+      // sees; a later one, or the body, only fills in a comment the first lacks.
+      const held = declarations.get(statement.name.text)
+      if (held) {
+        if (!held.doc && doc) held.doc = doc
+        continue
+      }
       declarations.set(statement.name.text, { doc, deprecated, propsType: propsTypeOf(statement.parameters) })
       continue
     }
     if (ts.isVariableStatement(statement)) {
       for (const declaration of statement.declarationList.declarations) {
         if (!ts.isIdentifier(declaration.name)) continue
-        declarations.set(declaration.name.text, { doc, deprecated, propsType: propsOfInitializer(declaration.initializer) })
+        declarations.set(declaration.name.text, { doc, deprecated, propsType: propsOfInitializer(declaration.initializer) ?? propsOfAnnotation(declaration.type) })
       }
     }
   }
