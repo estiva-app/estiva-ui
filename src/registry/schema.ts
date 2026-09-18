@@ -17,7 +17,7 @@
  * reader that knows version N and is handed N+1 must be able to say so rather
  * than silently read a field that moved.
  */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 /** What a name is, which decides how a reader offers it. */
 export type EntryKind =
@@ -34,6 +34,67 @@ export type PurposeSource =
   | 'page'
   /** The doc comment above the export — the name is documented on a sibling's page. */
   | 'comment'
+  /** An app's file that holds this one part: the comment at the top of the file (UIG-13). */
+  | 'file'
+  /** An app's pass-on: the part is the package's, and says so (UIG-13). */
+  | 'package'
+
+/**
+ * Which of four kinds an app's part is (UIG-13), or that nothing uses it.
+ *
+ * Worked out from the code, never from the folder a file sits in: Peek's
+ * `components/ui` holds one-line pass-ons beside 187-line components.
+ */
+export type EntryClass =
+  /** Its file only hands a package part on, so the app keeps its own import path. */
+  | 're-export'
+  /** Used in two or more places in the app. Gets a usage page (UIG-17, UIG-18). */
+  | 'reusable'
+  /** Used in one place. Needs only its purpose line. */
+  | 'one-off'
+  /** Reusable, and everything it uses is already in the package: it could move there. Katerina rules. */
+  | 'promote-candidate'
+  /** No file of the app uses it: only its stories or tests, or nothing. Listed, never deleted by the catalogue. */
+  | 'unused'
+
+/**
+ * What the catalogue knows about a part that lives in an app (UIG-13). `null`
+ * on the package's own entries.
+ */
+export interface AppFacts {
+  class: EntryClass
+  /** Why it has that class, in words: the evidence, or the written reason. */
+  reason: string
+  /**
+   * `true` when the class is written beside the part (`@registry <class>: <reason>`
+   * in its comment) rather than worked out — "general, though one screen uses it yet".
+   */
+  written: boolean
+  /** A pass-on's part, as `Name` for the package's and `Name from <package>` for another's. `null` otherwise. */
+  handsOn: string | null
+  /**
+   * The app's files that use it, relative to the app: every file that imports it,
+   * and its own file when something else there draws it. Stories and tests are not
+   * uses — a part only they reach is unused.
+   */
+  usedIn: string[]
+  /**
+   * What ties it to this app: each import that is neither in the package's own
+   * dependencies nor an app file that is itself untied. Empty means it could
+   * live in the package as it is.
+   */
+  tiedTo: string[]
+  /** The package part with the same name, when there is one: the reader should see both. */
+  packageNamesake: string | null
+  /** Imported as `import X from …` rather than `import { X } from …`. */
+  defaultExport: boolean
+}
+
+/** A file in an app's target set that holds no part, and why, in words. */
+export interface FileWithoutPart {
+  file: string
+  reason: string
+}
 
 export type EntryStatus = 'stable' | 'migrating' | 'deprecated'
 
@@ -74,7 +135,7 @@ export interface EntryBehaviour {
 export interface RegistryEntry {
   /** The exported name, exactly as `index.ts` exports it. */
   name: string
-  /** Which library it came from. One repo per registry until UIG-13 merges them. */
+  /** Which library it came from: `estiva-ui`, or the app that owns it. */
   repo: string
   kind: EntryKind
   /** What a caller actually types. */
@@ -114,6 +175,8 @@ export interface RegistryEntry {
   storyId: string | null
   /** The `.mdx` path, relative to the repo, or `null`. */
   docPage: string | null
+  /** An app's part: its class and the evidence for it (UIG-13). `null` on the package's own entries. */
+  app: AppFacts | null
 }
 
 /** A name that is exported and deliberately not an entry. Empty today; the count still has to reconcile. */
@@ -125,14 +188,28 @@ export interface RegistryExclusion {
 export interface Registry {
   schemaVersion: number
   builtFrom: {
+    /**
+     * `package`: the package's catalogue, committed and shipped. `app`: one app's,
+     * built fresh from its code each time and never committed — Peek and Ship are
+     * private, the package is public (Katerina, 18 September 2026).
+     */
+    kind: 'package' | 'app'
     repo: string
-    /** The npm package the entries are imported from. */
+    /** The package the entries are imported from, or the app's own name. */
     package: string
     packageVersion: string
-    /** Value exports counted in `index.ts`. `entries + excluded` must equal it. */
+    /**
+     * The package: value exports counted in `index.ts`. An app: parts found in its
+     * files. `entries + excluded` must equal it.
+     */
     exports: number
-    /** Type-only exports, which are not entries. Recorded so the count reconciles. */
+    /** Type-only exports, which are not entries. Recorded so the count reconciles. `0` for an app. */
     typeExports: number
+    /**
+     * An app only: its `.tsx` files outside stories and tests. Each one either holds
+     * an entry or is in `filesWithoutParts`. `null` for the package.
+     */
+    files: number | null
   }
   /**
    * How to turn an id into a link. There is no Storybook on the internet yet
@@ -146,11 +223,14 @@ export interface Registry {
   }
   entries: RegistryEntry[]
   excluded: RegistryExclusion[]
+  /** An app's `.tsx` files that hold no part, each with its reason. Empty for the package. */
+  filesWithoutParts: FileWithoutPart[]
 }
 
 const KINDS: EntryKind[] = ['component', 'hook', 'helper']
 const STATUSES: EntryStatus[] = ['stable', 'migrating', 'deprecated']
-const SOURCES: PurposeSource[] = ['page', 'comment']
+const SOURCES: PurposeSource[] = ['page', 'comment', 'file', 'package']
+export const CLASSES: EntryClass[] = ['re-export', 'reusable', 'one-off', 'promote-candidate', 'unused']
 
 const isString = (v: unknown): v is string => typeof v === 'string'
 const isFilledString = (v: unknown): v is string => isString(v) && v.trim().length > 0
@@ -171,13 +251,17 @@ export function validateRegistry(value: unknown): string[] {
   if (registry.schemaVersion !== SCHEMA_VERSION) fail(`schemaVersion is ${String(registry.schemaVersion)}, expected ${SCHEMA_VERSION}`)
 
   const built = registry.builtFrom
+  let isApp = false
   if (typeof built !== 'object' || built === null) fail('builtFrom is missing')
   else {
+    if (built.kind !== 'package' && built.kind !== 'app') fail(`builtFrom.kind is ${String(built.kind)}, expected package or app`)
+    isApp = built.kind === 'app'
     if (!isFilledString(built.repo)) fail('builtFrom.repo is missing')
     if (!isFilledString(built.package)) fail('builtFrom.package is missing')
     if (!isFilledString(built.packageVersion)) fail('builtFrom.packageVersion is missing')
     if (typeof built.exports !== 'number') fail('builtFrom.exports is not a number')
     if (typeof built.typeExports !== 'number') fail('builtFrom.typeExports is not a number')
+    if (isApp ? typeof built.files !== 'number' : built.files !== null) fail(`builtFrom.files is ${String(built.files)}: a number for an app, null for the package`)
   }
 
   const book = registry.storybook
@@ -192,11 +276,17 @@ export function validateRegistry(value: unknown): string[] {
 
   const entries = registry.entries
   const excluded = registry.excluded
+  const withoutParts = registry.filesWithoutParts
   if (!Array.isArray(entries)) return [...problems, 'entries is not an array']
   if (!Array.isArray(excluded)) return [...problems, 'excluded is not an array']
-  if (entries.length === 0) fail('entries is empty')
+  if (!Array.isArray(withoutParts)) return [...problems, 'filesWithoutParts is not an array']
+  // An app with no part of its own yet is still an app: only the package must have entries.
+  if (entries.length === 0 && !isApp) fail('entries is empty')
 
+  // The package's names are unique; an app may have two parts of one name in two
+  // files, and the catalogue says which is which rather than refusing the app.
   const seen = new Set<string>()
+  const seenNames = new Set<string>()
   for (const [i, raw] of entries.entries()) {
     const at = (field: string) => `entries[${i}] (${isString((raw as RegistryEntry)?.name) ? (raw as RegistryEntry).name : '?'}).${field}`
     if (typeof raw !== 'object' || raw === null) {
@@ -204,9 +294,13 @@ export function validateRegistry(value: unknown): string[] {
       continue
     }
     const entry = raw as Partial<RegistryEntry>
+    const key = isApp ? `${String(entry.sourceFile)}#${String(entry.name)}` : String(entry.name)
     if (!isFilledString(entry.name)) fail(at('name') + ' is missing')
-    else if (seen.has(entry.name)) fail(`${entry.name} appears twice`)
-    else seen.add(entry.name)
+    else if (seen.has(key)) fail(`${entry.name} appears twice${isApp ? ` in ${String(entry.sourceFile)}` : ''}`)
+    else {
+      seen.add(key)
+      seenNames.add(entry.name)
+    }
 
     if (!isFilledString(entry.repo)) fail(at('repo') + ' is missing')
     if (!isFilledString(entry.importPath)) fail(at('importPath') + ' is missing')
@@ -244,8 +338,18 @@ export function validateRegistry(value: unknown): string[] {
     // nothing may have nowhere to be looked at. A component with no story is
     // already an error of UIG-5's component-has-a-story; this stops the
     // catalogue quietly carrying one.
-    if (entry.kind === 'component' && (entry.docsId === null || entry.storyId === null)) {
+    //
+    // The package only. An app's parts are described before they are drawn:
+    // absence of a story says nothing about whether a part is reused, and UIG-19
+    // is where a reusable one must have one.
+    if (!isApp && entry.kind === 'component' && (entry.docsId === null || entry.storyId === null)) {
       fail(at('docsId') + ' is null, and only a helper or a hook may have no page or story')
+    }
+
+    if (!isApp) {
+      if (entry.app !== null) fail(at('app') + ' is set on a package entry')
+    } else {
+      problems.push(...validateAppFacts(entry, at))
     }
   }
 
@@ -253,7 +357,7 @@ export function validateRegistry(value: unknown): string[] {
     const gap = raw as Partial<RegistryExclusion>
     if (!isFilledString(gap?.name)) fail(`excluded[${i}].name is missing`)
     if (!isFilledString(gap?.reason)) fail(`excluded[${i}].reason is missing`)
-    if (isString(gap?.name) && seen.has(gap.name)) fail(`${gap.name} is both an entry and excluded`)
+    if (!isApp && isString(gap?.name) && seenNames.has(gap.name)) fail(`${gap.name} is both an entry and excluded`)
   }
 
   // Completeness (the ticket's acceptance): every value export is either an
@@ -261,8 +365,55 @@ export function validateRegistry(value: unknown): string[] {
   // failure this check exists to make impossible.
   const counted = entries.length + excluded.length
   if (typeof built === 'object' && built !== null && typeof built.exports === 'number' && counted !== built.exports) {
-    fail(`${entries.length} entries + ${excluded.length} excluded = ${counted}, but index.ts exports ${built.exports} values`)
+    fail(`${entries.length} entries + ${excluded.length} excluded = ${counted}, but ${isApp ? 'the app has' : 'index.ts exports'} ${built.exports} ${isApp ? 'parts' : 'values'}`)
   }
 
+  // And an app's files: every one either holds a part or says why it does not.
+  const fileProblems: string[] = []
+  const withParts = new Set(entries.map((entry) => (entry as RegistryEntry).sourceFile))
+  for (const [i, raw] of withoutParts.entries()) {
+    const gap = raw as Partial<FileWithoutPart>
+    if (!isFilledString(gap?.file)) fileProblems.push(`filesWithoutParts[${i}].file is missing`)
+    else if (withParts.has(gap.file)) fileProblems.push(`${gap.file} holds a part and is listed as holding none`)
+    if (!isFilledString(gap?.reason)) fileProblems.push(`filesWithoutParts[${i}].reason is missing`)
+  }
+  if (!isApp && withoutParts.length) fileProblems.push('filesWithoutParts is for an app; the package lists its exports instead')
+  if (isApp && typeof built === 'object' && built !== null && typeof built.files === 'number' && withParts.size + withoutParts.length !== built.files) {
+    fileProblems.push(`${withParts.size} files hold a part + ${withoutParts.length} hold none = ${withParts.size + withoutParts.length}, but the app has ${built.files} files`)
+  }
+  problems.push(...fileProblems)
+
+  return problems
+}
+
+/**
+ * An app entry's class must be what its own evidence says, unless it is written
+ * beside the part with a reason. A pass-on is a fact about the file, so it can
+ * never be written, and only a pass-on hands a part on.
+ */
+function validateAppFacts(entry: Partial<RegistryEntry>, at: (field: string) => string): string[] {
+  const problems: string[] = []
+  const fail = (message: string) => problems.push(message)
+  const facts = entry.app
+  if (typeof facts !== 'object' || facts === null) return [at('app') + ' is missing on an app entry']
+  if (!CLASSES.includes(facts.class)) fail(at('app.class') + ` is ${String(facts.class)}`)
+  if (!isFilledString(facts.reason)) fail(at('app.reason') + ' is empty')
+  if (typeof facts.written !== 'boolean') fail(at('app.written') + ' is not true/false')
+  if (typeof facts.defaultExport !== 'boolean') fail(at('app.defaultExport') + ' is not true/false')
+  if (!Array.isArray(facts.usedIn) || !facts.usedIn.every(isFilledString)) fail(at('app.usedIn') + ' is not a list of files')
+  if (!Array.isArray(facts.tiedTo) || !facts.tiedTo.every(isFilledString)) fail(at('app.tiedTo') + ' is not a list')
+  if (!(facts.handsOn === null || isFilledString(facts.handsOn))) fail(at('app.handsOn') + ' is neither a name nor null')
+  if (!(facts.packageNamesake === null || isFilledString(facts.packageNamesake))) fail(at('app.packageNamesake') + ' is neither a name nor null')
+  if (problems.length) return problems
+
+  const passOn = facts.class === 're-export'
+  if (passOn !== (facts.handsOn !== null)) fail(at('app.handsOn') + (passOn ? ' is missing on a pass-on' : ' is set on a part that is not a pass-on'))
+  if (passOn !== (entry.purposeFrom === 'package')) fail(at('purposeFrom') + (passOn ? ' must be package on a pass-on' : ' is package on a part that is not a pass-on'))
+  if (passOn && facts.written) fail(at('app.written') + ': a pass-on is read from the file, never written')
+  if (!facts.written && !passOn) {
+    const uses = facts.usedIn.length
+    const expected: EntryClass = uses === 0 ? 'unused' : uses === 1 ? 'one-off' : facts.tiedTo.length ? 'reusable' : 'promote-candidate'
+    if (facts.class !== expected) fail(at('app.class') + ` is ${facts.class}, but its evidence (${uses} uses, ${facts.tiedTo.length} ties) says ${expected}`)
+  }
   return problems
 }

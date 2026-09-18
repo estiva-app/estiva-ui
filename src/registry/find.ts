@@ -86,6 +86,18 @@ const hit = (query: string, text: string) => words(text).some((word) => alike(qu
  * over `MenuPanel`, whose name carries one of them loudly.
  */
 export function findInRegistry(registry: Registry, query: string, { limit = 5 }: { limit?: number } = {}): Finding[] {
+  return findInRegistries([registry], query, { limit })
+}
+
+/**
+ * Search several catalogues as one: the package's, the app's own, and any app
+ * beside it (UIG-13).
+ *
+ * An app's pass-on is not a result of its own — it is the package's part, and
+ * the package's entry answers for it, saying which apps hand it on. At the
+ * same strength the package's part comes first: it is the one to reach for.
+ */
+export function findInRegistries(registries: Registry[], query: string, { limit = 5 }: { limit?: number } = {}): Finding[] {
   const all = words(query)
   // Drop the words that mean nothing. If the question was only those, keep them
   // rather than answer nothing at all.
@@ -94,7 +106,8 @@ export function findInRegistry(registry: Registry, query: string, { limit = 5 }:
   if (asked.length === 0) return []
 
   const findings: Finding[] = []
-  for (const entry of registry.entries) {
+  const entries = registries.flatMap((registry) => registry.entries).filter((entry) => entry.app?.class !== 're-export')
+  for (const entry of entries) {
     let score = 0
     let matched = 0
     const where = new Set<string>()
@@ -148,7 +161,8 @@ export function findInRegistry(registry: Registry, query: string, { limit = 5 }:
     if (matched > 0) findings.push({ entry, matched, score, where: [...where], props: [...byName] })
   }
 
-  findings.sort((a, b) => b.matched - a.matched || b.score - a.score || a.entry.name.localeCompare(b.entry.name))
+  const fromPackage = (finding: Finding) => (finding.entry.app === null ? 0 : 1)
+  findings.sort((a, b) => b.matched - a.matched || b.score - a.score || fromPackage(a) - fromPackage(b) || a.entry.name.localeCompare(b.entry.name))
   return findings.slice(0, limit)
 }
 
@@ -158,22 +172,45 @@ export function docsLink(registry: Registry, entry: RegistryEntry): string | nul
   return registry.storybook.devUrl + registry.storybook.docsPath.replace('{docsId}', entry.docsId)
 }
 
+/** What an app's part is, in the words the search prints. */
+const CLASS_WORDS: Record<string, string> = {
+  'one-off': 'used in one place',
+  reusable: 'used in several places',
+  'promote-candidate': 'used in several places; could move into the package',
+  unused: 'used nowhere in the app',
+}
+
 /** What the command prints: the import line first, because that is what the reader came for. */
-export function formatFindings(registry: Registry, findings: Finding[], query: string): string {
+export function formatFindings(searched: Registry | Registry[], findings: Finding[], query: string): string {
+  const registries = Array.isArray(searched) ? searched : [searched]
   if (findings.length === 0) {
     return [
-      `Nothing in ${registry.builtFrom.repo} matches "${query}".`,
+      `Nothing in ${registries.map((registry) => registry.builtFrom.repo).join(', ')} matches "${query}".`,
       'If nothing here does what you need, say so and ask — do not invent a component.',
     ].join('\n')
+  }
+  const registryOf = (entry: RegistryEntry) => registries.find((registry) => registry.builtFrom.repo === entry.repo) ?? registries[0]
+  // Which apps hand a package part on, and from where: in Peek, `Button` is
+  // imported from `@/components/ui/Button`, and the answer should say so.
+  const handedOn = new Map<string, string[]>()
+  for (const registry of registries) {
+    for (const entry of registry.entries) {
+      if (entry.app?.class !== 're-export' || entry.app.handsOn === null) continue
+      handedOn.set(entry.app.handsOn, [...(handedOn.get(entry.app.handsOn) ?? []), `${entry.repo} hands it on${entry.name === entry.app.handsOn ? '' : ` as ${entry.name}`} from ${entry.importPath}`])
+    }
   }
 
   const blocks = findings.map((finding) => {
     const { entry } = finding
+    const facts = entry.app
     const lines = [
-      `${entry.name}  ·  ${entry.kind}  ·  ${entry.repo}  (matched ${finding.where.join(', ')})`,
+      `${entry.name}  ·  ${facts ? CLASS_WORDS[facts.class] ?? facts.class : entry.kind}  ·  ${entry.repo}  (matched ${finding.where.join(', ')})`,
       `  ${entry.purpose}`,
-      `  import { ${entry.name} } from '${entry.importPath}'`,
+      facts?.defaultExport ? `  import ${entry.name} from '${entry.importPath}'` : `  import { ${entry.name} } from '${entry.importPath}'`,
     ]
+    if (!facts) for (const said of handedOn.get(entry.name) ?? []) lines.push(`  ${said}`)
+    if (facts?.packageNamesake) lines.push(`  the package has a ${facts.packageNamesake} too: check it first`)
+    if (facts && facts.usedIn.length) lines.push(`  used in ${facts.usedIn.slice(0, 2).join(', ')}${facts.usedIn.length > 2 ? ` and ${facts.usedIn.length - 2} more` : ''}`)
     if (entry.ownsBehaviours.length) lines.push(`  owns: ${entry.ownsBehaviours.map((owned) => owned.behaviour).join(' · ')}`)
     if (entry.variants.length) lines.push(`  ${entry.variants.map((variant) => `${variant.prop}: ${variant.values.join(' | ')}`).join('   ')}`)
     // The props the question named, with their own line — not all of them. A
@@ -185,8 +222,8 @@ export function formatFindings(registry: Registry, findings: Finding[], query: s
     for (const prop of shown) {
       if (prop) lines.push(`  ${prop.name}: ${prop.takes}${prop.note ? ` — ${prop.note}` : ''}`)
     }
-    if (entry.props.length) lines.push(`  ${entry.props.length} props in all; see the page for the rest`)
-    const link = docsLink(registry, entry)
+    if (entry.props.length) lines.push(`  ${entry.props.length} props in all; see ${entry.docsId ? 'the page' : entry.sourceFile} for the rest`)
+    const link = docsLink(registryOf(entry), entry)
     if (link) lines.push(`  ${link}`)
     return lines.join('\n')
   })

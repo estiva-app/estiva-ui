@@ -1,6 +1,6 @@
 {
   "name": "@estiva-app/ui",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
   "license": "MIT",
@@ -66,7 +66,7 @@
     "preregistry:check": "node build.mjs",
     "registry:check": "node dist/registry/cli.js check",
     "preui:find": "node build.mjs",
-    "ui:find": "node dist/registry/cli.js find",
+    "ui:find": "node dist/registry/cli.js find --also peek=../peek --also ship=../ship/web",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {

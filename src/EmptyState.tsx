@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { IconMessage2 } from '@tabler/icons-react'
+import { Button } from './Button'
 import { cn } from './cn'
 
 /**
@@ -28,10 +29,16 @@ export interface EmptyStateProps {
   message: string
   /** `page` when the whole page is empty; `section` when one part of it is. */
   scope?: 'page' | 'section'
+  /**
+   * The one thing to do about it — "New topic", "Try again" — drawn 16px under
+   * the line as the package's Button, outlined (Katerina, 2026-09-18). A `page`
+   * only: a section's empty line is one line among others, not a stage.
+   */
+  action?: { label: string; onClick: () => void }
   className?: string
 }
 
-export function EmptyState({ icon, message, scope = 'page', className }: EmptyStateProps) {
+export function EmptyState({ icon, message, scope = 'page', action, className }: EmptyStateProps) {
   if (scope === 'section') {
     return <p className={cn('text-caption text-text-muted', className)}>{message}</p>
   }
@@ -39,6 +46,12 @@ export function EmptyState({ icon, message, scope = 'page', className }: EmptySt
     <div className={cn('flex flex-1 flex-col items-center justify-center gap-2', className)}>
       <span className="text-text-secondary">{icon ?? <IconMessage2 size={16} stroke={1.5} />}</span>
       <p className="text-body-2 text-text-secondary text-center">{message}</p>
+      {/* 8px of the column's gap and 8px of its own: 16px under the line, as Peek had it. */}
+      {action && (
+        <Button variant="outlined" className="mt-2" onClick={action.onClick}>
+          {action.label}
+        </Button>
+      )}
     </div>
   )
 }

@@ -137,6 +137,27 @@ but this package. The frame is `AppShell` with a `Sidebar`, one theme
 (`--theme`, default `light`) set once in `index.html`. Its README says what is
 left to do by hand: register the app with Estiva ID, and protect `main`.
 
+### The catalogue — `estiva-ui`
+
+"Do we already have this?" has one answer: `estiva-ui find <what it does>`.
+
+```bash
+npx estiva-ui find a floating panel     # the package's parts, and this app's own
+npx estiva-ui check                     # every part says what it is for (CI's job gate)
+```
+
+- **The package's catalogue** is `registry.json`, generated from the code,
+  committed and shipped: one entry per export, with its purpose, every prop it
+  declares, what it owns and where its page is.
+- **An app's catalogue** is built from the app's own code each time it is read,
+  and never committed. Every part a `.tsx` file exports is listed with its
+  purpose (a one-line `/** … */` above it), where the app uses it, and its kind:
+  a pass-on of a package part, used in one place, used in several, a candidate to
+  move into the package, or used nowhere. `estiva-ui check` fails on a part with
+  no description. `--also [name=]<folder>` adds an app that sits beside this one.
+- `@estiva-app/ui/registry` exports the builders and the search for a tool that
+  reads them itself.
+
 ## The rules
 
 ### Forking is allowed

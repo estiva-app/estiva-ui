@@ -1,6 +1,8 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
-import { join } from 'node:path'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
+import { buildAppRegistry } from '../registry/app'
+import { validateRegistry } from '../registry/schema'
 import { appFiles, ASKED_OF_NPM, createApp, themes } from './create-app'
 
 /**
@@ -97,6 +99,22 @@ describe('create-estiva-app', () => {
     expect(client).toContain('export const KINDS: number[] = []')
     expect(client).toContain("subscriptionPrefix: 'probe-app-'")
     expect(files['src/relay/client.test.ts']).toContain('holds one connection per tab')
+  })
+
+  it('describes every part it writes, and refuses one without in the job gate (UIG-13)', () => {
+    const made = mkdtempSync(join(scratch, 'described-'))
+    for (const [path, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(made, path)), { recursive: true })
+      writeFileSync(join(made, path), text)
+    }
+    const registry = buildAppRegistry({ root: made })
+    expect(validateRegistry(registry)).toEqual([])
+    expect(registry.entries.map((entry) => `${entry.name}: ${entry.app?.class}`).sort()).toEqual(['App: one-off', 'AuthShell: one-off', 'HomePage: one-off'])
+    expect(registry.filesWithoutParts.map((file) => file.file)).toEqual(['src/main.tsx'])
+    const scripts = JSON.parse(files['package.json']).scripts
+    expect(scripts).toMatchObject({ 'ui:find': 'estiva-ui find', registry: 'estiva-ui build', 'registry:check': 'estiva-ui check' })
+    expect(files['.github/workflows/deploy.yml']).toMatch(/\n {2}gate:\n[\s\S]*npm run registry:check/)
+    expect(files['.gitignore'].split('\n')).toContain('registry.json')
   })
 
   it("puts the page's empty state straight into the frame, with no box around it", () => {

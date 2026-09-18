@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { IconPencilMinus, IconUserPlus } from '@tabler/icons-react'
 import { Banner } from './Banner'
 
 const meta = {
@@ -32,6 +33,27 @@ export const Warning: Story = { args: { tone: 'warning', children: 'This workspa
  */
 export const Dismissible: Story = {
   args: { tone: 'warning', children: 'This workspace is read-only until sign-in.', onDismiss: () => {} },
+}
+
+/**
+ * With an icon and one action (Katerina, 2026-09-18). One line: the text
+ * truncates, and the Button stays at the end.
+ */
+export const WithIconAndAction: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-full max-w-xl flex-col gap-2">
+      <Banner tone="info" icon={<IconPencilMinus size={16} stroke={1.5} />} action={{ label: 'Invite people', onClick: () => {} }}>
+        This is the start of the conversation in <span className="font-medium">Project Alpha</span>
+      </Banner>
+      <Banner tone="info" icon={<IconPencilMinus size={16} stroke={1.5} />}>
+        This is the start of your conversation with <span className="font-medium">Sam Lee</span>
+      </Banner>
+      <Banner tone="info" icon={<IconUserPlus size={16} stroke={1.5} />} action={{ label: 'Join', onClick: () => {} }}>
+        You are not in <span className="font-medium">Project Alpha</span> yet — join to take part in the conversation
+      </Banner>
+    </div>
+  ),
 }
 
 /** All four tones, stacked. */

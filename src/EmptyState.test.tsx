@@ -6,7 +6,7 @@
  * structure.
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { EmptyState } from './EmptyState'
 
 afterEach(cleanup)
@@ -58,5 +58,22 @@ describe('EmptyState', () => {
     const { container } = render(<EmptyState icon={<i data-testid="own" />} message="Nothing here yet." />)
     expect(container.querySelector('[data-testid="own"]')).not.toBeNull()
     expect(container.querySelector('svg')).toBeNull()
+  })
+
+  it('draws its action under the line as the package Button, outlined (Katerina, 2026-09-18)', () => {
+    let clicked = 0
+    render(<EmptyState message="No topics yet." action={{ label: 'New topic', onClick: () => (clicked += 1) }} />)
+    const button = screen.getByRole('button', { name: 'New topic' })
+    expect(button.className).toContain('border-border-default')
+    expect(button.className).toContain('mt-2')
+    // Under the line, in the same column.
+    expect(screen.getByText('No topics yet.').nextElementSibling).toBe(button)
+    fireEvent.click(button)
+    expect(clicked).toBe(1)
+  })
+
+  it('a section takes no action', () => {
+    render(<EmptyState scope="section" message="Nothing here yet." action={{ label: 'Add', onClick: () => {} }} />)
+    expect(screen.queryByRole('button')).toBeNull()
   })
 })

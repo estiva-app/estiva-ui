@@ -21,7 +21,7 @@ const all = [
   { ref: "UIG-7", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — every remaining raw element" },
   { ref: "UIG-8", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — forbid the reach" },
   { ref: "UIG-9", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — the className allow-list" },
-  { ref: "UIG-10", owner: "estiva-ui", title: "create-app — a command that makes a new Estiva app that runs" },
+  { ref: "UIG-10", owner: "estiva-ui", parts: PEEK_SHIP, title: "create-app — a command that makes a new Estiva app that runs" },
   { ref: "UIG-11", owner: "estiva-ui", title: "Create the Leaf repo from it" },
   { ref: "UIG-12", owner: "estiva-ui", title: "The registry, thin and proved — estiva-ui first" },
   { ref: "UIG-13", owner: "estiva-ui", parts: PEEK_SHIP, title: "The registry widens to Peek's 115 and Ship's 74, with classification" },
@@ -195,7 +195,7 @@ export default function define(h) {
       { what: "a leaf checkout sits beside estiva-ui", run: () => h.file("../leaf/package.json") },
     ] },
     { ref: "UIG-12", owner: true, checks: [
-      { what: "registry.json is committed, versioned, and every export is accounted for", run: () => h.json("registry.json", (d) => d.schemaVersion === 1 && Array.isArray(d.entries) && d.entries.length > 0 && d.entries.length + (d.excluded?.length ?? 0) === d.builtFrom?.exports, "registry.json reconciles: entries + explained exclusions = the value exports of index.ts") },
+      { what: "registry.json is committed, versioned, and every export is accounted for", run: () => h.json("registry.json", (d) => d.schemaVersion >= 1 && Array.isArray(d.entries) && d.entries.length > 0 && d.entries.length + (d.excluded?.length ?? 0) === d.builtFrom?.exports, "registry.json reconciles: entries + explained exclusions = the value exports of index.ts") },
       { what: "every entry says what it is for", run: () => h.json("registry.json", (d) => (d.entries ?? []).every((e) => typeof e.purpose === "string" && e.purpose.trim() !== ""), "no entry has an empty purpose") },
       { what: "every entry says what it can do — all its props, not only its word-choices", run: () => h.json("registry.json", (d) => {
         const entries = d.entries ?? [];
@@ -217,8 +217,22 @@ export default function define(h) {
       { what: "CI rebuilds it and fails when the committed file has drifted", run: () => h.contains(".github/workflows/check.yml", /npm run registry:check/, "check.yml runs registry:check") },
       { what: "it reads UIG-8's behaviour enumeration rather than keeping a list of its own", run: () => h.contains("src/registry/build.ts", /OWNED_BEHAVIOURS/, "src/registry/build.ts reads OWNED_BEHAVIOURS") },
     ] },
+    // Built 18 September. Katerina: Peek's and Ship's catalogues stay private, built
+    // fresh in each app and put together only on a machine that has all three.
     { ref: "UIG-13", owner: true, checks: [
-      { what: "the merged registry lists Peek's and Ship's components", run: () => h.json("registry.json", (d) => ["peek", "ship"].every((r) => (d.entries ?? d.components ?? []).some((e) => e.repo === r)), "registry.json has entries from peek and ship") },
+      { what: "the package builds an app's catalogue, and one search reads several", run: () => h.contains("src/registry/index.ts", /buildAppRegistry[\s\S]*findInRegistries/, "@estiva-app/ui/registry exports buildAppRegistry and findInRegistries") },
+      { what: "the public package holds no app's parts", run: () => h.json("registry.json", (d) => d.schemaVersion === 2 && d.builtFrom?.kind === "package" && (d.entries ?? []).every((e) => e.repo === "estiva-ui" && e.app === null), "registry.json is the package's own, schema 2, and no entry is an app's") },
+      { what: "ui:find here brings in Peek and Ship when they sit beside it", run: () => h.contains("package.json", /"ui:find":\s*"[^"]*--also peek=[^"]*--also ship=/, "ui:find passes --also peek and --also ship") },
+      { what: "a made app gets ui:find, registry:check in its job gate, and ignores registry.json", run: () => {
+        const made = h.read("src/gates/create-app.ts");
+        const missing = [
+          [/'ui:find': 'estiva-ui find'/, "the ui:find script"],
+          [/'registry:check': 'estiva-ui check'/, "the registry:check script"],
+          [/run: npm run registry:check/, "the step in job gate"],
+          [/'\.gitignore': \[[^\]]*'registry\.json'/, "registry.json in .gitignore"],
+        ].filter(([re]) => !re.test(made)).map(([, what]) => what);
+        return missing.length ? h.FAIL(`create-app lacks ${missing.join(", ")}`) : h.PASS("create-app writes the scripts, the gate step and the ignore line");
+      } },
     ] },
     { ref: "UIG-14", owner: true, checks: [
       { what: "every component that imports Base UI has the five sections", run: () => {
