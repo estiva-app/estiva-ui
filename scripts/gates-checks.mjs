@@ -64,7 +64,16 @@ export default function define(h) {
   const componentFiles = () => h.listFiles("src", (n) => /\.tsx$/.test(n) && !/\.(stories|test)\.tsx$/.test(n)).filter((f) => !f.includes("/", 4));
   const pages = () => h.listFiles("src", (n) => n.endsWith(".mdx")).filter((f) => !f.includes("/", 4));
   const gate = (code, expect, mentions) => () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code, expect, mentions });
-  const fiveSections = (mdx) => ["What it is", "When", "When not", "How", "What it owns"].every((s) => new RegExp(`^#+\\s*${s}\\s*$`, "m").test(h.read(mdx)));
+  // A page's contract (UIG-14): a line under the title saying what it is, then When, When not,
+  // How with code, and What it owns — each once, in that order. src/pages.test.ts holds the rest.
+  const contract = (mdx) => {
+    const t = h.read(mdx).replace(/\r\n/g, "\n");
+    const heads = [...t.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
+    const at = ["When", "When not", "How", "What it owns"].map((s) => heads.indexOf(s));
+    const opening = (t.split(/^# .*$/m)[1] ?? "").split(/\n\s*\n/).map((s) => s.trim()).find((s) => s && !s.startsWith("<"));
+    const how = t.split("\n## How\n")[1]?.split("\n## ")[0] ?? "";
+    return Boolean(opening) && at.every((i) => i >= 0) && at.every((i, n) => n === 0 || i > at[n - 1]) && new Set(heads).size === heads.length && /```tsx?\n/.test(how);
+  };
 
   // The chain every repo carries once its lint rules are live (UIG-3, UIG-4, UIG-5).
   const chain = () => [
@@ -235,16 +244,17 @@ export default function define(h) {
       } },
     ] },
     { ref: "UIG-14", owner: true, checks: [
-      { what: "every component that imports Base UI has the five sections", run: () => {
+      { what: "every component that imports Base UI keeps the page contract", run: () => {
         const owners = componentFiles().filter((f) => h.read(f).includes("@base-ui/react"));
-        return h.share(owners, (f) => h.exists(f.replace(/\.tsx$/, ".mdx")) && fiveSections(f.replace(/\.tsx$/, ".mdx")), "pages with What it is, When, When not, How, What it owns");
+        return h.share(owners, (f) => h.exists(f.replace(/\.tsx$/, ".mdx")) && contract(f.replace(/\.tsx$/, ".mdx")), "pages with an opening line, When, When not, How with code, What it owns");
       } },
+      { what: "the contract is a test that reads What it owns against the checker", run: () => h.exists("src/pages.test.ts") && /OWNED_BEHAVIOURS/.test(h.read("src/pages.test.ts")) ? h.PASS("src/pages.test.ts reads OWNED_BEHAVIOURS") : h.FAIL("no src/pages.test.ts reading OWNED_BEHAVIOURS") },
     ] },
     { ref: "UIG-15", owner: true, checks: [
-      { what: "EmptyState's page has the five sections", run: () => h.exists("src/EmptyState.mdx") && fiveSections("src/EmptyState.mdx") ? h.PASS("src/EmptyState.mdx has all five") : h.FAIL("src/EmptyState.mdx does not have all five yet") },
+      { what: "EmptyState's page keeps the contract (folded into UIG-14)", run: () => h.exists("src/EmptyState.mdx") && contract("src/EmptyState.mdx") ? h.PASS("src/EmptyState.mdx keeps it") : h.FAIL("src/EmptyState.mdx does not keep it yet") },
     ] },
     { ref: "UIG-16", owner: true, checks: [
-      { what: "every component page has the five sections", run: () => h.share(pages(), fiveSections, "pages with What it is, When, When not, How, What it owns") },
+      { what: "every component page keeps the contract (folded into UIG-14)", run: () => h.share(pages(), contract, "pages with an opening line, When, When not, How with code, What it owns") },
     ] },
     { ref: "UIG-19", owner: true, checks: [
       { what: "the usage-page contract runs in CI", run: () => h.ci(/[\w:-]*contract[\w:-]*/) },
