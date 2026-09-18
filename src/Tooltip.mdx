@@ -82,6 +82,18 @@ beneath one — and fades out over **80ms**. Moving between triggers inside a
 warm group skips the animation entirely, so a toolbar sweep does not flicker.
 `prefers-reduced-motion` removes it.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Stays attached to its anchor on scroll and resize | a scroll or resize listener, or placement arithmetic | ✓ |
+| Says what it is to assistive technology: a tooltip | `role="tooltip"` | ✓ |
+| Opens after the pointer rests, and at once on keyboard focus | a timer, or hover and focus handlers |  |
+| Closes on Escape, on a click of its control, and when the pointer leaves | close handlers |  |
+
 ## Keys
 
 | Input | What happens |

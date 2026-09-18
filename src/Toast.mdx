@@ -70,6 +70,17 @@ showToast({ label: 'Link copied', type: 'success' })
 - `useToast` outside a provider throws — mount the provider at the root,
   once.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Says what it is to assistive technology: a message, announced as it arrives | `role="status"` or `aria-live` | ✓ |
+| F6 moves focus to the toasts from anywhere; Escape closes one | a key listener |  |
+| Leaves by itself after a while | a timer |  |
+
 ## Keys
 
 | Key | What happens |

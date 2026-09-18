@@ -76,6 +76,15 @@ import { Card } from '@estiva-app/ui'
   shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9). What is inside the card is yours: its padding and its words go on
   your own element inside.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| With `href`, becomes a link: Link's anchor, with a real address | an anchor around the card |  |
+| Without `href`, shows it can be clicked when you pass `onClick` | `cursor-pointer` |  |
+
 ## Props
 
 <Controls of={CardStories.Surface} />

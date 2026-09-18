@@ -55,6 +55,15 @@ import { Field, TextInput } from '@estiva-app/ui'
   that says so already is left alone, and a `children` of several elements
   keeps the asterisk and owes its own.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Ties the label, the description and the error to the control inside it | `aria-label`, an `id` / `htmlFor` pair, or `aria-describedby` |  |
+| Marks the control invalid when it has an `error`, and announces it | `aria-invalid` |  |
+
 ## Props
 
 <Controls of={FieldStories.Default} />

@@ -74,6 +74,18 @@ import { ChipInput } from '@estiva-app/ui'
 
 <Canvas of={ChipInputStories.ALongLabelCut} />
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page: its suggestions | a portal, or a `z-index` to win | ✓ |
+| Moves through its items with the arrow keys, through the suggestions | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a combobox and its options | `role="combobox"`, `listbox` or `option` | ✓ |
+| Filters as you type; Enter adds the highlighted entry, Backspace on an empty query removes the last chip | a filter, or key handlers |  |
+| Escape clears the query first, and only then lets the surface around it act | an Escape handler |  |
+
 ## Keys
 
 | Input | What happens |

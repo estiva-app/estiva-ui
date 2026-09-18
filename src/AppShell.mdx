@@ -76,6 +76,14 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
   manages its own scrolling inside it.
 - Desktop only for now — no narrow-screen behaviour is provided.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Scrolls the page's content column, in a ScrollArea | `overflow-auto` on the page or on `main` |  |
+
 ## Props
 
 <Controls of={AppShellStories.Solid} />

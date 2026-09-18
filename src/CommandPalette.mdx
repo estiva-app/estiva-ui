@@ -102,6 +102,18 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 - **Focus never falls out of a level.** When the element that had it goes — a
   row picked, a level swapped — focus goes to the level's first control.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Holds focus inside while open, and gives it back to whatever opened it | focus code, or a Tab handler | ✓ |
+| Moves through its items with the arrow keys, through the rows, stopping at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a list of options you search | `role="combobox"`, `listbox` or `option` | ✓ |
+| Closes on Esc or a click outside; Esc closes an open list first | close handlers |  |
+
 ## Keys
 
 | Where | Input | What happens |

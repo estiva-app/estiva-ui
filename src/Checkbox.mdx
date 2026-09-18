@@ -79,6 +79,16 @@ import { Checkbox } from '@estiva-app/ui'
 - It does not move when it toggles: the tick is always in the box, hidden
   when unchecked, so both states hang on a line of text the same way.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a checkbox, ticked or not | `role="checkbox"` or `aria-checked` | ✓ |
+| Toggles on Space and on a click; Enter is left to the form | a click or key handler |  |
+| Is one Tab stop, in a `row` too | a `tabIndex` on the row |  |
+
 ## Keys
 
 | Key | Does |

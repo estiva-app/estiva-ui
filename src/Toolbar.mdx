@@ -82,6 +82,17 @@ why the placement is its job and not arithmetic of ours.
 
 <Canvas of={ToolbarStories.OnAnExistingSurface} />
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Takes its keys by itself: Enter and Space press the focused control | a key listener on the page | ✓ |
+| Moves through its items with the arrow keys, and wraps at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a toolbar | `role="toolbar"` | ✓ |
+| Is one Tab stop, and remembers where the walk left off | `tabIndex` on each control |  |
+
 ## Keys
 
 | Input | What happens |

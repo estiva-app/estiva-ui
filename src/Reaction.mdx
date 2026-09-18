@@ -50,6 +50,15 @@ import { Reaction } from '@estiva-app/ui'
   another client can change the count.
 - `disabled` takes it out of the Tab order and ignores presses.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Is a toggle: pressed or not, and says so to assistive technology | `aria-pressed` |  |
+| Presses on Enter and Space; Tab skips it while disabled | a key handler |  |
+
 ## Keys
 
 | Key | What happens |

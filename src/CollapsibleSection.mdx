@@ -60,6 +60,15 @@ import { CollapsibleSection, NavItem } from '@estiva-app/ui'
   with `open`.
 - A browser that blocks storage still gets a working section; it forgets.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Opens and closes from its title, on a click, Enter or Space | open state, or a key handler |  |
+| Tells assistive technology whether it is open | `aria-expanded` |  |
+
 ## Keys
 
 | Key | Does |

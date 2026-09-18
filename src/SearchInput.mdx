@@ -38,6 +38,15 @@ import { SearchInput } from '@estiva-app/ui'
   and this usually stands alone in a top bar rather than in a `Field`.
   Inside one, the label names it and you add nothing.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Inside a `Field`, takes its name from the Field's label | an `id` / `htmlFor` pair |  |
+| Shows its focus ring while anything inside it has focus | a focus style of your own |  |
+
 ## Props
 
 <Controls of={SearchInputStories.Default} />

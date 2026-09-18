@@ -58,6 +58,16 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
 - `className` places the fields: the form draws no box, and neither does the
   `<fieldset>` inside it.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Sends on Enter in a one-line field, and on Ctrl+Enter anywhere inside | a key handler that submits |  |
+| Leaves Enter alone where it means something else: a Textarea, a list, a people picker | exceptions of your own |  |
+| Does nothing while it is sending: no second send, and nothing inside takes focus | a busy flag on every control |  |
+
 ## Keys
 
 The same in every form (Katerina, 16 September).

@@ -59,6 +59,16 @@ import { IconPencil } from '@tabler/icons-react'
   and both sit at the same height. A `Dialog.Close` or a `Menu.Trigger`
   can be an IconButton that has a tooltip.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a button | `role="button"` | ✓ |
+| Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
+| Presses on Enter and Space, and does nothing while disabled | a key handler |  |
+
 ## Keys
 
 | Key | Does |

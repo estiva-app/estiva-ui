@@ -57,6 +57,15 @@ import { AttachmentCard } from '@estiva-app/ui'
   on Base UI's `Button` like InputChip's ✕ — not an `IconButton`, the 24px
   square that fills on hover.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Stops the clicks on its picture, its download and its remove control, so they never also click the card or row around it | `stopPropagation` |  |
+| Shows the full name on hover when the name is cut off | a tooltip of your own |  |
+
 ## Props
 
 <Controls of={AttachmentCardStories.Document} />

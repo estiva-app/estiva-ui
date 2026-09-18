@@ -53,6 +53,15 @@ import { ScrollArea } from '@estiva-app/ui'
   Chrome: wheel down over a sideways region inside a page, the page moves
   and the region does not; a sideways swipe, the other way round.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Scrolls with our scrollbar | `overflow-auto` or `overflow-scroll` | ✓ |
+| Scrolls with the keyboard when it has focus, like any scrolling box | key handlers |  |
+
 ## Keys
 
 | Key | Does |

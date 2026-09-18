@@ -59,6 +59,14 @@ compressed instead — rows must keep their height.
 It is a `nav` region — pass `aria-label` when "Workspace" is not the
 right name for what it navigates.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Scrolls its rows in a ScrollArea when they overflow | `overflow-auto` on the column |  |
+
 ## Props
 
 <Controls of={SidebarStories.Composed} />

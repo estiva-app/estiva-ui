@@ -35,6 +35,14 @@ import { Textarea } from '@estiva-app/ui'
 - **Inside a `Field`, the label names it. Add nothing.** Outside one, give
   it an `aria-label`.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Inside a `Field`, takes its name from the Field's label, and its error state | an `id` / `htmlFor` pair, or `aria-invalid` |  |
+
 ## Props
 
 <Controls of={TextareaStories.Empty} />

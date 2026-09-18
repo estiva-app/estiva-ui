@@ -44,6 +44,14 @@ const picker = useRef<HTMLInputElement>(null)
   nothing to reset afterwards.
 - `data-*` attributes pass on to the input, for a test to find it.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Opens the system's file picker from its button, and keeps the real file input out of Tab and screen readers | a hidden `<input type="file">` |  |
+
 ## Props
 
 <Controls of={FilePickerStories.Default} />

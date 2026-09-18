@@ -76,6 +76,21 @@ the trigger as "close" rather than as a press outside.
 
 <Canvas of={MenuStories.OnACard} />
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Stays attached to its anchor on scroll and resize | a scroll or resize listener, or placement arithmetic | ✓ |
+| Closes on a press outside | a click listener on the page | ✓ |
+| Takes its keys by itself: Enter and Space choose a row, Escape closes it | a key listener on the page | ✓ |
+| Moves through its items with the arrow keys, and jumps to a row by its first letters | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a menu, and each row a menu item | `role="menu"` or `role="menuitem"` | ✓ |
+| Keeps its own open state, and closes when a row is chosen | `useState` for open |  |
+| Gives focus back to the trigger when it closes | focus code |  |
+
 ## Keys
 
 | Input | What happens |

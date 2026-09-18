@@ -50,6 +50,15 @@ import { IconPencil } from '@tabler/icons-react'
 - A destructive row's `leading` icon takes the error colour itself
   (`text-error-default`) — the row colours only its label.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Is a row of its Menu: the Menu highlights it, walks to it with the arrow keys, and closes when it is chosen | a highlight or a key handler on the row |  |
+| Opens its `submenu` with → and closes it with ← | a submenu of your own |  |
+
 ## Props
 
 <Controls of={MenuItemStories.Default} />

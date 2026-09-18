@@ -54,6 +54,17 @@ import { Tabs } from '@estiva-app/ui'
   that already names it takes `aria-labelledby` instead. Unnamed is fine for
   the only tab row on a page.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Takes its keys by itself: Home and End select the first and last tab | a key listener on the page | ✓ |
+| Moves through its items with the arrow keys: ← → select the next tab, and wrap at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a set of tabs and their panels | `role="tablist"`, `tab` or `tabpanel` | ✓ |
+| Is one Tab stop: Tab lands on the selected tab | a `tabIndex` on each tab |  |
+
 ## Keys
 
 | Key | Does |

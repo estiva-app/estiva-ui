@@ -68,6 +68,16 @@ import { IconPlus } from '@tabler/icons-react'
   flex and grid, and position; a colour, a text size, a border, a corner or a
   shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9).
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a button | `role="button"` | ✓ |
+| Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
+| Presses on Enter and Space, and does nothing while disabled | a key handler |  |
+
 ## Keys
 
 | Key | Does |
