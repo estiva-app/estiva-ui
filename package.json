@@ -8,6 +8,7 @@
     "dist",
     "src",
     "stories",
+    "registry.json",
     "tailwind-preset.js",
     "tokens.css",
     "base.css",
@@ -27,6 +28,11 @@
       "types": "./dist/gates/index.d.ts",
       "default": "./dist/gates/index.js"
     },
+    "./registry": {
+      "types": "./dist/registry/index.d.ts",
+      "default": "./dist/registry/index.js"
+    },
+    "./registry.json": "./registry.json",
     "./tailwind-preset": "./tailwind-preset.js",
     "./tokens.css": "./tokens.css",
     "./package.json": "./package.json",
@@ -34,7 +40,8 @@
   },
   "bin": {
     "create-estiva-app": "dist/gates/create-app.js",
-    "estiva-gates": "dist/gates/cli.js"
+    "estiva-gates": "dist/gates/cli.js",
+    "estiva-ui": "dist/registry/cli.js"
   },
   "scripts": {
     "build": "node build.mjs && tsc -p tsconfig.build.json",
@@ -54,6 +61,12 @@
     "gates:status": "node dist/gates/cli.js status",
     "pregates:compare": "node build.mjs",
     "gates:compare": "node scripts/gates-compare.mjs",
+    "preregistry": "node build.mjs",
+    "registry": "node dist/registry/cli.js build",
+    "preregistry:check": "node build.mjs",
+    "registry:check": "node dist/registry/cli.js check",
+    "preui:find": "node build.mjs",
+    "ui:find": "node dist/registry/cli.js find",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {

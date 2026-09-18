@@ -10,6 +10,8 @@ import { cn } from './cn'
  * A list reveals after 150ms (`animate-skeleton-in`, in the preset) so a
  * fast load never flashes a skeleton — Peek's rule.
  */
+/** One pulsing bar at the inset colour: the piece every placeholder here is
+ *  built from. It draws nothing of its own — give it a width and a height. */
 export function SkeletonBar({ className, style }: { className?: string; style?: CSSProperties }) {
   return <div className={cn('bg-bg-inset rounded-sm animate-pulse', className)} style={style} />
 }

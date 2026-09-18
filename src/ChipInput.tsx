@@ -54,6 +54,9 @@ export interface InputChipProps {
   className?: string
 }
 
+/** A chip standing on its own: a label, an optional leading icon, an optional
+ *  ✕. For a caller that keeps its own list. Inside a `ChipInput` the same look
+ *  goes onto Base UI's `Combobox.Chip`, which joins the field's keyboard. */
 export function InputChip({ label, leading, onRemove, removeLabel, truncate, className }: InputChipProps) {
   return (
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>

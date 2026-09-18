@@ -86,6 +86,10 @@ export interface MenuPanelProps extends Omit<ComponentPropsWithRef<'div'>, 'chil
   children?: ReactNode
 }
 
+/** The menu's surface without the menu: the elevated box, the rows' padding,
+ *  and a divider that runs the full width of what it separates. `Menu` renders
+ *  its popup as one. On its own it is for the places that draw a menu's look
+ *  but not its behaviour — a docs page, Peek's `@`, `/` and `[` pickers. */
 export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
   return (
     <div
@@ -277,6 +281,9 @@ export interface MenuSubProps {
   className?: string
 }
 
+/** A row that opens another menu beside it; its rows are this row's children.
+ *  Never inside a menu opened on hover — leaving the submenu strands both open,
+ *  measured below. */
 export function MenuSub({ label, leading, selected, children, className }: MenuSubProps) {
   /*
    * A submenu inside a hover-opened menu strands it.

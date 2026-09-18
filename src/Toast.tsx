@@ -153,6 +153,9 @@ const ToastContext = createContext<ToastValue | null>(null)
 /** D7: three on screen at once. */
 const VISIBLE_TOASTS = 3
 
+/** Mount once, near the top of an app. It owns the stack, the timers and the
+ *  portal every toast goes through, and it is what `useToast` talks to. Three
+ *  show at once; a fourth waits for one of them to close. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   // One manager per provider, so `useToast` can add and close without
   // re-rendering every caller each time the list changes.
@@ -227,6 +230,8 @@ function ToastList() {
   })
 }
 
+/** How anything under a `ToastProvider` raises a toast (`showToast`) or takes
+ *  one away (`dismissToast`). Throws outside a provider. */
 export function useToast(): ToastValue {
   const ctx = useContext(ToastContext)
   if (!ctx) throw new Error('useToast must be used within ToastProvider')

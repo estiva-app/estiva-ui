@@ -146,6 +146,10 @@ function TooltipSurface({ label, shortcut, placement }: { label: string; shortcu
   )
 }
 
+/** A tooltip on something that cannot be its own trigger — a span, a `Chip`,
+ *  an icon. It wraps what it is given in an element that carries the handlers.
+ *  A control that can be the trigger does it itself: `IconButton` takes a
+ *  `tooltip` prop, and `Button` shows a `disabledReason` the same way. */
 export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassName, children }: WithTooltipProps) {
   return (
     <BaseTooltip.Root disableHoverablePopup>
