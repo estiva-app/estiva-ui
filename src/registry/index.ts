@@ -7,13 +7,20 @@
  *
  * The data itself is `registry.json` at the package's root, committed and
  * shipped. Read it with `estiva-ui find`, or import these to read it yourself.
+ * An app's own catalogue (UIG-13) is built from its code with
+ * `buildAppRegistry` each time it is read, and never committed.
  */
 export { buildRegistry, readIndexExports, serializeRegistry, type BuildOptions } from './build'
-export { docsLink, findInRegistry, formatFindings, type Finding } from './find'
+export { buildAppRegistry, type AppBuildOptions } from './app'
+export { docsLink, findInRegistries, findInRegistry, formatFindings, type Finding } from './find'
 export {
+  CLASSES,
   SCHEMA_VERSION,
   validateRegistry,
+  type AppFacts,
   type EntryBehaviour,
+  type EntryClass,
+  type FileWithoutPart,
   type EntryKind,
   type EntryStatus,
   type EntryVariant,
