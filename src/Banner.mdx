@@ -61,6 +61,15 @@ import { Banner } from '@estiva-app/ui'
   is 40px rather than 36px with it, because the button is taller than the
   line of text; without it, nothing about the strip changes.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: an alert for an error, a status for the rest | `role="alert"` or `role="status"` | ✓ |
+| Draws its own ✕ when you pass `onDismiss`, and its one small action when you pass `action` | a close button or an action button of your own |  |
+
 ## Props
 
 <Controls of={BannerStories.Ok} />

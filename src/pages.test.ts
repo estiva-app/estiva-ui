@@ -32,8 +32,8 @@ const ROW: Record<string, RegExp> = {
 }
 const NOT_A_ROW = ['base-ui']
 
-/** UIG-13 is changing both parts; their sections follow its merge. Empty before UIG-14 closes. */
-const WAITING = ['Banner', 'EmptyState']
+/** A page whose part another ticket is changing, while it is; empty when none is. */
+const WAITING: string[] = []
 
 const NOTHING = 'Nothing. It only draws. Clicks and keys are yours.'
 
@@ -93,6 +93,10 @@ describe('the page contract', () => {
       it('opens with a line saying what it is', () => {
         const opening = t.split(/^# .*$/m)[1]?.split(/\n\s*\n/).map((s) => s.trim()).find((s) => s && !s.startsWith('<'))
         expect(opening, 'no opening line under the title').toBeTruthy()
+      })
+
+      it('has each section once', () => {
+        expect(headings.filter((h, i) => headings.indexOf(h) !== i)).toEqual([])
       })
 
       it('has its sections in order', () => {
