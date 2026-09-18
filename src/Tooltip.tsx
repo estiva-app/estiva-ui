@@ -64,10 +64,16 @@ export interface TooltipProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
   shortcut?: string
 }
 
+/**
+ * One line at 30px, as it has always been; a label longer than 320px wraps
+ * onto more lines rather than running off the screen (Katerina, 19 September:
+ * a reference's full address drew a pill 950px wide). `py-1` only shows once
+ * it wraps: a single line is centred in the 30px.
+ */
 export function Tooltip({ label, shortcut, className, ...props }: TooltipProps) {
   return (
-    <div role="tooltip" className={cn('bg-bg-elevated border border-border-default rounded-lg h-[30px] flex items-center justify-center gap-1.5 px-2 shadow-lg', className)} {...props}>
-      <span className="text-caption text-text-primary whitespace-nowrap">{label}</span>
+    <div role="tooltip" className={cn('bg-bg-elevated border border-border-default rounded-lg min-h-[30px] max-w-80 flex items-center justify-center gap-1.5 px-2 py-1 shadow-lg', className)} {...props}>
+      <span className="min-w-0 text-caption text-text-primary break-words">{label}</span>
       {shortcut && <Kbd>{shortcut}</Kbd>}
     </div>
   )
@@ -80,6 +86,12 @@ export interface WithTooltipProps {
   placement?: 'top' | 'bottom'
   /** Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it. */
   wrapperClassName?: string
+  /**
+   * For a trigger inside a line of text — a reference, a name in a sentence:
+   * the wrapper is a `<span>`, because a `<div>` is not allowed inside a
+   * paragraph (UIG-14, Katerina, 19 September).
+   */
+  inline?: boolean
   children: ReactNode
 }
 
@@ -150,7 +162,8 @@ function TooltipSurface({ label, shortcut, placement }: { label: string; shortcu
  *  an icon. It wraps what it is given in an element that carries the handlers.
  *  A control that can be the trigger does it itself: `IconButton` takes a
  *  `tooltip` prop, and `Button` shows a `disabledReason` the same way. */
-export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassName, children }: WithTooltipProps) {
+export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassName, inline = false, children }: WithTooltipProps) {
+  const Wrapper = inline ? 'span' : 'div'
   return (
     <BaseTooltip.Root disableHoverablePopup>
       {/* The wrapper stays the trigger: `WithTooltip` wraps whatever it is
@@ -158,7 +171,7 @@ export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassNa
           can carry the handlers for all of them. A control that IS the trigger
           (Button, IconButton) composes the part onto itself instead, which is
           what lets a `Dialog.Close` or a `Menu.Trigger` be one of those. */}
-      <BaseTooltip.Trigger delay={OPEN_DELAY} render={<div className={cn('inline-flex shrink-0', wrapperClassName)} />}>
+      <BaseTooltip.Trigger delay={OPEN_DELAY} render={<Wrapper className={cn('inline-flex shrink-0', wrapperClassName)} />}>
         {children}
       </BaseTooltip.Trigger>
       <TooltipSurface label={label} shortcut={shortcut} placement={placement} />

@@ -27,6 +27,14 @@ describe('Tooltip, the surface', () => {
     expect(tip.textContent).toBe('BoldCmd+B')
   })
 
+  it('wraps a long label at 320px instead of running it off the screen, and stays 30px on one line', () => {
+    render(<Tooltip label="A label long enough to wrap onto a second line of the tooltip" />)
+    const pill = screen.getByRole('tooltip')
+    expect(pill.className).toContain('max-w-80')
+    expect(pill.className).toContain('min-h-[30px]')
+    expect(pill.querySelector('span')?.className).not.toContain('whitespace-nowrap')
+  })
+
   it('takes a caller class without losing its own', () => {
     render(<Tooltip label="Bold" className="w-40" />)
     const tip = screen.getByRole('tooltip')
@@ -47,6 +55,27 @@ describe('WithTooltip', () => {
     expect(wrapper.className).toContain('inline-flex')
     expect(wrapper.className).toContain('shrink-0')
     expect(wrapper.firstElementChild?.tagName).toBe('BUTTON')
+  })
+
+  it('inline: a span wrapper, so it can sit inside a paragraph without React warning', () => {
+    const errors: unknown[] = []
+    const original = console.error
+    console.error = (...args: unknown[]) => { errors.push(args) }
+    try {
+      render(
+        <p>
+          The plan is in{' '}
+          <WithTooltip inline label="Item one">
+            <span>Item one</span>
+          </WithTooltip>
+          .
+        </p>,
+      )
+    } finally {
+      console.error = original
+    }
+    expect(screen.getByText('Item one').parentElement?.tagName).toBe('SPAN')
+    expect(errors).toEqual([])
   })
 
   it('takes wrapperClassName, which is what keeps a truncating label truncating', () => {

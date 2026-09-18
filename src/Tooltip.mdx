@@ -50,6 +50,11 @@ import { WithTooltip } from '@estiva-app/ui'
   shrinks nothing, so a wrapped block collapses to its content width.
 - A truncating label keeps truncating if you pass
   `wrapperClassName="min-w-0 shrink"`.
+- **`inline`** for a trigger inside a line of text — a reference, a name in a
+  sentence: the wrapper is a `<span>`, because a `<div>` is not allowed inside
+  a paragraph.
+- A label longer than 320px wraps onto more lines rather than running off the
+  screen; a short one stays one line at 30px.
 - **`Button` and `IconButton` need no wrapper**: pass `tooltip` (or
   `disabledReason`) and the button itself becomes the trigger. That is what
   lets a `Dialog.Close` or a `Menu.Trigger` be one of them — the component's
@@ -58,6 +63,10 @@ import { WithTooltip } from '@estiva-app/ui'
   platforms and Ctrl elsewhere, and only the caller knows which it is
   looking at — so pass the finished label. `IconButton` forwards its own
   `tooltipShortcut` here.
+
+<Canvas of={TooltipStories.InsideText} />
+
+<Canvas of={TooltipStories.LongLabel} />
 
 ### The delay, and why a toolbar only pauses once
 
