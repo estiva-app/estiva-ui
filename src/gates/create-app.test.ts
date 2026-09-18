@@ -99,6 +99,16 @@ describe('create-estiva-app', () => {
     expect(files['src/relay/client.test.ts']).toContain('holds one connection per tab')
   })
 
+  it("puts the page's empty state straight into the frame, with no box around it", () => {
+    // EmptyState's own page: in a flex column (the frame's main) it takes the room left and
+    // centres both ways "with nothing to add". A box around it placed it instead: 64px from
+    // the top, from UIG-10 until 18 September, and no gate reads a box.
+    const page = files['src/pages/HomePage.tsx']
+    expect(page).toMatch(/return \(\n {4}<>\n {6}<EmptyState message="Nothing here yet\." \/>/)
+    expect(page).not.toMatch(/py-16|justify-center|items-center/)
+    expect(files['src/pages/HomePage.stories.tsx']).toContain('<div className="flex h-screen flex-col">')
+  })
+
   it('shows the connection on the home page, with a story for each state', () => {
     expect(files['src/App.tsx']).toContain('<HomePage relay={RELAY_URL} state={relayState} name={me.name} />')
     expect(files['src/pages/HomePage.tsx']).toContain('Running alone')
