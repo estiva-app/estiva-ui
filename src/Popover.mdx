@@ -83,7 +83,15 @@ so it is the one case the caller drives:
   open={selectionRect !== null}
   onOpenChange={(open) => !open && setSelectionRect(null)}
   ariaLabel="Formatting"
+  side="top"
+  contentClassName="p-1"
 >
+  <Toolbar aria-label="Formatting">
+    <ToolbarButton aria-label="Bold" tooltip="Bold" onClick={bold}>
+      <IconBold size={16} stroke={1.5} />
+    </ToolbarButton>
+  </Toolbar>
+</Popover>
 ```
 
 - **`anchor`** takes an element or a rect. A new rect moves the panel, so

@@ -49,8 +49,8 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
     onQueryChange={setQuery}
     placeholder="Search, or choose a place"
     groups={[
-      { label: 'Recent', rows: [{ id: 'item-one', label: 'Item one', icon: <IconSquareRounded size={16} stroke={1.5} />, onSelect: open, onForget: forget }] },
-      { label: 'Places', rows: [{ id: 'place-one', label: 'Place one', icon, onSelect: goIn, onGoIn: goIn }] },
+      { label: 'Recent', rows: [{ id: 'item-one', label: 'Item one', icon: <IconSquareRounded size={16} stroke={1.5} />, onSelect: openItem, onForget: forget }] },
+      { label: 'Places', rows: [{ id: 'place-one', label: 'Place one', icon: <IconSquareRounded size={16} stroke={1.5} />, onSelect: goIn, onGoIn: goIn }] },
     ]}
   />
 </CommandPalette>

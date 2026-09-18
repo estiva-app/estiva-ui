@@ -32,7 +32,7 @@ import { FieldLine } from '@estiva-app/ui'
 
 <div className="flex flex-col gap-1.5">
   <div className="flex items-center gap-2">
-    <TextInput value={draft} onChange={…} />
+    <TextInput value={draft} onChange={(e) => setDraft(e.target.value)} />
     <Button variant="primary" size="small">Save</Button>
   </div>
   {outcome && <FieldLine tone={outcome.kind}>{outcome.message}</FieldLine>}
