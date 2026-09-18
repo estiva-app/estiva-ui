@@ -228,7 +228,17 @@ UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the
 
 **Traps.** The script that writes What it owns replaced a section only when another heading followed, so a rerun doubled Skeleton's (its last); the test now fails on a section twice. `npm ci` in a worktree whose Storybook is running fails half-way and leaves `node_modules` gone — stop the Storybook first, and on Windows its node child outlives the shell that started it.
 
-**Not done yet.** The Peek and Ship fixes (building, each with before and after photos for her); the release; the late finding above; the notes on the three Ship tickets (written, waiting for her "ok").
+**Round 2, 19 September** (the review page's tab "Round 2"). The app fixes were made in their own branches, 28 cards, each with before and after photos; four stopped because doing them would have changed something she had not asked for, and each became her decision (A–M). Her answers, and what the package got for them:
+- **A** — a tooltip sits inside text and wraps: `WithTooltip` `inline` (a `<span>`, since a `<div>` is not allowed inside a paragraph), and the pill wraps at 320px while one line stays 30px (13 tooltip stories identical). Both apps' references then use it.
+- **B** — the composers stay as they are (TipTap handles their keys). **C1** — the bug B found is fixed anyway: a `Form` inside a `Popover` inside a `Form` sent both; a Form now sends only its own submit.
+- **C** — the floating `AppShell` draws the Signal canvas: Peek's dot grid, verbatim, as a component in the Tailwind preset (neither app imports `base.css`; the class lint knows a preset class).
+- **D** with **C3** — Peek's "Open work" heading takes `SectionHeader`, and `SectionHeader` `hover="none"` keeps the row still (added to `PART_LOOK_PROPS`).
+- **J** — `Select` takes `disabledReason`, as `Button` does: held shut, reachable by Tab, the reason as its tooltip. Ship's own wrapper goes.
+- **C4** — a waiting file's ✕ shows on keyboard focus; the cut name's tooltip hangs below it.
+- **PreviewCard** (her own find): its scrollbar sat 15px from the edge, behind the card's padding; the padding moved inside the scrolling box, as `Popover`'s did at 0.12.6 — the thumb is 3px from the edge (Finding 58), the card and its text unchanged.
+- **E, F, G, H, I, K, M** kept as built; **L** — the tree rows' `aria-expanded` waits for a tree part on Base UI, "soon" (Katerina). C5–C8 and C11 are app bug fixes in their PRs; C9, C10 stay; C12 is a method note (the photo counter misses changes of 8 levels or less, like the Signal dots: crop them).
+
+**Not done yet.** Release 0.24.0 (she agreed: "you can merge and release"); then Peek and Ship take it for 1.7/1.8, 9.3, 10.2, 4.13 and J, and their PRs merge; then UIG-14, UIG-15 and UIG-16 close together. The notes on the three Ship tickets are posted (byte-verified, 19 September).
 
 ### UIG-13: building it
 
