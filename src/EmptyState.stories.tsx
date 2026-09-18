@@ -1,5 +1,5 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite'
-import { IconLock } from '@tabler/icons-react'
+import { IconLock, IconMessagePlus } from '@tabler/icons-react'
 import { EmptyState } from './EmptyState'
 
 // A box with a hairline, so where the state sits inside its room can be seen: a page's in the middle both ways, a section's at the top left.
@@ -25,6 +25,11 @@ const sectionContrastDeferred = { a11y: { config: { rules: [{ id: 'color-contras
 export const Section: Story = { args: { scope: 'section' }, decorators: [inBox], parameters: sectionContrastDeferred }
 export const LongerMessage: Story = { args: { message: 'No items yet. Add one from any list.' }, decorators: [inBox] }
 export const CustomIcon: Story = { args: { icon: <IconLock size={16} stroke={1.5} />, message: 'Nothing you can read here yet.' }, decorators: [inBox] }
+/** The one thing to do about it, under the line: the package's Button, outlined. */
+export const WithAction: Story = {
+  args: { icon: <IconMessagePlus size={16} stroke={1.5} />, message: 'No topics yet.', action: { label: 'New topic', onClick: () => {} } },
+  decorators: [inBox],
+}
 
 /** One box, written once, holding the rows or the empty state: its padding places both, so the line starts where the first row does. */
 export const InsideTheRowsBox: Story = {
