@@ -43,6 +43,26 @@ export interface EntryVariant {
   values: string[]
 }
 
+/**
+ * One prop a component declares itself.
+ *
+ * **Itself**, not what it inherits: a component that extends
+ * `ComponentPropsWithRef<'div'>` would otherwise drag in every DOM attribute,
+ * which is noise in a catalogue whose whole point is a short answer.
+ */
+export interface EntryProp {
+  name: string
+  /**
+   * What it takes, in a word a person reads: `true/false`, `number`, `text`,
+   * `anything`, `a handler`, the words themselves for a set (`left | right`),
+   * or the type as written where none of those fit.
+   */
+  takes: string
+  required: boolean
+  /** The first sentence of the prop's own comment, where it has one. */
+  note: string | null
+}
+
 /** A behaviour this component owns, from UIG-8's enumeration. */
 export interface EntryBehaviour {
   /** `OwnedBehaviour.id` — `portal`, `walking`, `scroll`… */
@@ -64,7 +84,16 @@ export interface RegistryEntry {
   /** One line: what it is for. Never empty — the build fails instead. */
   purpose: string
   purposeFrom: PurposeSource
-  /** Props that take one of a known set of words. Empty when it has none. */
+  /**
+   * Every prop it declares itself — what it can do. This is the field a reader
+   * asks "does it already do X?" of, before writing X by hand.
+   */
+  props: EntryProp[]
+  /**
+   * The subset of `props` that takes one of a known set of words, structured.
+   * Kept beside `props` because it is what a search ranks well on, and what a
+   * caller most often needs named back at them.
+   */
   variants: EntryVariant[]
   /** What it owns, so a caller never rebuilds it (UIG-8). Empty for most. */
   ownsBehaviours: EntryBehaviour[]
@@ -189,10 +218,19 @@ export function validateRegistry(value: unknown): string[] {
     if (!SOURCES.includes(entry.purposeFrom as PurposeSource)) fail(at('purposeFrom') + ` is ${String(entry.purposeFrom)}`)
     if (!STATUSES.includes(entry.status as EntryStatus)) fail(at('status') + ` is ${String(entry.status)}`)
     if (!(entry.migrationStage === null || typeof entry.migrationStage === 'number')) fail(at('migrationStage') + ' is neither a number nor null')
+    if (!Array.isArray(entry.props)) fail(at('props') + ' is not an array')
+    else
+      for (const prop of entry.props) {
+        if (!isFilledString(prop?.name) || !isFilledString(prop?.takes) || typeof prop?.required !== 'boolean') fail(at('props') + ' has a malformed entry')
+        else if (!(prop.note === null || isFilledString(prop.note))) fail(at('props') + `.${prop.name}.note is neither a string nor null`)
+      }
     if (!Array.isArray(entry.variants)) fail(at('variants') + ' is not an array')
-    else for (const variant of entry.variants) {
-      if (!isFilledString(variant?.prop) || !Array.isArray(variant?.values) || variant.values.length === 0) fail(at('variants') + ' has a malformed entry')
-    }
+    else
+      for (const variant of entry.variants) {
+        if (!isFilledString(variant?.prop) || !Array.isArray(variant?.values) || variant.values.length === 0) fail(at('variants') + ' has a malformed entry')
+        // variants is a view of props, never a second source that can disagree.
+        else if (Array.isArray(entry.props) && !entry.props.some((prop) => prop?.name === variant.prop)) fail(at('variants') + `.${variant.prop} is not one of its props`)
+      }
     if (!Array.isArray(entry.ownsBehaviours)) fail(at('ownsBehaviours') + ' is not an array')
     else for (const behaviour of entry.ownsBehaviours) {
       if (!isFilledString(behaviour?.id) || !isFilledString(behaviour?.behaviour)) fail(at('ownsBehaviours') + ' has a malformed entry')

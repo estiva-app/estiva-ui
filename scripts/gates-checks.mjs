@@ -195,6 +195,14 @@ export default function define(h) {
     { ref: "UIG-12", owner: true, checks: [
       { what: "registry.json is committed, versioned, and every export is accounted for", run: () => h.json("registry.json", (d) => d.schemaVersion === 1 && Array.isArray(d.entries) && d.entries.length > 0 && d.entries.length + (d.excluded?.length ?? 0) === d.builtFrom?.exports, "registry.json reconciles: entries + explained exclusions = the value exports of index.ts") },
       { what: "every entry says what it is for", run: () => h.json("registry.json", (d) => (d.entries ?? []).every((e) => typeof e.purpose === "string" && e.purpose.trim() !== ""), "no entry has an empty purpose") },
+      { what: "every entry says what it can do — all its props, not only its word-choices", run: () => h.json("registry.json", (d) => {
+        const entries = d.entries ?? [];
+        const props = entries.reduce((n, e) => n + (e.props?.length ?? 0), 0);
+        const variants = entries.reduce((n, e) => n + (e.variants?.length ?? 0), 0);
+        // Built with variants alone it carried a tenth of the answer, so the
+        // check is that props is the whole set and variants only a view of it.
+        return props > 300 && props > variants * 5 && entries.every((e) => (e.variants ?? []).every((v) => (e.props ?? []).some((p) => p.name === v.prop)));
+      }, "the entries carry every prop they declare, and variants is a view of those") },
       { what: "npm run ui:find is wired", run: () => h.script("package.json", "ui:find") },
       { what: "the catalogue ships in the package, not as a script pasted into each repo", run: () => {
         const pkg = JSON.parse(h.read("package.json"));

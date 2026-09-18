@@ -19,7 +19,27 @@ export interface Finding {
   score: number
   /** Which fields matched, for the reader to say why. */
   where: string[]
+  /**
+   * The props the query named **by name**, so the answer shows those rather
+   * than all of them. A prop whose note merely carries one of the words counts
+   * towards the score and is not shown: on "floating panel", six of `Popover`'s
+   * notes say "panel", and printing all six buries the answer.
+   */
+  props: string[]
 }
+
+/**
+ * Words that are in nearly every sentence, and so tell a search nothing.
+ *
+ * Measured: `ui:find "truncate a long link"` printed `Link`'s `external` prop,
+ * because its note says "in **a** new tab" and the one-letter word matched
+ * itself exactly. The minimum length in `alike` only guards a *prefix* match;
+ * an exact match short-circuits it, which is right for `tab` and useless for `a`.
+ */
+const STOP = new Set([
+  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'can', 'do', 'for', 'from', 'how', 'i', 'if', 'in', 'is', 'it', 'its', 'me', 'my', 'no', 'not', 'of',
+  'on', 'or', 'our', 'so', 'that', 'the', 'their', 'them', 'then', 'there', 'they', 'this', 'to', 'up', 'was', 'we', 'what', 'when', 'which', 'with', 'you', 'your',
+])
 
 /**
  * The words of a piece of text, with names taken apart.
@@ -66,7 +86,11 @@ const hit = (query: string, text: string) => words(text).some((word) => alike(qu
  * over `MenuPanel`, whose name carries one of them loudly.
  */
 export function findInRegistry(registry: Registry, query: string, { limit = 5 }: { limit?: number } = {}): Finding[] {
-  const asked = words(query)
+  const all = words(query)
+  // Drop the words that mean nothing. If the question was only those, keep them
+  // rather than answer nothing at all.
+  const carrying = all.filter((word) => word.length >= 3 && !STOP.has(word))
+  const asked = carrying.length ? carrying : all
   if (asked.length === 0) return []
 
   const findings: Finding[] = []
@@ -74,6 +98,8 @@ export function findInRegistry(registry: Registry, query: string, { limit = 5 }:
     let score = 0
     let matched = 0
     const where = new Set<string>()
+    const byName = new Set<string>()
+    const byNote = new Set<string>()
     for (const word of asked) {
       let best = 0
       if (entry.name.toLowerCase() === word) {
@@ -97,12 +123,29 @@ export function findInRegistry(registry: Registry, query: string, { limit = 5 }:
         if (variant.values.some((value) => hit(word, value)) || hit(word, variant.prop)) {
           best = Math.max(best, 8)
           where.add('variant')
+          byName.add(variant.prop)
+        }
+      }
+      // What it can do. "does Link already truncate?" is the question this
+      // answers, and answering it is what stops the thing being built twice.
+      for (const prop of entry.props) {
+        // A prop the question named by name is the answer; one whose note
+        // happens to carry the word is a hint. Named ones go first, so a short
+        // answer shows the right lines.
+        if (hit(word, prop.name)) {
+          best = Math.max(best, 14)
+          where.add('prop')
+          byName.add(prop.name)
+        } else if (prop.note !== null && hit(word, prop.note)) {
+          best = Math.max(best, 10)
+          where.add('prop')
+          byNote.add(prop.name)
         }
       }
       if (best > 0) matched += 1
       score += best
     }
-    if (matched > 0) findings.push({ entry, matched, score, where: [...where] })
+    if (matched > 0) findings.push({ entry, matched, score, where: [...where], props: [...byName] })
   }
 
   findings.sort((a, b) => b.matched - a.matched || b.score - a.score || a.entry.name.localeCompare(b.entry.name))
@@ -133,6 +176,16 @@ export function formatFindings(registry: Registry, findings: Finding[], query: s
     ]
     if (entry.ownsBehaviours.length) lines.push(`  owns: ${entry.ownsBehaviours.map((owned) => owned.behaviour).join(' · ')}`)
     if (entry.variants.length) lines.push(`  ${entry.variants.map((variant) => `${variant.prop}: ${variant.values.join(' | ')}`).join('   ')}`)
+    // The props the question named, with their own line — not all of them. A
+    // component with twenty props would bury its own answer.
+    const shown = finding.props
+      .filter((name) => !entry.variants.some((variant) => variant.prop === name))
+      .slice(0, 3)
+      .map((name) => entry.props.find((prop) => prop.name === name))
+    for (const prop of shown) {
+      if (prop) lines.push(`  ${prop.name}: ${prop.takes}${prop.note ? ` — ${prop.note}` : ''}`)
+    }
+    if (entry.props.length) lines.push(`  ${entry.props.length} props in all; see the page for the rest`)
     const link = docsLink(registry, entry)
     if (link) lines.push(`  ${link}`)
     return lines.join('\n')

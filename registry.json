@@ -21,6 +21,56 @@
       "sourceFile": "src/AppShell.tsx",
       "purpose": "The frame of an app, in the two manners that pair: `solid` — the structured frame, a solid TopBar over a Sidebar and the content beside it — and `floating` — the TopBar floating over the top edge, a Rail standing on the background, and the content living in the rounded card.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "variant",
+          "takes": "solid | floating",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The top bar's menu button, in an app whose navigation collapses."
+        },
+        {
+          "name": "logo",
+          "takes": "anything",
+          "required": false,
+          "note": "The top bar's left: the app's logo mark, or its name as text."
+        },
+        {
+          "name": "search",
+          "takes": "anything",
+          "required": false,
+          "note": "The top bar's centre — a search field, when there is one."
+        },
+        {
+          "name": "identity",
+          "takes": "anything",
+          "required": false,
+          "note": "The top bar's right cluster — an `IdentityMenu`."
+        },
+        {
+          "name": "banner",
+          "takes": "anything",
+          "required": false,
+          "note": "A `Banner`, or nothing — drawn at the top of the content area."
+        },
+        {
+          "name": "nav",
+          "takes": "anything",
+          "required": true,
+          "note": "The navigation: a `Sidebar` in the solid manner, a `Rail` in the floating one."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -45,6 +95,80 @@
       "sourceFile": "src/AttachmentCard.tsx",
       "purpose": "Something attached — a document or an image — drawn as a card: posted, or waiting to be sent.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "name",
+          "takes": "text",
+          "required": true,
+          "note": "The name it was attached under, extension included: it decides the icon and the type label."
+        },
+        {
+          "name": "size",
+          "takes": "number",
+          "required": false,
+          "note": "In bytes."
+        },
+        {
+          "name": "contentType",
+          "takes": "text",
+          "required": false,
+          "note": "Its MIME type, where known: an `image/…` type is an image whatever its name."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Where a document opens, in a new tab. Without it the row is dimmed and opens nothing."
+        },
+        {
+          "name": "src",
+          "takes": "text",
+          "required": false,
+          "note": "The picture an image card draws. Without it an image is drawn as a row."
+        },
+        {
+          "name": "onOpen",
+          "takes": "a handler",
+          "required": false,
+          "note": "What a click on an image's picture does — the app's full-screen view."
+        },
+        {
+          "name": "onDownload",
+          "takes": "a handler",
+          "required": false,
+          "note": "Shows a download control on hover or focus, and calls this."
+        },
+        {
+          "name": "pending",
+          "takes": "true/false",
+          "required": false,
+          "note": "Waiting to be sent: the composer's 200px row, with a remove control on its corner."
+        },
+        {
+          "name": "onRemove",
+          "takes": "a handler",
+          "required": false,
+          "note": "Removes a pending card."
+        },
+        {
+          "name": "state",
+          "takes": "ready | loading | unreadable | uploading | failed | warning",
+          "required": false,
+          "note": "`ready` · `loading` (an image on its way) · `unreadable` (it could not be read) · `uploading`, `failed`, `warning` (while pending)."
+        },
+        {
+          "name": "note",
+          "takes": "text",
+          "required": false,
+          "note": "The line under the name, in place of its type and size — why it failed, or what the warning is."
+        },
+        {
+          "name": "noteHint",
+          "takes": "text",
+          "required": false,
+          "note": "The note's full words, on hover, where the line is short."
+        }
+      ],
       "variants": [
         {
           "prop": "state",
@@ -73,6 +197,44 @@
       "sourceFile": "src/Avatar.tsx",
       "purpose": "A person's face: their picture, or their initials on a colour that is theirs, or — when there is no name to take initials from — a silhouette.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "src",
+          "takes": "text",
+          "required": false,
+          "note": "The picture URL, resolved by the caller."
+        },
+        {
+          "name": "name",
+          "takes": "text",
+          "required": false,
+          "note": "The person's name — where the initials and the colour come from."
+        },
+        {
+          "name": "alt",
+          "takes": "text",
+          "required": false,
+          "note": "Alt text for the picture; the name when absent."
+        },
+        {
+          "name": "size",
+          "takes": "number",
+          "required": false,
+          "note": "Pixels. The scale: 16 · 24 · 32 · 36 (default)."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "Say the person's name out loud, for a face that stands on its own — `PersonTrigger`'s compact shape, a stack of members."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -94,6 +256,20 @@
       "sourceFile": "src/AvatarGroup.tsx",
       "purpose": "Up to three overlapping 24px faces with a surface-coloured ring — the member stack for anywhere a group is shown at a glance.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "members",
+          "takes": "AvatarGroupMember[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "number",
+          "required": false,
+          "note": "Face size in pixels; the overlap follows it. 24 is the members pill, 18 the replies row (Katerina, 2026-09-03) — that row drew its own stack for two months for want of this one number, and drifted while it did."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -110,6 +286,38 @@
       "sourceFile": "src/Banner.tsx",
       "purpose": "The strip under the header where the app says something happened: one line, one of four tones, gone when there is nothing to say.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "tone",
+          "takes": "ok | error | info | warning",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onDismiss",
+          "takes": "a handler",
+          "required": false,
+          "note": "Adds an `✕` at the right-hand end. Absent: the app removes the banner."
+        },
+        {
+          "name": "dismissLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The dismiss button's accessible name. Defaults to \"Dismiss\"."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "tone",
@@ -141,6 +349,20 @@
       "sourceFile": "src/Breadcrumb.tsx",
       "purpose": "A trail: where you are, and the way back up.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "items",
+          "takes": "Crumb[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -157,6 +379,38 @@
       "sourceFile": "src/Button.tsx",
       "purpose": "The push-button for an action: a verb, clicked once — \"Create\", \"Save\", \"Delete project\".",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "variant",
+          "takes": "primary | outlined | muted | destructive | resolve",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "leadingIcon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, stroke 1.5 on the default size; 14px on small."
+        },
+        {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -204,6 +458,74 @@
       "sourceFile": "src/Card.tsx",
       "purpose": "A box that stands for one thing — drawn as its frame: 8px corners, a fill and a hairline.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "fill",
+          "takes": "surface | elevated | inset | none",
+          "required": false,
+          "note": "What the card sits on. Default `surface`."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "The whole card is a link: an anchor, and its hairline answers the pointer."
+        },
+        {
+          "name": "hover",
+          "takes": "none | hairline | fill",
+          "required": false,
+          "note": "How it answers the pointer. Default `hairline` with an `href`, `none` without."
+        },
+        {
+          "name": "quietUntilHover",
+          "takes": "true/false",
+          "required": false,
+          "note": "No hairline until it is pointed at — a row in a feed that shows its edge only when you are on it."
+        },
+        {
+          "name": "hovered",
+          "takes": "true/false",
+          "required": false,
+          "note": "Draw the hover look now, whatever the pointer does."
+        },
+        {
+          "name": "selected",
+          "takes": "true/false",
+          "required": false,
+          "note": "The one you are on: the selected fill, a subtle hairline, and no hover."
+        },
+        {
+          "name": "active",
+          "takes": "true/false",
+          "required": false,
+          "note": "Being changed in place: the selected fill with the accent hairline, and no hover."
+        },
+        {
+          "name": "attention",
+          "takes": "accent | warning",
+          "required": false,
+          "note": "A hairline that asks to be looked at — something new (`accent`), or urgent (`warning`)."
+        },
+        {
+          "name": "unreadable",
+          "takes": "true/false",
+          "required": false,
+          "note": "It stands for something that could not be read: the hairline is dashed."
+        },
+        {
+          "name": "clip",
+          "takes": "true/false",
+          "required": false,
+          "note": "What is inside is cut to the card's rounded corners: a strip or a picture that runs edge to edge (UIG-9, 17 September; the apps passed `overflow-hidden`)."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "fill",
@@ -245,6 +567,50 @@
       "sourceFile": "src/Checkbox.tsx",
       "purpose": "A 16px square that fills with the accent when checked.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "checked",
+          "takes": "true/false",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "disabled",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "Words beside the box. With `onChange`, clicking them toggles it too, and they name it, so no `aria-label` is needed."
+        },
+        {
+          "name": "row",
+          "takes": "true/false",
+          "required": false,
+          "note": "The whole row is the target: `leading`, then the words, then the box at the end; the row fills on hover and while checked."
+        },
+        {
+          "name": "leading",
+          "takes": "anything",
+          "required": false,
+          "note": "In a `row`, a picture before the words: an icon, a status."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -270,6 +636,38 @@
       "sourceFile": "src/Chip.tsx",
       "purpose": "A 20px pill for a small piece of standing information — a status, a count, a category — in one of six colour types.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "type",
+          "takes": "neutral | brand | info | warning | success | error",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "leadingIcon",
+          "takes": "anything",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "trailingIcon",
+          "takes": "anything",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "type",
@@ -298,6 +696,56 @@
       "sourceFile": "src/ChipInput.tsx",
       "purpose": "A multi-select input: chips for the chosen, a typeahead for the rest.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "T[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "options",
+          "takes": "T[]",
+          "required": true,
+          "note": "The directory the typeahead searches."
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "autoFocus",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "excludeIds",
+          "takes": "string[]",
+          "required": false,
+          "note": "Option ids excluded from the suggestion list (e.g., the current user)."
+        },
+        {
+          "name": "chipLeading",
+          "takes": "a handler",
+          "required": false,
+          "note": "Before a chip's label, 16px — a face, an icon."
+        },
+        {
+          "name": "rowLeading",
+          "takes": "a handler",
+          "required": false,
+          "note": "Before a suggestion row's label, 32px."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -331,6 +779,7 @@
       "sourceFile": "src/cn.ts",
       "purpose": "Merge class names, last-one-wins on conflicting Tailwind utilities.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -347,6 +796,74 @@
       "sourceFile": "src/CollapsibleSection.tsx",
       "purpose": "A section that opens and closes: a SectionHeader whose title is the toggle, and the rows under it, sliding shut and open.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "defaultOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "Open unless told otherwise."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "The caller owns the state."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "storageKey",
+          "takes": "text",
+          "required": false,
+          "note": "Remember open or closed in this browser, under this key."
+        },
+        {
+          "name": "trailing",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the title and always visible, before the actions — a count."
+        },
+        {
+          "name": "actions",
+          "takes": "SectionAction[]",
+          "required": false,
+          "note": "Beside the title, revealed on hover or focus — `SectionHeader`'s."
+        },
+        {
+          "name": "showActions",
+          "takes": "hover | always",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The rows."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the section's box: `mt-2` between groups, `shrink-0` in a scrolling column."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the box the rows sit in: the gap between them."
+        }
+      ],
       "variants": [
         {
           "prop": "showActions",
@@ -376,6 +893,44 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "A window that searches and runs things: a field, rows in groups, and a footer naming the keys that work right now.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The window's name for a screen reader — there is no title on screen."
+        },
+        {
+          "name": "where",
+          "takes": "text",
+          "required": false,
+          "note": "The footer's left side: where the palette was opened from."
+        },
+        {
+          "name": "modKey",
+          "takes": "text",
+          "required": false,
+          "note": "How the footer spells the modifier in `Ctrl+Backspace` and `Ctrl+Enter` — `Cmd` on a Mac."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "One level: a `CommandPaletteSearch` or a `CommandPaletteForm`."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -413,6 +968,20 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "A written answer, with marks that point at the rows it came from.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "text",
+          "required": true,
+          "note": "The answer's text. A blank line starts a new paragraph, and a number in square brackets — `[1]` — is drawn as a small mark pointing at the row of the same number below."
+        },
+        {
+          "name": "note",
+          "takes": "text",
+          "required": false,
+          "note": "A quiet line under the answer — what a key will do now."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -429,6 +998,56 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "The palette as a form: fields, one submit button, and Ctrl+Enter — both ways in run Base UI's field check.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "chip",
+          "takes": "CommandPaletteChip",
+          "required": true,
+          "note": "Names what the form makes, and goes back when removed."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "Before the chip, 16px — the mark of whatever the form writes to."
+        },
+        {
+          "name": "submitLabel",
+          "takes": "text",
+          "required": true,
+          "note": "The button's word, and the footer's beside Ctrl+Enter."
+        },
+        {
+          "name": "onSubmit",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "submitWaits",
+          "takes": "text",
+          "required": false,
+          "note": "Why submitting has to wait — nothing changed yet."
+        },
+        {
+          "name": "working",
+          "takes": "{ button: string; line: string }",
+          "required": false,
+          "note": "While the thing is being made: the fields lock, the button reads `button`, and `line` says what is happening."
+        },
+        {
+          "name": "error",
+          "takes": "text",
+          "required": false,
+          "note": "What went wrong, beside the button."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The fields, each in a `Field`."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -445,6 +1064,14 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "Text written to be used elsewhere, set off by a rule at its left edge.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "text",
+          "required": true,
+          "note": "Text written for someone to use — shown as it will be used, line breaks kept."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -461,6 +1088,62 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "The palette as a search: a query field, rows in labelled groups walked with the arrow keys, and what to show while nothing has arrived and when nothing matches.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "query",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onQueryChange",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "groups",
+          "takes": "CommandPaletteGroup[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "chip",
+          "takes": "CommandPaletteChip",
+          "required": false,
+          "note": "The level you are in. Without one, this is the first level and there is nowhere to go back to."
+        },
+        {
+          "name": "pending",
+          "takes": "text",
+          "required": false,
+          "note": "A line under the rows while more are on their way — \"Searching…\"."
+        },
+        {
+          "name": "notes",
+          "takes": "string[]",
+          "required": false,
+          "note": "Quiet lines under the rows, for what a person should know about them and cannot act on — \"2 more where you cannot open them\", \"the search was refused, so this list is incomplete\"."
+        },
+        {
+          "name": "empty",
+          "takes": "text",
+          "required": false,
+          "note": "The line when there are no rows. Leave it out while rows are still on their way."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Above the rows: a `CommandPaletteWorking`, `CommandPaletteAnswer` or `CommandPaletteQuote`."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -477,6 +1160,20 @@
       "sourceFile": "src/CommandPalette.tsx",
       "purpose": "A line saying what is being worked on, with grey bars where the result will land.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "What is happening — \"Reading 12 messages…\"."
+        },
+        {
+          "name": "bars",
+          "takes": "0 | 1 | 2 | 3",
+          "required": false,
+          "note": "Grey bars under the line, where the result will be."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -493,6 +1190,44 @@
       "sourceFile": "src/ConfirmDialog.tsx",
       "purpose": "A question with two answers, asked before something a person would want back.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The body — plain sentences, body-2."
+        },
+        {
+          "name": "confirmLabel",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "destructive",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onConfirm",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -522,6 +1257,62 @@
       "sourceFile": "src/DialogShell.tsx",
       "purpose": "The dialog, minus what it says: the portal, the backdrop, a 502px card, a 48px header with the title and a close button, a body, and a 48px footer for the buttons.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "Labels the dialog for assistive tech, and renders as the header text unless `headerContent` replaces it."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "headerContent",
+          "takes": "anything",
+          "required": false,
+          "note": "Replaces the title text in the header — a back button beside the title, a count chip after it."
+        },
+        {
+          "name": "footer",
+          "takes": "anything",
+          "required": false,
+          "note": "Absent: no footer row, and the body keeps the card's own bottom edge (a roster that simply ends)."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "bodyClassName",
+          "takes": "text",
+          "required": false,
+          "note": "Extra classes on the body: its layout and any padding override (`flex flex-col gap-6`, `p-0 py-2`)."
+        },
+        {
+          "name": "bodyMaxHeight",
+          "takes": "text",
+          "required": false,
+          "note": "How tall the body may get before it scrolls, as the cap class — `max-h-[400px]`, `max-h-[70vh]`."
+        },
+        {
+          "name": "width",
+          "takes": "number",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "alert",
+          "takes": "true/false",
+          "required": false,
+          "note": "A question that has to be answered rather than clicked away: a press on the backdrop no longer closes it, and it announces itself as an alert."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -567,6 +1358,32 @@
       "sourceFile": "src/Divider.tsx",
       "purpose": "A hairline in `border-subtle`. Horizontal it is inset 12px each side; `orientation=\"vertical\"` stands it up to its row's height, no inset.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "orientation",
+          "takes": "horizontal | vertical",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "Words in the middle of the line — \"New since you last read this\", a date."
+        },
+        {
+          "name": "tone",
+          "takes": "default | warning",
+          "required": false,
+          "note": "`warning` for a line that asks for attention: the label in the warning colour, the lines in its wash."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "orientation",
@@ -607,6 +1424,62 @@
       "sourceFile": "src/EditableText.tsx",
       "purpose": "Text you click to edit. It reads as text until clicked; then it is a field.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onCommit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Resolve `true` when saved; `false` (or throw) keeps the field open with the text."
+        },
+        {
+          "name": "multiline",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Applied to both the text and the field, so they are the same size."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The accessible name of the field — \"Title\", \"Description\"."
+        },
+        {
+          "name": "display",
+          "takes": "text",
+          "required": false,
+          "note": "What to *show* when not editing, when that differs from what is edited — a value carrying a raw reference that the caller renders as a live object below the text, say."
+        },
+        {
+          "name": "displayNode",
+          "takes": "anything",
+          "required": false,
+          "note": "What to *draw* when not editing, when the value is structured rather than a line of prose."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Show the value only — no edit affordance."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -623,6 +1496,32 @@
       "sourceFile": "src/EmptyState.tsx",
       "purpose": "The place where content will be once there is some, in two manners: a 16px icon over a centred line when the whole page is empty, the line alone and left-aligned when one section of a page is.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, stroke 1.5. A speech bubble when absent."
+        },
+        {
+          "name": "message",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "scope",
+          "takes": "page | section",
+          "required": false,
+          "note": "`page` when the whole page is empty; `section` when one part of it is."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "scope",
@@ -647,6 +1546,14 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "The keyboard hint a picker row shows while highlighted — hand-rolled in five files before this (2026-09-01), and drawn as its own thing until 2026-09-05, when it became the `Kbd` chip every other key hint uses.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "target",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -663,6 +1570,38 @@
       "sourceFile": "src/Field.tsx",
       "purpose": "A label over a control — the form row. The label is the `input-label` token; `required` marks it with the error-coloured asterisk.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "required",
+          "takes": "true/false",
+          "required": false,
+          "note": "Draws the asterisk and marks the control `aria-required`, so the mark means something to a reader who cannot see it."
+        },
+        {
+          "name": "helper",
+          "takes": "text",
+          "required": false,
+          "note": "A hint under the control — what the format is, what happens if it is left empty."
+        },
+        {
+          "name": "error",
+          "takes": "text",
+          "required": false,
+          "note": "What is wrong, in the same place as the helper and in the error colour."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -684,6 +1623,26 @@
       "sourceFile": "src/Field.tsx",
       "purpose": "The small line a Field draws under a control — on its own, for the places where there is no single control to draw it under.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "tone",
+          "takes": "helper | warning | error",
+          "required": false,
+          "note": "`helper` (muted) is a hint; `warning` (amber) and `error` (red) are outcomes."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "tone",
@@ -714,6 +1673,14 @@
       "sourceFile": "src/FilePicker.tsx",
       "purpose": "The browser's file picker, with nothing drawn.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "onPick",
+          "takes": "a handler",
+          "required": true,
+          "note": "The chosen files, in the order the picker gave them."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -730,6 +1697,32 @@
       "sourceFile": "src/Form.tsx",
       "purpose": "The fields and the button that sends them.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "onSubmit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Enter in a field, or a submit button. The page's own submit is already prevented."
+        },
+        {
+          "name": "busy",
+          "takes": "true/false",
+          "required": false,
+          "note": "While sending: every field and button inside is switched off, and focus waits on the form."
+        },
+        {
+          "name": "enterSends",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether Enter in a one-line field sends."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -751,6 +1744,7 @@
       "sourceFile": "src/Avatar.tsx",
       "purpose": "The colour a person's initials sit on, chosen from a key: the same key always gives the same hue, so a face reads as theirs in every app.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -767,6 +1761,56 @@
       "sourceFile": "src/IconButton.tsx",
       "purpose": "A square button around a 16px icon: 4px padding, 8px radius, three variants.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "variant",
+          "takes": "muted | outlined | primary | current | resolve",
+          "required": false,
+          "note": "`current` takes the colour of what it sits in — the ✕ on a `Banner` wears the banner's tone."
+        },
+        {
+          "name": "pressed",
+          "takes": "true/false",
+          "required": false,
+          "note": "On, like a Bold button while the selection is bold: the active fill, and `aria-pressed`."
+        },
+        {
+          "name": "glow",
+          "takes": "true/false",
+          "required": false,
+          "note": "A glow in Signal — the send arrow while there is something to send."
+        },
+        {
+          "name": "tooltip",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tooltipShortcut",
+          "takes": "text",
+          "required": false,
+          "note": "A key hint drawn as the `Kbd` chip inside the tooltip — for a button whose only other affordance is a keyboard shortcut."
+        },
+        {
+          "name": "tooltipPlacement",
+          "takes": "top | bottom",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The icon: 16px, stroke 1.5."
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -814,6 +1858,62 @@
       "sourceFile": "src/IdentityMenu.tsx",
       "purpose": "Who you are, and where you are: the identity trigger for a top bar, and the menu it opens — ready-made, because every app needs one and it is built of nothing but shared parts.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "me",
+          "takes": "Identity",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "signedIn",
+          "takes": "true/false",
+          "required": true,
+          "note": "Signed in through Estiva ID, as opposed to a browser-held key."
+        },
+        {
+          "name": "relayUrl",
+          "takes": "text",
+          "required": false,
+          "note": "Names the workspace; absent hides the workspace section."
+        },
+        {
+          "name": "idBase",
+          "takes": "text",
+          "required": false,
+          "note": "Estiva ID's base URL when this build offers sign-in; absent = anonymous-only build."
+        },
+        {
+          "name": "onCopyKey",
+          "takes": "a handler",
+          "required": false,
+          "note": "\"Copy public key\" appears only when the app can supply one."
+        },
+        {
+          "name": "onSignOut",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "compact",
+          "takes": "true/false",
+          "required": false,
+          "note": "Face-only trigger, 36px — no chevron, no name beside it."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "App-specific rows, drawn as their own group between the workspace section and the actions."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -830,6 +1930,14 @@
       "sourceFile": "src/IdentityMenu.tsx",
       "purpose": "The identity rows on a panel of their own, with no menu around them — for a docs page, or anywhere the panel is already placed.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called when a row asks the menu to close."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -846,6 +1954,7 @@
       "sourceFile": "src/Avatar.tsx",
       "purpose": "Peek's rule, sharpened: the first letter of the first two words — counting only words that begin with a letter or digit, so \"Claude (steered by Katerina Kelepouri)\" shows \"C\", never \"C(\" (Katerina, 2026-09-01: a name carrying such symbols gets a single letter rather than one of them).",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -862,6 +1971,7 @@
       "sourceFile": "src/InlineChip.tsx",
       "purpose": "The shape every tone shares. Exported for a rich-text editor that renders chips from strings.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -878,6 +1988,7 @@
       "sourceFile": "src/InlineChip.tsx",
       "purpose": "What a chip is made of, by what it stands for.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -894,6 +2005,32 @@
       "sourceFile": "src/InlineChip.tsx",
       "purpose": "A word in a sentence that stands for something — a person, a place, a thing — drawn as a small tinted box exactly one line high, with its words level with the text around it.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "tone",
+          "takes": "InlineChipTone",
+          "required": false,
+          "note": "What the chip stands for. Default `neutral`."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "Drawn before the label in a 16px box: a 16px icon, or a 14px one it centres."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Where the chip leads. With it the chip is an anchor; without it, a span."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -910,6 +2047,7 @@
       "sourceFile": "src/InlineChip.tsx",
       "purpose": "The chip's classes for a tone, with anything the caller adds.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -926,6 +2064,44 @@
       "sourceFile": "src/ChipInput.tsx",
       "purpose": "A chip standing on its own: a label, an optional leading icon, an optional ✕.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "leading",
+          "takes": "anything",
+          "required": false,
+          "note": "Before the label, 16px — an Avatar, an icon."
+        },
+        {
+          "name": "onRemove",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws the ✕; absent, the chip is display-only."
+        },
+        {
+          "name": "removeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ✕'s name for a screen reader. `Remove <label>` when not given."
+        },
+        {
+          "name": "truncate",
+          "takes": "true/false",
+          "required": false,
+          "note": "Cut a long label with an ellipsis once the chip is capped, by a `max-w-*` on `className`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -942,6 +2118,20 @@
       "sourceFile": "src/Kbd.tsx",
       "purpose": "The small chip that names the key which does the same thing.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -958,6 +2148,38 @@
       "sourceFile": "src/Link.tsx",
       "purpose": "A link, in one of four looks. It is a real anchor with a real address, and the app decides how it navigates.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "variant",
+          "takes": "text | quiet | underlined | plain",
+          "required": false,
+          "note": "Default `text`."
+        },
+        {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "Another site, or another app: opens in a new tab, with `noopener noreferrer` so the page it opens cannot reach back into this one."
+        },
+        {
+          "name": "truncate",
+          "takes": "true/false",
+          "required": false,
+          "note": "One line, cut with an ellipsis when it does not fit — a title that is a link."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -993,6 +2215,62 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "A list of actions from a trigger. The menu owns the trigger, so a caller writes no open state, no placement and no dismiss — it hands over the control and the rows, and everything else is Base UI's.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "trigger",
+          "takes": "anything",
+          "required": true,
+          "note": "The control that opens the menu. Any element that forwards its ref and spreads its props — this package's `Button`, `IconButton` and `PersonTrigger` all do."
+        },
+        {
+          "name": "align",
+          "takes": "left | right",
+          "required": false,
+          "note": "Which of the menu's edges hangs from the trigger's."
+        },
+        {
+          "name": "openOnHover",
+          "takes": "true/false",
+          "required": false,
+          "note": "Open on hover, and close shortly after the pointer leaves — for a control that only appears while the pointer is on a card."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "Controlled, for a caller that must know or must force it."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "actionsRef",
+          "takes": "a handler",
+          "required": false,
+          "note": "Base UI's imperative handle. `actions.current?.close()` shuts the menu — for a row that must close it before opening what it opens."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the menu's surface — its width. Not its padding: see `contentClassName`."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "The padding around the rows, as a class."
+        }
+      ],
       "variants": [
         {
           "prop": "align",
@@ -1046,6 +2324,74 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "The row of a menu: label, and around it everything a row can carry — a `leading` icon or face, a `description` second line, a `shortcut` kbd chip, a `submenu` chevron, a `trailing` anything (which wins over the other two), `destructive` in the error colour, `selected` as the fill.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Replaces the label/description block — for rows whose middle is richer than text (the launcher's form rows)."
+        },
+        {
+          "name": "size",
+          "takes": "default | tall",
+          "required": false,
+          "note": "`tall` is the picker row — content height with a 40px floor, px-3, gap-3, room for a 32px face or icon tile and the description line."
+        },
+        {
+          "name": "description",
+          "takes": "text",
+          "required": false,
+          "note": "A second line under the label — a role, an address — 12px, secondary, truncating."
+        },
+        {
+          "name": "leading",
+          "takes": "anything",
+          "required": false,
+          "note": "Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face."
+        },
+        {
+          "name": "trailing",
+          "takes": "anything",
+          "required": false,
+          "note": "At the right edge: a hint, a value — anything."
+        },
+        {
+          "name": "hint",
+          "takes": "anything",
+          "required": false,
+          "note": "Shown at the right edge only while this row is the one you are pointing at or have arrowed onto — an `EnterHint`, typically."
+        },
+        {
+          "name": "shortcut",
+          "takes": "text",
+          "required": false,
+          "note": "A keyboard hint, drawn as the kbd chip."
+        },
+        {
+          "name": "submenu",
+          "takes": "true/false",
+          "required": false,
+          "note": "The row opens another menu: draws the chevron at the right edge."
+        },
+        {
+          "name": "destructive",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "selected",
+          "takes": "true/false",
+          "required": false,
+          "note": "The row the menu currently points at (a submenu's chosen value)."
+        }
+      ],
       "variants": [
         {
           "prop": "size",
@@ -1070,6 +2416,14 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "The menu's surface without the menu: the elevated box, the rows' padding, and a divider that runs the full width of what it separates.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Optional only because Base UI fills it in when this is a `render` target: `Menu.Popup` supplies the children."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1086,6 +2440,20 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "A non-interactive row inside a menu, at the item's own geometry.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1102,6 +2470,26 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "A section heading inside a menu: the 32px row with a SectionLabel, read secondary — a heading inside a menu labels the rows, it is not one of them (Katerina, 2026-09-01).",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1118,6 +2506,38 @@
       "sourceFile": "src/Menu.tsx",
       "purpose": "A row that opens another menu beside it; its rows are this row's children.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The trigger row's label."
+        },
+        {
+          "name": "leading",
+          "takes": "anything",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "selected",
+          "takes": "true/false",
+          "required": false,
+          "note": "Mark the trigger row as holding a current value."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The submenu's rows."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the submenu panel."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1134,6 +2554,50 @@
       "sourceFile": "src/NavItem.tsx",
       "purpose": "One row of a sidebar: an optional 16px icon, a label, and an optional count — a muted mono number whose tooltip says what it counts.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "`0` or absent renders no counter."
+        },
+        {
+          "name": "countLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What the count counts, for the tooltip — \"18 open\", \"5 active\"."
+        },
+        {
+          "name": "active",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, stroke 1.5."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1150,6 +2614,38 @@
       "sourceFile": "src/Person.tsx",
       "purpose": "A face beside a name — the inline mention of a human.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "name",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "picture",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "fallback",
+          "takes": "text",
+          "required": false,
+          "note": "Shown in place of a missing name."
+        },
+        {
+          "name": "size",
+          "takes": "number",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1166,6 +2662,20 @@
       "sourceFile": "src/PersonTrigger.tsx",
       "purpose": "The person, as the button that opens a menu.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether what it opens is open — the row shape holds its hover fill while so."
+        },
+        {
+          "name": "compact",
+          "takes": "true/false",
+          "required": false,
+          "note": "Face only — no chevron, no hover fill. Defaults the face to 36px; the row shape to 22px."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1182,6 +2692,86 @@
       "sourceFile": "src/Popover.tsx",
       "purpose": "A floating panel from a trigger: the same elevated surface a Menu draws, with none of a menu's semantics.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "trigger",
+          "takes": "anything",
+          "required": false,
+          "note": "The control that opens the panel. Any element that forwards its ref and spreads its props — this package's `Button`, `IconButton` and `PersonTrigger` all do."
+        },
+        {
+          "name": "anchor",
+          "takes": "HTMLElement | DOMRect | null",
+          "required": false,
+          "note": "For a panel with no trigger element: an element, or a rect the caller measured — a text selection's."
+        },
+        {
+          "name": "align",
+          "takes": "left | center | right",
+          "required": false,
+          "note": "Which of the panel's edges hangs from the trigger's, or `center` to put the panel's middle over the anchor's."
+        },
+        {
+          "name": "side",
+          "takes": "top | bottom",
+          "required": false,
+          "note": "Which side of the trigger, or of the anchor, the panel prefers."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "Controlled, for a caller that must know or must force it."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "finalFocus",
+          "takes": "RefObject<HTMLElement | null>",
+          "required": false,
+          "note": "Where focus goes when the panel closes. With a `trigger` it goes back to the trigger and this is not needed."
+        },
+        {
+          "name": "actionsRef",
+          "takes": "a handler",
+          "required": false,
+          "note": "Base UI's imperative handle. `actions.current?.close()` shuts the panel — for the Cancel and Save buttons a form panel ends with."
+        },
+        {
+          "name": "ariaLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Names the panel for assistive tech. A panel with a visible heading can point at it instead, with `aria-labelledby`."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the panel's surface — its width. Not its padding: see `contentClassName`."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "The padding around the children, as a class."
+        },
+        {
+          "name": "maxHeight",
+          "takes": "text",
+          "required": false,
+          "note": "A cap on the scrolling box, as a class — `max-h-[360px]`."
+        }
+      ],
       "variants": [
         {
           "prop": "align",
@@ -1235,6 +2825,50 @@
       "sourceFile": "src/PreviewCard.tsx",
       "purpose": "More of a thing, on hover.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "content",
+          "takes": "anything",
+          "required": true,
+          "note": "What the card holds. Rendered only while it is open."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The row, name or avatar the card previews."
+        },
+        {
+          "name": "side",
+          "takes": "top | bottom | left | right",
+          "required": false,
+          "note": "Which side of the trigger to prefer. It flips when that side has no room."
+        },
+        {
+          "name": "delay",
+          "takes": "number",
+          "required": false,
+          "note": "Before it opens, in ms. Long enough that crossing a list does not flash a card at every row."
+        },
+        {
+          "name": "closeDelay",
+          "takes": "number",
+          "required": false,
+          "note": "After the pointer leaves, in ms — the grace that lets you cross the gap into the card."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the card's surface: its width, its padding, a max height."
+        },
+        {
+          "name": "wrapperClassName",
+          "takes": "text",
+          "required": false,
+          "note": "Extra classes on the trigger wrapper — e.g."
+        }
+      ],
       "variants": [
         {
           "prop": "side",
@@ -1278,6 +2912,38 @@
       "sourceFile": "src/ProgressBar.tsx",
       "purpose": "How much of something is done: a thin rounded track with a success-coloured fill.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "number",
+          "required": true,
+          "note": "How many are done."
+        },
+        {
+          "name": "max",
+          "takes": "number",
+          "required": true,
+          "note": "How many there are. At `0` the bar is empty."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The accessible name — \"Items done\"."
+        },
+        {
+          "name": "variant",
+          "takes": "default | quiet",
+          "required": false,
+          "note": "Default `default`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only: a width, a margin, `flex-1` in a row."
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -1311,6 +2977,32 @@
       "sourceFile": "src/Property.tsx",
       "purpose": "A labelled property — \"Status\", \"Lead\", and whatever else a surface declares.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "layout",
+          "takes": "row | stacked",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "layout",
@@ -1335,6 +3027,20 @@
       "sourceFile": "src/Rail.tsx",
       "purpose": "The 64px strip of icon tiles down the left of an app.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1351,6 +3057,38 @@
       "sourceFile": "src/RailItem.tsx",
       "purpose": "One tile of an icon rail: the icon in its hover tile, a 9px label under it.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": true,
+          "note": "16px, stroke 1.5."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "active",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1367,6 +3105,26 @@
       "sourceFile": "src/Reaction.tsx",
       "purpose": "An emoji, how many people chose it, and whether you are one of them.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "emoji",
+          "takes": "anything",
+          "required": true,
+          "note": "The emoji, drawn decoratively — name the control with `aria-label`."
+        },
+        {
+          "name": "count",
+          "takes": "number",
+          "required": true,
+          "note": "How many people reacted. Drawn as it is."
+        },
+        {
+          "name": "pressed",
+          "takes": "true/false",
+          "required": false,
+          "note": "You are one of them: the accent tint and edge, and `aria-pressed`."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -1388,6 +3146,32 @@
       "sourceFile": "src/ReactionPicker.tsx",
       "purpose": "The reactions on offer, to choose one from — icon buttons holding emoji, on a Toolbar.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "options",
+          "takes": "ReactionOption[]",
+          "required": true,
+          "note": "What is on offer, in the order it is drawn."
+        },
+        {
+          "name": "onSelect",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "surface",
+          "takes": "true/false",
+          "required": false,
+          "note": "The elevated box around the row, from `Toolbar`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "The row's layout — its gap, its padding."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1404,6 +3188,50 @@
       "sourceFile": "src/ScrollArea.tsx",
       "purpose": "A region that scrolls without taking width for its scrollbar.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "orientation",
+          "takes": "vertical | horizontal | both",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "On the region: its size and placement."
+        },
+        {
+          "name": "viewportClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the viewport, the box that scrolls: a `max-h-*` cap."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the content, the box the children sit in: padding, gap, layout."
+        },
+        {
+          "name": "viewportRef",
+          "takes": "Ref<HTMLDivElement>",
+          "required": false,
+          "note": "The scrolling box itself, for a region that reads or drives its own scrolling: `ref.current.scrollTop`, `scrollTo`, `scrollHeight`."
+        },
+        {
+          "name": "onScroll",
+          "takes": "UIEventHandler<HTMLDivElement>",
+          "required": false,
+          "note": "Fires as the viewport scrolls — the unread policy's input, beside `viewportRef`."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "orientation",
@@ -1438,6 +3266,20 @@
       "sourceFile": "src/SearchInput.tsx",
       "purpose": "An inset field with a hairline border that strengthens on hover and on focus, and an optional keyboard hint at the right edge.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "shortcut",
+          "takes": "text",
+          "required": false,
+          "note": "A keyboard hint drawn at the right edge, e.g."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -1459,6 +3301,62 @@
       "sourceFile": "src/SectionHeader.tsx",
       "purpose": "The 32px row a section starts with: a SectionLabel, and actions that appear on hover or focus as IconButtons with tooltips.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "chevron",
+          "takes": "true/false",
+          "required": false,
+          "note": "Collapsible: draws the chevron and makes the title a button that toggles."
+        },
+        {
+          "name": "isExpanded",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onToggle",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "trailing",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the title and always visible, before the actions — a count."
+        },
+        {
+          "name": "actions",
+          "takes": "SectionAction[]",
+          "required": false,
+          "note": "Right-aligned, in the order given."
+        },
+        {
+          "name": "showActions",
+          "takes": "hover | always",
+          "required": false,
+          "note": "`hover` reveals the actions while the row is hovered or focused; `always` keeps them."
+        },
+        {
+          "name": "render",
+          "takes": "useRender.RenderProp",
+          "required": false,
+          "note": "What the title renders as, in Base UI's manner."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "showActions",
@@ -1483,6 +3381,26 @@
       "sourceFile": "src/SectionLabel.tsx",
       "purpose": "The section-title span. Every section heading — sidebar sections, menu headings, panel titles — renders through it, so a change of voice is one edit. 12px / 500, primary text; some themes restyle it (the toolbar shows how).",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "primary | secondary",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "tone",
@@ -1507,6 +3425,56 @@
       "sourceFile": "src/Select.tsx",
       "purpose": "One value for a form field: a button that shows the choice and opens a portalled listbox under itself.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "options",
+          "takes": "SelectOption[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "ariaLabel",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "disabled",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "size",
@@ -1560,6 +3528,20 @@
       "sourceFile": "src/Sidebar.tsx",
       "purpose": "The navigation column: 240px, a hairline on its right, the surface behind it, scrolling independently of the content beside it.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1576,6 +3558,20 @@
       "sourceFile": "src/Skeleton.tsx",
       "purpose": "One pulsing bar at the inset colour: the piece every placeholder here is built from.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "style",
+          "takes": "CSSProperties",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1592,6 +3588,20 @@
       "sourceFile": "src/Skeleton.tsx",
       "purpose": "Rows of varied widths, so the placeholder does not read as a pattern.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "rows",
+          "takes": "number",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1608,6 +3618,14 @@
       "sourceFile": "src/Skeleton.tsx",
       "purpose": "A 32px row: a 16px square and a bar, like a row with a face and a name.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "barWidth",
+          "takes": "number",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1624,6 +3642,38 @@
       "sourceFile": "src/Tabs.tsx",
       "purpose": "A row of tabs for switching between views of one thing.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "tabs",
+          "takes": "TabDef<T>[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "active",
+          "takes": "T",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": "`default` 14px; `small` 12px, the denser geometry."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Lands on the outer box, around the row."
+        }
+      ],
       "variants": [
         {
           "prop": "size",
@@ -1665,6 +3715,7 @@
       "sourceFile": "src/Textarea.tsx",
       "purpose": "TextInput's look on a multi-line field that does not resize.",
       "purposeFrom": "page",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1681,6 +3732,14 @@
       "sourceFile": "src/TextInput.tsx",
       "purpose": "The single-line field: inset surface, 8px radius, 14px text, a stronger border on hover, the focus border in every theme.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": "`small` is 24px tall with 12px text — the small `Select`'s size, so a field can share a dense row with small selects (D67, 2026-09-13: Peek's reference widget hand-built one because this was 38px)."
+        }
+      ],
       "variants": [
         {
           "prop": "size",
@@ -1710,6 +3769,44 @@
       "sourceFile": "src/Toast.tsx",
       "purpose": "A pill that says what just happened — three types, an optional leading check, an optional action — and ToastProvider/useToast, which own the positioning (bottom-left), the portal, and the auto-dismiss.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "type",
+          "takes": "success | brand | neutral | warning | error",
+          "required": false,
+          "note": "Which of the five this is. It decides the surface in the light themes, and under Signal — where every pill is the same dark overlay — the icon and its colour."
+        },
+        {
+          "name": "leadingIcon",
+          "takes": "true/false",
+          "required": false,
+          "note": "Show the leading icon — a check, a `!` or an `×`, per `type`."
+        },
+        {
+          "name": "actionLabel",
+          "takes": "text",
+          "required": false,
+          "note": "When set together with onAction, renders a clickable action on the right side."
+        },
+        {
+          "name": "onAction",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "type",
@@ -1750,6 +3847,14 @@
       "sourceFile": "src/Toast.tsx",
       "purpose": "Mount once, near the top of an app. It owns the stack, the timers and the portal every toast goes through, and it is what `useToast` talks to.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1766,6 +3871,38 @@
       "sourceFile": "src/Toolbar.tsx",
       "purpose": "A strip of controls that behaves as one control: Tab in, arrow keys along, Tab out — on the elevated box a floating strip needs.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "orientation",
+          "takes": "horizontal | vertical",
+          "required": false,
+          "note": "`horizontal` walks with ← →, `vertical` with ↑ ↓."
+        },
+        {
+          "name": "loopFocus",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether the arrow keys wrap at the ends."
+        },
+        {
+          "name": "surface",
+          "takes": "true/false",
+          "required": false,
+          "note": "The elevated box around the strip. On by default — a toolbar floats, and this is what floating looks like here."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "The row's own layout — its gap, its padding, its wrapping."
+        }
+      ],
       "variants": [
         {
           "prop": "orientation",
@@ -1807,6 +3944,14 @@
       "sourceFile": "src/Toolbar.tsx",
       "purpose": "An `IconButton` that is an item of a `Toolbar`: the arrow keys reach it, and a disabled one stays in the walk so its reason can still be read.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "ref",
+          "takes": "Ref<HTMLButtonElement>",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1823,6 +3968,7 @@
       "sourceFile": "src/Toolbar.tsx",
       "purpose": "A `TextInput` that is an item of a `Toolbar`, so the arrow keys walk into the field and out of it again.",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1839,6 +3985,14 @@
       "sourceFile": "src/Toolbar.tsx",
       "purpose": "The hairline between two groups of controls.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1855,6 +4009,20 @@
       "sourceFile": "src/Tooltip.tsx",
       "purpose": "A 30px elevated pill with a caption, and WithTooltip, the wrapper that shows it beside a trigger — on hover, and on keyboard focus.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "shortcut",
+          "takes": "text",
+          "required": false,
+          "note": "The key that does the same thing, drawn as the `Kbd` chip after the label."
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [
         {
@@ -1888,6 +4056,32 @@
       "sourceFile": "src/Tooltip.tsx",
       "purpose": "Mount once at the top of an app: it makes every tooltip below it share one delay, so the second and third open instantly while the group is warm.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "delay",
+          "takes": "number",
+          "required": false,
+          "note": "Before the first tooltip in the group opens."
+        },
+        {
+          "name": "closeDelay",
+          "takes": "number",
+          "required": false,
+          "note": "Before one closes. Default: immediately, as it always has."
+        },
+        {
+          "name": "timeout",
+          "takes": "number",
+          "required": false,
+          "note": "How long after one closes its neighbours still open instantly."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1904,6 +4098,44 @@
       "sourceFile": "src/TopBar.tsx",
       "purpose": "The 52px top bar: `menu` and `logo` on the left, a `search` slot in the centre, the identity cluster on the right.",
       "purposeFrom": "page",
+      "props": [
+        {
+          "name": "variant",
+          "takes": "solid | floating",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "Far left: the menu button, in an app whose navigation collapses."
+        },
+        {
+          "name": "logo",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the menu button: the app's logo mark, or its name as text."
+        },
+        {
+          "name": "search",
+          "takes": "anything",
+          "required": false,
+          "note": "The centre: a search field, or a launcher affordance — or nothing; the slot holds its place."
+        },
+        {
+          "name": "right",
+          "takes": "anything",
+          "required": false,
+          "note": "The right cluster — an `IdentityMenu` and its neighbours."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "variant",
@@ -1928,6 +4160,7 @@
       "sourceFile": "src/Toast.tsx",
       "purpose": "How anything under a `ToastProvider` raises a toast (`showToast`) or takes one away (`dismissToast`).",
       "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
@@ -1944,6 +4177,38 @@
       "sourceFile": "src/Tooltip.tsx",
       "purpose": "A tooltip on something that cannot be its own trigger — a span, a `Chip`, an icon.",
       "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "shortcut",
+          "takes": "text",
+          "required": false,
+          "note": "Passed straight to the surface — see `TooltipProps.shortcut`."
+        },
+        {
+          "name": "placement",
+          "takes": "top | bottom",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "wrapperClassName",
+          "takes": "text",
+          "required": false,
+          "note": "Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
       "variants": [
         {
           "prop": "placement",

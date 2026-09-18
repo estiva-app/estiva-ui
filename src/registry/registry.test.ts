@@ -88,6 +88,41 @@ describe('the registry builds', () => {
     expect(entry('Menu').variants).toEqual([{ prop: 'align', values: ['left', 'right'] }])
   })
 
+  it('carries every prop a component declares itself, not only the word-choices', () => {
+    // The catalogue's plain-words job is "what it can do". Built first with
+    // variants alone, it carried 33 of 336 — a tenth of the answer.
+    const all = registry.entries.flatMap((one) => one.props)
+    expect(all.length).toBeGreaterThan(330)
+    expect(registry.entries.filter((one) => one.props.length).length).toBeGreaterThan(65)
+    // The question that started this: does Link already truncate?
+    expect(entry('Link').props.find((prop) => prop.name === 'truncate')).toEqual({
+      name: 'truncate',
+      takes: 'true/false',
+      required: false,
+      note: 'One line, cut with an ellipsis when it does not fit — a title that is a link.',
+    })
+    expect(entry('Link').props.find((prop) => prop.name === 'href')?.required).toBe(true)
+  })
+
+  it('says what a prop takes in words a person reads', () => {
+    const takes = (name: string, prop: string) => entry(name).props.find((one) => one.name === prop)?.takes
+    expect(takes('Link', 'external')).toBe('true/false')
+    expect(takes('Link', 'href')).toBe('text')
+    expect(takes('Link', 'children')).toBe('anything')
+    expect(takes('Button', 'variant')).toBe('primary | outlined | muted | destructive | resolve')
+    expect(takes('Popover', 'actionsRef')).toBe('a handler')
+  })
+
+  it('keeps variants a view of props, never a second reading', () => {
+    for (const one of registry.entries) {
+      for (const variant of one.variants) {
+        const prop = one.props.find((candidate) => candidate.name === variant.prop)
+        expect(prop, `${one.name}.${variant.prop}`).toBeDefined()
+        expect(prop?.takes).toBe(variant.values.join(' | '))
+      }
+    }
+  })
+
   it('reads them however the component was written', () => {
     // Written out at the parameter, with no named type at all.
     expect(entry('SectionLabel').variants).toEqual([{ prop: 'tone', values: ['primary', 'secondary'] }])
@@ -183,6 +218,28 @@ describe('ui:find', () => {
 
   it('takes a name apart, so "palette" reaches CommandPalette', () => {
     expect(names('palette')).toContain('CommandPalette')
+  })
+
+  it('answers what a component can do, and names the prop that does it', () => {
+    const found = findInRegistry(registry, 'truncate a long link')
+    expect(found[0].entry.name).toBe('Link')
+    expect(found[0].props).toContain('truncate')
+  })
+
+  it('ignores the words that are in every sentence', () => {
+    // "a" appears inside nearly every prop note ("in a new tab"), and an exact
+    // match skipped the minimum length. It pulled Link's `external` into the
+    // answer for a question that never mentioned it.
+    expect(findInRegistry(registry, 'truncate a long link')[0].props).not.toContain('external')
+    // A question made only of them still answers something rather than nothing.
+    expect(findInRegistry(registry, 'the a of')).not.toEqual([])
+  })
+
+  it('shows a prop the question named, not one whose note happens to say the word', () => {
+    // Six of Popover's notes say "panel"; showing all six buries the answer.
+    const found = findInRegistry(registry, 'floating panel')
+    expect(found[0].entry.name).toBe('Popover')
+    expect(found[0].props.filter((name) => !['align', 'side'].includes(name))).toEqual([])
   })
 
   it('does not match on a one-letter word', () => {

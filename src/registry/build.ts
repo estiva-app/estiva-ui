@@ -19,7 +19,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import ts from 'typescript'
 import { OWNED_BEHAVIOURS } from '../eslint/index'
-import { SCHEMA_VERSION, type EntryBehaviour, type EntryKind, type EntryVariant, type Registry, type RegistryEntry } from './schema'
+import { SCHEMA_VERSION, type EntryBehaviour, type EntryKind, type EntryProp, type EntryVariant, type Registry, type RegistryEntry } from './schema'
 
 export interface BuildOptions {
   /** The repository's top folder. */
@@ -282,6 +282,37 @@ function readModule(source: string) {
     return undefined
   }
 
+  /**
+   * What a prop takes, in a word a person reads. The type as written is the
+   * fallback, not the answer: `(next: string) => void` tells a reader nothing
+   * they cannot guess, and "a handler" tells them what to pass.
+   */
+  const takes = (type: ts.TypeNode | undefined): string => {
+    if (!type) return 'anything'
+    const values = literalUnion(type, aliases)
+    if (values) return values.join(' | ')
+    const written = type.getText(file).replace(/\s+/g, ' ').trim()
+    if (written === 'boolean') return 'true/false'
+    if (written === 'number') return 'number'
+    if (written === 'string') return 'text'
+    if (/^React(Node|Element)\b/.test(written) || written === 'ReactNode') return 'anything'
+    if (written.includes('=>')) return 'a handler'
+    return written.length > 60 ? `${written.slice(0, 57)}…` : written
+  }
+
+  const propsOf = (propsType: ts.TypeNode | undefined): EntryProp[] => {
+    const members = propsType ? membersOf(propsType) : undefined
+    if (!members) return []
+    const props: EntryProp[] = []
+    for (const member of members) {
+      if (!ts.isPropertySignature(member) || !member.name || !ts.isIdentifier(member.name)) continue
+      const note = firstSentence(docAbove(source, member))
+      props.push({ name: member.name.text, takes: takes(member.type), required: !member.questionToken, note: note || null })
+    }
+    return props
+  }
+
+  /** The word-choice props, structured — a view of `propsOf`, never a second reading. */
   const variantsOf = (propsType: ts.TypeNode | undefined): EntryVariant[] => {
     const members = propsType ? membersOf(propsType) : undefined
     if (!members) return []
@@ -294,7 +325,7 @@ function readModule(source: string) {
     return variants
   }
 
-  return { declarations, variantsOf }
+  return { declarations, propsOf, variantsOf }
 }
 
 /** The `title` a stories file gives Storybook, and the stories it exports. */
@@ -400,6 +431,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
       sourceFile: module.file,
       purpose,
       purposeFrom: fromPage ? 'page' : 'comment',
+      props: module.propsOf(declared.propsType),
       variants: module.variantsOf(declared.propsType),
       ownsBehaviours: behavioursOf(value.name),
       status: declared.deprecated ? 'deprecated' : 'stable',
