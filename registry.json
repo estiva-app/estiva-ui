@@ -605,6 +605,18 @@
           "note": "In a `row`, a picture before the words: an icon, a status."
         },
         {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "aria-required",
+          "takes": "boolean | 'true' | 'false'",
+          "required": false,
+          "note": "Set by a `Field` with `required`; a caller inside one owes nothing."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -744,6 +756,24 @@
           "takes": "a handler",
           "required": false,
           "note": "Before a suggestion row's label, 32px."
+        },
+        {
+          "name": "aria-required",
+          "takes": "boolean | 'true' | 'false'",
+          "required": false,
+          "note": "Set by a `Field` with `required`; a caller inside one owes nothing."
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "The field's name, for a caller that is not inside a `Field` — a `Field`'s label names it already."
+        },
+        {
+          "name": "aria-labelledby",
+          "takes": "text",
+          "required": false,
+          "note": "The id of what names the field on the page — a visible \"To:\", say."
         }
       ],
       "variants": [],
@@ -3029,6 +3059,12 @@
       "purposeFrom": "page",
       "props": [
         {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "Names the navigation region for assistive tech."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -3123,6 +3159,12 @@
           "takes": "true/false",
           "required": false,
           "note": "You are one of them: the accent tint and edge, and `aria-pressed`."
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": true,
+          "note": "Names the control. Required — the emoji is decorative and the count is the only visible text, so without this it is announced as a bare number."
         }
       ],
       "variants": [],
@@ -3158,6 +3200,12 @@
           "takes": "a handler",
           "required": true,
           "note": null
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "Names the row. Default \"Reactions\"."
         },
         {
           "name": "surface",
@@ -3457,6 +3505,12 @@
           "note": null
         },
         {
+          "name": "aria-required",
+          "takes": "boolean | 'true' | 'false'",
+          "required": false,
+          "note": "Set by a `Field` with `required`; a caller inside one owes nothing."
+        },
+        {
           "name": "placeholder",
           "takes": "text",
           "required": false,
@@ -3529,6 +3583,12 @@
       "purpose": "The navigation column: 240px, a hairline on its right, the surface behind it, scrolling independently of the content beside it.",
       "purposeFrom": "page",
       "props": [
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "Names the navigation region for assistive tech."
+        },
         {
           "name": "children",
           "takes": "anything",
@@ -3666,6 +3726,18 @@
           "takes": "default | small",
           "required": false,
           "note": "`default` 14px; `small` 12px, the denser geometry."
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "Names the row for assistive tech — \"Views\", \"Filters\"."
+        },
+        {
+          "name": "aria-labelledby",
+          "takes": "text",
+          "required": false,
+          "note": null
         },
         {
           "name": "className",
@@ -3873,6 +3945,12 @@
       "purposeFrom": "page",
       "props": [
         {
+          "name": "aria-label",
+          "takes": "text",
+          "required": true,
+          "note": "Names the strip for assistive tech — \"Formatting\", \"Reactions\"."
+        },
+        {
           "name": "orientation",
           "takes": "horizontal | vertical",
           "required": false,
@@ -3950,9 +4028,65 @@
           "takes": "Ref<HTMLButtonElement>",
           "required": false,
           "note": null
+        },
+        {
+          "name": "variant",
+          "takes": "ats over what it a",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "pressed",
+          "takes": "the sam",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "glow",
+          "takes": "ame box.",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tooltip",
+          "takes": "lt this",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tooltipShortcut",
+          "takes": "th `sha",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tooltipPlacement",
+          "takes": "top | bottom",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "disabledReason",
+          "takes": "em *",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "omeAndEndK",
+          "required": true,
+          "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tooltipPlacement",
+          "values": [
+            "top",
+            "bottom"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -3968,8 +4102,23 @@
       "sourceFile": "src/Toolbar.tsx",
       "purpose": "A `TextInput` that is an item of a `Toolbar`, so the arrow keys walk into the field and out of it again.",
       "purposeFrom": "comment",
-      "props": [],
-      "variants": [],
+      "props": [
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,

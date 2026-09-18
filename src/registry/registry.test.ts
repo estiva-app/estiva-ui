@@ -208,6 +208,67 @@ describe('the ids point at something', () => {
   })
 })
 
+/**
+ * A second parser, which shares none of this one's assumptions.
+ *
+ * `react-docgen` is what Storybook builds its own Props table with. Comparing
+ * against it is the only evidence here that is not this builder checking its own
+ * work, and it earned its place immediately: it found **13 props over 10 files**
+ * that were silently dropped because their names are quoted (`'aria-label'`),
+ * two of them required; and `ToolbarButton` carrying one prop where it should
+ * carry nine, because `ToolbarButtonProps extends IconButtonProps` — a type in
+ * another file of this package.
+ *
+ * It arrives with `@storybook/react-vite` rather than as a dependency of its
+ * own: adding one would have npm rewrite `package-lock.json`, which on Windows
+ * drops the optional Linux entries CI installs. The test skips if it is ever
+ * absent rather than pretending to have run.
+ */
+describe('a second parser agrees', async () => {
+  const docgen = await import('react-docgen').catch(() => null)
+
+  it.skipIf(!docgen)('finds the same props on all 74 components', async () => {
+    if (!docgen) return
+    const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
+    const byName = new Map(registry.entries.map((one) => [one.name, one]))
+    const differences: string[] = []
+    let seen = 0
+
+    for (const file of new Set(registry.entries.map((one) => one.sourceFile))) {
+      let docs
+      try {
+        docs = docgen.parse(readFileSync(join(root, file), 'utf8'), { filename: file, resolver })
+      } catch {
+        // `cn.ts` holds no component; react-docgen says so and there is nothing to compare.
+        continue
+      }
+      for (const doc of docs) {
+        const entry = doc.displayName ? byName.get(doc.displayName) : undefined
+        if (!entry) continue
+        seen += 1
+        const theirs = new Set(Object.keys(doc.props ?? {}))
+        const mine = new Set(entry.props.map((prop) => prop.name))
+        for (const prop of theirs) if (!mine.has(prop) && !INHERITED_WITH_A_DEFAULT.has(`${entry.name}.${prop}`)) differences.push(`${entry.name}.${prop} is docgen's and not ours`)
+        for (const prop of mine) if (!theirs.has(prop)) differences.push(`${entry.name}.${prop} is ours and not docgen's`)
+      }
+    }
+
+    expect(differences).toEqual([])
+    expect(seen).toBe(registry.entries.filter((one) => one.kind === 'component').length)
+  })
+})
+
+/**
+ * The four the two parsers are *meant* to disagree on.
+ *
+ * Each is a DOM attribute the component does not declare — it inherits it from
+ * `ComponentPropsWithRef<'button'>` or `InputHTMLAttributes` — and only gives a
+ * default while destructuring. react-docgen reports everything inherited; this
+ * registry lists what a component declares itself, because otherwise every entry
+ * carries `onCopy` and `spellCheck` and buries its own answer.
+ */
+const INHERITED_WITH_A_DEFAULT = new Set(['Button.type', 'IconButton.type', 'TextInput.type', 'SearchInput.placeholder'])
+
 describe('ui:find', () => {
   const names = (query: string) => findInRegistry(registry, query).map((finding) => finding.entry.name)
 
