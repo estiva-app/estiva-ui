@@ -20,7 +20,7 @@ import {
 import { Card } from './Card'
 import { IconButton } from './IconButton'
 import { Link } from './Link'
-import { WithTooltip } from './Tooltip'
+import { WithTooltip, type WithTooltipProps } from './Tooltip'
 import { cn } from './cn'
 
 /**
@@ -98,7 +98,7 @@ function TypeIcon({ name }: { name: string }) {
  * the fallback face can fit and then not, in a line whose box never changes. The wrapper is `flex-col` so the
  * text stretches across it, as wide as it is without one.
  */
-function Truncating({ text, hint, className, wrapperClassName, placement }: { text: string; hint?: string; className: string; wrapperClassName?: string; placement?: 'top' | 'bottom' }) {
+function Truncating({ text, hint, className, wrapperClassName, placement }: { text: string; hint?: string; className: string; wrapperClassName?: string; placement?: WithTooltipProps['placement'] }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [cut, setCut] = useState(false)
   useLayoutEffect(() => {
