@@ -12,8 +12,8 @@ line, one of four tones, gone when there is nothing to say.
 
 ## When
 
-- The outcome or state of the whole surface: "Public key copied.", the
-  reason the last read failed, a read-only notice.
+- The state of the whole surface: the reason the last read failed, a read-only
+  notice.
 - **`ok`** confirms, **`info`** informs, **`warning`** cautions,
   **`error`** reports a failure — and only `error` announces itself
   (`role="alert"`); the others are polite (`role="status"`).
@@ -22,7 +22,8 @@ line, one of four tones, gone when there is nothing to say.
 
 ## When not
 
-- Feedback about one action, briefly → **Toast**.
+- Feedback about one action, briefly → **Toast**. A failure is the exception:
+  it stays, in the Banner, until the person acts on it.
 - Something that floats over the page and must **not** fade → still
   **Toast**, with `durationMs: 0` and an action. A banner is the strip
   under the header at the app's full width; a floating pill is not one, even

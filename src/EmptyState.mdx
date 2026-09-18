@@ -36,10 +36,12 @@ need a height from the caller (`className="h-full"`).
 
 ## When not
 
-- Data is still on its way → **Skeleton**; empty and loading are
-  different truths.
-- Something went wrong → say that, in your surface's own error treatment
-  — an empty state that hides a failure misleads.
+- Data is still on its way → **Skeleton**; empty and loading are different
+  truths. When the shape of what arrives is unknown, an EmptyState that says so
+  — "Opening…" — is fine.
+- Something went wrong → say what failed, in words. An EmptyState can carry
+  it, in its usual look — never red. An empty state that hides a failure
+  misleads.
 
 ## How
 

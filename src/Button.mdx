@@ -27,12 +27,13 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 ## When not
 
 - An icon with no label → **IconButton**.
-- Going somewhere rather than doing something → **Tabs**, **Breadcrumb**,
-  or a plain link.
+- Going somewhere rather than doing something → **Link**; **Tabs** or
+  **Breadcrumb** when it is a view or a trail.
 - Choosing a value → **Select**. Acting from a popover list → **MenuItem**.
 - A control the person may never be allowed to use is **absent, not
   disabled**. `disabled` is for *momentarily* unavailable — and it says why,
-  with `disabledReason` ("Available after sign-in").
+  with `disabledReason` ("Available after sign-in"). A send button waiting for
+  its fields needs no reason.
 
 ## How
 

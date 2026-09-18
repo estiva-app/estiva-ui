@@ -21,6 +21,7 @@ shows it beside a trigger — on hover, and on keyboard focus.
 - **The key that does the same thing** — pass `shortcut` and it is drawn as
   the `Kbd` chip after the label. For an icon-only control whose only other
   affordance is a keyboard shortcut, the tooltip is the only place to say so.
+- A detail behind a short word in running text — the time behind "edited".
 
 <Canvas of={TooltipStories.ShortcutComparison} />
 
@@ -30,8 +31,10 @@ shows it beside a trigger — on hover, and on keyboard focus.
 
 - Anything the person must read to proceed → put it in the surface, not
   behind a hover.
-- Anything interactive inside → **Menu** or **DialogShell**; a tooltip is
-  `pointer-events: none` by design and cannot be pointed at.
+- Anything with controls inside → **Popover**, opened by a click. A list of
+  actions → **Menu**. A tooltip disappears as the pointer moves onto it, so
+  nothing inside it can be clicked.
+- Something worth reading, scrolling or copying on hover → **PreviewCard**.
 
 ## How
 
