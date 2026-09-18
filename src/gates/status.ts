@@ -71,6 +71,8 @@ export interface GateHelpers {
   protectedBranch(pattern: RegExp): CheckResult
   gh(args: string[], label: string): CheckResult
   share(files: string[], test: (file: string) => boolean, label: string): CheckResult
+  /** Build the catalogue of the app in `appDir` (UIG-13): passes when every part is described and sorted. */
+  catalogue(appDir: string): Promise<CheckResult>
 }
 
 export interface GateCheck {
@@ -161,6 +163,20 @@ export function helpers(ROOT: string): GateHelpers {
 
   return {
     PASS, FAIL, PART, UNKNOWN, exists, read, listFiles,
+    // The registry bundle's own builder, loaded only when a check asks for it:
+    // it reads TypeScript with TypeScript, which the other checks never need.
+    async catalogue(appDir) {
+      try {
+        const { buildAppRegistry, validateRegistry } = await import('../registry/index')
+        const registry = buildAppRegistry({ root: abs(appDir) })
+        const problems = validateRegistry(registry)
+        if (problems.length) return FAIL(`${problems.length} problems, the first: ${problems[0]}`)
+        return PASS(`${registry.entries.length} parts in ${registry.builtFrom.files} files, each described and sorted`)
+      } catch (error) {
+        const lines = String(error instanceof Error ? error.message : error).split('\n')
+        return FAIL(lines.length > 1 ? `${lines.length - 1} problems, the first: ${lines[1].trim()}` : lines[0])
+      }
+    },
 
     file(rel) {
       return exists(rel) ? PASS(`${rel} exists`) : FAIL(`${rel} does not exist`)

@@ -66,6 +66,9 @@ const thePluginOnce = {
   name: 'the-plugin-once',
   setup(b) {
     b.onResolve({ filter: /^\.\.\/eslint\/index(\.ts)?$/ }, () => ({ path: '../eslint/index.js', external: true }))
+    // The catalogue too (UIG-13): a gate check builds an app's catalogue with the
+    // registry bundle's own builder, loaded only when that check runs.
+    b.onResolve({ filter: /^\.\.\/registry\/index(\.ts)?$/ }, () => ({ path: '../registry/index.js', external: true }))
   },
 }
 await build({

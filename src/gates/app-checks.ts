@@ -179,8 +179,15 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         return h.PASS(`one client for the tab, held in ${holders[0]}`)
       } },
     ]),
+    // Built by UIG-13, 18 September. An app's catalogue is built fresh from its code
+    // and never committed: the package is public and the apps are private (Katerina).
     ticket('UIG-13', [
-      { what: 'registry.json is committed and has entries', run: () => h.json(h.exists('registry.json') ? 'registry.json' : at('registry.json'), (d) => ((d as { entries?: unknown[]; components?: unknown[] }).entries ?? (d as { components?: unknown[] }).components ?? []).length > 0, 'registry.json has entries') },
+      { what: "npm run ui:find is the package's search, over the package and this app", run: () => h.contains(at('package.json'), /"ui:find":\s*"estiva-ui find\b/, "ui:find runs the package's estiva-ui find") },
+      { what: "npm run registry:check is the package's check", run: () => h.contains(at('package.json'), /"registry:check":\s*"estiva-ui check\b/, 'registry:check runs estiva-ui check') },
+      { what: "CI's job gate refuses a part with no description", run: () => h.ciJob('gate', 'registry:check') },
+      // In the .gitignore of the app's own folder, where `estiva-ui build` would write it.
+      { what: 'the catalogue is never committed: git ignores registry.json', run: () => h.contains(at('.gitignore'), /^\/?registry\.json\r?$/m, `${at('.gitignore')} ignores registry.json`) },
+      { what: 'every part is described and sorted, and every file is accounted for', run: () => h.catalogue(at('.')) },
     ]),
     ticket('UIG-19', [
       { what: 'the usage-page contract runs in CI', run: () => h.ci(/[\w:-]*contract[\w:-]*/) },

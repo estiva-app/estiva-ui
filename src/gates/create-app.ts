@@ -97,6 +97,9 @@ export function appFiles({ name, title = name, theme = 'light', ui, versions = {
       'lint:rules': 'eslint --config eslint.gates.config.js .',
       'postlint:rules': `estiva-gates count --repo ${name}`,
       'gates:status': 'estiva-gates status',
+      'ui:find': 'estiva-ui find',
+      registry: 'estiva-ui build',
+      'registry:check': 'estiva-ui check',
       test: 'vitest run',
       storybook: 'storybook dev -p 6006',
       'build-storybook': 'storybook build',
@@ -140,7 +143,9 @@ export function appFiles({ name, title = name, theme = 'light', ui, versions = {
   return {
     'package.json': json(packageJson),
 
-    '.gitignore': ['node_modules', 'dist', 'storybook-static', '*.local', '*.log', '*.tsbuildinfo', '.DS_Store', ''].join('\n'),
+    // registry.json: the app's catalogue, written only when `npm run registry` is asked
+    // to. It is built fresh from the code every time it is read, so it is never kept.
+    '.gitignore': ['node_modules', 'dist', 'storybook-static', '*.local', '*.log', '*.tsbuildinfo', '.DS_Store', 'registry.json', ''].join('\n'),
 
     '.env.example': `# Estiva ID, for signing in. Copy this file to .env.local and fill both in.
 #
@@ -377,6 +382,10 @@ jobs:
       - run: npm ci
       - name: Gate lint
         run: npm run lint:rules
+      # Every part of the app says in one line what it is for, so the catalogue
+      # (\`npm run ui:find\`) can offer it before someone builds it again.
+      - name: Every part is described
+        run: npm run registry:check
 `,
 
     'src/index.css': `@import '@estiva-app/ui/tokens.css';
@@ -981,6 +990,8 @@ nothing arrives.
 | \`npm test\` | the tests |
 | \`npm run build\` | the build |
 | \`npm run gates:status\` | which gates are on, read from the code |
+| \`npm run ui:find <words>\` | what the package and this app already have for it |
+| \`npm run registry:check\` | every part says what it is for — CI's job \`gate\` |
 | \`npm run storybook\` | the stories |
 
 The gates are the package's, imported rather than copied, so a rule written later
@@ -1012,6 +1023,12 @@ only with its reason on the line above, \`// @estiva-escape: <reason>\`, never w
 **One relay connection per tab.** \`relayClient()\` in \`src/relay/client.ts\` is the
 connection. Never open a socket and never make a second holder: the relay signs a
 connection in once, and caps subscriptions per connection.
+
+**Look before you build.** \`npm run ui:find <what it does>\` searches the package's
+parts and this app's own. Use what it finds.
+
+**Every part says what it is for.** A new part gets a one-line \`/** … */\` comment
+directly above it. \`npm run registry:check\` and CI's job \`gate\` refuse a part without one.
 
 **The count starts at zero and stays there** (\`.gates-count.json\`, \`docs/GATES-DEBT.md\`).
 

@@ -41,7 +41,7 @@ const args = process.argv.slice(2)
 const ref = args.includes('--ref') ? args[args.indexOf('--ref') + 1] : 'origin/main'
 const APP_PAGE = 'src/pages/HomePage.tsx'
 
-const HELPERS = ['file', 'committed', 'contains', 'lacks', 'script', 'loads', 'ci', 'ciJob', 'hook', 'json', 'lint', 'protectedBranch', 'gh', 'share', 'exists', 'read', 'listFiles']
+const HELPERS = ['file', 'committed', 'contains', 'lacks', 'script', 'loads', 'ci', 'ciJob', 'hook', 'json', 'lint', 'protectedBranch', 'gh', 'share', 'exists', 'read', 'listFiles', 'catalogue']
 
 function recorder(calls, has) {
   const pass = (detail) => ({ result: 'pass', detail })

@@ -66,7 +66,7 @@
     "preregistry:check": "node build.mjs",
     "registry:check": "node dist/registry/cli.js check",
     "preui:find": "node build.mjs",
-    "ui:find": "node dist/registry/cli.js find",
+    "ui:find": "node dist/registry/cli.js find --also peek=../peek --also ship=../ship/web",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
