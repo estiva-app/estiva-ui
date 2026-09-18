@@ -43,6 +43,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-7': 'Lint rule — every remaining raw element',
   'UIG-8': 'Lint rule — forbid the reach',
   'UIG-9': 'Lint rule — the className allow-list',
+  'UIG-10': 'create-app — a command that makes a new Estiva app that runs',
   'UIG-13': "The registry widens to Peek's 115 and Ship's 74, with classification",
   'UIG-19': 'Lock the contract in CI, and make the three Storybooks one search',
   'UIG-20': 'The Claude skill, reading the registry',
@@ -163,6 +164,20 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         return probe(`import { Link } from '@estiva-app/ui'\nexport function Probe() {\n  return (\n    // @estiva-escape: a probe that keeps its row link on purpose\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>\n  )\n}\n`, 'none')()
       } },
       { what: 'a real page gets no error', run: realPage },
+    ]),
+    // UIG-10, reopened 18 September: a tab holds one relay client, the way Peek and Ship hold
+    // theirs and a made app is written to. Measured on both mains that day: one each, and no
+    // socket opened any other way. A second holder, or a socket of the app's own, is a second
+    // connection the relay signs in and budgets separately.
+    ticket('UIG-10', [
+      { what: 'the app holds one relay client, at module level, and opens no socket of its own', run: () => {
+        const sources = h.listFiles(at('src'), (n) => /\.tsx?$/.test(n) && !/\.(test|stories)\.tsx?$/.test(n))
+        const own = sources.filter((f) => /\bcreateLiveClient\(|\bcreateLiveRelay\(|\bnew WebSocket\(/.test(h.read(f)))
+        if (own.length) return h.FAIL(`opens a socket of its own (${own.join(', ')}): hold one client from createLiveClientHolder()`)
+        const holders = sources.filter((f) => /^\s*(?:export\s+)?const\s+\w+\s*=\s*createLiveClientHolder\(\)/m.test(h.read(f)))
+        if (holders.length !== 1) return h.FAIL(holders.length ? `${holders.length} client holders (${holders.join(', ')}): a tab holds one` : 'no module-level createLiveClientHolder(): the app has no relay client')
+        return h.PASS(`one client for the tab, held in ${holders[0]}`)
+      } },
     ]),
     ticket('UIG-13', [
       { what: 'registry.json is committed and has entries', run: () => h.json(h.exists('registry.json') ? 'registry.json' : at('registry.json'), (d) => ((d as { entries?: unknown[]; components?: unknown[] }).entries ?? (d as { components?: unknown[] }).components ?? []).length > 0, 'registry.json has entries') },
