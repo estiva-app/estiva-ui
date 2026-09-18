@@ -57,4 +57,39 @@ describe('Banner', () => {
     )
     expect(container.firstElementChild!.getAttribute('role')).toBe('alert')
   })
+
+  it('puts an icon before the line and one small muted action after it, on one line (Katerina, 2026-09-18)', async () => {
+    const onClick = vi.fn()
+    const { container } = render(
+      <Banner tone="info" icon={<svg data-testid="icon" />} action={{ label: 'Join', onClick }}>
+        You are not in <b>Alpha</b> yet
+      </Banner>,
+    )
+    const row = container.firstElementChild!
+    expect(row.getAttribute('role')).toBe('status')
+    expect(row.firstElementChild!.querySelector('[data-testid="icon"]')).not.toBeNull()
+    const line = screen.getByText(/You are not in/)
+    expect(line.className).toContain('truncate')
+    const button = screen.getByRole('button', { name: 'Join' })
+    expect(line.nextElementSibling).toBe(button)
+    await userEvent.click(button)
+    expect(onClick).toHaveBeenCalledOnce()
+    // No dismiss unless asked for.
+    expect(screen.queryByRole('button', { name: 'Dismiss' })).toBeNull()
+  })
+
+  it('an icon alone still keeps the line on one line, and a dismiss alone still wraps', () => {
+    const { rerender } = render(
+      <Banner tone="info" icon={<svg />}>
+        One line
+      </Banner>,
+    )
+    expect(screen.getByText('One line').className).toContain('truncate')
+    rerender(
+      <Banner tone="info" onDismiss={() => {}}>
+        One line
+      </Banner>,
+    )
+    expect(screen.getByText('One line').className).not.toContain('truncate')
+  })
 })

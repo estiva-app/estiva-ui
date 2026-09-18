@@ -28,8 +28,8 @@ line, one of four tones, gone when there is nothing to say.
   under the header at the app's full width; a floating pill is not one, even
   a permanent one (Katerina, D21).
 - A standing property of one thing → **Chip** on that thing.
-- A notice inside the content flow with its own action — that is a
-  different component (not in the package yet).
+- More than one action, or a second line of text — that is a different
+  component (not in the package yet).
 
 ## How
 
@@ -41,8 +41,21 @@ import { Banner } from '@estiva-app/ui'
 
 - Render it only while there is something to say — an empty strip is not
   a state.
-- One line of plain text, `body-2`. If it needs a **second line or an
-  action of its own**, it has outgrown this component.
+- One line of text, `body-2`. If it needs a **second line**, it has outgrown
+  this component.
+- `icon` puts a 16px icon before the line and `action` one small muted Button
+  at the end of it, both in the tone (Katerina, 2026-09-18: Peek's strip above
+  the composer became a Banner, `info`). With either, the banner is one line
+  and the text truncates. One action at most.
+
+<Canvas of={BannerStories.WithIconAndAction} />
+
+```tsx
+<Banner tone="info" icon={<IconUserPlus size={16} stroke={1.5} />} action={{ label: 'Join', onClick: join }}>
+  You are not in <span className="font-medium">{title}</span> yet
+</Banner>
+```
+
 - `onDismiss` adds an ✕ at the right-hand end (Katerina, D21). Use it where
   the reader decides the notice is done with, rather than the app. The row
   is 40px rather than 36px with it, because the button is taller than the
