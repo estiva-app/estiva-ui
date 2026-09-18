@@ -371,6 +371,10 @@ describe('what the third review found', () => {
       'src/profile/index.tsx': "/** The profile folder's page. */\nexport default function () {\n  return <section />\n}\n",
       'src/Wrapped.tsx': "import { memo } from 'react'\nimport { Avatar } from '@estiva-app/ui'\n\n/** The package's avatar, memoised for long lists. */\nexport default memo(Avatar)\n",
       'src/Tag.tsx': "import type { FC } from 'react'\n\ninterface TagProps {\n  /** The words on the tag. */\n  label: string\n}\n\n/** A tag, typed as a function component. */\nexport const Tag: FC<TagProps> = ({ label }) => <em>{label}</em>\n",
+      // Found by the narrow pass on those fixes.
+      'src/routesTable.ts': 'export const routes: unknown[] = []\n',
+      'src/router.tsx': "import { createBrowserRouter } from 'react-router-dom'\nimport { routes } from './routesTable'\n\nexport default createBrowserRouter(routes)\n",
+      'src/Chip.tsx': "import { forwardRef, memo, type ComponentType } from 'react'\n\n/** A chip nothing uses. */\nexport function Chip() {\n  return <i />\n}\n\nexport default memo(forwardRef(Chip)) as ComponentType\n",
     }),
     repo: 'third',
     packageRegistry,
@@ -425,6 +429,16 @@ describe('what the third review found', () => {
 
   it("a part typed `FC<Props>` takes the annotation's props", () => {
     expect(one('Tag')?.props).toEqual([{ name: 'label', takes: 'text', required: true, note: 'The words on the tag.' }])
+  })
+
+  it('a default that wraps something that is not a part adds no part', () => {
+    expect(third.entries.some((entry) => entry.sourceFile === 'src/router.tsx')).toBe(false)
+    expect(third.filesWithoutParts.map((file) => file.file)).toContain('src/router.tsx')
+  })
+
+  it('a default that hands a part out, however wrapped, is not a use of it', () => {
+    expect(third.entries.filter((entry) => entry.name === 'Chip')).toHaveLength(1)
+    expect(one('Chip')?.app).toMatchObject({ class: 'unused', usedIn: [] })
   })
 
   it('memo of a package part is a new part of the app, not a pass-on', () => {

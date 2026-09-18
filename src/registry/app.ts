@@ -88,9 +88,25 @@ function pickedFrom(call: ts.CallExpression): { imported: string; local: string 
  * is read as if it named it — one part, whose comment and props are its own.
  */
 function unwrapDefault<T extends { isDefault: boolean; local: string | null; node: ts.Node | null }>(ex: T): T {
-  if (!ex.isDefault || ex.local || !ex.node || !ts.isCallExpression(ex.node)) return ex
-  const [first] = ex.node.arguments
-  return first && ts.isIdentifier(first) ? { ...ex, local: first.text, node: null } : ex
+  if (!ex.isDefault || ex.local || !ex.node || !ts.isExpression(ex.node)) return ex
+  const name = handedOut(ex.node)
+  return name ? { ...ex, local: name, node: null } : ex
+}
+
+/**
+ * The name an `export default …` hands out, under whatever it is wrapped in:
+ * `memo(forwardRef(Row))`, `Row as ComponentType`, `Row satisfies FC`,
+ * `styled(Row)\`…\``. `null` when what is exported is written right there.
+ */
+function handedOut(expression: ts.Expression): string | null {
+  let e: ts.Expression = expression
+  for (;;) {
+    if (ts.isIdentifier(e)) return e.text
+    if (ts.isParenthesizedExpression(e) || ts.isAsExpression(e) || ts.isSatisfiesExpression(e) || ts.isNonNullExpression(e) || ts.isTypeAssertionExpression(e)) e = e.expression
+    else if (ts.isTaggedTemplateExpression(e)) e = e.tag
+    else if (ts.isCallExpression(e) && e.arguments[0] && !e.arguments.some((a) => ts.isArrowFunction(a) || ts.isFunctionExpression(a))) e = e.arguments[0]
+    else return null
+  }
 }
 
 /** `memo-page` → `MemoPage`, `topic_view` → `TopicView`. */
@@ -240,12 +256,9 @@ function mentions(sf: ts.SourceFile, local: string, home: ts.Node | null): boole
   }
   for (const s of sf.statements) {
     if (s === home || ts.isExportDeclaration(s) || ts.isImportDeclaration(s)) continue
-    // `export default Row` and `export default memo(Row)` hand the part out; they do
-    // not use it. Anything else written into the default is code like any other.
-    if (ts.isExportAssignment(s)) {
-      const e = s.expression
-      if (ts.isIdentifier(e) || (ts.isCallExpression(e) && e.arguments[0] && ts.isIdentifier(e.arguments[0]))) continue
-    }
+    // `export default Row`, `memo(forwardRef(Row))`, `Row as ComponentType` hand the
+    // part out; they do not use it. Anything else written into the default is code.
+    if (ts.isExportAssignment(s) && handedOut(s.expression)) continue
     visit(s)
   }
   return named
@@ -453,7 +466,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       const ex = unwrapDefault(written)
       // `export default memo(Avatar)` with Avatar imported: not Avatar handed on, but a
       // new part of this file that wraps it, named after the file.
-      if (ex !== written && ex.local && !declarationOf(f, ex.local) && f.bindings.has(ex.local)) {
+      // Only a name that is a part's: `createBrowserRouter(routes)` hands out no part.
+      if (ex !== written && ex.local && isPascal(ex.local) && !declarationOf(f, ex.local) && f.bindings.has(ex.local)) {
         found.push({ file, name: defaultNameOf(file), local: null, defaultExport: true, from: null })
         continue
       }
