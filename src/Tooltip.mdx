@@ -21,6 +21,7 @@ shows it beside a trigger — on hover, and on keyboard focus.
 - **The key that does the same thing** — pass `shortcut` and it is drawn as
   the `Kbd` chip after the label. For an icon-only control whose only other
   affordance is a keyboard shortcut, the tooltip is the only place to say so.
+- A detail behind a short word in running text — the time behind "edited".
 
 <Canvas of={TooltipStories.ShortcutComparison} />
 
@@ -30,8 +31,10 @@ shows it beside a trigger — on hover, and on keyboard focus.
 
 - Anything the person must read to proceed → put it in the surface, not
   behind a hover.
-- Anything interactive inside → **Menu** or **DialogShell**; a tooltip is
-  `pointer-events: none` by design and cannot be pointed at.
+- Anything with controls inside → **Popover**, opened by a click. A list of
+  actions → **Menu**. A tooltip disappears as the pointer moves onto it, so
+  nothing inside it can be clicked.
+- Something worth reading, scrolling or copying on hover → **PreviewCard**.
 
 ## How
 
@@ -47,6 +50,11 @@ import { WithTooltip } from '@estiva-app/ui'
   shrinks nothing, so a wrapped block collapses to its content width.
 - A truncating label keeps truncating if you pass
   `wrapperClassName="min-w-0 shrink"`.
+- **`inline`** for a trigger inside a line of text — a reference, a name in a
+  sentence: the wrapper is a `<span>`, because a `<div>` is not allowed inside
+  a paragraph.
+- A label longer than 320px wraps onto more lines rather than running off the
+  screen; a short one stays one line at 30px.
 - **`Button` and `IconButton` need no wrapper**: pass `tooltip` (or
   `disabledReason`) and the button itself becomes the trigger. That is what
   lets a `Dialog.Close` or a `Menu.Trigger` be one of them — the component's
@@ -55,6 +63,10 @@ import { WithTooltip } from '@estiva-app/ui'
   platforms and Ctrl elsewhere, and only the caller knows which it is
   looking at — so pass the finished label. `IconButton` forwards its own
   `tooltipShortcut` here.
+
+<Canvas of={TooltipStories.InsideText} />
+
+<Canvas of={TooltipStories.LongLabel} />
 
 ### The delay, and why a toolbar only pauses once
 
@@ -81,6 +93,18 @@ from below when it stands above a control, down from above when it hangs
 beneath one — and fades out over **80ms**. Moving between triggers inside a
 warm group skips the animation entirely, so a toolbar sweep does not flicker.
 `prefers-reduced-motion` removes it.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Stays attached to its anchor on scroll and resize | a scroll or resize listener, or placement arithmetic | ✓ |
+| Says what it is to assistive technology: a tooltip | `role="tooltip"` | ✓ |
+| Opens after the pointer rests, and at once on keyboard focus | a timer, or hover and focus handlers |  |
+| Closes on Escape, on a click of its control, and when the pointer leaves | close handlers |  |
 
 ## Keys
 

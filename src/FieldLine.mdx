@@ -32,7 +32,7 @@ import { FieldLine } from '@estiva-app/ui'
 
 <div className="flex flex-col gap-1.5">
   <div className="flex items-center gap-2">
-    <TextInput value={draft} onChange={…} />
+    <TextInput value={draft} onChange={(e) => setDraft(e.target.value)} />
     <Button variant="primary" size="small">Save</Button>
   </div>
   {outcome && <FieldLine tone={outcome.kind}>{outcome.message}</FieldLine>}
@@ -51,6 +51,14 @@ import { FieldLine } from '@estiva-app/ui'
   control to mark, so the distinction is free here.
 - The three tones are the same two classes Field draws, from one map in
   `Field.tsx`, so they cannot drift.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: an alert for an error, a status for the rest | `role="alert"` or `role="status"` | ✓ |
 
 ## Props
 

@@ -19,7 +19,7 @@ token; `required` marks it with the error-coloured asterisk.
 
 - Displaying a label–value pair → **Property**; Field is for editing.
 - The line belongs to a **group** of controls rather than to one — a value
-  with Save beside it, a row of action controls → **Field line**, the same
+  with Save beside it, a row of action controls → **FieldLine**, the same
   small line on its own.
 
 ## How
@@ -54,6 +54,15 @@ import { Field, TextInput } from '@estiva-app/ui'
   `Field` has no `required` of its own, so the Field puts it there. A control
   that says so already is left alone, and a `children` of several elements
   keeps the asterisk and owes its own.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Ties the label, the description and the error to the control inside it | `aria-label`, an `id` / `htmlFor` pair, or `aria-describedby` |  |
+| Marks the control invalid when it has an `error`, and announces it | `aria-invalid` |  |
 
 ## Props
 

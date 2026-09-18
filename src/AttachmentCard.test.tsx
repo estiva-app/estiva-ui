@@ -169,4 +169,14 @@ describe('AttachmentCard', () => {
     expect(onRemove).toHaveBeenCalledTimes(1)
     expect(outside).not.toHaveBeenCalled()
   })
+
+  it('the ✕ shows when the keyboard reaches it, not only on hover (C4)', async () => {
+    render(<AttachmentCard pending name="a.png" size={1} onRemove={() => {}} />)
+    const remove = screen.getByRole('button', { name: 'Remove a.png' })
+    // Hidden at rest; each of these reveals it. jsdom draws nothing, so the classes are the contract.
+    expect(remove.className).toContain('opacity-0')
+    for (const reveal of ['group-hover:opacity-100', 'group-focus-within:opacity-100', 'focus-visible:opacity-100']) expect(remove.className).toContain(reveal)
+    await userEvent.tab()
+    expect(document.activeElement).toBe(remove)
+  })
 })

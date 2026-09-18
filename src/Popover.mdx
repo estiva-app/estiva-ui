@@ -83,7 +83,15 @@ so it is the one case the caller drives:
   open={selectionRect !== null}
   onOpenChange={(open) => !open && setSelectionRect(null)}
   ariaLabel="Formatting"
+  side="top"
+  contentClassName="p-1"
 >
+  <Toolbar aria-label="Formatting">
+    <ToolbarButton aria-label="Bold" tooltip="Bold" onClick={bold}>
+      <IconBold size={16} stroke={1.5} />
+    </ToolbarButton>
+  </Toolbar>
+</Popover>
 ```
 
 - **`anchor`** takes an element or a rect. A new rect moves the panel, so
@@ -115,6 +123,19 @@ something belongs on a `trigger`.
 ### When the side it asks for has no room
 
 <Canvas of={PopoverStories.FlippedForRoom} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Stays attached to its anchor on scroll and resize, and flips side when there is no room | a scroll or resize listener, or placement arithmetic | ✓ |
+| Closes on a press outside | a click listener on the page | ✓ |
+| Takes its keys by itself: Escape closes it | a key listener on the page | ✓ |
+| Moves focus in when it opens, and back to the trigger when it closes | focus code |  |
+| Keeps its own open state | `useState` for open — unless you must know it (`open` / `onOpenChange`) |  |
 
 ## Keys
 

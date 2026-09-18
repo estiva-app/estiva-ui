@@ -45,7 +45,7 @@ pointer never sees it.
 import { PreviewCard } from '@estiva-app/ui'
 
 <PreviewCard content={<ItemDetail id={row.id} />} wrapperClassName="block w-full">
-  <ListRow …/>
+  <ListRow item={row} />
 </PreviewCard>
 ```
 
@@ -57,9 +57,12 @@ import { PreviewCard } from '@estiva-app/ui'
 - **It prefers the right of the trigger and flips** when that side has no room,
   staying 12px from the trigger and 8px clear of every screen edge. `side`
   changes the preference, not the promise.
-- **Width, padding and height are yours** through `className`. The default is
-  360px wide, capped at 300px or the room available, whichever is smaller — a
-  preview of one kind of thing is not the size of a preview of another.
+- **Width is yours** through `className`; **padding and rhythm** through
+  `contentClassName`. The default is 360px wide, 12px of padding, capped at
+  300px or the room available, whichever is smaller — a preview of one kind of
+  thing is not the size of a preview of another.
+- The padding sits inside the scrolling box, as in `Popover`, so the
+  scrollbar hugs the card's edge: its thumb 3px from it, like every panel's.
 - The trigger wrapper is `inline-flex`; a full-width row wants
   `wrapperClassName="block w-full"`.
 
@@ -81,6 +84,18 @@ holds the card at the size it is about to be, so nothing jumps when the content
 lands.
 
 <Canvas of={PreviewCardStories.Loading} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Stays attached to its anchor on scroll and resize | a scroll or resize listener, or placement arithmetic | ✓ |
+| Closes on a press outside | a click listener on the page | ✓ |
+| Opens after the pointer rests, and stays up while the pointer moves into it | a hover timer |  |
+| Closes on Escape | a key handler |  |
 
 ## Keys
 

@@ -12,8 +12,8 @@ line, one of four tones, gone when there is nothing to say.
 
 ## When
 
-- The outcome or state of the whole surface: "Public key copied.", the
-  reason the last read failed, a read-only notice.
+- The state of the whole surface: the reason the last read failed, a read-only
+  notice.
 - **`ok`** confirms, **`info`** informs, **`warning`** cautions,
   **`error`** reports a failure — and only `error` announces itself
   (`role="alert"`); the others are polite (`role="status"`).
@@ -22,7 +22,8 @@ line, one of four tones, gone when there is nothing to say.
 
 ## When not
 
-- Feedback about one action, briefly → **Toast**.
+- Feedback about one action, briefly → **Toast**. A failure is the exception:
+  it stays, in the Banner, until the person acts on it.
 - Something that floats over the page and must **not** fade → still
   **Toast**, with `durationMs: 0` and an action. A banner is the strip
   under the header at the app's full width; a floating pill is not one, even
@@ -60,6 +61,15 @@ import { Banner } from '@estiva-app/ui'
   the reader decides the notice is done with, rather than the app. The row
   is 40px rather than 36px with it, because the button is taller than the
   line of text; without it, nothing about the strip changes.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: an alert for an error, a status for the rest | `role="alert"` or `role="status"` | ✓ |
+| Draws its own ✕ when you pass `onDismiss`, and its one small action when you pass `action` | a close button or an action button of your own |  |
 
 ## Props
 

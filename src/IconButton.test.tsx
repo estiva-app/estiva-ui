@@ -28,6 +28,31 @@ describe('IconButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  it('href: a link that looks like the button, with its tooltip', async () => {
+    const user = userEvent.setup()
+    render(
+      <IconButton href="/documents/12" aria-label="Open" tooltip="Open">
+        {icon}
+      </IconButton>,
+    )
+    expect(screen.queryByRole('button')).toBeNull()
+    const link = screen.getByRole('link', { name: 'Open' })
+    expect(link.getAttribute('href')).toBe('/documents/12')
+    expect(link.className).toContain('rounded-lg')
+    await user.hover(link)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Open')
+  })
+
+  it('href while it cannot be used: the button, since a link cannot be disabled', () => {
+    render(
+      <IconButton href="/documents/12" aria-label="Open" disabledReason="Read only">
+        {icon}
+      </IconButton>,
+    )
+    expect(screen.queryByRole('link')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Open' }).getAttribute('aria-disabled')).toBe('true')
+  })
+
   it('shows the tooltip on hover, with its shortcut', async () => {
     const user = userEvent.setup()
     render(

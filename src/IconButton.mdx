@@ -22,8 +22,8 @@ variants. For the actions a surface repeats too often to label every time.
 - The action deserves a visible label → **Button** (words are cheaper than
   a guessed icon).
 - Inside a menu → **MenuItem** with `leading`.
-- A strip of these is a toolbar — right; but the moment rows toggle and
-  persist state, see **Checkbox**.
+- A strip of these acting on one thing → **Toolbar**. The moment rows toggle
+  and persist state, see **Checkbox**.
 
 ## How
 
@@ -54,10 +54,24 @@ import { IconPencil } from '@tabler/icons-react'
 - `disabledReason="Read only"` disables it, keeps it reachable by Tab,
   and shows the reason in place of the tooltip — **on keyboard focus as
   well as on hover**.
+- **`href`** makes it a link that looks like the button: an anchor, so the
+  address stays real for a modified click or a new tab. A router app passes
+  `onClick`, prevents the default and navigates. While it cannot be used it
+  is the button — a link cannot be disabled.
 - `tooltip` costs no wrapper: the button is the tooltip's trigger, so
   this component's root is the `<button>` whether it carries one or not,
   and both sit at the same height. A `Dialog.Close` or a `Menu.Trigger`
   can be an IconButton that has a tooltip.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a button | `role="button"` | ✓ |
+| Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
+| Presses on Enter and Space, and does nothing while disabled | a key handler |  |
 
 ## Keys
 

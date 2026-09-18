@@ -13,8 +13,10 @@ the content is moving; nothing moves when it appears.
 
 ## When
 
-- Any box that can hold more than fits: a menu or a dropdown list, a panel,
-  a sidebar, the page's content column, a rail.
+- Any box that can hold more than fits — **a list that grows with its data
+  counts, even when today's data fits**: a menu or a dropdown list, a panel, a
+  sidebar, the page's content column. Not a rail: a rail does not scroll, on
+  purpose.
 - `orientation="horizontal"` for a row wider than its box — a table, a
   board; `"both"` when a thing can run over either way.
 
@@ -52,6 +54,15 @@ import { ScrollArea } from '@estiva-app/ui'
   the page, and a region whose content fits passes everything. Measured in
   Chrome: wheel down over a sideways region inside a page, the page moves
   and the region does not; a sideways swipe, the other way round.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Scrolls with our scrollbar | `overflow-auto` or `overflow-scroll` | ✓ |
+| Scrolls with the keyboard when it has focus, like any scrolling box | key handlers |  |
 
 ## Keys
 

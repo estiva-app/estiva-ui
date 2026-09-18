@@ -35,6 +35,15 @@ export const PersistentActions: Story = {
   },
 }
 
+/** `hover="none"`: actions always shown, and the row stays still under the pointer — only the buttons light up. */
+export const StillOnHover: Story = {
+  args: {
+    showActions: 'always',
+    hover: 'none',
+    actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
+  },
+}
+
 /** A count beside the title, held on screen while the actions come and go. */
 export const WithTrailing: Story = {
   args: {

@@ -62,6 +62,15 @@ import { IdentityMenu } from '@estiva-app/ui'
   row's full height, and the panel hung from the bottom of *that* — measured
   360px below the face, with a scrollbar it should not have had.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Everything a Menu owns: it floats, stays attached, closes on a press outside or on Escape, and walks its rows with the arrow keys | a menu of your own around the face |  |
+| Gives focus back to the face when it closes | focus code |  |
+
 ## Keys
 
 Since stage 4 the panel is a Base UI `Menu`, and **the arrow keys walk the

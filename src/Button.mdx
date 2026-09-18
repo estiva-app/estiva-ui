@@ -27,12 +27,13 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 ## When not
 
 - An icon with no label → **IconButton**.
-- Going somewhere rather than doing something → **Tabs**, **Breadcrumb**,
-  or a plain link.
+- Going somewhere rather than doing something → **Link**; **Tabs** or
+  **Breadcrumb** when it is a view or a trail.
 - Choosing a value → **Select**. Acting from a popover list → **MenuItem**.
 - A control the person may never be allowed to use is **absent, not
   disabled**. `disabled` is for *momentarily* unavailable — and it says why,
-  with `disabledReason` ("Available after sign-in").
+  with `disabledReason` ("Available after sign-in"). A send button waiting for
+  its fields needs no reason.
 
 ## How
 
@@ -67,6 +68,16 @@ import { IconPlus } from '@tabler/icons-react'
 - **Placed from outside, never restyled.** `className` takes space, size,
   flex and grid, and position; a colour, a text size, a border, a corner or a
   shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9).
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a button | `role="button"` | ✓ |
+| Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
+| Presses on Enter and Space, and does nothing while disabled | a key handler |  |
 
 ## Keys
 

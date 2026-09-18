@@ -28,6 +28,7 @@ the app decides how it navigates.
 - An action — something happens, nothing is navigated to → **Button**.
 - A row of a sidebar → **NavItem**. A tile of a rail → **RailItem**.
 - The trail back up → **Breadcrumb**.
+- A link that looks like an icon button → **IconButton** with `href`.
 - A word standing for a person or a thing, drawn in a small box → **InlineChip**
   with `href`.
 
@@ -59,6 +60,15 @@ import { Link } from '@estiva-app/ui'
 - `quiet`, `underlined` and `plain` take their size and colour from where they
   sit, so put those on your own element around the link, not on the link —
   the lint refuses a look passed in `className` (UIG-9).
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what it is to assistive technology: a link | `role="link"` | ✓ |
+| Is reachable with Tab | a `tabIndex` | ✓ |
 
 ## Props
 

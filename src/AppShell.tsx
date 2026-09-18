@@ -45,7 +45,10 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
 
   if (variant === 'floating') {
     return (
-      <div className="relative h-full min-h-0 overflow-hidden bg-bg-base">
+      // `signal-canvas`: in the Signal theme, the preset draws the control-room dot
+      // grid behind everything in the frame (Peek's, moved here with the frame:
+      // UIG-14, Katerina, 19 September — the canvas is the theme's, not an app's).
+      <div className="signal-canvas relative h-full min-h-0 overflow-hidden bg-bg-base">
         {bar}
         <div className="flex h-full pb-4 pr-4 pt-[52px]">
           {nav}

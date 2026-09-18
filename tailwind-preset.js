@@ -67,9 +67,30 @@ export default {
   // see tokens.css). Both exist so a treatment can be given to the two apps
   // without changing the plain light/dark themes the docs render in.
   plugins: [
-    plugin(({ addVariant }) => {
+    plugin(({ addVariant, addComponents }) => {
       addVariant('signal', '.signal &')
       addVariant('ship', "[data-theme='ship'] &")
+      // The Signal canvas: the control-room dot grid on the app's dark ground,
+      // in the Signal theme only. AppShell's floating frame carries
+      // `signal-canvas`. Peek's, verbatim (UIG-14, Katerina, 19 September: the
+      // canvas is the theme's, so it moved with the frame). A component here,
+      // not base.css, so it reaches every app on the preset and the class lint
+      // knows the name. `isolation` and `z-index: -1` keep the grid above
+      // the ground and below every child: never over the card, a dialog, a menu.
+      addComponents({
+        '.signal .signal-canvas': { isolation: 'isolate' },
+        '.signal .signal-canvas::before': {
+          content: "''",
+          position: 'absolute',
+          inset: '0',
+          zIndex: '-1',
+          pointerEvents: 'none',
+          backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.045) 1px, transparent 1px)',
+          backgroundSize: '26px 26px',
+          maskImage: 'radial-gradient(1100px 700px at 50% 45%, transparent 25%, #000 100%)',
+          WebkitMaskImage: 'radial-gradient(1100px 700px at 50% 45%, transparent 25%, #000 100%)',
+        },
+      })
     }),
   ],
   theme: {

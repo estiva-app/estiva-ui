@@ -28,6 +28,7 @@ footer for the buttons. A dialog is just what goes in the three slots.
   dialog rebuilt by hand, which is the one thing this bullet exists to stop.
   Its canvases and its nine tests are on that page.
 - Telling someone what happened → **Toast**.
+- Searching for something and acting on it → **CommandPalette**.
 
 ## How
 
@@ -72,6 +73,19 @@ import { DialogShell, Button } from '@estiva-app/ui'
 - `alert` for a question that has to be answered: a press on the backdrop
   stops closing it (Katerina, D20). Escape and the ✕ still do.
   `ConfirmDialog` sets it; a form or a roster should not.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Closes on a press outside, except with `alert` | a click listener on the page | ✓ |
+| Takes its keys by itself: Escape closes it | a key listener on the page | ✓ |
+| Holds focus inside while open, and gives it back to whatever opened it | focus code, or a Tab handler | ✓ |
+| Stops the page behind it scrolling | `overflow: hidden` on the page | ✓ |
+| Says what it is to assistive technology: a dialog | `role="dialog"` | ✓ |
 
 ## Keys
 

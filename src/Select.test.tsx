@@ -57,6 +57,23 @@ describe('Select', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('disabledReason: held shut, reachable by Tab, and it says why', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(<Select value="todo" onChange={onChange} options={STATUSES} ariaLabel="Status" disabledReason="Read only: you are a guest" />)
+    const trigger = screen.getByRole('combobox', { name: 'Status' })
+    expect(trigger.getAttribute('aria-disabled')).toBe('true')
+    expect(trigger.hasAttribute('disabled')).toBe(false)
+    await user.click(trigger)
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+    await user.tab()
+    await user.tab({ shift: true })
+    expect(document.activeElement).toBe(trigger)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Read only: you are a guest')
+  })
+
   it('shows the placeholder when nothing matches', () => {
     render(<Controlled initial="" placeholder="Choose" />)
     expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toContain('Choose')

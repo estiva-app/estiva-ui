@@ -23,6 +23,8 @@ edit is never silently lost.
 - A field in a form or dialog → **TextInput** / **Textarea** in a
   **Field**.
 - Composing something new → the field, not an edit-in-place of nothing.
+- An edit that publishes something, like a message → **Textarea** with Save
+  and Cancel. EditableText saves when you leave it.
 
 ## How
 
@@ -54,6 +56,15 @@ import { EditableText } from '@estiva-app/ui'
   element around it, and the text and the field both take it (a field inherits
   the page's font). `className` places it — `-mx-2` to line its text up with
   a header's inset — and a size passed there is refused by the lint (UIG-9).
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Opens its field on a click, with the value selected | an edit mode of your own |  |
+| Enter and leaving the field save; Escape cancels and puts the value back (`multiline`: Shift+Enter is a new line) | key or blur handlers |  |
 
 ## Keys
 

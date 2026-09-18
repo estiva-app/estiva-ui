@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.23.0",
+    "packageVersion": "0.24.0",
     "exports": 82,
     "typeExports": 92,
     "files": null
@@ -1436,7 +1436,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "focus",
@@ -1926,6 +1926,12 @@
           "takes": "text",
           "required": false,
           "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
         },
         {
           "name": "children",
@@ -2477,7 +2483,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3019,7 +3025,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3076,7 +3082,13 @@
           "name": "className",
           "takes": "text",
           "required": false,
-          "note": "On the card's surface: its width, its padding, a max height."
+          "note": "On the card's surface: its width."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the scrolling content: its padding (default 12px) and rhythm."
         },
         {
           "name": "wrapperClassName",
@@ -3588,6 +3600,12 @@
           "note": "`hover` reveals the actions while the row is hovered or focused; `always` keeps them."
         },
         {
+          "name": "hover",
+          "takes": "fill | none",
+          "required": false,
+          "note": "`fill` lights the row under the pointer when it does something (a toggle, actions); `none` keeps it still — a heading whose actions are always shown, where the buttons light up on their own (UIG-14, Katerina, 19 September)."
+        },
+        {
           "name": "render",
           "takes": "useRender.RenderProp",
           "required": false,
@@ -3606,6 +3624,13 @@
           "values": [
             "hover",
             "always"
+          ]
+        },
+        {
+          "prop": "hover",
+          "values": [
+            "fill",
+            "none"
           ]
         }
       ],
@@ -3720,6 +3745,12 @@
           "note": null
         },
         {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why it cannot be changed right now (UIG-14, Katerina, 19 September)."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3750,7 +3781,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3964,7 +3995,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "walking",
@@ -4204,7 +4235,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "walking",
@@ -4278,6 +4309,12 @@
           "takes": "text",
           "required": false,
           "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
         },
         {
           "name": "children",
@@ -4575,6 +4612,12 @@
           "takes": "text",
           "required": false,
           "note": "Extra classes on the wrapper — e.g. `min-w-0 shrink` so a truncating label keeps truncating inside it."
+        },
+        {
+          "name": "inline",
+          "takes": "true/false",
+          "required": false,
+          "note": "For a trigger inside a line of text — a reference, a name in a sentence: the wrapper is a `<span>`, because a `<div>` is not allowed inside a paragraph (UIG-14, Katerina, 19 September)."
         },
         {
           "name": "children",

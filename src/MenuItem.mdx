@@ -25,8 +25,9 @@ other two), `destructive` in the error colour, `selected` as the fill.
 
 ## When not
 
-- Outside a menu — it renders `role="menuitem"` and belongs inside a
-  `role="menu"` container.
+- A single action that is not a row in a list → **Button**. Outside a
+  **Menu**, MenuItem is a plain button with a row's look, so a row-shaped
+  action at the top of a list — "Add members" — is fine.
 - Picking a form value → **Select**'s own options.
 - A row that toggles a checkbox → not a menu at all; see the Menu page.
 
@@ -49,6 +50,15 @@ import { IconPencil } from '@tabler/icons-react'
   `onMouseEnter` and add on `onMouseDown`.
 - A destructive row's `leading` icon takes the error colour itself
   (`text-error-default`) — the row colours only its label.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Is a row of its Menu: the Menu highlights it, walks to it with the arrow keys, and closes when it is chosen | a highlight or a key handler on the row |  |
+| Opens its `submenu` with → and closes it with ← | a submenu of your own |  |
 
 ## Props
 

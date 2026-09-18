@@ -36,4 +36,20 @@ describe('AppShell', () => {
     expect(main.className).toContain('overflow-hidden')
     expect(main.closest('[style*="overflow: scroll"]')).toBeNull()
   })
+
+  it('carries the Signal canvas on the floating frame, and only there', () => {
+    const { container, unmount } = render(
+      <AppShell variant="floating" nav={<nav>Nav</nav>}>
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect((container.firstElementChild as HTMLElement).className).toContain('signal-canvas')
+    unmount()
+    const solid = render(
+      <AppShell nav={<nav>Nav</nav>}>
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect(solid.container.querySelector('.signal-canvas')).toBeNull()
+  })
 })

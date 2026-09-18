@@ -23,7 +23,7 @@ is a neutral fill, not the accent — selection is a place, not a highlight.
 
 ## When not
 
-- Going to a different place → links and **Breadcrumb**.
+- Going to a different place → **Link**, **NavItem** or **Breadcrumb**.
 - Choosing a value that gets saved → **Select**.
 - Actions → **Button**s; a tab never *does*, it *shows*.
 
@@ -53,6 +53,17 @@ import { Tabs } from '@estiva-app/ui'
   a screen reader would otherwise announce two "tab lists". A visible heading
   that already names it takes `aria-labelledby` instead. Unnamed is fine for
   the only tab row on a page.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Takes its keys by itself: Home and End select the first and last tab | a key listener on the page | ✓ |
+| Moves through its items with the arrow keys: ← → select the next tab, and wrap at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a set of tabs and their panels | `role="tablist"`, `tab` or `tabpanel` | ✓ |
+| Is one Tab stop: Tab lands on the selected tab | a `tabIndex` on each tab |  |
 
 ## Keys
 

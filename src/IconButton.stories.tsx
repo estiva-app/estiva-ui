@@ -26,6 +26,9 @@ export const WithTooltip: Story = { args: { tooltip: 'Settings', tooltipPlacemen
 /** Disabled with its reason in place of the tooltip; Tab still reaches it. */
 export const WithAReason: Story = { args: { tooltip: 'Settings', disabledReason: 'Sign in to change settings' } }
 
+/** `href`: a link that looks like the button — the same box, an anchor underneath. */
+export const AsALink: Story = { args: { href: '#settings', tooltip: 'Settings' } }
+
 /** Every variant × enabled/disabled. */
 export const AllVariants: Story = {
   // axe color-contrast is off here until PLAN.md stage 0.10 is ruled:

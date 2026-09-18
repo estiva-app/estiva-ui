@@ -53,6 +53,17 @@ import { ConfirmDialog } from '@estiva-app/ui'
 - Focus is trapped in the card and returns to whatever opened it, as for
   every dialog since stage 3.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page | a portal, or a `z-index` to win | ✓ |
+| Says what it is to assistive technology: a dialog that must be answered | `role="alertdialog"` | ✓ |
+| Keeps focus inside while open, as DialogShell does, and gives it back to whatever opened it | focus code |  |
+| Ignores a press outside, because the question has to be answered; Escape cancels | a backdrop handler |  |
+
 ## Keys
 
 Different from `DialogShell`'s in one row, and it is the row that matters.

@@ -53,6 +53,15 @@ import { Menu, PersonTrigger } from '@estiva-app/ui'
 - It is a native `<button>` on Base UI's Button: it takes a `ref` and every
   native button prop.
 
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Is a button: Tab reaches it, Enter and Space call your `onClick` | a clickable `<div>` |  |
+| Names itself from the person's name, and says whether what it opens is open (`open`) | `aria-label` or `aria-expanded` |  |
+
 ## Keys
 
 | Key | Does |

@@ -75,6 +75,16 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
 - In the floating manner the card owns `overflow-hidden` — your content
   manages its own scrolling inside it.
 - Desktop only for now — no narrow-screen behaviour is provided.
+- In the Signal theme the floating frame draws the control-room dot grid on
+  its ground, behind the card. Nothing to add: the preset makes it.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Scrolls the page's content column, in a ScrollArea | `overflow-auto` on the page or on `main` |  |
 
 ## Props
 

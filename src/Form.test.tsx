@@ -18,6 +18,7 @@ import { Checkbox } from './Checkbox'
 import { IconButton } from './IconButton'
 import { Field } from './Field'
 import { Form } from './Form'
+import { Popover } from './Popover'
 import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
 
@@ -44,6 +45,31 @@ describe('Form', () => {
     render(<Harness onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: 'First' }), 'x{Enter}')
     expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('a Form in a Popover inside a Form sends only itself (C1)', async () => {
+    // A link field in a pop-up over a composer: Enter there adds the link, and
+    // must not also send the message around it. React carries the submit
+    // through the Popover's portal to the outer form.
+    const user = userEvent.setup()
+    const outer = vi.fn()
+    const inner = vi.fn()
+    render(
+      <Form onSubmit={outer}>
+        <TextInput aria-label="Message" />
+        <Popover trigger={<Button>Link</Button>} open ariaLabel="Link">
+          <Form onSubmit={inner}>
+            <TextInput aria-label="Address" />
+          </Form>
+        </Popover>
+      </Form>,
+    )
+    await user.type(screen.getByRole('textbox', { name: 'Address' }), 'example.com{Enter}')
+    expect(inner).toHaveBeenCalledTimes(1)
+    expect(outer).not.toHaveBeenCalled()
+    await user.type(screen.getByRole('textbox', { name: 'Message' }), 'hi{Enter}')
+    expect(outer).toHaveBeenCalledTimes(1)
+    expect(inner).toHaveBeenCalledTimes(1)
   })
 
   it('sends from its submit button', async () => {
