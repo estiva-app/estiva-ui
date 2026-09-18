@@ -57,6 +57,8 @@ const WRITTEN = /^@registry\s+([a-z-]+)\s*:\s*(.+)$/m
 const isStory = (file: string) => /\.stories\.[cm]?[jt]sx?$/.test(file)
 const isTest = (file: string) => /\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || /(^|\/)__(tests|mocks)__\//.test(file)
 const isPascal = (name: string) => /^[A-Z][A-Za-z0-9]*$/.test(name) && !/^[A-Z0-9_]+$/.test(name)
+/** `memo-page` → `MemoPage`, `topic_view` → `TopicView`. */
+const pascalOf = (stem: string) => stem.split(/[^A-Za-z0-9]+/).filter(Boolean).map((word) => word[0].toUpperCase() + word.slice(1)).join('')
 const CODE = ['.tsx', '.ts', '.jsx', '.js', '.mts', '.cts']
 
 /** `@scope/name/sub` → `@scope/name`; `name/sub` → `name`. */
@@ -171,7 +173,11 @@ function mentions(sf: ts.SourceFile, local: string, home: ts.Node | null): boole
     if (named) return
     if (ts.isIdentifier(n) && n.text === local) {
       const parent = n.parent
-      const isName = (ts.isPropertyAccessExpression(parent) && parent.name === n) || (ts.isPropertyAssignment(parent) && parent.name === n) || ts.isJsxAttribute(parent) || ts.isExportSpecifier(parent) || ts.isImportSpecifier(parent) || ts.isJsxClosingElement(parent)
+      // The name of something else that happens to be spelled the same — a
+      // property of a type or a class, a member, another declaration — is not the part.
+      const declares = (ts.isPropertySignature(parent) || ts.isPropertyDeclaration(parent) || ts.isMethodDeclaration(parent) || ts.isMethodSignature(parent) || ts.isGetAccessorDeclaration(parent) || ts.isSetAccessorDeclaration(parent) || ts.isEnumMember(parent) || ts.isVariableDeclaration(parent) || ts.isFunctionDeclaration(parent) || ts.isClassDeclaration(parent) || ts.isParameter(parent) || ts.isBindingElement(parent)) && (parent as { name?: ts.Node }).name === n
+      const bindingKey = ts.isBindingElement(parent) && parent.propertyName === n
+      const isName = declares || bindingKey || (ts.isPropertyAccessExpression(parent) && parent.name === n) || (ts.isPropertyAssignment(parent) && parent.name === n) || ts.isJsxAttribute(parent) || ts.isExportSpecifier(parent) || ts.isImportSpecifier(parent) || ts.isJsxClosingElement(parent)
       // `SlashMenu.displayName = 'SlashMenu'` sets something on the part; it does not use it.
       const configures = ts.isPropertyAccessExpression(parent) && parent.expression === n && ts.isBinaryExpression(parent.parent) && parent.parent.left === parent && parent.parent.operatorToken.kind === ts.SyntaxKind.EqualsToken
       if (configures) {
@@ -191,18 +197,20 @@ function mentions(sf: ts.SourceFile, local: string, home: ts.Node | null): boole
   return named
 }
 
-/** The thing a declaration holds, if it is a function, a class, or a call that wraps one (`forwardRef`, `memo`). */
+/**
+ * The thing a declaration holds, if it is a function, a class, or a call that
+ * wraps one (`forwardRef`, `memo`) — as a constant, or written straight into
+ * `export default …`.
+ */
 function drawingBody(node: ts.Node): ts.Node | null {
   if (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) return node
-  if (ts.isVariableDeclaration(node)) {
-    const init = node.initializer
-    if (!init) return null
-    if (ts.isArrowFunction(init) || ts.isFunctionExpression(init) || ts.isClassExpression(init)) return init
-    if (ts.isCallExpression(init)) {
-      const callee = init.expression.getText()
-      if (/(^|\.)createContext$/.test(callee)) return null
-      if (init.arguments.some((a) => ts.isArrowFunction(a) || ts.isFunctionExpression(a))) return init
-    }
+  const init = ts.isVariableDeclaration(node) ? node.initializer : ts.isExpression(node) ? node : undefined
+  if (!init) return null
+  if (ts.isArrowFunction(init) || ts.isFunctionExpression(init) || ts.isClassExpression(init)) return init
+  if (ts.isCallExpression(init)) {
+    const callee = init.expression.getText()
+    if (/(^|\.)createContext$/.test(callee)) return null
+    if (init.arguments.some((a) => ts.isArrowFunction(a) || ts.isFunctionExpression(a))) return init
   }
   return null
 }
@@ -278,7 +286,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
         const specifier = statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier) ? statement.moduleSpecifier.text : null
         if (specifier === null) {
           if (!statement.isTypeOnly && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
-            for (const e of statement.exportClause.elements) if (!e.isTypeOnly) exports.push({ name: e.name.text, local: (e.propertyName ?? e.name).text, isDefault: false, node: null })
+            // `export { Page as default }` is the file's default, named Page.
+            for (const e of statement.exportClause.elements) if (!e.isTypeOnly) exports.push({ name: e.name.text, local: (e.propertyName ?? e.name).text, isDefault: e.name.text === 'default', node: null })
           }
           continue
         }
@@ -342,7 +351,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       // `export function App` and `export default App`: one part, not two.
       if (ex.isDefault && ex.local && f.exports.some((other) => !other.isDefault && other.local === ex.local)) continue
       const node = ex.node ?? (ex.local ? declarationOf(f, ex.local) : null)
-      const own = ex.local ?? (ex.isDefault ? basename(file, extname(file)) : ex.name)
+      // A default with no name of its own takes its file's, as a name: `memo-page.tsx` → MemoPage.
+      const own = ex.local ?? (ex.isDefault ? pascalOf(basename(file, extname(file))) : ex.name)
       const name = ex.isDefault ? own : ex.name
       if (!isPascal(name)) continue
       // `import { SkeletonBar } from '@estiva-app/ui'` and later `export { SkeletonBar }`:
@@ -562,7 +572,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     const pass = p.from
     const onePart = partsIn(p.file).filter((q) => !q.from).length === 1
     const module = pass ? null : moduleAt(p.file)
-    const declared = pass || !p.local ? undefined : module!.declarations.get(p.local)
+    // A default written as an expression has no name in its file: the builder keeps it as `default`.
+    const declared = pass ? undefined : module!.declarations.get(p.local ?? 'default')
     const header = module?.headerDoc ?? ''
     const doc = declared?.doc ?? ''
 

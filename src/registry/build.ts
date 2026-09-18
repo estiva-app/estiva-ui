@@ -306,6 +306,17 @@ export function readModule(source: string, sibling: Sibling = () => undefined) {
       declarations.set(statement.name.text, { doc: docAbove(source, statement, refused), deprecated: false, propsType: base?.typeArguments?.[0] })
       continue
     }
+    // `export default memo(() => …)` and `export default function () {…}`: a part
+    // an app writes as its file's default, with no name of its own. Kept under
+    // `default`, with its comment and its props.
+    if (ts.isExportAssignment(statement) && !statement.isExportEquals && !ts.isIdentifier(statement.expression)) {
+      declarations.set('default', { doc: docAbove(source, statement, refused), deprecated: false, propsType: propsOfInitializer(statement.expression) })
+      continue
+    }
+    if (ts.isFunctionDeclaration(statement) && !statement.name && ts.getModifiers(statement)?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword)) {
+      declarations.set('default', { doc: docAbove(source, statement, refused), deprecated: false, propsType: propsTypeOf(statement.parameters) })
+      continue
+    }
     if (!ts.isFunctionDeclaration(statement) && !ts.isVariableStatement(statement)) continue
     const doc = docAbove(source, statement, refused)
     const deprecated = /(^|\n)@deprecated\b/.test(doc) || /\*\s*@deprecated\b/.test(source.slice(Math.max(0, statement.getFullStart()), statement.getStart()))

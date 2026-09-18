@@ -264,6 +264,12 @@ describe('what the first descriptions found', () => {
       // Peek's SearchInput and EmptyState: typed by the package's own props, under another local name.
       'src/Search.tsx': "import { SearchInput as UiSearchInput, type SearchInputProps as UiSearchInputProps } from '@estiva-app/ui'\n\n/** The package's search field, with this app's own placeholder. */\nexport function Search({ placeholder = 'Find', ...rest }: UiSearchInputProps) {\n  return <UiSearchInput placeholder={placeholder} {...rest} />\n}\n",
       'src/Empty.tsx': "import { EmptyState as Shared, type EmptyStateProps } from '@estiva-app/ui'\n\ntype Props = Omit<EmptyStateProps, 'message'> & { message?: string }\n\n/** The package's empty state, with this app's own default words. */\nexport function Empty({ message = 'Nothing', ...rest }: Props) {\n  return <Shared message={message} {...rest} />\n}\n",
+      // Found by the code review: a default by name, a default written as an expression,
+      // and a property that happens to share a part's name.
+      'src/AsDefault.tsx': "/** A page handed out as its file's default, by name. */\nfunction Quiet() {\n  return <p />\n}\nexport { Quiet as default }\n",
+      'src/memo-page.tsx': "import { memo } from 'react'\n\n/** A page written as memo of an arrow, straight into the default. */\nexport default memo(({ title }: { title: string }) => <main>{title}</main>)\n",
+      'src/Loader.tsx': "import { lazy } from 'react'\n\nconst Quiet = lazy(() => import('./AsDefault'))\nconst Memo = lazy(() => import('./memo-page'))\n\n/** Loads two pages when they are opened. */\nexport function Loader() {\n  return <><Quiet /><Memo title=\"x\" /></>\n}\n",
+      'src/Slots.tsx': "/** A header nothing draws. */\nexport function Header() {\n  return <header />\n}\n\nexport interface Slots {\n  Header: string\n}\n\nexport class Frame {\n  Header = 1\n}\n",
       // Peek's SlashMenu: naming itself for React's tools is not a use of itself.
       'src/Menu.tsx': "import { forwardRef } from 'react'\n\n/** The menu a slash opens while typing. */\nexport const SlashMenu = forwardRef<HTMLDivElement>((_, ref) => <div ref={ref} />)\nSlashMenu.displayName = 'SlashMenu'\n",
     }),
@@ -299,6 +305,23 @@ describe('what the first descriptions found', () => {
     const empty = one('Empty')!.props
     expect(empty.find((prop) => prop.name === 'message')).toEqual({ name: 'message', takes: 'text', required: false, note: null })
     expect(empty.map((prop) => prop.name).sort()).toEqual(shared('EmptyState').props.map((prop) => prop.name).sort())
+  })
+
+  // Found by the code review.
+  it('`export { Quiet as default }` is a part, and a lazy page loading it uses it', () => {
+    expect(one('Quiet')).toMatchObject({ purpose: "A page handed out as its file's default, by name." })
+    expect(one('Quiet')?.app).toMatchObject({ usedIn: ['src/Loader.tsx'], defaultExport: true })
+  })
+
+  it('a default written as an expression is a part, named after its file, with its props', () => {
+    expect(one('MemoPage')).toMatchObject({ purpose: 'A page written as memo of an arrow, straight into the default.', importPath: 'src/memo-page' })
+    expect(one('MemoPage')?.app?.usedIn).toEqual(['src/Loader.tsx'])
+    expect(one('MemoPage')?.props.map((prop) => prop.name)).toEqual(['title'])
+  })
+
+  it("a property of a type or a class that shares a part's name is not a use of it", () => {
+    expect(one('Header')?.app).toMatchObject({ class: 'unused', usedIn: [] })
+    expect(faults.entries.some((entry) => entry.name === 'Frame')).toBe(false)
   })
 
   // Found by the second counter.
