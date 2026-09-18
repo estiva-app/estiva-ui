@@ -47,7 +47,7 @@ export const LongLabel: Story = {
 export const InsideText: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <p className="max-w-[420px] text-body-2 text-text-primary">
+    <p className="max-w-sm text-body-2 text-text-primary">
       The plan is in{' '}
       <WithTooltip inline label="Item one, with a title long enough that it no longer fits on one line of a tooltip">
         <span className="font-semibold">Item one</span>
