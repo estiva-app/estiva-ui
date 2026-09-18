@@ -1,5 +1,59 @@
 # Changelog
 
+## 0.22.0 — 2026-09-18 — UIG-12, the component catalogue
+
+A list of everything the package exports, written by a machine that reads the
+code, so it cannot drift from what it describes. It answers the question the lint
+rules cannot: *what do we already have for this?*
+
+### Added
+
+- **`registry.json`**, at the package's root and in the tarball: one entry per
+  exported name — 81, which are 74 components, 6 helpers and 1 hook. Each entry
+  says what it is for in one line, **every prop it declares** (what it takes,
+  whether it is required, and its own note), the behaviours it owns, its
+  Storybook ids, and the line to import it with. Schema version 1.
+- **`estiva-ui`**, a command. `find <words>` searches the catalogue and prints the
+  import line; `build` writes `registry.json`; `check` rebuilds it and fails if
+  the committed file is not what the code produces. `find` reads only the JSON,
+  so it runs in an app that has no TypeScript installed.
+- **`@estiva-app/ui/registry`** — `buildRegistry`, `findInRegistry`,
+  `validateRegistry` and the schema's types — and **`@estiva-app/ui/registry.json`**.
+
+### Changed inside the package
+
+- Thirteen exports gained a one-line doc comment: the names documented on a
+  sibling's page rather than their own (`MenuSub`, `ToolbarButton`, `useToast`,
+  `SkeletonBar` and nine more). Nothing rendered changes.
+- CI runs `npm run registry:check`.
+
+**Callers:** none change; nothing an app imports today moves. From an app on
+0.22.0: `npx estiva-ui find "floating panel"`.
+
+## 0.21.1 — 2026-09-17 — UIG-32, an app that lives in a folder
+
+*This entry was missing from the release and was written on 18 September, from
+the release's own commit (`fa30d20`, estiva-ui PR #58).*
+
+### Fixed
+
+- **`estiva-gates status --app <dir>`** and `runStatus({ app })`: the status
+  engine finds an app's checks file in the app's own folder, not only the repo's
+  top one — the option the hook already took. Ship's app and its install are in
+  `web/`, and the checks file imports the package, so it has to sit where that
+  import resolves.
+- The check every app runs for `gates:status` accepts the command run by path
+  (`node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web`),
+  which is how a repo whose install is not beside its `package.json` runs it.
+
+### Changed inside the package
+
+- estiva-ui reads a sibling repo the same way, so its own `gates:status` can
+  read Ship.
+
+**Callers:** Peek and Ship moved onto the package's gate pieces in their UIG-32
+pull requests (peek #245, ship #161). Nothing else changes.
+
 ## 0.21.0 — 2026-09-17 — UIG-10, a new app from the package alone
 
 Katerina, 17 September (`docs/GATES.md` §23): every gate piece ships in the
