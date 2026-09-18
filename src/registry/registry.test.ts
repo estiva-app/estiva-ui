@@ -45,16 +45,16 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 81 names over 53 files: 74 components, 6 helpers and 1 hook', () => {
+  it('counts 82 names over 54 files: 75 components, 6 helpers and 1 hook (ContainerHeader joined in UIG-13)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 74, helper: 6, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(53)
+    expect(kinds).toEqual({ component: 75, helper: 6, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(54)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(53)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(54)
     expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(28)
   })
 
@@ -278,7 +278,7 @@ describe('the ids point at something', () => {
 describe('a second parser agrees', async () => {
   const docgen = await import('react-docgen').catch(() => null)
 
-  it.skipIf(!docgen)('finds the same props on all 74 components', async () => {
+  it.skipIf(!docgen)('finds the same props on all 75 components', async () => {
     if (!docgen) return
     const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
     const byName = new Map(registry.entries.map((one) => [one.name, one]))

@@ -1,0 +1,56 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ContainerHeaderStories from './ContainerHeader.stories'
+
+<Meta of={ContainerHeaderStories} />
+
+# ContainerHeader
+
+The bar across the top of a column — a list, a thread, a side panel: its
+title, and the buttons that act on the whole column at the right edge. 48px,
+with a hairline under it. Peek's ContainerHeader, moved into the package as it
+looks (Katerina, 2026-09-18).
+
+<Canvas of={ContainerHeaderStories.WithActions} />
+
+## When
+
+- The top of a column in a frame: the list beside the conversation, the
+  thread, a side panel. One per column.
+- The column's own actions — new, sort, close — as IconButtons with tooltips
+  in `actions`.
+
+## When not
+
+- One section inside a column → **SectionHeader**, the 32px row with a
+  SectionLabel.
+- The top of the whole app → **TopBar**.
+- A dialog's title → **DialogShell** draws its own.
+
+## How
+
+```tsx
+import { ContainerHeader, IconButton } from '@estiva-app/ui'
+
+<ContainerHeader
+  title="All items"
+  chevron
+  actions={
+    <IconButton tooltip="New item" aria-label="New item" onClick={openNew}>
+      <IconEdit size={16} stroke={1.5} />
+    </IconButton>
+  }
+/>
+```
+
+- A string title is one line in `body-2-strong` and keeps its width. Anything
+  else — an EditableText, a title over a caption — takes the room left and is
+  drawn as given.
+
+<Canvas of={ContainerHeaderStories.WithRichTitle} />
+
+- Only offer a button that does something: a button with nothing behind it is
+  a promise the column cannot keep.
+
+## Props
+
+<Controls of={ContainerHeaderStories.Default} />

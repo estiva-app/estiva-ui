@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.22.0",
-    "exports": 81,
-    "typeExports": 91,
+    "exports": 82,
+    "typeExports": 92,
     "files": null
   },
   "storybook": {
@@ -301,9 +301,21 @@
         },
         {
           "name": "children",
-          "takes": "text",
+          "takes": "anything",
           "required": true,
-          "note": null
+          "note": "The one line. Text, or text with a name in `font-medium`."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "A 16px icon before the line, in the tone's colour (Katerina, 2026-09-18: Peek's composer strip became a Banner)."
+        },
+        {
+          "name": "action",
+          "takes": "a handler",
+          "required": false,
+          "note": "The one thing to do: the package's Button, muted and small, at the end of the line."
         },
         {
           "name": "onDismiss",
@@ -1302,6 +1314,49 @@
       "app": null
     },
     {
+      "name": "ContainerHeader",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ContainerHeader.tsx",
+      "purpose": "The bar across the top of a column — a list, a thread, a side panel: its title, and the buttons that act on the whole column at the right edge. 48px, with a hairline under it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": true,
+          "note": "A string keeps the one-line treatment; a node is drawn as given."
+        },
+        {
+          "name": "chevron",
+          "takes": "true/false",
+          "required": false,
+          "note": "A chevron after the title, for a title that opens something."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "The column's own buttons, at the right edge: IconButtons with tooltips, 4px apart."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-containerheader--docs",
+      "storyId": "navigation-containerheader--default",
+      "docPage": "src/ContainerHeader.mdx",
+      "app": null
+    },
+    {
       "name": "DialogShell",
       "repo": "estiva-ui",
       "kind": "component",
@@ -1569,6 +1624,12 @@
           "takes": "page | section",
           "required": false,
           "note": "`page` when the whole page is empty; `section` when one part of it is."
+        },
+        {
+          "name": "action",
+          "takes": "a handler",
+          "required": false,
+          "note": "The one thing to do about it — \"New topic\", \"Try again\" — drawn 16px under the line as the package's Button, outlined (Katerina, 2026-09-18)."
         },
         {
           "name": "className",
