@@ -202,7 +202,7 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
   },
   {
     id: 'page-keys',
-    behaviour: 'Closes on Escape, and takes its keys, by itself',
+    behaviour: 'Takes its keys by itself',
     baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox', 'Tooltip', 'PreviewCard', 'Toast'],
     owners: ['DialogShell', 'Popover', 'Menu', 'Select', 'Tabs', 'Toolbar'],
     reads: 'a keydown, keyup or keypress listener on window or document',

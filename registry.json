@@ -1436,7 +1436,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "focus",
@@ -2477,7 +2477,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3019,7 +3019,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3750,7 +3750,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3964,7 +3964,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "walking",
@@ -4204,7 +4204,7 @@
         },
         {
           "id": "page-keys",
-          "behaviour": "Closes on Escape, and takes its keys, by itself"
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "walking",
