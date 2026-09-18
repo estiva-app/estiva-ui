@@ -486,6 +486,13 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
         if (bound.target === null) found.push({ file, name, local: null, defaultExport: ex.isDefault, from: { specifier: bound.specifier, name: bound.imported } })
         continue
       }
+      // `export const SkeletonSidebarList = SkeletonList`, SkeletonList imported: the
+      // package's part under a second name, handed on. From an app file, a barrel.
+      const alias = node && ts.isVariableDeclaration(node) && node.initializer && ts.isIdentifier(node.initializer) ? f.bindings.get(node.initializer.text) : undefined
+      if (alias) {
+        if (alias.target === null) found.push({ file, name, local: null, defaultExport: ex.isDefault, from: { specifier: alias.specifier, name: alias.imported } })
+        continue
+      }
       const body = node ? drawingBody(node) : null
       const isPart = (body !== null && draws(body)) || drawnAnywhere.has(ex.local ?? name)
       if (isPart) found.push({ file, name, local: ex.local, defaultExport: ex.isDefault, from: null })
@@ -529,7 +536,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     if (re && re.target && re.target !== '?') return origin(re.target, re.source, seen)
     // `import { X } from './X'` and `export { X }`: a barrel written in two lines.
     const ex = f.exports.find((e) => (name === 'default' ? e.isDefault : e.name === name && !e.isDefault))
-    const bound = ex?.local && !ex.node && !declarationOf(f, ex.local) ? f.bindings.get(ex.local) : undefined
+    const renamed = ex?.node && ts.isVariableDeclaration(ex.node) && ex.node.initializer && ts.isIdentifier(ex.node.initializer) ? f.bindings.get(ex.node.initializer.text) : undefined
+    const bound = (ex?.local && !ex.node && !declarationOf(f, ex.local) ? f.bindings.get(ex.local) : undefined) ?? renamed
     if (bound?.target && bound.target !== '?') return origin(bound.target, bound.imported, seen)
     for (const star of f.starFrom) if (star.target && star.target !== '?') {
       const hit = origin(star.target, name, seen)
@@ -729,7 +737,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     let purpose = ''
     let purposeFrom: RegistryEntry['purposeFrom'] = 'comment'
     if (pass) {
-      purpose = pass.specifier === PACKAGE_IMPORT ? `The package's ${pass.name}, handed on so the app can import it from ${importPathOf(p.file)}.` : `${pass.name} from ${pass.specifier}, handed on so the app can import it from ${importPathOf(p.file)}.`
+      const as = pass.name === p.name ? '' : ` as ${p.name}`
+      purpose = pass.specifier === PACKAGE_IMPORT ? `The package's ${pass.name}, handed on${as} so the app can import it from ${importPathOf(p.file)}.` : `${pass.name} from ${pass.specifier}, handed on${as} so the app can import it from ${importPathOf(p.file)}.`
       purposeFrom = 'package'
     } else if (firstSentence(pageText)) {
       purpose = firstSentence(pageText)

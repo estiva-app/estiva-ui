@@ -253,7 +253,7 @@ describe('what the first descriptions found', () => {
   const faults = buildAppRegistry({
     root: app({
       // Peek's Skeleton.tsx: imported from the package, then exported on a line of its own.
-      'src/Skeleton.tsx': "import { SkeletonBar, SkeletonRow } from '@estiva-app/ui'\n\n/** Grey rows in the shape of a list, while it loads. */\nexport function SkeletonList() {\n  return <div><SkeletonBar /><SkeletonRow /></div>\n}\n\nexport { SkeletonBar, SkeletonRow }\n",
+      'src/Skeleton.tsx': "import { SkeletonBar, SkeletonRow, SkeletonList as Shared } from '@estiva-app/ui'\n\n/** Grey rows in the shape of a list, while it loads. */\nexport function SkeletonList() {\n  return <div><SkeletonBar /><SkeletonRow /></div>\n}\n\n/** Peek's name for the package's list placeholder. */\nexport const SkeletonSidebarList = Shared\n\nexport { SkeletonBar, SkeletonRow }\n",
       // A file with its own description at the very top, and one on its part.
       'src/Row.tsx': "/**\n * Everything about rows.\n */\nimport { useState } from 'react'\n\n/** One row of a list, with a hover state of its own. */\nexport function Row() {\n  const [on] = useState(false)\n  return <li>{String(on)}</li>\n}\n",
       // A class, described above itself, with its props from what it extends.
@@ -287,6 +287,12 @@ describe('what the first descriptions found', () => {
     expect(one('SkeletonBar')?.app).toMatchObject({ class: 're-export', handsOn: 'SkeletonBar' })
     expect(one('SkeletonRow')?.app?.class).toBe('re-export')
     expect(one('SkeletonList')?.purpose).toBe('Grey rows in the shape of a list, while it loads.')
+  })
+
+  // Found making the promote page: Peek's SkeletonSidebarList is the package's SkeletonList.
+  it("`export const X = ImportedPart` is the package's part under a second name, handed on", () => {
+    expect(one('SkeletonSidebarList')?.app).toMatchObject({ class: 're-export', handsOn: 'SkeletonList' })
+    expect(one('SkeletonSidebarList')?.purpose).toBe("The package's SkeletonList, handed on as SkeletonSidebarList so the app can import it from src/Skeleton.")
   })
 
   it("a part's own comment counts when the file has its own at the top", () => {

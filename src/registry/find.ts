@@ -196,7 +196,7 @@ export function formatFindings(searched: Registry | Registry[], findings: Findin
   for (const registry of registries) {
     for (const entry of registry.entries) {
       if (entry.app?.class !== 're-export' || entry.app.handsOn === null) continue
-      handedOn.set(entry.app.handsOn, [...(handedOn.get(entry.app.handsOn) ?? []), `${entry.repo} hands it on from ${entry.importPath}`])
+      handedOn.set(entry.app.handsOn, [...(handedOn.get(entry.app.handsOn) ?? []), `${entry.repo} hands it on${entry.name === entry.app.handsOn ? '' : ` as ${entry.name}`} from ${entry.importPath}`])
     }
   }
 
