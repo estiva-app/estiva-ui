@@ -57,6 +57,17 @@ const WRITTEN = /^@registry\s+([a-z-]+)\s*:\s*(.+)$/m
 const isStory = (file: string) => /\.stories\.[cm]?[jt]sx?$/.test(file)
 const isTest = (file: string) => /\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || /(^|\/)__(tests|mocks)__\//.test(file)
 const isPascal = (name: string) => /^[A-Z][A-Za-z0-9]*$/.test(name) && !/^[A-Z0-9_]+$/.test(name)
+/**
+ * `export default memo(TopicRow)`: the default is TopicRow, wrapped. A call on
+ * a name, with no function written into it, hands that name out, so the export
+ * is read as if it named it — one part, whose comment and props are its own.
+ */
+function unwrapDefault<T extends { isDefault: boolean; local: string | null; node: ts.Node | null }>(ex: T): T {
+  if (!ex.isDefault || ex.local || !ex.node || !ts.isCallExpression(ex.node)) return ex
+  const [first] = ex.node.arguments
+  return first && ts.isIdentifier(first) ? { ...ex, local: first.text, node: null } : ex
+}
+
 /** `memo-page` → `MemoPage`, `topic_view` → `TopicView`. */
 const pascalOf = (stem: string) => stem.split(/[^A-Za-z0-9]+/).filter(Boolean).map((word) => word[0].toUpperCase() + word.slice(1)).join('')
 const CODE = ['.tsx', '.ts', '.jsx', '.js', '.mts', '.cts']
@@ -347,8 +358,9 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   const targets = files.filter((file) => file.endsWith('.tsx') && !isStory(file) && !isTest(file))
   for (const file of targets) {
     const f = facts.get(file)!
-    for (const ex of f.exports) {
-      // `export function App` and `export default App`: one part, not two.
+    for (const written of f.exports) {
+      const ex = unwrapDefault(written)
+      // `export function App` and `export default App` — or `export default memo(App)`: one part, not two.
       if (ex.isDefault && ex.local && f.exports.some((other) => !other.isDefault && other.local === ex.local)) continue
       const node = ex.node ?? (ex.local ? declarationOf(f, ex.local) : null)
       // A default with no name of its own takes its file's, as a name: `memo-page.tsx` → MemoPage.
@@ -383,8 +395,9 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   const partsIn = (file: string) => found.filter((p) => p.file === file)
   /** The part a file's default export is, however it was written. */
   const defaultPartOf = (file: string): Found | null => {
-    const d = facts.get(file)?.exports.find((e) => e.isDefault)
-    if (!d) return null
+    const written = facts.get(file)?.exports.find((e) => e.isDefault)
+    if (!written) return null
+    const d = unwrapDefault(written)
     return partsIn(file).find((p) => p.defaultExport || (d.local !== null && p.local === d.local)) ?? null
   }
 
@@ -550,7 +563,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       }
       const target = resolveSpecifier(file, specifier)
       return target && target !== '?' ? moduleAt(target).resolveName(typeName) : undefined
-    })
+      // A comment directly above a part is that part's, first in its file or not.
+    }, { lendFirstComment: false })
     modules.set(file, read)
     return read
   }
@@ -575,7 +589,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     // A default written as an expression has no name in its file: the builder keeps it as `default`.
     const declared = pass ? undefined : module!.declarations.get(p.local ?? 'default')
     const header = module?.headerDoc ?? ''
-    const doc = declared?.doc ?? ''
+    // The file's default may carry its comment on `export default memo(Row)` rather than on Row.
+    const doc = declared?.doc || (defaultPartOf(p.file) === p ? (module?.declarations.get('default')?.doc ?? '') : '')
 
     // Purpose: its page, else its own comment, else — for a file of one part —
     // the file's. A pass-on says whose it is.

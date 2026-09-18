@@ -229,7 +229,18 @@ export interface Resolved {
  */
 export type Sibling = (specifier: string, typeName: string) => Resolved | undefined
 
-export function readModule(source: string, sibling: Sibling = () => undefined) {
+export interface ReadOptions {
+  /**
+   * Whether a file with no comment of its own at the top lends the comment on
+   * its first declaration to the file. The package: yes — `Skeleton.tsx`'s
+   * family paragraph sits there, and taking it as `SkeletonBar`'s was wrong. An
+   * app: no — a comment directly above a part is that part's, which is what a
+   * person writing one expects; a file's own goes at the very top.
+   */
+  lendFirstComment?: boolean
+}
+
+export function readModule(source: string, sibling: Sibling = () => undefined, { lendFirstComment = true }: ReadOptions = {}) {
   const file = ts.createSourceFile('module.tsx', source, ts.ScriptTarget.Latest, true)
   const declarations = new Map<string, Declared>()
   const aliases = new Map<string, ts.TypeNode>()
@@ -270,7 +281,7 @@ export function readModule(source: string, sibling: Sibling = () => undefined) {
   // way — has its header there, so the comment on its first declaration is that
   // declaration's own. Only a file with no such comment lends the first one it has.
   const topPos = file.statements[0] ? ((ts.getLeadingCommentRanges(source, file.statements[0].getFullStart()) ?? []).find((range) => source.slice(range.pos, range.pos + 3) === '/**')?.pos ?? null) : null
-  const refused = topPos ?? headerPos
+  const refused = topPos ?? (lendFirstComment ? headerPos : null)
 
   for (const statement of file.statements) {
     if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {

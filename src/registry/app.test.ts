@@ -268,7 +268,12 @@ describe('what the first descriptions found', () => {
       // and a property that happens to share a part's name.
       'src/AsDefault.tsx': "/** A page handed out as its file's default, by name. */\nfunction Quiet() {\n  return <p />\n}\nexport { Quiet as default }\n",
       'src/memo-page.tsx': "import { memo } from 'react'\n\n/** A page written as memo of an arrow, straight into the default. */\nexport default memo(({ title }: { title: string }) => <main>{title}</main>)\n",
-      'src/Loader.tsx': "import { lazy } from 'react'\n\nconst Quiet = lazy(() => import('./AsDefault'))\nconst Memo = lazy(() => import('./memo-page'))\n\n/** Loads two pages when they are opened. */\nexport function Loader() {\n  return <><Quiet /><Memo title=\"x\" /></>\n}\n",
+      'src/Loader.tsx': "import { lazy } from 'react'\nimport Row from './TopicRow'\nimport Hidden from './rows'\n\nconst Quiet = lazy(() => import('./AsDefault'))\nconst Memo = lazy(() => import('./memo-page'))\n\n/** Loads two pages when they are opened. */\nexport function Loader() {\n  return <><Quiet /><Memo title=\"x\" /><Row /><Hidden /></>\n}\n",
+      // Found by the second review: a part named and also its file's memo'd default; a default
+      // that only wraps a local part; and the first of two parts, described right above itself.
+      'src/TopicRow.tsx': "import { memo } from 'react'\n\n/** One topic as a row of a list. */\nexport function TopicRow() {\n  return <li />\n}\n\nexport default memo(TopicRow)\n",
+      'src/rows.tsx': "import { memo } from 'react'\n\nfunction HiddenRow() {\n  return <li />\n}\n\n/** A row handed out only as its file's default, wrapped in memo. */\nexport default memo(HiddenRow)\n",
+      'src/Pair.tsx': "import { useState } from 'react'\n\n/** The first of two parts, described right above itself. */\nexport function First() {\n  const [a] = useState(0)\n  return <i>{a}</i>\n}\n\n/** The second of two parts, described right above itself. */\nexport function Second() {\n  return <b />\n}\n",
       'src/Slots.tsx': "/** A header nothing draws. */\nexport function Header() {\n  return <header />\n}\n\nexport interface Slots {\n  Header: string\n}\n\nexport class Frame {\n  Header = 1\n}\n",
       // Peek's SlashMenu: naming itself for React's tools is not a use of itself.
       'src/Menu.tsx': "import { forwardRef } from 'react'\n\n/** The menu a slash opens while typing. */\nexport const SlashMenu = forwardRef<HTMLDivElement>((_, ref) => <div ref={ref} />)\nSlashMenu.displayName = 'SlashMenu'\n",
@@ -322,6 +327,21 @@ describe('what the first descriptions found', () => {
   it("a property of a type or a class that shares a part's name is not a use of it", () => {
     expect(one('Header')?.app).toMatchObject({ class: 'unused', usedIn: [] })
     expect(faults.entries.some((entry) => entry.name === 'Frame')).toBe(false)
+  })
+
+  // Found by the second review.
+  it('`export default memo(TopicRow)` beside `export function TopicRow` is one part, and a default import uses it', () => {
+    expect(faults.entries.filter((entry) => entry.name === 'TopicRow')).toHaveLength(1)
+    expect(one('TopicRow')?.app?.usedIn).toEqual(['src/Loader.tsx'])
+  })
+
+  it('a default that only wraps a local part is that part, with the comment on the export', () => {
+    expect(one('HiddenRow')).toMatchObject({ purpose: "A row handed out only as its file's default, wrapped in memo.", sourceFile: 'src/rows.tsx' })
+    expect(one('HiddenRow')?.app?.usedIn).toEqual(['src/Loader.tsx'])
+  })
+
+  it("the first of several parts keeps the comment written right above it", () => {
+    expect(one('First')).toMatchObject({ purpose: 'The first of two parts, described right above itself.', purposeFrom: 'comment' })
   })
 
   // Found by the second counter.
