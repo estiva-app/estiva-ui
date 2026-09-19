@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { IconButton } from './IconButton'
-import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolbar'
+import { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator } from './Toolbar'
 import { Menu, MenuItem } from './Menu'
 import { Popover } from './Popover'
 
@@ -173,6 +173,29 @@ describe('Toolbar', () => {
     await user.keyboard('{ArrowLeft}')
     expect(document.activeElement).toBe(field)
     expect(field.selectionStart).toBe(2)
+  })
+})
+
+describe('a link in the strip (F3)', () => {
+  it('is a real link, in the walk with the buttons beside it', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button type="button">Before</button>
+        <Toolbar aria-label="Item actions">
+          <ToolbarButton aria-label="One">{dot}</ToolbarButton>
+          <ToolbarLink href="/somewhere" aria-label="Open" tooltip="Open">{dot}</ToolbarLink>
+        </Toolbar>
+      </>,
+    )
+    const link = screen.getByRole('link', { name: 'Open' })
+    expect(link.getAttribute('href')).toBe('/somewhere')
+    await user.click(screen.getByRole('button', { name: 'Before' }))
+    await user.tab()
+    expect(focused()).toBe('One')
+    await user.keyboard('{ArrowRight}')
+    expect(document.activeElement).toBe(link)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Open')
   })
 })
 
