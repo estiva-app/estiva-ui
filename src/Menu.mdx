@@ -140,8 +140,11 @@ Four surfaces used to claim menu items of nothing.
 
 A menu whose rows are `px-3` (tall picker rows) aligns its headings by passing
 `className="px-3"` to `MenuSection` — the heading row is `px-2` by default,
-matching the default rows. A `Divider` inside a menu needs nothing: the panel
-already runs it the width of the rows it separates.
+matching the default rows.
+
+**Between groups, a `MenuSeparator`**: the line, the width of the rows it
+separates, with its own 4px above and below. Not a `Divider`, whose room is
+its caller's.
 
 ## Props
 

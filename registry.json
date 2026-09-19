@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.24.1",
-    "exports": 84,
-    "typeExports": 94,
+    "packageVersion": "0.25.0",
+    "exports": 86,
+    "typeExports": 95,
     "files": null
   },
   "storybook": {
@@ -1681,6 +1681,49 @@
       "app": null
     },
     {
+      "name": "ErrorBoundary",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ErrorBoundary.tsx",
+      "purpose": "Keeps a crash inside what it holds: that part shows \"Something went wrong … Your data is safe — try again.\" with a Try again button, and the rest of the page keeps working.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "What it holds, said in the message and the console line: \"Something went wrong in the {label}.\""
+        },
+        {
+          "name": "fallbackClassName",
+          "takes": "text",
+          "required": false,
+          "note": "The room the message fills where no flex column holds it — the whole screen, for the app's own."
+        },
+        {
+          "name": "frame",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws the message inside a frame of yours, in the same place: `ListColumn` keeps its title this way."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "feedback-errorboundary--docs",
+      "storyId": "feedback-errorboundary--in-a-panel",
+      "docPage": "src/ErrorBoundary.mdx",
+      "app": null
+    },
+    {
       "name": "Field",
       "repo": "estiva-ui",
       "kind": "component",
@@ -2429,12 +2472,6 @@
           "note": "A row between the header and the list that stays put while the list scrolls — a field that adds to the list."
         },
         {
-          "name": "spacing",
-          "takes": "rows | sections",
-          "required": false,
-          "note": "The room between rows. `rows` (2px) for a list of one kind of row; `sections` (4px) for groups with labels and dividers of their own."
-        },
-        {
           "name": "collapsed",
           "takes": "true/false",
           "required": false,
@@ -2444,7 +2481,7 @@
           "name": "children",
           "takes": "anything",
           "required": true,
-          "note": "The rows."
+          "note": "The rows, 2px apart. Groups are headed by a `CollapsibleSection` or a `SectionHeader`."
         },
         {
           "name": "className",
@@ -2453,15 +2490,7 @@
           "note": "Placement only."
         }
       ],
-      "variants": [
-        {
-          "prop": "spacing",
-          "values": [
-            "rows",
-            "sections"
-          ]
-        }
-      ],
+      "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -2757,6 +2786,24 @@
           "note": null
         }
       ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-menu--docs",
+      "storyId": "overlays-menu--items",
+      "docPage": null,
+      "app": null
+    },
+    {
+      "name": "MenuSeparator",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Menu.tsx",
+      "purpose": "The line between two groups of a menu, with its own 4px above and below (UIG-14, Katerina 19 September).",
+      "purposeFrom": "comment",
+      "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",

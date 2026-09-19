@@ -16,9 +16,9 @@ The list column of a page: 290px wide with a line on its right, its name in a
   Nothing around it sets its width, and nothing squeezes it.
 - A page that lists things beside the one that is open: the list on the left,
   the chosen thing to its right.
-- `spacing="rows"` (the default, 2px between rows) for a list of one kind of
-  row. `spacing="sections"` (4px) for groups with labels and dividers of their
-  own.
+- Its rows sit 2px apart, one kind of row or groups alike. A group that folds
+  is a **CollapsibleSection**; a group that does not is a **SectionHeader**
+  over its rows. Never a heading row drawn by hand.
 - `above` for a row that stays put while the list scrolls: a field that adds
   to the list.
 - `collapsed` closes it with the rail: it narrows to nothing and fades, in
@@ -71,6 +71,13 @@ import { ListColumn, Toolbar, ToolbarButton } from '@estiva-app/ui'
 
 <Canvas of={ListColumnStories.ManyRows} />
 
+- **A crash stays inside it.** If its rows, its actions or the row above
+  break, it keeps its title and shows "Something went wrong in the list
+  panel… try again" in the middle of the room the list had. The rest of the page keeps working.
+  It is **ErrorBoundary**'s, held by the column itself.
+
+<Canvas of={ListColumnStories.WhenARowBreaks} />
+
 ## What it owns
 
 It does these by itself. Write none of them around it.
@@ -81,6 +88,7 @@ It does these by itself. Write none of them around it.
 | Scrolls its rows in a ScrollArea, 16px under the header, 12px in from each side | `overflow-auto`, or padding of your own around the rows |  |
 | Closes with the rail when `collapsed`: narrows to nothing and fades | a width transition of your own |  |
 | Keeps its 290px beside a main area that grows | `shrink-0` |  |
+| Keeps a crash inside itself: its title stays, the message and Try again sit in the middle of the room the list had | an error boundary of your own around it |  |
 
 ## Props
 

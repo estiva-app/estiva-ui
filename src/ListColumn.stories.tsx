@@ -2,11 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSortDescending, IconSquareRounded } from '@tabler/icons-react'
 import { useState } from 'react'
 import { Button } from './Button'
+import { CollapsibleSection } from './CollapsibleSection'
 import { Divider } from './Divider'
 import { Form } from './Form'
 import { ListColumn } from './ListColumn'
 import { NavItem } from './NavItem'
-import { SectionLabel } from './SectionLabel'
+import { SectionHeader } from './SectionHeader'
 import { SkeletonList } from './Skeleton'
 import { TextInput } from './TextInput'
 import { Toolbar, ToolbarButton } from './Toolbar'
@@ -58,19 +59,24 @@ export const Default: Story = {
   render: (args) => <ListColumn {...args}>{rows(6)}</ListColumn>,
 }
 
-/** Groups with labels and a divider of their own: 4px between rows. */
+/**
+ * Groups. Each is headed by a package part, never by a row drawn by hand: a
+ * group that folds is a `CollapsibleSection`; a group that does not fold is a
+ * `SectionHeader` over its rows.
+ */
 export const Sections: Story = {
-  args: { title: 'Items', spacing: 'sections' },
+  args: { title: 'Items' },
   render: (args) => (
     <ListColumn {...args}>
-      <div className="flex h-8 shrink-0 items-center px-2">
-        <SectionLabel>Group one</SectionLabel>
-      </div>
-      {rows(3)}
+      <CollapsibleSection title="Group one" contentClassName="mt-1 gap-0.5">
+        {rows(3)}
+      </CollapsibleSection>
       <Divider className="my-2" />
-      <div className="flex h-8 shrink-0 items-center px-2">
-        <SectionLabel>Group two</SectionLabel>
-      </div>
+      <SectionHeader
+        title="Group two"
+        hover="none"
+        actions={[{ icon: <IconSortDescending size={16} stroke={1.5} />, tooltip: 'Sort by', onClick: () => {} }]}
+      />
       {rows(4)}
     </ListColumn>
   ),
@@ -111,6 +117,24 @@ export const Loading: Story = {
   render: (args) => (
     <ListColumn {...args}>
       <SkeletonList rows={8} />
+    </ListColumn>
+  ),
+}
+
+function Broken(): never {
+  throw new Error('A row could not draw itself')
+}
+
+/**
+ * When a row breaks: the column keeps its title and says so in the middle of
+ * the room the list had, with Try again. The rest of the page keeps working.
+ */
+export const WhenARowBreaks: Story = {
+  args: { title: 'Items', actions },
+  render: (args) => (
+    <ListColumn {...args}>
+      {rows(2)}
+      <Broken />
     </ListColumn>
   ),
 }

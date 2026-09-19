@@ -15,13 +15,15 @@ how).
 ## When
 
 - **It is a bare label**: the row it sits in, and the room around it, are yours.
-- Titling a group of rows in a sidebar, a panel, a rail.
+- A label inside a row of another shape: a dialog's section, a panel's
+  title, a card's line.
 - Inside a menu it arrives via **MenuSection** — don't place it there by
   hand.
 
 ## When not
 
-- A heading that also collapses or carries actions → **SectionHeader**.
+- A heading over a group of rows → **SectionHeader**, even with nothing to
+  act on; a group that folds → **CollapsibleSection**.
 - The label above a stacked control → **Property** `stacked` — a field
   label is a different voice, at a different size, on purpose.
 - Page-level headings → the `h*` type tokens.
