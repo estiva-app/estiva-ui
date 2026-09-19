@@ -65,7 +65,7 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       aria-haspopup="menu"
       aria-expanded={open}
       className={cn(
-        'flex h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
+        'flex h-8 min-h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
         open && 'bg-bg-hover',
         // Under a `Menu` the open state is Base UI's, not a prop: the trigger
         // carries `data-popup-open` while its menu is up, and sets its own

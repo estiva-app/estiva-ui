@@ -27,7 +27,7 @@ line, one of four tones, gone when there is nothing to say.
 - Something that floats over the page and must **not** fade → still
   **Toast**, with `durationMs: 0` and an action. A banner is the strip
   under the header at the app's full width; a floating pill is not one, even
-  a permanent one (Katerina, D21).
+  a permanent one.
 - A standing property of one thing → **Chip** on that thing.
 - More than one action, or a second line of text — that is a different
   component (not in the package yet).
@@ -45,9 +45,8 @@ import { Banner } from '@estiva-app/ui'
 - One line of text, `body-2`. If it needs a **second line**, it has outgrown
   this component.
 - `icon` puts a 16px icon before the line and `action` one small muted Button
-  at the end of it, both in the tone (Katerina, 2026-09-18: Peek's strip above
-  the composer became a Banner, `info`). With either, the banner is one line
-  and the text truncates. One action at most.
+  at the end of it, both in the tone. With either, the banner is one line and
+  the text truncates. One action at most.
 
 <Canvas of={BannerStories.WithIconAndAction} />
 
@@ -57,7 +56,7 @@ import { Banner } from '@estiva-app/ui'
 </Banner>
 ```
 
-- `onDismiss` adds an ✕ at the right-hand end (Katerina, D21). Use it where
+- `onDismiss` adds an ✕ at the right-hand end. Use it where
   the reader decides the notice is done with, rather than the app. The row
   is 40px rather than 36px with it, because the button is taller than the
   line of text; without it, nothing about the strip changes.

@@ -74,6 +74,18 @@ describe('Select', () => {
     expect((await screen.findByRole('tooltip')).textContent).toBe('Read only: you are a guest')
   })
 
+  // F2: as on Button, a reason wins over plain `disabled` — or the reason is never seen.
+  it('disabled with a reason: the reason wins', async () => {
+    const user = userEvent.setup()
+    render(<Select value="todo" onChange={vi.fn()} options={STATUSES} ariaLabel="Status" disabled disabledReason="Read only: you are a guest" />)
+    const trigger = screen.getByRole('combobox', { name: 'Status' })
+    expect(trigger.getAttribute('aria-disabled')).toBe('true')
+    expect(trigger.hasAttribute('disabled')).toBe(false)
+    await user.tab()
+    expect(document.activeElement).toBe(trigger)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Read only: you are a guest')
+  })
+
   it('shows the placeholder when nothing matches', () => {
     render(<Controlled initial="" placeholder="Choose" />)
     expect(screen.getByRole('combobox', { name: 'Status' }).textContent).toContain('Choose')

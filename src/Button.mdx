@@ -6,7 +6,7 @@ import * as ButtonStories from './Button.stories'
 # Button
 
 The push-button for an action: a verb, clicked once — "Create", "Save",
-"Delete project". Four variants on one geometry: 32px default / 24px small,
+"Delete". Four variants on one geometry: 32px default / 24px small,
 6px radius, medium weight.
 
 <Canvas of={ButtonStories.AllVariants} />
@@ -67,7 +67,7 @@ import { IconPlus } from '@tabler/icons-react'
   has the same look.
 - **Placed from outside, never restyled.** `className` takes space, size,
   flex and grid, and position; a colour, a text size, a border, a corner or a
-  shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9).
+  shadow is refused by the lint (`estiva/no-restyled-part`).
 
 ## What it owns
 
@@ -78,6 +78,7 @@ It does these by itself. Write none of them around it.
 | Says what it is to assistive technology: a button | `role="button"` | ✓ |
 | Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
 | Presses on Enter and Space, and does nothing while disabled | a key handler |  |
+| Keeps its 32px (24px small) in a scrolling column | `shrink-0` |  |
 
 ## Keys
 

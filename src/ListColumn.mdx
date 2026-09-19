@@ -1,0 +1,87 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ListColumnStories from './ListColumn.stories'
+
+<Meta of={ListColumnStories} />
+
+# ListColumn
+
+The list column of a page: 290px wide with a line on its right, its name in a
+`ContainerHeader`, and the list under it, which scrolls.
+
+<Canvas of={ListColumnStories.Default} />
+
+## When
+
+- **Its size is its own**: 290px wide and the full height of where it sits.
+  Nothing around it sets its width, and nothing squeezes it.
+- A page that lists things beside the one that is open: the list on the left,
+  the chosen thing to its right.
+- `spacing="rows"` (the default, 2px between rows) for a list of one kind of
+  row. `spacing="sections"` (4px) for groups with labels and dividers of their
+  own.
+- `above` for a row that stays put while the list scrolls: a field that adds
+  to the list.
+- `collapsed` closes it with the rail: it narrows to nothing and fades, in
+  300ms. What opens and closes the rail is yours.
+
+<Canvas of={ListColumnStories.Sections} />
+
+<Canvas of={ListColumnStories.WithARowAbove} />
+
+## When not
+
+- The app's own places, as the frame's column → **Sidebar**, in AppShell's
+  solid frame.
+- A short list inside a panel or a card → your rows in a **ScrollArea**.
+- A bar over something that is not a list → **ContainerHeader** on its own.
+
+## How
+
+```tsx
+import { ListColumn, Toolbar, ToolbarButton } from '@estiva-app/ui'
+
+<ListColumn
+  title="Items"
+  actions={
+    <Toolbar aria-label="Item list actions" surface={false}>
+      <ToolbarButton tooltip="New item" aria-label="New item" onClick={create}>
+        <IconEdit size={16} stroke={1.5} />
+      </ToolbarButton>
+    </Toolbar>
+  }
+  collapsed={railClosed}
+>
+  {items.map((item) => (
+    <ItemRow key={item.id} item={item} />
+  ))}
+</ListColumn>
+```
+
+- It sits beside the page's main area, inside AppShell's card: put both in a
+  flex row, the main area `flex-1`.
+- The numbers: 290px wide, a 1px line on the right. The header is
+  ContainerHeader's: 48px, the title 20px in. The list starts 16px under the
+  header and ends 12px above the bottom, and its rows sit 12px in from each
+  side.
+- The rows are yours. It scrolls them, so a list that grows with its data is
+  never cut off at the fold, even when today's data fits.
+- **Planned:** dragging its edge to resize it, with `SplitLayout` in
+  `@estiva-app/ui/layout` (migration stage 8). The 380px column beside a
+  conversation gets the same treatment then.
+
+<Canvas of={ListColumnStories.ManyRows} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws the column: 290px, a line on its right, and a ContainerHeader on top | a width, a border and a header row of your own |  |
+| Scrolls its rows in a ScrollArea, 16px under the header, 12px in from each side | `overflow-auto`, or padding of your own around the rows |  |
+| Closes with the rail when `collapsed`: narrows to nothing and fades | a width transition of your own |  |
+| Keeps its 290px beside a main area that grows | `shrink-0` |  |
+
+## Props
+
+<Controls of={ListColumnStories.Default} />

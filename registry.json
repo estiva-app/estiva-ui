@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.24.0",
-    "exports": 82,
-    "typeExports": 92,
+    "packageVersion": "0.24.1",
+    "exports": 84,
+    "typeExports": 94,
     "files": null
   },
   "storybook": {
@@ -397,7 +397,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/Button.tsx",
-      "purpose": "The push-button for an action: a verb, clicked once — \"Create\", \"Save\", \"Delete project\".",
+      "purpose": "The push-button for an action: a verb, clicked once — \"Create\", \"Save\", \"Delete\".",
       "purposeFrom": "page",
       "props": [
         {
@@ -2396,6 +2396,81 @@
       "app": null
     },
     {
+      "name": "ListColumn",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ListColumn.tsx",
+      "purpose": "The list column of a page: 290px wide with a line on its right, its name in a `ContainerHeader`, and the list under it, which scrolls.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": true,
+          "note": "The column's name, in its header. A node for a title that is more than words."
+        },
+        {
+          "name": "chevron",
+          "takes": "true/false",
+          "required": false,
+          "note": "A chevron after the title, as `ContainerHeader` draws it."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "The column's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`."
+        },
+        {
+          "name": "above",
+          "takes": "anything",
+          "required": false,
+          "note": "A row between the header and the list that stays put while the list scrolls — a field that adds to the list."
+        },
+        {
+          "name": "spacing",
+          "takes": "rows | sections",
+          "required": false,
+          "note": "The room between rows. `rows` (2px) for a list of one kind of row; `sections` (4px) for groups with labels and dividers of their own."
+        },
+        {
+          "name": "collapsed",
+          "takes": "true/false",
+          "required": false,
+          "note": "Closes the column with the rail: it narrows to nothing and fades."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The rows."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "spacing",
+          "values": [
+            "rows",
+            "sections"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "layout-listcolumn--docs",
+      "storyId": "layout-listcolumn--default",
+      "docPage": "src/ListColumn.mdx",
+      "app": null
+    },
+    {
       "name": "Menu",
       "repo": "estiva-ui",
       "kind": "component",
@@ -4372,6 +4447,91 @@
           "values": [
             "default",
             "small"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-toolbar--docs",
+      "storyId": "primitives-toolbar--default",
+      "docPage": null,
+      "app": null
+    },
+    {
+      "name": "ToolbarLink",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Toolbar.tsx",
+      "purpose": "An `IconButton` that is a link, and an item of a `Toolbar`: the arrow keys reach it like the buttons beside it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "ref",
+          "takes": "Ref<HTMLAnchorElement>",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "variant",
+          "takes": "muted | outlined | primary | current | resolve",
+          "required": false,
+          "note": "`current` takes the colour of what it sits in — the ✕ on a `Banner` wears the banner's tone."
+        },
+        {
+          "name": "glow",
+          "takes": "true/false",
+          "required": false,
+          "note": "A glow in Signal — the send arrow while there is something to send."
+        },
+        {
+          "name": "tooltip",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tooltipShortcut",
+          "takes": "text",
+          "required": false,
+          "note": "A key hint drawn as the `Kbd` chip inside the tooltip — for a button whose only other affordance is a keyboard shortcut."
+        },
+        {
+          "name": "tooltipPlacement",
+          "takes": "top | bottom",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The icon: 16px, stroke 1.5."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "muted",
+            "outlined",
+            "primary",
+            "current",
+            "resolve"
+          ]
+        },
+        {
+          "prop": "tooltipPlacement",
+          "values": [
+            "top",
+            "bottom"
           ]
         }
       ],

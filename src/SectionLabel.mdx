@@ -14,6 +14,7 @@ how).
 
 ## When
 
+- **It is a bare label**: the row it sits in, and the room around it, are yours.
 - Titling a group of rows in a sidebar, a panel, a rail.
 - Inside a menu it arrives via **MenuSection** — don't place it there by
   hand.
@@ -35,8 +36,11 @@ import { SectionLabel } from '@estiva-app/ui'
 
 It is a bare span: the caller owns the row it sits in and the spacing
 around it. Read it `tone="secondary"` where it labels rather than leads — menu
-headings and the command palette's groups do (Katerina, 2026-09-01). A colour
-passed in `className` is refused by the lint (UIG-9).
+headings and the command palette's groups do. A colour
+passed in `className` is refused by the lint.
+
+- Import it — never copy its classes. A copied class list drifts the first time
+  the label changes.
 
 ## What it owns
 

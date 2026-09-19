@@ -44,6 +44,8 @@ const all = [
   { ref: "UIG-30", owner: "estiva-ui", parts: PEEK_SHIP, title: "RichText — one component that draws a message's text, for both apps" },
   { ref: "UIG-31", owner: "estiva-ui", parts: ["peek"], title: "Editor menus — one shared part for the / @ [ menus" },
   { ref: "UIG-32", owner: "estiva-ui", parts: PEEK_SHIP, title: "Peek and Ship take their gate pieces from the package" },
+  { ref: "UIG-33", owner: "estiva-ui", title: "Link — a whole row that is one link" },
+  { ref: "UIG-34", owner: "estiva-ui", title: "A tree part — Peek's file tree and folder list" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -252,9 +254,30 @@ export default function define(h) {
     ] },
     { ref: "UIG-15", owner: true, checks: [
       { what: "EmptyState's page keeps the contract (folded into UIG-14)", run: () => h.exists("src/EmptyState.mdx") && contract("src/EmptyState.mdx") ? h.PASS("src/EmptyState.mdx keeps it") : h.FAIL("src/EmptyState.mdx does not keep it yet") },
+      // The ticket's own test: each of the eight Folders mistakes, walked one by one in the record.
+      { what: "the record walks the eight Folders mistakes, one by one", run: () => {
+        const g = h.read("docs/GATES.md");
+        const missing = [1, 2, 3, 4, 5, 6, 7, 8].filter((n) => !new RegExp(`^\\| D${n} \\|`, "m").test(g));
+        return missing.length ? h.FAIL(`docs/GATES.md lacks ${missing.map((n) => `D${n}`).join(", ")}`) : h.PASS("docs/GATES.md walks D1 to D8");
+      } },
+      // "Where a number is the contract, the page says the number": the ticket's example part.
+      { what: "ContainerHeader's page states its numbers", run: () => {
+        const t = h.read("src/ContainerHeader.mdx");
+        const missing = ["48px", "20px in", "16px from the right"].filter((n) => !t.includes(n));
+        return missing.length ? h.FAIL(`src/ContainerHeader.mdx does not say ${missing.join(", ")}`) : h.PASS("src/ContainerHeader.mdx says 48px, 20px in, 16px from the right");
+      } },
     ] },
     { ref: "UIG-16", owner: true, checks: [
       { what: "every component page keeps the contract (folded into UIG-14)", run: () => h.share(pages(), contract, "pages with an opening line, When, When not, How with code, What it owns") },
+      // The reconciliation table: every page there is, today and the next one, has its row.
+      { what: "table R in the record lists every page", run: () => {
+        const g = h.read("docs/GATES.md").replace(/\r\n/g, "\n");
+        const at = g.indexOf("#### Table R");
+        const table = at < 0 ? "" : g.slice(at).split("\n\n").find((block) => block.startsWith("|")) ?? "";
+        const missing = pages().map((f) => f.slice(4, -4)).filter((name) => !table.includes(`| \`${name}\` |`));
+        return missing.length ? h.FAIL(`table R lacks ${missing.join(", ")}`) : h.PASS(`table R lists all ${pages().length} pages`);
+      } },
+      { what: "the record holds the decision on exports that are not parts", run: () => h.contains("docs/GATES.md", /Exports that are not parts/, "docs/GATES.md states the rule") },
     ] },
     { ref: "UIG-19", owner: true, checks: [
       { what: "the usage-page contract runs in CI", run: () => h.ci(/[\w:-]*contract[\w:-]*/) },
@@ -299,6 +322,13 @@ export default function define(h) {
     // A first guess, from the ticket's text (much later: Katerina, 16 September).
     { ref: "UIG-31", owner: true, checks: [
       { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
+    ] },
+    // First guesses, from the tickets' text (UIG-14 findings C10 and L; Katerina, 19 September).
+    { ref: "UIG-33", owner: true, checks: [
+      { what: "the package draws a whole row as one link", run: () => /\brow\?:/.test(h.read("src/Link.tsx")) || /\b(RowLink|LinkRow)\b/.test(h.read("src/index.ts")) ? h.PASS("Link takes row, or a row part is exported") : h.FAIL("no whole-row link in the package yet") },
+    ] },
+    { ref: "UIG-34", owner: true, checks: [
+      { what: "a tree part is in the package", run: () => h.contains("src/index.ts", /\bTree\b/, "src/index.ts exports Tree") },
     ] },
     // Set by UIG-10, 17 September (GATES.md §23); widened by UIG-32, which moved both apps. Peek and
     // Ship are read from their checkouts: every piece the package ships, imported, and no copy left.

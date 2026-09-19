@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconArrowBackUp, IconArrowForwardUp, IconBold, IconItalic, IconLink, IconSquareRounded, IconUnderline } from '@tabler/icons-react'
+import { IconArrowBackUp, IconArrowForwardUp, IconArrowUpRight, IconBold, IconItalic, IconLink, IconSquareRounded, IconUnderline } from '@tabler/icons-react'
 import { useState } from 'react'
 import { IconButton } from './IconButton'
 import { Popover } from './Popover'
-import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolbar'
+import { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator } from './Toolbar'
 
 /**
  * A strip of controls that behaves as **one** control: Tab in, arrow keys
@@ -96,6 +96,23 @@ export const WithADisabledControl: Story = {
       <ToolbarButton aria-label="Item one" tooltip="Item one">{icon}</ToolbarButton>
       <ToolbarButton aria-label="Item two" disabledReason="Available once there is a selection">{icon}</ToolbarButton>
       <ToolbarButton aria-label="Item three" tooltip="Item three">{icon}</ToolbarButton>
+    </Toolbar>
+  ),
+}
+
+/**
+ * A control that goes somewhere, beside controls that do something. The link
+ * has the buttons' look and joins the same walk; it has a real address, so a
+ * Ctrl+click opens a new tab.
+ */
+export const WithALink: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Toolbar aria-label="Item actions" surface={false}>
+      <ToolbarButton aria-label="Item one" tooltip="Item one">{icon}</ToolbarButton>
+      <ToolbarLink href="#item" aria-label="Open the item" tooltip="Open">
+        <IconArrowUpRight size={16} stroke={1.5} />
+      </ToolbarLink>
     </Toolbar>
   ),
 }

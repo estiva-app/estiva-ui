@@ -55,8 +55,7 @@ import { Select } from '@estiva-app/ui'
 - **The list hangs under the trigger**, 4px below it, and flips above when
   the room below is worse. Base UI would rather lay it *over* the trigger
   with the chosen option covering the trigger's own text, the way macOS
-  does; that is off (Katerina, D24) because every Select in both apps opens
-  below one today.
+  does; that is off, so every Select opens below its trigger.
 - It caps at 288px, or at the room the screen actually has, whichever is
   smaller — and scrolls inside that. Measured in a bottom-right corner:
   the list flips above the trigger, slides left to stay on screen, and
@@ -64,6 +63,7 @@ import { Select } from '@estiva-app/ui'
 - **`disabledReason="Read only"`** holds it shut and keeps it reachable by Tab,
   showing the reason on hover and on keyboard focus — as `Button` does. Plain
   `disabled` is a native disabled control: Tab skips it, so it cannot say why.
+  Given both, the reason wins, as on `Button`.
 - **The trigger is a `combobox`, not a `button`.** That is the ARIA pattern
   for this control and Base UI's doing; a test looking for it by role has
   to ask for `combobox`.
@@ -81,6 +81,7 @@ It does these by itself. Write none of them around it.
 | Moves through its items with the arrow keys, and jumps to an option by its first letters | an arrow-key handler | ✓ |
 | Says what it is to assistive technology: a list of options | `role="listbox"` or `role="option"` | ✓ |
 | Keeps the highlighted option in view, and gives focus back to the trigger | scroll or focus code |  |
+| Keeps its height in a scrolling column | `shrink-0` |  |
 
 ## Keys
 

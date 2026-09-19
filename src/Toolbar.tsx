@@ -130,6 +130,28 @@ export function ToolbarButton({ ref, disabled, disabledReason, ...props }: Toolb
 }
 
 /**
+ * A link in the strip: the strip's own look, and it goes somewhere. It has a
+ * real address, so a Ctrl+click or a middle click opens a new tab, which a
+ * button that navigates cannot do.
+ *
+ * It is `IconButton`'s `href` joined to the toolbar's walk: Base UI's
+ * `Toolbar.Link`. A `ToolbarButton` cannot be a link — Base UI expects a real
+ * button there and warns when it gets an anchor (UIG-14, finding F3).
+ *
+ * A link is never disabled: a place you cannot go is left out of the strip.
+ */
+export interface ToolbarLinkProps extends Omit<IconButtonProps, 'href' | 'disabled' | 'disabledReason' | 'pressed' | 'type' | 'ref'> {
+  href: string
+  ref?: Ref<HTMLAnchorElement>
+}
+
+/** An `IconButton` that is a link, and an item of a `Toolbar`: the arrow keys
+ *  reach it like the buttons beside it. */
+export function ToolbarLink({ ref, href, ...props }: ToolbarLinkProps) {
+  return <BaseToolbar.Link ref={ref} render={<IconButton href={href} {...props} />} />
+}
+
+/**
  * A text field inside the strip — the link editor in a selection toolbar.
  *
  * The arrow keys belong to the field while it has focus, which is the whole

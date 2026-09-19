@@ -52,7 +52,8 @@ import { WithTooltip } from '@estiva-app/ui'
   `wrapperClassName="min-w-0 shrink"`.
 - **`inline`** for a trigger inside a line of text — a reference, a name in a
   sentence: the wrapper is a `<span>`, because a `<div>` is not allowed inside
-  a paragraph.
+  a paragraph. It sits at the top of the line by itself, so the line keeps its
+  height; add no wrapper of your own around it.
 - A label longer than 320px wraps onto more lines rather than running off the
   screen; a short one stays one line at 30px.
 - **`Button` and `IconButton` need no wrapper**: pass `tooltip` (or

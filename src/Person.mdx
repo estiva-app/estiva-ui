@@ -12,6 +12,7 @@ and name is one rule, 8px, wherever a person appears.
 
 ## When
 
+- **The name takes the size of the text around it**; `size` sets the face.
 - A person named inline: an assignee, an author, a participant, a value in
   a property row.
 - Someone with no published name shows the `fallback` — an em dash by
@@ -38,6 +39,8 @@ import { Person } from '@estiva-app/ui'
 - It sets no text size of its own; the words inherit the caller's, so face
   and words are always set together (the Sizes story shows the pairings).
 - The name truncates; give the container `min-w-0` room to let it.
+
+- **Planned:** a Byline part — face · name · time — in migration stage 7.
 
 ## What it owns
 

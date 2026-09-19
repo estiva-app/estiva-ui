@@ -45,17 +45,17 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 82 names over 54 files: 75 components, 6 helpers and 1 hook (ContainerHeader joined in UIG-13)', () => {
+  it('counts 84 names over 55 files: 77 components, 6 helpers and 1 hook (ListColumn and ToolbarLink joined in UIG-14)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 75, helper: 6, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(54)
+    expect(kinds).toEqual({ component: 77, helper: 6, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(55)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(54)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(28)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(55)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(29)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -278,7 +278,7 @@ describe('the ids point at something', () => {
 describe('a second parser agrees', async () => {
   const docgen = await import('react-docgen').catch(() => null)
 
-  it.skipIf(!docgen)('finds the same props on all 75 components', async () => {
+  it.skipIf(!docgen)('finds the same props on all 77 components', async () => {
     if (!docgen) return
     const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
     const byName = new Map(registry.entries.map((one) => [one.name, one]))
@@ -321,12 +321,14 @@ describe('a second parser agrees', async () => {
 const INHERITED_WITH_A_DEFAULT = new Set(['Button.type', 'IconButton.type', 'TextInput.type', 'SearchInput.placeholder'])
 
 /**
- * The twelve where **this registry is right and `react-docgen` is not**.
+ * The eighteen where **this registry is right and `react-docgen` is not**.
  *
  * `IdentityPanelProps extends Omit<IdentityMenuProps, 'compact'>` and
  * `PersonTriggerProps extends Omit<PersonProps, 'className'>`: docgen does not
  * follow a heritage clause wrapped in `Omit`, so it reports neither `me` nor
- * `signedIn`, which `IdentityPanel` *requires*. Checked against the source —
+ * `signedIn`, which `IdentityPanel` *requires*. `ToolbarLinkProps extends
+ * Omit<IconButtonProps, …>` (UIG-14, F3) is the same: docgen reports none of
+ * the IconButton props it keeps. Checked against the source —
  * `IdentityMenuProps` declares both, and `IdentityPanel` spreads `...rest`
  * straight into `IdentityRows`, which destructures them.
  *
@@ -346,6 +348,12 @@ const DOCGEN_STOPS_AT_OMIT = new Set([
   'PersonTrigger.picture',
   'PersonTrigger.fallback',
   'PersonTrigger.size',
+  'ToolbarLink.variant',
+  'ToolbarLink.glow',
+  'ToolbarLink.tooltip',
+  'ToolbarLink.tooltipShortcut',
+  'ToolbarLink.tooltipPlacement',
+  'ToolbarLink.children',
 ])
 
 describe('ui:find', () => {

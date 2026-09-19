@@ -39,7 +39,7 @@ import { IconPlus } from '@tabler/icons-react'
 ```
 
 - `chevron`, `isExpanded` and `onToggle` are CollapsibleSection's to set
-  (decided 2026-09-09: one component folds, and it is that one). With
+  (one component folds, and it is that one). With
   them, the title is a button that fills the row up to the actions — the
   whole row is the hit target, the keyboard can toggle it, and it says its
   state (`aria-expanded`).
@@ -57,6 +57,9 @@ import { IconPlus } from '@tabler/icons-react'
   actions are always shown (`showActions="always"`), where the buttons light up
   on their own. The default, `fill`, lights a row that toggles or has actions.
 
+- The row is 32px tall, 8px in on each side, 4px between the title and the
+  actions, with 8px corners.
+
 ## What it owns
 
 It does these by itself. Write none of them around it.
@@ -65,6 +68,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | With `chevron`, its title is a button that calls `onToggle` on a click, Enter or Space, and says whether it is open | a button of your own, or `aria-expanded` |  |
 | Shows its actions while one of them has focus | a focus style of your own |  |
+| Keeps its 32px in a scrolling column | `shrink-0` |  |
 
 ## Keys
 

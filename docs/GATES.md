@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**19 September 2026. UIG-14, with UIG-15 and UIG-16, is built: 0.24.0 is released and in both apps, and 0.24.1 finishes the three tickets (PR open, not merged).** Peek PR #263 and Ship PR #164 took 0.24.0 and every app fix Katerina ruled on, merged and deployed. Two more rounds on the review page — every point of UIG-15 and UIG-16, then the three tickets read again against the code — gave 28 more cards; she ruled on all of them. 0.24.1 carries them: F1–F3, seven parts that keep their height in a scrolling column, RailItem at a set 48px, a new part `ListColumn` (Peek's list column, moved in), and the page words: no app names, no credits, the numbers, the planned lines. Two new tickets: UIG-33 (a whole row that is one link) and UIG-34 (a tree part). **UIG-14: building it**, below.
+
 **18 September 2026, late night. UIG-14 is being built, with UIG-15 and UIG-16 folded into it (Katerina): all 55 component pages keep one contract, and every fix it found in Peek and Ship is made in it.** Every page already had its opening line, When, When not and How; the new section is What it owns, read back against the checker by a test. Katerina ruled on 88 findings from a page of photos; the pages carry her lines. Three PRs: estiva-ui (branch `gates/14-usage-rules`), Peek and Ship (their own branches). None merged. **UIG-14: building it**, below.
 
 **18 September 2026, late night. UIG-13 is done: released as 0.23.0 and taken by both apps.** estiva-ui PR #67 (merge `d480b3c`), tagged `v0.23.0` and published by the release job (run 35370213014); npm's latest is 0.23.0, and it carries UIG-10's relay work and PR #66 too. Peek PR #259 (merge `e962b96`) and Ship PR #163 (merge `427f558`) took it, merged and deployed. Katerina ruled on every one of the 21 parts the count offered, from photos and Storybook, and added four pieces of work to the ticket, all in this release: **A** — `ContainerHeader` is a package part, and Peek's six screens use it; **B** — `EmptyState` takes a button (outlined, 16px icons), and Peek's three empty states with a button beside them use it; **C** — `Banner` takes an icon and a button, and Peek's composer strip is a Banner in the `info` tone; **D** — what Peek no longer needs is gone: its own ContainerHeader and composer strip, `HighlightsCard`, `SkeletonHuddleGrid`, `SkeletonHuddleCard` and the `PeekLogo` wordmark, with their stories. **The count on the merged code:** Peek **138 parts in 117 files** (6 more hold none): 20 handed on, 50 reusable, 67 one-off, 0 candidates, 1 unused (`PeekApp`, which runs the app in Storybook). Ship **91 in 73** (1 more holds none): 41, 12, 38, 0, 0. The package **82**. Every part is described, and `estiva-ui check` refuses one that is not in each app's `gate` job — on its first run it passed `DmVisibilityProvider`, which Peek's main added the same day for hiding a DM. `gates:status` on the merged code reads UIG-13 **14 of 14**, 16 tickets done. Next: UIG-14. See **UIG-13: building it**, below.
@@ -74,11 +76,13 @@ answer
 | ✅ **UIG-32** | estiva-ui PR #58 (0.21.1: `estiva-gates status --app`, a sibling read from its app's folder, and the shared check widened), peek PR #245 (967 lines out, 135 in) and ship PR #161 (957 out, 118 in). Every gate piece in both apps is one import now; Ship's checks file moved to `web/scripts/`, where the package resolves. Peek gained the debt list it never had. `gates:status` reads 13 of 13. See **UIG-32: building it**, below. |
 | ✅ **UIG-13** | estiva-ui PR #67 (merge `d480b3c`), released as **0.23.0** with UIG-10's relay work and PR #66; peek PR #259 and ship PR #163 took it, merged and deployed. The app's catalogue (`buildAppRegistry`, schema 2), `estiva-ui find` over the package and every app beside it, `estiva-ui check` in each app's job `gate`, and a made app wired the same. Katerina's A to D: `ContainerHeader` in the package; `EmptyState` and `Banner` with a button, used by Peek; six parts Peek no longer needs removed. Peek 138 parts, Ship 91, the package 82, each described and sorted. `gates:status` reads 14 of 14. See **UIG-13: building it**, below. |
 | ✅ **UIG-12** | estiva-ui PR #61 (merge `bbd4ecd`), released as **0.22.0** (PR #63); peek PR #251 and ship PR #162 took it, merged and deployed: `registry.json` (81 entries, **374 props**, schema 1), the builder and the schema in `src/registry/`, `estiva-ui find` as a bin of the package, and `registry:check` in CI. 81 names over 53 files = 74 components + 6 helpers + 1 hook; 53 take their line from their own page, 28 from the comment above them. Every docs and story id was checked against a real `storybook build`. `gates:status` reads 7 of 7. See **UIG-12: building it**, below. |
-| 🚧 **UIG-14** | With UIG-15 and UIG-16 (Katerina, 18 September). estiva-ui branch `gates/14-usage-rules`: What it owns on all 55 pages, `src/pages.test.ts` (the contract, 332 checks), her page lines, the checker's wording, `IconButton` `href`. Peek and Ship: the fixes she ruled on, in branches of their own. Not merged, not released. |
-| 🚧 **UIG-15** | Folded into UIG-14 (Katerina, 18 September); closes with it. |
-| 🚧 **UIG-16** | Folded into UIG-14 (Katerina, 18 September); closes with it. |
+| 🚧 **UIG-14** | With UIG-15 and UIG-16 (Katerina, 18 September). **0.24.0 released** (estiva-ui PR #69), taken by Peek PR #263 and Ship PR #164 with every app fix she ruled on, merged and deployed. **0.24.1** (branch `gates/14-round4`): rounds 4 and 5, `ListColumn`, the record — PR open, not merged. Then the apps take it, and the three close together. |
+| 🚧 **UIG-15** | Folded into UIG-14. Every point done in 0.24.1: the numbers on the frame pages, the parts sized by where they sit, the heights, the eight Folders mistakes walked one by one. Closes with UIG-14. |
+| 🚧 **UIG-16** | Folded into UIG-14. Table R (56 pages), the four numbers explained, the rule on exports that are not parts — all in 0.24.1's record. Closes with UIG-14. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
 | ⬜ **UIG-31** | New, 16 September: one shared part for the / @ !@ [ menus, which UIG-8 kept with reasons. "Much later" (Katerina): not before a second app needs an @ or / menu. Listed in estiva-ui's and Peek's `gates-checks.mjs`. |
+| ⬜ **UIG-33** | New, 19 September: a whole row that is one link (UIG-14, finding C10). |
+| ⬜ **UIG-34** | New, 19 September: a tree part on Base UI, for Peek's file tree and folder list (UIG-14, finding L). |
 
 ### What happened since UIG-2 closed
 
@@ -203,7 +207,7 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-32: estiva-ui PR #58 (0.21.1); peek PR #245 and ship PR #161 (**UIG-32: building it**, below) |
 | ✅ done | UIG-12: estiva-ui PR #61 and PR #63 (0.22.0); peek PR #251 and ship PR #162 — the catalogue, taken ahead of UIG-11 because three later tickets read it (**UIG-12: building it**, below). Phase 3 starts |
 | ✅ done | UIG-13: estiva-ui PR #67 (0.23.0, with UIG-10's relay work and PR #66); peek PR #259 and ship PR #163 — the apps' catalogues, and Katerina's A to D (**UIG-13: building it**, below) |
-| **now** | **UIG-14**, with UIG-15 and UIG-16 folded in (estiva-ui's usage rules, and the fixes they found in the apps; **UIG-14: building it**, below), then UIG-17 and UIG-18, which have their lists from UIG-13: Peek's 50 reusable parts, Ship's 12 (no candidates are left: Katerina ruled on all 21). **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
+| **now** | **UIG-14**, with UIG-15 and UIG-16 folded in (0.24.1 open, then the apps take it; **UIG-14: building it**, below), then UIG-17 and UIG-18, which have their lists from UIG-13: Peek's 50 reusable parts, Ship's 12 (no candidates are left: Katerina ruled on all 21). **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
 
@@ -222,7 +226,7 @@ UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the
 - The checker's behaviour "Closes on Escape, and takes its keys, by itself" is now "Takes its keys by itself": Tabs and Toolbar own it and do not close (card 0.1).
 - `IconButton` `href` (card 4.13): a plain anchor in the button's exact look, the button again while it cannot be used. Not Base UI's Button rendering an anchor, which adds `role="button"` to a link. **Needs a release (0.24.0) before Peek can use it.**
 
-**The findings.** Two read-only audits of every call site in Peek and Ship (at `ae0bf40` and `13b5ee0`), and the When not lines read as a map of which page names which: **88 cards**, 175 places, 113 photos from the three Storybooks. By her ruling: page lines changed or added, app fixes made here, a few left with their reason (already ruled, or already written down), and three kept for later tickets — the description edited in place is UIG-30's, the editor pop-ups UIG-31's, a picture opened full screen later. **Found late, not yet on the review page:** two tree rows in Peek (`FileTreeView`, `FolderContentsView`) write `aria-expanded` on an `IconButton` by hand — the item UIG-8 left for this ticket (§ "What is ready"). `aria-pressed` by hand is gone: Peek's text toolbar uses `pressed`.
+**The findings.** Two read-only audits of every call site in Peek and Ship (at `ae0bf40` and `13b5ee0`), and the When not lines read as a map of which page names which: **88 cards**, 175 places, 113 photos from the three Storybooks. By her ruling: page lines changed or added, app fixes made here, a few left with their reason (already ruled, or already written down), and three kept for later tickets — the description edited in place is UIG-30's, the editor pop-ups UIG-31's, a picture opened full screen later. **Found late** (on the review page as card 4.15, then L): two tree rows in Peek (`FileTreeView`, `FolderContentsView`) write `aria-expanded` on an `IconButton` by hand — the item UIG-8 left for this ticket (§ "What is ready"). Katerina: a tree part on Base UI, UIG-34. `aria-pressed` by hand is gone: Peek's text toolbar uses `pressed`.
 
 **Checks** (branch, 18 September): `src/pages.test.ts` 332 pass; unit tests pass; `gates:status` UIG-14 **2 of 2**, UIG-15 1 of 1, UIG-16 1 of 1 — the first-guess checks read a heading "What it is" that her template never had (the opening line is it) and are now the contract; each fails on 0.23.0's EmptyState page; lint 0 errors on the changed files; `registry:check` current (82 entries).
 
@@ -238,7 +242,210 @@ UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the
 - **PreviewCard** (her own find): its scrollbar sat 15px from the edge, behind the card's padding; the padding moved inside the scrolling box, as `Popover`'s did at 0.12.6 — the thumb is 3px from the edge (Finding 58), the card and its text unchanged.
 - **E, F, G, H, I, K, M** kept as built; **L** — the tree rows' `aria-expanded` waits for a tree part on Base UI, "soon" (Katerina). C5–C8 and C11 are app bug fixes in their PRs; C9, C10 stay; C12 is a method note (the photo counter misses changes of 8 levels or less, like the Signal dots: crop them).
 
-**Not done yet.** Release 0.24.0 (she agreed: "you can merge and release"); then Peek and Ship take it for 1.7/1.8, 9.3, 10.2, 4.13 and J, and their PRs merge; then UIG-14, UIG-15 and UIG-16 close together. The notes on the three Ship tickets are posted (byte-verified, 19 September).
+**Round 3, 19 September** (the review page's tab "Round 3"). **0.24.0 is released**: estiva-ui PR #69 (merge `e67d250`), tag `v0.24.0`, release run 35406427613. Peek PR #263 (merge `f074ca3`) and Ship PR #164 (merge `154f60d`) took it, with every app fix Katerina ruled on, one commit each: 1.7 and 1.8 (references in the package tooltip, inline and wrapping), 9.3 (Peek on the package's floating AppShell, its dots drawn by the preset), 10.2 ("Open work" on SectionHeader, `hover="none"`), 4.13 (two of Peek's three navigate-only icon buttons are IconButton `href`), J (Ship's locked selects on `disabledReason`), C5–C8, C11 and the round-1 fixes. Katerina merged both; both deployed. The fixes found three more, all in 0.24.1: **F1**, the inline tooltip wrapper carries `align-top` (both apps had wrapped it in a span of their own, because the checker refuses the class on the part); **F2**, a Select given both `disabled` and `disabledReason` shows the reason, as Button does; **F3**, a link in a Toolbar had no part: `ToolbarLink`, so Peek's "Open topic" can be one.
+
+**Round 4** (tab "UIG-15 & 16"): every point of the two folded tickets, one by one — 24 points — with cards for the ones left (N1–N9, S1, T1–T3, L1, P1, X1). **Round 5** (tab "What we missed"): the three tickets read again, line by line, against the released code; twelve more (M1–M12). Katerina ruled on every card of both rounds on 19 September.
+
+**What 0.24.1 carries** (branch `gates/14-round4`):
+- **F1, F2, F3**, each with a test.
+- **The heights (T1, M4, M6).** Measured in Chrome, four copies in a 72px scrolling column: SectionHeader 32 → 24px, a Skeleton row 32 → 18, Button 32 → 18, PersonTrigger 32 → 22, Reaction 24 → 18, small Select 24 → 18, small TextInput 24 → 18 (in a fuller column, lower still: SectionHeader 12, Skeleton row 16, Button 14). Rows that span their column now refuse to shrink (`shrink-0`: SectionHeader, SkeletonRow). Controls, which mostly sit in rows, keep a minimum height equal to their height instead (Button, small Select, small TextInput, PersonTrigger, Reaction): `shrink-0` would also stop a row from narrowing them. Already safe, measured the same way: ContainerHeader, NavItem, MenuItem, TopBar, RailItem, Divider, IconButton, Checkbox `row`, Kbd, the default TextInput and Select. RailItem is a set 48px (it was 48.3, from its content; M6 (b)). `src/heights.test.tsx` pins the classes; each page's What it owns says the part keeps its height.
+- **`ListColumn`** (N9: "in this PR, no new ticket"). Peek's list column, moved in as it looks: 290px, a hairline on its right, ContainerHeader on top, the list in a ScrollArea 16px under the header, 12px above the bottom, rows 12px in. `spacing`: `rows` (2px) or `sections` (4px) — Peek's five columns use both, the three of one kind of row 2px, Desk and People, which have sections, 4px. `above` for a row that stays while the list scrolls (the create field on the Folders page). `collapsed` closes it with the rail, as Peek's does: Katerina ruled that the part owns the width, the line and the collapse. The 380px column beside a conversation stays Peek's for now (Katerina: not now); its page says it is planned, with `SplitLayout`.
+- **The page words.** No app names (M1: 8 pages, and L1's own wording). No app things in the examples (M2). No credits: 24 lines lost "(Katerina, D21)", a date or "UIG-9", and kept their reason (M3 (a)). The numbers on the frame pages (N1–N8). The parts sized by where they sit say so first, in When (S1: EditableText, Link, Person, Card, SectionLabel). InlineChip is left out: it sets its own 14px (M5). EditableText's line says "on your element around it", not "in `className`" as the card had it: its own page, and the lint, refuse a size there. ScrollArea's lighter text (T2); what scrolls in the floating card (T3); import SectionLabel, never copy it (L1). Planned lines (P1, M7): Byline (Avatar, Person), Lightbox (AttachmentCard), a linked object's inside (Card), the editor menus (Menu, MenuItem, Popover: UIG-31), rich text in place (EditableText: UIG-30), `SplitLayout` (AppShell, ListColumn). X1's four names on their family's pages.
+- **The checks (M9).** `gates:status` UIG-15 also reads that this record walks the eight Folders mistakes and that ContainerHeader's page states its numbers; UIG-16, that table R lists every page and that the rule on exports is here. UIG-33 and UIG-34 are listed, with first guesses.
+
+#### The eight Folders mistakes, one by one (UIG-15)
+
+Katerina found them by opening the Folders page on 10 September; all eight were fixed by hand on 11 September. The ticket's question: reading the pages now, would each have been avoidable? Writing a page does not fix a page of the app, and a page stops a person, not a program — the last column says which a check will catch later. Peek has no story that draws the Folders page yet (Katerina, 19 September: not yet).
+
+| | What went wrong | The page line that stops it | A check later |
+|---|---|---|---|
+| D1 | The list column did not scroll: 81 folders cut off at the fold | ScrollArea, When: "a list that grows with its data counts, even when today's data fits"; AppShell, How: what scrolls in the floating card; and `ListColumn`, which scrolls its rows itself | the route probe (§ "What is ready": a box that should scroll and does not) |
+| D2 | "Create" clipped out of the 290px column | ContainerHeader, When: the column's actions are "IconButtons with tooltips" — words do not fit a narrow column | — |
+| D3 | 81 folders wearing a topic's status glyph | none can: the glyph is Peek's own part; its page is UIG-17's | — |
+| D4 | The file pane headed itself at 12px and 8px padding | ContainerHeader, When not: "A row you draw yourself at the top of a column … → this part", with its numbers | UIG-22, a hand-made header row |
+| D5 | The thread pane headed itself the same way | the same line | UIG-22 |
+| D6 | The folder name larger than every other pane title | EditableText, When: "It has no size of its own. Give it the size of the text it stands in for — a pane title's `text-body-2-strong`" | — |
+| D7 | A row's count floating at the card's top corner | none can: Peek's own row; its page is UIG-17's (Katerina ruled the count stays in the apps, 6.11) | — |
+| D8 | Four empty states in the wrong scope | EmptyState, When: "The page decides, not the size of the box." | UIG-23, a hand-made empty state |
+
+#### Table R: every page, its group, and a tick (UIG-16)
+
+UIG-14 + UIG-15 + UIG-16 = **56**. The tickets' "44" was the number of part files on 12 September (46 pages then); Katerina folded the three into one ticket over every page there is, and there are 56 today, every one below. The two ticks: the page keeps the contract (an opening line, When, When not, How with code, What it owns), and What it owns agrees with the checker. `src/pages.test.ts` holds both on every commit, and `gates:status` UIG-16 fails if a page is missing here.
+
+| | Page | Group | Contract | Owns | |
+|---|---|---|---|---|---|
+| 1 | `AppShell` | The frame | ✓ | ✓ |  |
+| 2 | `AttachmentCard` | Chips and cards | ✓ | ✓ |  |
+| 3 | `Avatar` | People | ✓ | ✓ |  |
+| 4 | `AvatarGroup` | People | ✓ | ✓ |  |
+| 5 | `Banner` | Dialogs and messages | ✓ | ✓ |  |
+| 6 | `Breadcrumb` | Getting around | ✓ | ✓ |  |
+| 7 | `Button` | Pressing | ✓ | ✓ |  |
+| 8 | `Card` | Chips and cards | ✓ | ✓ |  |
+| 9 | `Checkbox` | Choosing | ✓ | ✓ |  |
+| 10 | `Chip` | Chips and cards | ✓ | ✓ |  |
+| 11 | `ChipInput` | Choosing | ✓ | ✓ |  |
+| 12 | `CollapsibleSection` | Headings and rows | ✓ | ✓ |  |
+| 13 | `CommandPalette` | Dialogs and messages | ✓ | ✓ |  |
+| 14 | `ConfirmDialog` | Dialogs and messages | ✓ | ✓ |  |
+| 15 | `ContainerHeader` | Headings and rows | ✓ | ✓ | new in 0.23.0 (UIG-13) |
+| 16 | `DialogShell` | Dialogs and messages | ✓ | ✓ |  |
+| 17 | `Divider` | Headings and rows | ✓ | ✓ |  |
+| 18 | `EditableText` | Typing | ✓ | ✓ |  |
+| 19 | `EmptyState` | Loading and empty | ✓ | ✓ |  |
+| 20 | `Field` | Typing | ✓ | ✓ |  |
+| 21 | `FieldLine` | Typing | ✓ | ✓ | lives in Field's file |
+| 22 | `FilePicker` | Typing | ✓ | ✓ |  |
+| 23 | `Form` | Typing | ✓ | ✓ |  |
+| 24 | `IconButton` | Pressing | ✓ | ✓ |  |
+| 25 | `IdentityMenu` | Floating panels | ✓ | ✓ |  |
+| 26 | `InlineChip` | Chips and cards | ✓ | ✓ |  |
+| 27 | `Kbd` | Pressing | ✓ | ✓ |  |
+| 28 | `Link` | Pressing | ✓ | ✓ |  |
+| 29 | `ListColumn` | The frame | ✓ | ✓ | new in 0.24.1 (N9) |
+| 30 | `Menu` | Floating panels | ✓ | ✓ |  |
+| 31 | `MenuItem` | Floating panels | ✓ | ✓ | lives in Menu's file |
+| 32 | `NavItem` | Getting around | ✓ | ✓ |  |
+| 33 | `Person` | People | ✓ | ✓ |  |
+| 34 | `PersonTrigger` | People | ✓ | ✓ |  |
+| 35 | `Popover` | Floating panels | ✓ | ✓ |  |
+| 36 | `PreviewCard` | Floating panels | ✓ | ✓ |  |
+| 37 | `ProgressBar` | Loading and empty | ✓ | ✓ |  |
+| 38 | `Property` | Headings and rows | ✓ | ✓ |  |
+| 39 | `Rail` | Getting around | ✓ | ✓ |  |
+| 40 | `RailItem` | Getting around | ✓ | ✓ |  |
+| 41 | `Reaction` | Chips and cards | ✓ | ✓ |  |
+| 42 | `ReactionPicker` | Chips and cards | ✓ | ✓ |  |
+| 43 | `ScrollArea` | The frame | ✓ | ✓ |  |
+| 44 | `SearchInput` | Choosing | ✓ | ✓ |  |
+| 45 | `SectionHeader` | Headings and rows | ✓ | ✓ |  |
+| 46 | `SectionLabel` | Headings and rows | ✓ | ✓ |  |
+| 47 | `Select` | Choosing | ✓ | ✓ |  |
+| 48 | `Sidebar` | The frame | ✓ | ✓ |  |
+| 49 | `Skeleton` | Loading and empty | ✓ | ✓ | the page for SkeletonBar, SkeletonRow, SkeletonList |
+| 50 | `Tabs` | Getting around | ✓ | ✓ |  |
+| 51 | `TextInput` | Typing | ✓ | ✓ |  |
+| 52 | `Textarea` | Typing | ✓ | ✓ |  |
+| 53 | `Toast` | Dialogs and messages | ✓ | ✓ |  |
+| 54 | `Toolbar` | Pressing | ✓ | ✓ |  |
+| 55 | `Tooltip` | Floating panels | ✓ | ✓ |  |
+| 56 | `TopBar` | The frame | ✓ | ✓ |  |
+
+#### The numbers, then and now (UIG-16)
+
+| | 12 September (UIG-12's four) | 0.24.1 |
+|---|---|---|
+| export lines in `index.ts` | 45 | 55 |
+| value names in those lines | 65 | 84 |
+| part files (`.tsx`) | 44 | 54 |
+| pages (`.mdx`) | 46 | 56 |
+| story files | 46 | 56 |
+
+Measured from git: on 12 September `index.ts` had 45 export lines naming 65 values. The ticket's "45 exports" was the lines; the UIG-12 table below called it "value exports" and is corrected. Pages and stories are two more than part files, then and now: FieldLine lives in Field's file and MenuItem in Menu's, and each has its own page and stories. Export lines are one more than part files because `cn` is a helper in a `.ts` of its own.
+
+#### Exports that are not parts (UIG-16: X1 and M8)
+
+A part has a page. The pieces of a part's family — sub-parts, a provider, a hook, class names, helpers — are named on that part's page; since 0.24.1 all of them are. `cn` is explained on Getting started. The two the ticket names: **`fit`** was deleted in migration stage 5; **`triggerDisabled`** is used only inside the package, by Menu and Popover, and is not exported. Neither has a page. The package's other ways in — `/eslint`, `/gates`, `/registry` with `registry.json`, the Tailwind preset, `tokens.css`, `base.css` — are tools; the README and Getting started explain them. A type goes with its part: its page's Controls table shows it.
+
+#### Every finding, and where it ended (UIG-14)
+
+The review page has each one with its photo: https://claude.ai/artifact/LUhtwcfi5z5J6uhWhDQx9N. **89 cards** in round 1:
+
+| | Finding | Katerina | Where it ended |
+|---|---|---|---|
+| 1.1 | Tooltip sends "controls inside" to the wrong parts | ok → page line changed | as she ruled |
+| 1.2 | Tooltip never names PreviewCard | ok → line added | as she ruled |
+| 1.3 | Menu sends a strip of icons to IconButtons, not Toolbar | ok → line changed | as she ruled |
+| 1.4 | MenuItem's reason is out of date | ok → line changed | as she ruled |
+| 1.5 | Three pages disagree about pop-up lists while typing | leave | left to UIG-31 (the editor menus) |
+| 1.6 | "Add members" is a MenuItem in a dialog, with no Menu around it | ok | as she ruled |
+| 1.7 | A cut reference title shows its full text in the browser's own tooltip | fix here → stopped: see Round 2, A | done in both apps: the package tooltip, inline and wrapping (round 2 A, round 3) |
+| 1.8 | A reference that could not be found hides its address in the browser tooltip | fix here → stopped: see Round 2, A | done in both apps: the package tooltip, inline and wrapping (round 2 A, round 3) |
+| 1.9 | "Session ended" is only said in a hover tooltip on a dot | leave | as she ruled |
+| 1.10 | A tooltip on the word "edited" | allow it → line added | as she ruled |
+| 1.11 | A Popover is mounted only while it is open | fix here → done in Peek | as she ruled |
+| 1.14 | Gap: a panel that sits in the page and closes like a popover | leave | as she ruled |
+| 1.12 | PreviewCard's example had a placeholder | ok | as she ruled |
+| 1.13 | Popover's anchored example stopped halfway | ok | as she ruled |
+| 2.1 | Select never mentions ticking several in a list | ok → line added | as she ruled |
+| 2.2 | Status, Assignee and Project are disabled with no reason | fix here → done in Ship: see Round 2, J | done in Ship: Select's `disabledReason`, Ship's wrapper deleted (round 2 J, round 3) |
+| 2.3 | Selects disabled for a moment while an action runs | allow it → line changed | as she ruled |
+| 2.4 | One person is picked with the several-people picker | leave | as she ruled |
+| 3.1 | Field names "Field line", a part that does not exist by that name | ok → line changed | as she ruled |
+| 3.2 | FieldLine's example had a placeholder | ok | as she ruled |
+| 3.3 | An error line typed by hand, under a FieldLine that does the same job | ok → done in Ship | as she ruled |
+| 3.4 | Peek's composers send from their own Enter handler, with no Form | fix if behaviour stays → stopped: see Round 2, B | left: the composers keep their keys, TipTap's (round 2 B); the Form bug it found is fixed in 0.24.0 (C1) |
+| 3.5 | Ship edits a message with a Textarea and Save / Cancel | ok → line added; Ship stays as it is | as she ruled |
+| 3.6 | Two reply boxes are one line, where the page says a message body is a Textarea | no: you will make Ship's composer behave like Peek's | Katerina's: Ship's composer will work like Peek's |
+| 3.7 | The command palette uses FieldLine for its hints | keep for now | as she ruled |
+| 3.8 | Gap: rich text edited where it is shown | yes, part of UIG-30 | UIG-30 |
+| 4.1 | Button sends navigation to "a plain link", not to Link | ok → line changed | as she ruled |
+| 4.2 | IconButton says "a toolbar" without naming Toolbar | ok → line changed | as she ruled |
+| 4.3 | Five rows of icon buttons are not in a Toolbar | fix here → done in Peek; the Open work row waits on Round 2, D | as she ruled |
+| 4.4 | Send buttons are disabled with no reason, in 16 places | no, keep them disabled → Button page line added | as she ruled |
+| 4.5 | A disabled Button is used as a display pill | no rule: it will open a dialog of the topic's people | Katerina's: the members pill will open a dialog of the topic's people |
+| 4.6 | "Back to topics" is a Button that only navigates | no link: UIG-13 solved the look | as she ruled |
+| 4.7 | A key inside a button's label, and inside a placeholder | keep as is | as she ruled |
+| 4.8 | The Send icon button has no tooltip | tooltip and Enter → done in Peek | as she ruled |
+| 4.9 | Five controls do nothing when pressed | leave | as she ruled |
+| 4.10 | Two primary buttons on one surface | ok: Post becomes an icon button later | Katerina's: Post becomes an icon button, later |
+| 4.11 | Cancel beside Save is `muted` in Ship, `outlined` in Peek | leave | as she ruled |
+| 4.12 | Two notes say "no part makes a row that is a link", but Link does | ok → done in both apps (Round 2, C10) | done in both apps; the whole-row link itself → UIG-33 (C10) |
+| 4.13 | Gap: a link that looks like an icon button | ok → IconButton href done; Peek's three buttons after the 0.24.0 release | IconButton `href` in 0.24.0, two of Peek's three use it; "Open topic" takes `ToolbarLink` (0.24.1, F3) |
+| 4.14 | Gap: copying falls back to the browser's prompt box | no part | as she ruled |
+| 4.15 | Found late: two expand buttons write aria-expanded by hand | new — see Round 2, L | UIG-34, a tree part on Base UI (round 2 L) |
+| 5.1 | DialogShell never names CommandPalette | ok → line added | as she ruled |
+| 5.2 | Toast names Chip without the bold every other line uses | ok → line changed | as she ruled |
+| 5.3 | Banner and Toast both claim "copied" | ok → line changed | as she ruled |
+| 5.4 | Banner says a notice with its own action is "not in the package yet" | done by UIG-13 | as she ruled |
+| 5.5 | CommandPalette's example used one name for two things | ok | as she ruled |
+| 5.6 | Relay refusals are shown as neutral toasts | error → done in Peek | as she ruled |
+| 5.7 | "Edited here, but not published" is neutral in messages, a warning in topics | fix here → done in Peek | as she ruled |
+| 5.8 | Toasts that never close have no Dismiss, and hide their "!" | no, leave them | as she ruled |
+| 5.9 | Ship shows one action's failure in the error Banner | ok → Banner line changed | as she ruled |
+| 6.1 | "Resolved" is hand-made coloured text, a pill in the signal theme | fix here → done in Peek: see Round 2, F | as she ruled |
+| 6.2 | A Chip inside a Link, so the Chip is what you click | leave | as she ruled |
+| 6.3 | Ship shows chosen files as removable InputChips | AttachmentCard → done in Ship: see Round 2, K | as she ruled |
+| 6.4 | A picture on its way is a hand-made pulsing box | fix here → done in Ship: see Round 2, K | as she ruled |
+| 6.5 | A picture is a plain <img>, not a thumbnail | leave | as she ruled |
+| 6.6 | The highlight tag is hand-made | leave | as she ruled |
+| 6.7 | A status drawn as coloured text | leave | as she ruled |
+| 6.8 | The pinned message box is hand-made | Card → done in Peek | as she ruled |
+| 6.9 | Gap: a status as an icon or a coloured word | leave | as she ruled |
+| 6.10 | Gap: a picture opened full screen | later | later: a Lightbox, migration stage 7 |
+| 6.11 | Gap: a count beside a section heading | leave | as she ruled |
+| 7.1 | Avatar's page contradicts itself about bylines | ok → line changed | as she ruled |
+| 7.2 | Avatar's size scale leaves out 18 and 20 | ok → line changed | as she ruled |
+| 7.3 | Ship draws faces at 18 and 20 | 18 → 16, 20 → 24 → done in Ship | as she ruled |
+| 7.4 | A face and a name put together by hand, where Person fits | fix here → done in Ship: see Round 2, G | as she ruled |
+| 7.5 | The huddle card stacks faces by hand | fix here → done in Peek: see Round 2, E | as she ruled |
+| 8.1 | Rail says "a toolbar of IconButtons", not Toolbar | ok → line changed | as she ruled |
+| 8.2 | Tabs sends navigation to "links", not to Link | ok → line changed | as she ruled |
+| 9.1 | ScrollArea's When does not make the Folders mistake obvious | ok → line changed | as she ruled |
+| 9.2 | ScrollArea lists "a rail"; Rail says it never scrolls | ok → line changed | as she ruled |
+| 9.3 | Peek builds its floating frame by hand | fix here → stopped: see Round 2, C | done in Peek: the package's floating AppShell draws the Signal dots (round 2 C, round 3) |
+| 10.1 | Divider does not mention cards | ok → line changed | as she ruled |
+| 10.2 | The "Open work" heading is hand-made | fix here → stopped: see Round 2, D | done in Peek: SectionHeader `hover="none"` (round 2 D, round 3) |
+| 10.3 | The date line between days is hand-made | your suggestion → done in Peek: see Round 2, M | as she ruled |
+| 10.4 | A hand-made line between a comment and its replies | fix here → done in Peek | as she ruled |
+| 10.5 | Hand-made lines between sections of a card | fix here → done in Peek | as she ruled |
+| 10.6 | A line on every row | keep: you will redesign it | Katerina's: she redesigns it |
+| 10.7 | The tickets fold is hand-made | leave | as she ruled |
+| 10.8 | "Name" is a SectionLabel over a field that becomes an input | leave | as she ruled |
+| 11.1 | Failures are shown in the empty-state look, in 8 places | ok → EmptyState line changed | as she ruled |
+| 11.2 | An empty state while data is still coming | ok → line changed | as she ruled |
+| 11.3 | A section's empty line is hand-made | fix now → done in Ship | as she ruled |
+| 11.4 | An empty issue list is a whole-page empty state under tabs | ok → done in Ship: see Round 2, H | as she ruled |
+| 11.5 | An empty folder is said in the count line | leave | as she ruled |
+| 11.6 | Gap: no part says "this failed" in place of content | use EmptyState → line changed | as she ruled |
+| 11.7 | One list skeleton for every page, card grids too | fix here → done in Ship: see Round 2, I | as she ruled |
+| 0.1 | The checker calls a behaviour "Closes on Escape", but Tabs and Toolbar own it too | ok, fix it → done | as she ruled |
+| 0.2 | Parts no app uses yet | leave | as she ruled |
+| 0.3 | One test run failed, three reruns did not | leave | as she ruled |
+
+Round 2 found C1–C12 (12): C1 (a Form inside a pop-up inside a Form sent both) and C4 (a waiting file's ✕ on keyboard focus) fixed in 0.24.0, C2 and C3 went with A and D, C5–C8 and C11 fixed in the apps' PRs, C9 and C10 left with their reason (C10's whole-row link → UIG-33), C12 is a note on the photo method. Round 3 found F1–F3, all in 0.24.1. Rounds 4 and 5: every card yes, except M3 (a), M6 (b), M12 (a) — UIG-33 and UIG-34 written — and N9 built here rather than ticketed.
+
+**Not done yet.** Katerina reviews 0.24.1 from its photos and merges it; the release follows her word. Then the apps take it: Peek drops its own tooltip span (F1), "Open topic" becomes a `ToolbarLink` (F3), and its five list columns become `ListColumn`; Ship drops its tooltip span (F1). Migration docs: ARCHITECTURE2's line on Peek's AppShell is out of date since 9.3. Then UIG-14, UIG-15 and UIG-16 close together.
 
 ### UIG-13: building it
 
@@ -302,7 +509,7 @@ The ticket's counts were taken on 12 September. Both columns are real; nothing w
 
 | thing | 12 Sept | 18 Sept | what it is |
 |---|---|---|---|
-| value exports from `index.ts` | 45 | **81** | the target set. 91 further exports are types, which are not entries |
+| value exports from `index.ts` | 65, in 45 export lines (the ticket's "45" was the lines; corrected 19 September, UIG-16) | **81** | the target set. 91 further exports are types, which are not entries |
 | component `.tsx` files | 44 | **52** | plus `cn.ts`, which is a helper, makes **53** files that export a value |
 | `.mdx` doc pages | 46 | **54** | |
 | `.stories.tsx` files | 46 | **54** | the same 54 names as the pages |
@@ -1608,6 +1815,8 @@ repos. There are 14. Two matter:
 The three `role="alert"` are inline error messages. `FieldLine` carries a tone
 and may be the right answer; worth checking in UIG-15.
 
+✅ **Checked in UIG-15 (19 September):** no `role="alert"` written by hand is left in Peek or Ship.
+
 ### Family C — fingerprints
 
 Guide T12. Tickets UIG-22 to UIG-25.
@@ -1655,6 +1864,8 @@ whole difference is padding pushed into `EmptyState`: 9 places in Peek, 6 in
 Ship. That is not a rule violation, but 15 callers adding their own padding to
 the same component does suggest `EmptyState` is missing a prop. Worth a look in
 UIG-15.
+
+✅ **Checked in UIG-15 (19 September):** solved by UIG-27, which gave `EmptyState` its own room for each scope. Peek passes it no padding; Ship passes one 4px gap (`mt-1`, placement) and three hand on their caller's classes.
 
 ### Already on, recorded so it is not counted twice
 
@@ -2492,8 +2703,8 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-12 | The registry, thin and proved | estiva-ui | | `registry.json` committed at schema 1, with `entries + excluded` equal to the value exports of `index.ts`, no entry without a purpose, and every entry carrying the props it declares (not only its word-choices, which are a view of them); `ui:find` wired; the catalogue ships in the package (the `estiva-ui` bin, the `./registry` export, `registry.json` in `files`); CI runs `registry:check`, which rebuilds and fails on a difference; the builder reads `OWNED_BEHAVIOURS` rather than a list of its own (confirmed by UIG-12, 18 September) |
 | UIG-13 | The registry widens to Peek's and Ship's | estiva-ui | peek, ship | in estiva-ui: `buildAppRegistry` and `findInRegistries` exported; `registry.json` is the package's own at schema 2, with no app entry (the package is public); `ui:find` passes `--also peek=` and `--also ship=`; create-app writes `ui:find`, `registry:check` in job `gate` and ignores `registry.json`. In each app (appChecks, confirmed by UIG-13, 18 September): `ui:find` and `registry:check` run the package's commands, CI's job `gate` runs `registry:check`, the app's folder ignores `registry.json`, and `h.catalogue` builds it: every part described and sorted |
 | UIG-14 | Usage rules — every page (UIG-15 and UIG-16 folded in, 18 September) | estiva-ui | peek, ship | every component importing `@base-ui/react` keeps the page contract — an opening line, When, When not, How with code, What it owns — and `src/pages.test.ts` reads What it owns against `OWNED_BEHAVIOURS` |
-| UIG-15 | Folded into UIG-14 | estiva-ui | | `EmptyState.mdx` keeps the page contract |
-| UIG-16 | Folded into UIG-14 | estiva-ui | | every component page keeps the page contract (55) |
+| UIG-15 | Folded into UIG-14 | estiva-ui | | `EmptyState.mdx` keeps the page contract; this record walks the eight Folders mistakes, D1 to D8; `ContainerHeader.mdx` states 48px, 20px in and 16px from the right |
+| UIG-16 | Folded into UIG-14 | estiva-ui | | every component page keeps the page contract; table R in this record lists every page; the record holds the rule on exports that are not parts |
 | UIG-17 | Usage rules — Peek's own components | peek | | `PendingAttachmentChip.mdx` has the five sections; every Peek registry entry has a class |
 | UIG-18 | Usage rules — Ship's own components | ship | | `ForeignObject.mdx` has the five sections; every Ship registry entry has a class |
 | UIG-19 | Lock the contract in CI, one search | estiva-ui | peek, ship | a CI step runs an `npm run …contract…` script; estiva-ui's Storybook has `refs` |
@@ -2510,6 +2721,8 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-30 | RichText | estiva-ui | peek, ship | `RichText` exported (a first guess, until UIG-30 is built) |
 | UIG-31 | Editor menus | estiva-ui | peek | the package exports the editor-menu part; Peek's SlashMenu keeps no escape naming UIG-31 (a first guess, 16 September) |
 | UIG-32 | Peek and Ship take their gate pieces from the package | estiva-ui | peek, ship | the package exports `./gates`; and, read from estiva-ui in each app: its gate config and its full lint config import `@estiva-app/ui/gates`, its committed hook runs the package's `cli.js`, its `gates:status` runs the package's engine, and it keeps no copy of the hook, the status engine, the count, `eslint.gates.js` or `eslint.tokens.js` (11 checks). In each app, `appChecks` checks the same of itself (1 each) — 13 in all |
+| UIG-33 | Link — a whole row that is one link | estiva-ui | peek, ship | first guess: `Link` takes `row`, or a row part is exported |
+| UIG-34 | A tree part — Peek's file tree and folder list | estiva-ui | peek | first guess: `index.ts` exports `Tree` |
 
 The contract is an opening line saying what it is, then *When*, *When not*, *How* (with code) and
 *What it owns*, from UIG-14; `src/pages.test.ts` holds it.

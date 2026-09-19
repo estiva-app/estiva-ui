@@ -70,7 +70,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
       className={cn(
         // Chip's pill at a control's height, so a reaction and a status chip
         // read as the same family — 24px matches Button `small`.
-        'inline-flex h-6 items-center justify-center gap-1.5 rounded-full px-2',
+        'inline-flex h-6 min-h-6 items-center justify-center gap-1.5 rounded-full px-2',
         'border transition-colors',
         'disabled:cursor-not-allowed disabled:opacity-50',
         pressed

@@ -57,14 +57,14 @@ import { EmptyState } from '@estiva-app/ui'
 
 **When there is one thing to do about it, give it as `action`.** It is drawn
 16px under the line as the package's Button, outlined — the same look wherever
-it appears (Katerina, 2026-09-18). Never put a Button beside an EmptyState in a
+it appears. Never put a Button beside an EmptyState in a
 box of your own: the box places it, and no two boxes place it alike. A `page`
 only; a section's line takes no action.
 
 <Canvas of={EmptyStateStories.WithAction} />
 
 ```tsx
-<EmptyState icon={<IconMessagePlus size={16} stroke={1.5} />} message="No topics yet." action={{ label: 'New topic', onClick: openNewTopic }} />
+<EmptyState icon={<IconMessagePlus size={16} stroke={1.5} />} message="Nothing here yet." action={{ label: 'Create', onClick: create }} />
 ```
 
 **Put a section's empty state inside the box its rows live in, and give it no

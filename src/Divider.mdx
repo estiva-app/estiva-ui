@@ -49,6 +49,8 @@ import { Divider } from '@estiva-app/ui'
 - **Inside a `Menu` or a `Popover` it has no inset**: the hairline runs the
   width of the rows. The panel tells it so; nothing is passed in.
 
+- The line is 1px; the room around it is yours (`my-1` in a Menu).
+
 ## What it owns
 
 It does these by itself. Write none of them around it.
@@ -56,6 +58,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Says what it is to assistive technology: a separator | `role="separator"` | ✓ |
+| Keeps its 1px line in a scrolling column | `shrink-0` |  |
 
 ## Props
 

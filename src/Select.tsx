@@ -56,6 +56,7 @@ export interface SelectProps {
    * looks disabled and will not open, but Tab still reaches it, and the reason
    * shows as its tooltip — a native disabled button cannot be focused, so it
    * could never say why. Takes the place of wrapping it in `WithTooltip`.
+   * Given with `disabled`, the reason wins, as on `Button`.
    */
   disabledReason?: string
   className?: string
@@ -70,7 +71,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
   const selected = options.find((o) => o.value === value)
   // With a reason it is held shut rather than disabled: a disabled trigger is
   // a native `disabled` button, which Tab skips and a tooltip cannot open on.
-  const held = Boolean(disabledReason) && !disabled
+  const held = Boolean(disabledReason)
   const trigger = (
       <BaseSelect.Trigger
         aria-label={ariaLabel}
@@ -96,7 +97,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
           size === 'default' && 'px-3 py-2 text-input-value',
-          size === 'small' && 'h-6 px-2 text-caption',
+          size === 'small' && 'h-6 min-h-6 px-2 text-caption',
           className,
         )}
       >
@@ -116,7 +117,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
         if (!held) onChange(next as string)
       }}
       {...(held ? { open: false, onOpenChange: () => {} } : {})}
-      disabled={disabled}
+      disabled={disabled && !held}
       // Non-modal, as it has always been: the page behind stays scrollable and
       // keeps its scrollbar, so opening a select never shifts the layout.
       modal={false}

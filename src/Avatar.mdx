@@ -39,7 +39,7 @@ import { Avatar } from '@estiva-app/ui'
   two words, skipping words that open with a symbol. An unnamed person is
   the silhouette, not a `?` — a question mark reads as an error badge.
 - The initials are centred on the capitals themselves — cap height to
-  baseline — not on the line of text around them (D27). A single face can
+  baseline — not on the line of text around them. A single face can
   still sit up to half a pixel off: the screen rounds text to its pixel grid
   wherever the tile lands.
 - The colour behind initials is per person, chosen from the name, the same
@@ -54,7 +54,7 @@ import { Avatar } from '@estiva-app/ui'
 **A face is silent by default**, and that is the important half: almost every
 face in the suite sits beside the name it belongs to — in a `Person`, in a
 `MenuItem`'s `leading`, in a row — and a picture that spoke there would say the
-name twice. It used to. Measured 2026-09-08, before this was true: a `Person`
+name twice. It used to: a `Person`
 inside a button announced **"AD Ana Duarte"** (the initials read as text), and
 with a picture **"Ana Duarte Ana Duarte"**.
 
@@ -67,6 +67,11 @@ a stack of members — and the tile becomes one image with one name.
 ```
 
 <Canvas of={AvatarStories.Palette} />
+
+- **Planned:** a Byline part — face · name · time — in migration stage 7.
+
+- `initialsFor(name)` and `hueFor(name)` give the same initials and colour where
+  the part itself cannot be drawn.
 
 ## What it owns
 

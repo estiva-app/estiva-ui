@@ -12,6 +12,8 @@ the app decides how it navigates.
 
 ## When
 
+- **It takes the size and colour of the text around it**: put it inside that
+  text.
 - **`text`** — a link written inside text: the info colour, always
   underlined, dimming on hover.
 - **`quiet`** — a title or a time that is also a link. It takes the colour and
@@ -59,7 +61,7 @@ import { Link } from '@estiva-app/ui'
   Its size and colour still come from the text around it.
 - `quiet`, `underlined` and `plain` take their size and colour from where they
   sit, so put those on your own element around the link, not on the link —
-  the lint refuses a look passed in `className` (UIG-9).
+  the lint refuses a look passed in `className`.
 
 ## What it owns
 
