@@ -76,7 +76,7 @@ answer
 | ✅ **UIG-32** | estiva-ui PR #58 (0.21.1: `estiva-gates status --app`, a sibling read from its app's folder, and the shared check widened), peek PR #245 (967 lines out, 135 in) and ship PR #161 (957 out, 118 in). Every gate piece in both apps is one import now; Ship's checks file moved to `web/scripts/`, where the package resolves. Peek gained the debt list it never had. `gates:status` reads 13 of 13. See **UIG-32: building it**, below. |
 | ✅ **UIG-13** | estiva-ui PR #67 (merge `d480b3c`), released as **0.23.0** with UIG-10's relay work and PR #66; peek PR #259 and ship PR #163 took it, merged and deployed. The app's catalogue (`buildAppRegistry`, schema 2), `estiva-ui find` over the package and every app beside it, `estiva-ui check` in each app's job `gate`, and a made app wired the same. Katerina's A to D: `ContainerHeader` in the package; `EmptyState` and `Banner` with a button, used by Peek; six parts Peek no longer needs removed. Peek 138 parts, Ship 91, the package 82, each described and sorted. `gates:status` reads 14 of 14. See **UIG-13: building it**, below. |
 | ✅ **UIG-12** | estiva-ui PR #61 (merge `bbd4ecd`), released as **0.22.0** (PR #63); peek PR #251 and ship PR #162 took it, merged and deployed: `registry.json` (81 entries, **374 props**, schema 1), the builder and the schema in `src/registry/`, `estiva-ui find` as a bin of the package, and `registry:check` in CI. 81 names over 53 files = 74 components + 6 helpers + 1 hook; 53 take their line from their own page, 28 from the comment above them. Every docs and story id was checked against a real `storybook build`. `gates:status` reads 7 of 7. See **UIG-12: building it**, below. |
-| 🚧 **UIG-14** | With UIG-15 and UIG-16 (Katerina, 18 September). **0.24.0 released** (estiva-ui PR #69), taken by Peek PR #263 and Ship PR #164 with every app fix she ruled on, merged and deployed. **0.24.1** (branch `gates/14-round4`): rounds 4 and 5, `ListColumn`, the record — PR open, not merged. Then the apps take it, and the three close together. |
+| 🚧 **UIG-14** | With UIG-15 and UIG-16 (Katerina, 18 September). **0.24.0** (PR #69) and **0.24.1** (PR #70) released; Peek PR #263 and Ship PR #164 took 0.24.0, merged and deployed. **0.25.0** (branch `gates/14-0250`): the crash catcher, one list spacing, MenuSeparator, the section pages. Then Peek PR #264 and Ship PR #165 take it, and the three close together. |
 | 🚧 **UIG-15** | Folded into UIG-14. Every point done in 0.24.1: the numbers on the frame pages, the parts sized by where they sit, the heights, the eight Folders mistakes walked one by one. Closes with UIG-14. |
 | 🚧 **UIG-16** | Folded into UIG-14. Table R (56 pages), the four numbers explained, the rule on exports that are not parts — all in 0.24.1's record. Closes with UIG-14. |
 | ⬜ **UIG-30** | New, 13 September: `RichText`. Runs after UIG-27. All three repos' `gates-checks.mjs` now list it. |
@@ -270,7 +270,7 @@ Katerina found them by opening the Folders page on 10 September; all eight were 
 
 #### Table R: every page, its group, and a tick (UIG-16)
 
-UIG-14 + UIG-15 + UIG-16 = **56**. The tickets' "44" was the number of part files on 12 September (46 pages then); Katerina folded the three into one ticket over every page there is, and there are 56 today, every one below. The two ticks: the page keeps the contract (an opening line, When, When not, How with code, What it owns), and What it owns agrees with the checker. `src/pages.test.ts` holds both on every commit, and `gates:status` UIG-16 fails if a page is missing here.
+UIG-14 + UIG-15 + UIG-16 = **57**. The tickets' "44" was the number of part files on 12 September (46 pages then); Katerina folded the three into one ticket over every page there is, and there are 57 today, every one below. The two ticks: the page keeps the contract (an opening line, When, When not, How with code, What it owns), and What it owns agrees with the checker. `src/pages.test.ts` holds both on every commit, and `gates:status` UIG-16 fails if a page is missing here.
 
 | | Page | Group | Contract | Owns | |
 |---|---|---|---|---|---|
@@ -293,53 +293,54 @@ UIG-14 + UIG-15 + UIG-16 = **56**. The tickets' "44" was the number of part file
 | 17 | `Divider` | Headings and rows | ✓ | ✓ |  |
 | 18 | `EditableText` | Typing | ✓ | ✓ |  |
 | 19 | `EmptyState` | Loading and empty | ✓ | ✓ |  |
-| 20 | `Field` | Typing | ✓ | ✓ |  |
-| 21 | `FieldLine` | Typing | ✓ | ✓ | lives in Field's file |
-| 22 | `FilePicker` | Typing | ✓ | ✓ |  |
-| 23 | `Form` | Typing | ✓ | ✓ |  |
-| 24 | `IconButton` | Pressing | ✓ | ✓ |  |
-| 25 | `IdentityMenu` | Floating panels | ✓ | ✓ |  |
-| 26 | `InlineChip` | Chips and cards | ✓ | ✓ |  |
-| 27 | `Kbd` | Pressing | ✓ | ✓ |  |
-| 28 | `Link` | Pressing | ✓ | ✓ |  |
-| 29 | `ListColumn` | The frame | ✓ | ✓ | new in 0.24.1 (N9) |
-| 30 | `Menu` | Floating panels | ✓ | ✓ |  |
-| 31 | `MenuItem` | Floating panels | ✓ | ✓ | lives in Menu's file |
-| 32 | `NavItem` | Getting around | ✓ | ✓ |  |
-| 33 | `Person` | People | ✓ | ✓ |  |
-| 34 | `PersonTrigger` | People | ✓ | ✓ |  |
-| 35 | `Popover` | Floating panels | ✓ | ✓ |  |
-| 36 | `PreviewCard` | Floating panels | ✓ | ✓ |  |
-| 37 | `ProgressBar` | Loading and empty | ✓ | ✓ |  |
-| 38 | `Property` | Headings and rows | ✓ | ✓ |  |
-| 39 | `Rail` | Getting around | ✓ | ✓ |  |
-| 40 | `RailItem` | Getting around | ✓ | ✓ |  |
-| 41 | `Reaction` | Chips and cards | ✓ | ✓ |  |
-| 42 | `ReactionPicker` | Chips and cards | ✓ | ✓ |  |
-| 43 | `ScrollArea` | The frame | ✓ | ✓ |  |
-| 44 | `SearchInput` | Choosing | ✓ | ✓ |  |
-| 45 | `SectionHeader` | Headings and rows | ✓ | ✓ |  |
-| 46 | `SectionLabel` | Headings and rows | ✓ | ✓ |  |
-| 47 | `Select` | Choosing | ✓ | ✓ |  |
-| 48 | `Sidebar` | The frame | ✓ | ✓ |  |
-| 49 | `Skeleton` | Loading and empty | ✓ | ✓ | the page for SkeletonBar, SkeletonRow, SkeletonList |
-| 50 | `Tabs` | Getting around | ✓ | ✓ |  |
-| 51 | `TextInput` | Typing | ✓ | ✓ |  |
-| 52 | `Textarea` | Typing | ✓ | ✓ |  |
-| 53 | `Toast` | Dialogs and messages | ✓ | ✓ |  |
-| 54 | `Toolbar` | Pressing | ✓ | ✓ |  |
-| 55 | `Tooltip` | Floating panels | ✓ | ✓ |  |
-| 56 | `TopBar` | The frame | ✓ | ✓ |  |
+| 20 | `ErrorBoundary` | Loading and empty | ✓ | ✓ | new in 0.25.0 (D3): Peek's, moved in |
+| 21 | `Field` | Typing | ✓ | ✓ |  |
+| 22 | `FieldLine` | Typing | ✓ | ✓ | lives in Field's file |
+| 23 | `FilePicker` | Typing | ✓ | ✓ |  |
+| 24 | `Form` | Typing | ✓ | ✓ |  |
+| 25 | `IconButton` | Pressing | ✓ | ✓ |  |
+| 26 | `IdentityMenu` | Floating panels | ✓ | ✓ |  |
+| 27 | `InlineChip` | Chips and cards | ✓ | ✓ |  |
+| 28 | `Kbd` | Pressing | ✓ | ✓ |  |
+| 29 | `Link` | Pressing | ✓ | ✓ |  |
+| 30 | `ListColumn` | The frame | ✓ | ✓ | new in 0.24.1 (N9) |
+| 31 | `Menu` | Floating panels | ✓ | ✓ |  |
+| 32 | `MenuItem` | Floating panels | ✓ | ✓ | lives in Menu's file |
+| 33 | `NavItem` | Getting around | ✓ | ✓ |  |
+| 34 | `Person` | People | ✓ | ✓ |  |
+| 35 | `PersonTrigger` | People | ✓ | ✓ |  |
+| 36 | `Popover` | Floating panels | ✓ | ✓ |  |
+| 37 | `PreviewCard` | Floating panels | ✓ | ✓ |  |
+| 38 | `ProgressBar` | Loading and empty | ✓ | ✓ |  |
+| 39 | `Property` | Headings and rows | ✓ | ✓ |  |
+| 40 | `Rail` | Getting around | ✓ | ✓ |  |
+| 41 | `RailItem` | Getting around | ✓ | ✓ |  |
+| 42 | `Reaction` | Chips and cards | ✓ | ✓ |  |
+| 43 | `ReactionPicker` | Chips and cards | ✓ | ✓ |  |
+| 44 | `ScrollArea` | The frame | ✓ | ✓ |  |
+| 45 | `SearchInput` | Choosing | ✓ | ✓ |  |
+| 46 | `SectionHeader` | Headings and rows | ✓ | ✓ |  |
+| 47 | `SectionLabel` | Headings and rows | ✓ | ✓ |  |
+| 48 | `Select` | Choosing | ✓ | ✓ |  |
+| 49 | `Sidebar` | The frame | ✓ | ✓ |  |
+| 50 | `Skeleton` | Loading and empty | ✓ | ✓ | the page for SkeletonBar, SkeletonRow, SkeletonList |
+| 51 | `Tabs` | Getting around | ✓ | ✓ |  |
+| 52 | `TextInput` | Typing | ✓ | ✓ |  |
+| 53 | `Textarea` | Typing | ✓ | ✓ |  |
+| 54 | `Toast` | Dialogs and messages | ✓ | ✓ |  |
+| 55 | `Toolbar` | Pressing | ✓ | ✓ |  |
+| 56 | `Tooltip` | Floating panels | ✓ | ✓ |  |
+| 57 | `TopBar` | The frame | ✓ | ✓ |  |
 
 #### The numbers, then and now (UIG-16)
 
-| | 12 September (UIG-12's four) | 0.24.1 |
+| | 12 September (UIG-12's four) | 0.25.0 |
 |---|---|---|
-| export lines in `index.ts` | 45 | 55 |
-| value names in those lines | 65 | 84 |
-| part files (`.tsx`) | 44 | 54 |
-| pages (`.mdx`) | 46 | 56 |
-| story files | 46 | 56 |
+| export lines in `index.ts` | 45 | 56 |
+| value names in those lines | 65 | 86 |
+| part files (`.tsx`) | 44 | 55 |
+| pages (`.mdx`) | 46 | 57 |
+| story files | 46 | 57 |
 
 Measured from git: on 12 September `index.ts` had 45 export lines naming 65 values. The ticket's "45 exports" was the lines; the UIG-12 table below called it "value exports" and is corrected. Pages and stories are two more than part files, then and now: FieldLine lives in Field's file and MenuItem in Menu's, and each has its own page and stories. Export lines are one more than part files because `cn` is a helper in a `.ts` of its own.
 
@@ -445,7 +446,15 @@ The review page has each one with its photo: https://claude.ai/artifact/LUhtwcfi
 
 Round 2 found C1–C12 (12): C1 (a Form inside a pop-up inside a Form sent both) and C4 (a waiting file's ✕ on keyboard focus) fixed in 0.24.0, C2 and C3 went with A and D, C5–C8 and C11 fixed in the apps' PRs, C9 and C10 left with their reason (C10's whole-row link → UIG-33), C12 is a note on the photo method. Round 3 found F1–F3, all in 0.24.1. Rounds 4 and 5: every card yes, except M3 (a), M6 (b), M12 (a) — UIG-33 and UIG-34 written — and N9 built here rather than ticketed.
 
-**Not done yet.** Katerina reviews 0.24.1 from its photos and merges it; the release follows her word. Then the apps take it: Peek drops its own tooltip span (F1), "Open topic" becomes a `ToolbarLink` (F3), and its five list columns become `ListColumn`; Ship drops its tooltip span (F1). Migration docs: ARCHITECTURE2's line on Peek's AppShell is out of date since 9.3. Then UIG-14, UIG-15 and UIG-16 close together.
+**Round 6 · 0.24.1 released** (19 September): estiva-ui PR #70 (merge `233c9cc`), tag `v0.24.1`, published. Katerina kept RailItem's set 48px (card Q, "all good") though the tiles add up: 0.35px each, Peek's fourth ~1px higher.
+
+**Round 7 · the apps on 0.24.1.** Peek PR #264 (list columns on `ListColumn`, F1, F3) and Ship PR #165 (F1; 105 of 105 stories identical), neither merged. Her answers: **D1 (a)** a column that crashes keeps its title; **D2 (a)** the 1px-further keyboard ring on a link stays — **for the accessibility pass: one keyboard ring for links and buttons**; D3 asked again after she saw the column in use.
+
+**Round 8 · how the list column is used.** She could not rule on D3 without seeing the column in use, and found that the Sections story drew its group headings by hand (a row with a SectionLabel) — copied from Peek's Desk "Urgent". The review page showed each part outlined in Peek's pages. Her answers: **D4 (a)** a heading over a group of rows is a SectionHeader (`hover="none"` with nothing to act on), a group that folds a CollapsibleSection, and SectionLabel alone only in a row of another shape — SectionHeader's, CollapsibleSection's and SectionLabel's pages say so; Peek's "Urgent" becomes a SectionHeader (tested: pixel-identical). **D5 (b)** one spacing: every list column's rows 2px apart; Desk's and People's groups move up (Desk's lowest 14px, People's 16px), accepted. **D3 (c)** the crash catcher is the package's: `ErrorBoundary`, Peek's moved in as it was, held by `ListColumn` itself and used by Peek in its three other places, Peek's own deleted — this replaces her 18 September ruling (UIG-13) that it stays in Peek. Then: **when a row breaks, the message is centred** in the room the list had, under the kept title. And from a screenshot of Peek's message menu: the lines between a menu's groups touched the rows — Peek drew them three ways (no room, 4px, 4px and inset), and the Divider and Menu pages disagreed — so **the package gets `MenuSeparator`**, the line with its own 4px (her "yes"); Peek's menu rows without icons stay as they are (her "no").
+
+**What 0.25.0 carries:** `ErrorBoundary` (its page, stories and tests, moved from Peek's); `ListColumn` holding one, its message centred, and one spacing (`spacing` is gone); `MenuSeparator`; the Sections story on CollapsibleSection and SectionHeader; the D4 page lines; the Divider and Menu pages pointing at MenuSeparator. A minor version, not a patch: it adds parts and removes a setting.
+
+**Not done yet.** 0.25.0 merges and is released (Katerina, 19 September: "do the PR, merge, release"); Peek's PR #264 moves to it — ListColumn with no wrapper of its own, the package's ErrorBoundary in its three other places and its own deleted, "Urgent" a SectionHeader, one spacing, its six menu lines MenuSeparator — and Ship's PR #165 takes it too. Earlier plan, kept for the record: Katerina reviews 0.24.1 from its photos and merges it; the release follows her word. Then the apps take it: Peek drops its own tooltip span (F1), "Open topic" becomes a `ToolbarLink` (F3), and its five list columns become `ListColumn`; Ship drops its tooltip span (F1). Migration docs: ARCHITECTURE2's line on Peek's AppShell is out of date since 9.3. Then UIG-14, UIG-15 and UIG-16 close together.
 
 ### UIG-13: building it
 
