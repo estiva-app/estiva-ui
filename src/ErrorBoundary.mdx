@@ -1,0 +1,66 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ErrorBoundaryStories from './ErrorBoundary.stories'
+
+<Meta of={ErrorBoundaryStories} />
+
+# ErrorBoundary
+
+Keeps a crash inside what it holds: that part shows "Something went wrong …
+Your data is safe — try again." with a Try again button, and the rest of the
+page keeps working.
+
+<Canvas of={ErrorBoundaryStories.InAPanel} />
+
+## When
+
+- Around each part of the page that can break on its own: a column, a panel,
+  a conversation — and once around the whole app.
+- `label` says what it holds, in the message and the console line: "Something
+  went wrong in the {label}."
+- `fallbackClassName` is the room the message fills where no flex column
+  holds it: the whole screen, for the app's own.
+- `frame` draws the message inside a frame of yours, in the same place.
+  **ListColumn** holds one of its own this way, so a column that breaks keeps
+  its title.
+
+<Canvas of={ErrorBoundaryStories.TryAgain} />
+
+## When not
+
+- A read that failed, which the app knows about → say it where the content
+  would be, with **EmptyState**; this part is for what nobody expected.
+- Something the person did that failed → **Toast**, or **FieldLine** under
+  the field.
+- Around a single small control: a crash is caught by the part of the page it
+  belongs to.
+
+## How
+
+```tsx
+import { ErrorBoundary } from '@estiva-app/ui'
+
+<ErrorBoundary label="conversation">
+  <Conversation id={id} />
+</ErrorBoundary>
+```
+
+- The message is **EmptyState** with its one action, so it takes the room it
+  is given and centres itself in it.
+- Try again draws the part again. If what broke is still broken, the message
+  comes back.
+- A crash is written to the console: "{label} crashed:", the error, and where
+  it happened.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Catches a crash in what it holds, so the rest of the page keeps working | an error boundary of your own |  |
+| Shows the message and a Try again that draws the part again | a fallback and a reset of your own |  |
+| Writes the crash to the console, with what it holds | `console.error` in a boundary of your own |  |
+
+## Props
+
+<Controls of={ErrorBoundaryStories.InAPanel} />
