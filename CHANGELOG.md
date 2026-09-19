@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.24.1 — 2026-09-19 — UIG-14, with UIG-15 and UIG-16: the list column, a link in a toolbar, parts that keep their height, and every page in its final words
+
+### Added
+
+- **`ListColumn`**: the list column of a page — 290px, a line on its right, its
+  name in a `ContainerHeader`, and a list that scrolls, 16px under the header
+  and 12px in. `spacing` `rows` (2px) or `sections` (4px), `above` for a row
+  that stays while the list scrolls, `collapsed` to close it with the rail.
+- **`ToolbarLink`**: a link in a `Toolbar`, in the strip's look and its walk,
+  with a real address. A `ToolbarButton` cannot be a link.
+
+### Changed
+
+- **Parts with a set height keep it in a scrolling column.** `SectionHeader`
+  and `SkeletonRow` no longer shrink; `Button`, the small `Select` and
+  `TextInput`, `PersonTrigger` and `Reaction` keep a minimum height equal to
+  their height, so a row can still narrow them.
+- **`RailItem` is a set 48px** (it was 48.35, from its content). A rail's lower
+  tiles sit up to 0.35px higher per tile above them.
+- **`WithTooltip` `inline`** sits at the top of its line by itself: the line
+  keeps its height with no wrapper of your own.
+- **`Select` given both `disabled` and `disabledReason`** shows the reason, as
+  `Button` does.
+- **The pages**: no app names and no credits; the frame parts' numbers; parts
+  sized by where they sit say so first; what is planned for each part.
+
 ## 0.24.0 — 2026-09-19 — UIG-14, every component page says what it owns; the parts Peek and Ship needed to follow them
 
 ### Added
