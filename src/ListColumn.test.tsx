@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /** What the ListColumn page claims, pinned. Sizes are measured in the browser; these pin the parts. */
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { ListColumn } from './ListColumn'
 
@@ -39,12 +39,25 @@ describe('ListColumn', () => {
     expect(list.contains(screen.getByText('Above'))).toBe(false)
   })
 
-  it('sections: 4px between rows', () => {
-    render(
-      <ListColumn title="Items" spacing="sections">
-        <p>Row</p>
-      </ListColumn>,
+  it('a row that breaks: the column keeps its title, the message is where the list was, the rest stays', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Broken(): never {
+      throw new Error('boom')
+    }
+    const { container } = render(
+      <>
+        <ListColumn title="Items" actions={<button>Sort</button>}>
+          <Broken />
+        </ListColumn>
+        <p>The rest of the page</p>
+      </>,
     )
-    expect((screen.getByText('Row').parentElement as HTMLElement).className.split(' ')).toContain('gap-1')
+    expect(screen.getByText('Items')).toBeTruthy()
+    expect(screen.getByText(/Something went wrong in the list panel/)).toBeTruthy()
+    // Only the name comes back: the actions may be what threw.
+    expect(screen.queryByText('Sort')).toBeNull()
+    expect(screen.getByText('The rest of the page')).toBeTruthy()
+    expect((container.firstElementChild as HTMLElement).className.split(' ')).toContain('w-[290px]')
+    quiet.mockRestore()
   })
 })
