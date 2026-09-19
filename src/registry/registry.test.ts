@@ -45,17 +45,17 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 84 names over 55 files: 77 components, 6 helpers and 1 hook (ListColumn and ToolbarLink joined in UIG-14)', () => {
+  it('counts 86 names over 56 files: 79 components, 6 helpers and 1 hook (ErrorBoundary and MenuSeparator joined in UIG-14)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 77, helper: 6, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(55)
+    expect(kinds).toEqual({ component: 79, helper: 6, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(56)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(55)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(29)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(56)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(30)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -278,7 +278,7 @@ describe('the ids point at something', () => {
 describe('a second parser agrees', async () => {
   const docgen = await import('react-docgen').catch(() => null)
 
-  it.skipIf(!docgen)('finds the same props on all 77 components', async () => {
+  it.skipIf(!docgen)('finds the same props on all 79 components', async () => {
     if (!docgen) return
     const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
     const byName = new Map(registry.entries.map((one) => [one.name, one]))

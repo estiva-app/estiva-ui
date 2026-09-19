@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
 import { Button } from './Button'
-import { Divider } from './Divider'
 import { IconButton } from './IconButton'
-import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSub } from './Menu'
+import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSeparator, MenuSub } from './Menu'
 import { SectionLabel } from './SectionLabel'
 
 /**
@@ -41,7 +40,7 @@ export const Items: Story = {
     <MenuPanel className="min-w-[180px]">
       <MenuItem label="Rename" leading={icon(IconPencil)} onClick={() => {}} />
       <MenuItem label="Duplicate" leading={icon(IconCopy)} shortcut="Ctrl+D" onClick={() => {}} />
-      <Divider className="my-1" />
+      <MenuSeparator />
       <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
     </MenuPanel>
   ),
@@ -57,7 +56,7 @@ export const Sections: Story = {
         <MenuItem label="Item one" selected onClick={() => {}} />
         <MenuItem label="Item two" onClick={() => {}} />
       </MenuSection>
-      <Divider className="my-1" />
+      <MenuSeparator />
       <MenuSection label="Another section">
         <MenuItem label="Option one" onClick={() => {}} />
         <MenuItem label="Option two" onClick={() => {}} />
@@ -75,7 +74,7 @@ export const WithARow: Story = {
         <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">Item one</span>
         <SectionLabel tone="secondary">Label</SectionLabel>
       </MenuRow>
-      <Divider className="my-1" />
+      <MenuSeparator />
       <MenuItem label="An action" onClick={() => {}} />
     </MenuPanel>
   ),
@@ -99,7 +98,7 @@ export const FromATrigger: Story = {
         <MenuItem label="Item two" onClick={() => {}} />
         <MenuItem label="Item three" onClick={() => {}} />
       </MenuSub>
-      <Divider className="my-1" />
+      <MenuSeparator />
       <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
     </Menu>
   ),
@@ -149,7 +148,7 @@ export const OnACard: Story = {
             <MenuItem label="Item two" onClick={() => {}} />
           </MenuSub>
         </MenuSection>
-        <Divider className="my-1" />
+        <MenuSeparator />
         <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
       </Menu>
     </div>

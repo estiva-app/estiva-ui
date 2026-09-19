@@ -14,8 +14,6 @@ orientation for assistive tech.
 
 ## When
 
-- Between groups in a **Menu** (`className="my-1"` gives it its breathing
-  room there).
 - Between sections of a panel, a rail or a card.
 - Vertical: between clusters in a toolbar or a dense row.
 
@@ -30,6 +28,8 @@ orientation for assistive tech.
 
 ## When not
 
+- Between groups in a menu → **MenuSeparator**: this line with its own 4px
+  above and below.
 - Between every row of a list — spacing does that; a hairline per row is
   noise.
 - To title what follows → **SectionLabel** or **SectionHeader**; a heading
@@ -49,7 +49,7 @@ import { Divider } from '@estiva-app/ui'
 - **Inside a `Menu` or a `Popover` it has no inset**: the hairline runs the
   width of the rows. The panel tells it so; nothing is passed in.
 
-- The line is 1px; the room around it is yours (`my-1` in a Menu).
+- The line is 1px; the room around it is yours.
 
 ## What it owns
 

@@ -2,7 +2,7 @@ import { createContext, useContext, type ComponentPropsWithRef, type ReactElemen
 import { IconChevronRight } from '@tabler/icons-react'
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { cn } from './cn'
-import { DividerInPanel } from './Divider'
+import { Divider, DividerInPanel } from './Divider'
 import { triggerDisabled } from './triggerDisabled'
 import { ScrollArea } from './ScrollArea'
 import { Kbd } from './Kbd'
@@ -588,6 +588,16 @@ export function MenuSection({ label, children, className }: { label: string; chi
       {children}
     </BaseMenu.Group>
   )
+}
+
+/**
+ * The line between two groups of a menu, with its own 4px above and below
+ * (UIG-14, Katerina 19 September). A plain `Divider` left that room to each
+ * caller, and Peek's menus drew it three ways — none, 4px, 4px and inset — so
+ * the lines in its main menus touched the rows.
+ */
+export function MenuSeparator() {
+  return <Divider className="my-1" />
 }
 
 /** A non-interactive row inside a menu, at the item's own geometry. */

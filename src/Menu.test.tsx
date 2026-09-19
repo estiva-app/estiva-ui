@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Button } from './Button'
-import { Menu, MenuItem, MenuPanel, MenuSection, MenuSub } from './Menu'
+import { Menu, MenuItem, MenuPanel, MenuSection, MenuSeparator, MenuSub } from './Menu'
 
 afterEach(cleanup)
 
@@ -269,6 +269,24 @@ describe('Menu', () => {
  * plugin already owns the keyboard — so `MenuItem` and `MenuSection` have to
  * work with no `Menu` above them.
  */
+describe('MenuSeparator', () => {
+  // UIG-14: the line between groups brings its own 4px above and below; a plain
+  // Divider left that to each caller, and Peek's main menus had none.
+  it('is a separator with its own room, the width of the rows', async () => {
+    render(
+      <Menu open trigger={<Button>More</Button>}>
+        <MenuItem label="One" />
+        <MenuSeparator />
+        <MenuItem label="Two" />
+      </Menu>,
+    )
+    const line = await screen.findByRole('separator')
+    const classes = (line.getAttribute('class') ?? '').split(' ')
+    expect(classes).toContain('my-1')
+    expect(classes).toContain('mx-0')
+  })
+})
+
 describe('rows on a bare MenuPanel', () => {
   /**
    * It is a button, and it does NOT claim to be a menu item. ARIA requires a
