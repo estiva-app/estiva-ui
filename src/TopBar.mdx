@@ -57,9 +57,16 @@ import { TopBar, IdentityMenu, SearchInput } from '@estiva-app/ui'
 - The frame is desktop-only for now — there is no narrow-screen
   behaviour; the menu button collapses panels, it does not open a drawer.
 
+- The bar is 52px tall, 20px in on the left and 26px on the right, 16px between
+  its slots.
+
 ## What it owns
 
-Nothing. It only draws. Clicks and keys are yours.
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Keeps its 52px in a scrolling column | `shrink-0` |  |
 
 ## Props
 

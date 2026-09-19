@@ -47,7 +47,7 @@ import { Menu, PersonTrigger } from '@estiva-app/ui'
 - **The accessible name comes from the person, in both shapes.** The row is
   named by its visible name, and the `compact` face — which has no visible
   text — takes the same name through an `aria-label` of its own, so nothing
-  is owed. Until 2026-09-08 that face announced **"AD"**: the initials, read
+  is owed. Without it that face would announce **"AD"**: the initials, read
   as text. Pass an `aria-label` only to name what it *opens* rather than who
   it shows; `IdentityMenu`'s compact shape says "Account menu".
 - It is a native `<button>` on Base UI's Button: it takes a `ref` and every
@@ -61,6 +61,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Is a button: Tab reaches it, Enter and Space call your `onClick` | a clickable `<div>` |  |
 | Names itself from the person's name, and says whether what it opens is open (`open`) | `aria-label` or `aria-expanded` |  |
+| Keeps its 32px in a scrolling column | `shrink-0` |  |
 
 ## Keys
 

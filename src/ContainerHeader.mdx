@@ -7,8 +7,7 @@ import * as ContainerHeaderStories from './ContainerHeader.stories'
 
 The bar across the top of a column — a list, a thread, a side panel: its
 title, and the buttons that act on the whole column at the right edge. 48px,
-with a hairline under it. Peek's ContainerHeader, moved into the package as it
-looks (Katerina, 2026-09-18).
+with a hairline under it.
 
 <Canvas of={ContainerHeaderStories.WithActions} />
 
@@ -25,6 +24,11 @@ looks (Katerina, 2026-09-18).
   SectionLabel.
 - The top of the whole app → **TopBar**.
 - A dialog's title → **DialogShell** draws its own.
+
+- A row you draw yourself at the top of a column — your own padding and a line
+  under it → this part. Its numbers are every column's.
+- A whole list column, header and scrolling list → **ListColumn**, which draws
+  this bar at its top.
 
 ## How
 
@@ -53,7 +57,12 @@ import { ContainerHeader, IconButton } from '@estiva-app/ui'
 
 ## What it owns
 
-Nothing. It only draws. Clicks and keys are yours.
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws the column's bar: 48px tall, the title 20px in at 14px medium, the actions 16px from the right, a hairline under it | a row of your own with padding and a border |  |
+| Keeps its 48px in a scrolling column | `shrink-0` |  |
 
 ## Props
 

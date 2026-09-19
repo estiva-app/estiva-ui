@@ -43,14 +43,13 @@ import { Field, TextInput } from '@estiva-app/ui'
   reversed at stage 3: the Field used to win and override it.
 - `helper` is the line under the control — the format, or what happens if
   it is left empty. `error` **replaces** it and marks the control invalid,
-  so you no longer pass `aria-invalid` yourself. Both are announced;
-  Ship and Peek wrote this line by hand six times between them, and none of
-  those was.
+  so you no longer pass `aria-invalid` yourself. Both are announced; a line
+  written by hand beside the control is not.
 - With neither, the control stays a direct child of the field, so nothing
   that predates the two props moved a pixel.
 - **`required` marks the control as well as the label.** The asterisk is a
   picture of the requirement; `aria-required` on the control is the word for
-  it, and the control had neither until 2026-09-08 — measured. Base UI's
+  it. Base UI's
   `Field` has no `required` of its own, so the Field puts it there. A control
   that says so already is left alone, and a `children` of several elements
   keeps the asterisk and owes its own.

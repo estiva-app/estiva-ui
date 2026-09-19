@@ -13,6 +13,9 @@ edit is never silently lost.
 
 ## When
 
+- **It has no size of its own.** Give it the size of the text it stands in for —
+  a pane title's `text-body-2-strong` — on your element around it; the text and
+  the field both take it.
 - A title or description edited where it is shown — no dialog, no separate
   form.
 - A reader who cannot write gets `readOnly` — the value without the edit
@@ -55,7 +58,9 @@ import { EditableText } from '@estiva-app/ui'
 - **Its text size is where it sits**, like `Person`'s: put `text-h2` on your own
   element around it, and the text and the field both take it (a field inherits
   the page's font). `className` places it — `-mx-2` to line its text up with
-  a header's inset — and a size passed there is refused by the lint (UIG-9).
+  a header's inset — and a size passed there is refused by the lint.
+
+- **Planned:** rich text edited where it is shown (UIG-30).
 
 ## What it owns
 

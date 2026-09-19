@@ -45,7 +45,7 @@ import { ConfirmDialog } from '@estiva-app/ui'
   dialog open — your surface has said why; a resolved `void`/`true`
   closes it.
 - **Escape cancels; a press on the backdrop does not.** This is Base UI's
-  `AlertDialog`, through the shell's `alert` (Katerina, D20, 2026-09-07): a
+  `AlertDialog`, through the shell's `alert`: a
   destructive question is answered rather than clicked away. The backdrop
   used to cancel, and that is the one behaviour stage 3 deliberately changed.
 - It announces itself as an alert (`role="alertdialog"`), so a screen reader
@@ -71,7 +71,7 @@ Different from `DialogShell`'s in one row, and it is the row that matters.
 | Input | What happens |
 |---|---|
 | Escape | cancels |
-| backdrop click | **nothing** — the question has to be answered (D20) |
+| backdrop click | **nothing** — the question has to be answered |
 | close button | cancels |
 | Tab / Shift+Tab | cycles the controls inside the card, and cannot leave it |
 | on close | focus returns to whatever opened it |

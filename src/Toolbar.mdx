@@ -69,8 +69,8 @@ import { Toolbar, ToolbarButton, ToolbarSeparator } from '@estiva-app/ui'
 A toolbar floats over what it acts on — a card, a paragraph, an image — so it
 draws the elevated surface that separates it from that: **the same `MenuPanel`
 a `Menu` draws**, because a floating strip and a floating list are the same
-box. Peek had built this twice and the two had already drifted: one
-`rounded-sm` with `shadow-sm`, the other `rounded-lg` with `shadow-lg`.
+box. Built twice by hand, the two drift: one `rounded-sm` with `shadow-sm`,
+the other `rounded-lg` with `shadow-lg`.
 
 `surface={false}` for a strip inside something that draws that box already — a
 `Popover`, a dialog, a card's own panel.
@@ -81,6 +81,13 @@ preference: Base UI measures the room and flips when there is none, which is
 why the placement is its job and not arithmetic of ours.
 
 <Canvas of={ToolbarStories.OnAnExistingSurface} />
+
+**A control that goes somewhere is a `ToolbarLink`** with an `href`: the
+strip's look, in the same walk, with a real address, so a Ctrl+click opens a
+new tab. A `ToolbarButton` cannot be a link. A place you cannot go is left out
+of the strip rather than disabled.
+
+<Canvas of={ToolbarStories.WithALink} />
 
 ## What it owns
 

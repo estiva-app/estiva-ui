@@ -12,6 +12,8 @@ hairline. What goes inside, and the space around it, is yours.
 
 ## When
 
+- **It draws no padding and no layout**: both are yours.
+
 A box is a card when it stands for **one thing you could name**, and there are
 many of it or you treat the whole box as that thing — open it, point at it,
 move it.
@@ -73,8 +75,10 @@ import { Card } from '@estiva-app/ui'
   picture that runs edge to edge. Without it their square corners show.
 - **Placed from outside, never restyled.** `className` takes space, size,
   flex and grid, and position; a colour, a text size, a border, a corner or a
-  shadow is refused by the lint (`estiva/no-restyled-part`, UIG-9). What is inside the card is yours: its padding and its words go on
+  shadow is refused by the lint (`estiva/no-restyled-part`). What is inside the card is yours: its padding and its words go on
   your own element inside.
+
+- **Planned:** the inside layout of a linked object's card, in migration stage 7.
 
 ## What it owns
 

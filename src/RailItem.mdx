@@ -45,6 +45,9 @@ import { Rail, RailItem } from '@estiva-app/ui'
   click, navigate.
 - Icons are 16px at stroke 1.5.
 
+- A tile is 64px wide and 48px tall: the 16px icon in its 32px square, over its
+  9px label.
+
 ## What it owns
 
 It does these by itself. Write none of them around it.
@@ -52,6 +55,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Marks the current place for assistive technology when `active` | `aria-current` |  |
+| Keeps its 48px in a scrolling column | `shrink-0` |  |
 
 ## Props
 

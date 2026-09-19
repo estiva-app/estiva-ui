@@ -14,11 +14,11 @@ toggle, and the rows under it, sliding shut and open.
 ## When
 
 - A group of rows in a sidebar or a panel that the reader may want out of
-  the way — projects, folders, starred items.
+  the way — starred items, recent places.
 - `defaultOpen={false}` for a group that starts folded.
 - `storageKey` when the section should stay how the reader left it across
   reloads: this browser remembers, under that key. The app prefixes the
-  key (`ship.sidebar.projects`).
+  key (`app.sidebar.starred`).
 - `open` + `onOpenChange` when the app owns the state.
 - `actions` for add, sort, filter beside the title — SectionHeader's,
   revealed on hover or focus.
@@ -41,7 +41,7 @@ composition lives:
 ```tsx
 import { CollapsibleSection, NavItem } from '@estiva-app/ui'
 
-<CollapsibleSection title="Projects" storageKey="app.sidebar.projects" className="mt-2 shrink-0" contentClassName="gap-px">
+<CollapsibleSection title="Starred" storageKey="app.sidebar.starred" className="mt-2 shrink-0" contentClassName="gap-px">
   <NavItem href="/p/1" label="Item one" />
   <NavItem href="/p/2" label="Item two" />
 </CollapsibleSection>

@@ -52,7 +52,6 @@ flex column. A page is a flex child of `main`, and says one of two things:
 Never `h-full`: the frame's content box is *at least* the viewport's
 height and grows with a tall page — which is what lets the bar know the
 page changed — so a percentage height has nothing to resolve against.
-Measured on all four of Ship's pages (2026-09-09).
 
 ```tsx
 import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
@@ -77,6 +76,14 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
 - Desktop only for now — no narrow-screen behaviour is provided.
 - In the Signal theme the floating frame draws the control-room dot grid on
   its ground, behind the card. Nothing to add: the preset makes it.
+
+- In the floating manner the bar takes the top 52px; the card sits 16px from
+  the right and the bottom, with 16px corners, beside the 64px rail.
+- In the floating manner the card owns `overflow-hidden`, so anything in it
+  that can grow sits in a **ScrollArea** — a list column most of all, which
+  **ListColumn** draws with its own. Without one it is cut off at the fold.
+- **Planned:** `SplitLayout`, resizable panels, in `@estiva-app/ui/layout`
+  (migration stage 8). It may take the list and side columns' widths.
 
 ## What it owns
 
