@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.25.0 — 2026-09-19 — UIG-14: a crash stays in its part, one list spacing, a menu line with its own room
+
+### Added
+
+- **`ErrorBoundary`**: keeps a crash inside what it holds — "Something went
+  wrong in the {label}. Your data is safe — try again." with Try again, and
+  the rest of the page keeps working. `label`, `fallbackClassName` for the
+  room it fills, `frame` to draw the message inside a frame of yours. Moved
+  in from Peek as it was.
+- **`MenuSeparator`**: the line between a menu's groups, with its own 4px
+  above and below.
+
+### Changed
+
+- **`ListColumn` keeps a crash inside itself**: its title stays, and the
+  message sits centred in the room the list had.
+- **`ListColumn` has one spacing**: rows 2px apart, groups included.
+  `spacing` is gone; a list of groups heads each with a `CollapsibleSection`
+  or a `SectionHeader`.
+- **The section pages**: a heading over a group of rows is a `SectionHeader`
+  (`hover="none"` with nothing to act on), never a row drawn by hand;
+  `SectionLabel` alone is for a row of another shape.
+
+### Removed
+
+- `ListColumn`'s `spacing`.
+
 ## 0.24.1 — 2026-09-19 — UIG-14, with UIG-15 and UIG-16: the list column, a link in a toolbar, parts that keep their height, and every page in its final words
 
 ### Added
