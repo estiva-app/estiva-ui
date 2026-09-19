@@ -78,6 +78,28 @@ describe('WithTooltip', () => {
     expect(errors).toEqual([])
   })
 
+  // F1: without `align-top` a chip in the wrapper drops 0.2px and its line grows
+  // from 19.6 to 20px; the apps may not add the class to the part, so it carries it.
+  it('inline: the wrapper sits at the top of the line by itself', () => {
+    render(
+      <p>
+        <WithTooltip inline label="Item one">
+          <span>Item one</span>
+        </WithTooltip>
+      </p>,
+    )
+    expect(screen.getByText('Item one').parentElement?.className.split(' ')).toContain('align-top')
+  })
+
+  it('a block wrapper is not moved', () => {
+    render(
+      <WithTooltip label="Item one">
+        <span>Item one</span>
+      </WithTooltip>,
+    )
+    expect(screen.getByText('Item one').parentElement?.className.split(' ')).not.toContain('align-top')
+  })
+
   it('takes wrapperClassName, which is what keeps a truncating label truncating', () => {
     const { container } = render(
       <WithTooltip label="A long name" wrapperClassName="min-w-0 shrink">
