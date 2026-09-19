@@ -21,7 +21,7 @@ const ROW_BAR_WIDTHS = [150, 100, 170, 120, 90, 140, 110, 160]
 /** A 32px row: a 16px square and a bar, like a row with a face and a name. */
 export function SkeletonRow({ barWidth = 130 }: { barWidth?: number }) {
   return (
-    <div className="flex items-center gap-2 px-2 h-[32px] rounded-lg">
+    <div className="flex shrink-0 items-center gap-2 px-2 h-[32px] rounded-lg">
       <SkeletonBar className="w-4 h-4 shrink-0" />
       <SkeletonBar className="h-3.5" style={{ width: barWidth }} />
     </div>

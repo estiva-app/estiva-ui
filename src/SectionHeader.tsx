@@ -99,7 +99,7 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
   return (
     <div
       className={cn(
-        'group flex h-[32px] items-center gap-1 rounded-lg px-2 transition-colors',
+        'group flex h-[32px] shrink-0 items-center gap-1 rounded-lg px-2 transition-colors',
         // The fill says "this does something": a row with a toggle or actions
         // lights up, a fixed heading over rows does not (2026-09-09, the
         // Sidebar's fixed group).

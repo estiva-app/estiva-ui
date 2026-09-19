@@ -86,8 +86,8 @@ export function Button({
           // this package's own story frames, each of which asks for the top.
           // A control does not get to decide where its caller puts it.
           'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
-          size === 'default' && 'h-8 text-btn-default',
-          size === 'small' && 'h-6 text-btn-small',
+          size === 'default' && 'h-8 min-h-8 text-btn-default',
+          size === 'small' && 'h-6 min-h-6 text-btn-small',
           // Extra right padding beside a leading icon, for optical balance.
           size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
           size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
