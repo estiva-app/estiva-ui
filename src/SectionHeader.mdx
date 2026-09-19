@@ -16,6 +16,9 @@ title the toggle — that is where a section folds.
 
 - A sidebar or panel section that carries its own actions — add, sort,
   filter.
+- **A heading over a group of rows, even with nothing to act on**: no
+  `actions`, and `hover="none"` so the row stays still under the pointer.
+  Never a row drawn by hand with a SectionLabel in it.
 - `showActions="always"` keeps the actions visible — for touch, or for a
   section whose actions are the point.
 
@@ -25,7 +28,8 @@ title the toggle — that is where a section folds.
 
 - A section that opens and closes → **CollapsibleSection**: the header,
   the rows, the slide, and a `storageKey` that remembers.
-- A title with no chevron and no actions → **SectionLabel** alone.
+- A label inside a row of another shape — a dialog's section, a panel's
+  title, a card's line → **SectionLabel**.
 - A heading inside a menu → **MenuSection**.
 - Page-level headings → the `h*` type tokens.
 
