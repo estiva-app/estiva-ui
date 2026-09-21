@@ -194,6 +194,29 @@ describe('AttachmentCard', () => {
     expect(fetchImage).toHaveBeenCalledWith('relay://shot')
   })
 
+  it('a document that has to be fetched keeps its row, and opens once the bytes land', async () => {
+    const fetchImage = vi.fn().mockResolvedValue('blob:the-file')
+    const { container } = render(<AttachmentCard name="report.pdf" size={2_412_000} remoteSrc="relay://report" fetchImage={fetchImage} />)
+
+    // Not the picture's loading card: the row is already saying what the file is.
+    expect(screen.getByText('report.pdf')).toBeTruthy()
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(classesOf(rootOf(container))).toContain('w-[240px]')
+    expect(screen.queryByRole('link')).toBeNull()
+
+    await vi.waitFor(() => expect(screen.getByRole('link').getAttribute('href')).toBe('blob:the-file'))
+  })
+
+  it("the sender's words about a picture are its alt text, and name it in the viewer", async () => {
+    render(<AttachmentCard name="shot.png" contentType="image/png" src="blob:thumb" alt="the failing dialog" />)
+    expect(screen.getByAltText('the failing dialog')).toBeTruthy()
+    // The file's name still sits under the thumbnail: the two say different things.
+    expect(screen.getByText('shot.png')).toBeTruthy()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Preview shot.png' }))
+    expect(screen.getByRole('dialog', { name: 'the failing dialog' })).toBeTruthy()
+  })
+
   it('a refused request is said, with the unreadable card', async () => {
     render(
       <AttachmentCard name="shot.png" contentType="image/png" remoteSrc="relay://shot" fetchImage={() => Promise.reject(new Error('relay_membership_required'))} />,

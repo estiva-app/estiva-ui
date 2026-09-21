@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.25.0",
+    "packageVersion": "0.26.0",
     "exports": 87,
     "typeExports": 96,
     "files": null
@@ -130,10 +130,16 @@
           "note": "The picture an image card draws. Without it an image is drawn as a row."
         },
         {
+          "name": "alt",
+          "takes": "text",
+          "required": false,
+          "note": "What the picture shows, where the sender said — Ship carries one on every `imeta`."
+        },
+        {
           "name": "remoteSrc",
           "takes": "text",
           "required": false,
-          "note": "A picture the app has to *fetch* before it can be drawn — one on a relay, where reading it needs the reader's own authorization (UIG-35)."
+          "note": "A file the app has to *fetch* before it can be used — one on a relay, where reading it needs the reader's own authorization (UIG-35)."
         },
         {
           "name": "remoteFullSrc",

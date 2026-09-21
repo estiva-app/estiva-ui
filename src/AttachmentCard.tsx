@@ -153,10 +153,19 @@ export interface AttachmentCardProps extends Omit<ComponentPropsWithRef<'div'>, 
   /** The picture an image card draws. Without it an image is drawn as a row. */
   src?: string
   /**
-   * A picture the app has to *fetch* before it can be drawn — one on a relay,
-   * where reading it needs the reader's own authorization (UIG-35). Give
-   * `fetchImage` with it. The card waits, draws it, and says so if it cannot be
-   * read, so no app writes that state machine again. Ignored when `src` is set.
+   * What the picture shows, where the sender said — Ship carries one on every
+   * `imeta`. It is what a screen reader reads and what the viewer is named
+   * with; `name` is still the file's name, under the thumbnail. Without it the
+   * name does both jobs.
+   */
+  alt?: string
+  /**
+   * A file the app has to *fetch* before it can be used — one on a relay, where
+   * reading it needs the reader's own authorization (UIG-35). Give `fetchImage`
+   * with it. For a picture the card waits, draws it, and says so if it cannot
+   * be read, so no app writes that state machine again; for a document the
+   * result is where the row opens, and until it lands the row is dimmed rather
+   * than pretending to open. Ignored when `src` is set.
    */
   remoteSrc?: string
   /**
@@ -235,20 +244,36 @@ function useRemoteImage(url: string | undefined, fetchImage?: (url: string) => P
  *  temporary `<a download>`. Falls back to opening it when the fetch is
  *  refused — a cross-origin file the browser will not hand over. */
 async function saveFile(source: string, name: string): Promise<void> {
+  /*
+    Bytes already in hand — an object URL from the app's own fetch, or a data
+    URL — go straight to the anchor. Fetching them again would ask the browser
+    to re-read a blob it is already holding, and `fetch` on a `blob:` URL is
+    exactly what a jsdom test cannot do either.
+  */
+  if (source.startsWith('blob:') || source.startsWith('data:')) {
+    handToAnchor(source, name)
+    return
+  }
   try {
     const res = await fetch(source)
     if (!res.ok) throw new Error(String(res.status))
     const objectUrl = URL.createObjectURL(await res.blob())
-    const a = document.createElement('a')
-    a.href = objectUrl
-    a.download = name
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
+    handToAnchor(objectUrl, name)
     URL.revokeObjectURL(objectUrl)
   } catch {
+    // A file the browser will not hand over is opened instead, which is the
+    // only other thing a person can do with it.
     window.open(source, '_blank', 'noopener')
   }
+}
+
+function handToAnchor(url: string, name: string) {
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
 }
 
 export function AttachmentCard({
@@ -257,6 +282,7 @@ export function AttachmentCard({
   contentType,
   href,
   src,
+  alt,
   remoteSrc,
   remoteFullSrc,
   fetchImage,
@@ -280,10 +306,18 @@ export function AttachmentCard({
     file is a request, with a wait and a way to fail.
   */
   const remote = useRemoteImage(src ? undefined : remoteSrc, fetchImage)
-  const picture = src ?? remote.src
+  const picture = image ? (src ?? remote.src) : undefined
   const fetching = !src && !!remoteSrc && !!fetchImage
+  /*
+    The wait and the refusal are drawn for a **picture**. A document that has to
+    be fetched keeps the row it always had and simply has nowhere to open yet:
+    its name, its type and its size are already on screen and are what the
+    reader is looking at, where an image without its bytes is a blank card.
+  */
   const drawnState: AttachmentCardState =
-    state !== 'ready' ? state : fetching ? (remote.failed ? 'unreadable' : picture ? 'ready' : 'loading') : state
+    state !== 'ready' ? state : image && fetching ? (remote.failed ? 'unreadable' : picture ? 'ready' : 'loading') : state
+  // Where a document opens: what the app passed, or the bytes it fetched.
+  const address = href ?? (!image && fetching ? remote.src : undefined)
 
   // Full screen. The original is fetched only once somebody opens it, and the
   // thumbnail stands in until it arrives: a moment of a smaller picture beats a
@@ -293,7 +327,7 @@ export function AttachmentCard({
   const openable = image && !!picture && !pending
   const openPicture = onOpen ?? (openable ? () => setOpened(true) : undefined)
   const viewer =
-    opened && picture ? <Lightbox src={full.src ?? picture} alt={name} onClose={() => setOpened(false)} /> : null
+    opened && picture ? <Lightbox src={full.src ?? picture} alt={alt ?? name} onClose={() => setOpened(false)} /> : null
 
   /*
     Saving. `download` is the card doing it, which is what both apps were doing
@@ -314,7 +348,7 @@ export function AttachmentCard({
           )
           return
         }
-        const local = href ?? picture
+        const local = address ?? picture
         if (local) void saveFile(local, name)
       }
     : undefined
@@ -417,7 +451,7 @@ export function AttachmentCard({
   }
 
   if (image && picture) {
-    const thumbnail = <img src={picture} alt={name} className="w-full h-28 object-cover" />
+    const thumbnail = <img src={picture} alt={alt ?? name} className="w-full h-28 object-cover" />
     return (
       <>
         <Card fill="inset" hover="hairline" clip className={cn('group relative flex flex-col w-[180px]', className)} {...props}>
@@ -459,9 +493,9 @@ export function AttachmentCard({
   )
   return (
     // @estiva-escape: a file that cannot be opened is faded, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
-    <Card fill="inset" hover={href ? 'hairline' : 'none'} className={cn('group flex items-center gap-2 w-[240px] p-1.5 pr-1', !href && 'opacity-70', className)} {...props}>
-      {href ? (
-        <Link href={href} external variant="plain" className="flex items-center gap-2 min-w-0 flex-1" onClick={(event) => event.stopPropagation()}>
+    <Card fill="inset" hover={address ? 'hairline' : 'none'} className={cn('group flex items-center gap-2 w-[240px] p-1.5 pr-1', !address && 'opacity-70', className)} {...props}>
+      {address ? (
+        <Link href={address} external variant="plain" className="flex items-center gap-2 min-w-0 flex-1" onClick={(event) => event.stopPropagation()}>
           {body}
         </Link>
       ) : (
