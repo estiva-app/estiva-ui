@@ -179,4 +179,96 @@ describe('AttachmentCard', () => {
     await userEvent.tab()
     expect(document.activeElement).toBe(remove)
   })
+
+  /* UIG-35: what the two apps were doing around the card, and it now does. */
+
+  it('a picture that needs permission: the card waits, then draws what the app fetched', async () => {
+    const fetchImage = vi.fn().mockResolvedValue('blob:the-picture')
+    render(<AttachmentCard name="shot.png" contentType="image/png" remoteSrc="relay://shot" fetchImage={fetchImage} />)
+
+    // While it is in flight the card is the loading card, not a gap.
+    expect(screen.getByRole('status', { name: 'Loading shot.png' })).toBeTruthy()
+
+    const picture = await screen.findByAltText('shot.png')
+    expect(picture.getAttribute('src')).toBe('blob:the-picture')
+    expect(fetchImage).toHaveBeenCalledWith('relay://shot')
+  })
+
+  it('a refused request is said, with the unreadable card', async () => {
+    render(
+      <AttachmentCard name="shot.png" contentType="image/png" remoteSrc="relay://shot" fetchImage={() => Promise.reject(new Error('relay_membership_required'))} />,
+    )
+    expect(await screen.findByText('Could not be loaded')).toBeTruthy()
+  })
+
+  it('a fetcher written inline does not re-fetch on every render', async () => {
+    const calls = { n: 0 }
+    // A new function identity on every render of the app around it, which is
+    // what an inline `fetchImage={…}` is. Only the URL may start a fetch.
+    const Harness = ({ tick }: { tick: number }) => (
+      <AttachmentCard
+        name="shot.png"
+        contentType="image/png"
+        remoteSrc="relay://shot"
+        data-tick={tick}
+        fetchImage={() => {
+          calls.n += 1
+          return Promise.resolve('blob:the-picture')
+        }}
+      />
+    )
+    const { rerender } = render(<Harness tick={1} />)
+    await screen.findByAltText('shot.png')
+    rerender(<Harness tick={2} />)
+    rerender(<Harness tick={3} />)
+    expect(calls.n).toBe(1)
+  })
+
+  it('pressing the picture opens it full screen, and Escape closes it', async () => {
+    render(<AttachmentCard name="shot.png" contentType="image/png" src="blob:thumb" />)
+    await userEvent.click(screen.getByRole('button', { name: 'Preview shot.png' }))
+
+    const viewer = screen.getByRole('dialog', { name: 'shot.png' })
+    expect(viewer).toBeTruthy()
+
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('an app that wants its own viewer still gets the click, and no viewer opens', async () => {
+    const onOpen = vi.fn()
+    render(<AttachmentCard name="shot.png" contentType="image/png" src="blob:thumb" onOpen={onOpen} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Preview shot.png' }))
+    expect(onOpen).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('opening a relay picture fetches the original, and shows the thumbnail until it lands', async () => {
+    let landOriginal: (src: string) => void = () => {}
+    const fetchImage = vi.fn((url: string) =>
+      url === 'relay://original' ? new Promise<string>((resolve) => (landOriginal = resolve)) : Promise.resolve('blob:thumb'),
+    )
+    render(
+      <AttachmentCard name="shot.png" contentType="image/png" remoteSrc="relay://thumb" remoteFullSrc="relay://original" fetchImage={fetchImage} />,
+    )
+    await screen.findByAltText('shot.png')
+    await userEvent.click(screen.getByRole('button', { name: 'Preview shot.png' }))
+
+    // The thumbnail stands in: a moment of a smaller picture beats a moment of an empty screen.
+    expect(screen.getByRole('dialog').querySelector('img')?.getAttribute('src')).toBe('blob:thumb')
+
+    landOriginal('blob:original')
+    await vi.waitFor(() => expect(screen.getByRole('dialog').querySelector('img')?.getAttribute('src')).toBe('blob:original'))
+  })
+
+  it('the download control saves the original, not the thumbnail on screen', async () => {
+    const fetchImage = vi.fn().mockResolvedValue('blob:the-picture')
+    render(
+      <AttachmentCard name="shot.png" contentType="image/png" remoteSrc="relay://thumb" remoteFullSrc="relay://original" fetchImage={fetchImage} download />,
+    )
+    await screen.findByAltText('shot.png')
+    fetchImage.mockClear()
+    await userEvent.click(screen.getByRole('button', { name: 'Download shot.png' }))
+    expect(fetchImage).toHaveBeenCalledWith('relay://original')
+  })
 })

@@ -190,7 +190,7 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
     id: 'portal',
     behaviour: 'Floats on top of the page',
     baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox', 'Autocomplete', 'Tooltip', 'PreviewCard', 'Toast'],
-    owners: ['DialogShell', 'ConfirmDialog', 'CommandPalette', 'Popover', 'Menu', 'Select', 'ChipInput', 'Tooltip', 'PreviewCard', 'Toast'],
+    owners: ['DialogShell', 'ConfirmDialog', 'CommandPalette', 'Lightbox', 'Popover', 'Menu', 'Select', 'ChipInput', 'Tooltip', 'PreviewCard', 'Toast'],
     reads: 'createPortal, called, or imported and never called',
   },
   {
@@ -204,21 +204,21 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
     id: 'page-keys',
     behaviour: 'Takes its keys by itself',
     baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox', 'Tooltip', 'PreviewCard', 'Toast'],
-    owners: ['DialogShell', 'Popover', 'Menu', 'Select', 'Tabs', 'Toolbar'],
+    owners: ['DialogShell', 'Lightbox', 'Popover', 'Menu', 'Select', 'Tabs', 'Toolbar'],
     reads: 'a keydown, keyup or keypress listener on window or document',
   },
   {
     id: 'focus',
     behaviour: 'Holds focus inside while open, and gives it back',
     baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox'],
-    owners: ['DialogShell', 'CommandPalette'],
+    owners: ['DialogShell', 'CommandPalette', 'Lightbox'],
     reads: 'a focusin or focusout listener on window or document; the Tab key compared by hand',
   },
   {
     id: 'scroll-lock',
     behaviour: 'Stops the page behind it scrolling',
     baseUi: ['Dialog', 'AlertDialog'],
-    owners: ['DialogShell'],
+    owners: ['DialogShell', 'Lightbox'],
     reads: 'overflow written into the style of document.body or document.documentElement',
   },
   {

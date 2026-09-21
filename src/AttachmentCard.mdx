@@ -14,11 +14,14 @@ waiting to be sent.
 
 The file decides the shape:
 
-- **an image with a picture** (`src`) — a 180px thumbnail; `onOpen` is what a
-  click on the picture does.
+- **an image with a picture** (`src`) — a 180px thumbnail, which opens full
+  screen when it is pressed. `onOpen` replaces that with the app's own.
 - **anything else** — a 240px row: a type tile, the name, the type and size.
   `href` opens it in a new tab; without one the row is dimmed.
-- `onDownload` — a download control that fades in on hover or keyboard focus.
+- `download` — a download control that fades in on hover or keyboard focus, and
+  the card saves the file. `onDownload` instead when the app must do it itself.
+- `remoteSrc` + `fetchImage` — a picture the reader needs permission for. The
+  card waits and says so if it is refused; `state` says the same by hand.
 - `state="loading"` — an image on its way. `state="unreadable"` — it could not
   be read: said, with a dashed hairline, never left as a gap.
 - **`pending`** — waiting to be sent: a 200px row with a remove control on its
@@ -39,15 +42,30 @@ The file decides the shape:
 ```tsx
 import { AttachmentCard } from '@estiva-app/ui'
 
-// Posted: the app fetched the picture, and opens it full screen itself.
-<AttachmentCard name={name} size={bytes} contentType={type} src={pictureUrl} onOpen={openFullScreen} onDownload={save} />
+// Posted, with the picture already in hand.
+<AttachmentCard name={name} size={bytes} contentType={type} src={pictureUrl} download />
+
+// Posted, on a relay: the card fetches it with your app's authorization, opens
+// it full screen and saves it. The original is fetched only when it is opened.
+<AttachmentCard
+  name={name}
+  size={bytes}
+  contentType={type}
+  remoteSrc={thumbUrl ?? mediaUrl}
+  remoteFullSrc={mediaUrl}
+  fetchImage={blobObjectUrl}
+  download
+/>
 
 // Waiting to be sent.
 <AttachmentCard pending name={name} size={bytes} state={uploading ? 'uploading' : 'ready'} src={localPreview} onRemove={remove} />
 ```
 
-- The card fetches nothing. Reading a file may need the reader's own permission,
-  and only the app has it: pass the result — `src`, `href`, `state`.
+- **How to fetch is the app's, what to draw is the card's.** `fetchImage` takes
+  a URL and returns one the browser can draw — an object URL, usually. The
+  card owns the wait, the refusal and the swap; it knows nothing about relays,
+  tokens or which app it is in.
+- A picture already in hand needs none of that: pass `src`.
 - A click on the picture, the download control and the remove control each stop
   there, so they never also click the card or row the attachment sits in.
 - The name truncates. When it is cut off, the full name is on hover; a name
@@ -57,7 +75,10 @@ import { AttachmentCard } from '@estiva-app/ui'
   on Base UI's `Button` like InputChip's ✕ — not an `IconButton`, the 24px
   square that fills on hover.
 
-- **Planned:** a Lightbox that opens a picture full screen, in migration stage 7.
+- A press on the picture opens it full screen, in **Lightbox**, unless `onOpen`
+  says what else to do.
+
+<Canvas of={AttachmentCardStories.OpenItFullScreen} />
 
 ## What it owns
 
@@ -67,6 +88,9 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Stops the clicks on its picture, its download and its remove control, so they never also click the card or row around it | `stopPropagation` |  |
 | Shows the full name on hover when the name is cut off | a tooltip of your own |  |
+| Opens the picture full screen, in Lightbox | a viewer of your own, a portal, a scrim |  |
+| Fetches a picture that needs permission, and draws the wait and the refusal | a loading hook of your own |  |
+| Saves the file under its name, the original rather than the thumbnail | a `<a download>` of your own |  |
 
 ## Props
 

@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.25.0",
-    "exports": 86,
-    "typeExports": 95,
+    "exports": 87,
+    "typeExports": 96,
     "files": null
   },
   "storybook": {
@@ -130,16 +130,40 @@
           "note": "The picture an image card draws. Without it an image is drawn as a row."
         },
         {
+          "name": "remoteSrc",
+          "takes": "text",
+          "required": false,
+          "note": "A picture the app has to *fetch* before it can be drawn — one on a relay, where reading it needs the reader's own authorization (UIG-35)."
+        },
+        {
+          "name": "remoteFullSrc",
+          "takes": "text",
+          "required": false,
+          "note": "The full-size picture, fetched only when someone opens it."
+        },
+        {
+          "name": "fetchImage",
+          "takes": "a handler",
+          "required": false,
+          "note": "How this app fetches a picture it is allowed to read: a URL in, a URL the browser can draw out (an object URL, usually)."
+        },
+        {
           "name": "onOpen",
           "takes": "a handler",
           "required": false,
-          "note": "What a click on an image's picture does — the app's full-screen view."
+          "note": "What a click on an image's picture does."
         },
         {
           "name": "onDownload",
           "takes": "a handler",
           "required": false,
           "note": "Shows a download control on hover or focus, and calls this."
+        },
+        {
+          "name": "download",
+          "takes": "true/false",
+          "required": false,
+          "note": "Shows the download control and saves the file itself, under `name`: the original where there is one (`remoteFullSrc`), otherwise what the card is drawing."
         },
         {
           "name": "pending",
@@ -2368,6 +2392,66 @@
       "docsId": "primitives-kbd--docs",
       "storyId": "primitives-kbd--default",
       "docPage": "src/Kbd.mdx",
+      "app": null
+    },
+    {
+      "name": "Lightbox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Lightbox.tsx",
+      "purpose": "A picture, full screen, on a scrim — what a thumbnail opens into.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "src",
+          "takes": "text",
+          "required": true,
+          "note": "The picture to show. Swapping it — a thumbnail for the original, once it arrives — swaps what is on screen, with no flash of nothing."
+        },
+        {
+          "name": "alt",
+          "takes": "text",
+          "required": true,
+          "note": "What the picture is. Names the viewer for assistive tech too."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Extra classes on the picture itself."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-lightbox--docs",
+      "storyId": "overlays-lightbox--a-picture",
+      "docPage": "src/Lightbox.mdx",
       "app": null
     },
     {

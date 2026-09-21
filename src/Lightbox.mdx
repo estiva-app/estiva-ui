@@ -1,0 +1,71 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LightboxStories from './Lightbox.stories'
+
+<Meta of={LightboxStories} />
+
+# Lightbox
+
+A picture, full screen, on a scrim — what a thumbnail opens into. Built on
+Base UI's `Dialog`, like DialogShell.
+
+<Canvas of={LightboxStories.APicture} />
+
+## When
+
+- Somebody presses a picture that is cropped or scaled down where it sits — a
+  screenshot on a message, a photo in a thread — and wants to see the whole of
+  it.
+- **AttachmentCard opens one by itself**, so an image attachment needs nothing
+  here: this is for a picture that is not an attachment card.
+
+## When not
+
+- Anything that is not a picture → **DialogShell**.
+- A picture small enough to read where it is — don't; an overlay that shows the
+  same thing at the same size is a click that did nothing.
+- A gallery of several pictures with next and previous. This shows one. Ask for
+  the part rather than building the arrows around it.
+
+## How
+
+```tsx
+import { Lightbox } from '@estiva-app/ui'
+
+{opened && <Lightbox src={pictureUrl} alt={name} onClose={() => setOpened(false)} />}
+```
+
+- It is mounted while it is open: there is no `open` prop, and a caller renders
+  it or does not — DialogShell's rule.
+- **Swapping `src` swaps the picture**, with no flash of nothing. That is how a
+  thumbnail stands in while the original is still being fetched.
+- The picture is contained: as large as the screen allows, never cropped, never
+  stretched.
+- `alt` names the picture, and names the viewer itself to assistive technology.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Floats on top of the page, over its own scrim | a portal, a fixed layer, a `z-index` to win | ✓ |
+| Takes its keys by itself — Escape closes it | a `keydown` listener on the page | ✓ |
+| Holds focus inside while open, and gives it back to whatever opened it | focus code, Tab compared by hand | ✓ |
+| Stops the page behind it scrolling | `overflow` written onto the body | ✓ |
+| Closes on a press on the scrim, and **not** on a press on the picture | a click handler that tests the target |  |
+| Carries its own close button, sized to be findable on a photograph | an IconButton on a corner |  |
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Escape | closes |
+| scrim click | closes |
+| picture click | nothing — clicking what you opened should not close it |
+| close button | closes |
+| Tab / Shift+Tab | stays inside the viewer |
+| on close | focus returns to the picture that opened it |
+
+## Props
+
+<Controls of={LightboxStories.APicture} />
