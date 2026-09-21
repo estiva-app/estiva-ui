@@ -188,6 +188,9 @@ export default {
         'accent-wash':     'var(--accent-wash)',
         'success-wash':    'var(--success-wash)',
         'scrim':           'var(--scrim)',
+        // A picture viewer dims harder than a dialog does: the page behind is
+        // not context there, it is glare beside the thing you opened (UIG-35).
+        'scrim-strong':    'var(--scrim-strong)',
       },
       boxShadow: {
         'sm':  'var(--shadow-sm)',

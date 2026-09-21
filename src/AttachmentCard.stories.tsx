@@ -90,3 +90,57 @@ export const Failed: Story = { args: { ...Pending.args, state: 'failed', name: '
 
 /** Attached, with something the sender should know: a warning, not an error — nothing failed. The full words are on hover. */
 export const Warning: Story = { args: { ...Pending.args, state: 'warning', note: 'Not everyone can see this', noteHint: 'Only this app has a copy of this file.' } }
+
+/**
+ * **Press the picture.** Without an `onOpen` the card opens it itself, full
+ * screen, in the package's `Lightbox` — Escape, the ✕ or the scrim closes it
+ * (UIG-35). Peek had written that viewer by hand and Ship had none at all.
+ */
+export const OpenItFullScreen: Story = {
+  parameters: {
+    layout: 'fullscreen',
+    // The viewer portals over the page — iframe it so it does not cover the docs.
+    docs: { story: { inline: false, height: '420px' } },
+  },
+  args: { name: 'checkout-flow.png', size: 840_000, contentType: 'image/png', src: WIDE, href: undefined, onOpen: undefined },
+  render: (args) => (
+    <div className="p-4">
+      <AttachmentCard {...args} />
+    </div>
+  ),
+}
+
+/**
+ * **A picture the reader has to be allowed to see**, which is every file on the
+ * relay: `remoteSrc` is where it lives and `fetchImage` is how this app fetches
+ * one with the reader's own authorization. The card waits, then draws it.
+ *
+ * Here the fetch takes a second, so the wait is visible. The two apps had
+ * written this same wait, once each.
+ */
+export const FetchedWithPermission: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    name: 'checkout-flow.png',
+    size: 840_000,
+    contentType: 'image/png',
+    src: undefined,
+    href: undefined,
+    remoteSrc: 'relay://checkout-flow.png',
+    fetchImage: () => new Promise<string>((resolve) => setTimeout(() => resolve(WIDE), 1000)),
+  },
+}
+
+/** The same request, refused — a channel this reader is not in. The card says so, and does not leave a gap. */
+export const CouldNotBeFetched: Story = {
+  parameters: { controls: { disable: true } },
+  args: {
+    name: 'checkout-flow.png',
+    size: 840_000,
+    contentType: 'image/png',
+    src: undefined,
+    href: undefined,
+    remoteSrc: 'relay://checkout-flow.png',
+    fetchImage: () => Promise.reject(new Error('relay_membership_required')),
+  },
+}

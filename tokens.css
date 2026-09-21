@@ -79,6 +79,7 @@
   --glow-accent:     0 0 5px rgba(139, 92, 246, 0.6);
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -142,6 +143,7 @@
   --glow-accent:     0 0 5px rgba(167, 139, 250, 0.6);
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
 }
 
 
@@ -209,6 +211,7 @@
   --glow-accent:     0 0 5px rgba(86, 200, 255, 0.6);
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -282,4 +285,5 @@
   --glow-accent:     0 0 5px rgba(75, 88, 212, 0.6);
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
 }

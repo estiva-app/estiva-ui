@@ -52,7 +52,7 @@ describe('tokens.css against tailwind-preset.js', () => {
 
   it('names at least the bg, text, border, accent, semantic and shadow families', () => {
     expect(wanted).toEqual(expect.arrayContaining(['--bg-base', '--text-primary', '--border-subtle', '--accent-primary', '--error-muted', '--shadow-lg']))
-    expect(wanted.length).toBe(46) // 8 bg + 6 text (text-interactive joined 2026-09-01, with Toast) + 4 border + 3 accent + 8 semantic + 3 shadow + focus-ring + 13 transparent colours (11 from D16 2026-09-06; accent-wash and success-wash 2026-09-07)
+    expect(wanted.length).toBe(47) // 8 bg + 6 text (text-interactive joined 2026-09-01, with Toast) + 4 border + 3 accent + 8 semantic + 3 shadow + focus-ring + 14 transparent colours (11 from D16 2026-09-06; accent-wash and success-wash 2026-09-07; scrim-strong with Lightbox, UIG-35)
   })
 
   for (const selector of EXPECTED_THEMES) {

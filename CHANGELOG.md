@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.26.0 — 2026-09-21 — UIG-35: a picture opens full screen, and the card does the whole job
+
+### Added
+
+- **`Lightbox`**: a picture full screen on a scrim, on Base UI's `Dialog`.
+  Escape, the scrim and its own close button close it; a press on the picture
+  does not; focus is held inside and given back; the page behind cannot
+  scroll. Both apps had written this by hand and neither had any of that —
+  Ship had no viewer at all. `src`, `alt`, `onClose`. Swapping `src` swaps the
+  picture, which is how a thumbnail stands in while the original arrives.
+- **`--scrim-strong`** (black at 80%, all four themes): what a picture viewer
+  dims with, against `--scrim`'s 50% for a dialog.
+- **`AttachmentCard`: `remoteSrc`, `remoteFullSrc`, `fetchImage`** — a picture
+  the reader needs permission for. The card owns the wait, the refusal and the
+  swap; the app says only how to fetch, because only it has the authorization.
+- **`AttachmentCard`: `download`** — the card saves the file under its name,
+  the original where there is one, without opening it first.
+
+### Changed
+
+- **`AttachmentCard` opens a picture full screen by itself**, in `Lightbox`.
+  `onOpen` still replaces that with an app's own.
+
 ## 0.25.0 — 2026-09-19 — UIG-14: a crash stays in its part, one list spacing, a menu line with its own room
 
 ### Added
