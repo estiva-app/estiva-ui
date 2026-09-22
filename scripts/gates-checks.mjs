@@ -46,6 +46,7 @@ const all = [
   { ref: "UIG-32", owner: "estiva-ui", parts: PEEK_SHIP, title: "Peek and Ship take their gate pieces from the package" },
   { ref: "UIG-33", owner: "estiva-ui", title: "Link — a whole row that is one link" },
   { ref: "UIG-34", owner: "estiva-ui", title: "A tree part — Peek's file tree and folder list" },
+  { ref: "UIG-35", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lightbox — one attachment part that opens a picture full screen, for both apps" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -329,6 +330,38 @@ export default function define(h) {
     ] },
     { ref: "UIG-34", owner: true, checks: [
       { what: "a tree part is in the package", run: () => h.contains("src/index.ts", /\bTree\b/, "src/index.ts exports Tree") },
+    ] },
+    // UIG-35 closed on 21 September and left no record at all: the status script
+    // did not carry the ticket, so nothing read its code back. These do. Both
+    // apps' halves are read from their checkouts, the way UIG-32 reads them.
+    { ref: "UIG-35", owner: true, checks: [
+      { what: "the package has a picture viewer, and it is exported", run: () => h.contains("src/index.ts", /export \{ Lightbox\b/, "src/index.ts exports Lightbox") },
+      { what: "the viewer is Base UI's Dialog, not a layer built by hand", run: () => h.contains("src/Lightbox.tsx", "@base-ui/react/dialog", "Lightbox.tsx is on Base UI's Dialog") },
+      { what: "a viewer built by hand is refused by name", run: () => h.contains("src/eslint/no-rebuilt-behaviour.ts", /owners: \[[^\]]*'Lightbox'/, "no-rebuilt-behaviour.ts names Lightbox as an owner") },
+      { what: "a picture dims harder than a dialog, in every theme", run: () => {
+        const n = (h.read("tokens.css").match(/--scrim-strong:/g) ?? []).length;
+        return n === 4 ? h.PASS("--scrim-strong is in all four themes") : h.FAIL(`--scrim-strong is in ${n} themes, not four`);
+      } },
+      { what: "the card fetches, opens and saves by itself", run: () => {
+        const t = h.read("src/AttachmentCard.tsx");
+        const missing = ["remoteSrc", "remoteFullSrc", "fetchImage", "download", "alt"].filter((p) => !t.includes(`\n  ${p}?:`));
+        return missing.length ? h.FAIL(`AttachmentCard has no ${missing.join(", ")}`) : h.PASS("remoteSrc, remoteFullSrc, fetchImage, download and alt are the card's own");
+      } },
+      { what: "the viewer keeps the page contract and has a story", run: () => (h.exists("src/Lightbox.mdx") && contract("src/Lightbox.mdx") && h.exists("src/Lightbox.stories.tsx") ? h.PASS("Lightbox.mdx keeps the contract and Lightbox.stories.tsx draws it") : h.FAIL("Lightbox.mdx is missing or out of contract, or there is no story")) },
+      { what: "Peek draws the package's card and keeps no viewer of its own", run: () => {
+        const dir = (process.env.GATES_PEEK ?? "../peek").replace(/[\\/]+$/, "");
+        if (!h.exists(`${dir}/package.json`)) return h.UNKNOWN(`Peek is not at ${dir}`);
+        if (h.exists(`${dir}/src/components/ui/FileAttachmentCard.tsx`)) return h.FAIL("Peek still has ui/FileAttachmentCard.tsx");
+        return h.contains(`${dir}/src/components/ConversationCard.tsx`, /\bAttachmentCard\b/, "Peek's ConversationCard draws the package's AttachmentCard");
+      } },
+      { what: "Ship draws the package's card and fetches nothing by hand", run: () => {
+        const dir = (process.env.GATES_SHIP ?? "../ship").replace(/[\\/]+$/, "");
+        const f = `${dir}/web/src/components/ui/Attachment.tsx`;
+        if (!h.exists(`${dir}/web/package.json`)) return h.UNKNOWN(`Ship is not at ${dir}`);
+        if (!h.exists(f)) return h.FAIL("Ship has no web/src/components/ui/Attachment.tsx");
+        if (/\buseBlobUrl\b|\bsaveFile\b/.test(h.read(f))) return h.FAIL("Ship's Attachment.tsx still fetches or saves by hand");
+        return h.contains(f, /\bAttachmentCard\b/, "Ship's Attachment.tsx draws the package's AttachmentCard");
+      } },
     ] },
     // Set by UIG-10, 17 September (GATES.md §23); widened by UIG-32, which moved both apps. Peek and
     // Ship are read from their checkouts: every piece the package ships, imported, and no copy left.
