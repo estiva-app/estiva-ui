@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**22 September 2026. UIG-18 is built: every part of Ship worth reusing carries a written rule beside it, and the four that were drawn nowhere have a story.** Ship PR #170, open and not merged — Katerina merges. **The ticket's numbers were eleven days old:** it said 74 components and 18 stories; the catalogue reads **91 parts in 73 files — 40 re-export, 12 reusable, 39 one-off, 0 candidates** (a file is not a part: `ConversationThread.tsx` exports two). **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are one-offs, and she ruled them out until she asked what they were — `BlockAnchorNote` turned out to be drawn by **no story in Ship at all**, because no fixture carries an anchor, so its two failure sentences, whose whole job is to be told apart, had never been read side by side. It is in, with a story; `DescriptionEditor` is in with a page only. **Stories: 20 files and 105 stories before, 24 and 123 after**; parts linked to a story, 18 before and 22 after. Four parts keep a "Seen in" list instead of a story that would repeat one she already has (her rule, 21 September). **The seven Ship/Peek pairs are recorded** — she ruled: record all seven, promote none yet; the strongest is `Reference`, the same file name in the same folder in both repos, which §11 G3 called out on 13 September. **Three things it found, none fixed** (she ruled "not yet" on filing them): a foreign status loses its shape *and* the colour the manifest published, in every app; a "muted" mention card differs by eight to twelve levels, which D70's own method calls noise; and four dialogs' ten stories link to nothing. **Then she reviewed it**, and eight points came back. Five were right and are built: a foreign status had the wrong icon (finding 1, which she found independently — fixed rather than filed), the conversation count floated 2.6px above the app chip, a card drew a rule above its children, `BlockAnchorNote` and `ConversationThread` needed stories where the part is actually seen, and `ConversationCount` needed one fewer. **And tables**, read and written, in this PR rather than a ticket of its own by her ruling — which found a bug that would have deleted them: a round trip read a cell’s paragraphs as inline runs, so a table survived being opened and vanished on save. Marker text keeps `| a | b |` literal; §13.2 makes it a MUST and the dialect is not Ship’s. `gates:status` reads UIG-18 **6 of 6** — its guessed evidence was wrong twice and is corrected here and in §15. Next: UIG-17. See **UIG-18: building it**, below.
+**22 September 2026. UIG-18 is built: every part of Ship worth reusing carries a written rule beside it, and the four that were drawn nowhere have a story.** Ship PR #170, open and not merged — Katerina merges. **The ticket's numbers were eleven days old:** it said 74 components and 18 stories; the catalogue reads **91 parts in 73 files — 40 re-export, 12 reusable, 39 one-off, 0 candidates** (a file is not a part: `ConversationThread.tsx` exports two). **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are one-offs, and she ruled them out until she asked what they were — `BlockAnchorNote` turned out to be drawn by **no story in Ship at all**, because no fixture carries an anchor, so its two failure sentences, whose whole job is to be told apart, had never been read side by side. It is in, with a story; `DescriptionEditor` is in with a page only. **Stories: 20 files and 105 stories before, 25 and 126 after**; parts linked to a story, 18 before and 23 after. Three of the twelve keep a "Seen in" list instead of a story that would repeat one she already has (her rule, 21 September). **The seven Ship/Peek pairs are recorded** — she ruled: record all seven, promote none yet; the strongest is `Reference`, the same file name in the same folder in both repos, which §11 G3 called out on 13 September. **Three things it found, none fixed** (she ruled "not yet" on filing them): a foreign status loses its shape *and* the colour the manifest published, in every app; a "muted" mention card differs by eight to twelve levels, which D70's own method calls noise; and four dialogs' ten stories link to nothing. **Then she reviewed it**, and eight points came back. Five were right and are built: a foreign status had the wrong icon (finding 1, which she found independently — fixed rather than filed), the conversation count floated 2.6px above the app chip, a card drew a rule above its children, `BlockAnchorNote` and `ConversationThread` needed stories where the part is actually seen, and `ConversationCount` needed one fewer. **And tables**, read and written, in this PR rather than a ticket of its own by her ruling — which found a bug that would have deleted them: a round trip read a cell’s paragraphs as inline runs, so a table survived being opened and vanished on save. Marker text keeps `| a | b |` literal; §13.2 makes it a MUST and the dialect is not Ship’s. `gates:status` reads UIG-18 **6 of 6** — its guessed evidence was wrong twice and is corrected here and in §15. Next: UIG-17. See **UIG-18: building it**, below.
 
 **19 September 2026, night. UIG-14 is done, and UIG-15 and UIG-16 close with it: 0.25.0 is released and in both apps.** estiva-ui PR #70 (0.24.1, merge `233c9cc`) and PR #71 (0.25.0, merge `b8b22be`), tagged and published; npm's latest is 0.25.0. Peek PR #264 (merge `5c4bb45`) and Ship PR #165 (merge `14bb501`) took it, merged and deployed. **Peek:** its five list columns are the package's `ListColumn` and its own wrapper is gone (a small context, `railClosed.ts`, passes on whether the rail is closed); its own `ErrorBoundary` is deleted, the package's in its place; Desk's "Urgent" is a `SectionHeader` (measured the same, 4px higher from the 2px spacing); every line between a menu's groups is a `MenuSeparator` — six in three menus, and two in the `/` menu, which took its room from an 8px gap (a fourth way, missed in round 8's count; measured 8px before, 4px after). One change not asked for: Peek's crash screen no longer passes `bg-bg-base`, because the gate refuses a colour passed into a package part; `body` paints the same token under it. **Ship** took 0.25.0 with nothing of its own to change: no list column, no crash catcher, and its one menu has no line. `gates:status` on the merged code reads UIG-14 **2 of 2**, UIG-15 **3 of 3**, UIG-16 **3 of 3**; 19 done. Next: UIG-17 and UIG-18. See **UIG-14: building it**, below.
 
@@ -232,19 +232,37 @@ reusable + 39 one-off + 0 promote-candidate = 91**. A file is not a part —
 — which is the same reconciliation UIG-12 had to make for the package. The
 target set is **12**, not 74.
 
-**Stories, before and after.** 20 story files and 105 stories before, 24 and
-123 after; parts linked to a story, 18 before and 22 after. Four stories are
+**Stories, before and after.** 20 story files and 105 stories before, 25 and
+126 after; parts linked to a story, 18 before and 23 after. Four stories are
 new, for the four parts nothing drew: `ForeignObject` (six states and no
 picture of its own), `RichText` (the block vocabulary), `ConversationCount`
 (the zero rule is invisible and the unit changes what the number means) and
 `BlockAnchorNote` — which **no story in Ship drew at all**, because no fixture
 carries an anchor, so its two failure sentences, whose whole job is to be told
-apart, had never been read side by side.
+apart, had never been read side by side. A fifth file came out of her review:
+`ConversationThread` took its own four stories, and the file that held them was
+left to `Conversations` — 20 files and 105 stories became 25 and 126.
 
-Four of the twelve carry a **"Seen in"** list instead of a story of their own —
-`Attachment`, `ConversationThread`, `Description`, `NewIssueDialog`. Katerina's
-rule of 21 September: a story that repeats one you already have is not worth
-writing; show how the app uses it instead.
+Three of the twelve carry a **"Seen in"** list instead of a story of their own —
+`Attachment`, `Description`, `NewIssueDialog` — and so does `DescriptionEditor`,
+the one-off she kept in. Katerina's rule of 21 September: a story that repeats
+one you already have is not worth writing; show how the app uses it instead.
+`ConversationThread` was a fourth until her review asked for its own stories.
+
+**Ship's own list of what has no story is reconciled, not replaced.**
+`COMPONENTS-SHIP.md` F12 has carried a list of eight *files* since the recount
+of 13 September: the five pages, `AuthShell`, `DescriptionEditing` and
+`editorSchema`. Seven of the eight are **one-offs** in the catalogue, which puts
+them outside this ticket's target set, and all seven still have no story. The
+eighth, `editorSchema`, **is not a part at all** — it is the editor's node
+schema, and the catalogue holds no entry for it. That is the whole
+reconciliation: the old list counted files, the catalogue counts parts, and they
+differ by exactly that one. Across all of Ship, 51 of the 73 files that hold a
+part still have no story — 30 of them hold only re-exports, whose story is the
+package's page; 19 hold one-offs; and three hold a reusable part, the three with
+a "Seen in". **F12 stays open**, unclaimed by UIG-18. What is left of it is one
+question, and it is UIG-19's: a page has no story of its own, and neither does a
+dialog drawn inside another story — does the count call either of them covered?
 
 **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are
 one-offs by the catalogue — each used in exactly one place — and the ticket
