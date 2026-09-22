@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**22 September 2026. UIG-18 is built: every part of Ship worth reusing carries a written rule beside it, and the four that were drawn nowhere have a story.** Ship PR #170, open and not merged — Katerina merges. **The ticket's numbers were eleven days old:** it said 74 components and 18 stories; the catalogue reads **91 parts in 73 files — 40 re-export, 12 reusable, 39 one-off, 0 candidates** (a file is not a part: `ConversationThread.tsx` exports two). **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are one-offs, and she ruled them out until she asked what they were — `BlockAnchorNote` turned out to be drawn by **no story in Ship at all**, because no fixture carries an anchor, so its two failure sentences, whose whole job is to be told apart, had never been read side by side. It is in, with a story; `DescriptionEditor` is in with a page only. **Stories: 20 files and 105 stories before, 24 and 123 after**; parts linked to a story, 18 before and 22 after. Four parts keep a "Seen in" list instead of a story that would repeat one she already has (her rule, 21 September). **The seven Ship/Peek pairs are recorded** — she ruled: record all seven, promote none yet; the strongest is `Reference`, the same file name in the same folder in both repos, which §11 G3 called out on 13 September. **Three things it found, none fixed** (she ruled "not yet" on filing them): a foreign status loses its shape *and* the colour the manifest published, in every app; a "muted" mention card differs by eight to twelve levels, which D70's own method calls noise; and four dialogs' ten stories link to nothing. `gates:status` reads UIG-18 **6 of 6** — its guessed evidence was wrong twice and is corrected here and in §15. Next: UIG-17. See **UIG-18: building it**, below.
+
 **19 September 2026, night. UIG-14 is done, and UIG-15 and UIG-16 close with it: 0.25.0 is released and in both apps.** estiva-ui PR #70 (0.24.1, merge `233c9cc`) and PR #71 (0.25.0, merge `b8b22be`), tagged and published; npm's latest is 0.25.0. Peek PR #264 (merge `5c4bb45`) and Ship PR #165 (merge `14bb501`) took it, merged and deployed. **Peek:** its five list columns are the package's `ListColumn` and its own wrapper is gone (a small context, `railClosed.ts`, passes on whether the rail is closed); its own `ErrorBoundary` is deleted, the package's in its place; Desk's "Urgent" is a `SectionHeader` (measured the same, 4px higher from the 2px spacing); every line between a menu's groups is a `MenuSeparator` — six in three menus, and two in the `/` menu, which took its room from an 8px gap (a fourth way, missed in round 8's count; measured 8px before, 4px after). One change not asked for: Peek's crash screen no longer passes `bg-bg-base`, because the gate refuses a colour passed into a package part; `body` paints the same token under it. **Ship** took 0.25.0 with nothing of its own to change: no list column, no crash catcher, and its one menu has no line. `gates:status` on the merged code reads UIG-14 **2 of 2**, UIG-15 **3 of 3**, UIG-16 **3 of 3**; 19 done. Next: UIG-17 and UIG-18. See **UIG-14: building it**, below.
 
 **19 September 2026. UIG-14, with UIG-15 and UIG-16, is built: 0.24.0 is released and in both apps, and 0.24.1 finishes the three tickets (PR open, not merged).** Peek PR #263 and Ship PR #164 took 0.24.0 and every app fix Katerina ruled on, merged and deployed. Two more rounds on the review page — every point of UIG-15 and UIG-16, then the three tickets read again against the code — gave 28 more cards; she ruled on all of them. 0.24.1 carries them: F1–F3, seven parts that keep their height in a scrolling column, RailItem at a set 48px, a new part `ListColumn` (Peek's list column, moved in), and the page words: no app names, no credits, the numbers, the planned lines. Two new tickets: UIG-33 (a whole row that is one link) and UIG-34 (a tree part). **UIG-14: building it**, below.
@@ -210,9 +212,121 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-12: estiva-ui PR #61 and PR #63 (0.22.0); peek PR #251 and ship PR #162 — the catalogue, taken ahead of UIG-11 because three later tickets read it (**UIG-12: building it**, below). Phase 3 starts |
 | ✅ done | UIG-13: estiva-ui PR #67 (0.23.0, with UIG-10's relay work and PR #66); peek PR #259 and ship PR #163 — the apps' catalogues, and Katerina's A to D (**UIG-13: building it**, below) |
 | ✅ done | UIG-14, with UIG-15 and UIG-16: estiva-ui PR #69 (0.24.0), #70 (0.24.1) and #71 (0.25.0); peek PR #263 and #264, ship PR #164 and #165 (**UIG-14: building it**, below) |
-| **now** | UIG-17 and UIG-18, which have their lists from UIG-13: Peek's 50 reusable parts, Ship's 12 (no candidates are left: Katerina ruled on all 21). **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
+| 🚧 built | UIG-18: ship PR #170 — fourteen usage pages, four new stories, and the seven Ship/Peek pairs (**UIG-18: building it**, below). Open, not merged |
+| **now** | UIG-17, which has its list from UIG-13: Peek's 50 reusable parts (no candidates are left: Katerina ruled on all 21). **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
+
+### UIG-18: building it
+
+**What it is.** Every part of Ship worth reusing now carries a written rule
+beside it, and the four that were drawn nowhere have a story. Ship PR #170,
+open and not merged. Katerina reviewed all of it from photos before anything
+was written: https://claude.ai/artifact/4fqpPcBaP5LWKk6RkqD5mC
+
+**The ticket's numbers were eleven days old.** It said *74 components and only
+18 stories*. Measured on `origin/main 4bffd58`, the catalogue UIG-13 built
+reads **91 parts in 73 files** (one more file holds none): **40 re-export + 12
+reusable + 39 one-off + 0 promote-candidate = 91**. A file is not a part —
+`ConversationThread.tsx` alone exports `Conversations` and `ConversationThread`
+— which is the same reconciliation UIG-12 had to make for the package. The
+target set is **12**, not 74.
+
+**Stories, before and after.** 20 story files and 105 stories before, 24 and
+123 after; parts linked to a story, 18 before and 22 after. Four stories are
+new, for the four parts nothing drew: `ForeignObject` (six states and no
+picture of its own), `RichText` (the block vocabulary), `ConversationCount`
+(the zero rule is invisible and the unit changes what the number means) and
+`BlockAnchorNote` — which **no story in Ship drew at all**, because no fixture
+carries an anchor, so its two failure sentences, whose whole job is to be told
+apart, had never been read side by side.
+
+Four of the twelve carry a **"Seen in"** list instead of a story of their own —
+`Attachment`, `ConversationThread`, `Description`, `NewIssueDialog`. Katerina's
+rule of 21 September: a story that repeats one you already have is not worth
+writing; show how the app uses it instead.
+
+**Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are
+one-offs by the catalogue — each used in exactly one place — and the ticket
+named them as must-do anyway. Katerina ruled them out, then asked what they
+were: *"if you explain to me what DescriptionEditor and BlockAnchorNote are,
+and why we may need them in storybook, i could change my mind."* The answer was
+that their rules live nowhere — blur commits and Enter makes a paragraph; a
+detached anchor and an unaddressable one mean opposite things — so she took
+`BlockAnchorNote` back in with a story, and `DescriptionEditor` with a page
+only, its picture being one click inside `ProjectHeader`'s stories. **Used once
+and invisible are different problems, and the catalogue only answers the
+first.**
+
+Each page keeps the package's own contract, not a new one: a line saying what
+the part is, then **When**, **When not**, **How** with code, **What it owns**.
+Storybook reads them from beside their components — one line in
+`web/.storybook/main.ts`, which Katerina asked for directly (*"Yes we need docs
+page for the components"*).
+
+#### The seven things Ship and Peek both draw
+
+The ticket asks for the pairs to be recorded, because they are the strongest
+promote candidates there are and the clearest evidence for what is left of the
+migration. Katerina ruled: record all seven, promote none yet.
+
+| Ship | Peek | lines | what is already shared, and what is not |
+|---|---|---|---|
+| `Reference` | `Reference` | 202 / 282 | **The same file name in the same folder in both repos.** Both open with the same sentence about SPEC §13.1 and RIC-10, both sit on the package's `InlineChip` and `WithTooltip`, both have a private `objectLabel()` that reads the title slot and quotes a person-titled message's opening words. What differs is Peek's scroll-to-a-message and its router, and how each draws the status. §11 G3 called this one out on 13 September; it is still true |
+| `ForeignObject` | `ForeignObjectWidget` + `ForeignBody` | 225 / 643 + 54 | Same projection in, two cards out. Peek's is nearly three times the size because it carries the actions the manifest declares — its status and lead are dropdowns you can change; Ship's is layout only. The app name is a chip on one and small caps on the other |
+| `RichText` | `MessageBody` + `RenderBlocks` | 248 / 496 | The parsing is already the package's and tested there. What each app wrote twice is the mapping from that tree to elements, and they agree on nearly all of it. Peek draws a body on a filled block; Ship draws it on the page |
+| `ConversationThread` + `Conversations` | `ConversationCard` + `ThreadPanel` + `CommentRow` | 670 / 840 + 548 + 92 | A message is a face, a name, a time and a body in both. Then they diverge: Peek carries resolve, highlight, urgent, unread, selected and a hover menu; Ship carries the unread rule and a reply box. Katerina already ruled on 22 September that Peek's own two cards must not be merged with each other |
+| `NewIssueDialog` | `CreateTopicDialog` | 92 / 88 | Title bar with a close, a required Title, a second field, a footer with Cancel and one primary. Both already sit on the package's dialog, fields and inputs, so what is duplicated is only the arrangement — and they arrived at the same one independently |
+| `StatusLabel` | `StatusPill` | 90 / inside ForeignObjectWidget | Ship gives a status a shape; Peek gives it a colour, read from the colour the owning app's manifest publishes. Ship ignores that colour. See finding 1 |
+| `Related` | `ProjectTickets` + `TopicProjectPanel` | 57 / 183 + 1 | Both answer "what else is attached to this", and answer it genuinely differently: Ship lists the foreign files placed under an object, Peek shows the paired project's properties and ticket progress. Listed because the pairs must be exhaustive, not because it is one |
+
+`Attachment` is not on this list: UIG-35 already resolved it, and both apps now
+draw the package's `AttachmentCard`.
+
+#### Three things it found, none of them fixed
+
+The ticket forbids touching a component, and Katerina ruled "not yet" on filing
+them. All three are on the review page with photos.
+
+1. **A foreign status is always a grey plain circle, in every app.** The
+   projection replaces the raw status with the vocabulary's *label* before a
+   consumer sees it (`projection.js`: `value = entry?.label ?? raw`) and puts
+   the colour beside it as `slot.colour`. Ship's `ForeignObject` and
+   `Reference` both call `StatusLabel` with `value={slots.status.value}`, and
+   that shape switch only knows raw keys — so it never matches and the colour
+   is never read. Peek's `StatusPill` reads `slot.colour` and is right.
+   **The story hid it:** `FolderView.stories.tsx` feeds `in_progress`, the raw
+   key, which the projection never sends — so the story shows a blue half
+   circle beside the literal text while production shows a grey circle beside
+   "In Progress".
+2. **A "muted" mention card is eight to twelve levels darker.** `Activity`
+   promises that a stranger's name-drop "must not sit indistinguishably beside
+   your project's own work". Measured in Chrome on the `ship` theme: the
+   ordinary card is `rgb(22, 24, 31)` with a 12% hairline, the muted one is
+   transparent over `rgb(14, 15, 19)` with a 6.7% hairline. D70's own method
+   calls a channel off by eight or less *noise*.
+3. **Four dialogs have ten stories the catalogue cannot see.**
+   `dialogs.stories.tsx` groups them under one heading and names no
+   `component`, because it cannot name four — so `NewIssueDialog` is reported
+   as having no story when it has three. Peek has the same gap, which UIG-17
+   found in `Overlays/Dialogs` and `Overlays/Menus`. **UIG-19 has to decide
+   whether "drawn inside another story" counts**; until it does, both counts
+   are stated rather than one.
+
+**The checks, and what the first guess got wrong.** `gates:status` reads
+UIG-18 **6 of 6**. The guessed evidence looked for five headings including
+"What it is" — but the package's contract has four, and "what it is" is the
+opening line under the title, so every page that kept the contract would have
+failed. It also read `e.class`, which the catalogue does not have: the class is
+on `e.app`. A page is now found by the *part's* name rather than its file,
+because two exports can share one file, and the text is read with CRLF
+normalised, because Ship is checked out with CRLF on Windows.
+
+**Not in this ticket.** Nothing moved, nothing was renamed but a story file,
+and no promote ticket is open — Katerina ruled "not yet" on both filing the
+findings and promoting a pair. `Related` may never have been on screen in
+production: it draws nothing at all, heading included, unless a file has been
+placed under a project or an issue.
 
 ### UIG-14: building it
 
@@ -2720,7 +2834,7 @@ that app. A ticket spread evenly over all repos is owned by estiva-ui.
 | UIG-15 | Folded into UIG-14 | estiva-ui | | `EmptyState.mdx` keeps the page contract; this record walks the eight Folders mistakes, D1 to D8; `ContainerHeader.mdx` states 48px, 20px in and 16px from the right |
 | UIG-16 | Folded into UIG-14 | estiva-ui | | every component page keeps the page contract; table R in this record lists every page; the record holds the rule on exports that are not parts |
 | UIG-17 | Usage rules — Peek's own components | peek | | `PendingAttachmentChip.mdx` has the five sections; every Peek registry entry has a class |
-| UIG-18 | Usage rules — Ship's own components | ship | | `ForeignObject.mdx` has the five sections; every Ship registry entry has a class |
+| UIG-18 | Usage rules — Ship's own components | ship | | every **reusable** part has a page keeping the package's contract — an opening line, When, When not, How with code, What it owns (four headings, not five: "what it is" is the opening line); `DescriptionEditor.mdx` and `BlockAnchorNote.mdx` too, by Katerina's ruling of 22 September; every page either carries its own stories or says where it is seen; `.storybook/main.ts` globs `src/components/**/*.mdx`; `ForeignObject`, `RichText`, `ConversationCount` and `BlockAnchorNote` each have a story file; every entry in Ship's catalogue has `app.class` (confirmed by UIG-18, 22 September) |
 | UIG-19 | Lock the contract in CI, one search | estiva-ui | peek, ship | a CI step runs an `npm run …contract…` script; estiva-ui's Storybook has `refs` |
 | UIG-20 | The Claude skill | estiva-ui | peek, ship | a committed `SKILL.md` that runs `ui:find` |
 | UIG-21 | CLAUDE.md becomes an index | estiva-ui | peek, ship | `.claude/rules/*.md` with `paths:` frontmatter |
