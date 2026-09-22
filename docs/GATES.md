@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**22 September 2026. UIG-18 is built: every part of Ship worth reusing carries a written rule beside it, and the four that were drawn nowhere have a story.** Ship PR #170, open and not merged — Katerina merges. **The ticket's numbers were eleven days old:** it said 74 components and 18 stories; the catalogue reads **91 parts in 73 files — 40 re-export, 12 reusable, 39 one-off, 0 candidates** (a file is not a part: `ConversationThread.tsx` exports two). **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are one-offs, and she ruled them out until she asked what they were — `BlockAnchorNote` turned out to be drawn by **no story in Ship at all**, because no fixture carries an anchor, so its two failure sentences, whose whole job is to be told apart, had never been read side by side. It is in, with a story; `DescriptionEditor` is in with a page only. **Stories: 20 files and 105 stories before, 24 and 123 after**; parts linked to a story, 18 before and 22 after. Four parts keep a "Seen in" list instead of a story that would repeat one she already has (her rule, 21 September). **The seven Ship/Peek pairs are recorded** — she ruled: record all seven, promote none yet; the strongest is `Reference`, the same file name in the same folder in both repos, which §11 G3 called out on 13 September. **Three things it found, none fixed** (she ruled "not yet" on filing them): a foreign status loses its shape *and* the colour the manifest published, in every app; a "muted" mention card differs by eight to twelve levels, which D70's own method calls noise; and four dialogs' ten stories link to nothing. `gates:status` reads UIG-18 **6 of 6** — its guessed evidence was wrong twice and is corrected here and in §15. Next: UIG-17. See **UIG-18: building it**, below.
+**22 September 2026. UIG-18 is built: every part of Ship worth reusing carries a written rule beside it, and the four that were drawn nowhere have a story.** Ship PR #170, open and not merged — Katerina merges. **The ticket's numbers were eleven days old:** it said 74 components and 18 stories; the catalogue reads **91 parts in 73 files — 40 re-export, 12 reusable, 39 one-off, 0 candidates** (a file is not a part: `ConversationThread.tsx` exports two). **Fourteen pages, not twelve.** `DescriptionEditor` and `BlockAnchorNote` are one-offs, and she ruled them out until she asked what they were — `BlockAnchorNote` turned out to be drawn by **no story in Ship at all**, because no fixture carries an anchor, so its two failure sentences, whose whole job is to be told apart, had never been read side by side. It is in, with a story; `DescriptionEditor` is in with a page only. **Stories: 20 files and 105 stories before, 24 and 123 after**; parts linked to a story, 18 before and 22 after. Four parts keep a "Seen in" list instead of a story that would repeat one she already has (her rule, 21 September). **The seven Ship/Peek pairs are recorded** — she ruled: record all seven, promote none yet; the strongest is `Reference`, the same file name in the same folder in both repos, which §11 G3 called out on 13 September. **Three things it found, none fixed** (she ruled "not yet" on filing them): a foreign status loses its shape *and* the colour the manifest published, in every app; a "muted" mention card differs by eight to twelve levels, which D70's own method calls noise; and four dialogs' ten stories link to nothing. **Then she reviewed it**, and eight points came back. Five were right and are built: a foreign status had the wrong icon (finding 1, which she found independently — fixed rather than filed), the conversation count floated 2.6px above the app chip, a card drew a rule above its children, `BlockAnchorNote` and `ConversationThread` needed stories where the part is actually seen, and `ConversationCount` needed one fewer. **And tables**, read and written, in this PR rather than a ticket of its own by her ruling — which found a bug that would have deleted them: a round trip read a cell’s paragraphs as inline runs, so a table survived being opened and vanished on save. Marker text keeps `| a | b |` literal; §13.2 makes it a MUST and the dialect is not Ship’s. `gates:status` reads UIG-18 **6 of 6** — its guessed evidence was wrong twice and is corrected here and in §15. Next: UIG-17. See **UIG-18: building it**, below.
 
 **19 September 2026, night. UIG-14 is done, and UIG-15 and UIG-16 close with it: 0.25.0 is released and in both apps.** estiva-ui PR #70 (0.24.1, merge `233c9cc`) and PR #71 (0.25.0, merge `b8b22be`), tagged and published; npm's latest is 0.25.0. Peek PR #264 (merge `5c4bb45`) and Ship PR #165 (merge `14bb501`) took it, merged and deployed. **Peek:** its five list columns are the package's `ListColumn` and its own wrapper is gone (a small context, `railClosed.ts`, passes on whether the rail is closed); its own `ErrorBoundary` is deleted, the package's in its place; Desk's "Urgent" is a `SectionHeader` (measured the same, 4px higher from the 2px spacing); every line between a menu's groups is a `MenuSeparator` — six in three menus, and two in the `/` menu, which took its room from an 8px gap (a fourth way, missed in round 8's count; measured 8px before, 4px after). One change not asked for: Peek's crash screen no longer passes `bg-bg-base`, because the gate refuses a colour passed into a package part; `body` paints the same token under it. **Ship** took 0.25.0 with nothing of its own to change: no list column, no crash catcher, and its one menu has no line. `gates:status` on the merged code reads UIG-14 **2 of 2**, UIG-15 **3 of 3**, UIG-16 **3 of 3**; 19 done. Next: UIG-17 and UIG-18. See **UIG-14: building it**, below.
 
@@ -263,6 +263,73 @@ the part is, then **When**, **When not**, **How** with code, **What it owns**.
 Storybook reads them from beside their components — one line in
 `web/.storybook/main.ts`, which Katerina asked for directly (*"Yes we need docs
 page for the components"*).
+
+#### Her design review, and the six things it changed
+
+She read every page and story and came back with eight points. Three were
+questions the code answered — `ForeignObject` *is* built like `ProjectCard`
+(the same `Card`, `p-3`, title row and meta line); the app chip *is* the
+package's, through Ship's one-line re-export; and it holds no arbitrary
+values. The other five were right, and one of them was a bug.
+
+1. **A foreign status had the wrong icon** — finding 1 above, which she saw
+   independently. Fixed rather than filed: `StatusLabel` takes a `colour`, and
+   `ForeignObject` and `Reference` pass the one the manifest declared. The
+   crossing is colour → shape because it is the only one there is: the
+   projection replaces the raw value with the label, and `stage` never reaches
+   a consumer at all. The story fixtures now carry what the relay sends.
+2. **The conversation count floated above the app chip.** Measured: the title
+   19.6px, the chip 20, the count 14.4, the row `items-start`. Count and chip
+   are a centred group now — both centres at 424.2. `Related` is the same fix,
+   its rows being `ForeignObject`.
+3. **The rule above a card's children is gone.** The card's own edge already
+   says where its contents begin; the lines between the children stay.
+4. **Tables, read and written** — below.
+5. **Three story changes.** `BlockAnchorNote` is drawn inside a thread card,
+   where it actually appears; `ConversationThread` gains four stories of its
+   own, because `subdued` cannot be judged unless it sits beside the ordinary
+   card; and `ConversationCount` loses a story, because `unit` changes the
+   sentence a screen reader is given and nothing on screen.
+
+#### Tables
+
+`table` has been a block type since the block model landed and 24 published
+descriptions carry one, but Ship had no editing design, so a table was parked
+as an unknown block — preserved, never drawn. It renders now, and the editor
+makes one (`@tiptap/extension-table`, one control beside the paperclip).
+
+**It had to be both halves at once**, which is why it is here rather than in a
+ticket of its own: reading and writing share `PROSE_BLOCKS`, and a table that
+could be read but not written would have broken RIC-14's one rule. Measured in
+both surfaces: the table 608px, each cell 370.9×28.6, the same padding,
+hairline and header fill; the editor adds ProseMirror's own wrapper and
+changes nothing else.
+
+**The protocol names `table` and not its parts**, so what a row and a cell are
+called is decided by whatever wrote the document — ProseMirror's names, which
+is what both apps' editors are. They arrive as unknown blocks carrying their
+own `typeName`, a first row of header cells becomes a `thead`, and a table
+nested some other way still renders its text.
+
+**A round trip deleted the whole table, and a test caught it.** The save path
+read a cell's paragraphs as inline runs, the way it reads a paragraph's, so
+every row and cell came back empty: a table would have survived being opened
+and vanished on save. A list was the only block container until now, which is
+why the check was written as two names.
+
+**Marker text keeps `| a | b |` literal.** §13.2 says a reader MUST render a
+table as the characters it is; the dialect is the protocol package's and Peek
+reads the same one, so Ship parsing pipes would make one message read two ways.
+Katerina asked for the story that showed this to go — it read as the feature
+being broken rather than as two content models — and ruled the dialect stays
+as it is. The rule is a test and a line on the page.
+
+**One trap worth keeping.** Installing the extension on Windows pruned
+`@emnapi/core` and `@emnapi/runtime` from the lock file — optional peer
+dependencies that resolve only on Linux, which is where CI installs — and
+`npm ci` then refused the whole tree before either job ran anything. Restore
+them from main and prove the lock with `npm ci --dry-run` on a copy holding
+only `package.json` and the lock.
 
 #### The seven things Ship and Peek both draw
 
