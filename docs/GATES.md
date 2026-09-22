@@ -214,8 +214,8 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-12: estiva-ui PR #61 and PR #63 (0.22.0); peek PR #251 and ship PR #162 — the catalogue, taken ahead of UIG-11 because three later tickets read it (**UIG-12: building it**, below). Phase 3 starts |
 | ✅ done | UIG-13: estiva-ui PR #67 (0.23.0, with UIG-10's relay work and PR #66); peek PR #259 and ship PR #163 — the apps' catalogues, and Katerina's A to D (**UIG-13: building it**, below) |
 | ✅ done | UIG-14, with UIG-15 and UIG-16: estiva-ui PR #69 (0.24.0), #70 (0.24.1) and #71 (0.25.0); peek PR #263 and #264, ship PR #164 and #165 (**UIG-14: building it**, below) |
-| 🚧 built | UIG-18: ship PR #170 — fourteen usage pages, four new stories, and the seven Ship/Peek pairs (**UIG-18: building it**, below). Open, not merged |
 | ✅ done | UIG-35: estiva-ui PR #73 (0.26.0); peek PR #273 and ship PR #166 — `Lightbox`, and the attachment card that fetches, opens and saves by itself (**UIG-35: building it**, below). Recorded a day late, 22 September |
+| 🚧 built | UIG-18: ship PR #170 — fourteen usage pages, four new stories, and the seven Ship/Peek pairs (**UIG-18: building it**, below). Open, not merged |
 | **now** | UIG-17, which has its list from UIG-13: Peek's 50 reusable parts (no candidates are left: Katerina ruled on all 21). **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
