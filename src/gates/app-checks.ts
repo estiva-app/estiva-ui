@@ -208,8 +208,15 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       ...(WEB ? [{ what: 'ui:find runs from the top folder too', run: () => h.contains('package.json', /"ui:find":/, 'the top folder has ui:find') }] : []),
       { what: "CI's job gate refuses a loader that differs", run: () => (h.exists(at('node_modules/@estiva-app/ui/dist/registry/cli.js')) && /claude skill:/.test(h.read(at('node_modules/@estiva-app/ui/dist/registry/cli.js'))) ? h.ciJob('gate', 'registry:check') : h.FAIL('the installed package does not check the loader: take a version that does')) },
     ]),
+    // What loads into every Claude session (UIG-21): CLAUDE.md is an index, the
+    // rest loads where it applies, and a rule a check can hold is a check.
     ticket('UIG-21', [
-      { what: 'path-scoped instructions exist', run: () => (h.listFiles('.claude/rules', (n) => n.endsWith('.md')).some((f) => /^paths:/m.test(h.read(f))) ? h.PASS('.claude/rules has paths: instructions') : h.FAIL('no .claude/rules file with paths:')) },
+      { what: 'CLAUDE.md with its imports is under 200 lines, and every rule file is scoped', run: () => h.instructions(200) },
+      { what: "CI's job gate runs the token lint", run: () => {
+        const tokens = h.ciJob('gate', 'lint:tokens')
+        return tokens.result === 'pass' ? tokens : h.ciJob('gate', 'lint')
+      } },
+      { what: "a plain tailwind-merge is an error naming the package's cn()", run: tokenProbe("import { twMerge } from 'tailwind-merge'\nexport const merged = twMerge('p-2', 'p-3')\n", 'error', 'cn()', 'src/lib/__gates_probe__.ts') },
     ]),
     ticket('UIG-22', [
       { what: 'a hand-made header row is an error naming the header part', run: all(h, headers.map((name) => probe(component(`<section className="flex flex-col"><div className="flex items-center px-3 py-2"><span>${name === 'SectionHeader' ? 'Issues' : 'Folders'}</span></div><div /></section>`), 'error', name)), 'a hand-made header row is an error naming the header part') },
