@@ -234,6 +234,7 @@ npm run storybook   # http://localhost:6008 — Design Tokens, and each primitiv
 ```
 
 A change must not change how an app renders: screenshot-compare before and
-after, in both themes here and in the apps' own Storybooks. `CLAUDE.md` has
-the whole contract: what a component, a story, a page and a port are held
-to, and how a change is proved.
+after, in both themes here and in the apps' own Storybooks. `CLAUDE.md` is
+the index. What a component, a story, a page and a release are held to is in
+`.claude/rules/`; how a port is done and a change is proved are the `port` and
+`verify` skills in `.claude/skills/`.
