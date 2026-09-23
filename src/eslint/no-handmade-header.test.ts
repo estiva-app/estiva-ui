@@ -77,12 +77,7 @@ tester.run('no-handmade-header', noHandmadeHeader, {
     {
       // DialogShell's bar, before it drew ContainerHeader: a part's title, named as one.
       name: "a bar whose title is a part's Title",
-      code: component('<div className="flex flex-col">
-<div className="h-12 flex items-center justify-between pl-5 pr-4 border-b shrink-0">
-{open ?? <Parts.Title render={<span />}>{title}</Parts.Title>}
-</div>
-<div />
-</div>'),
+      code: component('<div className="flex flex-col">\n<div className="h-12 flex items-center justify-between pl-5 pr-4 border-b shrink-0">\n{open ?? <Parts.Title render={<span />}>{title}</Parts.Title>}\n</div>\n<div />\n</div>'),
       errors: handmade,
     },
     {
