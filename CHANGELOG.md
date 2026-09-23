@@ -23,6 +23,9 @@
 - **ScrollArea's page and stories** put the padding on `contentClassName`, as
   the component's own comment says; the `max-h` cap goes on
   `viewportClassName`. Nothing in the component changed.
+- **The skill names both exception forms**: a gate escape is
+  `// @estiva-escape: <reason>`; a token-lint one is
+  `// eslint-disable-next-line <rule> -- @estiva-escape: <reason>`.
 
 ### What an app does
 
