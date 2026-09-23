@@ -20,6 +20,7 @@ import { createRequire } from 'node:module'
 import type { ESLint, Linter } from 'eslint'
 import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
+import { noHandmadeHeader } from './no-handmade-header'
 import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
 import { noRestyledPart } from './no-restyled-part'
@@ -44,6 +45,7 @@ const appRules = {
   'no-raw-element': noRawElement,
   'no-rebuilt-behaviour': noRebuiltBehaviour,
   'no-restyled-part': noRestyledPart,
+  'no-handmade-header': noHandmadeHeader,
 }
 
 /**
@@ -97,6 +99,7 @@ plugin.configs.recommended = {
     [`${PLUGIN_KEY}/no-raw-element`]: 'error',
     [`${PLUGIN_KEY}/no-rebuilt-behaviour`]: 'error',
     [`${PLUGIN_KEY}/no-restyled-part`]: 'error',
+    [`${PLUGIN_KEY}/no-handmade-header`]: 'error',
   },
 }
 plugin.configs.strict = {

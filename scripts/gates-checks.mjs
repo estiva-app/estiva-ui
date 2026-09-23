@@ -327,7 +327,11 @@ export default function define(h) {
       { what: "CI's job gate runs the token lint", run: () => h.ciJob("gate", "lint") },
       { what: "a plain tailwind-merge is an error naming src/cn.ts", run: () => h.lint({ config: "eslint.config.js", file: "src/__gates_probe__.ts", code: "import { twMerge } from 'tailwind-merge'\nexport const merged = twMerge('p-2', 'p-3')\n", expect: "error", mentions: "src/cn.ts" }) },
     ] },
-    { ref: "UIG-22", owner: true, checks: [] },
+    // UIG-22: the rule reads a shape, so it is proved on shapes (src/eslint/no-handmade-header.test.ts).
+    { ref: "UIG-22", owner: true, checks: [
+      { what: "the apps' gate carries no-handmade-header", run: () => h.contains("src/eslint/index.ts", /'no-handmade-header': noHandmadeHeader[\s\S]*recommended[\s\S]*no-handmade-header`\]: 'error'/, "no-handmade-header is an app rule, on in recommended") },
+      { what: "it is tested on both Folders panes and on a shape with other class names", run: () => h.contains("src/eslint/no-handmade-header.test.ts", /the shape, not the class names/, "the rule's tests hold the shape") },
+    ] },
     { ref: "UIG-23", owner: true, checks: [
       { what: "a hand-made empty line is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe({ items }: { items: string[] }) {\n  return <div>{items.length === 0 ? <p className=\"text-text-secondary\">Nothing here</p> : items.map((i) => <span key={i}>{i}</span>)}</div>\n}\n", expect: "error", mentions: "EmptyState" }) },
     ] },
