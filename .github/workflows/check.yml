@@ -108,7 +108,12 @@ jobs:
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
   # A story with a violation is a failing test. Its own job, so the browser
   # download runs beside the build rather than after it.
+  #
+  # On main only, never on a pull request (Katerina, 23 September 2026): it is
+  # not required to merge, it is the slowest job, and accessibility is one piece
+  # of work for later, all at once.
   a11y:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
