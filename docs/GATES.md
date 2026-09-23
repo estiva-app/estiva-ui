@@ -18,7 +18,7 @@ answer
 
 ## §0 Where we are
 
-**23 September 2026. UIG-17 is built and in review: every reusable part of Peek carries a written rule beside it, and its Storybook was rebuilt to one principle.** peek PR [#307](https://github.com/estiva-app/peek/pull/307), 36 commits, `check` and `gate` green, MERGEABLE/CLEAN — **not merged, Katerina merges.** `gates:status` in peek reads UIG-17 **4 of 4**. estiva-04 reviewed it at `ce1c9b1` and its four findings are folded in below.
+**23 September 2026. UIG-17 is built and in review: every reusable part of Peek carries a written rule beside it, and its Storybook was rebuilt to one principle.** peek PR [#307](https://github.com/estiva-app/peek/pull/307), `check` and `gate` green, MERGEABLE/CLEAN — **not merged, Katerina merges.** `gates:status` in peek reads UIG-17 **4 of 4**. estiva-04 reviewed it at `ce1c9b1` and its four findings are folded in below. **No commit count is written here on purpose** — it was wrong within an hour of being written, twice, and a number that changes every time Katerina asks for one more thing does not belong in a record. The PR is the count.
 
 **The numbers were eleven days old here too.** The ticket says 115 parts; `GATES.md` said 53 reusable. Rebuilt from the branch's own code, after `main` merged in **twice**: **145 parts in 118 files — 20 re-export, 48 reusable, 76 one-off, 0 promote-candidates, 1 unused.** All 48 have a page. The one candidate the app had, `EditedMarker`, **she ruled stays Peek's**, so the promote list closes with her word rather than an inference; the classification is written into the component's own comment.
 
@@ -246,7 +246,7 @@ Every Ship link keeps `linkTo`, and both of Peek's router links keep the router:
 | ✅ done | UIG-14, with UIG-15 and UIG-16: estiva-ui PR #69 (0.24.0), #70 (0.24.1) and #71 (0.25.0); peek PR #263 and #264, ship PR #164 and #165 (**UIG-14: building it**, below) |
 | ✅ done | UIG-35: estiva-ui PR #73 (0.26.0); peek PR #273 and ship PR #166 — `Lightbox`, and the attachment card that fetches, opens and saves by itself (**UIG-35: building it**, below). Recorded a day late, 22 September |
 | ✅ done | UIG-18: ship PR #170 (merge `643823e`) — fourteen usage pages, five new stories, tables, and the seven Ship/Peek pairs (**UIG-18: building it**, below) |
-| **now** | UIG-17: **in review** — peek PR #307 (36 commits) green and MERGEABLE/CLEAN, not merged. `gates:status` 4 of 4. Its list came from UIG-13 and has moved twice: **48 reusable, 0 candidates** (145 parts), not the 50 or the 53 recorded earlier. **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
+| **now** | UIG-17: **in review** — peek PR #307 green and MERGEABLE/CLEAN, not merged. `gates:status` 4 of 4. Its list came from UIG-13 and has moved twice: **48 reusable, 0 candidates** (145 parts), not the 50 or the 53 recorded earlier. **UIG-11** (Leaf) still waits, by her ruling, and needs Jan for sign-in on the real Estiva ID and for its event kinds. UIG-30 any time. UIG-31 much later |
 
 UIG-27 blocks UIG-7 and UIG-8. UIG-28 blocks nothing, but it fixes a hole in the token lint that phase 1 sits on, so do it first. The reference number is not the order.
 
