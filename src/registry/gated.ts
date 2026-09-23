@@ -270,7 +270,9 @@ export function gatedFindings(registry: Registry, root: string, { kinds = ['reus
     const out = fn ? gates(fn) : new Set<string>()
     if (fn && depth < 3) {
       for (const { tag, attr, prop } of handsOn(fn, sf)) {
-        if (out.has(prop)) continue
+        // A dialog is shut in a story until someone opens it, so nothing it draws
+        // is missing from the picture (Katerina, 23 September).
+        if (out.has(prop) || /Dialog$/.test(tag)) continue
         const here = declared(sf, tag) ? sf : fileOf.has(tag) ? sourceOf(fileOf.get(tag)!) : null
         if (!here || !gatesOf(tag, here, depth + 1).has(attr)) continue
         // Already pictured one level down: CollapsibleSection hands `trailing` to
@@ -288,7 +290,8 @@ export function gatedFindings(registry: Registry, root: string, { kinds = ['reus
   }
 
   for (const entry of registry.entries) {
-    const cls = entry.app?.class ?? (registry.builtFrom.repo === 'estiva-ui' ? 'reusable' : '')
+    // The package's entries carry no app class: every one of its components is one.
+    const cls = entry.app?.class ?? 'component'
     if (!kinds.includes(cls) || entry.kind !== 'component') continue
     const sf = sourceOf(entry.sourceFile)
     if (!sf) continue

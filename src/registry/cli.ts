@@ -43,6 +43,7 @@ import { CLASSES, validateRegistry, type Registry } from './schema'
  */
 const packageBuilder = () => import('./build')
 const appBuilder = () => import('./app')
+const gatedScan = () => import('./gated')
 
 const [command, ...rest] = process.argv.slice(2)
 const VALUED = ['--limit', '--out', '--file', '--root', '--repo', '--also']
@@ -134,6 +135,24 @@ function checkLinks(registry: Registry, folder: string): boolean {
   return true
 }
 
+/**
+ * What a part draws only when a prop is passed, where no story passes it
+ * (UIG-19, `./gated`). Strict, by Katerina's ruling: a part's own stories show
+ * everything it can draw. In an app it reads the reusable parts; in the package,
+ * every component (`kinds` is the package's one class, `component`).
+ */
+async function checkGated(registry: Registry, folder: string, kinds?: string[]): Promise<boolean> {
+  const { gatedFindings } = await gatedScan()
+  const found = gatedFindings(registry, folder, { ...(kinds ? { kinds } : {}), pictured: 'own' })
+  if (found.length) {
+    const lines = found.map((f) => `${f.part} (${f.file}) draws something only when given \`${f.prop}\`, and no story that draws it passes \`${f.prop}\`: pass it in a story`)
+    process.stderr.write(`stories: ${found.length === 1 ? 'one thing a part draws is' : `${found.length} things parts draw are`} never shown:\n  ${lines.join('\n  ')}\n`)
+    return false
+  }
+  process.stdout.write('stories: everything a part draws behind a prop is shown by a story\n')
+  return true
+}
+
 /** One line per kind, in a fixed order, so two runs read the same. */
 function summary(registry: Registry): string {
   const count = (cls: string) => registry.entries.filter((entry) => entry.app?.class === cls).length
@@ -216,7 +235,8 @@ async function main(): Promise<number> {
           process.stdout.write(`usage pages: all ${owed} reusable parts keep the contract and are drawn somewhere\n`)
         }
         const linked = checkLinks(registry, root)
-        return broken.length || !linked ? 1 : 0
+        const shown = await checkGated(registry, root)
+        return broken.length || !linked || !shown ? 1 : 0
       }
       const { buildRegistry, serializeRegistry } = await packageBuilder()
       const path = packageRegistryPath()
@@ -237,7 +257,9 @@ async function main(): Promise<number> {
         return 1
       }
       process.stdout.write(`${path}: current, ${built.entries.length} entries from ${built.builtFrom.exports} exports\n`)
-      return checkLinks(built, root) ? 0 : 1
+      const linked = checkLinks(built, root)
+      const shown = await checkGated(built, root, ['component'])
+      return linked && shown ? 0 : 1
     }
 
     default:
