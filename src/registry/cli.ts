@@ -3,7 +3,7 @@
  * `estiva-ui` — the catalogue as a command (UIG-12, UIG-13; docs/GATES.md §23
  * for why it ships in the package rather than as a script pasted into each repo).
  *
- *   estiva-ui find <words…> [--also [name=]<folder>]… [--json] [--limit n]
+ *   estiva-ui find <words…> [--here | --also [name=]<folder>…] [--json] [--limit n]
  *   estiva-ui build [--out <path>]
  *   estiva-ui check
  *
@@ -21,7 +21,9 @@
  *
  * `find` searches the package's catalogue — the one shipped inside the installed
  * package, or this repo's own in the package — plus, in an app, the app's own,
- * built fresh, plus each `--also` app that sits beside it.
+ * built fresh, plus every app beside it (UIG-20, `./siblings`): found, not
+ * named, so one command answers the same from any repository, or from the
+ * folder that holds them. `--here` searches no neighbour; `--also` names them.
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
@@ -30,6 +32,7 @@ import { basename, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
+import { findSiblings, workspaceOf } from './siblings'
 import { CLASSES, validateRegistry, type Registry } from './schema'
 
 /**
@@ -179,7 +182,13 @@ async function main(): Promise<number> {
           process.stderr.write(`not searched: ${first}${more.length ? `\n${more.slice(0, 3).join('\n')}${more.length > 3 ? `\n  …and ${more.length - 3} more — run "estiva-ui check" there` : ''}` : ''}\n`)
         }
       }
-      if (!isPackage) await add(root, value('repo'))
+      // The folder it runs in is searched when it is an app; the folder that
+      // holds the repositories is not one, and only its neighbours answer.
+      const here = !isPackage && existsSync(resolve(root, 'package.json')) ? (manifestAt(root).name ?? basename(root)) : null
+      if (here) await add(root, value('repo'))
+      if (!values('also').length && !flag('here')) {
+        for (const sibling of findSiblings(workspaceOf(root), { skip: here ? [here] : [] })) await add(sibling.folder, sibling.name)
+      }
       for (const also of values('also')) {
         const [name, folder] = also.includes('=') ? [also.slice(0, also.indexOf('=')), also.slice(also.indexOf('=') + 1)] : [undefined, also]
         const at = resolve(root, folder)

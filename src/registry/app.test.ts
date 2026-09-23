@@ -526,6 +526,25 @@ describe('one search over the package and the apps', () => {
     expect(found.indexOf('estiva-ui:EmptyState')).toBeLessThan(found.indexOf('fixture:EmptyState'))
   })
 
+  it("puts a package part whose name carries a word before an app's part answering as many (UIG-20)", () => {
+    // "panel header" put an app's own `Header` above the package's `ContainerHeader`: its whole name is one of the words.
+    const header = buildAppRegistry({
+      root: app({ 'src/Header.tsx': '/** The top row of a panel: its title and its buttons. */\nexport function Header() {\n  return <header />\n}\n' }),
+      repo: 'fixture',
+    })
+    const found = findInRegistries([packageRegistry, header], 'panel header', { limit: 5 }).map((f) => `${f.entry.repo}:${f.entry.name}`)
+    expect(found[0]).toBe('estiva-ui:ContainerHeader')
+    expect(found).toContain('fixture:Header')
+  })
+
+  it("does not let a package part the words reach only through its notes bury the app's answer", () => {
+    const composer = buildAppRegistry({
+      root: app({ 'src/Composer.tsx': '/** Where a comment is written and sent. */\nexport function Composer() {\n  return <form />\n}\n' }),
+      repo: 'fixture',
+    })
+    expect(findInRegistries([packageRegistry, composer], 'comment composer')[0].entry).toMatchObject({ repo: 'fixture', name: 'Composer' })
+  })
+
   it('says which apps hand a package part on, and how a default is imported', () => {
     const text = formatFindings([packageRegistry, registry], findInRegistries([packageRegistry, registry], 'Button', { limit: 1 }), 'Button')
     expect(text).toContain('fixture hands it on from @/components/ui/Button')
