@@ -37,6 +37,7 @@ describe('the plugin object', () => {
       'no-raw-element',
       'no-rebuilt-behaviour',
       'no-restyled-part',
+      'no-handmade-header',
       'raw-element-outside-a-wrapper',
       'no-hand-rolled-behaviour',
       'component-has-a-page',
@@ -56,9 +57,9 @@ describe('the plugin object', () => {
   it('gives an app only the app rules, as errors, under estiva/', () => {
     for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
       expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
-      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error', 'estiva/no-restyled-part': 'error' })
+      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error', 'estiva/no-restyled-part': 'error', 'estiva/no-handmade-header': 'error' })
     }
-    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part'])
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part', 'estiva/no-handmade-header'])
   })
 
   /**
@@ -143,8 +144,8 @@ describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
     const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
     const none = { errors: 0, warnings: 0, escapes: 0 }
-    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none })
-    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none })
+    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none })
+    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none })
   })
 
   it('lists a report an eslint-disable silenced, and counts it as neither an error nor an escape', async () => {
@@ -165,6 +166,7 @@ describe('countGates', () => {
     expect(countGates([])).toEqual({
       rules: { 'estiva/no-raw-element': { errors: 0, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': { errors: 0, warnings: 0, escapes: 0 },
         'estiva/no-restyled-part': { errors: 0, warnings: 0, escapes: 0 },
+        'estiva/no-handmade-header': { errors: 0, warnings: 0, escapes: 0 },
       },
       disabled: [],
     })
