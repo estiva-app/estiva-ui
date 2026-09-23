@@ -166,7 +166,8 @@ export default function define(h) {
       { what: "ScrollArea's bar sits above sticky rows", run: () => h.contains("src/ScrollArea.tsx", /const BAR = '[^']*\bz-10\b/, "ScrollArea's bar is z-10") },
     ] },
     { ref: "UIG-9", owner: true, checks: [
-      { what: "the apps' rules are no-raw-element, no-rebuilt-behaviour and no-restyled-part, and only those", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*'no-restyled-part': noRestyledPart,\s*\}/, "src/eslint/index.ts gives the apps exactly the three rules") },
+      // "Only those" held until UIG-22 added a fingerprint: the three come first, a fingerprint may follow.
+      { what: "the apps' rules are no-raw-element, no-rebuilt-behaviour and no-restyled-part, then the fingerprints", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*'no-restyled-part': noRestyledPart,\s*(?:'no-handmade-[a-z-]+': \w+,\s*)*\}/, "src/eslint/index.ts gives the apps the three rules, then the fingerprints") },
       { what: "the package runs no-restyled-part on itself too", run: () => h.contains("src/eslint/index.ts", /const packageRules = \{[^}]*'no-restyled-part': noRestyledPart,/, "src/eslint/index.ts puts no-restyled-part in the package's own set") },
       { what: "the look props and the placement list are exported, for UIG-12's registry", run: () => h.contains("src/eslint/index.ts", /export \{ PART_LOOK_PROPS, PLACEMENT \}/, "@estiva-app/ui/eslint exports PART_LOOK_PROPS and PLACEMENT") },
       { what: "a look passed into a part is an error naming the part", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"rounded-lg border\">x</Link>\n}\n", "error", "on `Link` changes how it looks") },
