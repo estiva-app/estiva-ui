@@ -1,9 +1,28 @@
 # Changelog
 
-## 0.28.0 — 2026-09-23 — UIG-37: the gates know TypeScript's rule names
+## 0.28.0 — 2026-09-23 — UIG-20: the Claude skill and one search from anywhere; UIG-37: the gates know TypeScript's rule names
 
 ### Added
 
+- **The Claude skill.** `skill/estiva-ui.md` is its text, once, in the package:
+  when it applies, five steps with the search first, and 24 Gotchas, the
+  mistakes made here more than once (`docs/GATES-SKILL.md` reconciles them
+  against 542 recorded defects). A repository loads it with a loader,
+  `.claude/skills/estiva-ui/SKILL.md`, that holds only the trigger and a line
+  reading the installed package's text in.
+- **`estiva-ui skill`** writes that loader, and allows `npm run ui:find` in the
+  repository's `.claude/settings.json`. `--out <folder>` writes one for a folder
+  that holds the repositories. **`estiva-ui check` fails when the loader is
+  missing or differs**, so every app's `gate` job holds it. An app made by
+  `create-estiva-app` gets both.
+- **`estiva-ui find` with nothing else typed searches every app beside it**:
+  a folder, or one folder inside it, that installs `@estiva-app/ui`. Found, not
+  named, so it answers the same from any repository, from Ship's `web/`, or from
+  the folder that holds them. Each app once: a worktree or a second copy is
+  skipped. `--here` searches no neighbour; `--also` still names them.
+- **The editor gate's hook searches first.** The first Write of a new file that
+  draws a new part is stopped once, with what `estiva-ui find` has for the
+  part's name. Writing it again goes through.
 - **`tokenConfig()`** in `@estiva-app/ui/gates`: the token lint on its own, as
   an app's `eslint.tokens.config.js` runs it, shaped like `gateConfig`. It takes
   `quiet` (plugins whose `eslint-disable` comments appear in the source, every
@@ -12,6 +31,12 @@
 - **`gates:status` checks UIG-37 in every app:** a TypeScript `eslint-disable`
   comment is no error in the gate or in any token config, and a token lint that
   runs on its own is `tokenConfig`, not built by hand.
+
+### Changed
+
+- **Ranking:** a package part whose name carries one of the words comes before
+  an app's part answering as many. "panel header" now answers `ContainerHeader`
+  first, not an app's own `Header`.
 
 ### Fixed
 
@@ -23,6 +48,13 @@
   that loads TypeScript's rules itself would refuse the same name twice. An app
   that names the plugin in `quiet` keeps its own copy.
 - **`create-estiva-app`** writes the one-line token config.
+
+### What an app does
+
+Take this release, change `ui:find` to `estiva-ui find --repo <name>` (no
+`--also`), run `npx estiva-ui skill`, and commit the loader and settings. For UIG-37, its `eslint.tokens.config.js` becomes one line,
+`export default tokenConfig({ quiet: { … } })`.
+
 
 ## 0.27.0 — 2026-09-23 — UIG-19: the usage-page contract is locked in CI
 
