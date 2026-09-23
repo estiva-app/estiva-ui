@@ -189,7 +189,8 @@ describe('runHook', () => {
     expect((await runHook({ root: dir, input, seen })).code).toBe(0)
     // Another session is asked again.
     expect((await runHook({ root: dir, input: { ...input, session_id: 'two' }, seen })).code).toBe(2)
-  })
+    // The search reads every app beside this checkout: seconds on a machine that holds them all.
+  }, 60_000)
 
   it('does not stop a file already there, a story, or a file that draws nothing', async () => {
     const seen = mkdtempSync(join(scratch, 'seen-'))

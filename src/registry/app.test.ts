@@ -592,7 +592,8 @@ describe.skipIf(!existsSync(cli))('estiva-ui in an app', () => {
     run(['skill'], two)
     const loader = readFileSync(join(two, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
     expect(loader).toMatch(/^---\nname: estiva-ui\ndescription: "Use before building/)
-    expect(loader).toContain('!`cat "${CLAUDE_SKILL_DIR}/../../../node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    expect(loader).toContain('!`cat "${CLAUDE_PROJECT_DIR}/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    expect(JSON.parse(readFileSync(join(two, '.claude', 'settings.json'), 'utf8')).permissions.allow).toContain('Bash(npm run ui:find *)')
     // Its text is the package's, never a copy.
     expect(loader).not.toContain('# The skill')
     expect(run(['check'], two)).toContain('claude skill: the loader reads the package’s text')
@@ -600,14 +601,18 @@ describe.skipIf(!existsSync(cli))('estiva-ui in an app', () => {
     expect(failure(two)).toContain('SKILL.md is not what the package writes')
   })
 
-  it('skill --out writes a loader for a folder that holds the repositories, reading this app’s install', () => {
+  it('skill --out writes a loader for a folder that holds the repositories, reading an app inside it', () => {
     const holder = mkdtempSync(join(tmpdir(), 'uig20-holder-'))
     made.push(holder)
-    const three = app({ 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
-    run(['skill', '--out', holder], three)
+    mkdirSync(join(holder, 'one', 'node_modules', '@estiva-app', 'ui', 'skill'), { recursive: true })
+    writeFileSync(join(holder, 'one', 'package.json'), JSON.stringify({ name: 'one' }))
+    writeFileSync(join(holder, 'one', 'node_modules', '@estiva-app', 'ui', 'skill', 'estiva-ui.md'), '# The skill\n')
+    run(['skill', '--out', '..'], join(holder, 'one'))
     const loader = readFileSync(join(holder, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
-    const line = /!`cat "\$\{CLAUDE_SKILL_DIR\}\/(.+)"`/.exec(loader)?.[1] ?? ''
-    expect(existsSync(join(holder, '.claude', 'skills', 'estiva-ui', line))).toBe(true)
+    expect(loader).toContain('!`cat "${CLAUDE_PROJECT_DIR}/one/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    // Claude Code refuses a path that climbs out with `..`, so a folder that does not hold the app is refused here.
+    const elsewhere = app({ 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    expect(() => run(['skill', '--out', holder], elsewhere)).toThrow(/does not hold/)
   })
 
   it("find searches the app and the package, and never takes an app's own registry.json for the package's", () => {

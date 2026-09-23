@@ -33,7 +33,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { basename, dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
@@ -296,6 +296,12 @@ async function main(): Promise<number> {
     case 'skill': {
       const out = value('out')
       const folder = out ? resolve(out) : repositoryOf(root)
+      // The loader's path starts where the session does and cannot climb out:
+      // Claude Code refuses a `..` in it.
+      if (relative(folder, packageRoot()).startsWith('..')) {
+        process.stderr.write(`${folder} does not hold ${packageRoot()}: a loader there could not reach the skill's text\n`)
+        return 1
+      }
       const path = loaderPath(folder)
       mkdirSync(dirname(path), { recursive: true })
       writeFileSync(path, loaderText(folder, packageRoot()), 'utf8')

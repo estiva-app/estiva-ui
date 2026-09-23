@@ -30,7 +30,7 @@ describe('create-estiva-app', () => {
   it('makes the frame, the checks and the gates, each as a file that imports the package', () => {
     expect(Object.keys(files).sort()).toEqual(
       [
-        '.claude/settings.json', '.env.example', '.gates-count.json', '.github/workflows/deploy.yml', '.gitignore', '.storybook/main.ts', '.storybook/preview.tsx',
+        '.claude/settings.json', '.claude/skills/estiva-ui/SKILL.md', '.env.example', '.gates-count.json', '.github/workflows/deploy.yml', '.gitignore', '.storybook/main.ts', '.storybook/preview.tsx',
         'CLAUDE.md', 'README.md', 'docs/GATES-DEBT.md', 'eslint.config.js', 'eslint.gates.config.js', 'eslint.tokens.config.js', 'index.html', 'package.json',
         'postcss.config.js', 'scripts/gates-checks.mjs', 'src/App.test.tsx', 'src/App.tsx', 'src/auth/AuthShell.tsx', 'src/auth/boot.ts', 'src/auth/estivaId.ts',
         'src/config.ts', 'src/index.css', 'src/main.tsx', 'src/pages/HomePage.stories.tsx', 'src/pages/HomePage.tsx',
@@ -41,6 +41,10 @@ describe('create-estiva-app', () => {
     expect(files['eslint.gates.config.js']).toContain("from '@estiva-app/ui/gates'")
     expect(files['scripts/gates-checks.mjs']).toContain("appChecks(h, { page: 'src/pages/HomePage.tsx' })")
     expect(JSON.parse(files['.claude/settings.json']).hooks.PreToolUse[0].hooks[0].command).toBe('node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook')
+    // The skill loads from the package's one copy: the app holds its trigger and the line that reads it (UIG-20).
+    expect(JSON.parse(files['.claude/settings.json']).permissions.allow).toContain('Bash(npm run ui:find *)')
+    expect(files['.claude/skills/estiva-ui/SKILL.md']).toContain('!`cat "${CLAUDE_PROJECT_DIR}/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    expect(files['.claude/skills/estiva-ui/SKILL.md']).not.toContain('## Steps')
   })
 
   it('uses the sidebar frame and one theme, set on <html>', () => {
