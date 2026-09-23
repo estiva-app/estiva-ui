@@ -288,7 +288,10 @@ export default function define(h) {
         const cli = h.read("src/registry/cli.ts");
         return /contractProblems\(/.test(cli) && /checkLinks\(/.test(cli) ? h.PASS("src/registry/cli.ts runs contractProblems and checkLinks") : h.FAIL("src/registry/cli.ts does not run the contract and the links");
       } },
-      { what: "the package's own CI runs it", run: () => h.ci("registry:check") },
+      // The gate job, not merely CI: merging requires `gate` alone (UIG-6), and
+      // until 23 September a page without "When not" failed `check` here and
+      // could still merge (proved on estiva-ui #78).
+      { what: "the package's gate job runs it, so it blocks a merge", run: () => h.ciJob("gate", "registry:check") },
       // Composition was dropped on 23 September (Katerina): the one search is
       // `estiva-ui find`, and running it unasked is UIG-20's. What replaced the
       // check: the section check lives once, here, not pasted into each app.

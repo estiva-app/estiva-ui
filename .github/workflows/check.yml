@@ -87,6 +87,18 @@ jobs:
       - name: Gate lint
         run: npm run lint:rules
 
+      # The usage-page contract, blocking (UIG-19). Every app's gate runs it as
+      # `registry:check`; here it ran only in `check`, which merging does not
+      # require, so a page that lost its "When not" failed CI and could still
+      # merge — proved on 23 September (estiva-ui #78). The package's own pages
+      # keep their fuller contract in `src/pages.test.ts`.
+      - name: The page contract
+        run: npx vitest run --project unit src/pages.test.ts
+      # The catalogue is current, every story link opens, and no story hides
+      # what a part draws. `lint:rules` above has already built dist/.
+      - name: The registry, the story links and what stories show
+        run: npm run registry:check
+
   # Every story rendered in Chromium and run through axe, once per product
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
   # A story with a violation is a failing test. Its own job, so the browser
