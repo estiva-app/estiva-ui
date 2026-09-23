@@ -30,7 +30,7 @@ const all = [
   { ref: "UIG-16", owner: "estiva-ui", title: "Usage rules — the rest of estiva-ui, and close the 44" },
   { ref: "UIG-17", owner: "peek", title: "Usage rules — Peek's own components" },
   { ref: "UIG-18", owner: "ship", title: "Usage rules — Ship's own components" },
-  { ref: "UIG-19", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lock the contract in CI, and make the three Storybooks one search" },
+  { ref: "UIG-19", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lock the contract in CI" },
   { ref: "UIG-20", owner: "estiva-ui", parts: PEEK_SHIP, title: "The Claude skill, reading the registry" },
   { ref: "UIG-21", owner: "estiva-ui", parts: PEEK_SHIP, title: "CLAUDE.md becomes an index, not a lecture" },
   { ref: "UIG-22", owner: "estiva-ui", parts: PEEK_SHIP, title: "Fingerprint — a hand-made header row" },
@@ -47,6 +47,7 @@ const all = [
   { ref: "UIG-33", owner: "estiva-ui", title: "Link — a whole row that is one link" },
   { ref: "UIG-34", owner: "estiva-ui", title: "A tree part — Peek's file tree and folder list" },
   { ref: "UIG-35", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lightbox — one attachment part that opens a picture full screen, for both apps" },
+  { ref: "UIG-36", owner: "estiva-ui", title: "Estiva ID gets its own Storybook, and leaves Peek's" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -282,7 +283,15 @@ export default function define(h) {
     ] },
     { ref: "UIG-19", owner: true, checks: [
       { what: "the usage-page contract runs in CI", run: () => h.ci(/[\w:-]*contract[\w:-]*/) },
-      { what: "Storybook composes Peek's and Ship's", run: () => h.contains(".storybook/main.ts", /refs\s*:/, ".storybook/main.ts composes other Storybooks") },
+      // Composition was dropped on 23 September (Katerina): the one search is
+      // `estiva-ui find`, and running it unasked is UIG-20's. What replaced the
+      // check: the section check lives once, here, not pasted into each app.
+      { what: "no app keeps its own copy of the usage-page section check", run: () => {
+        const copies = [["peek", process.env.GATES_PEEK ?? "../peek", "scripts/gates-checks.mjs"], ["ship", process.env.GATES_SHIP ?? "../ship", "web/scripts/gates-checks.mjs"]]
+          .filter(([, dir, f]) => h.exists(`${dir.replace(/[\\/]+$/, "")}/${f}`) && /"When not"/.test(h.read(`${dir.replace(/[\\/]+$/, "")}/${f}`)))
+          .map(([name]) => name);
+        return copies.length ? h.FAIL(`${copies.join(" and ")} still check the sections in their own gates-checks.mjs`) : h.PASS("neither app checks the sections itself");
+      } },
     ] },
     { ref: "UIG-20", owner: true, checks: [
       { what: "the package ships a skill that runs ui:find", run: () => [...h.listFiles("skills", (n) => n === "SKILL.md"), ...h.listFiles(".claude/skills", (n) => n === "SKILL.md")].some((f) => h.read(f).includes("ui:find")) ? h.PASS("a SKILL.md runs ui:find") : h.FAIL("no SKILL.md that runs ui:find") },
@@ -361,6 +370,33 @@ export default function define(h) {
         if (!h.exists(f)) return h.FAIL("Ship has no web/src/components/ui/Attachment.tsx");
         if (/\buseBlobUrl\b|\bsaveFile\b/.test(h.read(f))) return h.FAIL("Ship's Attachment.tsx still fetches or saves by hand");
         return h.contains(f, /\bAttachmentCard\b/, "Ship's Attachment.tsx draws the package's AttachmentCard");
+      } },
+    ] },
+    // UIG-36, 23 September (Katerina): Estiva ID runs its own Storybook and
+    // Peek's stops reaching into it. Both halves are read from the checkouts.
+    // estiva-id is not a gated repo, so its half has no status of its own.
+    { ref: "UIG-36", owner: true, checks: [
+      { what: "Estiva ID has a Storybook of its own", run: () => {
+        const dir = (process.env.GATES_ESTIVA_ID ?? "../estiva-id").replace(/[\\/]+$/, "");
+        if (!h.exists(`${dir}/package.json`)) return h.UNKNOWN(`Estiva ID is not at ${dir}`);
+        if (!h.exists(`${dir}/.storybook/main.ts`)) return h.FAIL("estiva-id has no .storybook/main.ts");
+        return h.contains(`${dir}/package.json`, /"storybook": "storybook dev -p 6009/, "estiva-id runs `pnpm storybook` on :6009");
+      } },
+      { what: "Peek's Storybook loads nothing from estiva-id", run: () => {
+        const dir = (process.env.GATES_PEEK ?? "../peek").replace(/[\\/]+$/, "");
+        if (!h.exists(`${dir}/package.json`)) return h.UNKNOWN(`Peek is not at ${dir}`);
+        // What loaded them: the sibling path, the variable holding it, and the
+        // heading prefix. The word alone is not enough — the comment says where they went.
+        return h.lacks(`${dir}/.storybook/main.ts`, /\.\.\/estiva-id|estivaIdRoot|titlePrefix/, "Peek's .storybook/main.ts loads no other repo's stories");
+      } },
+      { what: "the fields and the list Peek's reset hid are styled", run: () => {
+        const dir = (process.env.GATES_ESTIVA_ID ?? "../estiva-id").replace(/[\\/]+$/, "");
+        const f = `${dir}/web/src/styles.css`;
+        if (!h.exists(f)) return h.UNKNOWN(`Estiva ID is not at ${dir}`);
+        const css = h.read(f);
+        const missing = [['input[type="email"]', "the email field"], ["input:not([type])", "a field with no type"], ["ul.plain", "the bots list"]]
+          .filter(([sel]) => !css.includes(sel)).map(([, what]) => what);
+        return missing.length ? h.FAIL(`styles.css does not style ${missing.join(", ")}`) : h.PASS("styles.css covers the email field, a field with no type, and the bots list");
       } },
     ] },
     // Set by UIG-10, 17 September (GATES.md §23); widened by UIG-32, which moved both apps. Peek and
