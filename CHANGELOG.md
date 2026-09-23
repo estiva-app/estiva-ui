@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.30.0 — 2026-09-23 — UIG-21: CLAUDE.md becomes an index
+
+### Added
+
+- **The token lint refuses a plain `tailwind-merge`.** `tokenLint` (and so
+  `tokenConfig` and every app's token lint) reports an import of
+  `tailwind-merge` and names the package's `cn()`: stock tailwind-merge does not
+  know the type ramp and drops `text-body-2` beside a text colour. This was a
+  sentence in all three repositories' CLAUDE.md, and nothing checked it. The
+  package's own `src/cn.ts` keeps its import, with a reason.
+- **`gates:status` measures what loads into every Claude session**: a helper,
+  `instructions(limit)`, counts `CLAUDE.md` with every file it imports with
+  `@`, and refuses a `.claude/rules` file with no `paths:` (it would load in
+  every session). UIG-21's checks use it, for the package and each app, with
+  the token lint in CI's `gate` job and the `tailwind-merge` probe.
+
+### Changed
+
+- **CI: the token lint runs in the `gate` job**, the only one a merge
+  requires. It ran in `check`, which does not block a merge.
+- **ScrollArea's page and stories** put the padding on `contentClassName`, as
+  the component's own comment says; the `max-h` cap goes on
+  `viewportClassName`. Nothing in the component changed.
+- **The skill names both exception forms**: a gate escape is
+  `// @estiva-escape: <reason>`; a token-lint one is
+  `// eslint-disable-next-line <rule> -- @estiva-escape: <reason>`.
+
+### What an app does
+
+Take this release. Move the token lint into CI's `gate` job. An app that
+imports `tailwind-merge` anywhere gets an error naming `cn()` (Peek and Ship
+import it nowhere).
+
 ## 0.29.0 — 2026-09-23 — UIG-20: the Claude skill, and one search from anywhere
 
 ### Added

@@ -17,10 +17,7 @@ every Estiva app — Peek, Ship, and whatever comes next.
   primitive and does not belong here.
 - Behaviour comes from [Base UI](https://base-ui.com) (`@base-ui/react`, a
   dependency installed with the package): keyboard, focus, roles, forms.
-  The components move onto it one stage at a time; `Tabs`, `Checkbox`,
-  `Button`, `IconButton` and `PersonTrigger` are on it (2026-09-07), the
-  rest follow the plan in `K:\Estiva\migration docs\PLAN.md`, whose §16
-  lists every component, its Base UI part, and what it gains. Nothing
+  Every component with a Base UI counterpart is built on it. Nothing
   changes how a component looks.
 
 ## Using it
@@ -234,6 +231,7 @@ npm run storybook   # http://localhost:6008 — Design Tokens, and each primitiv
 ```
 
 A change must not change how an app renders: screenshot-compare before and
-after, in both themes here and in the apps' own Storybooks. `CLAUDE.md` has
-the whole contract: what a component, a story, a page and a port are held
-to, and how a change is proved.
+after, in both themes here and in the apps' own Storybooks. `CLAUDE.md` is
+the index. What a component, a story, a page and a release are held to is in
+`.claude/rules/`; how a port is done and a change is proved are the `port` and
+`verify` skills in `.claude/skills/`.

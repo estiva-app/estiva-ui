@@ -316,8 +316,11 @@ export default function define(h) {
       { what: "an app made by the starter gets the loader", run: () => h.contains("src/gates/create-app.ts", "'.claude/skills/estiva-ui/SKILL.md': loaderText(", "create-app writes the loader") },
       { what: "every recorded defect is a Gotcha or excluded with a reason", run: () => h.contains("docs/GATES-SKILL.md", /\*\*542\*\* \| \*\*111\*\* \| \*\*431\*\*/, "docs/GATES-SKILL.md reconciles 542 = 111 + 431") },
     ] },
+    // What loads into every Claude session (UIG-21). The apps' half is appChecks'.
     { ref: "UIG-21", owner: true, checks: [
-      { what: "path-scoped instructions exist", run: () => h.listFiles(".claude/rules", (n) => n.endsWith(".md")).some((f) => /^paths:/m.test(h.read(f))) ? h.PASS(".claude/rules has paths: instructions") : h.FAIL("no .claude/rules file with paths:") },
+      { what: "CLAUDE.md is under 200 lines, and every rule file is scoped", run: () => h.instructions(200) },
+      { what: "CI's job gate runs the token lint", run: () => h.ciJob("gate", "lint") },
+      { what: "a plain tailwind-merge is an error naming src/cn.ts", run: () => h.lint({ config: "eslint.config.js", file: "src/__gates_probe__.ts", code: "import { twMerge } from 'tailwind-merge'\nexport const merged = twMerge('p-2', 'p-3')\n", expect: "error", mentions: "src/cn.ts" }) },
     ] },
     { ref: "UIG-22", owner: true, checks: [] },
     { ref: "UIG-23", owner: true, checks: [

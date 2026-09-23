@@ -33,14 +33,18 @@ the content is moving; nothing moves when it appears.
 ```tsx
 import { ScrollArea } from '@estiva-app/ui'
 
-<ScrollArea className="h-[240px]" viewportClassName="p-2">
+<ScrollArea className="h-[240px]" contentClassName="flex flex-col p-2">
   {rows}
 </ScrollArea>
 ```
 
-- `className` sizes and places the region; `viewportClassName` styles the
-  scrolling box inside it — padding, gap, the layout of the content.
-- The region needs a height (or a `max-h-*`) to have anything to scroll.
+- Three boxes, and each class prop lands on one. `className` is the
+  region: its size and placement. `viewportClassName` is the box that
+  scrolls: a `max-h-*` cap goes there and nowhere else. `contentClassName`
+  is the box the children sit in: the padding, the gap, `flex flex-col`.
+- The region needs a height to have anything to scroll. A cap on the region
+  lets the viewport grow to its content and nothing scrolls; cap the
+  viewport instead: `viewportClassName="max-h-[240px]"`.
 - **`viewportRef` and `onScroll` hand back the box that scrolls**, for a
   region that reads or drives its own scrolling: a conversation that arrives
   at its newest message, keeps its place when older ones load above it, and

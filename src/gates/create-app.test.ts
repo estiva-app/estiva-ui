@@ -45,6 +45,9 @@ describe('create-estiva-app', () => {
     expect(JSON.parse(files['.claude/settings.json']).permissions.allow).toContain('Bash(npm run ui:find *)')
     expect(files['.claude/skills/estiva-ui/SKILL.md']).toContain('!`cat "${CLAUDE_PROJECT_DIR}/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
     expect(files['.claude/skills/estiva-ui/SKILL.md']).not.toContain('## Steps')
+    // What loads into every session starts small and imports nothing (UIG-21).
+    expect(files['CLAUDE.md'].replace(/\n$/, '').split('\n').length).toBeLessThan(200)
+    expect(files['CLAUDE.md']).not.toMatch(/^@\S/m)
   })
 
   it('uses the sidebar frame and one theme, set on <html>', () => {

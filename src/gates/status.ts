@@ -75,6 +75,12 @@ export interface GateHelpers {
   catalogue(appDir: string): Promise<CheckResult>
   /** Every reusable part keeps the usage-page contract (UIG-19): the package's one copy of it. */
   contract(appDir: string): Promise<CheckResult>
+  /**
+   * What loads into every Claude session stays small (UIG-21): `CLAUDE.md` and
+   * every file it imports with `@` come to fewer than `limit` lines, and each
+   * `.claude/rules` file has `paths:`, so it loads only where it applies.
+   */
+  instructions(limit?: number): CheckResult
 }
 
 export interface GateCheck {
@@ -191,6 +197,25 @@ export function helpers(ROOT: string): GateHelpers {
       } catch (error) {
         return FAIL(String(error instanceof Error ? error.message : error).split('\n')[0])
       }
+    },
+
+    instructions(limit = 200) {
+      if (!exists('CLAUDE.md')) return FAIL('there is no CLAUDE.md')
+      // As `wc -l` counts them: a last line ending in a newline is not one more.
+      const lines = (rel: string) => read(rel).replace(/\r?\n$/, '').split(/\r?\n/).length
+      const imports = [...read('CLAUDE.md').matchAll(/^@(\S+)\s*$/gm)].map((m) => m[1])
+      const missing = imports.filter((rel) => !exists(rel))
+      if (missing.length) return FAIL(`CLAUDE.md imports ${missing.join(', ')}, which is not there`)
+      const total = imports.reduce((n, rel) => n + lines(rel), lines('CLAUDE.md'))
+      const what = imports.length ? `CLAUDE.md with ${imports.join(', ')}` : 'CLAUDE.md'
+      if (total >= limit) return FAIL(`${what}: ${total} lines load into every session; the limit is ${limit}`)
+      const rules = listFiles('.claude/rules', (n) => n.endsWith('.md'))
+      const unscoped = rules.filter((rel) => {
+        const front = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(rel))
+        return !front || !/^paths:/m.test(front[1])
+      })
+      if (unscoped.length) return FAIL(`${unscoped.join(', ')} has no paths:, so it loads into every session`)
+      return PASS(`${what}: ${total} lines in every session; ${rules.length ? `${rules.length} rule files, each loading only for its paths` : 'no rule files'}`)
     },
 
     file(rel) {

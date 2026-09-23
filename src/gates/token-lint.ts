@@ -89,6 +89,7 @@ const WORDS = {
     type: '$0 is type written by hand. A token from the package sets the size, line height, letter spacing and weight together (text-body-2, text-caption, text-h5...); if none fits, add one to the package, or say why not in an eslint-disable comment.',
     corner: '$0 is a corner written by hand, and no token has it. Use a corner from the package (rounded-sm 4px, rounded-md 6px, rounded-lg 8px...), or say why not in an eslint-disable comment.',
     shadow: '$0 is a shadow written by hand. Use a shadow from the package (shadow-sm, shadow-md, shadow-focus-ring, drop-shadow-glow-success...); a shadow with no token is a missing token.',
+    merge: "Merge classes with the package's cn(), which the app re-exports. A plain tailwind-merge does not know the type ramp, and drops text-body-2 beside a text colour.",
   },
   package: {
     ramp: "Tailwind's type ramp is not a token. Use the ramp in tailwind-preset.js: text-body-2, text-caption, text-h3, text-btn-default...",
@@ -98,6 +99,7 @@ const WORDS = {
     type: '$0 is type written by hand. A token from tailwind-preset.js sets the size, line height, letter spacing and weight together (text-body-2, text-caption, text-h5...); if none fits, add one to the preset and to cn.ts, or say why not in an eslint-disable comment.',
     corner: '$0 is a corner written by hand, and no token has it. Use a corner from tailwind-preset.js (rounded-sm 4px, rounded-md 6px, rounded-lg 8px...), or say why not in an eslint-disable comment.',
     shadow: '$0 is a shadow written by hand. Use a shadow from tailwind-preset.js (shadow-sm, shadow-md, shadow-focus-ring, drop-shadow-glow-success...); a shadow with no token is a missing token.',
+    merge: "Merge classes with this package's cn() (src/cn.ts), the one place tailwind-merge is taught the type ramp. A plain tailwind-merge drops text-body-2 beside a text colour.",
   },
 } satisfies Record<TokenAudience, Record<string, string>>
 
@@ -140,6 +142,9 @@ export function tokenLint({ tailwindConfig = 'tailwind.config.js', audience = 'a
           ],
         },
       ],
+      // UIG-21: "use the package's cn(), never a plain twMerge" was a sentence
+      // in all three repos' CLAUDE.md, and nothing checked it.
+      'no-restricted-imports': ['error', { paths: [{ name: 'tailwind-merge', message: words.merge }] }],
     },
   }
 }

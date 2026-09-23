@@ -20,9 +20,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      # The token contract as a machine rule: no class Tailwind does not
-      # generate, no Tailwind ramp or palette, no raw colour (eslint.config.js).
-      - run: npm run lint
       - run: npm test
       - run: npm run build
 
@@ -86,6 +83,14 @@ jobs:
       - run: npm ci
       - name: Gate lint
         run: npm run lint:rules
+
+      # The token contract as a machine rule: no class Tailwind does not
+      # generate, no Tailwind ramp or palette, no raw colour, no plain
+      # tailwind-merge (eslint.config.js). Blocking since UIG-21: it ran in
+      # `check`, which merging does not require, so CLAUDE.md had to say it in
+      # words. Now the check says it, and the words went.
+      - name: The token contract
+        run: npm run lint
 
       # The usage-page contract, blocking (UIG-19). Every app's gate runs it as
       # `registry:check`; here it ran only in `check`, which merging does not

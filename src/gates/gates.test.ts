@@ -68,6 +68,15 @@ describe('tokenLint and tokenValues', () => {
     expect(messages.filter((m) => m.ruleId?.startsWith('token-'))).toEqual([expect.objectContaining({ ruleId: 'token-spacing/no-restricted-classes', severity: 1 })])
   })
 
+  it('refuse a plain tailwind-merge and name cn(), for an app and for the package (UIG-21)', async () => {
+    const code = "import { twMerge } from 'tailwind-merge'\nexport const merged = twMerge('p-2', 'p-3')\n"
+    const app = await lintWith([tokenLint(), tokenValues()], code, 'src/lib/probe.ts')
+    expect(app).toEqual([expect.objectContaining({ ruleId: 'no-restricted-imports', severity: 2, message: expect.stringContaining("package's cn()") })])
+    const pkg = await lintWith([tokenLint({ audience: 'package' })], code, 'src/probe.ts')
+    expect(pkg).toEqual([expect.objectContaining({ ruleId: 'no-restricted-imports', message: expect.stringContaining('src/cn.ts') })])
+    expect(await lintWith([tokenLint()], "import { cn } from '@estiva-app/ui'\nexport const merged = cn('p-2', 'p-3')\n", 'src/lib/probe.ts')).toEqual([])
+  })
+
   it('leave a test file to its test', async () => {
     const messages = await lintWith([tokenLint(), tokenValues()], component('<div style={{ color: "red" }}>x</div>'), 'src/Probe.test.tsx')
     expect(messages.filter((m) => m.severity === 2)).toEqual([])
@@ -226,6 +235,18 @@ describe('gates:status', () => {
     expect(h.ciJob('check', 'lint:rules').result).toBe('fail')
     expect(h.hook('.claude/settings.json', 'gates').result).toBe('pass')
     expect(h.script('package.json', 'gates:status').result).toBe('pass')
+  })
+
+  it('counts what loads into every session, imports included, and refuses a rule file with no paths (UIG-21)', () => {
+    const lines = (n: number) => Array.from({ length: n }, (_, i) => `line ${i}`).join('\n') + '\n'
+    const scoped = '---\npaths:\n  - "src/**"\n---\n\nA rule.\n'
+    const small = helpers(app('instructions-small', { 'CLAUDE.md': lines(40), '.claude/rules/ui.md': scoped }))
+    expect(small.instructions(200)).toMatchObject({ result: 'pass', detail: expect.stringContaining('40 lines') })
+    // 150 + 60 = 210: CLAUDE.md alone is under the limit, and its import takes it over.
+    const imported = helpers(app('instructions-import', { 'CLAUDE.md': `${lines(149)}@RULES.md\n`, 'RULES.md': lines(60) }))
+    expect(imported.instructions(200)).toMatchObject({ result: 'fail', detail: expect.stringContaining('210 lines') })
+    const unscoped = helpers(app('instructions-unscoped', { 'CLAUDE.md': lines(10), '.claude/rules/ui.md': scoped, '.claude/rules/all.md': 'Loads every time.\n' }))
+    expect(unscoped.instructions(200)).toMatchObject({ result: 'fail', detail: expect.stringContaining('.claude/rules/all.md') })
   })
 
   it('prints a repo on its own: its own rows, then its parts', async () => {

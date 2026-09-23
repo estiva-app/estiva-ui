@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
+// eslint-disable-next-line no-restricted-imports -- @estiva-escape: cn() is the one place tailwind-merge is taught the type ramp
 import { extendTailwindMerge } from 'tailwind-merge'
 
 /**
