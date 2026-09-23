@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.31.0 — 2026-09-23 — UIG-22: a hand-made header bar is refused
+
+### Added
+
+- **`estiva/no-handmade-header`**, in `recommended` and in the package's own
+  set. It refuses a column's header bar drawn by hand: a row first in a column,
+  with side padding of its own and a title in it, where the column fills its
+  height or the row has a header bar's height or hairline. It reads the shape,
+  not the class names, and names `ContainerHeader`. It leaves alone a group
+  heading in a list, a label strip on a card and a row a person presses. Over
+  Peek and Ship it found three (Peek's `FilesPanel`, `ThreadPanel` twice) and
+  would have found both panes the Folders work once headed by hand.
+
+### Changed
+
+- **`DialogShell` draws its bar with `ContainerHeader`**, with the dialog's own
+  18px title and the Close part as its action. Every dialog, confirm and
+  palette story photographs the same, in both themes.
+- `gates:status`: the apps' UIG-22 probe is the Folders pane's own row; a group
+  heading must pass.
+
+### What an app does
+
+Take this release. The gate count gains `estiva/no-handmade-header`. A header
+row drawn by hand at the top of a column becomes `ContainerHeader`, or keeps an
+escape with its reason.
+
 ## 0.30.0 — 2026-09-23 — UIG-21: CLAUDE.md becomes an index
 
 ### Added

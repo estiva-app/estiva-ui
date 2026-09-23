@@ -31,7 +31,7 @@ export interface AppCheckOptions {
   chain?: { ref: string; owner: boolean }
   /** The token lint configs the app has, relative to the app. */
   tokenConfigs?: string[]
-  /** The name of the app's header component a hand-made header row should name (UIG-22's first guess). */
+  /** The part a hand-made column header should name (UIG-22): `ContainerHeader`. */
   headers?: string[]
 }
 
@@ -70,7 +70,7 @@ function all(h: GateHelpers, steps: (() => CheckResult | Promise<CheckResult>)[]
   }
 }
 
-export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG-3', owner: false }, tokenConfigs = ['eslint.tokens.config.js', 'eslint.config.js'], headers = ['ContainerHeader', 'SectionHeader'] }: AppCheckOptions): GateTicket[] {
+export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG-3', owner: false }, tokenConfigs = ['eslint.tokens.config.js', 'eslint.config.js'], headers = ['ContainerHeader'] }: AppCheckOptions): GateTicket[] {
   const WEB = app === '.' ? '' : `${app.replace(/\/$/, '')}/`
   const cwd = app === '.' ? undefined : app
   const PROBE = 'src/components/__gates_probe__.tsx'
@@ -219,7 +219,9 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: "a plain tailwind-merge is an error naming the package's cn()", run: tokenProbe("import { twMerge } from 'tailwind-merge'\nexport const merged = twMerge('p-2', 'p-3')\n", 'error', 'cn()', 'src/lib/__gates_probe__.ts') },
     ]),
     ticket('UIG-22', [
-      { what: 'a hand-made header row is an error naming the header part', run: all(h, headers.map((name) => probe(component(`<section className="flex flex-col"><div className="flex items-center px-3 py-2"><span>${name === 'SectionHeader' ? 'Issues' : 'Folders'}</span></div><div /></section>`), 'error', name)), 'a hand-made header row is an error naming the header part') },
+      // The Folders pane's own row, at the commit before peek 3dc663b.
+      { what: 'a hand-made column header is an error naming ContainerHeader', run: all(h, headers.map((name) => probe(component('<div className="flex h-full flex-col"><div className="flex items-center gap-2 px-3 py-2"><span>Folders</span></div><div /></div>'), 'error', name)), 'a hand-made column header is an error naming ContainerHeader') },
+      { what: 'a group heading inside a list is left alone', run: probe(component('<section className="flex flex-col gap-px"><h3 className="flex h-8 items-center gap-2 px-3"><span>Todo</span></h3><div /></section>'), 'none') },
     ]),
     ticket('UIG-23', [
       { what: 'a hand-made empty line is an error naming EmptyState', run: probe("export function Probe({ items }: { items: string[] }) {\n  return <div>{items.length === 0 ? <p className=\"text-text-secondary\">Nothing here</p> : items.map((i) => <span key={i}>{i}</span>)}</div>\n}\n", 'error', 'EmptyState') },

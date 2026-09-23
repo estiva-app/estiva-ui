@@ -553,6 +553,7 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
 
   return (
     <div ref={frameRef} tabIndex={-1} onKeyDown={onKeyDown} onFocus={measure} onBlur={measure} onInput={measure} className="flex min-h-0 flex-col outline-none">
+      {/* @estiva-escape: the palette's own input bar, the twin of its search row; the level chip stands where the field was */}
       <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border-subtle px-5">
         {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
         <LevelChip chip={chip} onBack={back} />
