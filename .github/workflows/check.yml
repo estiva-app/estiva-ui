@@ -94,9 +94,14 @@ jobs:
       # keep their fuller contract in `src/pages.test.ts`.
       - name: The page contract
         run: npx vitest run --project unit src/pages.test.ts
-      # The catalogue is current, every story link opens, and no story hides
-      # what a part draws. `lint:rules` above has already built dist/.
-      - name: The registry, the story links and what stories show
+      # The Claude skill (UIG-20): it names only parts and props the package
+      # has, assumes no app, and its Gotchas still add up against the record.
+      - name: The skill
+        run: npx vitest run --project unit src/registry/skill.test.ts
+      # The catalogue is current, every story link opens, no story hides what a
+      # part draws, and the skill's loader is the one the package writes.
+      # `lint:rules` above has already built dist/.
+      - name: The registry, the story links, what stories show, and the skill's loader
         run: npm run registry:check
 
   # Every story rendered in Chromium and run through axe, once per product
