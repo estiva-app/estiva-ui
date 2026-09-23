@@ -75,6 +75,17 @@ tester.run('no-handmade-header', noHandmadeHeader, {
       errors: handmade,
     },
     {
+      // DialogShell's bar, before it drew ContainerHeader: a part's title, named as one.
+      name: "a bar whose title is a part's Title",
+      code: component('<div className="flex flex-col">
+<div className="h-12 flex items-center justify-between pl-5 pr-4 border-b shrink-0">
+{open ?? <Parts.Title render={<span />}>{title}</Parts.Title>}
+</div>
+<div />
+</div>'),
+      errors: handmade,
+    },
+    {
       name: 'an escape with no reason escapes nothing',
       code: component('<div className="flex h-full flex-col">\n{/* @estiva-escape: */}\n<div className="flex items-center px-3 py-2"><span>{title}</span></div>\n<div />\n</div>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { messageId: 'handmade' }],
