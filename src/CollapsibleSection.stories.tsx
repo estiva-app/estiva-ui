@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconPlus } from '@tabler/icons-react'
+import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
 import { NavItem } from './NavItem'
 
@@ -31,6 +32,11 @@ export const Closed: Story = { args: { defaultOpen: false } }
 /** Actions beside the title, revealed on hover or focus; a click on one never toggles the section. */
 export const WithActions: Story = {
   args: { actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }] },
+}
+
+/** A count beside the title, held on screen whether the section is open or closed. */
+export const WithTrailing: Story = {
+  args: { trailing: <Chip type="brand" label="2" /> },
 }
 
 /** Close it and reload the page: still closed. This browser remembers, under the key. */

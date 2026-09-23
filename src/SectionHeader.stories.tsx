@@ -17,6 +17,11 @@ type Story = StoryObj<typeof meta>
 
 export const Plain: Story = {}
 
+/** `chevron`: the header of a section that folds. The title becomes the toggle, and the chevron turns with it. CollapsibleSection draws this for you. */
+export const Folding: Story = {
+  args: { chevron: true, isExpanded: true, onToggle: () => {} },
+}
+
 /** Actions beside the title, in the order given — revealed on hover or focus. */
 export const WithActions: Story = {
   args: {

@@ -59,6 +59,12 @@ export const Default: Story = {
   render: (args) => <ListColumn {...args}>{rows(6)}</ListColumn>,
 }
 
+/** `chevron`: a chevron after the title, as ContainerHeader draws it, for a column whose title opens something. */
+export const WithChevron: Story = {
+  args: { title: 'Items', chevron: true, actions },
+  render: (args) => <ListColumn {...args}>{rows(6)}</ListColumn>,
+}
+
 /**
  * Groups. Each is headed by a package part, never by a row drawn by hand: a
  * group that folds is a `CollapsibleSection`; a group that does not fold is a

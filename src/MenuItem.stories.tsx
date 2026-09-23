@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconPin, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconHash, IconPin, IconTrash } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
-import { useRef, useState } from 'react'
-import { Button } from './Button'
-import { Divider } from './Divider'
+import { useRef, useState } from 'react'
+import { Button } from './Button'
+import { Divider } from './Divider'
 import { EnterHint, Menu, MenuItem, MenuPanel, MenuSub } from './Menu'
 
 /**
@@ -130,6 +130,19 @@ export const Tall: Story = {
     description: 'Product designer',
     leading: <Avatar name="Ana Duarte" size={32} />,
     selected: true,
-    trailing: <EnterHint />,
+    // `hint`, not `trailing`: shown only while the row is highlighted, on the fill's own timing.
+    hint: <EnterHint />,
+  },
+}
+
+/** A topic in the picker: `EnterHint`'s `target` says what Enter gives you, after the key. Hover another row and back to see the hint follow the highlight. */
+export const ATopic: Story = {
+  args: {
+    size: 'tall',
+    label: 'design',
+    description: '12 members',
+    leading: <IconHash size={16} stroke={1.5} className="text-text-secondary" />,
+    selected: true,
+    hint: <EnterHint target="#design" />,
   },
 }
