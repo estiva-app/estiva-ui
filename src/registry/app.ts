@@ -678,7 +678,11 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   const storyOf = (p: Found) => {
     const stem = (file: string) => basename(file).replace(/\.stories\.[cm]?[jt]sx?$/, '')
     const own = basename(p.file, extname(p.file))
-    const candidates = stories.filter((s) => s.title && s.names.length && (s.component === p || (s.imports.includes(p) && (stem(s.file) === p.name || stem(s.file) === own))))
+    // A story file named after the part draws it even when its stories are of a
+    // presentational half in the same file — `FilesPanel.stories.tsx` drawing
+    // `FilesPanelView` is FilesPanel's picture, and its page attaches there (UIG-19).
+    const sameFile = (s: (typeof stories)[number]) => s.imports.some((q) => q.file === p.file)
+    const candidates = stories.filter((s) => s.title && s.names.length && (s.component === p || (s.imports.includes(p) && (stem(s.file) === p.name || stem(s.file) === own)) || (stem(s.file) === p.name && sameFile(s))))
     candidates.sort((a, b) => Number(b.component === p) - Number(a.component === p) || a.file.localeCompare(b.file))
     const s = candidates[0]
     if (!s || !s.title) return { docsId: null, storyId: null }

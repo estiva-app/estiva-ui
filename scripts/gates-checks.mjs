@@ -282,7 +282,13 @@ export default function define(h) {
       { what: "the record holds the decision on exports that are not parts", run: () => h.contains("docs/GATES.md", /Exports that are not parts/, "docs/GATES.md states the rule") },
     ] },
     { ref: "UIG-19", owner: true, checks: [
-      { what: "the usage-page contract runs in CI", run: () => h.ci(/[\w:-]*contract[\w:-]*/) },
+      // The contract and the story links run inside `estiva-ui check`, which every
+      // repo's CI already runs as `registry:check` (UIG-13): nothing new to wire.
+      { what: "estiva-ui check runs the usage-page contract and the story links", run: () => {
+        const cli = h.read("src/registry/cli.ts");
+        return /contractProblems\(/.test(cli) && /checkLinks\(/.test(cli) ? h.PASS("src/registry/cli.ts runs contractProblems and checkLinks") : h.FAIL("src/registry/cli.ts does not run the contract and the links");
+      } },
+      { what: "the package's own CI runs it", run: () => h.ci("registry:check") },
       // Composition was dropped on 23 September (Katerina): the one search is
       // `estiva-ui find`, and running it unasked is UIG-20's. What replaced the
       // check: the section check lives once, here, not pasted into each app.

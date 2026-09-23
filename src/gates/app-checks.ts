@@ -45,7 +45,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-9': 'Lint rule — the className allow-list',
   'UIG-10': 'create-app — a command that makes a new Estiva app that runs',
   'UIG-13': "The registry widens to Peek's 115 and Ship's 74, with classification",
-  'UIG-19': 'Lock the contract in CI, and make the three Storybooks one search',
+  'UIG-19': 'Lock the contract in CI',
   'UIG-20': 'The Claude skill, reading the registry',
   'UIG-21': 'CLAUDE.md becomes an index, not a lecture',
   'UIG-22': 'Fingerprint — a hand-made header row',
@@ -190,7 +190,11 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'every part is described and sorted, and every file is accounted for', run: () => h.catalogue(at('.')) },
     ]),
     ticket('UIG-19', [
-      { what: 'the usage-page contract runs in CI', run: () => h.ci(/[\w:-]*contract[\w:-]*/) },
+      // The contract runs inside `estiva-ui check`, which the gate job already runs
+      // (UIG-13), so an app changes no script: it takes the package that has it.
+      { what: 'the installed package checks the usage-page contract and the story links', run: () => h.contains(at('node_modules/@estiva-app/ui/dist/registry/cli.js'), 'the usage-page contract', "the installed estiva-ui check runs the contract") },
+      { what: "CI's job gate runs it", run: () => h.ciJob('gate', 'registry:check') },
+      { what: 'the app keeps no copy of it in its own gates-checks.mjs', run: () => h.exists(at('scripts/gates-checks.mjs')) ? h.lacks(at('scripts/gates-checks.mjs'), '"When not"', 'the app checks no page sections itself') : h.PASS('the app has no gates-checks.mjs') },
     ]),
     ticket('UIG-20', [
       { what: 'a committed skill runs ui:find', run: () => (h.listFiles('.claude/skills', (n) => n === 'SKILL.md').some((f) => h.read(f).includes('ui:find')) ? h.PASS('a skill runs ui:find') : h.FAIL('no skill in .claude/skills runs ui:find')) },
