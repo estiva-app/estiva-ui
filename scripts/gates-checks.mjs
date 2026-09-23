@@ -236,7 +236,12 @@ export default function define(h) {
     { ref: "UIG-13", owner: true, checks: [
       { what: "the package builds an app's catalogue, and one search reads several", run: () => h.contains("src/registry/index.ts", /buildAppRegistry[\s\S]*findInRegistries/, "@estiva-app/ui/registry exports buildAppRegistry and findInRegistries") },
       { what: "the public package holds no app's parts", run: () => h.json("registry.json", (d) => d.schemaVersion === 2 && d.builtFrom?.kind === "package" && (d.entries ?? []).every((e) => e.repo === "estiva-ui" && e.app === null), "registry.json is the package's own, schema 2, and no entry is an app's") },
-      { what: "ui:find here brings in Peek and Ship when they sit beside it", run: () => h.contains("package.json", /"ui:find":\s*"[^"]*--also peek=[^"]*--also ship=/, "ui:find passes --also peek and --also ship") },
+      // Since UIG-20, `find` brings in every app beside it by itself; naming them with
+      // `--also` is what this check asked for before, and now the thing to avoid.
+      { what: "ui:find here brings in Peek and Ship when they sit beside it", run: () => {
+        const finds = h.contains("src/registry/cli.ts", /findSiblings\(workspaceOf\(root\)/, "estiva-ui find finds its neighbours");
+        return finds.result !== "pass" ? finds : h.lacks("package.json", /"ui:find":[^\n]*--also/, "ui:find names no neighbour: find brings in every app beside it (UIG-20)");
+      } },
       { what: "a made app gets ui:find, registry:check in its job gate, and ignores registry.json", run: () => {
         const made = h.read("src/gates/create-app.ts");
         const missing = [
