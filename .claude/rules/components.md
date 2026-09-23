@@ -22,9 +22,9 @@ A port has its own steps: the `port` skill.
 - A hover-only affordance is CSS (`group-hover`, `:hover`), never a React mount; a mount cannot stay in step with a transition.
 - Sizes and spacing in the class list, never computed in JavaScript, unless the value depends on data (an avatar's pixel size).
 - Where the caller owes something for accessibility (an `aria-label` on an icon-only button, a `label` on a field), the prop is required, not optional.
-- **A floating thing draws the package's one elevated box**, `MenuPanel` — a menu, a popover, a preview card and a toolbar are the same box at different widths (D29, 2026-09-08). A component that floats and draws no box is unfinished; two boxes inside each other is the tell that one of them should have been switched off.
-- **A panel that acts on what is under it opens above its trigger** (D30). A toolbar acts; a rename field is *about* its trigger and hangs from it. The side is a *preference* — Floating UI measures the room and overrules it — which is the reason placement is the library's job and never arithmetic of ours.
-- **A picker picks** (D31). The state of what it produces belongs to the thing it produces: `ReactionPicker` offers, `Reaction` carries the count and the accent fill. A component that both offers and reports is two components wearing one name.
+- **A floating thing draws the package's one elevated box**, `MenuPanel` — a menu, a popover, a preview card and a toolbar are the same box at different widths. A component that floats and draws no box is unfinished; two boxes inside each other is the tell that one of them should have been switched off.
+- **A panel that acts on what is under it opens above its trigger**. A toolbar acts; a rename field is *about* its trigger and hangs from it. The side is a *preference* — Floating UI measures the room and overrules it — which is the reason placement is the library's job and never arithmetic of ours.
+- **A picker picks**. The state of what it produces belongs to the thing it produces: `ReactionPicker` offers, `Reaction` carries the count and the accent fill. A component that both offers and reports is two components wearing one name.
 - Merge classes with this package's `cn()` only. Stock `twMerge` drops `text-body-2` beside `text-text-primary`.
 
 ## Two layout traps

@@ -17,10 +17,7 @@ every Estiva app — Peek, Ship, and whatever comes next.
   primitive and does not belong here.
 - Behaviour comes from [Base UI](https://base-ui.com) (`@base-ui/react`, a
   dependency installed with the package): keyboard, focus, roles, forms.
-  The components move onto it one stage at a time; `Tabs`, `Checkbox`,
-  `Button`, `IconButton` and `PersonTrigger` are on it (2026-09-07), the
-  rest follow the plan in `K:\Estiva\migration docs\PLAN.md`, whose §16
-  lists every component, its Base UI part, and what it gains. Nothing
+  Every component with a Base UI counterpart is built on it. Nothing
   changes how a component looks.
 
 ## Using it

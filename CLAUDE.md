@@ -48,10 +48,7 @@ npm run build         # esbuild bundle + tsc declarations
 
 ## Where rulings live
 
-Katerina's rulings are in two places. A ruling outranks anything in this file.
-
-- `K:/Estiva/migration docs/DECISIONS.md`: the package migration, D1–D71.
-- `docs/GATES.md`: the UI Guardrails.
+Katerina's rulings are in `docs/GATES.md`. A ruling outranks anything in this file.
 
 ---
 
@@ -66,5 +63,5 @@ Each rule file loads by itself once you read a file it names. A skill loads when
 | `.claude/rules/tokens.md` | `tokens.css`, the preset, the Tailwind config, `cn.ts` | transparent tokens; never weaken `tokens.test.ts` |
 | `.claude/rules/release.md` | `CHANGELOG.md`, `package.json`, the lockfile | the changelog, semver, the lockfile |
 | skill `port` | — | moving a component onto Base UI, step by step, and the definition of done |
-| skill `verify` | — | the photo check (D70), linking into the apps, measuring |
+| skill `verify` | — | the photo check, linking into the apps, measuring |
 | skill `estiva-ui` | — | the package's own skill (`skill/estiva-ui.md`): search first, and the 24 Gotchas |

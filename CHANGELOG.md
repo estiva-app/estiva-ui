@@ -21,7 +21,7 @@
 - **CI: the token lint runs in the `gate` job**, the only one a merge
   requires. It ran in `check`, which does not block a merge.
 - **ScrollArea's page and stories** put the padding on `contentClassName`, as
-  the component's own comment and D40 say; the `max-h` cap goes on
+  the component's own comment says; the `max-h` cap goes on
   `viewportClassName`. Nothing in the component changed.
 
 ### What an app does

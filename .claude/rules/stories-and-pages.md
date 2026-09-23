@@ -21,9 +21,9 @@ A page and its stories are one piece of work: the page imports the stories.
 - Stories render in both product themes from the toolbar (`signal`, `ship`); a story that only reads right in one has a colour from outside the token set.
 - Frame and layout stories render full height (`h-screen`) and, where they scroll, with enough rows to actually scroll. Every bar story stands against content.
 - Story names are the variant's name, in words a designer uses.
-- **A story introduces the component; it does not argue for it** (D32, 2026-09-08). A canvas that exists to prove a point — the same buttons in a toolbar and in a plain row, so the Tab stops can be counted — is an argument. Make the claim in the test file, where a claim belongs, and spend the canvas on a variant.
-- **A story may not name furniture the package has not got** (D32). "From a quick menu" borrowed one app's `ConversationQuickMenu`; what the canvas actually drew was a card with a `Toolbar` of actions, which is what it says now.
-- **A story may not hand-build a component this package already has** (D32). Two `DialogShell` stories rebuilt `ConfirmDialog`, and one of them rebuilt it *wrongly*, on a plain dialog whose backdrop dismissed the question. Where the only honest example of a prop is another component, say so on the page and let that component's canvases be the coverage.
+- **A story introduces the component; it does not argue for it**. A canvas that exists to prove a point — the same buttons in a toolbar and in a plain row, so the Tab stops can be counted — is an argument. Make the claim in the test file, where a claim belongs, and spend the canvas on a variant.
+- **A story may not name furniture the package has not got**. "From a quick menu" borrowed one app's `ConversationQuickMenu`; what the canvas actually drew was a card with a `Toolbar` of actions, which is what it says now.
+- **A story may not hand-build a component this package already has**. Two `DialogShell` stories rebuilt `ConfirmDialog`, and one of them rebuilt it *wrongly*, on a plain dialog whose backdrop dismissed the question. Where the only honest example of a prop is another component, say so on the page and let that component's canvases be the coverage.
 
 ## Axe exceptions in a story
 
