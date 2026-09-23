@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "repo": "estiva-ui",
-  "generatedAt": "2026-09-17T11:35:53.735Z",
+  "generatedAt": "2026-09-23T20:48:46.917Z",
   "rules": {
     "estiva/raw-element-outside-a-wrapper": {
       "errors": 0,
@@ -27,6 +27,11 @@
       "errors": 0,
       "warnings": 0,
       "escapes": 6
+    },
+    "estiva/no-handmade-header": {
+      "errors": 0,
+      "warnings": 0,
+      "escapes": 1
     }
   }
 }
