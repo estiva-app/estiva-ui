@@ -23,10 +23,11 @@ with a hairline under it.
 - One section inside a column → **SectionHeader**, the 32px row with a
   SectionLabel.
 - The top of the whole app → **TopBar**.
-- A dialog's title → **DialogShell** draws its own.
+- A dialog's title → **DialogShell**, which draws this bar with the dialog's own 18px title.
 
 - A row you draw yourself at the top of a column — your own padding and a line
-  under it → this part. Its numbers are every column's.
+  under it → this part. Its numbers are every column's. The lint refuses the
+  hand-made row (`estiva/no-handmade-header`).
 - A whole list column, header and scrolling list → **ListColumn**, which draws
   this bar at its top.
 

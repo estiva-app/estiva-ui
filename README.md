@@ -64,7 +64,7 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. There are three:
+instead. There are four:
 
 - `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
   `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
@@ -79,6 +79,10 @@ instead. There are three:
   `className` or an inner box's class prop — a colour, a text size, a border, a
   corner, a shadow — and names the part's look props (`PART_LOOK_PROPS`). Only
   placement goes through (`PLACEMENT`), and `EmptyState` takes no padding.
+- `estiva/no-handmade-header` refuses a column's header bar drawn by hand: a
+  row first in a column, with its own side padding and a title, where the column
+  fills its height or the row has a bar's height or hairline. It reads the
+  shape, not the class names, and names `ContainerHeader`.
 
 ```js
 // eslint.config.js — alongside your own rules
