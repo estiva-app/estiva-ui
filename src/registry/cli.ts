@@ -6,6 +6,7 @@
  *   estiva-ui find <words…> [--here | --also [name=]<folder>…] [--json] [--limit n]
  *   estiva-ui build [--out <path>]
  *   estiva-ui check
+ *   estiva-ui skill [--out <folder>]
  *
  * Every command takes `--root <folder>` (the library it reads; default: here)
  * and `--repo <name>` (what an app's entries are called; default: its package name).
@@ -24,15 +25,20 @@
  * built fresh, plus every app beside it (UIG-20, `./siblings`): found, not
  * named, so one command answers the same from any repository, or from the
  * folder that holds them. `--here` searches no neighbour; `--also` names them.
+ *
+ * `skill` writes the repository's Claude skill loader (UIG-20, `./skill`), or
+ * the one for `--out <folder>`; `check` fails when the repository's is missing
+ * or differs.
  */
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { basename, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
 import { findSiblings, workspaceOf } from './siblings'
+import { loaderPath, loaderProblem, loaderText, repositoryOf, settingsPath, settingsWithSearch } from './skill'
 import { CLASSES, validateRegistry, type Registry } from './schema'
 
 /**
@@ -92,6 +98,20 @@ function readPackageRegistry(): Registry {
   // A malformed catalogue is worse than none: it would answer, wrongly.
   if (problems.length) throw new Error(`${path} does not match the schema:\n  ${problems.join('\n  ')}`)
   return registry
+}
+
+/** The installed package whose skill text a loader reads: this repo in the package, else the app's install. */
+const packageRoot = () => (isPackage ? root : resolve(root, 'node_modules', '@estiva-app', 'ui'))
+
+/** The Claude skill loader (UIG-20): reports, and says whether it passed. */
+function checkLoader(): boolean {
+  const problem = loaderProblem(repositoryOf(root), packageRoot())
+  if (problem) {
+    process.stderr.write(`claude skill: ${problem}\n`)
+    return false
+  }
+  process.stdout.write('claude skill: the loader reads the package’s text\n')
+  return true
 }
 
 async function buildApp(folder: string, repo: string | undefined): Promise<Registry> {
@@ -245,7 +265,8 @@ async function main(): Promise<number> {
         }
         const linked = checkLinks(registry, root)
         const shown = await checkGated(registry, root)
-        return broken.length || !linked || !shown ? 1 : 0
+        const loaded = checkLoader()
+        return broken.length || !linked || !shown || !loaded ? 1 : 0
       }
       const { buildRegistry, serializeRegistry } = await packageBuilder()
       const path = packageRegistryPath()
@@ -268,11 +289,27 @@ async function main(): Promise<number> {
       process.stdout.write(`${path}: current, ${built.entries.length} entries from ${built.builtFrom.exports} exports\n`)
       const linked = checkLinks(built, root)
       const shown = await checkGated(built, root, ['component'])
-      return linked && shown ? 0 : 1
+      const loaded = checkLoader()
+      return linked && shown && loaded ? 0 : 1
+    }
+
+    case 'skill': {
+      const out = value('out')
+      const folder = out ? resolve(out) : repositoryOf(root)
+      const path = loaderPath(folder)
+      mkdirSync(dirname(path), { recursive: true })
+      writeFileSync(path, loaderText(folder, packageRoot()), 'utf8')
+      process.stdout.write(`${path}: the Claude skill, read from ${packageRoot()}\n`)
+      const settings = settingsWithSearch(folder)
+      if (settings) {
+        writeFileSync(settingsPath(folder), settings, 'utf8')
+        process.stdout.write(`${settingsPath(folder)}: the search allowed without a prompt\n`)
+      }
+      return 0
     }
 
     default:
-      process.stderr.write('estiva-ui <find | build | check>\n')
+      process.stderr.write('estiva-ui <find | build | check | skill>\n')
       return 1
   }
 }

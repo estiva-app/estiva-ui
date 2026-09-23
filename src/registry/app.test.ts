@@ -573,8 +573,41 @@ describe.skipIf(!existsSync(cli))('estiva-ui in an app', () => {
     }
     expect(failed.stdout).toMatch(/^fixture: 17 parts in 15 files \(2 more hold none\)/)
     expect(failed.stderr).toContain('Timeline (reusable, src/components/Timeline.tsx) has no usage page: write src/components/Timeline.mdx')
-    const one = app({ 'src/One.tsx': '/** One, drawn once. */\nexport function One() {\n  return <i />\n}\n' })
+    const one = app({ 'src/One.tsx': '/** One, drawn once. */\nexport function One() {\n  return <i />\n}\n', 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    run(['skill'], one)
     expect(run(['check'], one)).toContain('usage pages: all 0 reusable parts keep the contract')
+  })
+
+  it('skill writes a loader that reads the installed package, and check fails when it is missing or differs (UIG-20)', () => {
+    const two = app({ 'src/Two.tsx': '/** Two, drawn once. */\nexport function Two() {\n  return <i />\n}\n', 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    const failure = (cwd: string) => {
+      try {
+        run(['check'], cwd)
+      } catch (error) {
+        return (error as { stderr?: string }).stderr ?? ''
+      }
+      return ''
+    }
+    expect(failure(two)).toContain('.claude/skills/estiva-ui/SKILL.md is missing: run "estiva-ui skill" and commit it')
+    run(['skill'], two)
+    const loader = readFileSync(join(two, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
+    expect(loader).toMatch(/^---\nname: estiva-ui\ndescription: "Use before building/)
+    expect(loader).toContain('!`cat "${CLAUDE_SKILL_DIR}/../../../node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    // Its text is the package's, never a copy.
+    expect(loader).not.toContain('# The skill')
+    expect(run(['check'], two)).toContain('claude skill: the loader reads the package’s text')
+    writeFileSync(join(two, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), `${loader}\nA line of our own.\n`)
+    expect(failure(two)).toContain('SKILL.md is not what the package writes')
+  })
+
+  it('skill --out writes a loader for a folder that holds the repositories, reading this app’s install', () => {
+    const holder = mkdtempSync(join(tmpdir(), 'uig20-holder-'))
+    made.push(holder)
+    const three = app({ 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    run(['skill', '--out', holder], three)
+    const loader = readFileSync(join(holder, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
+    const line = /!`cat "\$\{CLAUDE_SKILL_DIR\}\/(.+)"`/.exec(loader)?.[1] ?? ''
+    expect(existsSync(join(holder, '.claude', 'skills', 'estiva-ui', line))).toBe(true)
   })
 
   it("find searches the app and the package, and never takes an app's own registry.json for the package's", () => {
