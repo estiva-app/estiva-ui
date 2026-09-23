@@ -199,8 +199,14 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: "CI's job gate runs it", run: () => h.ciJob('gate', 'registry:check') },
       { what: 'the app keeps no copy of it in its own gates-checks.mjs', run: () => h.exists(at('scripts/gates-checks.mjs')) ? h.lacks(at('scripts/gates-checks.mjs'), '"When not"', 'the app checks no page sections itself') : h.PASS('the app has no gates-checks.mjs') },
     ]),
+    // The Claude skill (UIG-20): its text is the installed package's, read in by a
+    // loader `estiva-ui skill` writes; the app commits the loader and the settings.
     ticket('UIG-20', [
-      { what: 'a committed skill runs ui:find', run: () => (h.listFiles('.claude/skills', (n) => n === 'SKILL.md').some((f) => h.read(f).includes('ui:find')) ? h.PASS('a skill runs ui:find') : h.FAIL('no skill in .claude/skills runs ui:find')) },
+      { what: "the skill's loader reads the installed package's text", run: () => h.contains('.claude/skills/estiva-ui/SKILL.md', `!\`cat "\${CLAUDE_PROJECT_DIR}/${at('node_modules/@estiva-app/ui/skill/estiva-ui.md')}"\``, 'the loader reads the package’s skill') },
+      { what: 'the search runs without a prompt', run: () => h.contains('.claude/settings.json', 'Bash(npm run ui:find *)', '.claude/settings.json allows npm run ui:find') },
+      { what: 'ui:find searches every app beside this one: it names none', run: () => h.lacks(at('package.json'), /"ui:find":[^\n]*--also/, 'ui:find names no neighbour, so it finds them all') },
+      ...(WEB ? [{ what: 'ui:find runs from the top folder too', run: () => h.contains('package.json', /"ui:find":/, 'the top folder has ui:find') }] : []),
+      { what: "CI's job gate refuses a loader that differs", run: () => (h.exists(at('node_modules/@estiva-app/ui/dist/registry/cli.js')) && /claude skill:/.test(h.read(at('node_modules/@estiva-app/ui/dist/registry/cli.js'))) ? h.ciJob('gate', 'registry:check') : h.FAIL('the installed package does not check the loader: take a version that does')) },
     ]),
     ticket('UIG-21', [
       { what: 'path-scoped instructions exist', run: () => (h.listFiles('.claude/rules', (n) => n.endsWith('.md')).some((f) => /^paths:/m.test(h.read(f))) ? h.PASS('.claude/rules has paths: instructions') : h.FAIL('no .claude/rules file with paths:')) },

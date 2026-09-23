@@ -97,7 +97,7 @@ jobs:
       # The Claude skill (UIG-20): it names only parts and props the package
       # has, assumes no app, and its Gotchas still add up against the record.
       - name: The skill
-        run: npx vitest run --project unit src/registry/skill.test.ts
+        run: npm run skill:check
       # The catalogue is current, every story link opens, no story hides what a
       # part draws, and the skill's loader is the one the package writes.
       # `lint:rules` above has already built dist/.

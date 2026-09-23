@@ -66,6 +66,7 @@
     "registry": "node dist/registry/cli.js build",
     "preregistry:check": "node build.mjs",
     "registry:check": "node dist/registry/cli.js check",
+    "skill:check": "vitest run --project unit src/registry/skill.test.ts",
     "preui:find": "node build.mjs",
     "ui:find": "node dist/registry/cli.js find",
     "prepublishOnly": "npm run build"
