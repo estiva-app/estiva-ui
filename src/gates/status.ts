@@ -73,6 +73,8 @@ export interface GateHelpers {
   share(files: string[], test: (file: string) => boolean, label: string): CheckResult
   /** Build the catalogue of the app in `appDir` (UIG-13): passes when every part is described and sorted. */
   catalogue(appDir: string): Promise<CheckResult>
+  /** Every reusable part keeps the usage-page contract (UIG-19): the package's one copy of it. */
+  contract(appDir: string): Promise<CheckResult>
 }
 
 export interface GateCheck {
@@ -175,6 +177,19 @@ export function helpers(ROOT: string): GateHelpers {
       } catch (error) {
         const lines = String(error instanceof Error ? error.message : error).split('\n')
         return FAIL(lines.length > 1 ? `${lines.length - 1} problems, the first: ${lines[1].trim()}` : lines[0])
+      }
+    },
+
+    async contract(appDir) {
+      try {
+        const { buildAppRegistry, contractProblems, CONTRACT_KINDS } = await import('../registry/index')
+        const registry = buildAppRegistry({ root: abs(appDir) })
+        const problems = contractProblems(registry, abs(appDir))
+        const owed = registry.entries.filter((entry) => (CONTRACT_KINDS as readonly string[]).includes(entry.app?.class ?? '')).length
+        if (problems.length) return FAIL(`${problems.length} of ${owed}; the first: ${problems[0]}`)
+        return PASS(`all ${owed} reusable parts keep the usage-page contract and are drawn somewhere`)
+      } catch (error) {
+        return FAIL(String(error instanceof Error ? error.message : error).split('\n')[0])
       }
     },
 

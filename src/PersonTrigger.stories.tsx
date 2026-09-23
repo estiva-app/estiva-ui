@@ -14,6 +14,13 @@ type Story = StoryObj<typeof meta>
 /** The row shape — face · name · chevron on a 32px button, Ship's top bar. */
 export const Row: Story = {}
 
+/** The row with the person's picture — an inline SVG, as Avatar's own story uses. */
+export const RowWithPicture: Story = {
+  args: {
+    picture: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="%2346c08a"/><circle cx="5" cy="4" r="2" fill="%23fff"/></svg>',
+  },
+}
+
 /** While what it opens is open, the row holds its hover fill. */
 export const RowOpen: Story = {
   args: { open: true },

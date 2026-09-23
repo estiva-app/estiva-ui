@@ -540,9 +540,22 @@ describe.skipIf(!existsSync(cli))('estiva-ui in an app', () => {
   const run = (args: string[], cwd: string) => execFileSync(process.execPath, [cli, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 
   it('check prints what it found, and fails on a part with no description', () => {
-    expect(run(['check', '--repo', 'fixture'], root)).toMatch(/^fixture: 17 parts in 15 files \(2 more hold none\)/)
     const bare = app({ 'src/One.tsx': 'export function One() {\n  return <i />\n}\n' })
     expect(() => run(['check'], bare)).toThrow(/One in src\/One\.tsx has no one-line description/)
+  })
+
+  it('check fails a reusable part with no usage page, naming the page to write (UIG-19)', () => {
+    // The fixture's reusable parts have no pages: it was written before the contract ran in `check`.
+    let failed: { stdout?: string; stderr?: string } = {}
+    try {
+      run(['check', '--repo', 'fixture'], root)
+    } catch (error) {
+      failed = error as { stdout?: string; stderr?: string }
+    }
+    expect(failed.stdout).toMatch(/^fixture: 17 parts in 15 files \(2 more hold none\)/)
+    expect(failed.stderr).toContain('Timeline (reusable, src/components/Timeline.tsx) has no usage page: write src/components/Timeline.mdx')
+    const one = app({ 'src/One.tsx': '/** One, drawn once. */\nexport function One() {\n  return <i />\n}\n' })
+    expect(run(['check'], one)).toContain('usage pages: all 0 reusable parts keep the contract')
   })
 
   it("find searches the app and the package, and never takes an app's own registry.json for the package's", () => {

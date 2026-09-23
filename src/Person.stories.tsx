@@ -13,6 +13,13 @@ type Story = StoryObj<typeof meta>
 
 export const Named: Story = {}
 
+/** With their picture — here an inline SVG, as Avatar's own story uses, so the story needs nothing from anywhere. */
+export const WithPicture: Story = {
+  args: {
+    picture: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="%2346c08a"/><circle cx="5" cy="4" r="2" fill="%23fff"/></svg>',
+  },
+}
+
 /** Nobody has published a name: the silhouette and the em dash, muted — the same mark a property with no value uses. */
 export const Unnamed: Story = {
   args: { name: undefined },

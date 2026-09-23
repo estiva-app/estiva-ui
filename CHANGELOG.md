@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.27.0 — 2026-09-23 — UIG-19: the usage-page contract is locked in CI
+
+### Added
+
+- **`estiva-ui check` holds an app to the usage-page contract.** Every part it
+  classifies reusable (or promote-candidate) needs a page beside it, with an
+  opening line, then When, When not, How (with code) and What it owns, in that
+  order. And it must be drawn somewhere: a story of its own, or a
+  `**Seen in**` line on its page. Every app's `gate` job already runs
+  `registry:check`, so taking this release is all an app does.
+- **Story links.** `check` asks Storybook for its own index (`storybook index`:
+  no server, seconds) and fails on a catalogue story or docs link it does not
+  have, or on a page it cannot compile. In the package too.
+- **What a story never shows.** `check` fails when a part draws something only
+  behind a prop, `{onReply && …}`, and no story that draws it passes the prop.
+  Strict (Katerina, 23 September): a part's own stories show everything it can
+  draw, including what it hands to a smaller part. A prop that only reaches a
+  dialog is skipped, since the dialog is shut in the story.
+- **`@estiva-app/ui/registry`** exports the contract's pieces:
+  `contractProblems`, `pageProblem`, `hasSeenIn`, `linkProblems`,
+  `PAGE_SECTIONS`, `CONTRACT_KINDS`. **`h.contract(appDir)`** in the gate
+  helpers runs the same check for `gates:status`, so no app pastes it.
+- Stories for what the package never showed: SectionHeader **Folding**,
+  CollapsibleSection **With trailing**, ListColumn **With chevron**, Person
+  **With picture**, PersonTrigger **Row with picture**, MenuItem **A topic**
+  (EnterHint's `target`).
+
+### Changed
+
+- The catalogue counts a story file named after a part whose stories draw its
+  `…View` half from the same file, so such a part is no longer called drawn
+  nowhere.
+- MenuItem's **Tall** story passes its Enter hint as `hint`, as its own docs and
+  every app do, not as `trailing`. It looks the same.
+
 ## 0.26.0 — 2026-09-21 — UIG-35: a picture opens full screen, and the card does the whole job
 
 ### Added
