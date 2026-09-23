@@ -69,6 +69,7 @@ const packageRules = {
   'component-has-a-page': componentHasAPage,
   'component-has-a-story': componentHasAStory,
   'no-restyled-part': noRestyledPart,
+  'no-handmade-header': noHandmadeHeader,
 }
 
 const rules = { ...appRules, ...packageRules }

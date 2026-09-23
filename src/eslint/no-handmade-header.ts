@@ -91,7 +91,8 @@ function carriesTitle(el: JSXElement, depth = 0): boolean {
     }
     if (!isElement(child)) continue
     const tag = tagOf(child)
-    if (/^h[1-6]$/.test(tag) || TEXT_PARTS.has(tag)) return true
+    // `Dialog.Title`, `Parts.Title`: a part's title, named as one.
+    if (/^h[1-6]$/.test(tag) || TEXT_PARTS.has(tag) || /\.(?:Title|Heading)$/.test(tag)) return true
     // A part's own words are its label, a Button's "Save": only plain boxes are looked into.
     if (/^[a-z]/.test(tag) && carriesTitle(child, depth + 1)) return true
   }

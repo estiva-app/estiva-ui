@@ -63,11 +63,12 @@ describe('the plugin object', () => {
   })
 
   /**
-   * `no-restyled-part` is the one rule in both sets (UIG-9): the package restyles
-   * none of its own parts either (Katerina, 17 September). Every other inward
-   * rule still reaches no app.
+   * `no-restyled-part` (UIG-9) and `no-handmade-header` (UIG-22) are in both
+   * sets: the package restyles none of its own parts either (Katerina, 17
+   * September), and draws no header bar by hand ("my review isn't enough",
+   * 23 September). Every other inward rule still reaches no app.
    */
-  it('gives this package its own set, as errors, and only the shared rule reaches an app config', () => {
+  it('gives this package its own set, as errors, and only the shared rules reach an app config', () => {
     expect(estiva.configs.package.plugins?.[PLUGIN_KEY]).toBe(estiva)
     expect(estiva.configs.package.rules).toEqual({
       'estiva/raw-element-outside-a-wrapper': 'error',
@@ -75,9 +76,10 @@ describe('the plugin object', () => {
       'estiva/component-has-a-page': 'error',
       'estiva/component-has-a-story': 'error',
       'estiva/no-restyled-part': 'error',
+      'estiva/no-handmade-header': 'error',
     })
     expect(PACKAGE_RULE_IDS).toEqual(Object.keys(estiva.configs.package.rules ?? {}))
-    for (const id of PACKAGE_RULE_IDS.filter((id) => id !== 'estiva/no-restyled-part')) {
+    for (const id of PACKAGE_RULE_IDS.filter((id) => id !== 'estiva/no-restyled-part' && id !== 'estiva/no-handmade-header')) {
       expect(estiva.configs.recommended.rules?.[id]).toBeUndefined()
       expect(estiva.configs.strict.rules?.[id]).toBeUndefined()
     }
