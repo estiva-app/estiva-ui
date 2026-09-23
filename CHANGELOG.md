@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.28.0 — 2026-09-23 — UIG-37: the gates know TypeScript's rule names
+
+### Added
+
+- **`tokenConfig()`** in `@estiva-app/ui/gates`: the token lint on its own, as
+  an app's `eslint.tokens.config.js` runs it, shaped like `gateConfig`. It takes
+  `quiet` (plugins whose `eslint-disable` comments appear in the source, every
+  rule off), `ignores`, and `tokenLint`'s own options. An app's file becomes
+  `export default tokenConfig({ quiet: { 'react-hooks': reactHooks } })`.
+- **`gates:status` checks UIG-37 in every app:** a TypeScript `eslint-disable`
+  comment is no error in the gate or in any token config, and a token lint that
+  runs on its own is `tokenConfig`, not built by hand.
+
+### Fixed
+
+- **The gate and the token lint refused TypeScript's own comments.**
+  `// eslint-disable-line @typescript-eslint/no-explicit-any` failed with
+  *Definition for rule … was not found*, because ESLint refuses a comment for a
+  rule it does not know (Peek PR #324). `gateConfig` and `tokenConfig` now
+  register TypeScript's plugin, every rule off. Only these two: a full lint
+  that loads TypeScript's rules itself would refuse the same name twice. An app
+  that names the plugin in `quiet` keeps its own copy.
+- **`create-estiva-app`** writes the one-line token config.
+
 ## 0.27.0 — 2026-09-23 — UIG-19: the usage-page contract is locked in CI
 
 ### Added
