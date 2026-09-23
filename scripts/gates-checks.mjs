@@ -48,6 +48,7 @@ const all = [
   { ref: "UIG-34", owner: "estiva-ui", title: "A tree part — Peek's file tree and folder list" },
   { ref: "UIG-35", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lightbox — one attachment part that opens a picture full screen, for both apps" },
   { ref: "UIG-36", owner: "estiva-ui", title: "Estiva ID gets its own Storybook, and leaves Peek's" },
+  { ref: "UIG-37", owner: "estiva-ui", parts: PEEK_SHIP, title: "The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -439,6 +440,12 @@ export default function define(h) {
           }) },
         ];
       }),
+    ] },
+    // UIG-37, 23 September: Peek PR #324's first version failed Peek's token lint on a correct
+    // `eslint-disable-line @typescript-eslint/no-explicit-any`. The apps' half is appChecks'.
+    { ref: "UIG-37", owner: true, checks: [
+      { what: "the package exports tokenConfig, the token lint on its own", run: () => h.contains("src/gates/index.ts", /\btokenConfig\b/, "src/gates/index.ts exports tokenConfig") },
+      { what: "a TypeScript eslint-disable comment is no error in the gate", run: gate("// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport const probe: any = 1\n", "none") },
     ] },
   ];
 
