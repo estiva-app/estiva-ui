@@ -3,6 +3,7 @@ import { Dialog } from '@base-ui/react/dialog'
 import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
+import { ContainerHeader } from './ContainerHeader'
 import { IconButton } from './IconButton'
 import { ScrollArea } from './ScrollArea'
 
@@ -113,14 +114,17 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
             className="bg-bg-elevated border border-border-subtle rounded-lg shadow-lg pointer-events-auto flex flex-col overflow-hidden outline-none"
             style={{ width }}
           >
-            {/* Header */}
-            <div className="h-12 flex items-center justify-between pl-5 pr-4 border-b border-border-subtle shrink-0">
-              {headerContent ?? (
-                <Parts.Title className="text-h4 text-text-primary" render={<span />}>
-                  {title}
-                </Parts.Title>
-              )}
-              {/*
+            {/* Header: the package's one header bar, with the dialog's own title in it (UIG-22). */}
+            <ContainerHeader
+              title={
+                headerContent ?? (
+                  <Parts.Title className="text-h4 text-text-primary" render={<span />}>
+                    {title}
+                  </Parts.Title>
+                )
+              }
+              actions={
+                /*
                 The ✕ IS the `Close` part now, rather than a button that calls
                 `onClose` beside one (stage 4, 2026-09-07). Stage 3 could not do
                 this: an `IconButton` carrying a `tooltip` returned the tooltip
@@ -131,15 +135,16 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
                 What it buys: the dialog closes through its own state machine,
                 so the ✕, Escape and the outside press are one path with one
                 reason attached, instead of one of the three going around.
-              */}
-              <Parts.Close
-                render={
-                  <IconButton tooltip="Close" aria-label="Close">
-                    <IconX size={16} stroke={1.5} />
-                  </IconButton>
-                }
-              />
-            </div>
+              */
+                <Parts.Close
+                  render={
+                    <IconButton tooltip="Close" aria-label="Close">
+                      <IconX size={16} stroke={1.5} />
+                    </IconButton>
+                  }
+                />
+              }
+            />
 
             {/* Body. With a cap it scrolls in the package's bar: the cap goes
                 on the viewport (ScrollArea's rule — on the region the viewport
