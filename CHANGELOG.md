@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.29.0 — 2026-09-23 — UIG-20: the Claude skill, and one search from anywhere
+
+### Added
+
+- **The Claude skill.** `skill/estiva-ui.md` is its text, once, in the package:
+  when it applies, five steps with the search first, and 24 Gotchas, the
+  mistakes made here more than once (`docs/GATES-SKILL.md` reconciles them
+  against 542 recorded defects). A repository loads it with a loader,
+  `.claude/skills/estiva-ui/SKILL.md`, that holds only the trigger and a line
+  reading the installed package's text in.
+- **`estiva-ui skill`** writes that loader, and allows `npm run ui:find` in the
+  repository's `.claude/settings.json`. `--out <folder>` writes one for a folder
+  that holds the repositories. **`estiva-ui check` fails when the loader is
+  missing or differs**, so every app's `gate` job holds it. An app made by
+  `create-estiva-app` gets both.
+- **`estiva-ui find` with nothing else typed searches every app beside it**:
+  a folder, or one folder inside it, that installs `@estiva-app/ui`. Found, not
+  named, so it answers the same from any repository, from Ship's `web/`, or from
+  the folder that holds them. Each app once: a worktree or a second copy is
+  skipped. `--here` searches no neighbour; `--also` still names them.
+- **The editor gate's hook searches first.** The first Write of a new file that
+  draws a new part is stopped once, with what `estiva-ui find` has for the
+  part's name. Writing it again goes through.
+
+### Changed
+
+- **Ranking:** a package part whose name carries one of the words comes before
+  an app's part answering as many. "panel header" now answers `ContainerHeader`
+  first, not an app's own `Header`.
+
+### What an app does
+
+Take this release (it carries 0.28.0's UIG-37 too, so one bump takes both), change `ui:find` to `estiva-ui find --repo <name>` (no
+`--also`), run `npx estiva-ui skill`, and commit the loader and settings.
+
 ## 0.28.0 — 2026-09-23 — UIG-37: the gates know TypeScript's rule names
 
 ### Added

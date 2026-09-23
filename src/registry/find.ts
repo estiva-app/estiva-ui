@@ -96,6 +96,11 @@ export function findInRegistry(registry: Registry, query: string, { limit = 5 }:
  * An app's pass-on is not a result of its own — it is the package's part, and
  * the package's entry answers for it, saying which apps hand it on. At the
  * same strength the package's part comes first: it is the one to reach for.
+ * And a package part whose name carries one of the words comes before an app's
+ * part answering as many words, whatever each scored: "panel header" put an
+ * app's own `Header`, whose whole name is one of the words, above the package's
+ * `ContainerHeader` (UIG-20). Only by name: a package part the words reach
+ * through its notes alone would bury the app part that is the answer.
  */
 export function findInRegistries(registries: Registry[], query: string, { limit = 5 }: { limit?: number } = {}): Finding[] {
   const all = words(query)
@@ -162,7 +167,11 @@ export function findInRegistries(registries: Registry[], query: string, { limit 
   }
 
   const fromPackage = (finding: Finding) => (finding.entry.app === null ? 0 : 1)
-  findings.sort((a, b) => b.matched - a.matched || b.score - a.score || fromPackage(a) - fromPackage(b) || a.entry.name.localeCompare(b.entry.name))
+  const namedInPackage = (finding: Finding) => (finding.entry.app === null && finding.where.includes('name') ? 0 : 1)
+  findings.sort(
+    (a, b) =>
+      b.matched - a.matched || namedInPackage(a) - namedInPackage(b) || b.score - a.score || fromPackage(a) - fromPackage(b) || a.entry.name.localeCompare(b.entry.name),
+  )
   return findings.slice(0, limit)
 }
 

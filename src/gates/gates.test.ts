@@ -178,6 +178,31 @@ describe('runHook', () => {
     }
   })
 
+  it('stops a new part once with what already exists, then lets it through (UIG-20)', async () => {
+    const seen = mkdtempSync(join(scratch, 'seen-'))
+    const input = { ...write('src/PanelHeader.tsx', 'export function PanelHeader() {\n  return <div>x</div>\n}\n'), session_id: 'one' }
+    const first = await runHook({ root: dir, input, seen })
+    expect(first.code).toBe(2)
+    expect(first.message).toContain('src/PanelHeader.tsx was not written yet: it adds a new part, PanelHeader.')
+    expect(first.message).toContain('What already exists for "panel header"')
+    expect(first.message).toContain('ContainerHeader')
+    expect((await runHook({ root: dir, input, seen })).code).toBe(0)
+    // Another session is asked again.
+    expect((await runHook({ root: dir, input: { ...input, session_id: 'two' }, seen })).code).toBe(2)
+    // The search reads every app beside this checkout: seconds on a machine that holds them all.
+  }, 60_000)
+
+  it('does not stop a file already there, a story, or a file that draws nothing', async () => {
+    const seen = mkdtempSync(join(scratch, 'seen-'))
+    for (const input of [
+      write('src/Page.tsx', 'export function Page() {\n  return <div>y</div>\n}\n'),
+      write('src/Panel.stories.tsx', 'export const Default = () => <div>x</div>\n'),
+      write('src/format.tsx', 'export function formatDate(date: Date) {\n  return date.toISOString()\n}\n'),
+    ]) {
+      expect((await runHook({ root: dir, input, seen })).code).toBe(0)
+    }
+  })
+
   it('finds the app in a folder of its own, as Ship keeps it in web/', async () => {
     const top = join(scratch, 'top')
     mkdirSync(top, { recursive: true })

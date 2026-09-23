@@ -35,6 +35,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { APP_RULE_IDS } from '../eslint/index'
+import { loaderText, SEARCH_RULES } from '../registry/skill'
 
 interface PackageJson {
   version: string
@@ -292,7 +293,11 @@ export default gateConfig({ quiet: { 'react-hooks': reactHooks } })
       hooks: {
         PreToolUse: [{ matcher: 'Edit|Write', hooks: [{ type: 'command', command: 'node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook' }] }],
       },
+      permissions: { allow: SEARCH_RULES },
     }),
+
+    // The Claude skill (UIG-20): its trigger, and a line reading the installed package's text in.
+    '.claude/skills/estiva-ui/SKILL.md': loaderText(resolve('/app'), resolve('/app/node_modules/@estiva-app/ui')),
 
     'scripts/gates-checks.mjs': `import { appChecks } from '@estiva-app/ui/gates'
 

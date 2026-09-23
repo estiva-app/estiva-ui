@@ -526,6 +526,25 @@ describe('one search over the package and the apps', () => {
     expect(found.indexOf('estiva-ui:EmptyState')).toBeLessThan(found.indexOf('fixture:EmptyState'))
   })
 
+  it("puts a package part whose name carries a word before an app's part answering as many (UIG-20)", () => {
+    // "panel header" put an app's own `Header` above the package's `ContainerHeader`: its whole name is one of the words.
+    const header = buildAppRegistry({
+      root: app({ 'src/Header.tsx': '/** The top row of a panel: its title and its buttons. */\nexport function Header() {\n  return <header />\n}\n' }),
+      repo: 'fixture',
+    })
+    const found = findInRegistries([packageRegistry, header], 'panel header', { limit: 5 }).map((f) => `${f.entry.repo}:${f.entry.name}`)
+    expect(found[0]).toBe('estiva-ui:ContainerHeader')
+    expect(found).toContain('fixture:Header')
+  })
+
+  it("does not let a package part the words reach only through its notes bury the app's answer", () => {
+    const composer = buildAppRegistry({
+      root: app({ 'src/Composer.tsx': '/** Where a comment is written and sent. */\nexport function Composer() {\n  return <form />\n}\n' }),
+      repo: 'fixture',
+    })
+    expect(findInRegistries([packageRegistry, composer], 'comment composer')[0].entry).toMatchObject({ repo: 'fixture', name: 'Composer' })
+  })
+
   it('says which apps hand a package part on, and how a default is imported', () => {
     const text = formatFindings([packageRegistry, registry], findInRegistries([packageRegistry, registry], 'Button', { limit: 1 }), 'Button')
     expect(text).toContain('fixture hands it on from @/components/ui/Button')
@@ -554,8 +573,46 @@ describe.skipIf(!existsSync(cli))('estiva-ui in an app', () => {
     }
     expect(failed.stdout).toMatch(/^fixture: 17 parts in 15 files \(2 more hold none\)/)
     expect(failed.stderr).toContain('Timeline (reusable, src/components/Timeline.tsx) has no usage page: write src/components/Timeline.mdx')
-    const one = app({ 'src/One.tsx': '/** One, drawn once. */\nexport function One() {\n  return <i />\n}\n' })
+    const one = app({ 'src/One.tsx': '/** One, drawn once. */\nexport function One() {\n  return <i />\n}\n', 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    run(['skill'], one)
     expect(run(['check'], one)).toContain('usage pages: all 0 reusable parts keep the contract')
+  })
+
+  it('skill writes a loader that reads the installed package, and check fails when it is missing or differs (UIG-20)', () => {
+    const two = app({ 'src/Two.tsx': '/** Two, drawn once. */\nexport function Two() {\n  return <i />\n}\n', 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    const failure = (cwd: string) => {
+      try {
+        run(['check'], cwd)
+      } catch (error) {
+        return (error as { stderr?: string }).stderr ?? ''
+      }
+      return ''
+    }
+    expect(failure(two)).toContain('.claude/skills/estiva-ui/SKILL.md is missing: run "estiva-ui skill" and commit it')
+    run(['skill'], two)
+    const loader = readFileSync(join(two, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
+    expect(loader).toMatch(/^---\nname: estiva-ui\ndescription: "Use before building/)
+    expect(loader).toContain('!`cat "${CLAUDE_PROJECT_DIR}/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    expect(JSON.parse(readFileSync(join(two, '.claude', 'settings.json'), 'utf8')).permissions.allow).toContain('Bash(npm run ui:find *)')
+    // Its text is the package's, never a copy.
+    expect(loader).not.toContain('# The skill')
+    expect(run(['check'], two)).toContain('claude skill: the loader reads the package’s text')
+    writeFileSync(join(two, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), `${loader}\nA line of our own.\n`)
+    expect(failure(two)).toContain('SKILL.md is not what the package writes')
+  })
+
+  it('skill --out writes a loader for a folder that holds the repositories, reading an app inside it', () => {
+    const holder = mkdtempSync(join(tmpdir(), 'uig20-holder-'))
+    made.push(holder)
+    mkdirSync(join(holder, 'one', 'node_modules', '@estiva-app', 'ui', 'skill'), { recursive: true })
+    writeFileSync(join(holder, 'one', 'package.json'), JSON.stringify({ name: 'one' }))
+    writeFileSync(join(holder, 'one', 'node_modules', '@estiva-app', 'ui', 'skill', 'estiva-ui.md'), '# The skill\n')
+    run(['skill', '--out', '..'], join(holder, 'one'))
+    const loader = readFileSync(join(holder, '.claude', 'skills', 'estiva-ui', 'SKILL.md'), 'utf8')
+    expect(loader).toContain('!`cat "${CLAUDE_PROJECT_DIR}/one/node_modules/@estiva-app/ui/skill/estiva-ui.md"`')
+    // Claude Code refuses a path that climbs out with `..`, so a folder that does not hold the app is refused here.
+    const elsewhere = app({ 'node_modules/@estiva-app/ui/skill/estiva-ui.md': '# The skill\n' })
+    expect(() => run(['skill', '--out', holder], elsewhere)).toThrow(/does not hold/)
   })
 
   it("find searches the app and the package, and never takes an app's own registry.json for the package's", () => {

@@ -22,13 +22,24 @@
  * `replace_all` for Edit. An Edit carries no whole file, so the edit is applied
  * to the file on disk here. Anything it cannot read passes, and the tool itself
  * reports its own failure.
+ *
+ * **Search first** (UIG-20). A Write that would create a new file drawing a new
+ * part, and that the gate lets through, is stopped once: the hook runs
+ * `estiva-ui find` on the part's name and hands the matches back, so a session
+ * sees what already exists before it adds another. The same file written again
+ * in the same session goes through. The skill asks for the search; this makes
+ * sure it happened. A search that cannot run stops nothing.
  */
-import { existsSync, readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { tmpdir } from 'node:os'
+import { basename, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { ESLint as ESLintClass } from 'eslint'
 import { countGates } from '../eslint/index'
+import { repositoryOf } from '../registry/skill'
 
 export interface HookOptions {
   /** The repository's top folder. Defaults to `$CLAUDE_PROJECT_DIR`, then the tool call's `cwd`. */
@@ -39,6 +50,8 @@ export interface HookOptions {
   audience?: 'app' | 'package'
   /** The hook's input, when not read from stdin (tests). */
   input?: unknown
+  /** Where a session's searches are remembered. Defaults to a folder in the system's temp. */
+  seen?: string
 }
 
 export interface HookResult {
@@ -50,13 +63,14 @@ export interface HookResult {
 
 interface ToolCall {
   tool_name?: string
+  session_id?: string
   cwd?: string
   tool_input?: { file_path?: unknown; content?: unknown; old_string?: unknown; new_string?: unknown; replace_all?: unknown }
 }
 
 const PASS: HookResult = { code: 0, message: '' }
 
-export async function runHook({ root, app = '.', audience = 'app', input }: HookOptions = {}): Promise<HookResult> {
+export async function runHook({ root, app = '.', audience = 'app', input, seen }: HookOptions = {}): Promise<HookResult> {
   let call: ToolCall
   try {
     call = (input ?? JSON.parse(readFileSync(0, 'utf8'))) as ToolCall
@@ -86,7 +100,7 @@ export async function runHook({ root, app = '.', audience = 'app', input }: Hook
   // the typecheck's to judge; the gate looks again at the edit that completes it.
   const errors = results.flatMap((r) => r.messages.filter((m) => m.severity === 2 && m.ruleId))
   const { disabled } = countGates(results)
-  if (errors.length === 0 && disabled.length === 0) return PASS
+  if (errors.length === 0 && disabled.length === 0) return searchFirst(call, file, text, appDir, top, seen) ?? PASS
 
   const shown = (p: string) => relative(top, p).split(sep).join('/')
   const lines = [`${shown(file)} was not written: the UI Guardrails refuse it (${shown(config)}).`]
@@ -94,6 +108,56 @@ export async function runHook({ root, app = '.', audience = 'app', input }: Hook
   const keep = audience === 'package' ? 'Keep it only' : 'Keep the element only'
   for (const d of disabled) lines.push(`  ${d.line}  an eslint-disable switches ${d.ruleId} off. ${keep} with its reason on the line above: // @estiva-escape: <reason>`)
   return { code: 2, message: `${lines.join('\n')}\n` }
+}
+
+/** The part a Write would add in a new file, or null: a capitalised export, in a file that draws. */
+export function newPart(tool: string | undefined, file: string, text: string): string | null {
+  if (tool !== 'Write' || existsSync(file) || !file.endsWith('.tsx') || /\.stories\.tsx$/.test(file)) return null
+  if (!/<\/[A-Za-z]|\/>/.test(text)) return null
+  const named = /export\s+(?:default\s+)?(?:async\s+)?(?:function|const|class)\s+([A-Z][A-Za-z0-9]*)/.exec(text)?.[1]
+  if (named) return named
+  return /export\s+default\s+function\s*\(/.test(text) ? basename(file, '.tsx') : null
+}
+
+/** `PanelHeader` → `panel header`: the words the search is asked. */
+export const wordsOf = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2').toLowerCase()
+
+/** The catalogue command: beside this file once built, or the built one from source (tests). */
+function findCommand(): string | null {
+  for (const at of ['../registry/cli.js', '../../dist/registry/cli.js']) {
+    const path = fileURLToPath(new URL(at, import.meta.url))
+    if (existsSync(path)) return path
+  }
+  return null
+}
+
+/** Stop a new part's first Write with what already exists; null lets it through. */
+function searchFirst(call: ToolCall, file: string, text: string, appDir: string, top: string, seen?: string): HookResult | null {
+  const part = newPart(call.tool_name, file, text)
+  const command = findCommand()
+  if (!part || !command) return null
+  const folder = seen ?? join(tmpdir(), 'estiva-ui-search-first')
+  const mark = join(folder, createHash('sha1').update(`${call.session_id ?? ''}\n${resolve(file)}`).digest('hex'))
+  if (existsSync(mark)) return null
+  const words = wordsOf(part)
+  const repo = basename(repositoryOf(appDir))
+  const run = spawnSync(process.execPath, [command, 'find', ...words.split(' '), '--root', appDir, '--repo', repo, '--limit', '5'], { encoding: 'utf8', timeout: 60_000 })
+  if (run.status !== 0 || !run.stdout.trim()) return null
+  try {
+    mkdirSync(folder, { recursive: true })
+    writeFileSync(mark, '')
+  } catch {
+    return null
+  }
+  const shown = relative(top, file).split(sep).join('/')
+  return {
+    code: 2,
+    message:
+      `${shown} was not written yet: it adds a new part, ${part}. Search before building (UIG-20). What already exists for "${words}":\n\n` +
+      `${run.stdout.trim()}\n\n` +
+      `If one of these does the job, use it, and read its page first. If the words were wrong, run \`npm run ui:find <other words>\`. ` +
+      `If nothing fits, tell the person, then write the file again: it goes through.\n`,
+  }
 }
 
 /** The file as it will be after this tool call, or null when that cannot be known. */

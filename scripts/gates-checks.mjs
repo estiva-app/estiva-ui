@@ -302,8 +302,18 @@ export default function define(h) {
         return copies.length ? h.FAIL(`${copies.join(" and ")} still check the sections in their own gates-checks.mjs`) : h.PASS("neither app checks the sections itself");
       } },
     ] },
+    // The Claude skill (UIG-20). Its text ships once, here; each repository commits
+    // a loader that reads it in (docs/GATES-SKILL.md holds the Gotchas' record).
     { ref: "UIG-20", owner: true, checks: [
-      { what: "the package ships a skill that runs ui:find", run: () => [...h.listFiles("skills", (n) => n === "SKILL.md"), ...h.listFiles(".claude/skills", (n) => n === "SKILL.md")].some((f) => h.read(f).includes("ui:find")) ? h.PASS("a SKILL.md runs ui:find") : h.FAIL("no SKILL.md that runs ui:find") },
+      { what: "the skill's text ships in the package, once", run: () => h.exists("skill/estiva-ui.md") && /"skill"/.test(h.read("package.json")) ? h.PASS("skill/estiva-ui.md is in the package's files") : h.FAIL("skill/estiva-ui.md is missing, or not in the package's files") },
+      { what: "its first step is the search, over every catalogue", run: () => h.contains("skill/estiva-ui.md", /Search before creating anything\.\*\* Run\s+`npm run ui:find/, "step one runs npm run ui:find") },
+      { what: "find searches every app beside this one, with nothing typed", run: () => h.contains("src/registry/cli.ts", /findSiblings\(workspaceOf\(root\)/, "estiva-ui find finds its neighbours") },
+      { what: "this repository's loader reads the package's text", run: () => h.contains(".claude/skills/estiva-ui/SKILL.md", '!`cat "${CLAUDE_PROJECT_DIR}/skill/estiva-ui.md"`', "the loader reads skill/estiva-ui.md") },
+      { what: "estiva-ui check refuses a missing or drifted loader", run: () => h.contains("src/registry/cli.ts", /const loaded = checkLoader\(\)/, "check runs checkLoader") },
+      { what: "the gate job holds the skill to the catalogue and the record", run: () => h.ciJob("gate", "skill:check") },
+      { what: "the hook asks for a search before a new part", run: () => h.contains("src/gates/hook.ts", /searchFirst\(call, file, text/, "runHook runs searchFirst") },
+      { what: "an app made by the starter gets the loader", run: () => h.contains("src/gates/create-app.ts", "'.claude/skills/estiva-ui/SKILL.md': loaderText(", "create-app writes the loader") },
+      { what: "every recorded defect is a Gotcha or excluded with a reason", run: () => h.contains("docs/GATES-SKILL.md", /\*\*542\*\* \| \*\*111\*\* \| \*\*431\*\*/, "docs/GATES-SKILL.md reconciles 542 = 111 + 431") },
     ] },
     { ref: "UIG-21", owner: true, checks: [
       { what: "path-scoped instructions exist", run: () => h.listFiles(".claude/rules", (n) => n.endsWith(".md")).some((f) => /^paths:/m.test(h.read(f))) ? h.PASS(".claude/rules has paths: instructions") : h.FAIL("no .claude/rules file with paths:") },
