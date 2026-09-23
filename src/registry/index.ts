@@ -12,6 +12,7 @@
  */
 export { buildRegistry, readIndexExports, serializeRegistry, type BuildOptions } from './build'
 export { buildAppRegistry, type AppBuildOptions } from './app'
+export { CONTRACT_KINDS, PAGE_SECTIONS, contractProblems, hasSeenIn, linkProblems, pageProblem } from './contract'
 export { docsLink, findInRegistries, findInRegistry, formatFindings, type Finding } from './find'
 export {
   CLASSES,
