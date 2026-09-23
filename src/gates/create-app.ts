@@ -264,18 +264,13 @@ export default defineConfig([
   gateLint(),
 ])
 `,
-    'eslint.tokens.config.js': `import { TOKEN_LINT_IGNORES, tokenLint, tokenValues } from '@estiva-app/ui/gates'
+    'eslint.tokens.config.js': `import { tokenConfig } from '@estiva-app/ui/gates'
 import reactHooks from 'eslint-plugin-react-hooks'
-import { defineConfig, globalIgnores } from 'eslint/config'
 
-// The token contract on its own (\`npm run lint:tokens\`). React's hooks plugin is
-// registered with its rules off, so its directives in the source do not break it.
-export default defineConfig([
-  globalIgnores(TOKEN_LINT_IGNORES),
-  { plugins: { 'react-hooks': reactHooks }, linterOptions: { reportUnusedDisableDirectives: 'off' } },
-  tokenLint(),
-  tokenValues(),
-])
+// The token contract on its own (\`npm run lint:tokens\`), the package's piece.
+// React's hooks plugin is named so its directives do not break it; TypeScript's
+// the package names itself.
+export default tokenConfig({ quiet: { 'react-hooks': reactHooks } })
 `,
     'eslint.gates.config.js': `import { gateConfig } from '@estiva-app/ui/gates'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -284,7 +279,8 @@ import reactHooks from 'eslint-plugin-react-hooks'
  * The UI Guardrails' rules on their own — \`npm run lint:rules\`, CI's job \`gate\`
  * (GitHub requires it on main: never rename it), and what the editor hook in
  * \`.claude/settings.json\` lints a proposed write with. The package's gate,
- * imported. React's hooks plugin is named so its directives do not break it.
+ * imported. React's hooks plugin is named so its directives do not break it;
+ * TypeScript's the package names itself.
  *
  * A place that keeps something the gate refuses says why, on the line above:
  * \`// @estiva-escape: <reason>\`. Never \`eslint-disable\`: the count refuses it.

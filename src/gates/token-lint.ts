@@ -16,6 +16,9 @@
  *   inline style that sets a colour (errors); heights, spacing and border
  *   widths written by hand (warnings, never blocking).
  *
+ * And `tokenConfig`, the two on their own as an app's `lint:tokens` runs them
+ * (UIG-37), with TypeScript's rule names known so its directives pass.
+ *
  * The patterns are the same for everyone. Only the words differ: an app is told
  * to use "the package", the package is told to add the token to `tokens.css`.
  * Measured on 17 September: the UIG-28 block was byte for byte the same in Peek
@@ -32,10 +35,10 @@
  */
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import type { Linter } from 'eslint'
+import type { ESLint, Linter } from 'eslint'
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults'
-import { parser as typescriptParser } from 'typescript-eslint'
+import { parser as typescriptParser, plugin as typescriptPlugin } from 'typescript-eslint'
 
 /** Who reads the messages. */
 export type TokenAudience = 'app' | 'package'
@@ -47,8 +50,29 @@ export interface TokenLintOptions {
   audience?: TokenAudience
 }
 
+export interface TokenConfigOptions extends TokenLintOptions {
+  /**
+   * Plugins whose `eslint-disable` directives appear in the source, registered
+   * with every rule off. ESLint refuses a directive for a rule it does not
+   * know. TypeScript's are registered already.
+   */
+  quiet?: Record<string, ESLint.Plugin>
+  /** Folders the token lint never reads, beside build output. */
+  ignores?: string[]
+}
+
 /** What the token lint never reads: build output. */
 export const TOKEN_LINT_IGNORES = ['dist/', 'storybook-static/', 'node_modules/']
+
+/**
+ * Plugins a check that runs on its own registers, every rule off, so the
+ * directives another lint writes do not fail it (UIG-37). TypeScript's lint is
+ * in every app and writes `eslint-disable-next-line @typescript-eslint/...`;
+ * Peek PR #324 failed the token lint on one. Only the checks that run alone
+ * take this — a full lint that loads TypeScript's rules from its own copy would
+ * refuse a second plugin under the same name.
+ */
+export const KNOWN_PLUGINS: Record<string, ESLint.Plugin> = { '@typescript-eslint': typescriptPlugin as ESLint.Plugin }
 
 const CLASS_MAP_SELECTOR = {
   kind: 'variable',
@@ -228,4 +252,25 @@ export function tokenValues({ audience = 'app' }: Pick<TokenLintOptions, 'audien
       ],
     },
   }
+}
+
+/**
+ * The token lint on its own — an app's `eslint.tokens.config.js`, `npm run
+ * lint:tokens`, the CI step. It fails on the token contract and on nothing
+ * else, so a backlog in the full lint never blocks it. Peek built this file by
+ * hand until UIG-37.
+ */
+export function tokenConfig({ quiet = {}, ignores = [], ...options }: TokenConfigOptions = {}): Linter.Config[] {
+  return [
+    { ignores: [...TOKEN_LINT_IGNORES, ...ignores] },
+    {
+      plugins: { ...KNOWN_PLUGINS, ...quiet },
+      // Every other lint's directives are unused here, because their rules are
+      // off here. Reporting them would be this config complaining about the
+      // others' business.
+      linterOptions: { reportUnusedDisableDirectives: 'off' },
+    },
+    tokenLint(options),
+    tokenValues({ audience: options.audience }),
+  ]
 }

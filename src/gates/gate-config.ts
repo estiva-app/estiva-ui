@@ -20,7 +20,7 @@ import type { ESLint, Linter } from 'eslint'
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { parser as typescriptParser } from 'typescript-eslint'
 import estiva from '../eslint/index'
-import { TOKEN_LINT_IGNORES } from './token-lint'
+import { KNOWN_PLUGINS, TOKEN_LINT_IGNORES } from './token-lint'
 
 export interface GateConfigOptions {
   /** `app` (the default) runs `configs.recommended`; `package` runs this package's inward set. */
@@ -29,7 +29,7 @@ export interface GateConfigOptions {
    * Plugins whose `eslint-disable` directives appear in the source, registered
    * here with every rule off. ESLint refuses a directive for a rule it does not
    * know, so without them the gate would fail on another lint's comments.
-   * The token lint's names are registered already.
+   * The token lint's names and TypeScript's are registered already (UIG-37).
    */
   quiet?: Record<string, ESLint.Plugin>
   /** Folders the gate never reads, beside build output. */
@@ -63,6 +63,7 @@ export function gateConfig({ audience = 'app', quiet = {}, ignores = [] }: GateC
     { ignores: [...TOKEN_LINT_IGNORES, ...ignores] },
     {
       plugins: {
+        ...KNOWN_PLUGINS,
         ...quiet,
         'better-tailwindcss': betterTailwindcss,
         'token-values': betterTailwindcss,

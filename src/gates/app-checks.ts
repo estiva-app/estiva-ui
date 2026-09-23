@@ -56,6 +56,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-28': 'Close the two holes in the token contract — arbitrary values, and inline style',
   'UIG-30': 'RichText — one component that draws a message\'s text, for both apps',
   'UIG-32': 'Peek and Ship take their gate pieces from the package',
+  'UIG-37': 'The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off',
 }
 
 /** Run several checks as one: the first that does not pass is the answer. */
@@ -81,6 +82,8 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
   const installed = at('node_modules/@estiva-app/ui/dist/index.d.ts')
   const realPage = (): Promise<CheckResult> => h.lint({ ...(cwd ? { cwd } : {}), config: GATES, file: page, code: h.read(at(page)), expect: 'none' })
   const button = component('<button type="button">x</button>')
+  /** A line TypeScript's own lint writes; ESLint refuses it where TypeScript's plugin is unknown (UIG-37). */
+  const typescriptDirective = '// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport const probe: any = 1\n'
   const ticket = (ref: string, checks: GateCheck[], owner = false): GateTicket => ({ ref, title: APP_TICKET_TITLES[ref], owner, checks })
 
   const tokenProbe = (code: string, expect: 'error' | 'warning' | 'none', mentions?: string, file = PROBE) =>
@@ -247,6 +250,16 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         () => h.contains('package.json', /"gates:status":\s*"[^"]*(?:estiva-gates|@estiva-app\/ui\/dist\/gates\/cli\.js)[^"]*status/, "gates:status runs the package's engine"),
         () => (h.exists('scripts/gates-status.mjs') ? h.FAIL('scripts/gates-status.mjs is a copy of the status engine: run estiva-gates status instead') : h.PASS('no copy of the status engine')),
       ], 'the gate config, the hook and gates:status are the package\'s; no copy of the engine') },
+    ]),
+    ticket('UIG-37', [
+      { what: 'a TypeScript eslint-disable comment breaks neither the gate nor the token lint', run: all(h, [
+        probe(typescriptDirective, 'none'),
+        tokenProbe(typescriptDirective, 'none'),
+      ], `${[GATES, ...tokenConfigs].join(', ')}: a TypeScript directive is no error`) },
+      { what: 'a token lint on its own is the package\'s tokenConfig, not built by hand', run: () =>
+        (h.exists(at('eslint.tokens.config.js'))
+          ? h.contains(at('eslint.tokens.config.js'), /\btokenConfig\(/, 'eslint.tokens.config.js runs tokenConfig from @estiva-app/ui/gates')
+          : h.PASS('no token lint on its own')) },
     ]),
   ]
 }
