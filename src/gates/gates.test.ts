@@ -7,7 +7,7 @@ import { writeGateCount } from './count'
 import { gateConfig, gateLint } from './gate-config'
 import { runHook } from './hook'
 import { helpers, runStatus } from './status'
-import { tokenLint, tokenValues } from './token-lint'
+import { tokenConfig, tokenLint, tokenValues } from './token-lint'
 
 /**
  * The gate pieces, as an app and this package use them (UIG-10, docs/GATES.md
@@ -44,6 +44,8 @@ async function lintWith(config: Linter.Config[], code: string, filePath: string)
 }
 
 const component = (body: string) => `export function Probe() {\n  return ${body}\n}\n`
+/** A line TypeScript's own lint writes: Peek PR #324 failed the token lint on it (UIG-37). */
+const typescriptDirective = '// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport const probe: any = 1\n'
 
 describe('tokenLint and tokenValues', () => {
   it('refuse a hand-written text size and name the token, in the words for an app', async () => {
@@ -97,6 +99,38 @@ describe('gateConfig', () => {
     const quiet = { rules: { 'some-rule': { create: () => ({}) } } }
     const directive = `// eslint-disable-next-line house/some-rule\n${component('<div>x</div>')}`
     expect(await lintWith(gateConfig({ quiet: { house: quiet } }), directive, 'src/Probe.tsx')).toEqual([])
+  })
+
+  it("knows TypeScript's rule names, so a TypeScript directive does not break the gate (UIG-37)", async () => {
+    expect(await lintWith(gateConfig(), typescriptDirective, 'src/lib/probe.ts')).toEqual([])
+    // An app that names the plugin itself, from its own copy, still loads: its copy wins.
+    const own = { rules: { 'no-explicit-any': { create: () => ({}) } } }
+    expect(await lintWith(gateConfig({ quiet: { '@typescript-eslint': own } }), typescriptDirective, 'src/lib/probe.ts')).toEqual([])
+  })
+})
+
+describe('tokenConfig', () => {
+  it('runs the token contract on its own: the same messages as the two pieces, for an app and for the package', async () => {
+    const code = component('<div className="bg-gray-100 rounded-[3px]">x</div>')
+    const app = await lintWith(tokenConfig(), code, 'src/Probe.tsx')
+    expect(app.length).toBeGreaterThan(0)
+    expect(app).toEqual(await lintWith([tokenLint(), tokenValues()], code, 'src/Probe.tsx'))
+    const pkg = await lintWith(tokenConfig({ audience: 'package' }), code, 'src/Probe.tsx')
+    expect(pkg).toEqual(await lintWith([tokenLint({ audience: 'package' }), tokenValues({ audience: 'package' })], code, 'src/Probe.tsx'))
+  })
+
+  it("knows TypeScript's rule names and the quiet plugins, so their directives do not break it (UIG-37)", async () => {
+    expect(await lintWith(tokenConfig(), typescriptDirective, 'src/lib/probe.ts')).toEqual([])
+    const quiet = { rules: { 'some-rule': { create: () => ({}) } } }
+    const directive = `// eslint-disable-next-line house/some-rule\n${component('<div>x</div>')}`
+    expect(await lintWith(tokenConfig({ quiet: { house: quiet } }), directive, 'src/Probe.tsx')).toEqual([])
+  })
+
+  it('never reads build output, nor a folder the app names', async () => {
+    const hand = component('<div className="text-[14px]">x</div>')
+    const ignored = (messages: Linter.LintMessage[]) => messages.every((m) => !m.ruleId)
+    expect(ignored(await lintWith(tokenConfig(), hand, 'dist/Probe.tsx'))).toBe(true)
+    expect(ignored(await lintWith(tokenConfig({ ignores: ['demo'] }), hand, 'demo/Probe.tsx'))).toBe(true)
   })
 })
 
