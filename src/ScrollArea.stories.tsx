@@ -18,7 +18,7 @@ const rows = Array.from({ length: 40 }, (_, i) => `Row ${i + 1}`)
 export const Default: Story = {
   render: () => (
     <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
-    <ScrollArea className="h-full" viewportClassName="p-2">
+    <ScrollArea className="h-full" contentClassName="p-2">
       <ul className="flex flex-col gap-px">
         {rows.map((row) => (
           <li key={row} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
@@ -55,7 +55,7 @@ export const StickyHeadings: Story = {
 export const Fits: Story = {
   render: () => (
     <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
-    <ScrollArea className="h-full" viewportClassName="p-2">
+    <ScrollArea className="h-full" contentClassName="p-2">
       <ul className="flex flex-col gap-px">
         {rows.slice(0, 4).map((row) => (
           <li key={row} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
@@ -72,7 +72,7 @@ export const Fits: Story = {
 export const Horizontal: Story = {
   render: () => (
     <div className="w-[280px] rounded-lg border border-border-default bg-bg-surface">
-    <ScrollArea orientation="horizontal" viewportClassName="p-2">
+    <ScrollArea orientation="horizontal" contentClassName="p-2">
       <div className="flex w-max gap-2">
         {rows.slice(0, 12).map((row) => (
           <div key={row} className="w-[120px] shrink-0 rounded-md bg-bg-inset px-2 py-1.5 text-body-2 text-text-primary">
@@ -89,7 +89,7 @@ export const Horizontal: Story = {
 export const Both: Story = {
   render: () => (
     <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
-    <ScrollArea orientation="both" className="h-full" viewportClassName="p-2">
+    <ScrollArea orientation="both" className="h-full" contentClassName="p-2">
       <div className="flex w-max flex-col gap-px">
         {rows.map((row) => (
           <div key={row} className="w-[480px] rounded-md px-2 py-1.5 text-body-2 text-text-primary">
@@ -106,7 +106,7 @@ export const Both: Story = {
 export const SidewaysInsideAPage: Story = {
   render: () => (
     <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
-    <ScrollArea className="h-full" viewportClassName="p-2">
+    <ScrollArea className="h-full" contentClassName="p-2">
       <div className="flex flex-col gap-px">
         {rows.slice(0, 3).map((row) => (
           <p key={row} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
@@ -114,7 +114,7 @@ export const SidewaysInsideAPage: Story = {
           </p>
         ))}
         <div className="my-1 rounded-md border border-border-default">
-        <ScrollArea orientation="horizontal" viewportClassName="p-2">
+        <ScrollArea orientation="horizontal" contentClassName="p-2">
           <div className="flex w-max gap-2">
             {rows.slice(0, 12).map((row) => (
               <div key={row} className="w-[120px] shrink-0 rounded-md bg-bg-inset px-2 py-1.5 text-body-2 text-text-primary">
