@@ -31,8 +31,9 @@ and when not to. Most of what gets asked for already exists somewhere.
    keys, focus, floating, closing, scrolling, truncation. The editor gate
    refuses a raw element, a rebuilt behaviour or a restyled part, and its error
    names the part to use.
-5. **An exception** carries `// @estiva-escape: <reason>` on the line above
-   it. Never `eslint-disable`.
+5. **An exception** carries its reason on the line above it. For the gate:
+   `// @estiva-escape: <reason>`, never `eslint-disable`. For the token lint:
+   `// eslint-disable-next-line <rule> -- @estiva-escape: <reason>`.
 
 ## Gotchas
 
@@ -109,7 +110,8 @@ sizes or colours into another; take them from tokens.
 
 19. **An escape with a false reason** ("no part does this" has been wrong
     twice) → search for the thing first. Write the escape on the line above
-    the statement, never inside `eslint-disable`.
+    the statement: a gate escape never inside `eslint-disable`, a token-lint
+    one inside `eslint-disable-next-line <rule> --`.
 20. **Classes the lint cannot see**: in a const not named `…_CLASSES` or
     `…Styles`, or in an array that is `.join()`ed → keep classes in
     `className` or `cn()`, or in a map with one of those names.
