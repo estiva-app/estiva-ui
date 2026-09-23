@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.28.0 — 2026-09-23 — UIG-20: the Claude skill and one search from anywhere; UIG-37: the gates know TypeScript's rule names
+## 0.29.0 — 2026-09-23 — UIG-20: the Claude skill, and one search from anywhere
 
 ### Added
 
@@ -23,6 +23,22 @@
 - **The editor gate's hook searches first.** The first Write of a new file that
   draws a new part is stopped once, with what `estiva-ui find` has for the
   part's name. Writing it again goes through.
+
+### Changed
+
+- **Ranking:** a package part whose name carries one of the words comes before
+  an app's part answering as many. "panel header" now answers `ContainerHeader`
+  first, not an app's own `Header`.
+
+### What an app does
+
+Take this release (it carries 0.28.0's UIG-37 too, so one bump takes both), change `ui:find` to `estiva-ui find --repo <name>` (no
+`--also`), run `npx estiva-ui skill`, and commit the loader and settings.
+
+## 0.28.0 — 2026-09-23 — UIG-37: the gates know TypeScript's rule names
+
+### Added
+
 - **`tokenConfig()`** in `@estiva-app/ui/gates`: the token lint on its own, as
   an app's `eslint.tokens.config.js` runs it, shaped like `gateConfig`. It takes
   `quiet` (plugins whose `eslint-disable` comments appear in the source, every
@@ -31,12 +47,6 @@
 - **`gates:status` checks UIG-37 in every app:** a TypeScript `eslint-disable`
   comment is no error in the gate or in any token config, and a token lint that
   runs on its own is `tokenConfig`, not built by hand.
-
-### Changed
-
-- **Ranking:** a package part whose name carries one of the words comes before
-  an app's part answering as many. "panel header" now answers `ContainerHeader`
-  first, not an app's own `Header`.
 
 ### Fixed
 
@@ -48,13 +58,6 @@
   that loads TypeScript's rules itself would refuse the same name twice. An app
   that names the plugin in `quiet` keeps its own copy.
 - **`create-estiva-app`** writes the one-line token config.
-
-### What an app does
-
-Take this release, change `ui:find` to `estiva-ui find --repo <name>` (no
-`--also`), run `npx estiva-ui skill`, and commit the loader and settings. For UIG-37, its `eslint.tokens.config.js` becomes one line,
-`export default tokenConfig({ quiet: { … } })`.
-
 
 ## 0.27.0 — 2026-09-23 — UIG-19: the usage-page contract is locked in CI
 
