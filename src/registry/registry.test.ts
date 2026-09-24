@@ -176,7 +176,7 @@ describe('the registry builds', () => {
 
   it('reads them however the component was written', () => {
     // Written out at the parameter, with no named type at all.
-    expect(entry('SectionLabel').variants).toEqual([{ prop: 'tone', values: ['primary', 'secondary'] }])
+    expect(entry('SectionLabel').variants).toEqual([{ prop: 'tone', values: ['primary', 'secondary', 'muted'] }])
     // forwardRef: the props are its second type argument, and the inner
     // function's parameter is bare.
     expect(entry('TextInput').variants).toEqual([{ prop: 'size', values: ['default', 'small'] }])

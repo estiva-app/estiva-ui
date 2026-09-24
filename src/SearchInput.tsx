@@ -2,6 +2,7 @@ import { type InputHTMLAttributes } from 'react'
 import { Input } from '@base-ui/react/input'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
+import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES } from './looks'
 
 /**
  * Peek's SearchInput (2026-09-01), verbatim: an inset field with a hairline
@@ -31,16 +32,16 @@ export function SearchInput({ shortcut, className, placeholder = 'Search…', ..
   return (
     <div
       className={cn(
-        'flex gap-2 items-center px-3 py-2 rounded-lg',
-        'bg-bg-inset border border-border-default',
+        'flex gap-2 items-center px-3 py-2',
+        FIELD_SHELL_CLASSES,
         // Hover strengthens the border as it does on every other field (16 September). Here that
         // is also the focus look, which was the stronger border before hover existed.
-        'hover:border-border-strong focus-within:border-border-strong transition-colors',
+        'focus-within:border-border-strong',
         className,
       )}
     >
       <Input
-        className="flex-1 min-w-0 bg-transparent text-input-value text-text-primary placeholder:text-text-muted outline-none"
+        className={cn('flex-1 min-w-0 text-input-value', BARE_INPUT_CLASSES)}
         placeholder={placeholder}
         {...props}
       />

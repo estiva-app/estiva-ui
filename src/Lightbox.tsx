@@ -74,6 +74,7 @@ export function Lightbox({ src, alt, onClose, className }: LightboxProps) {
             onClick={(e) => e.stopPropagation()}
             className={cn('max-w-full max-h-full object-contain rounded-lg', className)}
           />
+          {/* @estiva-escape: N4 (Katerina, 24 September: record only): the small round button AttachmentCard's remove also draws; a part if a third appears */}
           <Dialog.Close
             aria-label="Close"
             className="absolute top-4 right-4 size-8 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary"

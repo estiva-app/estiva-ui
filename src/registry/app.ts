@@ -37,6 +37,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import ts from 'typescript'
 import { firstSentence, pageOpening, readModule, sanitize, toId, PACKAGE_IMPORT, type Resolved } from './build'
+import { looksOf, parseForLooks } from '../eslint/looks-of'
 import { SCHEMA_VERSION, type AppFacts, type EntryClass, type FileWithoutPart, type Registry, type RegistryEntry } from './schema'
 
 export interface AppBuildOptions {
@@ -820,6 +821,8 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       storyId,
       docPage: pageText ? page : null,
       app: facts_,
+      // A part handed on from the package looks like the package's (UIG-25).
+      looks: pass ? [] : (looksOf(parseForLooks(join(root, p.file), facts.get(p.file)!.source), [p.name]).get(p.name) ?? []),
     })
   }
 

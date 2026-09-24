@@ -19,6 +19,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import ts from 'typescript'
 import { OWNED_BEHAVIOURS } from '../eslint/index'
+import { looksOf, parseForLooks } from '../eslint/looks-of'
 import { SCHEMA_VERSION, type EntryBehaviour, type EntryKind, type EntryProp, type EntryVariant, type Registry, type RegistryEntry } from './schema'
 
 export interface BuildOptions {
@@ -594,6 +595,12 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
 
   const problems: string[] = []
   const entries: RegistryEntry[] = []
+  // What each part looks like (UIG-25), read once per file.
+  const looksCache = new Map<string, ReturnType<typeof parseForLooks>>()
+  const looksFor = (file: string, name: string) => {
+    if (!looksCache.has(file)) looksCache.set(file, parseForLooks(join(src, file.replace(/^src\//, '')), readFileSync(join(src, file.replace(/^src\//, '')), 'utf8')))
+    return looksOf(looksCache.get(file)!, [name]).get(name) ?? []
+  }
 
   for (const value of values) {
     const module = moduleOf(value.module)
@@ -641,6 +648,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
       storyId: title && story ? toId(title, story) : null,
       docPage: pageFile,
       app: null,
+      looks: kindOf(value.name) === 'component' ? looksFor(module.file, value.name) : [],
     })
   }
 

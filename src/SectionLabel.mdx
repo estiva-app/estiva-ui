@@ -38,11 +38,13 @@ import { SectionLabel } from '@estiva-app/ui'
 
 It is a bare span: the caller owns the row it sits in and the spacing
 around it. Read it `tone="secondary"` where it labels rather than leads — menu
-headings and the command palette's groups do. A colour
+headings and the command palette's groups do. `tone="muted"` where it marks a
+place in a list rather than heading it — a date between messages. `truncate`
+cuts a long label short with an ellipsis where its row has no room. A colour
 passed in `className` is refused by the lint.
 
 - Import it — never copy its classes. A copied class list drifts the first time
-  the label changes.
+  the label changes, and the lint warns on one (`estiva/no-copied-look`).
 
 ## What it owns
 

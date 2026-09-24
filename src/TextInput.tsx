@@ -1,6 +1,7 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { Input } from '@base-ui/react/input'
 import { cn } from './cn'
+import { FIELD_BOX_CLASSES, FIELD_DISABLED_CLASSES, FIELD_FOCUS_RING_CLASSES, FIELD_SIZE_CLASSES, FIELD_TEXT_CLASSES } from './looks'
 
 /**
  * Peek's TextInput (2026-08-28): the inset field with a 8px radius, 14px
@@ -35,14 +36,13 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
         // The border strengthens on hover, as Select's and ChipInput's do (Katerina, 16 September:
         // "aren't there hover states in text input and text area?"). Focus comes after hover in
         // Tailwind's order, so a focused field keeps the focus border under the pointer.
-        'bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg',
+        FIELD_BOX_CLASSES,
         // The small size is the small Select's trigger, class for class.
-        size === 'default' && 'px-3 py-2 text-input-value',
-        size === 'small' && 'h-6 min-h-6 px-2 text-caption',
-        'text-text-primary placeholder:text-text-muted',
+        FIELD_SIZE_CLASSES[size],
+        FIELD_TEXT_CLASSES,
         'outline-none transition-colors',
-        'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
-        'signal:transition-shadow signal:focus:shadow-focus-ring',
+        FIELD_DISABLED_CLASSES,
+        FIELD_FOCUS_RING_CLASSES,
         className,
       )}
       {...props}

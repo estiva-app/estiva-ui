@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Toggle } from '@base-ui/react/toggle'
 import { cn } from './cn'
+import { CHIP_TEXT_CLASSES } from './looks'
 
 /**
  * A reaction: an emoji, how many people chose it, and whether you are one of
@@ -62,6 +63,7 @@ export interface ReactionProps extends Omit<ButtonHTMLAttributes<HTMLButtonEleme
 
 export function Reaction({ emoji, count, pressed = false, className, ...props }: ReactionProps) {
   return (
+    // @estiva-escape: W1 (Katerina, 24 September: leave alone): a reaction pill shares four words with a field's box by coincidence
     <Toggle
       // Controlled: a reaction is yours when the data says so, not when the
       // pill was last pressed — a write can fail, and another client can
@@ -94,7 +96,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
           The old note said it must NEVER be merged; that stopped being true
           when `cn()` was taught the ramp — `chip` is in it, and `cn.test.ts`
           pins that. */}
-      <span className="text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums">
+      <span className={CHIP_TEXT_CLASSES}>
         {count}
       </span>
     </Toggle>

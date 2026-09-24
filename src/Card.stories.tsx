@@ -30,10 +30,10 @@ export const Surface: Story = {}
 export const Elevated: Story = {
   args: { fill: 'elevated', className: 'p-2' },
   render: (args) => (
-    <div className="flex w-[300px] flex-col gap-2 rounded-lg border border-border-default bg-bg-surface p-2">
+    <Card className="flex w-[300px] flex-col gap-2 p-2">
       <Card {...args} />
       <Card {...args} children={<Body title="Item two" />} />
-    </div>
+    </Card>
   ),
 }
 

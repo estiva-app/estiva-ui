@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.33.0",
+    "packageVersion": "0.34.0",
     "exports": 87,
     "typeExports": 96,
     "files": null
@@ -88,7 +88,10 @@
       "docsId": "frame-appshell--docs",
       "storyId": "frame-appshell--solid",
       "docPage": "src/AppShell.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "overflow-hidden rounded-2xl bg-bg-surface signal:border signal:border-border-subtle signal:shadow-highlight-inset"
+      ]
     },
     {
       "name": "AttachmentCard",
@@ -221,7 +224,17 @@
       "docsId": "components-attachmentcard--docs",
       "storyId": "components-attachmentcard--document",
       "docPage": "src/AttachmentCard.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "text-caption font-medium text-text-primary truncate",
+        "text-small tracking-wide leading-tight truncate",
+        "rounded-md bg-bg-active text-text-secondary overflow-hidden",
+        "text-small tracking-wide leading-tight truncate text-error-default",
+        "text-small tracking-wide leading-tight truncate text-warning-default",
+        "text-small tracking-wide leading-tight truncate text-text-secondary",
+        "-top-1.5 -right-1.5 rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity",
+        "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
+      ]
     },
     {
       "name": "Avatar",
@@ -281,7 +294,8 @@
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
       "docPage": "src/Avatar.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "AvatarGroup",
@@ -312,7 +326,8 @@
       "docsId": "primitives-avatargroup--docs",
       "storyId": "primitives-avatargroup--three-members",
       "docPage": "src/AvatarGroup.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Banner",
@@ -388,7 +403,8 @@
       "docsId": "feedback-banner--docs",
       "storyId": "feedback-banner--ok",
       "docPage": "src/Banner.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Breadcrumb",
@@ -419,7 +435,15 @@
       "docsId": "navigation-breadcrumb--docs",
       "storyId": "navigation-breadcrumb--on-an-item",
       "docPage": "src/Breadcrumb.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "font-mono text-caption text-text-muted hover:text-text-primary",
+        "font-mono text-caption text-text-primary hover:text-text-primary",
+        "font-mono text-caption text-text-secondary hover:text-text-primary",
+        "truncate font-mono text-caption text-text-muted",
+        "truncate font-mono text-caption text-text-primary",
+        "truncate font-mono text-caption text-text-secondary"
+      ]
     },
     {
       "name": "Button",
@@ -499,7 +523,13 @@
       "docsId": "primitives-button--docs",
       "storyId": "primitives-button--primary",
       "docPage": "src/Button.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-md transition-colors font-sans font-medium",
+        "bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold",
+        "border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer",
+        "signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors"
+      ]
     },
     {
       "name": "Card",
@@ -609,7 +639,21 @@
       "docsId": "primitives-card--docs",
       "storyId": "primitives-card--surface",
       "docPage": "src/Card.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-lg border bg-bg-surface border-border-default",
+        "rounded-lg border bg-bg-surface border-border-default overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-dashed",
+        "rounded-lg border bg-bg-surface border-border-default border-dashed overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted border-dashed",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted border-dashed overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed overflow-hidden"
+      ]
     },
     {
       "name": "Checkbox",
@@ -691,7 +735,11 @@
       "docsId": "inputs-checkbox--docs",
       "storyId": "inputs-checkbox--unchecked",
       "docPage": "src/Checkbox.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-lg transition-colors cursor-pointer hover:bg-bg-hover",
+        "rounded-lg transition-colors bg-bg-selected cursor-pointer hover:bg-bg-hover"
+      ]
     },
     {
       "name": "Chip",
@@ -752,7 +800,21 @@
       "docsId": "primitives-chip--docs",
       "storyId": "primitives-chip--neutral",
       "docPage": "src/Chip.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-accent-muted text-accent-primary signal:border signal:border-accent-outline",
+        "bg-info-muted text-info-default signal:border signal:border-info-outline",
+        "bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
+        "bg-success-muted text-success-default signal:border signal:border-success-outline",
+        "bg-error-muted text-error-default signal:border signal:border-error-outline",
+        "rounded-full bg-accent-muted text-accent-primary signal:border signal:border-accent-outline",
+        "rounded-full bg-info-muted text-info-default signal:border signal:border-info-outline",
+        "rounded-full bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
+        "rounded-full bg-success-muted text-success-default signal:border signal:border-success-outline",
+        "rounded-full bg-error-muted text-error-default signal:border signal:border-error-outline",
+        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums",
+        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide"
+      ]
     },
     {
       "name": "ChipInput",
@@ -854,7 +916,13 @@
       "docsId": "inputs-chipinput--docs",
       "storyId": "inputs-chipinput--type-to-search",
       "docPage": "src/ChipInput.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-elevated border border-border-subtle rounded-md",
+        "bg-bg-inset border border-border-default hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
+        "focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
+        "text-body-2 border-none bg-transparent text-text-primary placeholder:text-text-muted outline-none"
+      ]
     },
     {
       "name": "cn",
@@ -872,7 +940,8 @@
       "docsId": null,
       "storyId": null,
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "CollapsibleSection",
@@ -970,7 +1039,10 @@
       "docsId": "navigation-collapsiblesection--docs",
       "storyId": "navigation-collapsiblesection--default",
       "docPage": "src/CollapsibleSection.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
+      ]
     },
     {
       "name": "CommandPalette",
@@ -1046,7 +1118,10 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": "src/CommandPalette.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg outline-none"
+      ]
     },
     {
       "name": "CommandPaletteAnswer",
@@ -1077,7 +1152,8 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "CommandPaletteForm",
@@ -1144,7 +1220,8 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "CommandPaletteQuote",
@@ -1169,7 +1246,10 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "whitespace-pre-wrap border-l-2 border-border-default text-body-2 text-text-primary"
+      ]
     },
     {
       "name": "CommandPaletteSearch",
@@ -1242,7 +1322,10 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-transparent text-input-value text-text-primary outline-none placeholder:text-text-muted"
+      ]
     },
     {
       "name": "CommandPaletteWorking",
@@ -1273,7 +1356,8 @@
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ConfirmDialog",
@@ -1341,7 +1425,8 @@
       "docsId": "overlays-confirmdialog--docs",
       "storyId": "overlays-confirmdialog--destructive",
       "docPage": "src/ConfirmDialog.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ContainerHeader",
@@ -1384,7 +1469,8 @@
       "docsId": "navigation-containerheader--docs",
       "storyId": "navigation-containerheader--default",
       "docPage": "src/ContainerHeader.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "DialogShell",
@@ -1486,7 +1572,10 @@
       "docsId": "overlays-dialogshell--docs",
       "storyId": "overlays-dialogshell--default",
       "docPage": "src/DialogShell.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-elevated border border-border-subtle rounded-lg shadow-lg pointer-events-auto overflow-hidden outline-none"
+      ]
     },
     {
       "name": "Divider",
@@ -1553,7 +1642,8 @@
       "docsId": "primitives-divider--docs",
       "storyId": "primitives-divider--default",
       "docPage": "src/Divider.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "EditableText",
@@ -1626,7 +1716,16 @@
       "docsId": "inputs-editabletext--docs",
       "storyId": "inputs-editabletext--title",
       "docPage": "src/EditableText.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-md border border-border-strong bg-bg-inset text-text-primary outline-none",
+        "rounded-md border border-border-strong bg-bg-inset text-text-primary outline-none resize-none",
+        "rounded-md border border-transparent text-left transition-colors hover:border-border-default text-text-primary",
+        "rounded-md border border-transparent text-left transition-colors hover:border-border-default text-text-muted",
+        "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-primary",
+        "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-muted",
+        "rounded-md border border-transparent text-left transition-colors hover:border-border-default"
+      ]
     },
     {
       "name": "EmptyState",
@@ -1683,7 +1782,8 @@
       "docsId": "feedback-emptystate--docs",
       "storyId": "feedback-emptystate--page",
       "docPage": "src/EmptyState.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "EnterHint",
@@ -1708,7 +1808,10 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "text-menu signal:font-mono signal:text-small signal:tracking-wider"
+      ]
     },
     {
       "name": "ErrorBoundary",
@@ -1751,7 +1854,8 @@
       "docsId": "feedback-errorboundary--docs",
       "storyId": "feedback-errorboundary--in-a-panel",
       "docPage": "src/ErrorBoundary.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Field",
@@ -1805,7 +1909,8 @@
       "docsId": "inputs-field--docs",
       "storyId": "inputs-field--default",
       "docPage": "src/Field.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "FieldLine",
@@ -1856,7 +1961,8 @@
       "docsId": "inputs-field-line--docs",
       "storyId": "inputs-field-line--helper",
       "docPage": "src/FieldLine.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "FilePicker",
@@ -1881,7 +1987,8 @@
       "docsId": "inputs-filepicker--docs",
       "storyId": "inputs-filepicker--default",
       "docPage": "src/FilePicker.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Form",
@@ -1929,7 +2036,8 @@
       "docsId": "inputs-form--docs",
       "storyId": "inputs-form--default",
       "docPage": "src/Form.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "hueFor",
@@ -1947,7 +2055,8 @@
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "IconButton",
@@ -2051,7 +2160,10 @@
       "docsId": "primitives-iconbutton--docs",
       "storyId": "primitives-iconbutton--muted",
       "docPage": "src/IconButton.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "border border-border-default hover:bg-bg-hover text-text-secondary"
+      ]
     },
     {
       "name": "IdentityMenu",
@@ -2124,7 +2236,8 @@
       "docsId": "navigation-identitymenu--docs",
       "storyId": "navigation-identitymenu--anonymous",
       "docPage": "src/IdentityMenu.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "IdentityPanel",
@@ -2197,7 +2310,8 @@
       "docsId": "navigation-identitymenu--docs",
       "storyId": "navigation-identitymenu--anonymous",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "initialsFor",
@@ -2215,7 +2329,8 @@
       "docsId": "primitives-avatar--docs",
       "storyId": "primitives-avatar--initials",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "INLINE_CHIP_CLASSES",
@@ -2233,7 +2348,8 @@
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "INLINE_CHIP_TONE_CLASSES",
@@ -2251,7 +2367,8 @@
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "InlineChip",
@@ -2294,7 +2411,11 @@
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
       "docPage": "src/InlineChip.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-sm align-top text-body-2 font-normal select-none",
+        "bg-bg-active text-text-muted font-mono text-caption"
+      ]
     },
     {
       "name": "inlineChipClassName",
@@ -2312,7 +2433,8 @@
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "InputChip",
@@ -2367,7 +2489,11 @@
       "docsId": "inputs-chipinput--docs",
       "storyId": "inputs-chipinput--type-to-search",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-elevated border border-border-subtle rounded-md",
+        "text-caption font-medium text-text-primary truncate"
+      ]
     },
     {
       "name": "Kbd",
@@ -2398,7 +2524,13 @@
       "docsId": "primitives-kbd--docs",
       "storyId": "primitives-kbd--default",
       "docPage": "src/Kbd.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary",
+        "signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small",
+        "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small"
+      ]
     },
     {
       "name": "Lightbox",
@@ -2458,7 +2590,10 @@
       "docsId": "overlays-lightbox--docs",
       "storyId": "overlays-lightbox--a-picture",
       "docPage": "src/Lightbox.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary"
+      ]
     },
     {
       "name": "Link",
@@ -2526,7 +2661,12 @@
       "docsId": "navigation-link--docs",
       "storyId": "navigation-link--text",
       "docPage": "src/Link.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "text-info-default underline underline-offset-2 hover:opacity-80",
+        "text-info-default underline underline-offset-2 hover:opacity-80 truncate",
+        "underline underline-offset-2 hover:text-text-primary truncate"
+      ]
     },
     {
       "name": "ListColumn",
@@ -2587,7 +2727,8 @@
       "docsId": "layout-listcolumn--docs",
       "storyId": "layout-listcolumn--default",
       "docPage": "src/ListColumn.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Menu",
@@ -2697,7 +2838,8 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": "src/Menu.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "MenuItem",
@@ -2790,7 +2932,8 @@
       "docsId": "overlays-menuitem--docs",
       "storyId": "overlays-menuitem--default",
       "docPage": "src/MenuItem.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "MenuPanel",
@@ -2815,7 +2958,10 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+      ]
     },
     {
       "name": "MenuRow",
@@ -2846,7 +2992,8 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "MenuSection",
@@ -2883,7 +3030,8 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "MenuSeparator",
@@ -2901,7 +3049,8 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "MenuSub",
@@ -2950,7 +3099,8 @@
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "NavItem",
@@ -3011,7 +3161,12 @@
       "docsId": "frame-navitem--docs",
       "storyId": "frame-navitem--default",
       "docPage": "src/NavItem.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-md text-body-2 transition-colors bg-bg-active text-text-primary",
+        "rounded-md text-body-2 transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+        "text-center font-mono text-caption tabular-nums text-text-muted"
+      ]
     },
     {
       "name": "Person",
@@ -3060,7 +3215,8 @@
       "docsId": "components-person--docs",
       "storyId": "components-person--named",
       "docPage": "src/Person.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "PersonTrigger",
@@ -3115,7 +3271,11 @@
       "docsId": "components-persontrigger--docs",
       "storyId": "components-persontrigger--row",
       "docPage": "src/PersonTrigger.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover",
+        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover bg-bg-hover"
+      ]
     },
     {
       "name": "Popover",
@@ -3249,7 +3409,8 @@
       "docsId": "overlays-popover--docs",
       "storyId": "overlays-popover--default",
       "docPage": "src/Popover.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "PreviewCard",
@@ -3343,7 +3504,8 @@
       "docsId": "overlays-previewcard--docs",
       "storyId": "overlays-previewcard--default",
       "docPage": "src/PreviewCard.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ProgressBar",
@@ -3409,7 +3571,10 @@
       "docsId": "feedback-progressbar--docs",
       "storyId": "feedback-progressbar--default",
       "docPage": "src/ProgressBar.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-full bg-success-muted transition-[width] duration-300"
+      ]
     },
     {
       "name": "Property",
@@ -3460,7 +3625,10 @@
       "docsId": "primitives-property--docs",
       "storyId": "primitives-property--row",
       "docPage": "src/Property.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "text-menu uppercase tracking-widest text-text-secondary"
+      ]
     },
     {
       "name": "Rail",
@@ -3497,7 +3665,8 @@
       "docsId": "frame-rail--docs",
       "storyId": "frame-rail--default",
       "docPage": "src/Rail.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "RailItem",
@@ -3546,7 +3715,8 @@
       "docsId": "frame-railitem--docs",
       "storyId": "frame-railitem--default",
       "docPage": "src/RailItem.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Reaction",
@@ -3594,7 +3764,14 @@
       "docsId": "components-reaction--docs",
       "storyId": "components-reaction--default",
       "docPage": "src/Reaction.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary",
+        "rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover",
+        "border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary",
+        "border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover",
+        "text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums"
+      ]
     },
     {
       "name": "ReactionPicker",
@@ -3643,7 +3820,8 @@
       "docsId": "components-reactionpicker--docs",
       "storyId": "components-reactionpicker--default",
       "docPage": "src/ReactionPicker.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ScrollArea",
@@ -3722,7 +3900,10 @@
       "docsId": "layout-scrollarea--docs",
       "storyId": "layout-scrollarea--default",
       "docPage": "src/ScrollArea.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "touch-none select-none rounded-full opacity-0 transition-opacity delay-300"
+      ]
     },
     {
       "name": "SearchInput",
@@ -3758,7 +3939,11 @@
       "docsId": "inputs-searchinput--docs",
       "storyId": "inputs-searchinput--default",
       "docPage": "src/SearchInput.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default hover:border-border-strong rounded-lg transition-colors focus-within:border-border-strong",
+        "text-input-value bg-transparent text-text-primary placeholder:text-text-muted outline-none"
+      ]
     },
     {
       "name": "SectionHeader",
@@ -3852,7 +4037,12 @@
       "docsId": "navigation-sectionheader--docs",
       "storyId": "navigation-sectionheader--plain",
       "docPage": "src/SectionHeader.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "text-text-secondary transition-transform duration-150 rotate-90",
+        "-mr-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100",
+        "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+      ]
     },
     {
       "name": "SectionLabel",
@@ -3871,9 +4061,15 @@
         },
         {
           "name": "tone",
-          "takes": "primary | secondary",
+          "takes": "primary | secondary | muted",
           "required": false,
           "note": null
+        },
+        {
+          "name": "truncate",
+          "takes": "true/false",
+          "required": false,
+          "note": "Cut a long label short with an ellipsis instead of letting it wrap or spill."
         },
         {
           "name": "className",
@@ -3887,7 +4083,8 @@
           "prop": "tone",
           "values": [
             "primary",
-            "secondary"
+            "secondary",
+            "muted"
           ]
         }
       ],
@@ -3897,7 +4094,16 @@
       "docsId": "primitives-sectionlabel--docs",
       "storyId": "primitives-sectionlabel--default",
       "docPage": "src/SectionLabel.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest"
+      ]
     },
     {
       "name": "Select",
@@ -4013,7 +4219,18 @@
       "docsId": "inputs-select--docs",
       "storyId": "inputs-select--default",
       "docPage": "src/Select.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-inset text-left"
+      ]
     },
     {
       "name": "Sidebar",
@@ -4050,7 +4267,8 @@
       "docsId": "frame-sidebar--docs",
       "storyId": "frame-sidebar--composed",
       "docPage": "src/Sidebar.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "SkeletonBar",
@@ -4081,7 +4299,8 @@
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "SkeletonList",
@@ -4112,7 +4331,8 @@
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "SkeletonRow",
@@ -4137,7 +4357,8 @@
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Tabs",
@@ -4223,7 +4444,10 @@
       "docsId": "navigation-tabs--docs",
       "storyId": "navigation-tabs--with-counts",
       "docPage": "src/Tabs.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "font-mono text-caption tabular-nums text-text-secondary"
+      ]
     },
     {
       "name": "Textarea",
@@ -4241,7 +4465,10 @@
       "docsId": "inputs-textarea--docs",
       "storyId": "inputs-textarea--empty",
       "docPage": "src/Textarea.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted resize-none outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
+      ]
     },
     {
       "name": "TextInput",
@@ -4279,7 +4506,11 @@
       "docsId": "inputs-textinput--docs",
       "storyId": "inputs-textinput--empty",
       "docPage": "src/TextInput.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring",
+        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-caption text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
+      ]
     },
     {
       "name": "Toast",
@@ -4358,7 +4589,14 @@
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
       "docPage": "src/Toast.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+      ]
     },
     {
       "name": "ToastProvider",
@@ -4383,7 +4621,14 @@
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": [
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+      ]
     },
     {
       "name": "Toolbar",
@@ -4463,7 +4708,8 @@
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
       "docPage": "src/Toolbar.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ToolbarButton",
@@ -4560,7 +4806,8 @@
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ToolbarInput",
@@ -4593,7 +4840,8 @@
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ToolbarLink",
@@ -4678,7 +4926,8 @@
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "ToolbarSeparator",
@@ -4703,7 +4952,8 @@
       "docsId": "primitives-toolbar--docs",
       "storyId": "primitives-toolbar--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "Tooltip",
@@ -4751,7 +5001,10 @@
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
       "docPage": "src/Tooltip.mdx",
-      "app": null
+      "app": null,
+      "looks": [
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+      ]
     },
     {
       "name": "TooltipProvider",
@@ -4794,7 +5047,8 @@
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "TopBar",
@@ -4857,7 +5111,8 @@
       "docsId": "frame-topbar--docs",
       "storyId": "frame-topbar--solid",
       "docPage": "src/TopBar.mdx",
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "useToast",
@@ -4875,7 +5130,8 @@
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     },
     {
       "name": "WithTooltip",
@@ -4947,7 +5203,8 @@
       "docsId": "primitives-tooltip--docs",
       "storyId": "primitives-tooltip--default",
       "docPage": null,
-      "app": null
+      "app": null,
+      "looks": []
     }
   ],
   "excluded": [],

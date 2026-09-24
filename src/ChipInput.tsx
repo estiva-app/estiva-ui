@@ -5,6 +5,7 @@ import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
 import { MenuItem, MenuPanel } from './Menu'
 import { ScrollArea } from './ScrollArea'
+import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES } from './looks'
 
 /* The chip's own look, written once: `InputChip` draws it for a caller who
    wants a chip on its own, and `ChipInput` gives the same classes to Base UI's
@@ -61,6 +62,7 @@ export function InputChip({ label, leading, onRemove, removeLabel, truncate, cla
   return (
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
+      {/* @estiva-escape: A6 (Katerina, 24 September: record only): a 12px medium label, the text style AttachmentCard's name also uses, not a copy of a part */}
       <span className={cn(CHIP_LABEL, truncate && 'min-w-0 truncate')}>{label}</span>
       {/* Base UI's `Button`, as every button in the package is (D6). Base UI
           has no chip of its own — its only chips are `Combobox.Chip` and
@@ -244,7 +246,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
     >
       {/* The box the chips and the input share. `Combobox.Chips` is what makes
           the two one control for the keyboard; the look is what it always was. */}
-      <Combobox.Chips ref={setBox} className="bg-bg-inset border border-border-default hover:border-border-strong focus-within:border-border-focus focus-within:hover:border-border-focus rounded-lg px-3 py-1.5 flex flex-wrap items-center gap-1.5 transition-colors min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring">
+      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, 'focus-within:border-border-focus focus-within:hover:border-border-focus px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring')}>
         {value.map((option) => (
           <Combobox.Chip key={option.id} className={cn(CHIP_BOX, chipPadding(!!chipLeading, true))}>
             {chipLeading && <span className="flex shrink-0 items-center">{chipLeading(option)}</span>}
@@ -260,7 +262,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
           aria-required={aria['aria-required']}
           {...naming}
           onKeyDown={onInputKeyDown}
-          className="flex-1 min-w-[120px] bg-transparent text-body-2 text-text-primary placeholder:text-text-muted outline-none border-none"
+          className={cn('flex-1 min-w-[120px] text-body-2 border-none', BARE_INPUT_CLASSES)}
         />
       </Combobox.Chips>
 

@@ -119,7 +119,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Reaction: ['pressed'],
   ReactionPicker: ['surface'],
   SectionHeader: ['hover'],
-  SectionLabel: ['tone'],
+  SectionLabel: ['tone', 'truncate'],
   Select: ['size'],
   Tabs: ['size'],
   TextInput: ['size'],

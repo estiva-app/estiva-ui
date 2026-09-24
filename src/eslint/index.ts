@@ -22,6 +22,7 @@ import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
 import { noHandmadeEmptyState } from './no-handmade-empty-state'
 import { noHandmadeHeader } from './no-handmade-header'
+import { noCopiedLook } from './no-copied-look'
 import { noNativeTitle } from './no-native-title'
 import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
@@ -32,6 +33,7 @@ export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings
 export { OWNED_BEHAVIOURS, type OwnedBehaviour } from './no-rebuilt-behaviour'
 export { PART_LOOK_PROPS, PLACEMENT } from './no-restyled-part'
 export { PARTS_WITH_A_TITLE } from './no-native-title'
+export { MIN_COVER, MIN_SHARED } from './looks-of'
 
 const { version } = createRequire(import.meta.url)('../../package.json') as { version: string }
 
@@ -51,6 +53,7 @@ const appRules = {
   'no-handmade-header': noHandmadeHeader,
   'no-handmade-empty-state': noHandmadeEmptyState,
   'no-native-title': noNativeTitle,
+  'no-copied-look': noCopiedLook,
 }
 
 /**
@@ -65,9 +68,10 @@ const appRules = {
  * app's version, UIG-7), and an app has no `.mdx` pages at all. `index.test.ts` holds the
  * apps' list to exactly the app rules.
  *
- * Four rules are in both sets: `no-restyled-part` (UIG-9), and the
+ * Five rules are in both sets: `no-restyled-part` (UIG-9), and the
  * fingerprints `no-handmade-header` (UIG-22), `no-handmade-empty-state`
- * (UIG-23) and `no-native-title` (UIG-24). The package restyles none of its own parts either (Katerina, 17
+ * (UIG-23), `no-native-title` (UIG-24) and `no-copied-look` (UIG-25, a
+ * warning). The package restyles none of its own parts either (Katerina, 17
  * September), and "my review isn't enough" (23 September).
  */
 const packageRules = {
@@ -79,6 +83,7 @@ const packageRules = {
   'no-handmade-header': noHandmadeHeader,
   'no-handmade-empty-state': noHandmadeEmptyState,
   'no-native-title': noNativeTitle,
+  'no-copied-look': noCopiedLook,
 }
 
 const rules = { ...appRules, ...packageRules }
@@ -97,8 +102,8 @@ export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGI
 /**
  * `recommended` switches every **app** rule on at the level it was ruled at: an
  * error blocks, a warning is reported and never blocks. `strict` makes every app
- * rule an error. With every app rule an error, the two are the same today; they part
- * when the first warning-level rule arrives (UIG-25).
+ * rule an error. They part at the first warning-level rule, `no-copied-look`
+ * (UIG-25): `recommended` warns on it, `strict` blocks on it.
  *
  * `package` is the inward set (UIG-5), which only this package runs.
  */
@@ -112,6 +117,8 @@ plugin.configs.recommended = {
     [`${PLUGIN_KEY}/no-handmade-header`]: 'error',
     [`${PLUGIN_KEY}/no-handmade-empty-state`]: 'error',
     [`${PLUGIN_KEY}/no-native-title`]: 'error',
+    // A warning, never an error (Katerina, 13 September): likeness is a judgement.
+    [`${PLUGIN_KEY}/no-copied-look`]: 'warn',
   },
 }
 plugin.configs.strict = {
@@ -122,7 +129,8 @@ plugin.configs.strict = {
 plugin.configs.package = {
   name: '@estiva-app/ui/package',
   plugins: { [PLUGIN_KEY]: plugin },
-  rules: Object.fromEntries(PACKAGE_RULE_IDS.map((id) => [id, 'error'])),
+  // Every inward rule blocks, but the copied look, which warns here too (UIG-25).
+  rules: Object.fromEntries(PACKAGE_RULE_IDS.map((id) => [id, id === `${PLUGIN_KEY}/no-copied-look` ? 'warn' : 'error'])),
 }
 
 export default plugin

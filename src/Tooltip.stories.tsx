@@ -3,6 +3,7 @@ import { IconArchive, IconPin, IconTrash } from '@tabler/icons-react'
 import { Button } from './Button'
 import { IconButton } from './IconButton'
 import { Tooltip, WithTooltip } from './Tooltip'
+import { Card } from './Card'
 
 const meta = {
   title: 'Primitives/Tooltip',
@@ -99,7 +100,7 @@ export const OnADisabledControl: Story = {
 export const InAToolbar: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex items-center gap-1 rounded-lg border border-border-default bg-bg-elevated p-1">
+    <Card fill="elevated" className="flex items-center gap-1 p-1">
       <IconButton aria-label="Pin" tooltip="Pin">
         <IconPin size={16} stroke={1.5} />
       </IconButton>
@@ -109,6 +110,6 @@ export const InAToolbar: Story = {
       <IconButton aria-label="Delete" tooltip="Delete" tooltipShortcut="Del">
         <IconTrash size={16} stroke={1.5} />
       </IconButton>
-    </div>
+    </Card>
   ),
 }

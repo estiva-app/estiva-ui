@@ -123,6 +123,7 @@ export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctr
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-scrim" />
         <Dialog.Viewport className="fixed inset-0 z-50 flex items-start justify-center pt-[16vh]">
+          {/* @estiva-escape: A3 (Katerina, 24 September: leave CommandPalette alone): the palette's window keeps its own border */}
           <Dialog.Popup
             ref={popupRef}
             aria-label={label}
@@ -373,6 +374,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
       <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border-subtle px-5">
         <IconSearch size={16} stroke={1.5} className="shrink-0 text-text-secondary" />
         {chip && <LevelChip chip={chip} onBack={back} />}
+        {/* @estiva-escape: A5 (Katerina, 24 September: leave CommandPalette alone): the palette's search field keeps its own classes */}
         <Autocomplete.Input
           ref={inputRef}
           data-command-palette-field=""

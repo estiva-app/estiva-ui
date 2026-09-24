@@ -1,6 +1,7 @@
 import { forwardRef, type TextareaHTMLAttributes } from 'react'
 import { Field as BaseField } from '@base-ui/react/field'
 import { cn } from './cn'
+import { FIELD_BOX_CLASSES, FIELD_DISABLED_CLASSES, FIELD_FOCUS_RING_CLASSES, FIELD_SIZE_CLASSES, FIELD_TEXT_CLASSES } from './looks'
 
 /**
  * Peek's Textarea (2026-08-28), verbatim: TextInput's look on a textarea
@@ -24,11 +25,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         // The border strengthens on hover, as Select's and ChipInput's do (Katerina, 16 September:
         // "aren't there hover states in text input and text area?"). Focus comes after hover in
         // Tailwind's order, so a focused field keeps the focus border under the pointer.
-        'bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg px-3 py-2',
-        'text-input-value text-text-primary placeholder:text-text-muted',
+        FIELD_BOX_CLASSES,
+        FIELD_SIZE_CLASSES.default,
+        FIELD_TEXT_CLASSES,
         'resize-none outline-none transition-colors',
-        'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
-        'signal:transition-shadow signal:focus:shadow-focus-ring',
+        FIELD_DISABLED_CLASSES,
+        FIELD_FOCUS_RING_CLASSES,
         className,
       )}
       {...(props as object)}

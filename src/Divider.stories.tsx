@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Divider } from './Divider'
+import { MenuPanel } from './Menu'
+import { Card } from './Card'
 
 /** A hairline in `border-subtle`, inset 12px each side — or standing up between two columns. */
 const meta = {
@@ -13,22 +15,22 @@ type Story = StoryObj<typeof meta>
 /** Between two blocks on the surface. */
 export const Default: Story = {
   render: () => (
-    <div className="w-80 rounded-lg border border-border-default bg-bg-surface py-3">
+    <Card className="w-80 py-3">
       <p className="px-3 pb-2 text-body-2 text-text-primary">Above the divider</p>
       <Divider />
       <p className="px-3 pt-2 text-body-2 text-text-primary">Below the divider</p>
-    </div>
+    </Card>
   ),
 }
 
 /** Inside a menu — on the elevated surface, full width (`mx-0`). */
 export const InAMenu: Story = {
   render: () => (
-    <div className="w-72 rounded-lg border border-border-default bg-bg-elevated p-2 text-body-2 text-text-primary shadow-lg">
-      <div className="px-2 py-1.5">First action</div>
+    <MenuPanel className="w-72">
+      <div className="px-2 py-1.5 text-body-2 text-text-primary">First action</div>
       <Divider className="mx-0 my-2" />
-      <div className="px-2 py-1.5">Second action</div>
-    </div>
+      <div className="px-2 py-1.5 text-body-2 text-text-primary">Second action</div>
+    </MenuPanel>
   ),
 }
 
@@ -49,21 +51,21 @@ export const WithALabel: Story = {
   // the label is muted caption text, 3.78:1 on --bg-surface in signal (AA 4.5:1).
   parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
   render: () => (
-    <div className="w-96 rounded-lg border border-border-default bg-bg-surface py-3 text-body-2 text-text-primary">
+    <Card className="w-96 py-3"><div className="text-body-2 text-text-primary">
       <p className="px-3 pb-2">Yesterday's last message</p>
       <Divider label="Today" />
       <p className="px-3 pt-2">Today's first</p>
-    </div>
+    </div></Card>
   ),
 }
 
 /** Asking for attention: where "new since you last read this" begins. The warning colour, because the accent could not be read on Ship's background. */
 export const Warning: Story = {
   render: () => (
-    <div className="w-96 rounded-lg border border-border-default bg-bg-surface py-3 text-body-2 text-text-primary">
+    <Card className="w-96 py-3"><div className="text-body-2 text-text-primary">
       <p className="px-3 pb-2">Yes — it re-reads the folder union and the archived one lands last.</p>
       <Divider label="New since you last read this" tone="warning" />
       <p className="px-3 pt-2">Same here, from Peek.</p>
-    </div>
+    </div></Card>
   ),
 }

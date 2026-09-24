@@ -153,7 +153,7 @@ describe('writeGateCount', () => {
     const written = JSON.parse(readFileSync(join(dir, '.gates-count.json'), 'utf8'))
     expect(written).toMatchObject({ schemaVersion: 1, repo: 'probe' })
     expect(written.rules['estiva/no-raw-element']).toEqual({ errors: 0, warnings: 0, escapes: 1 })
-    expect(Object.keys(written.rules)).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title'])
+    expect(Object.keys(written.rules)).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title', 'estiva/no-copied-look'])
 
     expect((await writeGateCount({ root: dir, repo: 'probe' })).changed).toBe(false)
 

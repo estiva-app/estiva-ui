@@ -89,6 +89,7 @@ const formatBytes = (bytes: number) => {
 const typeLabelOf = (name: string) => extensionOf(name).toUpperCase() || 'FILE'
 
 const TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+// @estiva-escape: A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
 const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
 const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
 
@@ -389,6 +390,7 @@ export function AttachmentCard({
         {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
             that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
         {onRemove && (
+          // @estiva-escape: N4 (Katerina, 24 September: record only): the small round button Lightbox's close also draws; a part if a third appears
           <BaseButton
             type="button"
             aria-label={`Remove ${name}`}

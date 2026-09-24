@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { CHIP_TEXT_CLASSES } from './looks'
 
 /**
  * Peek's Chip (2026-08-28), verbatim: a 20px pill in one of six colour
@@ -44,7 +45,7 @@ export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, class
         // the screenshot diff caught every descender cut off. `clip` is the
         // one overflow that leaves the other axis visible. A chip with no cap
         // draws exactly as before.
-        <span className="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-chip signal:font-mono signal:text-small signal:font-semibold signal:tracking-wide signal:tabular-nums">{label}</span>
+        <span className={cn('min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide', CHIP_TEXT_CLASSES)}>{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
     </div>
