@@ -399,6 +399,17 @@ function moduleParts(file: string, program: Node, parser: Parser, stack: Set<str
   return { locals, exports }
 }
 
+/**
+ * What a file's names stand for, found the way this rule finds them: for a rule
+ * that asks whether a tag is one particular part, through an app's wrapper too
+ * (UIG-23 asks for `EmptyState` and `ScrollArea`).
+ */
+export function partsOfFile(file: string, program: Node, parser: Parser): Map<string, PartBinding | 'namespace'> {
+  return moduleParts(file, program, parser, new Set([file])).locals
+}
+
+export { bindingOfTag, functionComponents, parseFile, resolveModule, walk, type Node, type Parser }
+
 function moduleExports(file: string, parser: Parser, stack: Set<string>): Map<string, PartBinding> {
   const mtime = statSync(file).mtimeMs
   const cached = moduleCache.get(file)

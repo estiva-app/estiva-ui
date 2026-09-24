@@ -333,7 +333,10 @@ export default function define(h) {
       { what: "the apps' gate carries no-handmade-header", run: () => h.contains("src/eslint/index.ts", /'no-handmade-header': noHandmadeHeader[\s\S]*recommended[\s\S]*no-handmade-header`\]: 'error'/, "no-handmade-header is an app rule, on in recommended") },
       { what: "it is tested on both Folders panes and on a shape with other class names", run: () => h.contains("src/eslint/no-handmade-header.test.ts", /the shape, not the class names/, "the rule's tests hold the shape") },
     ] },
+    // UIG-23: the rule reads where a line sits, so it is proved on places (src/eslint/no-handmade-empty-state.test.ts).
     { ref: "UIG-23", owner: true, checks: [
+      { what: "the apps' gate carries no-handmade-empty-state", run: () => h.contains("src/eslint/index.ts", /'no-handmade-empty-state': noHandmadeEmptyState[\s\S]*recommended[\s\S]*no-handmade-empty-state`\]: 'error'/, "no-handmade-empty-state is an app rule, on in recommended") },
+      { what: "it is tested on the four Folders states, the two false alarms and the three open lines", run: () => h.contains("src/eslint/no-handmade-empty-state.test.ts", /7f22e5e~1[\s\S]*CommandLauncher\.tsx:1498[\s\S]*FolderContentsView\.tsx:101[\s\S]*ReadStatePanel\.tsx:65[\s\S]*CommandLauncher\.tsx:1514/, "the rule's tests hold the ticket's cases") },
       { what: "a hand-made empty line is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe({ items }: { items: string[] }) {\n  return <div>{items.length === 0 ? <p className=\"text-text-secondary\">Nothing here</p> : items.map((i) => <span key={i}>{i}</span>)}</div>\n}\n", expect: "error", mentions: "EmptyState" }) },
     ] },
     { ref: "UIG-24", owner: true, checks: [] },

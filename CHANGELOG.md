@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.32.0 — 2026-09-24 — UIG-23: a hand-made empty state is refused
+
+### Added
+
+- **`estiva/no-handmade-empty-state`**, in `recommended` and in the package's
+  own set. It refuses two things, each naming the scope to use:
+  - **a line drawn by hand**: a box holding only words (a short line, a name
+    may sit in it) that shows where a list's rows would be when the list is
+    empty — one side of a condition whose other side is the list, or under a
+    condition that asks whether it is empty (`rows.length === 0`,
+    `!rows.length`, `isEmpty(rows)`). It reads where the line sits, not what
+    it says: words missed four of Peek's dialogs ("There is nowhere else to
+    move it…") and fired on a hint beside a button;
+  - **a `page` state that cannot centre**: a `page`-scope `EmptyState` inside a
+    `ScrollArea` whose `contentClassName` does not fill it, drawn there
+    directly or by one of the app's own components, followed into its file.
+    That is how four arrived on Peek's Folders page in one merge (`7f22e5e`).
+  Over the three repos it found Peek's four dialogs and two package stories,
+  and on older commits every case the ticket names; it stays silent on the
+  hint, the status note and the launcher's replies.
+
+### Changed
+
+- `FilePicker` and `ReactionPicker` stories draw their empty lines with
+  `EmptyState`. The file picker's line is the section manner now, 12px muted.
+- `gates:status`: UIG-23 checks that the rule is on for the apps and is tested
+  on the ticket's cases.
+
+### What an app does
+
+Take this release. The gate count gains `estiva/no-handmade-empty-state`. A
+line saying there is nothing, drawn where a list's rows would be, becomes
+`EmptyState` (`scope="section"` inside a section, `scope="page"` for a whole
+page), or keeps an escape with its reason.
+
 ## 0.31.0 — 2026-09-23 — UIG-22: a hand-made header bar is refused
 
 ### Added
