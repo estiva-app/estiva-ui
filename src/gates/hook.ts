@@ -44,7 +44,7 @@ import { repositoryOf } from '../registry/skill'
 export interface HookOptions {
   /** The repository's top folder. Defaults to `$CLAUDE_PROJECT_DIR`, then the tool call's `cwd`. */
   root?: string
-  /** The folder that holds the app, relative to `root`: `web` in Ship, `.` elsewhere. */
+  /** The folder that holds the app, relative to `root`: `.` unless it sits in a folder of its own. */
   app?: string
   /** `package` gates `.tsx` only, as this package's inward lint does. */
   audience?: 'app' | 'package'

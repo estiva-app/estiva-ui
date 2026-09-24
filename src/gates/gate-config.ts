@@ -4,7 +4,7 @@
  *
  * Until UIG-10 every repo wrote this itself: `eslint.gates.js` (the rules and
  * where they apply) and `eslint.gates.config.js` (the gate: those rules alone)
- * in Peek, in Ship's `web/`, and here pointed inward. The rules were always the
+ * in Peek, in Ship, and here pointed inward. The rules were always the
  * package's; these two files were copies. Now they are two functions.
  *
  * Where: every `.ts` and `.tsx` under `src`, stories included (a story is what

@@ -5,7 +5,7 @@
  *   estiva-gates status              one row per ticket
  *   estiva-gates status --detail     every check under every row
  *   estiva-gates status --json       machine output, read by estiva-ui's run
- *   estiva-gates status --app web    the app sits in `web/`, as Ship's does
+ *   estiva-gates status --app web    the app sits in `web/` (Ship's did, until PER-19)
  *
  * Every row is decided by checks on real files, a real lint run or a real
  * GitHub setting. Nothing here reads a list that someone ticks by hand.
@@ -19,13 +19,13 @@
  *
  * What differs per repo is `scripts/gates-checks.mjs`, beside the app: its
  * checks, or the checks every app runs (`appChecks`) plus its own. It sits with
- * the app because it imports the package — `web/scripts/` in Ship, whose app,
- * and whose install, are in `web/` (UIG-32).
+ * the app because it imports the package: in an app that sits in a folder of
+ * its own, the checks file sits there too (UIG-32).
  *
  * The rows and the reasons for each check are in estiva-ui docs/GATES.md §15
  * and §17.
  */
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
@@ -36,7 +36,7 @@ export type CheckResult = { result: 'pass' | 'fail' | 'part' | 'unknown'; detail
 type Maybe<T> = T | Promise<T>
 
 export interface LintProbe {
-  /** The folder ESLint runs from, relative to the repo: `web` in Ship. */
+  /** The folder ESLint runs from, relative to the repo: `.` unless the app sits in a folder of its own. */
   cwd?: string
   /** The config file, relative to `cwd`. */
   config: string
@@ -106,7 +106,7 @@ export interface GateSpec {
   tickets: GateTicket[]
   /** estiva-ui only: every ticket, and the repos it joins in. */
   all?: TicketListEntry[]
-  /** estiva-ui only: the repos beside it. `app` is the folder its app sits in: `web` in Ship. */
+  /** estiva-ui only: the repos beside it. `app` is the folder its app sits in, when not the top. */
   siblings?: { name: string; path: string; env: string; app?: string }[]
 }
 
@@ -292,16 +292,39 @@ export function helpers(ROOT: string): GateHelpers {
 
     hook(settingsRel, needle) {
       if (!exists(settingsRel)) return FAIL(`${settingsRel} does not exist`)
-      let s: { hooks?: { PreToolUse?: { hooks?: { command?: string }[] }[] } }
+      let s: { hooks?: { PreToolUse?: { matcher?: string; hooks?: { command?: string }[] }[] } }
       try {
         s = JSON.parse(read(settingsRel))
       } catch {
         return FAIL(`${settingsRel} is not valid JSON`)
       }
-      const commands = (s.hooks?.PreToolUse ?? []).flatMap((m) => (m.hooks ?? []).map((x) => x.command ?? ''))
-      const hit = commands.find((c) => c.includes(needle))
-      if (hit) return PASS(`${settingsRel} has a PreToolUse hook running ${needle}`)
-      return FAIL(commands.length ? `${settingsRel} has PreToolUse hooks, none running ${needle}` : `${settingsRel} has no PreToolUse hook`)
+      const entries = (s.hooks?.PreToolUse ?? []).flatMap((m) => (m.hooks ?? []).map((x) => ({ matcher: m.matcher ?? '', command: x.command ?? '' })))
+      const hit = entries.find((e) => e.command.includes(needle))
+      if (!hit) return FAIL(entries.length ? `${settingsRel} has PreToolUse hooks, none running ${needle}` : `${settingsRel} has no PreToolUse hook`)
+      // A hook that is written but never fires, or fires and cannot run, guards
+      // nothing — and Claude Code lets a write through on any exit but 2 (audit
+      // A2: Ship's hook pointed at an install its checkout did not have). So the
+      // hook is run, as Claude Code would run it, on a raw <button>.
+      let matches: boolean
+      try {
+        matches = hit.matcher === '' || hit.matcher === '*' || new RegExp(`^(?:${hit.matcher})$`).test('Write')
+      } catch {
+        return FAIL(`${settingsRel}: the hook's matcher "${hit.matcher}" is not a pattern`)
+      }
+      if (!matches) return FAIL(`${settingsRel}: the hook runs only for "${hit.matcher}", never for a Write`)
+      const top = ROOT.split('\\').join('/')
+      const app = /--app\s+("?)([^"\s]+)\1/.exec(hit.command)?.[2] ?? '.'
+      const input = JSON.stringify({
+        hook_event_name: 'PreToolUse',
+        cwd: top,
+        tool_name: 'Write',
+        tool_input: { file_path: `${resolve(ROOT, app, 'src', '__gates_hook_probe__.tsx').split('\\').join('/')}`, content: 'export function Probe() {\n  return <button type="button">x</button>\n}\n' },
+      })
+      const command = hit.command.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, top)
+      const run = spawnSync(command, { cwd: ROOT, input, shell: true, encoding: 'utf8', timeout: 120_000, env: { ...process.env, CLAUDE_PROJECT_DIR: top } })
+      if (run.status === 2) return PASS(`${settingsRel}: the hook ran and refused a raw <button> (exit 2)`)
+      const why = `${run.stderr ?? ''}${run.stdout ?? ''}`.trim().split(/\r?\n/)[0] || (run.error ? String(run.error.message) : 'no output')
+      return FAIL(`${settingsRel}: the hook ran and let a raw <button> through (exit ${run.status ?? 'none'}): ${why}`)
     },
 
     json(rel, test = () => true, label) {
@@ -418,8 +441,8 @@ function statusOf(checks: CheckResult[]) {
 
 async function runRepo(ROOT: string, app: string, h: GateHelpers): Promise<{ spec: GateSpec; report: Report }> {
   // The checks file sits with the app, because it imports `appChecks` from the
-  // package: in Ship that install is `web/node_modules`, not the repo's top
-  // folder (UIG-32). Everything it names is still read from the repo's top.
+  // package: for an app in a folder of its own, that install is there, not in
+  // the repo's top folder (UIG-32). Everything it names is still read from the top.
   const checksFile = join(ROOT, app, 'scripts', 'gates-checks.mjs')
   const define = ((await import(pathToFileURL(checksFile).href)) as { default: (h: GateHelpers) => GateSpec }).default
   const spec = define(h)
@@ -452,7 +475,7 @@ async function runRepo(ROOT: string, app: string, h: GateHelpers): Promise<{ spe
  * Another repository's report. A repo on the package's engine runs it from its
  * own install; a repo still carrying `scripts/gates-status.mjs` runs that copy.
  *
- * `app` is the folder that repo's app sits in — `web` in Ship — where its
+ * `app` is the folder that repo's app sits in, when not the top, where its
  * install and its checks file are. The report is still of the whole repo.
  */
 function runSibling(dir: string, app: string, shown: string): { report?: Report; error?: string } {
@@ -477,6 +500,28 @@ function runSibling(dir: string, app: string, shown: string): { report?: Report;
     const err = e as { stderr?: unknown; message?: string }
     return { error: `its gates:status failed: ${String(err.stderr ?? err.message).split('\n').filter(Boolean).slice(-1)[0]}` }
   }
+}
+
+/**
+ * How far a checkout is behind its remote's main, after fetching it. Status reads
+ * the checkout, not main: a copy seven commits behind once reported a finished
+ * ticket as not started (audit A4). Empty when it is level; a warning otherwise.
+ */
+export function behindMain(dir: string): string {
+  const git = (...a: string[]) => {
+    try {
+      return execFileSync('git', a, { cwd: dir, stdio: ['ignore', 'pipe', 'ignore'], timeout: 30000 }).toString().trim()
+    } catch {
+      return null
+    }
+  }
+  if (git('rev-parse', '--is-inside-work-tree') !== 'true') return ''
+  const fetched = git('fetch', '-q', 'origin') !== null
+  const main = (git('symbolic-ref', '--short', 'refs/remotes/origin/HEAD') ?? 'origin/main').trim()
+  const count = Number(git('rev-list', '--count', `HEAD..${main}`))
+  const stale = fetched ? '' : ' (could not fetch: compared with the last fetch)'
+  if (!Number.isFinite(count) || count === 0) return stale ? ` ·${stale}` : ''
+  return ` · ⚠️ ${count} commit${count === 1 ? '' : 's'} behind ${main}${stale}: pull, or this reads old code`
 }
 
 function pad(s: string, n: number) {
@@ -509,7 +554,7 @@ function summary(rows: Row[]) {
 export interface StatusOptions {
   /** The repository to report on. */
   root?: string
-  /** The folder that holds the app, relative to `root`: `web` in Ship, `.` elsewhere. */
+  /** The folder that holds the app, relative to `root`: `.` unless it sits in a folder of its own. */
   app?: string
   json?: boolean
   detail?: boolean
@@ -526,7 +571,7 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
 
   const out: string[] = []
   out.push('UI Guardrails · gates:status', 'Read from the code. Nothing here is a hand-ticked list.', '')
-  out.push(`${pad(spec.repo, 10)} ${report.branch} @ ${report.commit}`)
+  out.push(`${pad(spec.repo, 10)} ${report.branch} @ ${report.commit}${behindMain(ROOT)}`)
 
   if (!spec.all) {
     // A sibling repo on its own: its own rows, then its parts of rows owned elsewhere.
@@ -553,7 +598,7 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
       continue
     }
     const copy = r.report.engine !== ENGINE ? (r.report.engine.startsWith('@estiva-app/ui@') ? ` · on ${r.report.engine}'s engine` : ' · runs its own copy of the status engine; UIG-32 moves it onto the package') : ''
-    found.push({ name: s.name, note: `${r.report.branch} @ ${r.report.commit}, found at ${shown(dir)}${copy}` })
+    found.push({ name: s.name, note: `${r.report.branch} @ ${r.report.commit}, found at ${shown(dir)}${copy}${behindMain(dir)}` })
     reports.push(r.report)
   }
   for (const f of found) out.push(`${pad(f.name, 10)} ${f.note}`)

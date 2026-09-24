@@ -17,8 +17,9 @@
  * **In an app**: nothing is committed (Katerina, 18 September 2026 — the
  * package is public, the apps are private). `check` builds the app's catalogue
  * and fails when a part has no one-line description or cannot be sorted, or
- * when a reusable part breaks the usage-page contract (UIG-19, `./contract`);
- * CI's `gate` job runs it. `build` writes the catalogue to a file only when asked.
+ * when a reusable part breaks the usage-page contract (UIG-19, `./contract`),
+ * or when the app's hand-written map of its Storybook no longer matches it
+ * (`./storymap`); CI's `gate` job runs it. `build` writes the catalogue to a file only when asked.
  *
  * `find` searches the package's catalogue — the one shipped inside the installed
  * package, or this repo's own in the package — plus, in an app, the app's own,
@@ -39,6 +40,7 @@ import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
 import { findSiblings, workspaceOf } from './siblings'
 import { loaderPath, loaderProblem, loaderText, repositoryOf, settingsPath, settingsWithSearch } from './skill'
+import { storyMapProblems } from './storymap'
 import { CLASSES, validateRegistry, type Registry } from './schema'
 
 /**
@@ -176,6 +178,21 @@ async function checkGated(registry: Registry, folder: string, kinds?: string[]):
   return true
 }
 
+/**
+ * The app's hand-written map of its Storybook — the heading order and the
+ * Introduction — against the Storybook and the catalogue (`./storymap`).
+ * Reports, and says whether it passed.
+ */
+function checkStoryMap(registry: Registry, folder: string): boolean {
+  const problems = storyMapProblems(registry, folder)
+  if (problems.length) {
+    process.stderr.write(`storybook map: ${problems.length === 1 ? 'one line no longer matches' : `${problems.length} lines no longer match`}:\n  ${problems.join('\n  ')}\n`)
+    return false
+  }
+  process.stdout.write('storybook map: the heading order and the Introduction match the Storybook and the catalogue\n')
+  return true
+}
+
 /** One line per kind, in a fixed order, so two runs read the same. */
 function summary(registry: Registry): string {
   const count = (cls: string) => registry.entries.filter((entry) => entry.app?.class === cls).length
@@ -266,7 +283,8 @@ async function main(): Promise<number> {
         const linked = checkLinks(registry, root)
         const shown = await checkGated(registry, root)
         const loaded = checkLoader()
-        return broken.length || !linked || !shown || !loaded ? 1 : 0
+        const mapped = checkStoryMap(registry, root)
+        return broken.length || !linked || !shown || !loaded || !mapped ? 1 : 0
       }
       const { buildRegistry, serializeRegistry } = await packageBuilder()
       const path = packageRegistryPath()

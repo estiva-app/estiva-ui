@@ -54,7 +54,7 @@ const all = [
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
 const siblings = [
   { name: "peek", path: "../peek", env: "GATES_PEEK" },
-  { name: "ship", path: "../ship", env: "GATES_SHIP", app: "web" },
+  { name: "ship", path: "../ship", env: "GATES_SHIP" },
   { name: "leaf", path: "../leaf", env: "GATES_LEAF" },
 ];
 
@@ -303,7 +303,7 @@ export default function define(h) {
       // `estiva-ui find`, and running it unasked is UIG-20's. What replaced the
       // check: the section check lives once, here, not pasted into each app.
       { what: "no app keeps its own copy of the usage-page section check", run: () => {
-        const copies = [["peek", process.env.GATES_PEEK ?? "../peek", "scripts/gates-checks.mjs"], ["ship", process.env.GATES_SHIP ?? "../ship", "web/scripts/gates-checks.mjs"]]
+        const copies = [["peek", process.env.GATES_PEEK ?? "../peek", "scripts/gates-checks.mjs"], ["ship", process.env.GATES_SHIP ?? "../ship", "scripts/gates-checks.mjs"]]
           .filter(([, dir, f]) => h.exists(`${dir.replace(/[\\/]+$/, "")}/${f}`) && /"When not"/.test(h.read(`${dir.replace(/[\\/]+$/, "")}/${f}`)))
           .map(([name]) => name);
         return copies.length ? h.FAIL(`${copies.join(" and ")} still check the sections in their own gates-checks.mjs`) : h.PASS("neither app checks the sections itself");
@@ -410,9 +410,9 @@ export default function define(h) {
       } },
       { what: "Ship draws the package's card and fetches nothing by hand", run: () => {
         const dir = (process.env.GATES_SHIP ?? "../ship").replace(/[\\/]+$/, "");
-        const f = `${dir}/web/src/components/ui/Attachment.tsx`;
-        if (!h.exists(`${dir}/web/package.json`)) return h.UNKNOWN(`Ship is not at ${dir}`);
-        if (!h.exists(f)) return h.FAIL("Ship has no web/src/components/ui/Attachment.tsx");
+        const f = `${dir}/src/components/ui/Attachment.tsx`;
+        if (!h.exists(`${dir}/package.json`)) return h.UNKNOWN(`Ship is not at ${dir}`);
+        if (!h.exists(f)) return h.FAIL("Ship has no src/components/ui/Attachment.tsx");
         if (/\buseBlobUrl\b|\bsaveFile\b/.test(h.read(f))) return h.FAIL("Ship's Attachment.tsx still fetches or saves by hand");
         return h.contains(f, /\bAttachmentCard\b/, "Ship's Attachment.tsx draws the package's AttachmentCard");
       } },
@@ -450,7 +450,7 @@ export default function define(h) {
       { what: "the package exports its gate pieces for the apps to import", run: () => h.contains("package.json", '"./gates"', "package.json exports ./gates") },
       ...[
         { name: "Peek", dir: process.env.GATES_PEEK ?? "../peek", app: "" },
-        { name: "Ship", dir: process.env.GATES_SHIP ?? "../ship", app: "web/" },
+        { name: "Ship", dir: process.env.GATES_SHIP ?? "../ship", app: "" },
       ].flatMap(({ name, dir, app }) => {
         const at = (rel) => `${dir.replace(/\\/g, "/").replace(/\/$/, "")}/${rel}`;
         const found = (run) => () => (h.exists(at("package.json")) ? run() : h.UNKNOWN(`${name} is not at ${dir}`));

@@ -13,7 +13,8 @@
  *   node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook
  *
  * A repo whose app sits in a folder of its own runs both by path, from the
- * repo's top folder, and says where the app is — Ship (UIG-32):
+ * repo's top folder, and says where the app is (Ship did, from UIG-32 until
+ * PER-19 moved its app to the top folder):
  *
  *   node "$CLAUDE_PROJECT_DIR/web/node_modules/@estiva-app/ui/dist/gates/cli.js" hook --app web
  *   node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web
@@ -44,9 +45,19 @@ async function main(): Promise<number> {
       return result.failures.length ? 1 : 0
     }
     case 'hook': {
-      const result = await runHook({ app: value('app'), audience })
-      if (result.code === 2) process.stderr.write(result.message)
-      return result.code
+      // A hook that fails open guards nothing: Claude Code lets a write through
+      // on any exit but 2, and a crash exits 1 (audit A2). So a gate that cannot
+      // run — no ESLint in the app's install, a config that does not load —
+      // refuses the write and says why, and the session fixes the install.
+      try {
+        const result = await runHook({ app: value('app'), audience })
+        if (result.code === 2) process.stderr.write(result.message)
+        return result.code
+      } catch (error) {
+        const why = error instanceof Error ? error.message.split('\n')[0] : String(error)
+        process.stderr.write(`The UI Guardrails could not check this write, so it was not made: ${why}\nRun \`npm ci\` in the app's folder, then try again.\n`)
+        return 2
+      }
     }
     case 'status': {
       process.stdout.write(`${await runStatus({ app: value('app'), json: flag('json'), detail: flag('detail') })}${flag('json') ? '' : '\n'}`)
