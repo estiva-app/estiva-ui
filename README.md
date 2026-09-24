@@ -64,7 +64,7 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. There are four:
+instead. There are five:
 
 - `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
   `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
@@ -83,6 +83,13 @@ instead. There are four:
   row first in a column, with its own side padding and a title, where the column
   fills its height or the row has a bar's height or hairline. It reads the
   shape, not the class names, and names `ContainerHeader`.
+- `estiva/no-handmade-empty-state` refuses an empty state drawn by hand: a
+  line of words that shows where a list's rows would be, when the list is
+  empty. It reads where the line sits, not what it says, and names
+  `EmptyState`. It also refuses a `page`-scope `EmptyState` inside a
+  `ScrollArea` whose content is only as tall as what is in it, where it sits at
+  the top instead of the middle, following the app's own components into their
+  files to find one.
 
 ```js
 // eslint.config.js — alongside your own rules
