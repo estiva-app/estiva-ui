@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.34.0 — 2026-09-24 — UIG-25: a look copied by hand is warned about
+
+### Added
+
+- **`estiva/no-copied-look`, a warning** (Katerina, 13 September: likeness is a
+  judgement, so it never blocks), in `recommended` and in the package's own set;
+  `strict` makes it an error. A class list that shares four or more look words
+  with a part's look, covering 80% of the shorter list, is a copy: in an app the
+  message names the part to use; in the package it says to write the look once
+  in `src/looks.ts`; a copy of a shared `…_CLASSES` constant is told to use it.
+  Placement words never count. A part's look in its own file, and a component
+  named like the part it wraps, are left alone.
+- **`registry.json` records each part's looks** (`looks`, optional), so an app
+  compares against the parts of the package it has installed, and a part added
+  later is covered with no change to the rule. A part's look includes a shared
+  look it imports.
+- **`SectionLabel` takes `tone="muted"` and `truncate`**, for a label that marks
+  a place in a list, such as Peek's date line.
+- `MIN_SHARED` and `MIN_COVER` are exported from `@estiva-app/ui/eslint`.
+
+### Changed
+
+- **Looks shared by several parts are written once**, in an internal
+  `src/looks.ts`: the field box, words, sizes, disabled look and focus ring
+  (TextInput, Textarea, Select), the input shell (SearchInput, ChipInput), the
+  floating surface (Menu's panel, Tooltip), the chip's words (Chip, Reaction's
+  count) and the bare input (SearchInput, ChipInput). 58 before-and-after photos
+  are identical to the pixel.
+- Stories draw their frames with `Card` and `MenuPanel` instead of typing them.
+- `gates:status`: UIG-9's check lets any fingerprint rule follow the three app
+  rules; UIG-25 checks the rule, the catalogue's looks and its tests, and its
+  probes use today's `SectionLabel`.
+
+### What an app does
+
+Take this release. The gate count gains `estiva/no-copied-look` with its
+warnings; nothing blocks. A warning says which part a class list copies: use
+the part, or keep it with an escape and its reason.
+
 ## 0.33.0 — 2026-09-24 — UIG-24: the browser's tooltip is refused
 
 ### Added
