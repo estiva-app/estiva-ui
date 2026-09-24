@@ -929,6 +929,10 @@ import '../src/index.css'
 document.documentElement.dataset.theme = ${JSON.stringify(theme)}
 
 const preview: Preview = {
+  // Every story file gets a Docs page, as in Peek and Ship: the catalogue links each
+  // part to it, and \`npm run registry:check\` in CI's job \`gate\` fails a link that
+  // leads nowhere.
+  tags: ['autodocs'],
   parameters: { layout: 'centered' },
 }
 

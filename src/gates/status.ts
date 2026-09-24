@@ -318,11 +318,13 @@ export function helpers(ROOT: string): GateHelpers {
         hook_event_name: 'PreToolUse',
         cwd: top,
         tool_name: 'Write',
-        tool_input: { file_path: `${resolve(ROOT, app, 'src', '__gates_hook_probe__.tsx').split('\\').join('/')}`, content: 'export function Probe() {\n  return <button type="button">x</button>\n}\n' },
+        tool_input: { file_path: `${resolve(ROOT, app, 'src', '__gates_hook_probe__.tsx').split('\\').join('/')}`, content: 'export function Probe() {\n  return <div><button type="button">x</button></div>\n}\n' },
       })
       const command = hit.command.replace(/\$\{?CLAUDE_PROJECT_DIR\}?/g, top)
       const run = spawnSync(command, { cwd: ROOT, input, shell: true, encoding: 'utf8', timeout: 120_000, env: { ...process.env, CLAUDE_PROJECT_DIR: top } })
-      if (run.status === 2) return PASS(`${settingsRel}: the hook ran and refused a raw <button> (exit 2)`)
+      // Refused for the button, not for something else about a new file (in the package a new
+      // file with no page is refused too): nested, so the package's inward rule reads it as well.
+      if (run.status === 2 && /<button>/.test(`${run.stderr ?? ''}${run.stdout ?? ''}`)) return PASS(`${settingsRel}: the hook ran and refused a raw <button> (exit 2)`)
       const why = `${run.stderr ?? ''}${run.stdout ?? ''}`.trim().split(/\r?\n/)[0] || (run.error ? String(run.error.message) : 'no output')
       return FAIL(`${settingsRel}: the hook ran and let a raw <button> through (exit ${run.status ?? 'none'}): ${why}`)
     },

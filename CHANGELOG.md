@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.35.1 — 2026-09-25 — a made app is green on its first commit again
+
+Found by the re-review after the audit before UIG-26.
+
+### Fixed
+
+- **A made app's required `gate` failed on its first commit.** Its Storybook had
+  no `tags: ['autodocs']`, so the home page's stories had no Docs page, and
+  `registry:check` refused the catalogue's link to it ("pages-home--docs" leads
+  nowhere). Probably since 0.27.0, when the link check came in. The made
+  `.storybook/preview.tsx` now turns Docs pages on, as Peek's and Ship's do;
+  proved with the real CLI on a made app, both ways.
+- **`gates:status`'s hook check names the button.** It passed on any exit 2; in
+  this package a new file is refused for having no page, so the check could pass
+  without the button being read. The probe is nested, and the refusal must name
+  `<button>`.
+
+### What an app does
+
+Nothing. An app made before this adds `tags: ['autodocs']` to its
+`.storybook/preview.tsx`.
+
 ## 0.35.0 — 2026-09-25 — the gates, fixed after the audit before UIG-26
 
 An audit of the UI Guardrails against the plan they were built from found five
