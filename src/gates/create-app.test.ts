@@ -1,9 +1,12 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildAppRegistry } from '../registry/app'
 import { validateRegistry } from '../registry/schema'
+import { appChecks } from './app-checks'
 import { appFiles, ASKED_OF_NPM, createApp, themes } from './create-app'
+import { helpers, type GateHelpers } from './status'
 
 /**
  * `create-estiva-app` (UIG-10). What the app does when it runs is proved on a
@@ -147,4 +150,47 @@ describe('create-estiva-app', () => {
     createApp({ name: 'once', parent: scratch, versions })
     expect(() => createApp({ name: 'once', parent: scratch, versions })).toThrow(/already exists/)
   })
+})
+
+/**
+ * The made app, checked the way gates:status checks Peek and Ship (audit B5).
+ * The tests above pin the starter's files one by one; they could not see that
+ * its required job `gate` skipped the token lint, which every app check since
+ * 0.30.0 asks for. This runs every check an app runs on a freshly made app, for
+ * real: the package is linked in as the app's install, and ESLint, TypeScript
+ * and the plugins resolve from this repository's own, as they do for the gate
+ * tests. Only what needs GitHub or a commit is left out.
+ */
+describe('a made app, under the checks every app runs', () => {
+  it('passes every one on its first commit, but the tickets not built yet', async () => {
+    const dir = join(scratch, 'checked')
+    for (const [path, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(dir, path)), { recursive: true })
+      writeFileSync(join(dir, path), text)
+    }
+    mkdirSync(join(dir, 'node_modules', '@estiva-app'), { recursive: true })
+    symlinkSync(process.cwd(), join(dir, 'node_modules', '@estiva-app', 'ui'), 'junction')
+    // The one plugin the app asks npm for that this repository does not use: the
+    // gate only needs its name known, so a stand-in with no rules does.
+    const hooks = join(dir, 'node_modules', 'eslint-plugin-react-hooks')
+    mkdirSync(hooks, { recursive: true })
+    writeFileSync(join(hooks, 'package.json'), JSON.stringify({ name: 'eslint-plugin-react-hooks', type: 'module', main: 'index.js' }))
+    writeFileSync(join(hooks, 'index.js'), 'export default { rules: {}, configs: { flat: { recommended: { rules: {} } } } }\n')
+    // Its first commit, as the ticket asks: the count file must be committed.
+    const git = (...a: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', '-c', 'core.autocrlf=false', ...a], { cwd: dir, stdio: 'pipe' })
+    git('init', '-q', '-b', 'main')
+    git('add', '-A')
+    git('commit', '-q', '-m', 'made by create-estiva-app')
+    const real = helpers(dir)
+    const h: GateHelpers = { ...real, protectedBranch: () => real.UNKNOWN('a rule on GitHub'), gh: () => real.UNKNOWN('a question for GitHub') }
+    const failed: string[] = []
+    for (const ticket of appChecks(h, { page: 'src/pages/HomePage.tsx' })) {
+      for (const check of ticket.checks) {
+        const result = await check.run()
+        if (result.result === 'fail' || result.result === 'part') failed.push(`${ticket.ref} ${check.what}: ${result.detail}`)
+      }
+    }
+    // RichText is UIG-30's, not built yet: no app passes that one.
+    expect(failed.filter((f) => !f.startsWith('UIG-30 '))).toEqual([])
+  }, 300_000)
 })

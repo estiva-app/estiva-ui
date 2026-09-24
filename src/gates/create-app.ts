@@ -365,9 +365,10 @@ jobs:
             exit 1
           fi
 
-  # The UI Guardrails' rules, on their own: a raw element, behaviour a part owns
-  # written by hand, a part restyled. \`npm run lint:rules\` also writes
-  # .gates-count.json and fails on an eslint-disable that switches a rule off.
+  # The UI Guardrails, the one check a merge requires: the package's gate rules
+  # (each refusal names what to use instead), the token contract, and the
+  # catalogue. \`npm run lint:rules\` also writes .gates-count.json and fails on
+  # an eslint-disable that switches a rule off.
   #
   # A job of its own, because GitHub can require only a whole job, by its name:
   # the rule on main requires \`gate\`. Renaming it leaves every pull request
@@ -383,6 +384,10 @@ jobs:
       - run: npm ci
       - name: Gate lint
         run: npm run lint:rules
+      # Colours, type, corners and shadows from the preset only. In \`check\` too,
+      # inside \`npm run lint\`, but only \`gate\` blocks a merge.
+      - name: Token lint
+        run: npm run lint:tokens
       # Every part of the app says in one line what it is for, so the catalogue
       # (\`npm run ui:find\`) can offer it before someone builds it again.
       - name: Every part is described
@@ -1011,8 +1016,9 @@ UIG-6 as not done.
 ${title} is an Estiva app. Its parts, tokens and gates come from \`@estiva-app/ui\`.
 
 **Use the package's parts, never a raw element or a hand-built look.** The gate
-refuses a raw control, behaviour a part owns written by hand, and a part restyled
-through \`className\`, and names what to use instead. It runs before you write
+refuses code that reaches past the package, and each refusal names what to use
+instead. What it refuses is the package's to say, and grows with it: the
+\`estiva-ui\` skill lists it. It runs before you write
 (the hook in \`.claude/settings.json\`, for a session started in this folder), in
 \`npm run lint:rules\` and in CI. A session started elsewhere: run
 \`npm run lint:rules\` after changing \`src/\`, and fix what it reports. Keep something
