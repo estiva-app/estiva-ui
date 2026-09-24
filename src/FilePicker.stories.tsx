@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { Button } from './Button'
 import { FilePicker } from './FilePicker'
 import { IconButton } from './IconButton'
+import { EmptyState } from './EmptyState'
 
 const meta = {
   title: 'Inputs/FilePicker',
@@ -20,9 +21,12 @@ type Story = StoryObj<typeof meta>
 
 /** What was chosen, one line per pick, so choosing the same file twice shows twice. */
 function Picks({ picks }: { picks: string[] }) {
+  if (picks.length === 0) return <EmptyState scope="section" message="Nothing chosen yet." />
   return (
     <ul className="flex flex-col gap-1 text-body-2 text-text-secondary">
-      {picks.length === 0 ? <li>Nothing chosen yet.</li> : picks.map((pick, i) => <li key={i}>{pick}</li>)}
+      {picks.map((pick, i) => (
+        <li key={i}>{pick}</li>
+      ))}
     </ul>
   )
 }

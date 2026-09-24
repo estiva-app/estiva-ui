@@ -5,6 +5,7 @@ import { Popover } from './Popover'
 import { Reaction } from './Reaction'
 import { ReactionPicker, type ReactionOption } from './ReactionPicker'
 import { Toolbar, ToolbarButton } from './Toolbar'
+import { EmptyState } from './EmptyState'
 
 /**
  * The reactions on offer, to choose one from. **A `Reaction` is the answer;
@@ -98,7 +99,7 @@ export const AndWhatItProduces: Story = {
         />
         <div className="flex flex-wrap items-center gap-1.5">
           {mine.length === 0 ? (
-            <span className="text-caption text-text-muted">Nothing here yet.</span>
+            <EmptyState scope="section" message="Nothing here yet." />
           ) : (
             mine.map((emoji) => {
               const option = OPTIONS.find((o) => o.emoji === emoji)!
