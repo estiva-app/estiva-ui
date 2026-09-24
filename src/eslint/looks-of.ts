@@ -130,7 +130,14 @@ export function classUnits(source: ts.SourceFile, follow?: (name: string) => ts.
     }
     return false
   }
-  const add = (tokens: string[], node: ts.Node, via: ClassUnit['via'], anchor = node.getStart(source)) => {
+  // A string's escape is read above the line it starts: the widest thing that starts on that line.
+  const lineStart = (node: ts.Node) => {
+    const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line
+    let at = node
+    while (at.parent && !ts.isSourceFile(at.parent) && source.getLineAndCharacterOfPosition(at.parent.getStart(source)).line === line) at = at.parent
+    return at.getStart(source)
+  }
+  const add = (tokens: string[], node: ts.Node, via: ClassUnit['via'], anchor = via === 'literal' ? lineStart(node) : node.getStart(source)) => {
     const list = [...new Set(tokens.filter((t) => CLASSY.test(t)))]
     const look = list.filter((t) => !isPlacementWord(t))
     if (look.length === 0) return

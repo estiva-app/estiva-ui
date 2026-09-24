@@ -82,10 +82,10 @@ tester.run('no-copied-look', noCopiedLook, {
       errors: [{ messageId: 'usePart' }],
     },
     {
-      name: 'a card’s frame, through cn() and a const',
+      name: 'a card’s frame in a const, used through cn(): reported once, at the const',
       filename: app,
       code: `import { cn } from '@/lib/utils'\nconst FRAME = 'rounded-lg border border-border-default bg-bg-surface'\n${probe('<div className={cn(FRAME, "p-3")} />')}`,
-      errors: [{ messageId: 'usePart' }, { messageId: 'usePart' }],
+      errors: [{ messageId: 'usePart', line: 2 }],
     },
     {
       name: 'the app’s own part, typed again: covered because it is exported from src, with no list kept',

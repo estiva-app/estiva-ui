@@ -180,6 +180,9 @@ export const noCopiedLook: Rule.RuleModule = {
             if (shared && (!best || shared.length > best.shared.length || (shared.length === best.shared.length && look.from === 'shared'))) best = { look, shared }
           }
           if (!best) continue
+          // A className built from a constant of this file is reported once, at the constant.
+          const found = best
+          if (unit.via === 'attribute' && units.some((o) => o.via === 'literal' && !within(o) && found.shared.every((w) => o.look.includes(w)) && looks.some((l) => copies(o.look, l.look)))) continue
           const loc = { start: context.sourceCode.getLocFromIndex(unit.start), end: context.sourceCode.getLocFromIndex(unit.end) }
           const at = { start: context.sourceCode.getLocFromIndex(unit.anchor), end: loc.end }
           if (isEscaped(context, { loc: at, range: [unit.anchor, unit.end] })) continue
