@@ -20,6 +20,7 @@ import { createRequire } from 'node:module'
 import type { ESLint, Linter } from 'eslint'
 import { componentHasAPage, componentHasAStory } from './has-a-page-and-a-story'
 import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
+import { noHandmadeEmptyState } from './no-handmade-empty-state'
 import { noHandmadeHeader } from './no-handmade-header'
 import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
@@ -46,6 +47,7 @@ const appRules = {
   'no-rebuilt-behaviour': noRebuiltBehaviour,
   'no-restyled-part': noRestyledPart,
   'no-handmade-header': noHandmadeHeader,
+  'no-handmade-empty-state': noHandmadeEmptyState,
 }
 
 /**
@@ -60,8 +62,10 @@ const appRules = {
  * app's version, UIG-7), and an app has no `.mdx` pages at all. `index.test.ts` holds the
  * apps' list to exactly the app rules.
  *
- * One rule is in both sets: `no-restyled-part` (UIG-9). The package restyles
- * none of its own parts either (Katerina, 17 September).
+ * Three rules are in both sets: `no-restyled-part` (UIG-9), and the
+ * fingerprints `no-handmade-header` (UIG-22) and `no-handmade-empty-state`
+ * (UIG-23). The package restyles none of its own parts either (Katerina, 17
+ * September), and "my review isn't enough" (23 September).
  */
 const packageRules = {
   'raw-element-outside-a-wrapper': rawElementOutsideAWrapper,
@@ -70,6 +74,7 @@ const packageRules = {
   'component-has-a-story': componentHasAStory,
   'no-restyled-part': noRestyledPart,
   'no-handmade-header': noHandmadeHeader,
+  'no-handmade-empty-state': noHandmadeEmptyState,
 }
 
 const rules = { ...appRules, ...packageRules }
@@ -101,6 +106,7 @@ plugin.configs.recommended = {
     [`${PLUGIN_KEY}/no-rebuilt-behaviour`]: 'error',
     [`${PLUGIN_KEY}/no-restyled-part`]: 'error',
     [`${PLUGIN_KEY}/no-handmade-header`]: 'error',
+    [`${PLUGIN_KEY}/no-handmade-empty-state`]: 'error',
   },
 }
 plugin.configs.strict = {
