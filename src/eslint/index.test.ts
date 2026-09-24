@@ -40,6 +40,7 @@ describe('the plugin object', () => {
       'no-handmade-header',
       'no-handmade-empty-state',
       'no-native-title',
+      'no-copied-look',
       'raw-element-outside-a-wrapper',
       'no-hand-rolled-behaviour',
       'component-has-a-page',
@@ -57,11 +58,12 @@ describe('the plugin object', () => {
    * change it deliberately, here.
    */
   it('gives an app only the app rules, as errors, under estiva/', () => {
-    for (const config of [estiva.configs.recommended, estiva.configs.strict]) {
-      expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
-      expect(config.rules).toEqual({ 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error', 'estiva/no-restyled-part': 'error', 'estiva/no-handmade-header': 'error', 'estiva/no-handmade-empty-state': 'error', 'estiva/no-native-title': 'error' })
-    }
-    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title'])
+    const blocking = { 'estiva/no-raw-element': 'error', 'estiva/no-rebuilt-behaviour': 'error', 'estiva/no-restyled-part': 'error', 'estiva/no-handmade-header': 'error', 'estiva/no-handmade-empty-state': 'error', 'estiva/no-native-title': 'error' }
+    for (const config of [estiva.configs.recommended, estiva.configs.strict]) expect(config.plugins?.[PLUGIN_KEY]).toBe(estiva)
+    // The copied look warns in recommended (Katerina, 13 September), and strict makes it an error.
+    expect(estiva.configs.recommended.rules).toEqual({ ...blocking, 'estiva/no-copied-look': 'warn' })
+    expect(estiva.configs.strict.rules).toEqual({ ...blocking, 'estiva/no-copied-look': 'error' })
+    expect(APP_RULE_IDS).toEqual(['estiva/no-raw-element', 'estiva/no-rebuilt-behaviour', 'estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title', 'estiva/no-copied-look'])
   })
 
   /**
@@ -82,9 +84,10 @@ describe('the plugin object', () => {
       'estiva/no-handmade-header': 'error',
       'estiva/no-handmade-empty-state': 'error',
       'estiva/no-native-title': 'error',
+      'estiva/no-copied-look': 'warn',
     })
     expect(PACKAGE_RULE_IDS).toEqual(Object.keys(estiva.configs.package.rules ?? {}))
-    for (const id of PACKAGE_RULE_IDS.filter((id) => !['estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title'].includes(id))) {
+    for (const id of PACKAGE_RULE_IDS.filter((id) => !['estiva/no-restyled-part', 'estiva/no-handmade-header', 'estiva/no-handmade-empty-state', 'estiva/no-native-title', 'estiva/no-copied-look'].includes(id))) {
       expect(estiva.configs.recommended.rules?.[id]).toBeUndefined()
       expect(estiva.configs.strict.rules?.[id]).toBeUndefined()
     }
@@ -151,8 +154,8 @@ describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
     const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
     const none = { errors: 0, warnings: 0, escapes: 0 }
-    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none })
-    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none })
+    expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none, 'estiva/no-copied-look': none })
+    expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none, 'estiva/no-copied-look': none })
   })
 
   it('lists a report an eslint-disable silenced, and counts it as neither an error nor an escape', async () => {
@@ -176,6 +179,7 @@ describe('countGates', () => {
         'estiva/no-handmade-header': { errors: 0, warnings: 0, escapes: 0 },
         'estiva/no-handmade-empty-state': { errors: 0, warnings: 0, escapes: 0 },
         'estiva/no-native-title': { errors: 0, warnings: 0, escapes: 0 },
+        'estiva/no-copied-look': { errors: 0, warnings: 0, escapes: 0 },
       },
       disabled: [],
     })

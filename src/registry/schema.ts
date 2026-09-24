@@ -177,6 +177,14 @@ export interface RegistryEntry {
   docPage: string | null
   /** An app's part: its class and the evidence for it (UIG-13). `null` on the package's own entries. */
   app: AppFacts | null
+  /**
+   * What it looks like: each class list it writes, as its look words
+   * (colour, text, border, corner, shadow — never placement), those with four
+   * or more (UIG-25). What `estiva/no-copied-look` compares a hand-typed list
+   * against. Empty for a part that only places others; absent in a catalogue
+   * built before 0.34.0.
+   */
+  looks?: string[]
 }
 
 /** A name that is exported and deliberately not an entry. Empty today; the count still has to reconcile. */
@@ -329,6 +337,7 @@ export function validateRegistry(value: unknown): string[] {
     else for (const behaviour of entry.ownsBehaviours) {
       if (!isFilledString(behaviour?.id) || !isFilledString(behaviour?.behaviour)) fail(at('ownsBehaviours') + ' has a malformed entry')
     }
+    if (entry.looks !== undefined && !(Array.isArray(entry.looks) && entry.looks.every(isFilledString))) fail(at('looks') + ' is not a list of class lists')
     for (const key of ['docsId', 'storyId', 'docPage'] as const) {
       const held = entry[key]
       if (!(held === null || isFilledString(held))) fail(at(key) + ' is neither a string nor null')

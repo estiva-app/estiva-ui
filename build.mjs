@@ -47,7 +47,7 @@ await build({
   platform: 'node',
   target: 'node20',
   sourcemap: true,
-  external: ['eslint'],
+  external: ['eslint', 'typescript'],
   logLevel: 'warning',
 })
 

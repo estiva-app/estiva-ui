@@ -345,8 +345,12 @@ export default function define(h) {
       { what: "it never fires on an svg's <title>, and is tested on the Folders timestamp", run: () => h.contains("src/eslint/no-native-title.test.ts", /svg[\s\S]*3dc663b~1/, "the rule's tests hold the ticket's cases") },
       { what: "a title= is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe({ at }: { at: string }) {\n  return <span title={at}>{at}</span>\n}\n", expect: "error", mentions: "WithTooltip" }) },
     ] },
+    // UIG-25: a copied look warns, never blocks (Katerina, 13 September); the parts' looks travel in the catalogue.
     { ref: "UIG-25", owner: true, checks: [
-      { what: "a copied class list is a warning in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe() {\n  return <span className=\"text-[10px] uppercase tracking-wide text-text-muted\">Label</span>\n}\n", expect: "warning", mentions: "SectionLabel" }) },
+      { what: "the apps' gate carries no-copied-look, as a warning", run: () => h.contains("src/eslint/index.ts", /'no-copied-look': noCopiedLook[\s\S]*recommended[\s\S]*no-copied-look`\]: 'warn'/, "no-copied-look is an app rule, a warning in recommended") },
+      { what: "the catalogue carries each part's looks", run: () => h.contains("registry.json", /"name": "SectionLabel"[\s\S]*?"looks": \[\s*"text-h5/, "registry.json records SectionLabel's looks") },
+      { what: "it is tested on the package copying itself, a wrapper left alone, and a part added later", run: () => h.contains("src/eslint/no-copied-look.test.ts", /TextInput ≈ Textarea[\s\S]*a new part is covered the day it is added/, "the rule's tests hold the ticket's cases") },
+      { what: "a copied look is a warning in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe() {\n  return <span className=\"text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary\">Label</span>\n}\n", expect: "warning", mentions: "SectionLabel" }) },
     ] },
     { ref: "UIG-26", owner: true, checks: [] },
     { ref: "UIG-27", owner: true, checks: [

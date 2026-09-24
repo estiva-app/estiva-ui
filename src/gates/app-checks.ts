@@ -230,7 +230,7 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'a title= is an error naming WithTooltip', run: probe(`import { Button } from '@estiva-app/ui'\n${component('<Button title="Delete">x</Button>')}`, 'error', 'WithTooltip') },
     ]),
     ticket('UIG-25', [
-      { what: "SectionLabel's class list, typed by hand, is a warning", run: probe(component('<span className="text-[10px] uppercase tracking-wide text-text-muted">Label</span>'), 'warning', 'SectionLabel') },
+      { what: "SectionLabel's class list, typed by hand, is a warning", run: probe(component('<span className="text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary">Label</span>'), 'warning', 'SectionLabel') },
     ]),
     ticket('UIG-27', [
       { what: 'the installed package has Link', run: () => h.contains(installed, /\bLink\b/, 'the installed @estiva-app/ui exports Link') },
