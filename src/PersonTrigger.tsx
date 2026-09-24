@@ -60,6 +60,7 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
     )
   }
   return (
+    // @estiva-escape: N5 (Katerina, 24 September: record only): a row that fills on hover, as NavItem also does
     <BaseButton
       type="button"
       aria-haspopup="menu"

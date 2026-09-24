@@ -134,6 +134,7 @@ export function Card({
     )
   }
   return (
+    // @estiva-escape: N6 (Katerina, 24 September: leave alone): a card that cuts its content to its corners shares four words with the palette's window by coincidence
     <div className={classes} {...props}>
       {children}
     </div>

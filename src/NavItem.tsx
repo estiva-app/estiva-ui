@@ -28,6 +28,7 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
 
 export function NavItem({ label, href, count, countLabel, active = false, icon, className, ...props }: NavItemProps) {
   return (
+    // @estiva-escape: N5 (Katerina, 24 September: record only): a row that fills on hover, as PersonTrigger's row also does
     <a
       href={href}
       aria-current={active ? 'page' : undefined}

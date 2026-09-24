@@ -92,6 +92,7 @@ export function Button({
           size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
           size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
           !state.disabled && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+          // @estiva-escape: W2 (Katerina, 24 September: leave alone): an outlined button shares four words with Reaction's pill by coincidence
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
           !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
