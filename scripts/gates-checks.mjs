@@ -167,7 +167,7 @@ export default function define(h) {
     ] },
     { ref: "UIG-9", owner: true, checks: [
       // "Only those" held until UIG-22 added a fingerprint: the three come first, a fingerprint may follow.
-      { what: "the apps' rules are no-raw-element, no-rebuilt-behaviour and no-restyled-part, then the fingerprints", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*'no-restyled-part': noRestyledPart,\s*(?:'no-handmade-[a-z-]+': \w+,\s*)*\}/, "src/eslint/index.ts gives the apps the three rules, then the fingerprints") },
+      { what: "the apps' rules are no-raw-element, no-rebuilt-behaviour and no-restyled-part, then the fingerprints", run: () => h.contains("src/eslint/index.ts", /const appRules = \{\s*'no-raw-element': noRawElement,\s*'no-rebuilt-behaviour': noRebuiltBehaviour,\s*'no-restyled-part': noRestyledPart,\s*(?:'no-[a-z-]+': \w+,\s*)*\}/, "src/eslint/index.ts gives the apps the three rules, then the fingerprints") },
       { what: "the package runs no-restyled-part on itself too", run: () => h.contains("src/eslint/index.ts", /const packageRules = \{[^}]*'no-restyled-part': noRestyledPart,/, "src/eslint/index.ts puts no-restyled-part in the package's own set") },
       { what: "the look props and the placement list are exported, for UIG-12's registry", run: () => h.contains("src/eslint/index.ts", /export \{ PART_LOOK_PROPS, PLACEMENT \}/, "@estiva-app/ui/eslint exports PART_LOOK_PROPS and PLACEMENT") },
       { what: "a look passed into a part is an error naming the part", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"rounded-lg border\">x</Link>\n}\n", "error", "on `Link` changes how it looks") },
@@ -339,7 +339,12 @@ export default function define(h) {
       { what: "it is tested on the four Folders states, the two false alarms and the three open lines", run: () => h.contains("src/eslint/no-handmade-empty-state.test.ts", /7f22e5e~1[\s\S]*CommandLauncher\.tsx:1498[\s\S]*FolderContentsView\.tsx:101[\s\S]*ReadStatePanel\.tsx:65[\s\S]*CommandLauncher\.tsx:1514/, "the rule's tests hold the ticket's cases") },
       { what: "a hand-made empty line is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe({ items }: { items: string[] }) {\n  return <div>{items.length === 0 ? <p className=\"text-text-secondary\">Nothing here</p> : items.map((i) => <span key={i}>{i}</span>)}</div>\n}\n", expect: "error", mentions: "EmptyState" }) },
     ] },
-    { ref: "UIG-24", owner: true, checks: [] },
+    // UIG-24: the rule reads the attribute, never the page (src/eslint/no-native-title.test.ts).
+    { ref: "UIG-24", owner: true, checks: [
+      { what: "the apps' gate carries no-native-title", run: () => h.contains("src/eslint/index.ts", /'no-native-title': noNativeTitle[\s\S]*recommended[\s\S]*no-native-title`\]: 'error'/, "no-native-title is an app rule, on in recommended") },
+      { what: "it never fires on an svg's <title>, and is tested on the Folders timestamp", run: () => h.contains("src/eslint/no-native-title.test.ts", /svg[\s\S]*3dc663b~1/, "the rule's tests hold the ticket's cases") },
+      { what: "a title= is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe({ at }: { at: string }) {\n  return <span title={at}>{at}</span>\n}\n", expect: "error", mentions: "WithTooltip" }) },
+    ] },
     { ref: "UIG-25", owner: true, checks: [
       { what: "a copied class list is a warning in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe() {\n  return <span className=\"text-[10px] uppercase tracking-wide text-text-muted\">Label</span>\n}\n", expect: "warning", mentions: "SectionLabel" }) },
     ] },
