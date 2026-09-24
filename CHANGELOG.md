@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.33.0 — 2026-09-24 — UIG-24: the browser's tooltip is refused
+
+### Added
+
+- **`estiva/no-native-title`**, in `recommended` and in the package's own set.
+  It refuses a `title` attribute — the browser's grey hover box — and names
+  `WithTooltip` and its page. It fires on a plain element, and on a part of the
+  package (or an app's wrapper of one) that hands `title` on to its element, as
+  `<Button title>` does. It passes the parts whose `title` is their own heading
+  (`PARTS_WITH_A_TITLE`, held to the catalogue by a test), an `<svg>`'s
+  `<title>` element, the app's own components, and a story's `title`. Over the
+  three repos it finds none today; on older commits it finds the Folders
+  conversation's timestamp (peek `3dc663b~1`) and the six `Reference` titles
+  UIG-14 converted.
+- `PARTS_WITH_A_TITLE` is exported from `@estiva-app/ui/eslint`.
+
+### Changed
+
+- `gates:status`: UIG-9's check lets any fingerprint rule follow the three app
+  rules, not only `no-handmade-*`; UIG-24 checks the rule, its cases, and the
+  package.
+
+### What an app does
+
+Take this release. The gate count gains `estiva/no-native-title`. A `title` on
+an element becomes `WithTooltip` (or `IconButton`'s `tooltip`), or keeps an
+escape with its reason.
+
 ## 0.32.0 — 2026-09-24 — UIG-23: a hand-made empty state is refused
 
 ### Added
