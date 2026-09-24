@@ -64,7 +64,7 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. There are five:
+instead. There are six:
 
 - `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
   `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
@@ -90,6 +90,11 @@ instead. There are five:
   `ScrollArea` whose content is only as tall as what is in it, where it sits at
   the top instead of the middle, following the app's own components into their
   files to find one.
+- `estiva/no-native-title` refuses a `title` attribute, the browser's own
+  tooltip, and names `WithTooltip`. It fires on a plain element and on a part
+  that hands `title` on to its element (`<Button title>`); a part whose
+  `title` is its own heading (`PARTS_WITH_A_TITLE`) and an `<svg>`'s `<title>`
+  element pass.
 
 ```js
 // eslint.config.js — alongside your own rules
