@@ -64,7 +64,7 @@ export default {
 
 The UI Guardrails' rules ship with the package, as an ESLint plugin, so an app
 gets a new rule with a version bump. Each rule names the component to use
-instead. There are six:
+instead. There are seven — six block, one warns:
 
 - `estiva/no-raw-element` refuses a raw interactive element (`<a>`, `<input>`,
   `<form>`, `<dialog>`…) and names the part to use, or says the package has none yet.
@@ -95,6 +95,13 @@ instead. There are six:
   that hands `title` on to its element (`<Button title>`); a part whose
   `title` is its own heading (`PARTS_WITH_A_TITLE`) and an `<svg>`'s `<title>`
   element pass.
+- `estiva/no-copied-look` **warns, never blocks**: a class list that is a
+  part's look typed again — four or more look words (colour, text, border,
+  corner, shadow; never placement) covering 80% of the shorter list. In an app
+  it compares against the package's parts, whose looks travel in
+  `registry.json`, and the app's own exported components; the fix is to use
+  the part. In the package the fix is to write the look once in `src/looks.ts`.
+  A look written once as an exported `…_CLASSES` constant counts as a look too.
 
 ```js
 // eslint.config.js — alongside your own rules
