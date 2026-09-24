@@ -32,3 +32,16 @@ export const HeadingAList: Story = {
 
 /** `tone="secondary"`: a heading inside a menu or a list of results labels the rows, it is not one of them. */
 export const Secondary: Story = { args: { tone: 'secondary', children: 'Section' } }
+
+/** `tone="muted"`: a label that marks a place in a list rather than heading it, a date between messages. */
+export const Muted: Story = { args: { tone: 'muted', children: 'Yesterday' } }
+
+/** `truncate`: a long label in a narrow row ends in an ellipsis instead of spilling. */
+export const Truncated: Story = {
+  args: { truncate: true, children: 'Promoted to a topic whose title is far longer than its row' },
+  render: (args) => (
+    <div className="flex w-48">
+      <SectionLabel {...args} />
+    </div>
+  ),
+}
