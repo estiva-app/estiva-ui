@@ -1,5 +1,45 @@
 # Changelog
 
+## 0.35.0 — 2026-09-25 — the gates, fixed after the audit before UIG-26
+
+An audit of the UI Guardrails against the plan they were built from found five
+things broken and two gaps in what a new app gets (docs/GATES.md, the audit).
+
+### Added
+
+- **`estiva-ui check` holds an app's map of its Storybook against it.** The
+  heading order in `.storybook/preview.tsx` (`const HEADINGS`) must name every
+  top-level heading and nothing else; the Introduction page
+  (`src/stories/Introduction.mdx`) must name exactly the sidebar's headings in its
+  table, and its "**N parts worth reusing**" must be the catalogue's count. Each
+  runs only when the app keeps that map. Moved from Peek's own status checks,
+  which ran only in `gates:status` and read a gitignored `registry.json`.
+- **`gates:status` says how far each checkout is behind main**, after fetching
+  it: a copy seven commits behind once reported a finished ticket as not started.
+
+### Changed
+
+- **The editor hook fails closed.** A gate that cannot run — no ESLint in the
+  app's install, a config that does not load — refuses the write with exit 2 and
+  asks for `npm ci`. It used to crash with exit 1, which Claude Code lets through.
+- **`gates:status` runs the committed hook** on a raw `<button>`, as Claude Code
+  would, and passes only on exit 2. It used to pass any command containing
+  "gates", so a hook pointed at a missing install read as done.
+- **A made app's `gate` job runs the token lint**, as Peek's and Ship's do; it ran
+  only in `check`, which no merge requires. Its `CLAUDE.md` points at the skill
+  for what the gate refuses, instead of listing three of the rules.
+- **Ship is read at the top of its repository** (PER-19 moved it out of `web/`):
+  `gates:status`, `gates:compare`, and this repository's rules and skills.
+
+### What an app does
+
+Take this release, and run `npm ci` in the repository's top folder. Then:
+
+- **Peek:** fix `src/stories/Introduction.mdx` (the count, and the Huddles row)
+  and the Huddles entry in `.storybook/preview.tsx`'s `HEADINGS`, or `gate` fails;
+  delete the three checks this release takes over from `scripts/gates-checks.mjs`.
+- **Ship:** nothing more.
+
 ## 0.34.0 — 2026-09-24 — UIG-25: a look copied by hand is warned about
 
 ### Added
