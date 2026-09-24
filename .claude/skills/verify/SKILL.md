@@ -29,7 +29,7 @@ Every non-empty diff gets a measurement, not a guess: Checkbox's 1px came from a
 ## 2. Link the package into the apps
 
 1. `npm run build` here.
-2. `npm install <this repository's folder> --no-save` (`K:/Estiva/estiva-ui`, or the worktree you built in) in `../peek` and `../ship/web`. `git status` in the app stays clean.
+2. `npm install <this repository's folder> --no-save` (`K:/Estiva/estiva-ui`, or the worktree you built in) in `../peek` and `../ship`. `git status` in the app stays clean.
 3. Stop and restart the app's Storybook.
 4. Photograph the app's stories that reach the change (step 1 above), before (on the published package, on the checkout as it is now) and after. Diff, explain.
 5. **Restore**: stop every Storybook and Vite server in that checkout, then `npm ci`, then start them again. A running server holds a native binary open and `npm ci` dies half-way (the `estiva-ui` skill, Gotcha 22).

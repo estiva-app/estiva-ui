@@ -5,7 +5,7 @@
  *   estiva-gates status              one row per ticket
  *   estiva-gates status --detail     every check under every row
  *   estiva-gates status --json       machine output, read by estiva-ui's run
- *   estiva-gates status --app web    the app sits in `web/`, as Ship's does
+ *   estiva-gates status --app web    the app sits in `web/` (Ship's did, until PER-19)
  *
  * Every row is decided by checks on real files, a real lint run or a real
  * GitHub setting. Nothing here reads a list that someone ticks by hand.
@@ -19,8 +19,8 @@
  *
  * What differs per repo is `scripts/gates-checks.mjs`, beside the app: its
  * checks, or the checks every app runs (`appChecks`) plus its own. It sits with
- * the app because it imports the package — `web/scripts/` in Ship, whose app,
- * and whose install, are in `web/` (UIG-32).
+ * the app because it imports the package: in an app that sits in a folder of
+ * its own, the checks file sits there too (UIG-32).
  *
  * The rows and the reasons for each check are in estiva-ui docs/GATES.md §15
  * and §17.
@@ -36,7 +36,7 @@ export type CheckResult = { result: 'pass' | 'fail' | 'part' | 'unknown'; detail
 type Maybe<T> = T | Promise<T>
 
 export interface LintProbe {
-  /** The folder ESLint runs from, relative to the repo: `web` in Ship. */
+  /** The folder ESLint runs from, relative to the repo: `.` unless the app sits in a folder of its own. */
   cwd?: string
   /** The config file, relative to `cwd`. */
   config: string
@@ -106,7 +106,7 @@ export interface GateSpec {
   tickets: GateTicket[]
   /** estiva-ui only: every ticket, and the repos it joins in. */
   all?: TicketListEntry[]
-  /** estiva-ui only: the repos beside it. `app` is the folder its app sits in: `web` in Ship. */
+  /** estiva-ui only: the repos beside it. `app` is the folder its app sits in, when not the top. */
   siblings?: { name: string; path: string; env: string; app?: string }[]
 }
 
@@ -418,8 +418,8 @@ function statusOf(checks: CheckResult[]) {
 
 async function runRepo(ROOT: string, app: string, h: GateHelpers): Promise<{ spec: GateSpec; report: Report }> {
   // The checks file sits with the app, because it imports `appChecks` from the
-  // package: in Ship that install is `web/node_modules`, not the repo's top
-  // folder (UIG-32). Everything it names is still read from the repo's top.
+  // package: for an app in a folder of its own, that install is there, not in
+  // the repo's top folder (UIG-32). Everything it names is still read from the top.
   const checksFile = join(ROOT, app, 'scripts', 'gates-checks.mjs')
   const define = ((await import(pathToFileURL(checksFile).href)) as { default: (h: GateHelpers) => GateSpec }).default
   const spec = define(h)
@@ -452,7 +452,7 @@ async function runRepo(ROOT: string, app: string, h: GateHelpers): Promise<{ spe
  * Another repository's report. A repo on the package's engine runs it from its
  * own install; a repo still carrying `scripts/gates-status.mjs` runs that copy.
  *
- * `app` is the folder that repo's app sits in — `web` in Ship — where its
+ * `app` is the folder that repo's app sits in, when not the top, where its
  * install and its checks file are. The report is still of the whole repo.
  */
 function runSibling(dir: string, app: string, shown: string): { report?: Report; error?: string } {
@@ -509,7 +509,7 @@ function summary(rows: Row[]) {
 export interface StatusOptions {
   /** The repository to report on. */
   root?: string
-  /** The folder that holds the app, relative to `root`: `web` in Ship, `.` elsewhere. */
+  /** The folder that holds the app, relative to `root`: `.` unless it sits in a folder of its own. */
   app?: string
   json?: boolean
   detail?: boolean

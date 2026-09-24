@@ -13,7 +13,8 @@
  *   node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook
  *
  * A repo whose app sits in a folder of its own runs both by path, from the
- * repo's top folder, and says where the app is — Ship (UIG-32):
+ * repo's top folder, and says where the app is (Ship did, from UIG-32 until
+ * PER-19 moved its app to the top folder):
  *
  *   node "$CLAUDE_PROJECT_DIR/web/node_modules/@estiva-app/ui/dist/gates/cli.js" hook --app web
  *   node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web

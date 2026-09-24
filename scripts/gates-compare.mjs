@@ -9,8 +9,7 @@
  * Nothing is run. Each checks file is loaded with a recording set of helpers,
  * every check is run against it, and what the check *does* is written down:
  * which helper, with which arguments — the probe's code, its config, its path.
- * Ship's app is in `web/`; its paths are read without that prefix. Each app's
- * real page is read as `<page>`.
+ * Each app's real page is read as `<page>`.
  *
  * Every check of Peek's and Ship's then lands in exactly one group, or this
  * fails and names it:
@@ -147,11 +146,10 @@ function ownPaths(check) {
 }
 
 const peek = await loadRepo('peek', 'GATES_PEEK', '../peek')
-// Ship's checks file sits with its app, because it imports the package (UIG-32).
-const ship = await loadRepo('ship', 'GATES_SHIP', '../ship', 'web/')
+const ship = await loadRepo('ship', 'GATES_SHIP', '../ship')
 const sources = [
   { ...peek, strip: '', has: (p) => gitHas(peek.repo, p) },
-  { ...ship, strip: 'web/', has: (p) => gitHas(ship.repo, p) || gitHas(ship.repo, `web/${p}`) },
+  { ...ship, strip: '', has: (p) => gitHas(ship.repo, p) },
 ]
 const app = await record((h) => ({ repo: 'app', tickets: appChecks(h, { page: APP_PAGE }) }), { has: () => false })
 

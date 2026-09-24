@@ -23,7 +23,7 @@
 import type { CheckResult, GateCheck, GateHelpers, GateTicket } from './status'
 
 export interface AppCheckOptions {
-  /** Where the app is inside the repository: `web` in Ship, `.` elsewhere. */
+  /** Where the app is inside the repository: `.` unless it sits in a folder of its own. */
   app?: string
   /** A real page of the app, relative to the app, full of elements that are not controls. */
   page: string

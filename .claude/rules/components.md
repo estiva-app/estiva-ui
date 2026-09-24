@@ -12,7 +12,7 @@ A port has its own steps: the `port` skill.
 ## Before you write
 
 - **Check Base UI first.** If Base UI has a part for it (its list is on base-ui.com/react/components), the component is built on that part. There is no "ours already works" argument; that was ruled on 2026-09-06. The only exception is a counterpart that would break the component's logic outright, and that is written into the docs page when met, never assumed.
-- **Grep the two apps for every caller** before changing a prop: `grep -rn "<ComponentName" ../peek/src ../ship/web/src`. A prop's name and type are frozen during a port; additions are allowed, renames are a breaking change and name every caller in the changelog.
+- **Grep the two apps for every caller** before changing a prop: `grep -rn "<ComponentName" ../peek/src ../ship/src`. A prop's name and type are frozen during a port; additions are allowed, renames are a breaking change and name every caller in the changelog.
 
 ## Writing it
 

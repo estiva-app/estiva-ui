@@ -17,7 +17,7 @@ The rules it relies on are in `.claude/rules/components.md` and `.claude/rules/s
 
 1. **Read Base UI's part.** `node_modules/@base-ui/react/tabs/*/*.d.ts` and the `.js` beside it: Root, List, Tab, Panel, Indicator; what each renders, which data attributes it sets, what `onValueChange` reports and when. Read shadcn's Base UI file for its structure (Root > List > Tab), keep nothing else.
 2. **Read ours in full**: `src/Tabs.tsx`, `Tabs.stories.tsx`, `Tabs.mdx`. Note the class list, the props, and what the page says it lacks ("no arrow-key roving").
-3. **Grep the callers**: `grep -rn "<Tabs" ../peek/src ../ship/web/src` — four callers and one test. Note what each passes (`className`: nobody).
+3. **Grep the callers**: `grep -rn "<Tabs" ../peek/src ../ship/src` — four callers and one test. Note what each passes (`className`: nobody).
 4. **Write it.** Root carries the caller's `className` and the controlled `value`/`onValueChange`; List carries the row's classes; Tab carries the old class list, keyed to Base UI's state through `className={(state) => cn(...)}` — the ternary that read `active === tab.id` now reads `state.active`. Sizes spelled in pixels become the type tokens.
 5. **Pin the page's claims in a test** (`Tabs.test.tsx`: jsdom, Testing Library, user-event; plain matchers, this package has no jest-dom). The Keys table is written from the tests, after they pass.
 6. **Update the page**, in the order `src/pages.test.ts` checks: How, then What it owns, then the Keys table, then Props.
