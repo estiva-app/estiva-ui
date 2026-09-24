@@ -182,7 +182,16 @@ describe('a made app, under the checks every app runs', () => {
     git('add', '-A')
     git('commit', '-q', '-m', 'made by create-estiva-app')
     const real = helpers(dir)
-    const h: GateHelpers = { ...real, protectedBranch: () => real.UNKNOWN('a rule on GitHub'), gh: () => real.UNKNOWN('a question for GitHub') }
+    // "The installed package exports Link" reads its declarations, which CI's
+    // test step does not build (`pretest` bundles only): the same exports are read
+    // from their source when the declarations are not there.
+    const exportsFrom = (rel: string) => (rel.endsWith('dist/index.d.ts') && !real.exists(rel) ? join(process.cwd(), 'src', 'index.ts') : rel)
+    const h: GateHelpers = {
+      ...real,
+      contains: (rel, needle, label) => real.contains(exportsFrom(rel), needle, label),
+      protectedBranch: () => real.UNKNOWN('a rule on GitHub'),
+      gh: () => real.UNKNOWN('a question for GitHub'),
+    }
     const failed: string[] = []
     for (const ticket of appChecks(h, { page: 'src/pages/HomePage.tsx' })) {
       for (const check of ticket.checks) {
