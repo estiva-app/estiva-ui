@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Toggle } from '@base-ui/react/toggle'
 import { cn } from './cn'
+import { CHIP_TEXT_CLASSES } from './looks'
 
 /**
  * A reaction: an emoji, how many people chose it, and whether you are one of
@@ -94,7 +95,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
           The old note said it must NEVER be merged; that stopped being true
           when `cn()` was taught the ramp — `chip` is in it, and `cn.test.ts`
           pins that. */}
-      <span className="text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums">
+      <span className={CHIP_TEXT_CLASSES}>
         {count}
       </span>
     </Toggle>

@@ -5,6 +5,7 @@ import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
 import { MenuPanel, menuItemClassName } from './Menu'
 import { TooltipTrigger } from './Tooltip'
+import { FIELD_DISABLED_CLASSES, FIELD_SIZE_CLASSES, FIELD_TEXT_CLASSES } from './looks'
 
 /**
  * Peek's Select (2026-08-28), verbatim, plus what Ship added: an option may
@@ -87,17 +88,17 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
            * the cap. Full-width callers are unaffected.
            */
           'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-inset text-left',
-          'border-border-default text-text-primary outline-none transition-colors',
+          'border-border-default outline-none transition-colors',
+          FIELD_TEXT_CLASSES,
           // The focused border survives a hover: hover alone strengthens the
           // hairline, but hover while focused must not grey the focus colour —
           // the stacked variant outranks plain hover by specificity.
           !held && 'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus',
-          'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled',
+          FIELD_DISABLED_CLASSES,
           held && 'cursor-not-allowed bg-bg-disabled text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
           'signal:transition-shadow signal:focus-visible:shadow-focus-ring',
-          size === 'default' && 'px-3 py-2 text-input-value',
-          size === 'small' && 'h-6 min-h-6 px-2 text-caption',
+          FIELD_SIZE_CLASSES[size],
           className,
         )}
       >

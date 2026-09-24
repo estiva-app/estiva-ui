@@ -2,6 +2,7 @@ import type { ComponentPropsWithRef, ReactElement, ReactNode } from 'react'
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
+import { FLOATING_SURFACE_CLASSES } from './looks'
 
 /**
  * Peek's Tooltip and WithTooltip (2026-08-28) — the same 30px elevated pill,
@@ -72,7 +73,7 @@ export interface TooltipProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
  */
 export function Tooltip({ label, shortcut, className, ...props }: TooltipProps) {
   return (
-    <div role="tooltip" className={cn('bg-bg-elevated border border-border-default rounded-lg min-h-[30px] max-w-80 flex items-center justify-center gap-1.5 px-2 py-1 shadow-lg', className)} {...props}>
+    <div role="tooltip" className={cn(FLOATING_SURFACE_CLASSES, 'min-h-[30px] max-w-80 flex items-center justify-center gap-1.5 px-2 py-1', className)} {...props}>
       <span className="min-w-0 text-caption text-text-primary break-words">{label}</span>
       {shortcut && <Kbd>{shortcut}</Kbd>}
     </div>

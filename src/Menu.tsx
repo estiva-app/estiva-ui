@@ -7,6 +7,7 @@ import { triggerDisabled } from './triggerDisabled'
 import { ScrollArea } from './ScrollArea'
 import { Kbd } from './Kbd'
 import { SectionLabel } from './SectionLabel'
+import { FLOATING_SURFACE_CLASSES } from './looks'
 
 /**
  * THE menu shell (2026-09-01) — extracted once, for every menu in every app.
@@ -94,7 +95,8 @@ export function MenuPanel({ children, className, ...props }: MenuPanelProps) {
   return (
     <div
       className={cn(
-        'flex flex-col rounded-lg border border-border-default bg-bg-elevated p-2 shadow-lg',
+        'flex flex-col p-2',
+        FLOATING_SURFACE_CLASSES,
         /*
          * A divider in a menu runs the width of the rows it separates.
          *
