@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Card } from './Card'
 import { ScrollArea } from './ScrollArea'
 
 /** A region that scrolls without taking width for its scrollbar. */
@@ -17,7 +18,7 @@ const rows = Array.from({ length: 40 }, (_, i) => `Row ${i + 1}`)
 /** A list taller than its box. The bar shows while the pointer is over it or the list is moving. */
 export const Default: Story = {
   render: () => (
-    <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="h-[240px] w-[280px]">
     <ScrollArea className="h-full" contentClassName="p-2">
       <ul className="flex flex-col gap-px">
         {rows.map((row) => (
@@ -27,14 +28,14 @@ export const Default: Story = {
         ))}
       </ul>
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }
 
 /** Rows that stick to the top as the list moves under them. The bar stays above them. */
 export const StickyHeadings: Story = {
   render: () => (
-    <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="h-[240px] w-[280px]">
     <ScrollArea className="h-full">
       {['Group one', 'Group two'].map((group) => (
         <div key={group} className="flex flex-col">
@@ -47,14 +48,14 @@ export const StickyHeadings: Story = {
         </div>
       ))}
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }
 
 /** Nothing to scroll: the region draws exactly as a plain box would, and no bar. */
 export const Fits: Story = {
   render: () => (
-    <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="h-[240px] w-[280px]">
     <ScrollArea className="h-full" contentClassName="p-2">
       <ul className="flex flex-col gap-px">
         {rows.slice(0, 4).map((row) => (
@@ -64,14 +65,14 @@ export const Fits: Story = {
         ))}
       </ul>
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }
 
 /** A row wider than its box — a table, a board. */
 export const Horizontal: Story = {
   render: () => (
-    <div className="w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="w-[280px]">
     <ScrollArea orientation="horizontal" contentClassName="p-2">
       <div className="flex w-max gap-2">
         {rows.slice(0, 12).map((row) => (
@@ -81,14 +82,14 @@ export const Horizontal: Story = {
         ))}
       </div>
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }
 
 /** Both ways, with the corner where the two bars would meet. */
 export const Both: Story = {
   render: () => (
-    <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="h-[240px] w-[280px]">
     <ScrollArea orientation="both" className="h-full" contentClassName="p-2">
       <div className="flex w-max flex-col gap-px">
         {rows.map((row) => (
@@ -98,14 +99,14 @@ export const Both: Story = {
         ))}
       </div>
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }
 
 /** A sideways region inside a scrolling page — a table in a content column. A wheel down over it moves the page; a swipe sideways moves the region. */
 export const SidewaysInsideAPage: Story = {
   render: () => (
-    <div className="h-[240px] w-[280px] rounded-lg border border-border-default bg-bg-surface">
+    <Card className="h-[240px] w-[280px]">
     <ScrollArea className="h-full" contentClassName="p-2">
       <div className="flex flex-col gap-px">
         {rows.slice(0, 3).map((row) => (
@@ -131,6 +132,6 @@ export const SidewaysInsideAPage: Story = {
         ))}
       </div>
     </ScrollArea>
-    </div>
+    </Card>
   ),
 }

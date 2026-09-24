@@ -2,9 +2,10 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react-vite'
 import { IconEdit, IconSortDescending, IconX } from '@tabler/icons-react'
 import { ContainerHeader } from './ContainerHeader'
 import { IconButton } from './IconButton'
+import { Card } from './Card'
 
 // The top of a column: a surface with a hairline, so the bar's own hairline and height can be seen.
-const inColumn: Decorator = (Story) => <div className="w-96 overflow-hidden rounded-lg border border-border-default bg-bg-surface">{Story()}</div>
+const inColumn: Decorator = (Story) => <Card clip className="w-96">{Story()}</Card>
 
 const meta = {
   title: 'Navigation/ContainerHeader',

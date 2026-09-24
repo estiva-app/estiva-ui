@@ -6,6 +6,7 @@ import { Reaction } from './Reaction'
 import { ReactionPicker, type ReactionOption } from './ReactionPicker'
 import { Toolbar, ToolbarButton } from './Toolbar'
 import { EmptyState } from './EmptyState'
+import { Card } from './Card'
 
 /**
  * The reactions on offer, to choose one from. **A `Reaction` is the answer;
@@ -52,9 +53,9 @@ export const FromATrigger: Story = {
     const [chosen, setChosen] = useState<string | null>(null)
     return (
       <div className="flex w-[420px] flex-col items-end gap-3">
-        <div className="w-full rounded-lg border border-border-default bg-bg-surface p-3 text-body-2 text-text-primary">
+        <Card className="w-full p-3"><div className="text-body-2 text-text-primary">
           A card. Its actions sit at the corner, and the picker opens above them.
-        </div>
+        </div></Card>
         <Toolbar aria-label="Card actions">
           <ToolbarButton aria-label="Reply" tooltip="Reply">
             <IconMessage2 size={16} stroke={1.5} />

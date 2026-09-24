@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Link } from './Link'
+import { Card } from './Card'
 
 const meta = {
   title: 'Navigation/Link',
@@ -52,9 +53,9 @@ export const Plain: Story = {
   args: { variant: 'plain', children: undefined },
   render: (args) => (
     <Link {...args} className="block w-[280px]">
-      <div className="rounded-lg border border-border-default bg-bg-surface p-3 text-body-2 text-text-primary transition-colors hover:border-border-strong">
+      <Card hover="hairline" className="p-3"><div className="text-body-2 text-text-primary">
         Item one
-      </div>
+      </div></Card>
     </Link>
   ),
 }
@@ -92,9 +93,9 @@ export const AllVariants: Story = {
       <div className="flex flex-col gap-1">
         <span className="text-body-2 text-text-secondary">plain —</span>
         <Link href="#" variant="plain" className="block w-[280px]">
-          <div className="rounded-lg border border-border-default bg-bg-surface p-3 text-body-2 text-text-primary transition-colors hover:border-border-strong">
+          <Card hover="hairline" className="p-3"><div className="text-body-2 text-text-primary">
             Item one
-          </div>
+          </div></Card>
         </Link>
       </div>
     </div>
