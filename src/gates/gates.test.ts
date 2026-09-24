@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -6,7 +7,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { writeGateCount } from './count'
 import { gateConfig, gateLint } from './gate-config'
 import { runHook } from './hook'
-import { helpers, runStatus } from './status'
+import { behindMain, helpers, runStatus } from './status'
 import { tokenConfig, tokenLint, tokenValues } from './token-lint'
 
 /**
@@ -233,8 +234,40 @@ describe('gates:status', () => {
     const h = helpers(dir)
     expect(h.ciJob('gate', 'lint:rules').result).toBe('pass')
     expect(h.ciJob('check', 'lint:rules').result).toBe('fail')
-    expect(h.hook('.claude/settings.json', 'gates').result).toBe('pass')
     expect(h.script('package.json', 'gates:status').result).toBe('pass')
+  })
+
+  // Audit A2: a hook is judged by running it, the way Claude Code does, on a raw
+  // <button>. Only exit 2 blocks a write; a hook that cannot run exits 1, and
+  // the write goes through.
+  it('runs the committed hook and passes only when it refuses the write', () => {
+    const settings = (matcher: string, command: string) => ({ '.claude/settings.json': JSON.stringify({ hooks: { PreToolUse: [{ matcher, hooks: [{ type: 'command', command }] }] } }) })
+    const refuses = 'node -e "process.exit(2)" -- gates'
+    expect(helpers(app('hook-refuses', settings('Edit|Write', refuses))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'pass' })
+    const broken = helpers(app('hook-broken', settings('Edit|Write', 'node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook'))).hook('.claude/settings.json', 'gates')
+    expect(broken).toMatchObject({ result: 'fail', detail: expect.stringContaining('let a raw <button> through (exit 1)') })
+    expect(helpers(app('hook-waves', settings('Edit|Write', 'node -e "process.exit(0)" -- gates'))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'fail' })
+    expect(helpers(app('hook-never', settings('Read', refuses))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'fail', detail: expect.stringContaining('never for a Write') })
+    // The hook is handed the real project folder, as Claude Code hands it.
+    const seen = 'node -e "process.exit(String(process.env.CLAUDE_PROJECT_DIR).endsWith(process.argv[1]) ? 2 : 1)" hook-dir gates'
+    expect(helpers(app('hook-dir', settings('Edit|Write', seen))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'pass' })
+  })
+
+  // Audit A4: a checkout seven commits behind reported a finished ticket as not started.
+  it('says how far a checkout is behind main, after fetching it', () => {
+    const base = app('behind', {})
+    const git = (cwd: string, ...a: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd, stdio: 'pipe' }).toString().trim()
+    git(base, 'init', '-q', '--bare', '-b', 'main', 'origin.git')
+    git(base, 'clone', '-q', 'origin.git', 'writer')
+    const writer = join(base, 'writer')
+    git(writer, 'commit', '-q', '--allow-empty', '-m', 'one')
+    git(writer, 'push', '-q', 'origin', 'HEAD:main')
+    git(base, 'clone', '-q', 'origin.git', 'reader')
+    const reader = join(base, 'reader')
+    expect(behindMain(reader)).toBe('')
+    git(writer, 'commit', '-q', '--allow-empty', '-m', 'two')
+    git(writer, 'push', '-q', 'origin', 'HEAD:main')
+    expect(behindMain(reader)).toContain('1 commit behind origin/main')
   })
 
   it('counts what loads into every session, imports included, and refuses a rule file with no paths (UIG-21)', () => {
