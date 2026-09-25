@@ -147,7 +147,7 @@ describe('tokenConfig', () => {
 describe('writeGateCount', () => {
   it('writes the count once, leaves it alone when nothing changed, and fails on a rule switched off', async () => {
     const dir = app('count', {
-      'src/Kept.tsx': component('(\n    // @estiva-escape: a probe that keeps its element on purpose\n    <form />\n  )'),
+      'src/Kept.tsx': component('(\n    // @estiva-escape(no-raw-element): a probe that keeps its element on purpose\n    <form />\n  )'),
     })
     const first = await writeGateCount({ root: dir, repo: 'probe' })
     expect(first.changed).toBe(true)
@@ -180,6 +180,29 @@ describe('runHook', () => {
     expect((await runHook({ root: dir, input: edit })).code).toBe(2)
     const fine = { tool_name: 'Edit', tool_input: { file_path: 'src/Page.tsx', old_string: '<div>x</div>', new_string: '<div>y</div>' } }
     expect((await runHook({ root: dir, input: fine })).code).toBe(0)
+  })
+
+  // B4 (Katerina, 25 September): the token contract is refused before the write, not only in CI.
+  it('refuses a hand-written size and a raw colour before the write, naming the token', async () => {
+    const result = await runHook({ root: dir, input: write('src/Probe.tsx', component('<div className="text-[13px] bg-[#ff0000]">x</div>')) })
+    expect(result.code).toBe(2)
+    expect(result.message).toContain('token-values/no-restricted-classes')
+  })
+
+  // R10: a copied look only warns, so the write goes through, with a note Claude sees.
+  it('lets a copied look through with a note, and no note when nothing is copied', async () => {
+    const own = app('hook-copied', {
+      // An app's Tailwind config, on the package preset: the token lint knows its classes from it.
+      'tailwind.config.js': `import estiva from '${pathToFileURL(join(root, 'tailwind-preset.js')).href}'\nexport default { presets: [estiva], content: ['./src/**/*.tsx'] }\n`,
+      'src/Badge.tsx': '/** A badge. */\nexport function Badge() {\n  return <span className="inline-flex items-center rounded-md border border-border-default bg-bg-elevated px-2 text-caption text-text-secondary">x</span>\n}\n',
+      // Already there, so the write is an edit of a part, not a new one the search stops.
+      'src/Probe.tsx': component('<span>y</span>'),
+    })
+    const copied = await runHook({ root: own, input: write('src/Probe.tsx', component('<span className="inline-flex items-center rounded-md border border-border-default bg-bg-elevated px-2 text-caption text-text-secondary">y</span>')) })
+    expect(copied.code).toBe(0)
+    expect(copied.note).toContain('Badge')
+    const plain = await runHook({ root: own, input: write('src/Probe.tsx', component('<span className="mt-2">y</span>')) })
+    expect(plain).toEqual({ code: 0, message: '' })
   })
 
   // The re-review after the audit before UIG-26: only .ts and .tsx were read, so these passed.
