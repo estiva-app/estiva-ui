@@ -31,6 +31,7 @@ import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { ESLint as ESLintClass } from 'eslint'
+import { escapeLines, listEscapes } from './escapes'
 
 export type CheckResult = { result: 'pass' | 'fail' | 'part' | 'unknown'; detail: string }
 type Maybe<T> = T | Promise<T>
@@ -560,10 +561,12 @@ export interface StatusOptions {
   app?: string
   json?: boolean
   detail?: boolean
+  /** List every escape, not only those due for review (B1). */
+  escapes?: boolean
 }
 
 /** Print where the project stands. Returns what was printed, or the JSON report. */
-export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false }: StatusOptions = {}): Promise<string> {
+export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false, escapes = false }: StatusOptions = {}): Promise<string> {
   const ROOT = resolve(root)
   const h = helpers(ROOT)
   const shown = (dir: string) => (relative(ROOT, dir) || dir).replace(/\\/g, '/')
@@ -574,6 +577,8 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
   const out: string[] = []
   out.push('UI Guardrails · gates:status', 'Read from the code. Nothing here is a hand-ticked list.', '')
   out.push(`${pad(spec.repo, 10)} ${report.branch} @ ${report.commit}${behindMain(ROOT)}`)
+  // Every escape, listed and aged (Katerina's rulings B1, 25 September): the ones due for review always.
+  out.push('', ...escapeLines(listEscapes(join(ROOT, app)), { all: escapes }))
 
   if (!spec.all) {
     // A sibling repo on its own: its own rows, then its parts of rows owned elsewhere.

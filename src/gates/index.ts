@@ -26,6 +26,8 @@ export { TOKEN_LINT_IGNORES, tokenConfig, tokenLint, tokenValues, type TokenAudi
 export { gateConfig, gateLint, type GateConfigOptions } from './gate-config'
 export { writeGateCount, type CountOptions, type CountResult } from './count'
 export { runHook, type HookOptions, type HookResult } from './hook'
+export { nameEscapes, type NameEscapesOptions, type NameEscapesResult } from './name-escapes'
+export { escapeLines, listEscapes, REVIEW_AFTER_DAYS, type Escape } from './escapes'
 export { ENGINE, helpers, runStatus, type CheckResult, type GateCheck, type GateHelpers, type GateSpec, type GateTicket, type LintProbe, type StatusOptions, type TicketListEntry } from './status'
 export { APP_TICKET_TITLES, appChecks, type AppCheckOptions } from './app-checks'
 export { appFiles, askNpm, createApp, themes, type CreateAppOptions } from './create-app'
