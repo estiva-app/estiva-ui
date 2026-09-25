@@ -40,7 +40,7 @@ const args = process.argv.slice(2)
 const ref = args.includes('--ref') ? args[args.indexOf('--ref') + 1] : 'origin/main'
 const APP_PAGE = 'src/pages/HomePage.tsx'
 
-const HELPERS = ['file', 'committed', 'contains', 'lacks', 'script', 'loads', 'ci', 'ciJob', 'hook', 'json', 'lint', 'protectedBranch', 'gh', 'share', 'exists', 'read', 'listFiles', 'catalogue']
+const HELPERS = ['file', 'committed', 'contains', 'lacks', 'script', 'loads', 'ci', 'ciJob', 'hook', 'json', 'lint', 'protectedBranch', 'gh', 'share', 'exists', 'read', 'listFiles', 'catalogue', 'contract', 'instructions']
 
 function recorder(calls, has) {
   const pass = (detail) => ({ result: 'pass', detail })
@@ -112,11 +112,13 @@ async function loadRepo(name, env, fallback, app = '') {
   const repo = resolve(ROOT, process.env[env] ?? fallback)
   const dir = mkdtempSync(join(tmpdir(), `gates-compare-${name}-`))
   const file = join(dir, 'gates-checks.mjs')
-  // Since UIG-32 an app's checks file imports `appChecks` from the package, and it is read
-  // here from git into a folder where nothing resolves. The import is pointed at this
-  // repository's own build, which is the list being compared anyway.
-  const built = pathToFileURL(join(ROOT, 'dist', 'gates', 'index.js')).href
-  const text = gitRead(repo, `${app}scripts/gates-checks.mjs`).replace(/(['"])@estiva-app\/ui\/gates\1/g, JSON.stringify(built))
+  // Since UIG-32 an app's checks file imports from the package (`/gates`, and since UIG-19
+  // `/registry` in Ship), and it is read here from git into a folder where nothing resolves.
+  // Every subpath is pointed at this repository's own build, which is the list being
+  // compared anyway. Only `/gates` was, and Ship's `/registry` crashed it (the audit before
+  // UIG-26, 25 September).
+  const built = (sub) => JSON.stringify(pathToFileURL(join(ROOT, 'dist', sub, 'index.js')).href)
+  const text = gitRead(repo, `${app}scripts/gates-checks.mjs`).replace(/(['"])@estiva-app\/ui\/([a-z]+)\1/g, (_, _q, sub) => built(sub))
   writeFileSync(file, text)
   const define = (await import(pathToFileURL(file).href)).default
   rmSync(dir, { recursive: true, force: true })
@@ -147,11 +149,16 @@ function ownPaths(check) {
 
 const peek = await loadRepo('peek', 'GATES_PEEK', '../peek')
 const ship = await loadRepo('ship', 'GATES_SHIP', '../ship')
+// The installed package is never in git, so every side counts it as there; a made
+// app has every file its checks ask for. With "nothing is there" for the made app,
+// a check that first asks whether a file exists recorded nothing and matched
+// nothing (the audit before UIG-26, 25 September).
+const installed = (p) => p.includes('node_modules/@estiva-app/ui/')
 const sources = [
-  { ...peek, strip: '', has: (p) => gitHas(peek.repo, p) },
-  { ...ship, strip: '', has: (p) => gitHas(ship.repo, p) },
+  { ...peek, strip: '', has: (p) => installed(p) || gitHas(peek.repo, p) },
+  { ...ship, strip: '', has: (p) => installed(p) || gitHas(ship.repo, p) },
 ]
-const app = await record((h) => ({ repo: 'app', tickets: appChecks(h, { page: APP_PAGE }) }), { has: () => false })
+const app = await record((h) => ({ repo: 'app', tickets: appChecks(h, { page: APP_PAGE }) }), { has: () => true })
 
 const groups = { same: [], inside: [], own: [], unplaced: [] }
 const used = new Set()
@@ -159,6 +166,13 @@ for (const source of sources) {
   const checks = await record(source.define, { strip: source.strip, has: source.has })
   for (const check of checks) {
     const row = { repo: source.name, ref: check.ref, what: check.what }
+    // A check of the package's that took its "that file is not here" branch records
+    // nothing to compare (Ship keeps no token lint of its own, so UIG-37's asks nothing).
+    // It is still the package's check when its ticket and words are the package's.
+    if (!check.sig.length) {
+      const named = app.findIndex((a) => a.ref === check.ref && a.what === check.what)
+      if (named !== -1) { groups.same.push(row); used.add(named); continue }
+    }
     if (check.sig.length) {
       const same = (a) => JSON.stringify(a.sig) === JSON.stringify(check.sig)
       const sameRef = app.findIndex((a) => a.ref === check.ref && same(a))

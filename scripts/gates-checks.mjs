@@ -49,6 +49,8 @@ const all = [
   { ref: "UIG-35", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lightbox — one attachment part that opens a picture full screen, for both apps" },
   { ref: "UIG-36", owner: "estiva-ui", title: "Estiva ID gets its own Storybook, and leaves Peek's" },
   { ref: "UIG-37", owner: "estiva-ui", parts: PEEK_SHIP, title: "The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off" },
+  { ref: "UIG-38", owner: "estiva-ui", title: "The gate misses a hand-drawn table and a hand-written Escape (Ship)" },
+  { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -384,6 +386,14 @@ export default function define(h) {
     ] },
     { ref: "UIG-34", owner: true, checks: [
       { what: "a tree part is in the package", run: () => h.contains("src/index.ts", /\bTree\b/, "src/index.ts exports Tree") },
+    ] },
+    // UIG-38 and UIG-39 were in Ship with no row here (the audit before UIG-26,
+    // 25 September). First guesses, from their own text, until each is built.
+    { ref: "UIG-38", owner: true, checks: [
+      { what: "the raw-element rule names a part for a raw <table>", run: () => h.contains("src/eslint/no-raw-element.ts", /['"]table['"]/, "no-raw-element maps <table>") },
+    ] },
+    { ref: "UIG-39", owner: true, checks: [
+      { what: "DESIGN.md and llms.txt ship in the package", run: () => (h.exists("DESIGN.md") && h.exists("llms.txt") ? h.PASS("DESIGN.md and llms.txt exist") : h.FAIL("no DESIGN.md or llms.txt yet: a later phase, by Katerina's ruling")) },
     ] },
     // UIG-35 closed on 21 September and left no record at all: the status script
     // did not carry the ticket, so nothing read its code back. These do. Both
