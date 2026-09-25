@@ -173,6 +173,22 @@ describe("an app's catalogue", () => {
     expect(registry.storybook.devUrl).toBe('http://localhost:6123')
   })
 
+  // C6: UIG-19's "adding an unclassified component fails the build — proved", proved.
+  it('fails a part with no class, and gives every part the builder finds one', () => {
+    const unclassified = structuredClone(registry)
+    const one = unclassified.entries.find((e) => e.app?.class === 'one-off')!
+    delete (one.app as Partial<NonNullable<RegistryEntry['app']>>).class
+    expect(validateRegistry(unclassified)).toContain(`entries[${unclassified.entries.indexOf(one)}] (${one.name}).app.class is undefined`)
+    const bare = structuredClone(registry)
+    bare.entries[0].app = null
+    expect(validateRegistry(bare).join('\n')).toContain('app is missing on an app entry')
+    // A part added to the app is classified the moment it exists.
+    const dir = app({ ...FIXTURE, 'src/components/Added.tsx': '/** A part nobody has sorted. */\nexport function Added() {\n  return <div />\n}\n' })
+    const added = buildAppRegistry({ root: dir, repo: 'fixture', packageRegistry })
+    expect(added.entries.find((e) => e.name === 'Added')?.app?.class).toBe('unused')
+    expect(added.entries.every((e) => ['re-export', 'reusable', 'one-off', 'promote-candidate', 'unused'].includes(e.app?.class ?? ''))).toBe(true)
+  })
+
   it('counts every .tsx outside stories and tests, and says why a file holds no part', () => {
     // main.tsx, App.tsx, 2 pass-ons, Frame, Card, Timeline, Sync, Ctx, Lonely, Shown, Wide, EmptyState, Lazy, HomePage, Other, hooks.tsx
     expect(registry.builtFrom.files).toBe(17)
