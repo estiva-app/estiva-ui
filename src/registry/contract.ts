@@ -106,6 +106,11 @@ export function contractProblems(registry: Registry, root: string): string[] {
     if (entry.storyId === null && !hasSeenIn(text)) {
       problems.push(`${where} is drawn nowhere: give it a story, or write a "**Seen in**" line on ${page} naming the stories that draw it, or why none can`)
     }
+    // A reusable part links to its page or a story (Katerina's ruling B10, 25 September):
+    // the catalogue reads the page's `<Meta title>`, so a page without one leaves it unlinked.
+    if (entry.storyId === null && entry.docsId === null) {
+      problems.push(`${where} links to nothing in Storybook: give ${page} a \`<Meta title="…" />\`, or give the part a story`)
+    }
   }
   return problems
 }

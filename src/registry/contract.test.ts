@@ -136,6 +136,17 @@ describe('an app against the contract', () => {
     expect(contractProblems(buildAppRegistry({ root: dir, repo: 'fixture' }), dir)).toEqual([])
   })
 
+  it("links a part with no story to its page by the page's title, and names one that links to nothing (B10)", () => {
+    const seen = PAGE.replace('A small count beside a name.\n', 'A small count beside a name.\n\n**Seen in** — *Parts/Card*, beside the title.\n')
+    const dir = app({ 'src/Badge.tsx': part('Badge'), 'src/Badge.mdx': seen })
+    const registry = buildAppRegistry({ root: dir, repo: 'fixture' })
+    expect(registry.entries.find((e) => e.name === 'Badge')).toMatchObject({ docsId: 'parts-badge--docs', storyId: null })
+    writeFileSync(join(dir, 'src/Badge.mdx'), seen.replace("<Meta title='Parts/Badge' />", '<Meta />'))
+    expect(contractProblems(buildAppRegistry({ root: dir, repo: 'fixture' }), dir)).toEqual([
+      'Badge (reusable, src/Badge.tsx) links to nothing in Storybook: give src/Badge.mdx a `<Meta title="…" />`, or give the part a story',
+    ])
+  })
+
   it("counts a story file named after the part that draws its view, from the part's own file", () => {
     const dir = app({
       'src/Panel.tsx': `${part('Panel')}\n/** The half that only draws. */\nexport function PanelView() {\n  return <div>view</div>\n}\n`,

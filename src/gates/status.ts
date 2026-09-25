@@ -579,6 +579,29 @@ export interface StatusOptions {
   escapes?: boolean
 }
 
+/**
+ * What an app's catalogue leaves for Katerina: the parts nothing uses, by name
+ * (her UIG-13 ruling: an unused part is listed for her, never deleted by the
+ * catalogue; R20), and the parts with no link into Storybook (R22). A reusable
+ * part with none fails `estiva-ui check`; a one-off needs none (B10), so its
+ * number is shown and nothing more.
+ */
+async function catalogueLines(appDir: string): Promise<string[]> {
+  try {
+    const { buildAppRegistry } = await import('../registry/index')
+    const entries = buildAppRegistry({ root: appDir }).entries
+    const unused = entries.filter((e) => e.app?.class === 'unused')
+    const oneOffs = entries.filter((e) => e.app?.class === 'one-off')
+    const unlinked = oneOffs.filter((e) => !e.storyId && !e.docsId)
+    return [
+      `Unused parts: ${unused.length}${unused.length ? ` · Katerina rules on each: ${unused.map((e) => `${e.name} (${e.sourceFile})`).join(', ')}` : ''}`,
+      `Storybook links: every reusable part has one (estiva-ui check holds it) · one-offs with none: ${unlinked.length} of ${oneOffs.length}, which need none`,
+    ]
+  } catch (error) {
+    return [`Catalogue: could not be built here: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`]
+  }
+}
+
 /** Print where the project stands. Returns what was printed, or the JSON report. */
 export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false, escapes = false }: StatusOptions = {}): Promise<string> {
   const ROOT = resolve(root)
@@ -595,6 +618,7 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
   out.push('', ...escapeLines(listEscapes(join(ROOT, app)), { all: escapes }))
 
   if (!spec.all) {
+    out.push('', ...(await catalogueLines(join(ROOT, app))))
     // A sibling repo on its own: its own rows, then its parts of rows owned elsewhere.
     const own = report.rows.filter((r) => r.owner).map((r) => ({ ...r, ownerRepo: spec.repo, status: statusOf(r.checks) }))
     const parts = report.rows.filter((r) => !r.owner).map((r) => ({ ...r, ownerRepo: '', status: statusOf(r.checks) }))

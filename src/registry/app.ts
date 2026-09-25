@@ -803,7 +803,12 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       packageNamesake: namesakes.has(p.name) && !(pass && pass.specifier === PACKAGE_IMPORT && pass.name === p.name) ? p.name : null,
       defaultExport: p.defaultExport,
     }
-    const { docsId, storyId } = pass ? { docsId: null, storyId: null } : storyOf(p)
+    const found = pass ? { docsId: null, storyId: null } : storyOf(p)
+    // A part with a page of its own and no story file links to its page, by the
+    // page's own title (Katerina's ruling B10, 25 September): Peek's EditedMarker.mdx
+    // shows the part in other parts' stories, and nothing linked it.
+    const titled = !found.docsId && pageText ? /<Meta\s+title=["'`]([^"'`]+)["'`]/.exec(readFileSync(join(app, page!), 'utf8'))?.[1] : undefined
+    const { docsId, storyId } = titled ? { docsId: `${sanitize(titled)}--docs`, storyId: found.storyId } : found
     entries.push({
       name: p.name,
       repo: repoName,
