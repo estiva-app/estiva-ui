@@ -80,6 +80,20 @@ describe('the registry builds', () => {
     expect(entry('Card').ownsBehaviours).toEqual([])
   })
 
+  // B9: worked out from what a part draws and what it is, not only UIG-8's owners.
+  it('gives a part what the part it is owns, and a Base UI piece only what it is', () => {
+    const ids = (name: string) => entry(name).ownsBehaviours.map((owned) => owned.id)
+    // ConfirmDialog returns a DialogShell: it keeps focus inside and stops the page scrolling.
+    expect(ids('ConfirmDialog')).toEqual(expect.arrayContaining(['portal', 'focus', 'scroll-lock', 'press-outside']))
+    // MenuItem draws Menu.Item: a menu item, not a floating menu.
+    expect(ids('MenuItem')).toEqual(expect.arrayContaining(['base-ui', 'role']))
+    expect(ids('MenuItem')).not.toContain('portal')
+    // A tooltip's floating stays the tooltip's.
+    expect(ids('NavItem')).not.toContain('portal')
+    // Being built on Base UI, a role and a Tab stop are not handed on.
+    expect(ids('EmptyState')).not.toContain('tab-stop')
+  })
+
   it('reads the variants from the props type, following a local alias', () => {
     // ButtonVariant and ButtonSize are aliases; the props type points at them.
     expect(entry('Button').variants).toEqual([

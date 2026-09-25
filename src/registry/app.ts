@@ -36,6 +36,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import ts from 'typescript'
+import { asBehaviours, baseUiBehaviours, drawnIn, handedOn, isBaseUi, rootsIn, splitTag } from './behaviours'
 import { firstSentence, pageOpening, readModule, sanitize, toId, PACKAGE_IMPORT, type Resolved } from './build'
 import { looksOf, parseForLooks } from '../eslint/looks-of'
 import { SCHEMA_VERSION, type AppFacts, type EntryClass, type FileWithoutPart, type Registry, type RegistryEntry } from './schema'
@@ -722,6 +723,50 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
   }
   const port = /(?:-p|--port)[\s=]+(\d+)/.exec(manifest.scripts?.storybook ?? '')?.[1] ?? '6006'
 
+  // What each part owns, from what it draws (B9): a pass-on owns what its package
+  // part owns; any other part what the whole of each part it draws does, followed
+  // through the app's own parts, and what the Base UI parts it draws do.
+  const packageOwns = new Map((theRegistry?.entries ?? []).map((e) => [e.name, e.ownsBehaviours.map((b) => b.id)]))
+  const drawnByFile = new Map<string, { drawn: Map<string, Set<string>>; roots: Map<string, Set<string>> }>()
+  const owned = new Map<string, Set<string>>()
+  const ownsOf = (p: Found, seen: Set<string>): Set<string> => {
+    const at = key(p.file, p.name)
+    const held = owned.get(at)
+    if (held) return held
+    const out = new Set<string>()
+    if (p.from) {
+      if (p.from.specifier === PACKAGE_IMPORT) for (const id of packageOwns.get(p.from.name) ?? []) out.add(id)
+      return out
+    }
+    const f = facts.get(p.file)
+    if (!f || !p.local || seen.has(at)) return out
+    seen.add(at)
+    if (!drawnByFile.has(p.file)) drawnByFile.set(p.file, { drawn: drawnIn(f.sf), roots: rootsIn(f.sf) })
+    const { drawn, roots } = drawnByFile.get(p.file)!
+    const imported = new Map(f.links.filter((l) => l.kind === 'import').flatMap((l) => l.names.map((n) => [n.local, { link: l, imported: n.imported }] as const)))
+    // The Base UI parts it draws, anywhere in it (rare in an app: the gate refuses most).
+    for (const tag of drawn.get(p.local) ?? []) {
+      const [local, piece] = splitTag(tag)
+      const from = imported.get(local)
+      if (from && isBaseUi(from.link.specifier)) for (const id of baseUiBehaviours(from.imported, piece)) out.add(id)
+    }
+    // The parts it is: what it hands back at its root, the package's or the app's own.
+    for (const tag of roots.get(p.local) ?? []) {
+      const from = imported.get(splitTag(tag)[0])
+      if (!from) continue
+      let inner: Iterable<string> = []
+      if (from.link.specifier === PACKAGE_IMPORT) inner = handedOn(from.imported, packageOwns.get(from.imported) ?? [])
+      else if (from.link.target && from.link.target !== '?') {
+        const part = origin(from.link.target, from.imported)
+        if (part) inner = handedOn(part.from?.name ?? part.name, ownsOf(part, seen))
+      }
+      for (const id of inner) out.add(id)
+    }
+    if (seen.size === 1) owned.set(at, out)
+    seen.delete(at)
+    return out
+  }
+
   const entries: RegistryEntry[] = []
   for (const p of found) {
     const u = users.get(key(p.file, p.name))!
@@ -819,7 +864,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       purposeFrom,
       props: shape.props,
       variants: shape.variants,
-      ownsBehaviours: [],
+      ownsBehaviours: asBehaviours(ownsOf(p, new Set())),
       status: declared?.deprecated ? 'deprecated' : 'stable',
       migrationStage: null,
       docsId,

@@ -230,6 +230,24 @@ describe("an app's catalogue", () => {
     expect(entry('Shown').app).toMatchObject({ class: 'unused', reason: 'No file of the app uses it; only its stories do.' })
   })
 
+  // B9: an app part owns what the part it is owns, followed through the app's own parts.
+  it('gives an app part what the part it returns owns, and a page nothing of its dialogs', () => {
+    const dir = app({
+      'src/ui/Floating.tsx': "/** Hands on the package's Popover. */\nexport { Popover } from '@estiva-app/ui'\n",
+      'src/DeleteDialog.tsx': "import { ConfirmDialog } from '@estiva-app/ui'\n/** Asks before deleting. */\nexport function DeleteDialog() {\n  return <ConfirmDialog open title=\"Delete?\" onConfirm={() => {}} onOpenChange={() => {}} />\n}\n",
+      'src/Ask.tsx': "import { DeleteDialog } from './DeleteDialog'\n/** The app's own wrapper of it. */\nexport function Ask() {\n  return open ? <DeleteDialog /> : null\n}\n",
+      'src/Page.tsx': "import { Ask } from './Ask'\n/** A page that opens it. */\nexport function Page() {\n  return (\n    <>\n      <main>Page</main>\n      <Ask />\n    </>\n  )\n}\n",
+      'src/main.tsx': "import { Page } from './Page'\nimport { Popover } from './ui/Floating'\nexport const all = [<Page key=\"p\" />, <Popover key=\"f\" />]\n",
+    })
+    const entries = buildAppRegistry({ root: dir, repo: 'x', packageRegistry }).entries
+    const ids = (name: string) => entries.find((e) => e.name === name)!.ownsBehaviours.map((owned) => owned.id)
+    expect(ids('DeleteDialog')).toEqual(expect.arrayContaining(['portal', 'focus', 'scroll-lock']))
+    expect(ids('DeleteDialog')).not.toContain('tab-stop')
+    expect(ids('Ask')).toEqual(ids('DeleteDialog'))
+    expect(ids('Page')).toEqual([])
+    expect(ids('Popover')).toEqual(packageRegistry.entries.find((e) => e.name === 'Popover')!.ownsBehaviours.map((owned) => owned.id))
+  })
+
   it('takes a kind written beside the part, with its reason', () => {
     expect(entry('Wide').app).toMatchObject({ class: 'reusable', written: true, reason: 'general; one screen uses it so far', usedIn: ['src/pages/HomePage.tsx'] })
     expect(entry('Wide').purpose).toBe('A general strip of things.')
