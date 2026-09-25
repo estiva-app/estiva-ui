@@ -140,3 +140,14 @@ describe('the page contract', () => {
     })
   }
 })
+
+// The re-review after the audit before UIG-26 (R17): "Choosing a component" is written by
+// hand, and six parts with pages of their own had no row — ContainerHeader and ListColumn
+// among them, the parts behind the skill's first two Gotchas.
+describe('Choosing a component', () => {
+  it('names every part that has a page of its own', () => {
+    const choosing = readFileSync(new URL('../stories/Choosing.mdx', dir), 'utf8')
+    const named = new Set([...choosing.matchAll(/\*\*([A-Z][A-Za-z]+)\*\*/g)].map((m) => m[1]))
+    expect(pages.filter((page) => !named.has(page))).toEqual([])
+  })
+})

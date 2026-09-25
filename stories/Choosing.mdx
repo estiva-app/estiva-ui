@@ -68,12 +68,16 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | One window to find something and act on it, opened by a shortcut | **CommandPalette** — rows, forms and written answers, one level at a time |
 | Anything with a title, body and footer | **DialogShell** |
 | "Are you sure?" | **ConfirmDialog** |
+| A picture full screen, from a thumbnail | **Lightbox** — an **AttachmentCard** opens one by itself |
 
 ## Structure and wayfinding
 
 | You need | Reach for |
 |---|---|
 | Label–value rows (a details rail) | **Property** — `row` and `stacked` |
+| The bar across the top of a column: its title, and the buttons that act on the whole column | **ContainerHeader** — one per column; the actions as IconButtons in `actions` |
+| A box that can hold more than fits — a list that grows with its data counts, even when today's data fits | **ScrollArea** — its bar is drawn over the content and takes no width |
+| A status, a count or a category, in a small pill | **Chip** — six colour types; the colour is the message, the label makes it legible |
 | One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed |
 | A section heading, chevron, hover actions | **SectionHeader** |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |
@@ -95,6 +99,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | It happened, briefly | **Toast**, via `useToast` inside a `ToastProvider` |
 | It happened, and must not be missed | **Toast** with `durationMs: 0` and an action — it floats and stays until dismissed (D21) |
 | The whole surface has something to say | **Banner** — the strip under the top bar, full width; `onDismiss` if the reader closes it rather than the app |
+| A part that breaks without taking the page with it | **ErrorBoundary** — around each column, panel or conversation, and once around the app; `label` says what it holds |
 
 ## The frame
 
@@ -109,11 +114,12 @@ the **floating** TopBar goes with the **Rail** and the content card.
 | A 240px navigation column | **Sidebar**, filled with **NavItem** rows |
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
 | The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
+| The list beside the thing that is open | **ListColumn** — 290px, its name in a **ContainerHeader**, the list under it scrolling |
 
 ## Deliberately not in the package
 
 - Anything that knows your **product's objects** — its documents, threads,
   files, tickets. Build it in your app, out of these parts, and keep its
   stories in your app's own Storybook.
-- Page layouts — panels inside the content, split views, side rails —
-  not here yet; they are the next batch.
+- Page layouts beyond the list column (**ListColumn**) and a column's bar
+  (**ContainerHeader**) — split views, side rails — not here yet.

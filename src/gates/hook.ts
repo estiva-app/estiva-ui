@@ -69,6 +69,8 @@ interface ToolCall {
 }
 
 const PASS: HookResult = { code: 0, message: '' }
+/** An app's source the gate reads: every script type, with or without JSX. */
+const APP_SOURCE = /^src\/.+\.[cm]?[jt]sx?$/
 
 export async function runHook({ root, app = '.', audience = 'app', input, seen }: HookOptions = {}): Promise<HookResult> {
   let call: ToolCall
@@ -84,8 +86,10 @@ export async function runHook({ root, app = '.', audience = 'app', input, seen }
   const appDir = resolve(top, app)
   const file = isAbsolute(args.file_path) ? args.file_path : resolve(call.cwd ?? top, args.file_path)
   const rel = relative(appDir, file).split(sep).join('/')
-  const source = audience === 'package' ? /^src\/.+\.tsx$/ : /^src\/.+\.tsx?$/
-  if (rel.startsWith('../') || isAbsolute(rel) || !source.test(rel) || /\.test\.tsx?$/.test(rel) || /\.d\.ts$/.test(rel)) return PASS
+  // Every script under an app's src/, as the gate reads it (a raw <button> in a .jsx passed
+  // before, the re-review after the audit before UIG-26); the package's own gate is .tsx only.
+  const source = audience === 'package' ? /^src\/.+\.tsx$/ : APP_SOURCE
+  if (rel.startsWith('../') || isAbsolute(rel) || !source.test(rel) || /\.test\.[cm]?[jt]sx?$/.test(rel) || /\.d\.[cm]?ts$/.test(rel)) return PASS
 
   const text = proposed(call.tool_name, args, file)
   if (text === null) return PASS

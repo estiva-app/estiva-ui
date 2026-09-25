@@ -18,7 +18,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildAppRegistry } from './app'
-import { contractProblems, hasSeenIn, linkProblems, pageProblem } from './contract'
+import { contractProblems, hasSeenIn, linkProblems, nameProblems, pageProblem } from './contract'
 
 const made: string[] = []
 afterAll(() => {
@@ -86,8 +86,11 @@ describe('a usage page', () => {
     expect(pageProblem(PAGE.replace('A small count beside a name.\n', ''))).toMatch(/^no opening line/)
   })
 
-  it('fails with no code under How', () => {
+  // R18: the code must be under How itself; one in a later section passed.
+  it('fails with no code under How, even with code further down', () => {
     expect(pageProblem(PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.'))).toBe('no code under "How"')
+    const later = PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.').replace('Nothing. It only draws.', '```tsx\n<Badge count={3} />\n```')
+    expect(pageProblem(later)).toBe('no code under "How"')
   })
 
   it('reads a Windows checkout', () => {
@@ -154,5 +157,37 @@ describe('story links', () => {
     expect(linkProblems(registry, new Set(['parts-badge--docs']))).toEqual([
       'Badge (src/Badge.tsx) links to a story its Storybook does not have: parts-badge--default',
     ])
+  })
+})
+
+// R14, the re-review after the audit before UIG-26. Every case is Peek's or Ship's own:
+// StartTopicDialog sent readers to CreateTopicDialog and RepliesRow to HuddleCard, both
+// deleted by FOL-23; EmptyState's Seen in named a story on two lines; Ship's Attachment
+// named the package's story by a title it had lost.
+describe('nameProblems', () => {
+  const page = (whenNot: string, seenIn = '') =>
+    PAGE.replace('A word.', whenNot).replace('A small count beside a name.', `A small count beside a name.${seenIn ? `\n\n${seenIn}` : ''}`)
+  const registry = (dir: string) => ({ entries: [{ name: 'Badge', docPage: 'src/Badge.mdx' }] }) as unknown as Parameters<typeof nameProblems>[0]
+  const known = new Set(['Badge', 'Chip'])
+
+  it('names a part under When not that no catalogue has, and passes one that exists', () => {
+    const dir = app({ 'src/Badge.mdx': page('A topic someone is invited to: that is **CreateTopicDialog**; a label is `Chip`.') })
+    expect(nameProblems(registry(dir), dir, { known })).toEqual(['src/Badge.mdx: "When not" names CreateTopicDialog, which is no part of the package or this app'])
+  })
+
+  it('reads a Seen in line against the Storybook, a title wrapped across lines too, and the package ids', () => {
+    const seen = '**Seen in** — *Parts/Badge*, *To be removed/\nTopicActivity* and\n*Media/AttachmentCard*.'
+    const dir = app({ 'src/Badge.mdx': page('A word.', seen) })
+    const titles = new Set(['Parts/Badge'])
+    expect(nameProblems(registry(dir), dir, { known, titles, packageIds: ['components-attachmentcard--document'] })).toEqual([
+      'src/Badge.mdx: "Seen in" names To be removed/TopicActivity, which no Storybook has',
+      'src/Badge.mdx: "Seen in" names Media/AttachmentCard, which no Storybook has',
+    ])
+    expect(nameProblems(registry(dir), dir, { known, titles: new Set(['Parts/Badge', 'To be removed/TopicActivity']), packageIds: ['media-attachmentcard--default'] })).toEqual([])
+  })
+
+  it('leaves the Seen in line alone when there is no Storybook index to read', () => {
+    const dir = app({ 'src/Badge.mdx': page('A word.', '**Seen in** — *Gone/Story*.') })
+    expect(nameProblems(registry(dir), dir, { known })).toEqual([])
   })
 })

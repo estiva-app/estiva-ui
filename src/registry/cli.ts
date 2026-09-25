@@ -36,11 +36,11 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
+import { CONTRACT_KINDS, contractProblems, linkProblems, nameProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
-import { findSiblings, workspaceOf } from './siblings'
+import { behindBy, findSiblings, workspaceOf } from './siblings'
 import { loaderPath, loaderProblem, loaderText, repositoryOf, settingsPath, settingsWithSearch } from './skill'
-import { storyMapProblems } from './storymap'
+import { indexHeadings, storyMapProblems } from './storymap'
 import { CLASSES, validateRegistry, type Registry } from './schema'
 
 /**
@@ -132,11 +132,11 @@ async function buildApp(folder: string, repo: string | undefined): Promise<Regis
  * Reports, and says whether it passed. A folder with no Storybook has nothing
  * to check.
  */
-function checkLinks(registry: Registry, folder: string): boolean {
+function checkLinks(registry: Registry, folder: string): { ok: boolean; headings?: Set<string>; titles?: Set<string> } {
   const bin = resolve(folder, 'node_modules', '.bin', process.platform === 'win32' ? 'storybook.cmd' : 'storybook')
   if (!existsSync(resolve(folder, '.storybook')) || !existsSync(bin)) {
     process.stdout.write('story links: no Storybook here, nothing to check\n')
-    return true
+    return { ok: true }
   }
   const out = join(mkdtempSync(join(tmpdir(), 'estiva-ui-index-')), 'index.json')
   // A `.cmd` needs a shell on Windows, and Node wants that as one quoted line
@@ -147,17 +147,20 @@ function checkLinks(registry: Registry, folder: string): boolean {
       : spawnSync(bin, ['index', '-o', out, '--quiet'], { cwd: folder, encoding: 'utf8' })
   if (run.status !== 0 || !existsSync(out)) {
     process.stderr.write(`story links: Storybook could not index its stories, so no link can be trusted:\n${(run.stderr || run.stdout || '').trim()}\n`)
-    return false
+    return { ok: false }
   }
-  const ids = new Set(Object.keys((JSON.parse(readFileSync(out, 'utf8')) as { entries: Record<string, unknown> }).entries))
+  const entries = (JSON.parse(readFileSync(out, 'utf8')) as { entries: Record<string, { title?: string }> }).entries
+  const ids = new Set(Object.keys(entries))
+  const headings = indexHeadings(entries)
+  const titles = new Set(Object.values(entries).flatMap((e) => (e.title ? [e.title] : [])))
   const dead = linkProblems(registry, ids)
   const count = registry.entries.reduce((n, entry) => n + (entry.storyId ? 1 : 0) + (entry.docsId ? 1 : 0), 0)
   if (dead.length) {
     process.stderr.write(`story links: ${dead.length} of ${count} lead nowhere:\n  ${dead.join('\n  ')}\n`)
-    return false
+    return { ok: false, headings, titles }
   }
   process.stdout.write(`story links: all ${count} open a story or docs page Storybook has\n`)
-  return true
+  return { ok: true, headings, titles }
 }
 
 /**
@@ -179,12 +182,12 @@ async function checkGated(registry: Registry, folder: string, kinds?: string[]):
 }
 
 /**
- * The app's hand-written map of its Storybook — the heading order and the
- * Introduction — against the Storybook and the catalogue (`./storymap`).
- * Reports, and says whether it passed.
+ * The repository's hand-written map of its Storybook — the heading order and the
+ * Introduction — against the Storybook (its own index, when there is one) and,
+ * in an app, the catalogue (`./storymap`). Reports, and says whether it passed.
  */
-function checkStoryMap(registry: Registry, folder: string): boolean {
-  const problems = storyMapProblems(registry, folder)
+function checkStoryMap(folder: string, registry?: Registry, headings?: Set<string>): boolean {
+  const problems = storyMapProblems(folder, { ...(registry ? { registry } : {}), ...(headings ? { real: headings } : {}) })
   if (problems.length) {
     process.stderr.write(`storybook map: ${problems.length === 1 ? 'one line no longer matches' : `${problems.length} lines no longer match`}:\n  ${problems.join('\n  ')}\n`)
     return false
@@ -212,6 +215,8 @@ async function main(): Promise<number> {
       const registries: Registry[] = [readPackageRegistry()]
       // An app that cannot be read is said out loud, and the rest still answer.
       const add = async (folder: string, repo: string | undefined) => {
+        const behind = behindBy(folder)
+        if (behind) process.stderr.write(`note: ${repo ?? basename(folder)} (${folder}) is ${behind} commit${behind === 1 ? '' : 's'} behind main as last fetched — its answers may name parts that are gone; pull it\n`)
         try {
           registries.push(await buildApp(folder, repo))
         } catch (error) {
@@ -283,8 +288,18 @@ async function main(): Promise<number> {
         const linked = checkLinks(registry, root)
         const shown = await checkGated(registry, root)
         const loaded = checkLoader()
-        const mapped = checkStoryMap(registry, root)
-        return broken.length || !linked || !shown || !loaded || !mapped ? 1 : 0
+        const mapped = checkStoryMap(root, registry, linked.headings)
+        // What the pages name must still be there (R14): parts under When and When not,
+        // and the stories a Seen in line sends a reader to, here or in the package.
+        const pkg = readPackageRegistry()
+        const stale = nameProblems(registry, root, {
+          known: new Set([...pkg.entries, ...registry.entries].map((e) => e.name)),
+          ...(linked.titles ? { titles: linked.titles } : {}),
+          packageIds: pkg.entries.flatMap((e) => [e.storyId, e.docsId].filter((id): id is string => Boolean(id))),
+        })
+        if (stale.length) process.stderr.write(`usage pages: ${stale.length === 1 ? 'one name leads' : `${stale.length} names lead`} nowhere:\n  ${stale.join('\n  ')}\n`)
+        else process.stdout.write('usage pages: every part and story they name is there\n')
+        return broken.length || stale.length || !linked.ok || !shown || !loaded || !mapped ? 1 : 0
       }
       const { buildRegistry, serializeRegistry } = await packageBuilder()
       const path = packageRegistryPath()
@@ -308,7 +323,9 @@ async function main(): Promise<number> {
       const linked = checkLinks(built, root)
       const shown = await checkGated(built, root, ['component'])
       const loaded = checkLoader()
-      return linked && shown && loaded ? 0 : 1
+      // The package keeps a heading order too (R16): it left out Layout, and nothing saw.
+      const mapped = checkStoryMap(root, undefined, linked.headings)
+      return linked.ok && shown && loaded && mapped ? 0 : 1
     }
 
     case 'skill': {

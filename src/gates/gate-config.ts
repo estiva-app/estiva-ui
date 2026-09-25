@@ -44,8 +44,10 @@ export interface GateConfigOptions {
 export function gateLint({ audience = 'app' }: Pick<GateConfigOptions, 'audience'> = {}): Linter.Config {
   return {
     ...(audience === 'package' ? estiva.configs.package : estiva.configs.recommended),
-    files: audience === 'package' ? ['src/**/*.tsx'] : ['src/**/*.{ts,tsx}'],
-    ignores: ['**/*.test.ts', '**/*.test.tsx'],
+    // An app's every script type: a raw <button> in a .jsx, or a key listener in a .mts,
+    // passed while only .ts and .tsx were read (the re-review after the audit before UIG-26).
+    files: audience === 'package' ? ['src/**/*.tsx'] : ['src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}'],
+    ignores: ['**/*.test.*'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: { ecmaFeatures: { jsx: true } },
