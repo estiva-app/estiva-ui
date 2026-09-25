@@ -74,7 +74,7 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
   // a native `disabled` button, which Tab skips and a tooltip cannot open on.
   const held = Boolean(disabledReason)
   const trigger = (
-      // @estiva-escape: N1 (Katerina, 24 September: record only): Select's box drops the hover while held, so it cannot take FIELD_SHELL_CLASSES as it is
+      // @estiva-escape(no-copied-look): N1 (Katerina, 24 September: record only): Select's box drops the hover while held, so it cannot take FIELD_SHELL_CLASSES as it is
       <BaseSelect.Trigger
         aria-label={ariaLabel}
         aria-required={aria['aria-required']}

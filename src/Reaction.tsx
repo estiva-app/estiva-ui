@@ -63,7 +63,7 @@ export interface ReactionProps extends Omit<ButtonHTMLAttributes<HTMLButtonEleme
 
 export function Reaction({ emoji, count, pressed = false, className, ...props }: ReactionProps) {
   return (
-    // @estiva-escape: W1 (Katerina, 24 September: leave alone): a reaction pill shares four words with a field's box by coincidence
+    // @estiva-escape(no-copied-look): W1 (Katerina, 24 September: leave alone): a reaction pill shares four words with a field's box by coincidence
     <Toggle
       // Controlled: a reaction is yours when the data says so, not when the
       // pill was last pressed — a write can fail, and another client can

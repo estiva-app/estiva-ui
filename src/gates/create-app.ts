@@ -284,7 +284,8 @@ import reactHooks from 'eslint-plugin-react-hooks'
  * TypeScript's the package names itself.
  *
  * A place that keeps something the gate refuses says why, on the line above:
- * \`// @estiva-escape: <reason>\`. Never \`eslint-disable\`: the count refuses it.
+ * \`// @estiva-escape(<rule>): <reason>\`, naming the rule it keeps off. Never
+ * \`eslint-disable\`: the count refuses it.
  */
 export default gateConfig({ quiet: { 'react-hooks': reactHooks } })
 `,
@@ -316,7 +317,7 @@ export default function define(h) {
 Nothing. ${title} was made with every gate on, at zero.
 
 It should stay that way. A place that keeps something the gate refuses says why on
-the line above it, \`// @estiva-escape: <reason>\`, and the count lists it; a whole
+the line above it, \`// @estiva-escape(<rule>): <reason>\`, and \`npm run gates:status\` lists it; a whole
 file that cannot pass yet goes here, with its reason.
 `,
 
@@ -1026,7 +1027,7 @@ instead. What it refuses is the package's to say, and grows with it: the
 (the hook in \`.claude/settings.json\`, for a session started in this folder), in
 \`npm run lint:rules\` and in CI. A session started elsewhere: run
 \`npm run lint:rules\` after changing \`src/\`, and fix what it reports. Keep something
-only with its reason on the line above, \`// @estiva-escape: <reason>\`, never with
+only with its reason on the line above, \`// @estiva-escape(<rule>): <reason>\`, never with
 \`eslint-disable\`.
 
 **Tokens only.** Colours, type, corners and shadows come from the package's preset.

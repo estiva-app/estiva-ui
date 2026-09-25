@@ -65,27 +65,27 @@ tester.run('no-rebuilt-behaviour', noRebuiltBehaviour, {
     // escapes
     {
       name: 'an escape above the statement keeps a page listener',
-      code: effect("  // @estiva-escape: an inline panel, not a floating one, closes on a press outside\n  document.addEventListener('mousedown', close)"),
+      code: effect("  // @estiva-escape(no-rebuilt-behaviour): an inline panel, not a floating one, closes on a press outside\n  document.addEventListener('mousedown', close)"),
     },
     {
       name: 'an escape above the element keeps a hand-written role',
-      code: component('    // @estiva-escape: a list the editor drives from its caret\n    <MenuItem role="option" aria-selected label="Item" />'),
+      code: component('    // @estiva-escape(no-rebuilt-behaviour): a list the editor drives from its caret\n    <MenuItem role="option" aria-selected label="Item" />'),
     },
     {
       name: 'an escape above the object property keeps its arrow keys',
-      code: "useImperativeHandle(ref, () => ({\n  // @estiva-escape: a list the editor drives from its caret\n  onKeyDown: ({ event }) => {\n    if (event.key === 'ArrowDown') next()\n    if (event.key === 'ArrowUp') previous()\n    return false\n  },\n}))",
+      code: "useImperativeHandle(ref, () => ({\n  // @estiva-escape(no-rebuilt-behaviour): a list the editor drives from its caret\n  onKeyDown: ({ event }) => {\n    if (event.key === 'ArrowDown') next()\n    if (event.key === 'ArrowUp') previous()\n    return false\n  },\n}))",
     },
     {
       name: 'an escape above the call keeps a portal',
-      code: "import { createPortal } from 'react-dom'\nfunction Viewer() {\n  // @estiva-escape: becomes the package Lightbox at stage 7\n  return createPortal(<div />, document.body)\n}",
+      code: "import { createPortal } from 'react-dom'\nfunction Viewer() {\n  // @estiva-escape(no-rebuilt-behaviour): becomes the package Lightbox at stage 7\n  return createPortal(<div />, document.body)\n}",
     },
     {
       name: 'an escape above an array item keeps its class',
-      code: "const CLASSES = [\n  'flex',\n  // @estiva-escape: a code block the editor draws, which nothing can wrap\n  '[&_pre]:overflow-x-auto',\n]",
+      code: "const CLASSES = [\n  'flex',\n  // @estiva-escape(no-rebuilt-behaviour): a code block the editor draws, which nothing can wrap\n  '[&_pre]:overflow-x-auto',\n]",
     },
     {
       name: 'one escape above an element covers everything found on it',
-      code: component('    // @estiva-escape: a surface that holds headings, which a button cannot\n    <div role="button" tabIndex={0} className="overflow-auto" />'),
+      code: component('    // @estiva-escape(no-rebuilt-behaviour): a surface that holds headings, which a button cannot\n    <div role="button" tabIndex={0} className="overflow-auto" />'),
     },
   ],
   invalid: [
@@ -175,17 +175,17 @@ tester.run('no-rebuilt-behaviour', noRebuiltBehaviour, {
     // escapes
     {
       name: 'an escape with no reason hides nothing',
-      code: effect("  // @estiva-escape:\n  document.addEventListener('mousedown', close)"),
+      code: effect("  // @estiva-escape(no-rebuilt-behaviour):\n  document.addEventListener('mousedown', close)"),
       errors: [{ messageId: 'escapeWithoutReason', line: 2 }, { messageId: 'press', line: 3 }],
     },
     {
       name: 'an escape above one statement does not reach the next',
-      code: effect("  // @estiva-escape: an inline panel, not a floating one, closes on a press outside\n  document.addEventListener('mousedown', close)\n  document.addEventListener('keydown', onKey)"),
+      code: effect("  // @estiva-escape(no-rebuilt-behaviour): an inline panel, not a floating one, closes on a press outside\n  document.addEventListener('mousedown', close)\n  document.addEventListener('keydown', onKey)"),
       errors: [{ messageId: 'key', line: 4 }],
     },
     {
       name: 'with reportEscapes on, one escape over two findings is counted once',
-      code: component('    // @estiva-escape: a surface that holds headings, which a button cannot\n    <div role="button" tabIndex={0} />'),
+      code: component('    // @estiva-escape(no-rebuilt-behaviour): a surface that holds headings, which a button cannot\n    <div role="button" tabIndex={0} />'),
       settings: { estiva: { reportEscapes: true } },
       errors: [{ messageId: 'escaped', line: 3 }],
     },

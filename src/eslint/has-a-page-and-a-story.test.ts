@@ -17,7 +17,7 @@ const tester = new RuleTester({
 /** Real files of this package, so the rules are tested against what they read. */
 const src = (name: string) => fileURLToPath(new URL(`../${name}`, import.meta.url))
 const code = 'export function Probe() {\n  return null\n}\n'
-const escaped = '// @estiva-escape: a probe file that documents itself in its own page\nexport function Probe() {\n  return null\n}\n'
+const escaped = '// @estiva-escape(component-has-a-page, component-has-a-story): a probe file that documents itself in its own page\nexport function Probe() {\n  return null\n}\n'
 
 describe('the files these rules read', () => {
   it('Button has a page and a story beside it, and FieldLine and MenuItem have both without a component file', () => {

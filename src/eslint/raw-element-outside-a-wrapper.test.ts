@@ -35,7 +35,7 @@ tester.run('raw-element-outside-a-wrapper', rawElementOutsideAWrapper, {
     { name: 'layout inside a component', code: component('    <div>\n      <span>Issues</span>\n    </div>') },
     {
       name: 'a nested element with its reason on the line above',
-      code: component('    <div>\n      {/* @estiva-escape: the trail is one line of text and an anchor keeps it */}\n      <a href="/x">Issues</a>\n    </div>'),
+      code: component('    <div>\n      {/* @estiva-escape(raw-element-outside-a-wrapper): the trail is one line of text and an anchor keeps it */}\n      <a href="/x">Issues</a>\n    </div>'),
     },
   ],
   invalid: [
@@ -66,14 +66,14 @@ tester.run('raw-element-outside-a-wrapper', rawElementOutsideAWrapper, {
     },
     {
       name: 'a reason too short to be a reason',
-      code: component('    <div>\n      {/* @estiva-escape: short */}\n      <a href="/x">Issues</a>\n    </div>'),
+      code: component('    <div>\n      {/* @estiva-escape(raw-element-outside-a-wrapper): short */}\n      <a href="/x">Issues</a>\n    </div>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { messageId: 'nested', data: { name: 'a' } }],
     },
     {
       name: 'an eslint-disable instead of a reason',
       // The tester runs the rule under its bare name; in a real lint the plugin
       // prefixes it, and `isEscaped` compares against whichever the rule has.
-      code: component('    <div>\n      {/* eslint-disable-next-line rule-to-test/raw-element-outside-a-wrapper -- @estiva-escape: the trail keeps its anchor */}\n      <a href="/x">Issues</a>\n    </div>'),
+      code: component('    <div>\n      {/* eslint-disable-next-line rule-to-test/raw-element-outside-a-wrapper -- @estiva-escape(raw-element-outside-a-wrapper): the trail keeps its anchor */}\n      <a href="/x">Issues</a>\n    </div>'),
       // The directive silences the rule's own report, which is exactly why it is
       // refused: `countGates` sees the silenced report and the gate fails on it.
       errors: [{ messageId: 'escapeInDirective' }],

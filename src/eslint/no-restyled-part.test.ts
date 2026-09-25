@@ -68,7 +68,7 @@ tester.run('no-restyled-part', noRestyledPart, {
     { name: 'a style prop is not a class prop', filename: app, code: ui('Button', '    <Button style={{ width: 20 }} data-class="text-h2">x</Button>') },
     { name: 'EmptyState placed', filename: app, code: ui('EmptyState', '    <EmptyState className="mt-2 flex-1" message="Nothing yet" />') },
     // escapes
-    { name: 'escaped, with its reason', filename: app, code: ui('Link', '    // @estiva-escape: the whole row is the link, and no part does that yet\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>') },
+    { name: 'escaped, with its reason', filename: app, code: ui('Link', '    // @estiva-escape(no-restyled-part): the whole row is the link, and no part does that yet\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>') },
     // the package itself
     { name: 'inside the package: a name index.ts does not export', filename: pkg, code: local('Base', './Base', '    <Base className="text-h2" />') },
     { name: 'inside the package: a raw element in a part', filename: pkg, code: 'export function Card() {\n  return <div className="rounded-lg border" />\n}\n' },
@@ -176,7 +176,7 @@ tester.run('no-restyled-part', noRestyledPart, {
     {
       name: 'an escape with no reason is reported, and so is the class',
       filename: app,
-      code: ui('Link', '    // @estiva-escape:\n    <Link href="/x" className="text-h2">x</Link>'),
+      code: ui('Link', '    // @estiva-escape(no-restyled-part):\n    <Link href="/x" className="text-h2">x</Link>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { message: restyled('`text-h2`', '`Link`', ' Use its `variant` or `truncate`.') }],
     },
     {

@@ -131,7 +131,7 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'an escaped element is not an error, while the same element is', run: async () => {
         const raw = await probe(component('<form />'), 'error')()
         if (raw.result !== 'pass') return h.FAIL(`a raw <form> is not caught yet, so this proves nothing: ${raw.detail}`)
-        return probe('export function Probe() {\n  return (\n    // @estiva-escape: a probe that keeps its element on purpose\n    <form />\n  )\n}\n', 'none')()
+        return probe('export function Probe() {\n  return (\n    // @estiva-escape(no-raw-element): a probe that keeps its element on purpose\n    <form />\n  )\n}\n', 'none')()
       } },
       { what: 'a real page, full of elements that are not controls, gets no error', run: realPage },
     ]),
@@ -154,7 +154,7 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'an escaped listener is not an error, while the same listener is', run: async () => {
         const raw = await probe("export function listen() {\n  document.addEventListener('mousedown', () => {})\n}\n", 'error', undefined, 'src/lib/__gates_probe__.ts')()
         if (raw.result !== 'pass') return h.FAIL(`a page listener is not caught yet, so this proves nothing: ${raw.detail}`)
-        return probe("export function listen() {\n  // @estiva-escape: a probe that keeps its listener on purpose\n  document.addEventListener('mousedown', () => {})\n}\n", 'none', undefined, 'src/lib/__gates_probe__.ts')()
+        return probe("export function listen() {\n  // @estiva-escape(no-rebuilt-behaviour): a probe that keeps its listener on purpose\n  document.addEventListener('mousedown', () => {})\n}\n", 'none', undefined, 'src/lib/__gates_probe__.ts')()
       } },
       { what: 'a real page gets no error', run: realPage },
     ]),
@@ -164,7 +164,7 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'an escaped look is not an error, while the same look is', run: async () => {
         const raw = await probe(`import { Link } from '@estiva-app/ui'\n${component('<Link href="/x" className="after:absolute after:inset-0">x</Link>')}`, 'error', '`Link`')()
         if (raw.result !== 'pass') return h.FAIL(`a restyled part is not caught yet, so this proves nothing: ${raw.detail}`)
-        return probe(`import { Link } from '@estiva-app/ui'\nexport function Probe() {\n  return (\n    // @estiva-escape: a probe that keeps its row link on purpose\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>\n  )\n}\n`, 'none')()
+        return probe(`import { Link } from '@estiva-app/ui'\nexport function Probe() {\n  return (\n    // @estiva-escape(no-restyled-part): a probe that keeps its row link on purpose\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>\n  )\n}\n`, 'none')()
       } },
       { what: 'a real page gets no error', run: realPage },
     ]),

@@ -37,7 +37,7 @@ A port has its own steps: the `port` skill.
 Deliberate exceptions carry a comment saying why. An undocumented raw value is a defect.
 There are two forms, and they are not the same:
 
-- **A gate rule** (`estiva/…`, run by `npm run lint:rules`): `// @estiva-escape: <reason>` on the line above, or `{/* @estiva-escape: <reason> */}` in JSX. Never inside an `eslint-disable`.
+- **A gate rule** (`estiva/…`, run by `npm run lint:rules`): `// @estiva-escape(<rule>): <reason>` on the line above, or `{/* @estiva-escape(<rule>): <reason> */}` in JSX, naming the rule it keeps off (B3, 25 September). Never inside an `eslint-disable`.
 - **A token rule** (run by `npm run lint`): `// eslint-disable-next-line <rule> -- @estiva-escape: <reason>` (Katerina's ruling A2, 15 September). See `src/Avatar.tsx` and `src/AvatarGroup.tsx`.
 
 ## Tests

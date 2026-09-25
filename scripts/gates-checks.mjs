@@ -175,7 +175,7 @@ export default function define(h) {
       { what: "a look passed into a part is an error naming the part", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"rounded-lg border\">x</Link>\n}\n", "error", "on `Link` changes how it looks") },
       { what: "placement passed into a part is not", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return <Link href=\"/x\" className=\"mt-2 w-full flex-1 relative\">x</Link>\n}\n", "none") },
       { what: "padding on EmptyState is an error", run: gate("import { EmptyState } from './EmptyState'\nexport function Probe() {\n  return <EmptyState className=\"py-6\" message=\"Nothing yet\" />\n}\n", "error", "EmptyState takes no padding") },
-      { what: "an escape passes the same look", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return (\n    // @estiva-escape: a whole row that is one link, and no part does that yet\n    <Link href=\"/x\" className=\"after:absolute after:inset-0\">x</Link>\n  )\n}\n", "none") },
+      { what: "an escape passes the same look", run: gate("import { Link } from './Link'\nexport function Probe() {\n  return (\n    // @estiva-escape(no-restyled-part): a whole row that is one link, and no part does that yet\n    <Link href=\"/x\" className=\"after:absolute after:inset-0\">x</Link>\n  )\n}\n", "none") },
       { what: "the props that replaced the apps' classes exist", run: () => {
         const missing = [];
         const icon = h.read("src/IconButton.tsx");

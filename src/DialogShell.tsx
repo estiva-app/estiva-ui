@@ -86,7 +86,7 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
 
         {/* Dialog */}
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          {/* @estiva-escape: A3 (Katerina, 24 September: leave CommandPalette alone): a dialog's window and the palette's are left as they are */}
+          {/* @estiva-escape(no-copied-look): A3 (Katerina, 24 September: leave CommandPalette alone): a dialog's window and the palette's are left as they are */}
           <Parts.Popup
             ref={popupRef}
             /*

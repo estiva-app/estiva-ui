@@ -65,7 +65,7 @@ tester.run('no-copied-look', noCopiedLook, {
     {
       name: 'an escape with its reason',
       filename: app,
-      code: probe(`<>\n      {/* @estiva-escape: recorded in GATES.md, a label strip Katerina left as it is */}\n      <span className="${SECTION_LABEL}">x</span>\n    </>`),
+      code: probe(`<>\n      {/* @estiva-escape(no-copied-look): recorded in GATES.md, a label strip Katerina left as it is */}\n      <span className="${SECTION_LABEL}">x</span>\n    </>`),
     },
   ],
   invalid: [
