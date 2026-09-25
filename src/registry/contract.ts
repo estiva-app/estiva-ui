@@ -51,7 +51,10 @@ export function pageProblem(source: string): string | null {
     .map((s) => s.trim())
     .find((s) => s && !s.startsWith('<') && !s.startsWith('import '))
   if (!opening) return 'no opening line under the title saying what the part is'
-  if (!/^##\s+How\s*\n[\s\S]*?```tsx?\n/m.test(text)) return 'no code under "How"'
+  // Only the How section: the code block must sit under How, not in a later section
+  // (a page with none under How and one under What it owns passed, R18).
+  const how = text.split(/^##\s+How\s*$/m)[1]?.split(/^##\s/m)[0] ?? ''
+  if (!/```tsx?\n/.test(how)) return 'no code under "How"'
   return null
 }
 

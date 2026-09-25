@@ -86,8 +86,11 @@ describe('a usage page', () => {
     expect(pageProblem(PAGE.replace('A small count beside a name.\n', ''))).toMatch(/^no opening line/)
   })
 
-  it('fails with no code under How', () => {
+  // R18: the code must be under How itself; one in a later section passed.
+  it('fails with no code under How, even with code further down', () => {
     expect(pageProblem(PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.'))).toBe('no code under "How"')
+    const later = PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.').replace('Nothing. It only draws.', '```tsx\n<Badge count={3} />\n```')
+    expect(pageProblem(later)).toBe('no code under "How"')
   })
 
   it('reads a Windows checkout', () => {
