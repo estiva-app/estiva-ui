@@ -43,6 +43,18 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
  */
 const THEMES: readonly ('signal' | 'ship')[] = process.env.VITEST_STORYBOOK ? ['signal'] : ['signal', 'ship']
 
+/**
+ * **`storybook-draw`** — every story drawn once, with axe off (Katerina's ruling
+ * R19, 25 September): a story that throws fails the gate on the pull request,
+ * not only after a merge in the accessibility job. The preview sets the addon's
+ * own switch, `parameters.a11y.test: 'off'`, where `__ESTIVA_DRAW_ONLY__` is
+ * defined (its afterEach runs axe only when the test is not 'off'); a global
+ * (`a11y: { manual: true }`) did not reach it, measured 25 September.
+ * Accessibility stays one piece of work for later (her ruling of 23 September).
+ * `npm run test:stories`. Not under the sidebar widget, for the reason above.
+ */
+const DRAW = process.env.VITEST_STORYBOOK ? [] : [{ name: 'storybook-draw', globals: { theme: 'signal' }, define: { __ESTIVA_DRAW_ONLY__: 'true' } }]
+
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -55,18 +67,19 @@ export default defineConfig({
           exclude: ['**/node_modules/**', 'dist/**', 'storybook-static/**'],
         },
       },
-      ...THEMES.map((theme) => ({
+      ...[...THEMES.map((theme) => ({ name: `storybook-${theme}`, globals: { theme } as Record<string, unknown>, define: {} as Record<string, string> })), ...DRAW].map(({ name, globals, define }) => ({
         extends: true as const,
+        define,
         plugins: [
           storybookTest({
             configDir: path.join(dirname, '.storybook'),
             storybookScript: 'npm run storybook',
             storybookUrl: 'http://localhost:6008',
-            initialGlobals: { theme },
+            initialGlobals: globals,
           }),
         ],
         test: {
-          name: `storybook-${theme}`,
+          name,
           browser: {
             enabled: true,
             headless: true,

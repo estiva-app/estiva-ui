@@ -52,6 +52,7 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:a11y": "vitest run --project storybook-signal --project storybook-ship",
+    "test:stories": "vitest run --project storybook-draw",
     "typecheck": "tsc --noEmit",
     "prelint": "node build.mjs",
     "lint": "eslint .",

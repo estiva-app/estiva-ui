@@ -6,6 +6,9 @@ import { themes } from 'storybook/theming'
 import { TooltipProvider } from '../src/Tooltip'
 import './preview.css'
 
+/** Set by vitest.config.ts for `npm run test:stories` only: draw, with axe off (R19). */
+declare const __ESTIVA_DRAW_ONLY__: boolean | undefined
+
 /**
  * The two themes the apps render, from the toolbar: `signal` is Peek's,
  * `ship` is Ship's (Katerina, 2026-08-28: the reference shows what the apps
@@ -119,8 +122,10 @@ const preview: Preview = {
     layout: 'centered',
     controls: { expanded: true },
     // Every story is an accessibility test: the panel shows axe's findings and
-    // `npm run test:a11y` fails on them, in the addon's own vocabulary.
-    a11y: { test: 'error' },
+    // `npm run test:a11y` fails on them, in the addon's own vocabulary. The gate's
+    // `npm run test:stories` only draws them (R19): vitest.config.ts defines
+    // __ESTIVA_DRAW_ONLY__ for that project alone, and axe is off there.
+    a11y: { test: typeof __ESTIVA_DRAW_ONLY__ !== 'undefined' && __ESTIVA_DRAW_ONLY__ ? 'off' : 'error' },
     docs: { theme: themes.dark },
     options: {
       storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Components', 'Feedback', 'Overlays', 'Navigation', 'Frame', 'Layout'] },

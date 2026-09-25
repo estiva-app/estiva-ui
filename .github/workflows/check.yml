@@ -103,6 +103,15 @@ jobs:
       - name: The skill
         run: npm run skill:check
 
+      # Every story drawn once in Chromium, so a story that throws fails the pull
+      # request (Katerina's ruling R19, 25 September). Axe is off in this run
+      # (`parameters.a11y.test: 'off'` for this project only): accessibility stays
+      # the main-only `a11y` job below. The headless shell is all it needs.
+      - name: Chromium, for the stories
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Every story draws
+        run: npm run test:stories
+
   # Every story rendered in Chromium and run through axe, once per product
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
   # A story with a violation is a failing test. Its own job, so the browser
