@@ -242,14 +242,17 @@ describe('gates:status', () => {
   // the write goes through.
   it('runs the committed hook and passes only when it refuses the write', () => {
     const settings = (matcher: string, command: string) => ({ '.claude/settings.json': JSON.stringify({ hooks: { PreToolUse: [{ matcher, hooks: [{ type: 'command', command }] }] } }) })
-    const refuses = 'node -e "process.exit(2)" -- gates'
+    const refuses = 'node -e "console.error(String.fromCharCode(60) + \'button\' + String.fromCharCode(62)); process.exit(2)" -- gates'
     expect(helpers(app('hook-refuses', settings('Edit|Write', refuses))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'pass' })
     const broken = helpers(app('hook-broken', settings('Edit|Write', 'node "$CLAUDE_PROJECT_DIR/node_modules/@estiva-app/ui/dist/gates/cli.js" hook'))).hook('.claude/settings.json', 'gates')
     expect(broken).toMatchObject({ result: 'fail', detail: expect.stringContaining('let a raw <button> through (exit 1)') })
     expect(helpers(app('hook-waves', settings('Edit|Write', 'node -e "process.exit(0)" -- gates'))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'fail' })
     expect(helpers(app('hook-never', settings('Read', refuses))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'fail', detail: expect.stringContaining('never for a Write') })
     // The hook is handed the real project folder, as Claude Code hands it.
-    const seen = 'node -e "process.exit(String(process.env.CLAUDE_PROJECT_DIR).endsWith(process.argv[1]) ? 2 : 1)" hook-dir gates'
+    const seen = 'node -e "console.error(String.fromCharCode(60) + \'button\' + String.fromCharCode(62)); process.exit(String(process.env.CLAUDE_PROJECT_DIR).endsWith(process.argv[1]) ? 2 : 1)" hook-dir gates'
+    // Exit 2 for another reason is not a refusal of the button (in the package a new file with no page is refused too).
+    const other = 'node -e "console.error(String.fromCharCode(110) + \'o page\'); process.exit(2)" -- gates'
+    expect(helpers(app('hook-other', settings('Edit|Write', other))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'fail' })
     expect(helpers(app('hook-dir', settings('Edit|Write', seen))).hook('.claude/settings.json', 'gates')).toMatchObject({ result: 'pass' })
   })
 

@@ -60,6 +60,14 @@ describe('create-estiva-app', () => {
     expect(files['.storybook/preview.tsx']).toContain('document.documentElement.dataset.theme = "dark"')
   })
 
+  // The re-review after the audit before UIG-26: the catalogue links every story file's part
+  // to its Docs page, and without autodocs there is none, so `registry:check` failed the
+  // made app's required job on its first commit ("pages-home--docs" leads nowhere). Proved
+  // with the real CLI on a made app: with the tag, "all 2 open"; without it, that failure.
+  it('gives every story file a Docs page, so the catalogue links it and the gate passes', () => {
+    expect(files['.storybook/preview.tsx']).toMatch(/tags: \['autodocs'\]/)
+  })
+
   it('starts the count at zero and keeps the CI job named gate', () => {
     const count = JSON.parse(files['.gates-count.json'])
     expect(Object.values(count.rules)).toEqual([{ errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }])
