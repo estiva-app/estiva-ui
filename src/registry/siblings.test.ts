@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
-import { appName, findSiblings, workspaceOf } from './siblings'
+import { appName, behindBy, findSiblings, workspaceOf } from './siblings'
 
 const workspace = mkdtempSync(join(tmpdir(), 'uig20-'))
 afterAll(() => rmSync(workspace, { recursive: true, force: true }))
@@ -81,5 +81,28 @@ describe.skipIf(!existsSync(cli))('estiva-ui find, with nothing else typed', () 
 
   it('searches no neighbour when told --here', () => {
     expect(find(join(workspace, 'alpha'), 'workbench', '--here')).not.toContain('Workbench')
+  })
+})
+
+// The re-review after the audit before UIG-26: a search from one repository read a
+// neighbour's checkout eleven commits behind, and answered with a part it had deleted.
+describe('behindBy', () => {
+  it('says how far a checkout is behind its main as last fetched, and null for a folder that is none', () => {
+    const base = mkdtempSync(join(tmpdir(), 'behind-'))
+    const git = (cwd: string, ...a: string[]) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd, stdio: 'pipe' })
+    git(base, 'init', '-q', '--bare', '-b', 'main', 'origin.git')
+    git(base, 'clone', '-q', 'origin.git', 'writer')
+    git(join(base, 'writer'), 'commit', '-q', '--allow-empty', '-m', 'one')
+    git(join(base, 'writer'), 'push', '-q', 'origin', 'HEAD:main')
+    git(base, 'clone', '-q', 'origin.git', 'reader')
+    const reader = join(base, 'reader')
+    expect(behindBy(reader)).toBe(0)
+    git(join(base, 'writer'), 'commit', '-q', '--allow-empty', '-m', 'two')
+    git(join(base, 'writer'), 'push', '-q', 'origin', 'HEAD:main')
+    expect(behindBy(reader)).toBe(0)
+    git(reader, 'fetch', '-q')
+    expect(behindBy(reader)).toBe(1)
+    expect(behindBy(tmpdir())).toBeNull()
+    rmSync(base, { recursive: true, force: true })
   })
 })

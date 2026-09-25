@@ -16,6 +16,7 @@
  * somebody's copy) carries the same package name; the app the search runs in
  * wins, then the one whose top folder has the shortest name.
  */
+import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 
@@ -93,4 +94,26 @@ export function findSiblings(workspace: string, { skip = [] }: { skip?: string[]
     byPackage.set(sibling.packageName, sibling)
   }
   return [...byPackage.values()].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * How many commits the checkout that holds `folder` is behind its remote's main,
+ * as last fetched: nothing is fetched, so a search stays quick. Null when it is
+ * not a git checkout or has no remote main. A search that reads a stale copy
+ * answers with parts that are gone (the re-review after the audit before UIG-26:
+ * "files panel" found Peek's deleted FilesPanel in an old checkout), so `find`
+ * says so beside its answer.
+ */
+export function behindBy(folder: string): number | null {
+  const git = (...a: string[]) => {
+    try {
+      return execFileSync('git', ['-C', folder, ...a], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 10000 }).toString().trim()
+    } catch {
+      return null
+    }
+  }
+  const main = git('symbolic-ref', '--short', 'refs/remotes/origin/HEAD') ?? (git('rev-parse', '--verify', '--quiet', 'origin/main') ? 'origin/main' : null)
+  if (!main) return null
+  const count = Number(git('rev-list', '--count', `HEAD..${main}`))
+  return Number.isFinite(count) ? count : null
 }

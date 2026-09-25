@@ -38,7 +38,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CONTRACT_KINDS, contractProblems, linkProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
-import { findSiblings, workspaceOf } from './siblings'
+import { behindBy, findSiblings, workspaceOf } from './siblings'
 import { loaderPath, loaderProblem, loaderText, repositoryOf, settingsPath, settingsWithSearch } from './skill'
 import { storyMapProblems } from './storymap'
 import { CLASSES, validateRegistry, type Registry } from './schema'
@@ -212,6 +212,8 @@ async function main(): Promise<number> {
       const registries: Registry[] = [readPackageRegistry()]
       // An app that cannot be read is said out loud, and the rest still answer.
       const add = async (folder: string, repo: string | undefined) => {
+        const behind = behindBy(folder)
+        if (behind) process.stderr.write(`note: ${repo ?? basename(folder)} (${folder}) is ${behind} commit${behind === 1 ? '' : 's'} behind main as last fetched — its answers may name parts that are gone; pull it\n`)
         try {
           registries.push(await buildApp(folder, repo))
         } catch (error) {
