@@ -109,3 +109,48 @@ export function contractProblems(registry: Registry, root: string): string[] {
   }
   return problems
 }
+
+/** Storybook's id for a title: lower case, every run of other characters one hyphen. */
+const toStoryId = (title: string) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+/** The names a page's section writes as a part: bold or in backticks, starting with a capital. */
+function namedParts(section: string): string[] {
+  return [...section.matchAll(/\*\*([A-Z][A-Za-z0-9]+)\*\*|`([A-Z][A-Za-z0-9]+)`/g)].map((m) => m[1] ?? m[2])
+}
+
+/**
+ * What an app's usage pages name that is not there (the re-review after the audit
+ * before UIG-26, R14): a part named under When or When not that no catalogue has —
+ * Peek's StartTopicDialog sent readers to CreateTopicDialog, deleted by FOL-23 —
+ * and a story a **Seen in** line names that no Storybook has. `known` is every part
+ * of the package and the app; `titles` is the app's Storybook titles, when there
+ * is an index to read them from; `packageIds` the package's story and docs ids, so
+ * a page may send readers to the package's Storybook too.
+ */
+export function nameProblems(registry: Registry, root: string, { known, titles, packageIds = [] }: { known: Set<string>; titles?: Set<string>; packageIds?: string[] }): string[] {
+  const problems: string[] = []
+  for (const entry of registry.entries) {
+    if (!entry.docPage || !existsSync(join(root, entry.docPage))) continue
+    const text = readFileSync(join(root, entry.docPage), 'utf8').replace(/\r\n/g, '\n')
+    for (const heading of ['When', 'When not']) {
+      const section = text.split(new RegExp(`^##\\s+${heading}\\s*$`, 'm'))[1]?.split(/^##\s/m)[0] ?? ''
+      for (const name of new Set(namedParts(section).filter((n) => !known.has(n)))) {
+        problems.push(`${entry.docPage}: "${heading}" names ${name}, which is no part of the package or this app`)
+      }
+    }
+    if (!titles) continue
+    const seenIn = text.match(/^\*\*Seen in\*\*[^\n]*(?:\n(?!\n)[^\n]*)*/m)?.[0] ?? ''
+    for (const [, raw] of seenIn.matchAll(/\*([A-Z][^*/]*\/[^*]+)\*/g)) {
+      // A title may wrap across lines, and a line may break after its slash.
+      const title = raw.replace(/\s+/g, ' ').replace(/\s*\/\s*/g, '/').trim()
+      const id = toStoryId(title)
+      if (titles.has(title) || packageIds.some((p) => p.startsWith(`${id}--`))) continue
+      problems.push(`${entry.docPage}: "Seen in" names ${title}, which no Storybook has`)
+    }
+  }
+  return problems
+}
