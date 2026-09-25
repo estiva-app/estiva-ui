@@ -182,6 +182,13 @@ describe('runHook', () => {
     expect((await runHook({ root: dir, input: fine })).code).toBe(0)
   })
 
+  // The re-review after the audit before UIG-26: only .ts and .tsx were read, so these passed.
+  it('reads every script type under src: a raw button in a .jsx, a page listener in a .mts', async () => {
+    expect((await runHook({ root: dir, input: write('src/Probe.jsx', component('<button type="button">x</button>')) })).code).toBe(2)
+    expect((await runHook({ root: dir, input: write('src/lib/probe.mts', "export function listen() {\n  document.addEventListener('keydown', () => {})\n}\n") })).code).toBe(2)
+    expect((await runHook({ root: dir, input: write('src/Probe.test.jsx', component('<button type="button">x</button>')) })).code).toBe(0)
+  })
+
   it('lets through a test, a declaration file, and anything outside src', async () => {
     for (const path of ['src/Probe.test.tsx', 'src/types.d.ts', 'scripts/probe.tsx']) {
       expect((await runHook({ root: dir, input: write(path, component('<button type="button">x</button>')) })).code).toBe(0)
