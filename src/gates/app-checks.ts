@@ -114,6 +114,7 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
     ]),
     ticket('UIG-7', [
       { what: 'a raw <input> is an error naming TextInput', run: probe(component('<input />'), 'error', 'TextInput') },
+      { what: 'a clickable <div> is an error naming Button (R5)', run: probe(component('<div onClick={() => history.back()}>Back</div>'), 'error', '`Button`') },
       { what: 'a raw <a> is an error naming Link', run: all(h, [probe(component('<a href="/topics">Topics</a>'), 'error', 'Link'), probe(component('<a href="/issues">Issues</a>'), 'error', 'Link')], 'a raw <a> is an error naming Link') },
       { what: 'a raw <form> is an error naming Form, and a file input one naming FilePicker', run: async () => {
         const form = await probe(component('<form />'), 'error', '`Form`')()

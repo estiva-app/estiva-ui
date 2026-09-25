@@ -25,6 +25,10 @@ tester.run('no-raw-element', noRawElement, {
     { name: "the package's Button", code: component('<Button>Save</Button>') },
     { name: 'a member expression named button', code: component('<Foo.button>Save</Foo.button>') },
     { name: 'a name that starts with button', code: component('<buttonish />') },
+    // R5: a handler that only stops the click passes; a part may take one
+    { name: 'a wrapper that only stops the click', code: component('<div onClick={(e) => e.stopPropagation()} onPointerDown={(event) => { event.stopPropagation(); event.preventDefault() }}><Button>Save</Button></div>') },
+    { name: 'a press handler on a part', code: component('<Card onClick={open}>x</Card>') },
+    { name: 'a clickable element, escaped with its reason', code: component('    // @estiva-escape(no-raw-element): a surface that holds headings and lists, which a button cannot hold\n    <div onClick={edit}>x</div>') },
     {
       name: 'the elements that are not controls',
       code: component('    <section>\n      <h1>Title</h1>\n      <p>Text <strong>and</strong> <em>more</em></p>\n      <ul><li>One</li></ul>\n      <img src="x.png" alt="" />\n      <hr />\n      <kbd>Enter</kbd>\n      <svg><path d="M0 0" /></svg>\n      <time dateTime="2026-09-16">today</time>\n    </section>'),
@@ -66,6 +70,16 @@ tester.run('no-raw-element', noRawElement, {
   ],
   invalid: [
     { name: 'a raw button', code: component('    <button type="button">x</button>'), errors: [{ messageId: 'raw', line: 3 }] },
+    {
+      name: 'a clickable div names Button and Card with href (R5)',
+      code: component('    <div onClick={open}>x</div>'),
+      errors: [{ message: 'A clickable <div onClick> is a button made by hand: it takes no focus and answers no key. Use `Button` from @estiva-app/ui; for a whole card that opens something, `Card` with `href`. A handler that only stops the click (`e.stopPropagation()`) is fine.' }],
+    },
+    {
+      name: 'a press that does more than stop the click, on any plain element',
+      code: component('    <li onMouseDown={(e) => { e.preventDefault(); onSearch() }}>\n      <span onPointerDown={handle} />\n    </li>'),
+      errors: [{ messageId: 'clickable', data: { element: '<li onMouseDown>' } }, { messageId: 'clickable', data: { element: '<span onPointerDown>' } }],
+    },
     {
       name: 'an opening tag that spans lines (what grep misses)',
       code: component('    <input\n      type="text"\n      value={x}\n    />'),

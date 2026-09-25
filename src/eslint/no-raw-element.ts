@@ -111,7 +111,43 @@ function isOn(element: JSXOpeningElement, name: string): boolean {
   return attr !== undefined && literal(attr) !== false
 }
 
-type Found = { report: 'raw'; element: string; part: RawElementPart } | { report: 'noPart'; element: string } | null
+type Found = { report: 'raw'; element: string; part: RawElementPart } | { report: 'noPart'; element: string } | { report: 'clickable'; element: string } | null
+
+/** The pointer's press, as a handler on a plain element makes it a control (R5). */
+const CLICK_HANDLERS = ['onClick', 'onMouseDown', 'onMouseUp', 'onPointerDown', 'onPointerUp', 'onDoubleClick']
+
+interface Expression {
+  type: string
+  [key: string]: unknown
+}
+
+/** `e.stopPropagation()` or `e.preventDefault()`: a handler that only keeps the click from what is behind. */
+function onlyStops(handler: Expression | undefined): boolean {
+  if (!handler || (handler.type !== 'ArrowFunctionExpression' && handler.type !== 'FunctionExpression')) return false
+  const body = handler.body as Expression
+  const calls = body.type === 'BlockStatement' ? (body.body as Expression[]).map((s) => (s.type === 'ExpressionStatement' ? (s.expression as Expression) : s)) : [body]
+  return (
+    calls.length > 0 &&
+    calls.every((call) => {
+      if (call.type !== 'CallExpression') return false
+      const callee = call.callee as Expression
+      const property = callee.type === 'MemberExpression' ? (callee.property as Expression) : undefined
+      return property?.type === 'Identifier' && (property.name === 'stopPropagation' || property.name === 'preventDefault')
+    })
+  )
+}
+
+/** A plain element made clickable by hand: the first press handler that does more than stop the click. */
+function clickHandler(element: JSXOpeningElement): string | undefined {
+  for (const name of CLICK_HANDLERS) {
+    const attr = attribute(element, name)
+    if (!attr) continue
+    const value = attr.value
+    const handler = value?.type === 'JSXExpressionContainer' ? (value.expression as Expression | undefined) : undefined
+    if (!onlyStops(handler)) return name
+  }
+  return undefined
+}
 
 /** What this element is to the rule: a raw element with a part, one with none yet, or none of its business. */
 export function classify(element: JSXOpeningElement): Found {
@@ -131,7 +167,14 @@ export function classify(element: JSXOpeningElement): Found {
     return part ? { report: 'raw', element: shown, part } : { report: 'noPart', element: shown }
   }
 
-  if (!Object.hasOwn(RAW_ELEMENT_PARTS, name)) return null
+  if (!Object.hasOwn(RAW_ELEMENT_PARTS, name)) {
+    // A plain element with a press handler is a button drawn by hand (Katerina's ruling R5,
+    // 25 September): no focus, no keys, no look anybody keeps in step. `<option>` and
+    // `<summary>` live inside a control the rule already reads.
+    if (!/^[a-z][a-z0-9]*$/.test(name) || name === 'option' || name === 'summary') return null
+    const handler = clickHandler(element)
+    return handler ? { report: 'clickable', element: `<${name} ${handler}>` } : null
+  }
   if ((name === 'audio' || name === 'video') && !isOn(element, 'controls')) return null
   if (name === 'img' && !attribute(element, 'usemap') && !attribute(element, 'useMap')) return null
 
@@ -150,6 +193,10 @@ export function classify(element: JSXOpeningElement): Found {
  * that says so: the part is made in the package, not by hand in an app
  * (Katerina, 16 September).
  *
+ * A plain element with a press handler (`<div onClick>`) is a control too, and
+ * is refused naming `Button` (R5, 25 September); a handler that only stops the
+ * click reaching what is behind passes.
+ *
  * Only a JSX element written with a lowercase name. `<Button>`,
  * `<Foo.button>` and `createElement('button')` are not this rule's business.
  */
@@ -160,6 +207,8 @@ export const noRawElement: Rule.RuleModule = {
     schema: [],
     messages: {
       raw: 'Use `{{use}}` from @estiva-app/ui instead of a raw {{element}}.{{more}}',
+      clickable:
+        'A clickable {{element}} is a button made by hand: it takes no focus and answers no key. Use `Button` from @estiva-app/ui; for a whole card that opens something, `Card` with `href`. A handler that only stops the click (`e.stopPropagation()`) is fine.',
       noPart: '@estiva-app/ui has no part for a raw {{element}} yet. Do not build one here: ask Katerina, and it gets made in @estiva-app/ui.',
       ...ESCAPE_MESSAGES,
     },
@@ -172,7 +221,8 @@ export const noRawElement: Rule.RuleModule = {
         const found = classify(element)
         if (!found) return
         if (isEscaped(context, element)) return
-        if (found.report === 'noPart') context.report({ loc: element.loc, messageId: 'noPart', data: { element: found.element } })
+        if (found.report === 'clickable') context.report({ loc: element.loc, messageId: 'clickable', data: { element: found.element } })
+        else if (found.report === 'noPart') context.report({ loc: element.loc, messageId: 'noPart', data: { element: found.element } })
         else context.report({ loc: element.loc, messageId: 'raw', data: { element: found.element, use: found.part.use, more: found.part.more ?? '' } })
       },
     }
