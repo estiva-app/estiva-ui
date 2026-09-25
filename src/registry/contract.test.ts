@@ -18,7 +18,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildAppRegistry } from './app'
-import { contractProblems, hasSeenIn, linkProblems, nameProblems, pageProblem } from './contract'
+import { contractProblems, hasSeenIn, linkProblems, nameProblems, pageProblem, whenNotProblem } from './contract'
 
 const made: string[] = []
 afterAll(() => {
@@ -53,6 +53,8 @@ const PAGE = [
   '',
   'A word.',
   '',
+  'No alternative: a count has only this badge.',
+  '',
   '## How',
   '',
   '```tsx',
@@ -78,7 +80,7 @@ describe('a usage page', () => {
   })
 
   it('fails with its sections out of order', () => {
-    const swapped = PAGE.replace('## When not\n\nA word.\n', '').replace('## What it owns', '## When not\n\nA word.\n\n## What it owns')
+    const swapped = PAGE.replace('## When not\n\nA word.\n\nNo alternative: a count has only this badge.\n', '').replace('## What it owns', '## When not\n\nA word.\n\n## What it owns')
     expect(pageProblem(swapped)).toMatch(/^sections out of order/)
   })
 
@@ -91,6 +93,18 @@ describe('a usage page', () => {
     expect(pageProblem(PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.'))).toBe('no code under "How"')
     const later = PAGE.replace('```tsx\n<Badge count={3} />\n```', 'Pass a count.').replace('Nothing. It only draws.', '```tsx\n<Badge count={3} />\n```')
     expect(pageProblem(later)).toBe('no code under "How"')
+  })
+
+  // B8: When not names the part to use instead, or says there is none.
+  it('asks When not to name another real part, or to say there is none', () => {
+    const known = new Set(['Badge', 'Once', 'Chip'])
+    const whenNot = (body: string) => PAGE.replace('A word.\n\nNo alternative: a count has only this badge.', body)
+    expect(whenNotProblem(PAGE, ['Badge'], known)).toBeNull()
+    expect(whenNotProblem(whenNot('A word. That is a **Chip**.'), ['Badge'], known)).toBeNull()
+    expect(whenNotProblem(whenNot('- A word.\n\nNo alternative: a count has only this.'), ['Badge'], known)).toBeNull()
+    expect(whenNotProblem(whenNot('A word.'), ['Badge'], known)).toMatch(/^"When not" names no other part/)
+    // Its own name, a name nothing has, and "No alternative:" mid-line do not count.
+    expect(whenNotProblem(whenNot('Not **Badge** twice, nor a `Widget`. See: No alternative: here.'), ['Badge'], known)).not.toBeNull()
   })
 
   it('reads a Windows checkout', () => {
