@@ -39,6 +39,7 @@ import type { ESLint, Linter } from 'eslint'
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults'
 import { parser as typescriptParser, plugin as typescriptPlugin } from 'typescript-eslint'
+import { INLINE_STYLE_MESSAGE, INLINE_STYLE_TOKEN_KEYS, tokenStylePlugin } from './token-style'
 
 /** Who reads the messages. */
 export type TokenAudience = 'app' | 'package'
@@ -162,8 +163,7 @@ const HAND_WRITTEN = {
   width: `${V}(?:border(?:-[xytrblse])?|divide-[xy]|outline|ring|ring-offset)-\\[(?:length:)?-?[0-9.]+(?:px|rem|em)?\\]$`,
 }
 
-const INLINE_STYLE_TOKEN_PROPERTIES =
-  '/^(color|background|backgroundColor|backgroundImage|fill|stroke|fontSize|border|borderTop|borderRight|borderBottom|borderLeft|borderBlock|borderInline|borderStyle|boxShadow|textShadow)$|Color$/'
+const INLINE_STYLE_TOKEN_PROPERTIES = String(INLINE_STYLE_TOKEN_KEYS)
 
 interface Preset {
   theme: { extend: { fontSize: Record<string, string | [string, unknown]>; borderRadius: Record<string, string> } }
@@ -204,8 +204,10 @@ export function tokenValues({ audience = 'app' }: Pick<TokenLintOptions, 'audien
   return {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/*.test.ts', '**/*.test.tsx'],
-    plugins: { 'token-values': betterTailwindcss, 'token-spacing': betterTailwindcss },
+    plugins: { 'token-values': betterTailwindcss, 'token-spacing': betterTailwindcss, 'token-style': tokenStylePlugin },
     rules: {
+      // A style kept in a const and passed by name (R9): the selector below cannot follow it.
+      'token-style/no-token-style': 'error',
       'token-values/no-restricted-classes': [
         'error',
         {
@@ -252,7 +254,12 @@ export function tokenValues({ audience = 'app' }: Pick<TokenLintOptions, 'audien
         'error',
         {
           selector: `JSXAttribute[name.name="style"] > JSXExpressionContainer > ObjectExpression > Property[key.name=${INLINE_STYLE_TOKEN_PROPERTIES}]`,
-          message: 'An inline style that sets a colour, a font size, a border or a shadow is outside the token contract: use a token class. If the value is computed (a palette, a size from a prop), say why in an eslint-disable comment. Width, height and transforms are fine.',
+          message: INLINE_STYLE_MESSAGE,
+        },
+        // The same key in quotes, `style={{ 'background': 'red' }}` (R9).
+        {
+          selector: `JSXAttribute[name.name="style"] > JSXExpressionContainer > ObjectExpression > Property[key.value=${INLINE_STYLE_TOKEN_PROPERTIES}]`,
+          message: INLINE_STYLE_MESSAGE,
         },
       ],
     },

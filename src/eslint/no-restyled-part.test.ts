@@ -51,6 +51,8 @@ const local = (imports: string, from: string, body: string) => `import { ${impor
 const USE_VARIANT_OR_SIZE = ' Use its `variant` or `size`.'
 const restyled = (classes: string, where: string, use: string) =>
   `${classes} on ${where} changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled: only space, size, flex and grid, and position pass in.${use} A look for what is around it goes on your own element around it.`
+const restyledStyle = (keys: string, where: string, use: string) =>
+  `${keys} in the \`style\` of ${where} changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled, by class or by style: only space, size, flex and grid, and position pass in.${use} A look for what is around it goes on your own element around it.`
 const noProp = (part: string) => ` \`${part}\` has no prop for this yet: ask Katerina, and it gets made in @estiva-app/ui.`
 
 tester.run('no-restyled-part', noRestyledPart, {
@@ -66,6 +68,11 @@ tester.run('no-restyled-part', noRestyledPart, {
     { name: 'a raw element is not a part', filename: app, code: ui('Button', '    <div className="bg-bg-surface text-h2 rounded-lg" />') },
     { name: 'an app component of the same name is not a part', filename: app, code: local('Button', './components/Button', '    <Button className="text-h2" />') },
     { name: 'a style prop is not a class prop', filename: app, code: ui('Button', '    <Button style={{ width: 20 }} data-class="text-h2">x</Button>') },
+    // style on a part: placement keys pass (B6)
+    { name: 'style: space, size, position and a move', filename: app, code: ui('Card', "    <Card style={{ marginTop: 4, 'paddingInline': 8, width: '50%', maxHeight: 240, flexGrow: 1, gridColumn: '1 / 3', position: 'absolute', top: 0, zIndex: 2, transform: `translateY(${y}px)` }} />") },
+    { name: 'style: a const of placement, and a custom property', filename: app, code: "import { Card } from '@estiva-app/ui'\nconst at = { top: 0, left: 0 }\nexport function Probe() {\n  return <Card style={at}><Card style={{ '--row': 2 }} /></Card>\n}\n" },
+    { name: 'style the code works out while it runs passes', filename: app, code: ui('Card', '    <Card style={props.style} />') },
+    { name: 'style on a component that hands on only its className is not read', filename: app, code: local('ConversationCard', './components/ConversationCard', '    <ConversationCard title="x" style={{ opacity: 0.5 }} />') },
     { name: 'EmptyState placed', filename: app, code: ui('EmptyState', '    <EmptyState className="mt-2 flex-1" message="Nothing yet" />') },
     // escapes
     { name: 'escaped, with its reason', filename: app, code: ui('Link', '    // @estiva-escape(no-restyled-part): the whole row is the link, and no part does that yet\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>') },
@@ -74,6 +81,18 @@ tester.run('no-restyled-part', noRestyledPart, {
     { name: 'inside the package: a raw element in a part', filename: pkg, code: 'export function Card() {\n  return <div className="rounded-lg border" />\n}\n' },
   ],
   invalid: [
+    {
+      name: 'style: a corner, an opacity, a weight and a line height (B6)',
+      filename: app,
+      code: ui('Button', '    <Button style={{ borderRadius: 999, opacity: 0.4, fontWeight: 700, lineHeight: 2, marginTop: 4 }}>x</Button>'),
+      errors: [{ message: restyledStyle('`borderRadius` `opacity` `fontWeight` `lineHeight`', '`Button`', USE_VARIANT_OR_SIZE) }],
+    },
+    {
+      name: 'style: quoted keys, a const, and a re-export',
+      filename: app,
+      code: "import { Button } from './components/ui'\nconst look = { 'background': 'red' } as const\nexport function Probe() {\n  return <Button style={look}>x</Button>\n}\n",
+      errors: [{ message: restyledStyle('`background`', '`Button`', USE_VARIANT_OR_SIZE) }],
+    },
     {
       name: 'a colour and a text size, naming the props that carry a look',
       filename: app,

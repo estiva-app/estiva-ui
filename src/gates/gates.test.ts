@@ -79,6 +79,18 @@ describe('tokenLint and tokenValues', () => {
     expect(await lintWith([tokenLint()], "import { cn } from '@estiva-app/ui'\nexport const merged = cn('p-2', 'p-3')\n", 'src/lib/probe.ts')).toEqual([])
   })
 
+  it('refuse a colour in a style with its key in quotes, or kept in a const (R9)', async () => {
+    const quoted = await lintWith([tokenLint(), tokenValues()], component(`<div style={{ 'background': 'red' }}>x</div>`), 'src/Probe.tsx')
+    expect(quoted.filter((m) => m.severity === 2).map((m) => m.ruleId)).toEqual(['no-restricted-syntax'])
+    const kept = `const look = { background: 'red', width: 20 } as const\n${component('<div style={look}>x</div>')}`
+    const constant = await lintWith([tokenLint(), tokenValues()], kept, 'src/Probe.tsx')
+    expect(constant.filter((m) => m.severity === 2)).toEqual([expect.objectContaining({ ruleId: 'token-style/no-token-style', line: 1 })])
+    // A size in a const, and a style worked out while it runs, pass.
+    expect((await lintWith([tokenLint(), tokenValues()], `const at = { width: 20 }\n${component('<div style={at}><div style={props.style} /></div>')}`, 'src/Probe.tsx')).filter((m) => m.severity === 2)).toEqual([])
+    // Its escape works in the gate too: the gate knows the rule's name.
+    expect(await lintWith(gateConfig(), `// eslint-disable-next-line token-style/no-token-style -- @estiva-escape: a colour the probe keeps\n${kept}`, 'src/Probe.tsx')).toEqual([])
+  })
+
   it('leave a test file to its test', async () => {
     const messages = await lintWith([tokenLint(), tokenValues()], component('<div style={{ color: "red" }}>x</div>'), 'src/Probe.test.tsx')
     expect(messages.filter((m) => m.severity === 2)).toEqual([])

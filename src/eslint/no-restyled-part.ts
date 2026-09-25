@@ -54,6 +54,16 @@ export const PLACEMENT: { what: string; pattern: RegExp }[] = [
 ]
 
 /**
+ * The same, as `style` keys (Katerina's ruling B6, 25 September): `style` on a
+ * part is read like its `className`, so a radius, a weight or an opacity cannot
+ * go in by the other door. CSS's own names for space, size, flex and grid, and
+ * position; `transform` and `translate` move a part without changing its look.
+ * A custom property (`--name`) passes: the part decides what it means.
+ */
+export const PLACEMENT_STYLE =
+  /^(?:margin|padding|inset|scrollMargin)(?:Top|Right|Bottom|Left|Block|Inline|BlockStart|BlockEnd|InlineStart|InlineEnd)?$|^(?:width|height|minWidth|minHeight|maxWidth|maxHeight|inlineSize|blockSize|minInlineSize|minBlockSize|maxInlineSize|maxBlockSize)$|^(?:display|flex|flexGrow|flexShrink|flexBasis|order|gap|rowGap|columnGap|alignSelf|justifySelf|placeSelf|gridArea|gridColumn|gridColumnStart|gridColumnEnd|gridRow|gridRowStart|gridRowEnd)$|^(?:position|top|right|bottom|left|zIndex|transform|translate)$/
+
+/**
  * A variant that draws another box or reaches inside the part: `before:`,
  * `after:`, `[&>*]:`, `*:`… A placement class behind one of these is not the
  * part's placement.
@@ -592,6 +602,8 @@ export const noRestyledPart: Rule.RuleModule = {
     messages: {
       restyled:
         '{{classes}} on {{where}} changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled: only space, size, flex and grid, and position pass in.{{use}} A look for what is around it goes on your own element around it.',
+      restyledStyle:
+        '{{keys}} in the `style` of {{where}} changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled, by class or by style: only space, size, flex and grid, and position pass in.{{use}} A look for what is around it goes on your own element around it.',
       emptyStatePadding:
         '{{classes}} pads {{where}}. EmptyState takes no padding (Katerina, 14 September): its room comes from the box its rows live in, so put the padding on that box.',
       ...ESCAPE_MESSAGES,
@@ -628,6 +640,23 @@ export const noRestyledPart: Rule.RuleModule = {
       if (padding.length) context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'emptyStatePadding', data: { classes: code(padding), where } })
     }
 
+    /** `style` on a part: every key it can read must be placement (B6). */
+    const checkStyle = (element: Node, binding: PartBinding, value: Node | null | undefined, at: Node) => {
+      if (binding.props !== 'all' || value?.type !== 'JSXExpressionContainer') return
+      let object = child(value, 'expression')
+      if (object?.type === 'Identifier') object = constantOf(object, scopeOf(object))
+      while (object?.type === 'TSAsExpression' || object?.type === 'TSSatisfiesExpression') object = child(object, 'expression')
+      if (object?.type !== 'ObjectExpression') return
+      const keys = children(object, 'properties')
+        .map((property) => (property?.type === 'Property' && !property.computed ? nameOf(child(property, 'key')) : undefined))
+        .filter((key): key is string => !!key && !key.startsWith('--') && !PLACEMENT_STYLE.test(key))
+      if (!keys.length || escaped(element)) return
+      const props = PART_LOOK_PROPS[binding.part]
+      const use = props ? ` Use its ${or(props)}.` : ` \`${binding.part}\` has no prop for this yet: ask Katerina, and it gets made in @estiva-app/ui.`
+      const where = binding.via && binding.via !== binding.part ? `\`${binding.via}\` (it hands its props to \`${binding.part}\`)` : `\`${binding.part}\``
+      context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'restyledStyle', data: { keys: code([...new Set(keys)]), where, use } })
+    }
+
     return {
       Program(program) {
         locals = moduleParts(file, program as unknown as Node, parser, new Set([file])).locals
@@ -641,6 +670,7 @@ export const noRestyledPart: Rule.RuleModule = {
           if (attribute.type === 'JSXAttribute') {
             const prop = nameOf(child(attribute, 'name'))
             if (prop && CLASS_PROP.test(prop)) check(element, binding, prop, child(attribute, 'value'), attribute)
+            else if (prop === 'style') checkStyle(element, binding, child(attribute, 'value'), attribute)
             continue
           }
           // `{...{ className }}`, or a `const` object spread onto the part.
