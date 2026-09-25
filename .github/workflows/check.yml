@@ -98,6 +98,10 @@ jobs:
       # keep their fuller contract in `src/pages.test.ts`.
       - name: The page contract
         run: npx vitest run --project unit src/pages.test.ts
+      # The code under every page's How compiles against the package (R18): a
+      # wrong part, prop or value on a page fails here, not in a reader's app.
+      - name: The How code compiles
+        run: npx vitest run --project unit src/how.test.ts
       # The Claude skill (UIG-20): it names only parts and props the package
       # has, assumes no app, and its Gotchas still add up against the record.
       - name: The skill
