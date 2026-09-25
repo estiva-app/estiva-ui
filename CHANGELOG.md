@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.35.2 — 2026-09-25 — the fixes the second review asked for
+
+Found by the re-review after the audit before UIG-26 (R6, R14–R18).
+
+### Added
+
+- **`estiva-ui check` refuses a usage page that names what is not there**: a
+  part named in bold or backticks under *When* or *When not* that neither the
+  package nor the app has, and a story a **Seen in** line names that neither
+  Storybook has. FOL-23 left seven Peek pages naming deleted parts and stories.
+- **"Choosing a component" names every part with a page**, and a test holds it.
+  It had no row for ContainerHeader, ListColumn, ScrollArea, Lightbox,
+  ErrorBoundary or Chip.
+- **`find` notes a neighbour whose checkout is behind main**, as last fetched.
+
+### Changed
+
+- **The gate and the hook read every script type in an app's `src`**:
+  `.js`, `.jsx`, `.mjs`, `.cjs`, `.mts` and `.cts` too. The package's own gate
+  stays `.tsx`.
+- **The Storybook-map check** reads the headings from Storybook's own index,
+  understands `storySort: { order: [...] }` and bulleted Introductions as well
+  as Peek's forms, and runs in the package's own check too. The package's
+  order names Layout, last, where it already sat.
+- **An app page's code must sit under *How* itself**, not in a later section.
+
+### What an app does
+
+Take this release. `estiva-ui check` may now refuse pages that name deleted
+parts or stories, or a heading order that has drifted: fix the lines it names.
+Peek (#364) and Ship (#195) carry those fixes.
+
 ## 0.35.1 — 2026-09-25 — a made app is green on its first commit again
 
 Found by the re-review after the audit before UIG-26.
