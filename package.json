@@ -58,6 +58,8 @@
     "prelint:rules": "node build.mjs",
     "lint:rules": "eslint --config eslint.gates.config.js .",
     "postlint:rules": "node dist/gates/cli.js count --repo estiva-ui --package",
+    "pregates:ci": "node build.mjs",
+    "gates:ci": "node dist/gates/cli.js ci --package",
     "pregates:status": "node build.mjs",
     "gates:status": "node dist/gates/cli.js status",
     "pregates:compare": "node build.mjs",

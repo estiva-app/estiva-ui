@@ -81,16 +81,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Gate lint
-        run: npm run lint:rules
-
-      # The token contract as a machine rule: no class Tailwind does not
-      # generate, no Tailwind ramp or palette, no raw colour, no plain
-      # tailwind-merge (eslint.config.js). Blocking since UIG-21: it ran in
-      # `check`, which merging does not require, so CLAUDE.md had to say it in
-      # words. Now the check says it, and the words went.
-      - name: The token contract
-        run: npm run lint
+      # Every step of the gate, as one command (R13, 25 September): the gate
+      # lint and its count, the count committed (B2), the token contract
+      # (`npm run lint`: no class Tailwind does not generate, no ramp or
+      # palette, no raw colour, no plain tailwind-merge), the catalogue, and
+      # the wall's own settings (B13): the committed editor hook refuses a raw
+      # button, and every folder the gate skips is named in docs/GATES.md.
+      # Peek, Ship and every made app run the same command.
+      - name: The gate (estiva-gates ci)
+        run: npm run gates:ci
 
       # The usage-page contract, blocking (UIG-19). Every app's gate runs it as
       # `registry:check`; here it ran only in `check`, which merging does not
@@ -103,11 +102,6 @@ jobs:
       # has, assumes no app, and its Gotchas still add up against the record.
       - name: The skill
         run: npm run skill:check
-      # The catalogue is current, every story link opens, no story hides what a
-      # part draws, and the skill's loader is the one the package writes.
-      # `lint:rules` above has already built dist/.
-      - name: The registry, the story links, what stories show, and the skill's loader
-        run: npm run registry:check
 
   # Every story rendered in Chromium and run through axe, once per product
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).

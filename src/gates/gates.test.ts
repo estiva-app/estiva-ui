@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { ESLint, type Linter } from 'eslint'
 import { afterAll, describe, expect, it } from 'vitest'
+import { countCommitted, hookRuns, skippedFolders, skipsListed } from './ci'
 import { writeGateCount } from './count'
 import { gateConfig, gateLint } from './gate-config'
 import { runHook } from './hook'
@@ -164,6 +165,47 @@ describe('writeGateCount', () => {
   })
 })
 
+describe('estiva-gates ci: the steps no lint runs (B2, B13)', () => {
+  const git = (dir: string, ...args: string[]) => execFileSync('git', ['-c', 'user.name=probe', '-c', 'user.email=probe@example.com', ...args], { cwd: dir, stdio: 'ignore' })
+
+  it('fails when the count the gate writes is not the committed one', async () => {
+    const dir = app('ci-count', { 'src/Plain.tsx': component('<div>x</div>') })
+    git(dir, 'init', '-q')
+    await writeGateCount({ root: dir, repo: 'probe' })
+    git(dir, 'add', '.')
+    git(dir, 'commit', '-q', '-m', 'count')
+    expect(countCommitted(dir)).toEqual([])
+    writeFileSync(join(dir, 'src', 'Kept.tsx'), component('(\n    // @estiva-escape(no-raw-element): a probe that keeps its element on purpose\n    <form />\n  )'))
+    await writeGateCount({ root: dir, repo: 'probe' })
+    const moved = countCommitted(dir)
+    expect(moved[0]).toContain('commit `.gates-count.json`')
+    expect(moved.join('\n')).toContain('"escapes": 1')
+  })
+
+  it('fails when no hook runs before both Write and Edit, or the hook lets a raw button through', () => {
+    const cli = join(root, 'dist', 'gates', 'cli.js').split('\\').join('/')
+    const settings = (matcher: string, command: string) => JSON.stringify({ hooks: { PreToolUse: [{ matcher, hooks: [{ type: 'command', command }] }] } })
+    const dir = app('ci-hook', { '.claude/settings.json': settings('Edit|Write', `node "${cli}" hook`) })
+    expect(hookRuns(dir)).toEqual([])
+    writeFileSync(join(dir, '.claude', 'settings.json'), settings('Write', `node "${cli}" hook`))
+    expect(hookRuns(dir)[0]).toContain('before both Write and Edit')
+    writeFileSync(join(dir, '.claude', 'settings.json'), settings('Edit|Write', 'node -e "process.exit(0)"'))
+    expect(hookRuns(dir)[0]).toContain('let a raw button through')
+    rmSync(join(dir, '.claude'), { recursive: true })
+    expect(hookRuns(dir)[0]).toContain('missing')
+  })
+
+  it('fails when the gate skips a folder the debt page does not name', async () => {
+    const dir = app('ci-skips', { 'docs/GATES-DEBT.md': '# Debt\n\nNothing skipped.\n' })
+    expect(await skipsListed(dir, 'app')).toEqual([])
+    writeFileSync(join(dir, 'eslint.gates.config.js'), `import { gateConfig } from '${built}'\nexport default gateConfig({ ignores: ['demo-scenarios/**'] })\n`)
+    expect(await skippedFolders(dir)).toEqual(['demo-scenarios/**'])
+    expect((await skipsListed(dir, 'app')).join('\n')).toContain('demo-scenarios/**')
+    writeFileSync(join(dir, 'docs', 'GATES-DEBT.md'), '# Debt\n\n`demo-scenarios` is not checked: fixtures for the demo, never shipped.\n')
+    expect(await skipsListed(dir, 'app')).toEqual([])
+  })
+})
+
 describe('runHook', () => {
   const dir = app('hook', { 'src/Page.tsx': 'export function Page() {\n  return <div>x</div>\n}\n' })
   const write = (file_path: string, content: string) => ({ tool_name: 'Write', tool_input: { file_path, content } })
@@ -265,6 +307,14 @@ describe('gates:status', () => {
     expect(h.ciJob('gate', 'lint:rules').result).toBe('pass')
     expect(h.ciJob('check', 'lint:rules').result).toBe('fail')
     expect(h.script('package.json', 'gates:status').result).toBe('pass')
+    // A job that runs `estiva-gates ci` runs the gate's scripts (R13), and nothing else.
+    writeFileSync(join(dir, '.github', 'workflows', 'deploy.yml'), 'jobs:\n  gate:\n    steps:\n      - run: npx estiva-gates ci\n')
+    expect(h.ciJob('gate', 'lint:rules').result).toBe('pass')
+    expect(h.ciJob('gate', 'registry:check').result).toBe('pass')
+    expect(h.ci('lint:tokens').result).toBe('pass')
+    expect(h.ciJob('gate', 'test').result).toBe('fail')
+    writeFileSync(join(dir, '.github', 'workflows', 'deploy.yml'), 'jobs:\n  gate:\n    steps:\n      # - run: npx estiva-gates ci\n      - run: npm test\n')
+    expect(h.ciJob('gate', 'lint:rules').result).toBe('fail')
   })
 
   // Audit A2: a hook is judged by running it, the way Claude Code does, on a raw

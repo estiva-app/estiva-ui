@@ -383,16 +383,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Gate lint
-        run: npm run lint:rules
-      # Colours, type, corners and shadows from the preset only. In \`check\` too,
-      # inside \`npm run lint\`, but only \`gate\` blocks a merge.
-      - name: Token lint
-        run: npm run lint:tokens
-      # Every part of the app says in one line what it is for, so the catalogue
-      # (\`npm run ui:find\`) can offer it before someone builds it again.
-      - name: Every part is described
-        run: npm run registry:check
+      # Every step of the gate, the same command Peek and Ship run: the gate
+      # lint and \`.gates-count.json\` (committed, or this fails), the token
+      # contract, the catalogue (every part says in one line what it is for),
+      # and the wall's own settings: the editor hook in .claude/settings.json
+      # refuses a raw button, and every folder the gate skips is named in
+      # docs/GATES-DEBT.md.
+      - name: The gate (estiva-gates ci)
+        run: npx estiva-gates ci
 `,
 
     'src/index.css': `@import '@estiva-app/ui/tokens.css';
@@ -997,12 +995,13 @@ nothing arrives.
 |---|---|
 | \`npm run typecheck\` | TypeScript, the app and its settings files |
 | \`npm run lint\` | everything: TypeScript's and React's rules, the token contract, the gate |
-| \`npm run lint:rules\` | the gate alone, and \`.gates-count.json\` — CI's job \`gate\` |
+| \`npm run lint:rules\` | the gate alone, and \`.gates-count.json\` |
 | \`npm test\` | the tests |
 | \`npm run build\` | the build |
 | \`npm run gates:status\` | which gates are on, read from the code |
 | \`npm run ui:find <words>\` | what the package and this app already have for it |
-| \`npm run registry:check\` | every part says what it is for — CI's job \`gate\` |
+| \`npm run registry:check\` | every part says what it is for |
+| \`npx estiva-gates ci\` | every step of CI's job \`gate\`: the gate, its count committed, the tokens, the catalogue, the hook |
 | \`npm run storybook\` | the stories |
 
 The gates are the package's, imported rather than copied, so a rule written later

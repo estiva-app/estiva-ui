@@ -71,7 +71,7 @@ describe('create-estiva-app', () => {
   it('starts the count at zero and keeps the CI job named gate', () => {
     const count = JSON.parse(files['.gates-count.json'])
     expect(Object.values(count.rules)).toEqual([{ errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }, { errors: 0, warnings: 0, escapes: 0 }])
-    expect(files['.github/workflows/deploy.yml']).toMatch(/\n {2}gate:\n[\s\S]*npm run lint:rules/)
+    expect(files['.github/workflows/deploy.yml']).toMatch(/\n {2}gate:\n[\s\S]*run: npx estiva-gates ci/)
     expect(files['docs/GATES-DEBT.md']).toContain('Nothing.')
   })
 
@@ -131,7 +131,7 @@ describe('create-estiva-app', () => {
     expect(registry.filesWithoutParts.map((file) => file.file)).toEqual(['src/main.tsx'])
     const scripts = JSON.parse(files['package.json']).scripts
     expect(scripts).toMatchObject({ 'ui:find': 'estiva-ui find', registry: 'estiva-ui build', 'registry:check': 'estiva-ui check' })
-    expect(files['.github/workflows/deploy.yml']).toMatch(/\n {2}gate:\n[\s\S]*npm run registry:check/)
+    expect(files['.github/workflows/deploy.yml']).toMatch(/\n {2}gate:\n[\s\S]*run: npx estiva-gates ci/)
     expect(files['.gitignore'].split('\n')).toContain('registry.json')
   })
 

@@ -2,6 +2,7 @@
 /**
  * `estiva-gates` — the gate pieces as one command (docs/GATES.md §23).
  *
+ *   estiva-gates ci [--package]                    CI's job `gate`: every step of the gate (R13)
  *   estiva-gates count --repo <name> [--package]   write .gates-count.json (postlint:rules)
  *   estiva-gates hook [--app <dir>] [--package]    the editor gate, run by a PreToolUse hook
  *   estiva-gates name-escapes [--config <file>]    once: name the rule in every escape marker (B3)
@@ -20,6 +21,7 @@
  *   node "$CLAUDE_PROJECT_DIR/web/node_modules/@estiva-app/ui/dist/gates/cli.js" hook --app web
  *   node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web
  */
+import { runCi } from './ci'
 import { writeGateCount } from './count'
 import { runHook } from './hook'
 import { nameEscapes } from './name-escapes'
@@ -35,6 +37,8 @@ const audience = flag('package') ? 'package' : 'app'
 
 async function main(): Promise<number> {
   switch (command) {
+    case 'ci':
+      return runCi({ audience })
     case 'count': {
       const repo = value('repo')
       if (!repo) {
@@ -76,7 +80,7 @@ async function main(): Promise<number> {
       return 0
     }
     default:
-      process.stderr.write('estiva-gates <count | hook | status | name-escapes>\n')
+      process.stderr.write('estiva-gates <ci | count | hook | status | name-escapes>\n')
       return 1
   }
 }

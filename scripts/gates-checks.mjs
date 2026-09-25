@@ -250,7 +250,7 @@ export default function define(h) {
         const missing = [
           [/'ui:find': 'estiva-ui find'/, "the ui:find script"],
           [/'registry:check': 'estiva-ui check'/, "the registry:check script"],
-          [/run: npm run registry:check/, "the step in job gate"],
+          [/run: npx estiva-gates ci/, "the step in job gate (estiva-gates ci runs registry:check)"],
           [/'\.gitignore': \[[^\]]*'registry\.json'/, "registry.json in .gitignore"],
         ].filter(([re]) => !re.test(made)).map(([, what]) => what);
         return missing.length ? h.FAIL(`create-app lacks ${missing.join(", ")}`) : h.PASS("create-app writes the scripts, the gate step and the ignore line");

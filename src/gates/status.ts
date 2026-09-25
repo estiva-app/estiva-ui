@@ -142,6 +142,16 @@ const said = (e: unknown) => {
   return { text: `${err.stdout ?? ''}${err.stderr ?? ''}`, message: String(err.message ?? e), code: err.code }
 }
 
+/** The scripts `estiva-gates ci` runs (R13): a job that runs it runs these. */
+const GATE_CI_SCRIPTS = new Set(['lint:rules', 'lint:tokens', 'lint', 'registry:check'])
+
+/** `estiva-gates ci`, as a workflow runs it, when it runs `script`; null otherwise. A comment line does not count. */
+function runsGateCi(text: string, script: string | RegExp): string | null {
+  if (typeof script !== 'string' || !GATE_CI_SCRIPTS.has(script)) return null
+  const m = /^(?!\s*#).*?((?:npx )?estiva-gates ci\b|npm run gates:ci\b|cli\.js"? ci\b)/m.exec(text)
+  return m ? m[1] : null
+}
+
 /** The helpers, bound to one repository. */
 export function helpers(ROOT: string): GateHelpers {
   const abs = (rel: string) => resolve(ROOT, rel)
@@ -264,6 +274,8 @@ export function helpers(ROOT: string): GateHelpers {
       for (const f of files) {
         const m = read(f).match(step)
         if (m) return PASS(`${f} runs npm run ${m[1]}`)
+        const all = runsGateCi(read(f), script)
+        if (all) return PASS(`${f} runs ${all}, which runs npm run ${script}`)
       }
       return FAIL(`no workflow runs npm run ${script}`)
     },
@@ -286,7 +298,9 @@ export function helpers(ROOT: string): GateHelpers {
         if (start === -1) continue
         const end = lines.findIndex((l, i) => i > start && /^ {0,2}\S/.test(l))
         const body = lines.slice(start + 1, end === -1 ? undefined : end).join('\n')
-        return step.test(body) ? PASS(`${f}: the job ${job} runs npm run ${script}`) : FAIL(`${f}: the job ${job} does not run npm run ${script}`)
+        if (step.test(body)) return PASS(`${f}: the job ${job} runs npm run ${script}`)
+        const all = runsGateCi(body, script)
+        return all ? PASS(`${f}: the job ${job} runs ${all}, which runs npm run ${script}`) : FAIL(`${f}: the job ${job} does not run npm run ${script}`)
       }
       return FAIL(`no workflow has a job ${job}`)
     },
