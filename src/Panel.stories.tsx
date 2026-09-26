@@ -84,6 +84,19 @@ export const TwoInAColumn: Story = {
   ),
 }
 
+/** In a plain box with a height, not a flex column: it still fills it, and the body still scrolls. */
+export const InAPlainBox: Story = {
+  decorators: [
+    (Story) => (
+      <div className="h-[560px] w-[380px] border-l border-border-subtle bg-bg-surface">
+        {Story()}
+      </div>
+    ),
+  ],
+  parameters: { layout: 'fullscreen' },
+  render: (args) => <Panel {...args}>{paragraphs(14)}</Panel>,
+}
+
 function Broken(): never {
   throw new Error('The body could not draw itself')
 }

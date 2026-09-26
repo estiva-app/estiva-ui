@@ -17,9 +17,12 @@ import { ScrollArea } from './ScrollArea'
  * nothing to scroll. Here the body is always a `ScrollArea`, so the bar shows
  * as soon as there is more, and an empty panel or a short one has none.
  *
- * It takes the room its column gives it (`flex-1 min-h-0`), never its content's
- * height, so the body is what scrolls, not the page. Two panels in one column
- * share it; a `max-h-*` in `className` caps one of them.
+ * It takes the room it is given, never its content's height, so the body is
+ * what scrolls, not the page: the rest of a flex column (`flex-1 min-h-0`), or
+ * the whole of a plain box with a height (`h-full`). The second was missing in
+ * 0.37.0, and a panel in a plain box grew past it: Peek's thread story pushed
+ * its reply box out of its frame. Two panels in one column share it; a
+ * `max-h-*` in `className` caps one of them.
  *
  * It keeps a crash inside itself, as ListColumn does: if its body, its actions
  * or its footer break, the panel keeps its title and shows `ErrorBoundary`'s
@@ -48,7 +51,7 @@ export interface PanelProps {
 
 function Frame({ title, chevron = false, actions, children, footer, bodyClassName, bodyRef, onBodyScroll, className, broken = false }: PanelProps & { broken?: boolean }) {
   return (
-    <div className={cn('flex min-h-0 flex-1 flex-col', className)}>
+    <div className={cn('flex h-full min-h-0 flex-1 flex-col', className)}>
       <ContainerHeader title={title} chevron={chevron} actions={actions} />
       {broken ? (
         // The message takes the room the body had and centres itself in it.
