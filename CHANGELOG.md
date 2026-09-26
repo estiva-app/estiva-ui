@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.36.1 — 2026-09-26 — the scrollbar shows at rest
+
+### Changed
+
+- **`ScrollArea`'s bar shows whenever there is more to scroll to**, not only
+  while the pointer is over the region or it is moving. A long list said
+  nothing about its length until someone hovered it: Katerina found Peek's
+  folder list in the File page's side column looking complete. A region with
+  nothing more to show still has no bar. Every `ListColumn`, `Sidebar`, menu
+  and dialog that scrolls gets it, in both apps, with no change of theirs.
+
 ## 0.36.0 — 2026-09-25 — Katerina's rulings on the audit and the second review
 
 Everything she ruled on 25 September that the package holds. A made app gets
