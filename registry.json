@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.36.1",
-    "exports": 87,
-    "typeExports": 96,
+    "exports": 88,
+    "typeExports": 97,
     "files": null
   },
   "storybook": {
@@ -3302,6 +3302,80 @@
         "rounded-md text-body-2 transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary",
         "text-center font-mono text-caption tabular-nums text-text-muted"
       ]
+    },
+    {
+      "name": "Panel",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Panel.tsx",
+      "purpose": "A panel of a page: its name in a header, a body that scrolls whenever it is taller than the room it has, and a row fixed at the bottom when there is one.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": true,
+          "note": "The panel's name, in its header. A node for a title that is more than words."
+        },
+        {
+          "name": "chevron",
+          "takes": "true/false",
+          "required": false,
+          "note": "A chevron after the title, as `ContainerHeader` draws it."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "The panel's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The body. It scrolls when it is taller than the panel."
+        },
+        {
+          "name": "footer",
+          "takes": "anything",
+          "required": false,
+          "note": "A row fixed under the body that never scrolls — a reply box."
+        },
+        {
+          "name": "bodyClassName",
+          "takes": "text",
+          "required": false,
+          "note": "The body's own box: its padding, gap and layout — `px-4 pt-3 pb-4`, `flex flex-col gap-2`."
+        },
+        {
+          "name": "bodyRef",
+          "takes": "Ref<HTMLDivElement>",
+          "required": false,
+          "note": "The body's scrolling box, for a panel that reads or drives its scroll: a thread that opens at its newest reply."
+        },
+        {
+          "name": "onBodyScroll",
+          "takes": "UIEventHandler<HTMLDivElement>",
+          "required": false,
+          "note": "Fires as the body scrolls."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only: a cap such as `max-h-[60%]` when it shares a column."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "layout-panel--docs",
+      "storyId": "layout-panel--default",
+      "docPage": "src/Panel.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "Person",
