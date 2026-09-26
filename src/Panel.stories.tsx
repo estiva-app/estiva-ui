@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconDotsVertical } from '@tabler/icons-react'
-import { Button } from './Button'
 import { IconButton } from './IconButton'
 import { Panel } from './Panel'
-import { TextInput } from './TextInput'
 
 /**
  * A panel of a page: a header, a body that scrolls whenever it is taller than
@@ -57,14 +55,13 @@ export const ALongBody: Story = {
 
 /** A row fixed under the body, such as a reply box: the body scrolls above it, and it stays put. */
 export const WithAFooter: Story = {
-  args: { title: 'Replies' },
   render: (args) => (
     <Panel
       {...args}
       footer={
-        <div className="flex items-center gap-2 border-t border-border-subtle px-4 py-3">
-          <TextInput aria-label="Reply" placeholder="Write a reply" className="flex-1" />
-          <Button variant="primary">Send</Button>
+        // A stand-in for whatever the footer holds: the part only keeps it in place.
+        <div className="border-t border-border-subtle p-3">
+          <div className="flex h-10 items-center justify-center rounded-md bg-bg-elevated text-caption text-text-muted">Footer</div>
         </div>
       }
     >
