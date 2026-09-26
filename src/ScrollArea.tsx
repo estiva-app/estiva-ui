@@ -10,8 +10,13 @@ import { cn } from './cn'
  * right-hand padding looks wider than the left. Katerina saw it in every
  * scrolling surface of both apps (2026-09-08). Base UI's `ScrollArea` hides
  * the native bar and draws its own over the content, so nothing moves when
- * it appears; the bar shows while the pointer is over the region or the
- * content is moving, and fades otherwise.
+ * it appears.
+ *
+ * The bar shows whenever the region has more to scroll to, at rest too
+ * (Katerina, 26 September: a long folder list in Peek's side column looked
+ * complete, because the bar waited for the pointer). Base UI writes
+ * `data-has-overflow-y` / `-x` on the bar while that axis overflows; a region
+ * with nothing more to show keeps no bar at all.
  *
  * Three boxes, and each class prop lands on one:
  *
@@ -99,12 +104,12 @@ export function ScrollArea({ orientation = 'vertical', className, viewportClassN
         </BaseScrollArea.Content>
       </BaseScrollArea.Viewport>
       {vertical && (
-        <BaseScrollArea.Scrollbar orientation="vertical" className={cn(BAR, 'w-1.5 justify-center py-0.5 pr-0.5')}>
+        <BaseScrollArea.Scrollbar orientation="vertical" className={cn(BAR, 'w-1.5 justify-center py-0.5 pr-0.5 data-[has-overflow-y]:opacity-100')}>
           <BaseScrollArea.Thumb className={cn(THUMB, 'w-full')} />
         </BaseScrollArea.Scrollbar>
       )}
       {horizontal && (
-        <BaseScrollArea.Scrollbar orientation="horizontal" className={cn(BAR, 'h-1.5 flex-col justify-center px-0.5 pb-0.5')}>
+        <BaseScrollArea.Scrollbar orientation="horizontal" className={cn(BAR, 'h-1.5 flex-col justify-center px-0.5 pb-0.5 data-[has-overflow-x]:opacity-100')}>
           <BaseScrollArea.Thumb className={cn(THUMB, 'h-full')} />
         </BaseScrollArea.Scrollbar>
       )}

@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>
 
 const rows = Array.from({ length: 40 }, (_, i) => `Row ${i + 1}`)
 
-/** A list taller than its box. The bar shows while the pointer is over it or the list is moving. */
+/** A list taller than its box. The bar shows at rest, because there is more to scroll to. */
 export const Default: Story = {
   render: () => (
     <Card className="h-[240px] w-[280px]">
