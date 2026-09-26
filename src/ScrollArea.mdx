@@ -27,9 +27,10 @@ the content is moving; nothing moves when it appears.
 - A box that never overflows. A ScrollArea around it changes nothing, and
   is one more element.
 - The page itself. The browser owns that bar.
+- A whole list column → **ListColumn**, which scrolls its rows itself.
 
-No alternative: neither needs a part. A box that never overflows needs
-nothing around it, and the page's bar is the browser's.
+No alternative for the first two: a box that never overflows needs nothing
+around it, and the page's bar is the browser's.
 
 ## How
 
