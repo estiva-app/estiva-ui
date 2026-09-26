@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.37.1 — 2026-09-26 — Panel fills any box
+
+### Fixed
+
+- **`Panel` fills a plain box with a height**, not only a flex column. In
+  0.37.0 a panel in a plain box grew past it instead of scrolling: moving
+  Peek's thread panel onto it pushed the reply box out of its frame in
+  Storybook. Caught before any app took 0.37.0. A new story, *In a plain
+  box*, holds it.
+
 ## 0.37.0 — 2026-09-26 — scrolling comes from the package
 
 Katerina, 26 September: "I want the scrolling to work from the package, not a
