@@ -89,7 +89,7 @@ const formatBytes = (bytes: number) => {
 const typeLabelOf = (name: string) => extensionOf(name).toUpperCase() || 'FILE'
 
 const TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
-// @estiva-escape: A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
+// @estiva-escape(no-copied-look): A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
 const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
 const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
 
@@ -359,7 +359,7 @@ export function AttachmentCard({
     const failed = state === 'failed'
     const warning = state === 'warning'
     return (
-      // @estiva-escape: a failed or warning file's strong hairline is AttachmentCard's own state; Card's attention hairlines are the soft ones (UIG-9, Katerina 17 September)
+      // @estiva-escape(no-restyled-part): a failed or warning file's strong hairline is AttachmentCard's own state; Card's attention hairlines are the soft ones (UIG-9, Katerina 17 September)
       <Card
         fill="elevated"
         className={cn('group relative flex items-center gap-2 w-[200px] p-1.5 pr-3', failed ? 'border-error-default' : warning && 'border-warning-default', className)}
@@ -390,7 +390,7 @@ export function AttachmentCard({
         {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
             that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
         {onRemove && (
-          // @estiva-escape: N4 (Katerina, 24 September: record only): the small round button Lightbox's close also draws; a part if a third appears
+          // @estiva-escape(no-copied-look): N4 (Katerina, 24 September: record only): the small round button Lightbox's close also draws; a part if a third appears
           <BaseButton
             type="button"
             aria-label={`Remove ${name}`}
@@ -411,7 +411,7 @@ export function AttachmentCard({
 
   // Fades in with the card's hover or keyboard focus, and keeps its slot when hidden, so revealing it never shifts the row.
   const downloadControl = saving ? (
-    // @estiva-escape: Download shows when its card is pointed at or focused, AttachmentCard's own action; IconButton has no reveal on its card's hover (UIG-9, Katerina 17 September)
+    // @estiva-escape(no-restyled-part): Download shows when its card is pointed at or focused, AttachmentCard's own action; IconButton has no reveal on its card's hover (UIG-9, Katerina 17 September)
     <IconButton
       variant="muted"
       tooltip="Download"
@@ -430,7 +430,7 @@ export function AttachmentCard({
     return (
       // `role="status"`: a plain box may not carry a name (axe, aria-prohibited-attr), and a
       // status says what it is doing — loading — to a reader that cannot see the pulse.
-      // @estiva-escape: the loading pulse is AttachmentCard's own state; Card has no loading state (UIG-9, Katerina 17 September)
+      // @estiva-escape(no-restyled-part): the loading pulse is AttachmentCard's own state; Card has no loading state (UIG-9, Katerina 17 September)
       <Card role="status" fill="inset" aria-busy="true" aria-label={`Loading ${name}`} className={cn('w-[180px] h-28 animate-pulse', className)} {...props}>
         {null}
       </Card>
@@ -439,7 +439,7 @@ export function AttachmentCard({
 
   if (drawnState === 'unreadable') {
     return (
-      // @estiva-escape: a file that could not be read is faded as well as dashed, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
+      // @estiva-escape(no-restyled-part): a file that could not be read is faded as well as dashed, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
       <Card fill="inset" unreadable className={cn('flex items-center gap-2 w-[240px] p-1.5 opacity-70', className)} {...props}>
         <div className={TILE_CLASSES}>
           <TypeIcon name={name} />
@@ -494,7 +494,7 @@ export function AttachmentCard({
     </>
   )
   return (
-    // @estiva-escape: a file that cannot be opened is faded, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
+    // @estiva-escape(no-restyled-part): a file that cannot be opened is faded, AttachmentCard's own state; Card has no faded state (UIG-9, Katerina 17 September)
     <Card fill="inset" hover={address ? 'hairline' : 'none'} className={cn('group flex items-center gap-2 w-[240px] p-1.5 pr-1', !address && 'opacity-70', className)} {...props}>
       {address ? (
         <Link href={address} external variant="plain" className="flex items-center gap-2 min-w-0 flex-1" onClick={(event) => event.stopPropagation()}>

@@ -69,7 +69,7 @@ export async function writeGateCount({ root = process.cwd(), repo, audience = 'a
 
   const failures: string[] = []
   if (disabled.length > 0) {
-    failures.push('', 'An eslint-disable switched a gate rule off. Write the reason above the element instead: // @estiva-escape: <reason>')
+    failures.push('', 'An eslint-disable switched a gate rule off. Write the reason above the element instead, naming the rule: // @estiva-escape(<rule>): <reason>')
     for (const d of disabled) failures.push(`  ${relative(root, d.filePath)}:${d.line}  ${d.ruleId}`)
   }
   return { rules, disabled, changed, lines, failures }

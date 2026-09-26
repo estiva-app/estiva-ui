@@ -145,14 +145,14 @@ describe('an app lint with configs.recommended', () => {
   })
 
   it('passes the same element under an escape', async () => {
-    const [result] = await lint(component('    // @estiva-escape: a preview drawn from its own palette\n    <button type="button">x</button>'))
+    const [result] = await lint(component('    // @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button type="button">x</button>'))
     expect(result.messages).toEqual([])
   })
 })
 
 describe('countGates', () => {
   it('counts an error, and an escape only when the lint reports escapes', async () => {
-    const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
+    const code = component('    <div>\n      <button>x</button>\n      {/* @estiva-escape(no-raw-element): a preview drawn from its own palette */}\n      <button>y</button>\n    </div>')
     const none = { errors: 0, warnings: 0, escapes: 0 }
     expect(countGates(await lint(code)).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 0 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none, 'estiva/no-copied-look': none })
     expect(countGates(await lint(code, [countMode])).rules).toEqual({ 'estiva/no-raw-element': { errors: 1, warnings: 0, escapes: 1 }, 'estiva/no-rebuilt-behaviour': none, 'estiva/no-restyled-part': none, 'estiva/no-handmade-header': none, 'estiva/no-handmade-empty-state': none, 'estiva/no-native-title': none, 'estiva/no-copied-look': none })

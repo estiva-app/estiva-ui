@@ -87,7 +87,7 @@ export function linkProblems(registry: Registry, ids: ReadonlySet<string>): stri
  *
  * `root` is the app's own folder: the one its catalogue's paths are relative to.
  */
-export function contractProblems(registry: Registry, root: string): string[] {
+export function contractProblems(registry: Registry, root: string, known: ReadonlySet<string> = new Set(registry.entries.map((e) => e.name))): string[] {
   const problems: string[] = []
   for (const entry of registry.entries) {
     const cls = entry.app?.class
@@ -103,8 +103,15 @@ export function contractProblems(registry: Registry, root: string): string[] {
     const text = readFileSync(join(root, page), 'utf8')
     const problem = pageProblem(text)
     if (problem) problems.push(`${where}: ${page} has ${problem}`)
+    const whenNot = whenNotProblem(text, [entry.name], known)
+    if (whenNot) problems.push(`${where}: ${page}: ${whenNot}`)
     if (entry.storyId === null && !hasSeenIn(text)) {
       problems.push(`${where} is drawn nowhere: give it a story, or write a "**Seen in**" line on ${page} naming the stories that draw it, or why none can`)
+    }
+    // A reusable part links to its page or a story (Katerina's ruling B10, 25 September):
+    // the catalogue reads the page's `<Meta title>`, so a page without one leaves it unlinked.
+    if (entry.storyId === null && entry.docsId === null) {
+      problems.push(`${where} links to nothing in Storybook: give ${page} a \`<Meta title="…" />\`, or give the part a story`)
     }
   }
   return problems
@@ -118,8 +125,26 @@ const toStoryId = (title: string) =>
     .replace(/^-+|-+$/g, '')
 
 /** The names a page's section writes as a part: bold or in backticks, starting with a capital. */
-function namedParts(section: string): string[] {
-  return [...section.matchAll(/\*\*([A-Z][A-Za-z0-9]+)\*\*|`([A-Z][A-Za-z0-9]+)`/g)].map((m) => m[1] ?? m[2])
+export function namedParts(section: string): string[] {
+  return [...section.matchAll(/\*\*`?([A-Z][A-Za-z0-9]+)`?\*\*|`([A-Z][A-Za-z0-9]+)`/g)].map((m) => m[1] ?? m[2])
+}
+
+/** The line a "When not" starts where no part stands in (Katerina's ruling B8). */
+export const NO_ALTERNATIVE = /^No alternative:/m
+
+/**
+ * Why a page's `When not` breaks the ruling B8 (25 September), or null. The plan
+ * asked for "When not — naming the alternative"; CI checked only that the
+ * heading was there, and 29 pages across the three repos named nothing. Now the
+ * section names a real part other than the page's own (`own`), from `known`, or
+ * a line of it starts "No alternative:" and says why there is none.
+ */
+export function whenNotProblem(source: string, own: readonly string[], known: ReadonlySet<string>): string | null {
+  const section = source.replace(/\r\n/g, '\n').split(/^##\s+When not\s*$/m)[1]?.split(/^##\s/m)[0]
+  // A missing section is pageProblem's to report.
+  if (section === undefined || NO_ALTERNATIVE.test(section)) return null
+  if (namedParts(section).some((name) => known.has(name) && !own.includes(name))) return null
+  return '"When not" names no other part: name the part to use instead, as **Name** or `Name`, or start a line "No alternative:" that says why there is none'
 }
 
 /**

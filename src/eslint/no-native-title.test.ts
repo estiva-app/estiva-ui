@@ -40,7 +40,7 @@ tester.run('no-native-title', noNativeTitle, {
     { name: "the app's own component with a title of its own (Peek's NewTopicBanner)", filename: app, code: component('<NewTopicBanner title={name} />', "import { NewTopicBanner } from '@/components/Banner'\n") },
     { name: "a story's title is the Storybook's, an object key", code: "const meta = { title: 'Primitives/Tooltip', component: Tooltip }\nexport default meta\n" },
     { name: 'a prop of another name', code: component('<span aria-label={name} data-title={name}>{name}</span>') },
-    { name: 'an escape with its reason', code: component('<>\n{/* @estiva-escape: the print view has no pointer, and the address must survive a copy */}\n<span title={at}>{at}</span>\n</>') },
+    { name: 'an escape with its reason', code: component('<>\n{/* @estiva-escape(no-native-title): the print view has no pointer, and the address must survive a copy */}\n<span title={at}>{at}</span>\n</>') },
   ],
   invalid: [
     {
@@ -54,7 +54,7 @@ tester.run('no-native-title', noNativeTitle, {
     { name: "a part that hands it on to its element: the apps' status probe", code: component('<Button title="Delete">x</Button>', "import { Button } from '@estiva-app/ui'\n"), errors: native },
     { name: "through the app's re-export", filename: app, code: component('<IconButton title="Close" aria-label="Close">x</IconButton>', "import { IconButton } from '@/components/ui/IconButton'\n"), errors: native },
     { name: "through the app's wrapper that hands its props on", filename: app, code: component('<Button title="Delete">x</Button>', "import { Button } from '@/components/ui/Button'\n"), errors: native },
-    { name: 'an escape with no reason is not an escape', code: component('<>\n{/* @estiva-escape */}\n<span title={at}>{at}</span>\n</>'), errors: [{ messageId: 'escapeWithoutReason' }, ...native] },
+    { name: 'an escape with no reason is not an escape', code: component('<>\n{/* @estiva-escape(no-native-title) */}\n<span title={at}>{at}</span>\n</>'), errors: [{ messageId: 'escapeWithoutReason' }, ...native] },
   ],
 })
 

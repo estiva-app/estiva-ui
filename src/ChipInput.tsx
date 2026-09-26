@@ -62,7 +62,7 @@ export function InputChip({ label, leading, onRemove, removeLabel, truncate, cla
   return (
     <div className={cn(CHIP_BOX, chipPadding(!!leading, !!onRemove), className)}>
       {leading && <span className="flex shrink-0 items-center">{leading}</span>}
-      {/* @estiva-escape: A6 (Katerina, 24 September: record only): a 12px medium label, the text style AttachmentCard's name also uses, not a copy of a part */}
+      {/* @estiva-escape(no-copied-look): A6 (Katerina, 24 September: record only): a 12px medium label, the text style AttachmentCard's name also uses, not a copy of a part */}
       <span className={cn(CHIP_LABEL, truncate && 'min-w-0 truncate')}>{label}</span>
       {/* Base UI's `Button`, as every button in the package is (D6). Base UI
           has no chip of its own — its only chips are `Combobox.Chip` and

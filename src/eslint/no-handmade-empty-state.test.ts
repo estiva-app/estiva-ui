@@ -91,7 +91,7 @@ tester.run('no-handmade-empty-state', noHandmadeEmptyState, {
     { name: 'a box holding more than the line', code: jsx('<div>{rows.length === 0 ? <div className="px-3"><p>Nothing yet.</p><Button>Add one</Button></div> : rows.map((r) => <p key={r}>{r}</p>)}</div>') },
     {
       name: 'an escape with its reason',
-      code: jsx('<div>{rows.length === 0 ? (\n// @estiva-escape: a printed report keeps its own empty line, set in the print style\n<p>Nothing to print.</p>\n) : rows.map((r) => <p key={r}>{r}</p>)}</div>'),
+      code: jsx('<div>{rows.length === 0 ? (\n// @estiva-escape(no-handmade-empty-state): a printed report keeps its own empty line, set in the print style\n<p>Nothing to print.</p>\n) : rows.map((r) => <p key={r}>{r}</p>)}</div>'),
     },
 
     // the right scope
@@ -118,7 +118,7 @@ tester.run('no-handmade-empty-state', noHandmadeEmptyState, {
     },
     {
       name: 'an escape with no reason is not an escape',
-      code: jsx('<div>{rows.length === 0 ? (\n// @estiva-escape\n<p>Nothing to print.</p>\n) : rows.map((r) => <p key={r}>{r}</p>)}</div>'),
+      code: jsx('<div>{rows.length === 0 ? (\n// @estiva-escape(no-handmade-empty-state)\n<p>Nothing to print.</p>\n) : rows.map((r) => <p key={r}>{r}</p>)}</div>'),
       errors: [{ messageId: 'escapeWithoutReason' }, ...handmade],
     },
 

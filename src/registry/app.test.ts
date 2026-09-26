@@ -173,6 +173,22 @@ describe("an app's catalogue", () => {
     expect(registry.storybook.devUrl).toBe('http://localhost:6123')
   })
 
+  // C6: UIG-19's "adding an unclassified component fails the build — proved", proved.
+  it('fails a part with no class, and gives every part the builder finds one', () => {
+    const unclassified = structuredClone(registry)
+    const one = unclassified.entries.find((e) => e.app?.class === 'one-off')!
+    delete (one.app as Partial<NonNullable<RegistryEntry['app']>>).class
+    expect(validateRegistry(unclassified)).toContain(`entries[${unclassified.entries.indexOf(one)}] (${one.name}).app.class is undefined`)
+    const bare = structuredClone(registry)
+    bare.entries[0].app = null
+    expect(validateRegistry(bare).join('\n')).toContain('app is missing on an app entry')
+    // A part added to the app is classified the moment it exists.
+    const dir = app({ ...FIXTURE, 'src/components/Added.tsx': '/** A part nobody has sorted. */\nexport function Added() {\n  return <div />\n}\n' })
+    const added = buildAppRegistry({ root: dir, repo: 'fixture', packageRegistry })
+    expect(added.entries.find((e) => e.name === 'Added')?.app?.class).toBe('unused')
+    expect(added.entries.every((e) => ['re-export', 'reusable', 'one-off', 'promote-candidate', 'unused'].includes(e.app?.class ?? ''))).toBe(true)
+  })
+
   it('counts every .tsx outside stories and tests, and says why a file holds no part', () => {
     // main.tsx, App.tsx, 2 pass-ons, Frame, Card, Timeline, Sync, Ctx, Lonely, Shown, Wide, EmptyState, Lazy, HomePage, Other, hooks.tsx
     expect(registry.builtFrom.files).toBe(17)
@@ -228,6 +244,24 @@ describe("an app's catalogue", () => {
   it('says a part is unused, and whether only its stories reach it', () => {
     expect(entry('Lonely').app).toMatchObject({ class: 'unused', reason: 'Nothing uses it.' })
     expect(entry('Shown').app).toMatchObject({ class: 'unused', reason: 'No file of the app uses it; only its stories do.' })
+  })
+
+  // B9: an app part owns what the part it is owns, followed through the app's own parts.
+  it('gives an app part what the part it returns owns, and a page nothing of its dialogs', () => {
+    const dir = app({
+      'src/ui/Floating.tsx': "/** Hands on the package's Popover. */\nexport { Popover } from '@estiva-app/ui'\n",
+      'src/DeleteDialog.tsx': "import { ConfirmDialog } from '@estiva-app/ui'\n/** Asks before deleting. */\nexport function DeleteDialog() {\n  return <ConfirmDialog open title=\"Delete?\" onConfirm={() => {}} onOpenChange={() => {}} />\n}\n",
+      'src/Ask.tsx': "import { DeleteDialog } from './DeleteDialog'\n/** The app's own wrapper of it. */\nexport function Ask() {\n  return open ? <DeleteDialog /> : null\n}\n",
+      'src/Page.tsx': "import { Ask } from './Ask'\n/** A page that opens it. */\nexport function Page() {\n  return (\n    <>\n      <main>Page</main>\n      <Ask />\n    </>\n  )\n}\n",
+      'src/main.tsx': "import { Page } from './Page'\nimport { Popover } from './ui/Floating'\nexport const all = [<Page key=\"p\" />, <Popover key=\"f\" />]\n",
+    })
+    const entries = buildAppRegistry({ root: dir, repo: 'x', packageRegistry }).entries
+    const ids = (name: string) => entries.find((e) => e.name === name)!.ownsBehaviours.map((owned) => owned.id)
+    expect(ids('DeleteDialog')).toEqual(expect.arrayContaining(['portal', 'focus', 'scroll-lock']))
+    expect(ids('DeleteDialog')).not.toContain('tab-stop')
+    expect(ids('Ask')).toEqual(ids('DeleteDialog'))
+    expect(ids('Page')).toEqual([])
+    expect(ids('Popover')).toEqual(packageRegistry.entries.find((e) => e.name === 'Popover')!.ownsBehaviours.map((owned) => owned.id))
   })
 
   it('takes a kind written beside the part, with its reason', () => {

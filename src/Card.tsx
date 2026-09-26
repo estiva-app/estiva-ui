@@ -127,14 +127,14 @@ export function Card({
   if (href !== undefined) {
     const { ref, ...anchorProps } = props as ComponentPropsWithRef<'a'>
     return (
-      // @estiva-escape: a card that leads somewhere is drawn on Link's anchor (UIG-27 ruling 1), so this frame is Card's own look, not Link restyled
+      // @estiva-escape(no-copied-look, no-restyled-part): a card that leads somewhere is drawn on Link's anchor (UIG-27 ruling 1), so this frame is Card's own look, not Link restyled
       <Link href={href} variant="plain" ref={ref} className={classes} {...anchorProps}>
         {children}
       </Link>
     )
   }
   return (
-    // @estiva-escape: N6 (Katerina, 24 September: leave alone): a card that cuts its content to its corners shares four words with the palette's window by coincidence
+    // @estiva-escape(no-copied-look): N6 (Katerina, 24 September: leave alone): a card that cuts its content to its corners shares four words with the palette's window by coincidence
     <div className={classes} {...props}>
       {children}
     </div>

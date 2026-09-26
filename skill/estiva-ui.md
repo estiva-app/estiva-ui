@@ -32,7 +32,8 @@ and when not to. Most of what gets asked for already exists somewhere.
    refuses a raw element, a rebuilt behaviour or a restyled part, and its error
    names the part to use.
 5. **An exception** carries its reason on the line above it. For the gate:
-   `// @estiva-escape: <reason>`, never `eslint-disable`. For the token lint:
+   `// @estiva-escape(<rule>): <reason>`, naming the one rule it keeps off,
+   never `eslint-disable`. For the token lint:
    `// eslint-disable-next-line <rule> -- @estiva-escape: <reason>`.
 
 ## Gotchas

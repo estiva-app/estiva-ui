@@ -1,5 +1,64 @@
 # Changelog
 
+## 0.36.0 — 2026-09-25 — Katerina's rulings on the audit and the second review
+
+Everything she ruled on 25 September that the package holds. A made app gets
+all of it from its first commit.
+
+### Added
+
+- **`estiva-gates ci`** (R13): CI's job `gate` as one command, the same in
+  every repo. The gate lint and its count; **the count committed** (B2: a pull
+  request that moves what the gate finds and leaves the old count fails); the
+  token contract; the catalogue; and **the wall's own settings** (B13): the
+  committed editor hook refuses a raw button, and every folder the gate skips
+  is named on the debt page. `gates:status` counts a job that runs it as
+  running the scripts it runs.
+- **Every escape listed, with its age** (B1): `gates:status` shows the total
+  and the ones older than 30 days, `-- --escapes` every one. It reads the
+  gate's markers and the token lint's directives; age comes from git.
+- **`estiva-gates name-escapes`** (B3): once, after taking this release, it
+  writes the rule into every escape marker.
+- **The editor hook runs the token contract** (B4): a raw colour or a
+  hand-written size is refused before the write. A copied look, which only
+  warns, reaches Claude as a note on a write let through (R10).
+- **A clickable plain element is refused** (R5): `<div onClick>`, and any
+  plain element with a press handler, names `Button`, or `Card` with `href`.
+  A handler that only stops the click passes.
+- **The gate draws every story** (R19): `npm run test:stories`, with axe off.
+- **The code under every page's How compiles**, in the gate (R18).
+- **When not names the part to use instead** (B8), or starts a line "No
+  alternative:" saying why there is none. The package's page test and every
+  app's `estiva-ui check` hold it.
+- **`gates:status` in an app** lists the parts nothing uses, for Katerina to
+  rule on (R20), and counts the one-offs with no Storybook link (R22).
+
+### Changed
+
+- **An escape names the rules it keeps off** (B3):
+  `// @estiva-escape(<rule>): <reason>`. An unnamed marker is an error that
+  shows the named form, and a marker keeps off only the rules it names.
+- **`style` on a part passes placement only** (B6): a corner, an opacity or a
+  weight is refused as it is in `className`. The token lint reads a style's
+  quoted keys, and follows `style={name}` to its `const` (R9,
+  `token-style/no-token-style`).
+- **A reusable app part links to its page** by the page's `<Meta title>` when
+  it has no story file (B10): every reusable part in Peek and Ship now links.
+  One with no link fails `estiva-ui check`; a one-off needs none.
+- **What a part owns is worked out from the code** (B9): the Base UI parts it
+  draws, and what the part it returns at its root owns, followed through parts
+  inside parts. App parts inherit it.
+
+### What an app does
+
+Take this release, then:
+
+1. `npx estiva-gates name-escapes`, and commit what it rewrites.
+2. Put `npx estiva-gates ci` in the job `gate` in place of its steps.
+3. Name every folder the gate skips on `docs/GATES-DEBT.md`, with why.
+4. Fill the When not lines `estiva-ui check` names, with the words Katerina
+   approved.
+
 ## 0.35.2 — 2026-09-25 — the fixes the second review asked for
 
 Found by the re-review after the audit before UIG-26 (R6, R14–R18).

@@ -29,15 +29,15 @@ tester.run('no-hand-rolled-behaviour', noHandRolledBehaviour, {
     },
     {
       name: 'the import of a portal, kept with its reason',
-      code: "// @estiva-escape: the toast keeps its own portal until migration stage 6\nimport { createPortal } from 'react-dom'\nexport const Probe = () => null\n",
+      code: "// @estiva-escape(no-hand-rolled-behaviour): the toast keeps its own portal until migration stage 6\nimport { createPortal } from 'react-dom'\nexport const Probe = () => null\n",
     },
     {
       name: 'the call, kept with its reason',
-      code: 'export function probe(to: HTMLElement) {\n  // @estiva-escape: the toast keeps its own portal until migration stage 6\n  return createPortal(null, to)\n}\n',
+      code: 'export function probe(to: HTMLElement) {\n  // @estiva-escape(no-hand-rolled-behaviour): the toast keeps its own portal until migration stage 6\n  return createPortal(null, to)\n}\n',
     },
     {
       name: 'a global listener kept with its reason',
-      code: 'export function probe() {\n  // @estiva-escape: the frame measures the window, which no floating part owns\n  window.addEventListener("resize", () => {})\n}\n',
+      code: 'export function probe() {\n  // @estiva-escape(no-hand-rolled-behaviour): the frame measures the window, which no floating part owns\n  window.addEventListener("resize", () => {})\n}\n',
     },
   ],
   invalid: [

@@ -11,21 +11,25 @@
  * - `tokenConfig` — the token lint on its own, as `lint:tokens` runs it (UIG-37).
  * - `gateLint`, `gateConfig` — where the rules apply, and the gate that runs them alone.
  * - `writeGateCount` — `.gates-count.json` (seam S3).
+ * - `runCi` — CI's job `gate`, every step of it (R13).
  * - `runHook` — the editor gate a `PreToolUse` hook runs.
  * - `runStatus`, `helpers` — gates:status and the helpers a checks file is written with.
  *
  * - `appChecks` — the gate checks every app runs, for its `scripts/gates-checks.mjs`.
  * - `appFiles`, `createApp`, `themes` — a new app with every gate on (`create-estiva-app`).
  *
- * `estiva-gates` (`cli.ts`) runs the count, the hook and the status as one command.
+ * `estiva-gates` (`cli.ts`) runs the gate's CI, the count, the hook and the status as one command.
  *
  * Built by build.mjs into `dist/gates/`, for Node. Nothing here reaches the
  * components' browser bundle.
  */
 export { TOKEN_LINT_IGNORES, tokenConfig, tokenLint, tokenValues, type TokenAudience, type TokenConfigOptions, type TokenLintOptions } from './token-lint'
 export { gateConfig, gateLint, type GateConfigOptions } from './gate-config'
+export { countCommitted, hookRuns, runCi, skippedFolders, skipsListed, type CiOptions } from './ci'
 export { writeGateCount, type CountOptions, type CountResult } from './count'
 export { runHook, type HookOptions, type HookResult } from './hook'
+export { nameEscapes, type NameEscapesOptions, type NameEscapesResult } from './name-escapes'
+export { escapeLines, listEscapes, REVIEW_AFTER_DAYS, type Escape } from './escapes'
 export { ENGINE, helpers, runStatus, type CheckResult, type GateCheck, type GateHelpers, type GateSpec, type GateTicket, type LintProbe, type StatusOptions, type TicketListEntry } from './status'
 export { APP_TICKET_TITLES, appChecks, type AppCheckOptions } from './app-checks'
 export { appFiles, askNpm, createApp, themes, type CreateAppOptions } from './create-app'

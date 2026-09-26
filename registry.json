@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.35.2",
+    "packageVersion": "0.36.0",
     "exports": 87,
     "typeExports": 96,
     "files": null
@@ -218,7 +218,20 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "components-attachmentcard--docs",
@@ -728,6 +741,10 @@
         {
           "id": "role",
           "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
         }
       ],
       "status": "stable",
@@ -901,6 +918,22 @@
         {
           "id": "portal",
           "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
         },
         {
           "id": "walking",
@@ -1101,8 +1134,20 @@
           "behaviour": "Floats on top of the page"
         },
         {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
           "id": "focus",
           "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
         },
         {
           "id": "walking",
@@ -1316,7 +1361,20 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
@@ -1414,6 +1472,22 @@
         {
           "id": "portal",
           "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
         },
         {
           "id": "role",
@@ -1710,7 +1784,12 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "inputs-editabletext--docs",
@@ -2483,7 +2562,20 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "inputs-chipinput--docs",
@@ -2569,8 +2661,16 @@
       "variants": [],
       "ownsBehaviours": [
         {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
           "id": "portal",
           "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
         },
         {
           "id": "page-keys",
@@ -2583,6 +2683,10 @@
         {
           "id": "scroll-lock",
           "behaviour": "Stops the page behind it scrolling"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
         }
       ],
       "status": "stable",
@@ -2821,6 +2925,10 @@
           "behaviour": "Takes its keys by itself"
         },
         {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
           "id": "follow",
           "behaviour": "Stays attached to its anchor on scroll and resize"
         },
@@ -2926,7 +3034,16 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "overlays-menuitem--docs",
@@ -3024,7 +3141,16 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
@@ -3093,7 +3219,16 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
@@ -3265,7 +3400,20 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "components-persontrigger--docs",
@@ -3400,6 +3548,10 @@
           "behaviour": "Takes its keys by itself"
         },
         {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
           "id": "follow",
           "behaviour": "Stays attached to its anchor on scroll and resize"
         }
@@ -3493,6 +3645,10 @@
         {
           "id": "press-outside",
           "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
         },
         {
           "id": "follow",
@@ -3757,6 +3913,10 @@
         {
           "id": "base-ui",
           "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
         }
       ],
       "status": "stable",
@@ -3814,7 +3974,12 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "components-reactionpicker--docs",
@@ -3889,6 +4054,10 @@
         {
           "id": "base-ui",
           "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
         },
         {
           "id": "scroll",
@@ -4202,6 +4371,10 @@
           "behaviour": "Takes its keys by itself"
         },
         {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
           "id": "follow",
           "behaviour": "Stays attached to its anchor on scroll and resize"
         },
@@ -4437,6 +4610,10 @@
         {
           "id": "role",
           "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
         }
       ],
       "status": "stable",
@@ -4459,7 +4636,12 @@
       "purposeFrom": "page",
       "props": [],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "inputs-textarea--docs",
@@ -4615,7 +4797,24 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
@@ -4701,6 +4900,10 @@
         {
           "id": "role",
           "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
         }
       ],
       "status": "stable",
@@ -4800,7 +5003,16 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
@@ -4834,7 +5046,16 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
@@ -4920,7 +5141,16 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
@@ -4946,7 +5176,16 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "primitives-toolbar--docs",
@@ -5041,7 +5280,28 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "primitives-tooltip--docs",
@@ -5192,6 +5452,22 @@
         {
           "id": "base-ui",
           "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
         },
         {
           "id": "role",

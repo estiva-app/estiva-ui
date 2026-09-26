@@ -19,6 +19,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import ts from 'typescript'
 import { OWNED_BEHAVIOURS } from '../eslint/index'
+import { asBehaviours, baseUiBehaviours, drawnIn, handedOn, importsOf, isBaseUi, rootsIn, splitTag } from './behaviours'
 import { looksOf, parseForLooks } from '../eslint/looks-of'
 import { SCHEMA_VERSION, type EntryBehaviour, type EntryKind, type EntryProp, type EntryVariant, type Registry, type RegistryEntry } from './schema'
 
@@ -653,6 +654,41 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
   }
 
   if (problems.length) throw new Error(`the registry cannot be built:\n  ${problems.join('\n  ')}`)
+
+  // What each part owns, from what it draws (B9): the Base UI parts in it, and
+  // every part of the package inside it, followed; UIG-8's list is the floor.
+  const moduleByName = new Map(values.map((v) => [v.name, v.module]))
+  const drawing = new Map<string, { drawn: Map<string, Set<string>>; roots: Map<string, Set<string>>; imports: ReturnType<typeof importsOf> }>()
+  const drawingOf = (moduleName: string) => {
+    if (!drawing.has(moduleName)) {
+      const file = moduleOf(moduleName).file
+      const sf = ts.createSourceFile(file, readFileSync(join(root, file), 'utf8'), ts.ScriptTarget.Latest, true, file.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS)
+      drawing.set(moduleName, { drawn: drawnIn(sf), roots: rootsIn(sf), imports: importsOf(sf) })
+    }
+    return drawing.get(moduleName)!
+  }
+  const owns = (name: string, seen: Set<string>): Set<string> => {
+    const out = new Set(behavioursOf(name).map((b) => b.id))
+    const moduleName = moduleByName.get(name)
+    if (!moduleName || seen.has(name)) return out
+    seen.add(name)
+    const { drawn, roots, imports } = drawingOf(moduleName)
+    // The Base UI parts it draws, anywhere in it.
+    for (const tag of drawn.get(name) ?? []) {
+      const [local, piece] = splitTag(tag)
+      const from = imports.get(local)
+      if (from && isBaseUi(from.specifier)) for (const id of baseUiBehaviours(from.imported, piece)) out.add(id)
+    }
+    // The parts it is: what it hands back at its root.
+    for (const tag of roots.get(name) ?? []) {
+      const [local] = splitTag(tag)
+      const from = imports.get(local)
+      const part = from?.specifier.startsWith('./') ? from.imported : !from && local !== name ? local : undefined
+      if (part && moduleByName.has(part)) for (const id of handedOn(part, owns(part, seen))) out.add(id)
+    }
+    return out
+  }
+  for (const entry of entries) if (entry.kind === 'component') entry.ownsBehaviours = asBehaviours(owns(entry.name, new Set()))
 
   entries.sort((a, b) => a.name.localeCompare(b.name))
 

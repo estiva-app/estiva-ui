@@ -38,8 +38,10 @@ if (!existsSync(built)) {
 
 try {
   const { runHook } = await import(pathToFileURL(built).href)
-  const { code, message } = await runHook({ root, audience: 'package' })
+  const { code, message, note } = await runHook({ root, audience: 'package' })
   if (code === 2) process.stderr.write(message)
+  // A copied look only warns: it reaches Claude as context on a write let through (R10).
+  else if (note) process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: `A copied look, let through (it only warns):\n${note}` } })}\n`)
   process.exit(code)
 } catch (error) {
   refuse(error instanceof Error ? error.message.split('\n')[0] : String(error))

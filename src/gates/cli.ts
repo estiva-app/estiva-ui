@@ -2,9 +2,11 @@
 /**
  * `estiva-gates` — the gate pieces as one command (docs/GATES.md §23).
  *
+ *   estiva-gates ci [--package]                    CI's job `gate`: every step of the gate (R13)
  *   estiva-gates count --repo <name> [--package]   write .gates-count.json (postlint:rules)
  *   estiva-gates hook [--app <dir>] [--package]    the editor gate, run by a PreToolUse hook
- *   estiva-gates status [--app <dir>] [--json] [--detail]   gates:status
+ *   estiva-gates name-escapes [--config <file>]    once: name the rule in every escape marker (B3)
+ *   estiva-gates status [--app <dir>] [--json] [--detail] [--escapes]   gates:status
  *
  * An app's `package.json` runs the first and the last through npm, which finds
  * the command in `node_modules/.bin`. The hook is run by path, from the
@@ -19,8 +21,10 @@
  *   node "$CLAUDE_PROJECT_DIR/web/node_modules/@estiva-app/ui/dist/gates/cli.js" hook --app web
  *   node web/node_modules/@estiva-app/ui/dist/gates/cli.js status --app web
  */
+import { runCi } from './ci'
 import { writeGateCount } from './count'
 import { runHook } from './hook'
+import { nameEscapes } from './name-escapes'
 import { runStatus } from './status'
 
 const [command, ...rest] = process.argv.slice(2)
@@ -33,6 +37,8 @@ const audience = flag('package') ? 'package' : 'app'
 
 async function main(): Promise<number> {
   switch (command) {
+    case 'ci':
+      return runCi({ audience })
     case 'count': {
       const repo = value('repo')
       if (!repo) {
@@ -44,6 +50,13 @@ async function main(): Promise<number> {
       if (result.failures.length) process.stderr.write(`${result.failures.join('\n')}\n`)
       return result.failures.length ? 1 : 0
     }
+    case 'name-escapes': {
+      // Once, after taking 0.36.0: every unnamed marker gets the rules it keeps off (B3).
+      const result = await nameEscapes({ config: value('config') })
+      process.stdout.write(`${result.named.length} markers named:\n  ${result.named.join('\n  ')}\n`)
+      if (result.unreached.length) process.stdout.write(`${result.unreached.length} unnamed markers no rule reaches, left as they are:\n  ${result.unreached.join('\n  ')}\n`)
+      return 0
+    }
     case 'hook': {
       // A hook that fails open guards nothing: Claude Code lets a write through
       // on any exit but 2, and a crash exits 1 (audit A2). So a gate that cannot
@@ -52,6 +65,9 @@ async function main(): Promise<number> {
       try {
         const result = await runHook({ app: value('app'), audience })
         if (result.code === 2) process.stderr.write(result.message)
+        // A note on a write let through reaches Claude as additional context: plain
+        // stdout on exit 0 does not, for a PreToolUse hook (code.claude.com/docs/en/hooks-guide).
+        else if (result.note) process.stdout.write(`${JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: `A copied look, let through (it only warns):\n${result.note}` } })}\n`)
         return result.code
       } catch (error) {
         const why = error instanceof Error ? error.message.split('\n')[0] : String(error)
@@ -60,11 +76,11 @@ async function main(): Promise<number> {
       }
     }
     case 'status': {
-      process.stdout.write(`${await runStatus({ app: value('app'), json: flag('json'), detail: flag('detail') })}${flag('json') ? '' : '\n'}`)
+      process.stdout.write(`${await runStatus({ app: value('app'), json: flag('json'), detail: flag('detail'), escapes: flag('escapes') })}${flag('json') ? '' : '\n'}`)
       return 0
     }
     default:
-      process.stderr.write('estiva-gates <count | hook | status>\n')
+      process.stderr.write('estiva-gates <ci | count | hook | status | name-escapes>\n')
       return 1
   }
 }

@@ -278,7 +278,10 @@ async function main(): Promise<number> {
         const registry = await buildApp(root, value('repo'))
         process.stdout.write(`${summary(registry)}\n`)
         // The usage-page contract and the story links (UIG-19): the one copy, run by every app's `gate` job.
-        const broken = contractProblems(registry, root)
+        // A When not may name a part of the package or of this app (B8).
+        const pkg = readPackageRegistry()
+        const known = new Set([...pkg.entries, ...registry.entries].map((e) => e.name))
+        const broken = contractProblems(registry, root, known)
         if (broken.length) {
           process.stderr.write(`${broken.length === 1 ? 'a part breaks' : `${broken.length} parts break`} the usage-page contract:\n  ${broken.join('\n  ')}\n`)
         } else {
@@ -291,9 +294,8 @@ async function main(): Promise<number> {
         const mapped = checkStoryMap(root, registry, linked.headings)
         // What the pages name must still be there (R14): parts under When and When not,
         // and the stories a Seen in line sends a reader to, here or in the package.
-        const pkg = readPackageRegistry()
         const stale = nameProblems(registry, root, {
-          known: new Set([...pkg.entries, ...registry.entries].map((e) => e.name)),
+          known,
           ...(linked.titles ? { titles: linked.titles } : {}),
           packageIds: pkg.entries.flatMap((e) => [e.storyId, e.docsId].filter((id): id is string => Boolean(id))),
         })

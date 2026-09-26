@@ -16,6 +16,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { OWNED_BEHAVIOURS } from './eslint/no-rebuilt-behaviour'
+import { whenNotProblem } from './registry/contract'
 
 /** How a page words each behaviour. `base-ui` is how a part is built, not what it does for a caller. */
 const ROW: Record<string, RegExp> = {
@@ -117,6 +118,11 @@ describe('the page contract', () => {
       it('names only parts that exist under When not', () => {
         const names = [...(section(t, 'When not') ?? '').matchAll(/\*\*`?([A-Z][A-Za-z0-9]*)`?\*\*/g)].map((m) => m[1])
         expect(names.filter((n) => !exported.has(n) && !pages.includes(n))).toEqual([])
+      })
+
+      // B8 (25 September): When not names the part to use instead, or says there is none.
+      it('names another part under When not, or starts a line "No alternative:"', () => {
+        expect(whenNotProblem(t, partsOf(page), exported)).toBeNull()
       })
 
       if (WAITING.includes(page)) return

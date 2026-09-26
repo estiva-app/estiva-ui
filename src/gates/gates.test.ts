@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { ESLint, type Linter } from 'eslint'
 import { afterAll, describe, expect, it } from 'vitest'
+import { countCommitted, hookRuns, skippedFolders, skipsListed } from './ci'
 import { writeGateCount } from './count'
 import { gateConfig, gateLint } from './gate-config'
 import { runHook } from './hook'
@@ -78,6 +79,18 @@ describe('tokenLint and tokenValues', () => {
     expect(await lintWith([tokenLint()], "import { cn } from '@estiva-app/ui'\nexport const merged = cn('p-2', 'p-3')\n", 'src/lib/probe.ts')).toEqual([])
   })
 
+  it('refuse a colour in a style with its key in quotes, or kept in a const (R9)', async () => {
+    const quoted = await lintWith([tokenLint(), tokenValues()], component(`<div style={{ 'background': 'red' }}>x</div>`), 'src/Probe.tsx')
+    expect(quoted.filter((m) => m.severity === 2).map((m) => m.ruleId)).toEqual(['no-restricted-syntax'])
+    const kept = `const look = { background: 'red', width: 20 } as const\n${component('<div style={look}>x</div>')}`
+    const constant = await lintWith([tokenLint(), tokenValues()], kept, 'src/Probe.tsx')
+    expect(constant.filter((m) => m.severity === 2)).toEqual([expect.objectContaining({ ruleId: 'token-style/no-token-style', line: 1 })])
+    // A size in a const, and a style worked out while it runs, pass.
+    expect((await lintWith([tokenLint(), tokenValues()], `const at = { width: 20 }\n${component('<div style={at}><div style={props.style} /></div>')}`, 'src/Probe.tsx')).filter((m) => m.severity === 2)).toEqual([])
+    // Its escape works in the gate too: the gate knows the rule's name.
+    expect(await lintWith(gateConfig(), `// eslint-disable-next-line token-style/no-token-style -- @estiva-escape: a colour the probe keeps\n${kept}`, 'src/Probe.tsx')).toEqual([])
+  })
+
   it('leave a test file to its test', async () => {
     const messages = await lintWith([tokenLint(), tokenValues()], component('<div style={{ color: "red" }}>x</div>'), 'src/Probe.test.tsx')
     expect(messages.filter((m) => m.severity === 2)).toEqual([])
@@ -147,7 +160,7 @@ describe('tokenConfig', () => {
 describe('writeGateCount', () => {
   it('writes the count once, leaves it alone when nothing changed, and fails on a rule switched off', async () => {
     const dir = app('count', {
-      'src/Kept.tsx': component('(\n    // @estiva-escape: a probe that keeps its element on purpose\n    <form />\n  )'),
+      'src/Kept.tsx': component('(\n    // @estiva-escape(no-raw-element): a probe that keeps its element on purpose\n    <form />\n  )'),
     })
     const first = await writeGateCount({ root: dir, repo: 'probe' })
     expect(first.changed).toBe(true)
@@ -161,6 +174,47 @@ describe('writeGateCount', () => {
     writeFileSync(join(dir, 'src', 'Off.tsx'), 'export function Probe() {\n  // eslint-disable-next-line estiva/no-raw-element\n  return <form />\n}\n')
     const off = await writeGateCount({ root: dir, repo: 'probe' })
     expect(off.failures.join('\n')).toContain('src/Off.tsx:3  estiva/no-raw-element'.replace('/', process.platform === 'win32' ? '\\' : '/'))
+  })
+})
+
+describe('estiva-gates ci: the steps no lint runs (B2, B13)', () => {
+  const git = (dir: string, ...args: string[]) => execFileSync('git', ['-c', 'user.name=probe', '-c', 'user.email=probe@example.com', ...args], { cwd: dir, stdio: 'ignore' })
+
+  it('fails when the count the gate writes is not the committed one', async () => {
+    const dir = app('ci-count', { 'src/Plain.tsx': component('<div>x</div>') })
+    git(dir, 'init', '-q')
+    await writeGateCount({ root: dir, repo: 'probe' })
+    git(dir, 'add', '.')
+    git(dir, 'commit', '-q', '-m', 'count')
+    expect(countCommitted(dir)).toEqual([])
+    writeFileSync(join(dir, 'src', 'Kept.tsx'), component('(\n    // @estiva-escape(no-raw-element): a probe that keeps its element on purpose\n    <form />\n  )'))
+    await writeGateCount({ root: dir, repo: 'probe' })
+    const moved = countCommitted(dir)
+    expect(moved[0]).toContain('commit `.gates-count.json`')
+    expect(moved.join('\n')).toContain('"escapes": 1')
+  })
+
+  it('fails when no hook runs before both Write and Edit, or the hook lets a raw button through', () => {
+    const cli = join(root, 'dist', 'gates', 'cli.js').split('\\').join('/')
+    const settings = (matcher: string, command: string) => JSON.stringify({ hooks: { PreToolUse: [{ matcher, hooks: [{ type: 'command', command }] }] } })
+    const dir = app('ci-hook', { '.claude/settings.json': settings('Edit|Write', `node "${cli}" hook`) })
+    expect(hookRuns(dir)).toEqual([])
+    writeFileSync(join(dir, '.claude', 'settings.json'), settings('Write', `node "${cli}" hook`))
+    expect(hookRuns(dir)[0]).toContain('before both Write and Edit')
+    writeFileSync(join(dir, '.claude', 'settings.json'), settings('Edit|Write', 'node -e "process.exit(0)"'))
+    expect(hookRuns(dir)[0]).toContain('let a raw button through')
+    rmSync(join(dir, '.claude'), { recursive: true })
+    expect(hookRuns(dir)[0]).toContain('missing')
+  })
+
+  it('fails when the gate skips a folder the debt page does not name', async () => {
+    const dir = app('ci-skips', { 'docs/GATES-DEBT.md': '# Debt\n\nNothing skipped.\n' })
+    expect(await skipsListed(dir, 'app')).toEqual([])
+    writeFileSync(join(dir, 'eslint.gates.config.js'), `import { gateConfig } from '${built}'\nexport default gateConfig({ ignores: ['demo-scenarios/**'] })\n`)
+    expect(await skippedFolders(dir)).toEqual(['demo-scenarios/**'])
+    expect((await skipsListed(dir, 'app')).join('\n')).toContain('demo-scenarios/**')
+    writeFileSync(join(dir, 'docs', 'GATES-DEBT.md'), '# Debt\n\n`demo-scenarios` is not checked: fixtures for the demo, never shipped.\n')
+    expect(await skipsListed(dir, 'app')).toEqual([])
   })
 })
 
@@ -180,6 +234,29 @@ describe('runHook', () => {
     expect((await runHook({ root: dir, input: edit })).code).toBe(2)
     const fine = { tool_name: 'Edit', tool_input: { file_path: 'src/Page.tsx', old_string: '<div>x</div>', new_string: '<div>y</div>' } }
     expect((await runHook({ root: dir, input: fine })).code).toBe(0)
+  })
+
+  // B4 (Katerina, 25 September): the token contract is refused before the write, not only in CI.
+  it('refuses a hand-written size and a raw colour before the write, naming the token', async () => {
+    const result = await runHook({ root: dir, input: write('src/Probe.tsx', component('<div className="text-[13px] bg-[#ff0000]">x</div>')) })
+    expect(result.code).toBe(2)
+    expect(result.message).toContain('token-values/no-restricted-classes')
+  })
+
+  // R10: a copied look only warns, so the write goes through, with a note Claude sees.
+  it('lets a copied look through with a note, and no note when nothing is copied', async () => {
+    const own = app('hook-copied', {
+      // An app's Tailwind config, on the package preset: the token lint knows its classes from it.
+      'tailwind.config.js': `import estiva from '${pathToFileURL(join(root, 'tailwind-preset.js')).href}'\nexport default { presets: [estiva], content: ['./src/**/*.tsx'] }\n`,
+      'src/Badge.tsx': '/** A badge. */\nexport function Badge() {\n  return <span className="inline-flex items-center rounded-md border border-border-default bg-bg-elevated px-2 text-caption text-text-secondary">x</span>\n}\n',
+      // Already there, so the write is an edit of a part, not a new one the search stops.
+      'src/Probe.tsx': component('<span>y</span>'),
+    })
+    const copied = await runHook({ root: own, input: write('src/Probe.tsx', component('<span className="inline-flex items-center rounded-md border border-border-default bg-bg-elevated px-2 text-caption text-text-secondary">y</span>')) })
+    expect(copied.code).toBe(0)
+    expect(copied.note).toContain('Badge')
+    const plain = await runHook({ root: own, input: write('src/Probe.tsx', component('<span className="mt-2">y</span>')) })
+    expect(plain).toEqual({ code: 0, message: '' })
   })
 
   // The re-review after the audit before UIG-26: only .ts and .tsx were read, so these passed.
@@ -242,6 +319,14 @@ describe('gates:status', () => {
     expect(h.ciJob('gate', 'lint:rules').result).toBe('pass')
     expect(h.ciJob('check', 'lint:rules').result).toBe('fail')
     expect(h.script('package.json', 'gates:status').result).toBe('pass')
+    // A job that runs `estiva-gates ci` runs the gate's scripts (R13), and nothing else.
+    writeFileSync(join(dir, '.github', 'workflows', 'deploy.yml'), 'jobs:\n  gate:\n    steps:\n      - run: npx estiva-gates ci\n')
+    expect(h.ciJob('gate', 'lint:rules').result).toBe('pass')
+    expect(h.ciJob('gate', 'registry:check').result).toBe('pass')
+    expect(h.ci('lint:tokens').result).toBe('pass')
+    expect(h.ciJob('gate', 'test').result).toBe('fail')
+    writeFileSync(join(dir, '.github', 'workflows', 'deploy.yml'), 'jobs:\n  gate:\n    steps:\n      # - run: npx estiva-gates ci\n      - run: npm test\n')
+    expect(h.ciJob('gate', 'lint:rules').result).toBe('fail')
   })
 
   // Audit A2: a hook is judged by running it, the way Claude Code does, on a raw

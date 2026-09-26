@@ -25,6 +25,10 @@ tester.run('no-raw-element', noRawElement, {
     { name: "the package's Button", code: component('<Button>Save</Button>') },
     { name: 'a member expression named button', code: component('<Foo.button>Save</Foo.button>') },
     { name: 'a name that starts with button', code: component('<buttonish />') },
+    // R5: a handler that only stops the click passes; a part may take one
+    { name: 'a wrapper that only stops the click', code: component('<div onClick={(e) => e.stopPropagation()} onPointerDown={(event) => { event.stopPropagation(); event.preventDefault() }}><Button>Save</Button></div>') },
+    { name: 'a press handler on a part', code: component('<Card onClick={open}>x</Card>') },
+    { name: 'a clickable element, escaped with its reason', code: component('    // @estiva-escape(no-raw-element): a surface that holds headings and lists, which a button cannot hold\n    <div onClick={edit}>x</div>') },
     {
       name: 'the elements that are not controls',
       code: component('    <section>\n      <h1>Title</h1>\n      <p>Text <strong>and</strong> <em>more</em></p>\n      <ul><li>One</li></ul>\n      <img src="x.png" alt="" />\n      <hr />\n      <kbd>Enter</kbd>\n      <svg><path d="M0 0" /></svg>\n      <time dateTime="2026-09-16">today</time>\n    </section>'),
@@ -37,31 +41,45 @@ tester.run('no-raw-element', noRawElement, {
     { name: 'controls written as false', code: component('<audio src="a.mp3" controls={false} />') },
     {
       name: 'a line comment escape directly above',
-      code: component('    // @estiva-escape: a preview drawn from its own palette\n    <button type="button">x</button>'),
+      code: component('    // @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button type="button">x</button>'),
+    },
+    {
+      name: 'a marker naming two rules keeps off each of them, written with or without the plugin name',
+      code: component('    // @estiva-escape(no-rebuilt-behaviour, estiva/no-raw-element): a preview drawn from its own palette\n    <button type="button">x</button>'),
     },
     {
       name: 'a JSX comment escape on the line above a child',
-      code: component('    <div>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <button type="button">x</button>\n    </div>'),
+      code: component('    <div>\n      {/* @estiva-escape(no-raw-element): a preview drawn from its own palette */}\n      <button type="button">x</button>\n    </div>'),
     },
     {
       name: 'a JSX comment escape over several lines',
-      code: component('    <div>\n      {/*\n        @estiva-escape: a preview drawn from its own palette\n      */}\n      <button type="button">x</button>\n    </div>'),
+      code: component('    <div>\n      {/*\n        @estiva-escape(no-raw-element): a preview drawn from its own palette\n      */}\n      <button type="button">x</button>\n    </div>'),
     },
     {
       name: 'an escape above an opening tag that spans lines',
-      code: component('    // @estiva-escape: a preview drawn from its own palette\n    <button\n      type="button"\n      onClick={() => {}}\n    >\n      x\n    </button>'),
+      code: component('    // @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button\n      type="button"\n      onClick={() => {}}\n    >\n      x\n    </button>'),
     },
     {
       name: 'exactly ten characters of reason, spaces not counted',
-      code: component('    // @estiva-escape: ab cd ef gh ij\n    <button>x</button>'),
+      code: component('    // @estiva-escape(no-raw-element): ab cd ef gh ij\n    <button>x</button>'),
     },
     {
       name: 'an element with no part, escaped',
-      code: component('    // @estiva-escape: a map from another service, until the package has a frame\n    <iframe src="https://example.com" title="Map" />'),
+      code: component('    // @estiva-escape(no-raw-element): a map from another service, until the package has a frame\n    <iframe src="https://example.com" title="Map" />'),
     },
   ],
   invalid: [
     { name: 'a raw button', code: component('    <button type="button">x</button>'), errors: [{ messageId: 'raw', line: 3 }] },
+    {
+      name: 'a clickable div names Button and Card with href (R5)',
+      code: component('    <div onClick={open}>x</div>'),
+      errors: [{ message: 'A clickable <div onClick> is a button made by hand: it takes no focus and answers no key. Use `Button` from @estiva-app/ui; for a whole card that opens something, `Card` with `href`. A handler that only stops the click (`e.stopPropagation()`) is fine.' }],
+    },
+    {
+      name: 'a press that does more than stop the click, on any plain element',
+      code: component('    <li onMouseDown={(e) => { e.preventDefault(); onSearch() }}>\n      <span onPointerDown={handle} />\n    </li>'),
+      errors: [{ messageId: 'clickable', data: { element: '<li onMouseDown>' } }, { messageId: 'clickable', data: { element: '<span onPointerDown>' } }],
+    },
     {
       name: 'an opening tag that spans lines (what grep misses)',
       code: component('    <input\n      type="text"\n      value={x}\n    />'),
@@ -106,7 +124,7 @@ tester.run('no-raw-element', noRawElement, {
 
     {
       name: 'an escape with no reason is an error, and hides nothing',
-      code: component('    // @estiva-escape:\n    <button>x</button>'),
+      code: component('    // @estiva-escape(no-raw-element):\n    <button>x</button>'),
       errors: [
         { messageId: 'escapeWithoutReason', line: 3 },
         { messageId: 'raw', line: 4 },
@@ -114,22 +132,36 @@ tester.run('no-raw-element', noRawElement, {
     },
     {
       name: 'nine characters of reason is too short',
-      code: component('    <div>\n      {/* @estiva-escape: ab cd ef gh i */}\n      <button>x</button>\n    </div>'),
+      code: component('    <div>\n      {/* @estiva-escape(no-raw-element): ab cd ef gh i */}\n      <button>x</button>\n    </div>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { messageId: 'raw' }],
     },
     {
       name: 'a marker with no colon and no reason',
-      code: component('    // @estiva-escape\n    <button>x</button>'),
+      code: component('    // @estiva-escape(no-raw-element)\n    <button>x</button>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { messageId: 'raw' }],
+    },
+    // B3 (Katerina, 25 September): a marker keeps off only the rules it names.
+    {
+      name: 'a marker that names no rule escapes nothing, and says which name to write',
+      code: component('    // @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'),
+      errors: [
+        { line: 3, message: 'Name the rule this escape keeps off: `@estiva-escape(no-raw-element): <reason>`. An escape now keeps off only the rules it names.' },
+        { messageId: 'raw', line: 4 },
+      ],
+    },
+    {
+      name: 'a marker that names another rule does not keep this one off',
+      code: component('    // @estiva-escape(no-rebuilt-behaviour): a preview drawn from its own palette\n    <button>x</button>'),
+      errors: [{ messageId: 'raw', line: 4 }],
     },
     {
       name: 'an escape two lines above does not reach the element',
-      code: component('    // @estiva-escape: a preview drawn from its own palette\n\n    <button>x</button>'),
+      code: component('    // @estiva-escape(no-raw-element): a preview drawn from its own palette\n\n    <button>x</button>'),
       errors: [{ messageId: 'raw', line: 5 }],
     },
     {
       name: 'an escape above a sibling does not reach the next element',
-      code: component('    <div>\n      {/* @estiva-escape: a preview drawn from its own palette */}\n      <span />\n      <button>x</button>\n    </div>'),
+      code: component('    <div>\n      {/* @estiva-escape(no-raw-element): a preview drawn from its own palette */}\n      <span />\n      <button>x</button>\n    </div>'),
       errors: [{ messageId: 'raw', line: 6 }],
     },
     {
@@ -139,23 +171,23 @@ tester.run('no-raw-element', noRawElement, {
     },
     {
       name: 'a marker inside a directive that switches every rule off is refused',
-      code: component('    // eslint-disable-next-line -- @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'),
+      code: component('    // eslint-disable-next-line -- @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button>x</button>'),
       // The directive silences the element's own report; the refusal sits on the directive's line.
       errors: [{ messageId: 'escapeInDirective', line: 3 }],
     },
     {
       name: 'a marker inside a directive that names this rule is refused',
-      code: component('    // eslint-disable-next-line rule-to-test/no-raw-element -- @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'),
+      code: component('    // eslint-disable-next-line rule-to-test/no-raw-element -- @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button>x</button>'),
       errors: [{ messageId: 'escapeInDirective', line: 3 }],
     },
     {
       name: "the token lint's note for another rule is not an escape of this one",
-      code: component('    // eslint-disable-next-line no-console -- @estiva-escape: its hand-written type waits for that\n    <button>x</button>'),
+      code: component('    // eslint-disable-next-line no-console -- @estiva-escape(no-raw-element): its hand-written type waits for that\n    <button>x</button>'),
       errors: [{ messageId: 'raw', line: 4 }],
     },
     {
       name: 'with reportEscapes on, a sanctioned escape is reported for the count',
-      code: component('    // @estiva-escape: a preview drawn from its own palette\n    <button>x</button>'),
+      code: component('    // @estiva-escape(no-raw-element): a preview drawn from its own palette\n    <button>x</button>'),
       settings: { estiva: { reportEscapes: true } },
       errors: [{ messageId: 'escaped', data: { reason: 'a preview drawn from its own palette' }, line: 3 }],
     },

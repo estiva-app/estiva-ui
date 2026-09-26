@@ -32,6 +32,8 @@ leading slots.
 ```tsx
 import { ChipInput } from '@estiva-app/ui'
 
+const directory: { id: string; label: string; picture?: string }[] = people
+
 <ChipInput
   value={chosen}
   onChange={setChosen}

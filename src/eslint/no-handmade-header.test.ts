@@ -33,7 +33,7 @@ tester.run('no-handmade-header', noHandmadeHeader, {
     { name: 'a column of rows', code: component('<div className="flex h-full flex-col">\n<div className="flex flex-col px-3"><span>{title}</span></div>\n<div />\n</div>') },
     {
       name: 'an escape with its reason',
-      code: component('<div className="flex h-full flex-col">\n{/* @estiva-escape: a print header that must not follow the theme */}\n<div className="flex items-center px-3 py-2"><span>{title}</span></div>\n<div />\n</div>'),
+      code: component('<div className="flex h-full flex-col">\n{/* @estiva-escape(no-handmade-header): a print header that must not follow the theme */}\n<div className="flex items-center px-3 py-2"><span>{title}</span></div>\n<div />\n</div>'),
     },
   ],
   invalid: [
@@ -82,7 +82,7 @@ tester.run('no-handmade-header', noHandmadeHeader, {
     },
     {
       name: 'an escape with no reason escapes nothing',
-      code: component('<div className="flex h-full flex-col">\n{/* @estiva-escape: */}\n<div className="flex items-center px-3 py-2"><span>{title}</span></div>\n<div />\n</div>'),
+      code: component('<div className="flex h-full flex-col">\n{/* @estiva-escape(no-handmade-header): */}\n<div className="flex items-center px-3 py-2"><span>{title}</span></div>\n<div />\n</div>'),
       errors: [{ messageId: 'escapeWithoutReason' }, { messageId: 'handmade' }],
     },
   ],

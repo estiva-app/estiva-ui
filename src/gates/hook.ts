@@ -13,7 +13,9 @@
  * UIG-4 findings).
  *
  * It runs the gate's own config and reimplements nothing: a hook and a lint
- * that could disagree would be worse than neither. Tests are not checked
+ * that could disagree would be worse than neither. Since 0.36.0 it runs the
+ * token contract too, keeping only that contract's errors (B4), and a copied
+ * look, which only warns, reaches Claude as a note on a write let through (R10). Tests are not checked
  * (Katerina, 13 September); stories are. This package's inward gate reads `.tsx`
  * only, as its lint does.
  *
@@ -37,8 +39,9 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { basename, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import type { ESLint as ESLintClass } from 'eslint'
+import type { ESLint as ESLintClass, Linter } from 'eslint'
 import { countGates } from '../eslint/index'
+import { tokenConfig } from './token-lint'
 import { repositoryOf } from '../registry/skill'
 
 export interface HookOptions {
@@ -59,6 +62,27 @@ export interface HookResult {
   code: 0 | 2
   /** What goes to stderr when refused. */
   message: string
+  /** A note for Claude on a write let through: a copied look, which only warns. */
+  note?: string
+}
+
+/** The token contract's own rules: what the hook keeps from its lint, and nothing else. */
+const TOKEN_RULE_IDS = new Set(tokenConfig().flatMap((c) => Object.keys(c.rules ?? {})))
+
+/**
+ * The token contract's errors for the text about to be written. The app's own
+ * token config when it has one (`eslint.tokens.config.js`, which knows the app's
+ * other plugins' names); otherwise the package's `tokenConfig`. Only the token
+ * rules' errors count, so an app's wider lint (TypeScript's, React's) never
+ * blocks a write that is still being made.
+ */
+async function tokenErrors(ESLint: typeof ESLintClass, appDir: string, file: string, text: string, audience: 'app' | 'package'): Promise<Linter.LintMessage[]> {
+  const own = join(appDir, 'eslint.tokens.config.js')
+  const eslint = existsSync(own)
+    ? new ESLint({ cwd: appDir, overrideConfigFile: own })
+    : new ESLint({ cwd: appDir, overrideConfigFile: true, overrideConfig: tokenConfig({ audience }) })
+  const results = await eslint.lintText(text, { filePath: file })
+  return results.flatMap((r) => r.messages.filter((m) => m.severity === 2 && m.ruleId && TOKEN_RULE_IDS.has(m.ruleId)))
 }
 
 interface ToolCall {
@@ -103,14 +127,24 @@ export async function runHook({ root, app = '.', audience = 'app', input, seen }
   // A rule's errors only. Code that does not parse yet (one edit of several) is
   // the typecheck's to judge; the gate looks again at the edit that completes it.
   const errors = results.flatMap((r) => r.messages.filter((m) => m.severity === 2 && m.ruleId))
+  // The token contract too (Katerina's ruling B4, 25 September): a colour or a size
+  // is refused before the write, as CI's gate refuses it, not only at the PR.
+  errors.push(...(await tokenErrors(ESLint, appDir, file, text, audience)))
   const { disabled } = countGates(results)
-  if (errors.length === 0 && disabled.length === 0) return searchFirst(call, file, text, appDir, top, seen) ?? PASS
+  if (errors.length === 0 && disabled.length === 0) {
+    const stopped = searchFirst(call, file, text, appDir, top, seen)
+    if (stopped) return stopped
+    // A copied look is a warning (C2): it never blocks, and Claude hears of it now,
+    // not only in CI (R10, 25 September).
+    const copies = results.flatMap((r) => r.messages.filter((m) => m.severity === 1 && m.ruleId === 'estiva/no-copied-look'))
+    return copies.length ? { code: 0, message: '', note: copies.map((m) => `${relative(top, file).split(sep).join('/')}:${m.line}  ${m.message}`).join('\n') } : PASS
+  }
 
   const shown = (p: string) => relative(top, p).split(sep).join('/')
   const lines = [`${shown(file)} was not written: the UI Guardrails refuse it (${shown(config)}).`]
   for (const m of errors) lines.push(`  ${m.line}:${m.column}  ${m.message}${m.ruleId ? `  (${m.ruleId})` : ''}`)
   const keep = audience === 'package' ? 'Keep it only' : 'Keep the element only'
-  for (const d of disabled) lines.push(`  ${d.line}  an eslint-disable switches ${d.ruleId} off. ${keep} with its reason on the line above: // @estiva-escape: <reason>`)
+  for (const d of disabled) lines.push(`  ${d.line}  an eslint-disable switches ${d.ruleId} off. ${keep} with its reason on the line above: // @estiva-escape(${d.ruleId.slice(d.ruleId.lastIndexOf('/') + 1)}): <reason>`)
   return { code: 2, message: `${lines.join('\n')}\n` }
 }
 

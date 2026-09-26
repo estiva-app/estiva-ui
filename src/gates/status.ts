@@ -31,6 +31,7 @@ import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { ESLint as ESLintClass } from 'eslint'
+import { escapeLines, listEscapes } from './escapes'
 
 export type CheckResult = { result: 'pass' | 'fail' | 'part' | 'unknown'; detail: string }
 type Maybe<T> = T | Promise<T>
@@ -139,6 +140,16 @@ const UNKNOWN = (detail: string): CheckResult => ({ result: 'unknown', detail })
 const said = (e: unknown) => {
   const err = e as { stdout?: unknown; stderr?: unknown; message?: string; code?: string }
   return { text: `${err.stdout ?? ''}${err.stderr ?? ''}`, message: String(err.message ?? e), code: err.code }
+}
+
+/** The scripts `estiva-gates ci` runs (R13): a job that runs it runs these. */
+const GATE_CI_SCRIPTS = new Set(['lint:rules', 'lint:tokens', 'lint', 'registry:check'])
+
+/** `estiva-gates ci`, as a workflow runs it, when it runs `script`; null otherwise. A comment line does not count. */
+function runsGateCi(text: string, script: string | RegExp): string | null {
+  if (typeof script !== 'string' || !GATE_CI_SCRIPTS.has(script)) return null
+  const m = /^(?!\s*#).*?((?:npx )?estiva-gates ci\b|npm run gates:ci\b|cli\.js"? ci\b)/m.exec(text)
+  return m ? m[1] : null
 }
 
 /** The helpers, bound to one repository. */
@@ -263,6 +274,8 @@ export function helpers(ROOT: string): GateHelpers {
       for (const f of files) {
         const m = read(f).match(step)
         if (m) return PASS(`${f} runs npm run ${m[1]}`)
+        const all = runsGateCi(read(f), script)
+        if (all) return PASS(`${f} runs ${all}, which runs npm run ${script}`)
       }
       return FAIL(`no workflow runs npm run ${script}`)
     },
@@ -285,7 +298,9 @@ export function helpers(ROOT: string): GateHelpers {
         if (start === -1) continue
         const end = lines.findIndex((l, i) => i > start && /^ {0,2}\S/.test(l))
         const body = lines.slice(start + 1, end === -1 ? undefined : end).join('\n')
-        return step.test(body) ? PASS(`${f}: the job ${job} runs npm run ${script}`) : FAIL(`${f}: the job ${job} does not run npm run ${script}`)
+        if (step.test(body)) return PASS(`${f}: the job ${job} runs npm run ${script}`)
+        const all = runsGateCi(body, script)
+        return all ? PASS(`${f}: the job ${job} runs ${all}, which runs npm run ${script}`) : FAIL(`${f}: the job ${job} does not run npm run ${script}`)
       }
       return FAIL(`no workflow has a job ${job}`)
     },
@@ -560,10 +575,35 @@ export interface StatusOptions {
   app?: string
   json?: boolean
   detail?: boolean
+  /** List every escape, not only those due for review (B1). */
+  escapes?: boolean
+}
+
+/**
+ * What an app's catalogue leaves for Katerina: the parts nothing uses, by name
+ * (her UIG-13 ruling: an unused part is listed for her, never deleted by the
+ * catalogue; R20), and the parts with no link into Storybook (R22). A reusable
+ * part with none fails `estiva-ui check`; a one-off needs none (B10), so its
+ * number is shown and nothing more.
+ */
+async function catalogueLines(appDir: string): Promise<string[]> {
+  try {
+    const { buildAppRegistry } = await import('../registry/index')
+    const entries = buildAppRegistry({ root: appDir }).entries
+    const unused = entries.filter((e) => e.app?.class === 'unused')
+    const oneOffs = entries.filter((e) => e.app?.class === 'one-off')
+    const unlinked = oneOffs.filter((e) => !e.storyId && !e.docsId)
+    return [
+      `Unused parts: ${unused.length}${unused.length ? ` · Katerina rules on each: ${unused.map((e) => `${e.name} (${e.sourceFile})`).join(', ')}` : ''}`,
+      `Storybook links: every reusable part has one (estiva-ui check holds it) · one-offs with none: ${unlinked.length} of ${oneOffs.length}, which need none`,
+    ]
+  } catch (error) {
+    return [`Catalogue: could not be built here: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`]
+  }
 }
 
 /** Print where the project stands. Returns what was printed, or the JSON report. */
-export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false }: StatusOptions = {}): Promise<string> {
+export async function runStatus({ root = process.cwd(), app = '.', json = false, detail = false, escapes = false }: StatusOptions = {}): Promise<string> {
   const ROOT = resolve(root)
   const h = helpers(ROOT)
   const shown = (dir: string) => (relative(ROOT, dir) || dir).replace(/\\/g, '/')
@@ -574,8 +614,11 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
   const out: string[] = []
   out.push('UI Guardrails · gates:status', 'Read from the code. Nothing here is a hand-ticked list.', '')
   out.push(`${pad(spec.repo, 10)} ${report.branch} @ ${report.commit}${behindMain(ROOT)}`)
+  // Every escape, listed and aged (Katerina's rulings B1, 25 September): the ones due for review always.
+  out.push('', ...escapeLines(listEscapes(join(ROOT, app)), { all: escapes }))
 
   if (!spec.all) {
+    out.push('', ...(await catalogueLines(join(ROOT, app))))
     // A sibling repo on its own: its own rows, then its parts of rows owned elsewhere.
     const own = report.rows.filter((r) => r.owner).map((r) => ({ ...r, ownerRepo: spec.repo, status: statusOf(r.checks) }))
     const parts = report.rows.filter((r) => !r.owner).map((r) => ({ ...r, ownerRepo: '', status: statusOf(r.checks) }))
