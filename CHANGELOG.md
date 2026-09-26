@@ -1,6 +1,22 @@
 # Changelog
 
-## 0.36.1 — 2026-09-26 — the scrollbar shows at rest
+## 0.37.0 — 2026-09-26 — scrolling comes from the package
+
+Katerina, 26 September: "I want the scrolling to work from the package, not a
+fix in each app". Peek's panel beside a Ship file cut off a long description,
+because the app built it from the package's header and a box of its own.
+
+### Added
+
+- **`Panel`**: a panel of a page. Its name in a `ContainerHeader`, a body that
+  scrolls whenever it is taller than the room it has (`bodyClassName`,
+  `bodyRef`, `onBodyScroll`), and a `footer` that stays put under it, such as a
+  reply box. It keeps a crash inside itself, as `ListColumn` does.
+- **`no-handmade-header` refuses the package's `ContainerHeader` on its own in
+  an app**, naming `Panel`: a header over a box of the app's own is a panel
+  made by hand, and the box is what forgets to scroll. A header drawn by hand
+  now names `Panel` too. The package's own parts are not read. On main it
+  refuses 8 places in Peek and none in Ship.
 
 ### Changed
 

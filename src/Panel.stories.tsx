@@ -43,6 +43,12 @@ export const Default: Story = {
   render: (args) => <Panel {...args}>{paragraphs(2)}</Panel>,
 }
 
+/** A title that opens something: the chevron after it, as ContainerHeader draws it. */
+export const WithChevron: Story = {
+  args: { chevron: true },
+  render: (args) => <Panel {...args}>{paragraphs(2)}</Panel>,
+}
+
 /** A body taller than the panel: it scrolls, and the bar shows at rest because there is more below. */
 export const ALongBody: Story = {
   args: { actions: menu },
