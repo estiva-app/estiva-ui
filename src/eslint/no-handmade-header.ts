@@ -121,20 +121,42 @@ const INTERACTIVE = ['onClick', 'href', 'role', 'onKeyDown', 'onPointerDown']
  * What it leaves alone, on purpose: a group heading inside a list (the row one
  * section starts with), a label strip on a card, and a row a person presses.
  * Only a lowercase element is judged: a part is already a part.
+ *
+ * And the package's `ContainerHeader` on its own in an app (26 September): a
+ * header over a box of the app's own is a panel made by hand, and the box is
+ * what forgot to scroll — Peek's widget panel cut off a long description. The
+ * message names `Panel`, whose body always scrolls.
  */
 export const noHandmadeHeader: Rule.RuleModule = {
   meta: {
     type: 'problem',
-    docs: { description: "A column's header bar drawn by hand where ContainerHeader is the part" },
+    docs: { description: "A column's header bar drawn by hand, or the package's header on its own in an app, where Panel is the part" },
     schema: [],
     messages: {
       handmade:
-        "A column's header bar drawn by hand. Use `ContainerHeader` from @estiva-app/ui: 48px, the title, the column's buttons at the right edge (`actions`), a hairline under it.",
+        "A column's header bar drawn by hand. Use `Panel` from @estiva-app/ui: its header (48px, the title, the column's buttons at the right edge in `actions`, a hairline under it) and a body under it that scrolls. For a list beside the page, `ListColumn`.",
+      bare:
+        "A panel put together by hand: `ContainerHeader` over a box of your own, which cuts off whatever does not fit. Use `Panel` from @estiva-app/ui: the same header (`title`, `actions`), a body that scrolls whenever it is taller, and a `footer` that stays put. For a list beside the page, `ListColumn`.",
       ...ESCAPE_MESSAGES,
     },
   },
   create(context) {
+    // The package's header, imported by name in an app (Katerina, 26 September): in an
+    // app it comes with Panel or ListColumn, whose body scrolls. The package's own parts
+    // import it from their sibling file, so this never reads them.
+    const bare = new Set<string>()
     return {
+      ImportDeclaration(node: Rule.Node) {
+        const declaration = node as unknown as { source: { value: unknown }; specifiers: { type: string; imported?: { name?: string }; local: { name: string } }[] }
+        if (declaration.source.value !== '@estiva-app/ui') return
+        for (const specifier of declaration.specifiers) if (specifier.type === 'ImportSpecifier' && specifier.imported?.name === 'ContainerHeader') bare.add(specifier.local.name)
+      },
+      JSXOpeningElement(node: Rule.Node) {
+        const element = node as unknown as JSXElement['openingElement']
+        if (element.name.type !== 'JSXIdentifier' || !bare.has(element.name.name ?? '')) return
+        if (isEscaped(context, element)) return
+        context.report({ loc: element.loc, messageId: 'bare' })
+      },
       JSXElement(node: Rule.Node) {
         const column = node as unknown as JSXElement
         const kids = meaningful(column)

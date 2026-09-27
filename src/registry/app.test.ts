@@ -567,7 +567,9 @@ describe('one search over the package and the apps', () => {
       repo: 'fixture',
     })
     const found = findInRegistries([packageRegistry, header], 'panel header', { limit: 5 }).map((f) => `${f.entry.repo}:${f.entry.name}`)
-    expect(found[0]).toBe('estiva-ui:ContainerHeader')
+    // Since 0.37.0 an app's panel header is Panel's (26 September): the package answers first either way.
+    expect(found[0]).toBe('estiva-ui:Panel')
+    expect(found).toContain('estiva-ui:ContainerHeader')
     expect(found).toContain('fixture:Header')
   })
 

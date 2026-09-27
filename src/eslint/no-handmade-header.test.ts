@@ -17,6 +17,10 @@ const handmade = [{ messageId: 'handmade' }]
 
 tester.run('no-handmade-header', noHandmadeHeader, {
   valid: [
+    // 26 September: the package's own parts import the header from their sibling file.
+    { name: 'the header inside the package, from its own file', code: `import { ContainerHeader } from './ContainerHeader'\n${component('<ContainerHeader title="Files" />')}` },
+    { name: 'Panel in an app', code: `import { Panel } from '@estiva-app/ui'\n${component('<Panel title="Files">x</Panel>')}` },
+    { name: 'the bare header in an app, escaped with its reason', code: `import { ContainerHeader } from '@estiva-app/ui'\n${component('// @estiva-escape(no-handmade-header): a header over a loading skeleton that cannot scroll\n<ContainerHeader title="Files" />')}` },
     { name: 'the part itself', code: component('<div className="flex h-full flex-col">\n<ContainerHeader title="Files" />\n<div />\n</div>') },
     {
       name: "a group heading inside a list: SectionHeader's row, not a column's bar (Ship's issue groups)",
@@ -37,6 +41,11 @@ tester.run('no-handmade-header', noHandmadeHeader, {
     },
   ],
   invalid: [
+    {
+      name: "the package's header on its own in an app: a panel made by hand, naming Panel (26 September)",
+      code: `import { ContainerHeader as Header } from '@estiva-app/ui'\n${component('<div className="flex flex-col">\n<Header title="Estiva Ship" />\n<div className="px-4">{title}</div>\n</div>')}`,
+      errors: [{ messageId: 'bare' }],
+    },
     {
       // The Folders page's right pane, at the commit before 3dc663b.
       name: 'a pane that heads itself around an editable name',

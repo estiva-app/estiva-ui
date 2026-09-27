@@ -45,16 +45,16 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 87 names over 57 files: 80 components, 6 helpers and 1 hook (Lightbox joined in UIG-35)', () => {
+  it('counts 88 names over 58 files: 81 components, 6 helpers and 1 hook (Panel joined on 26 September)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 80, helper: 6, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(57)
+    expect(kinds).toEqual({ component: 81, helper: 6, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(58)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(57)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(58)
     expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(30)
   })
 

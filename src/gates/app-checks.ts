@@ -31,7 +31,7 @@ export interface AppCheckOptions {
   chain?: { ref: string; owner: boolean }
   /** The token lint configs the app has, relative to the app. */
   tokenConfigs?: string[]
-  /** The part a hand-made column header should name (UIG-22): `ContainerHeader`. */
+  /** The part a hand-made column header should name (UIG-22): `Panel` since 0.37.0, `ContainerHeader` before. */
   headers?: string[]
 }
 
@@ -70,7 +70,7 @@ function all(h: GateHelpers, steps: (() => CheckResult | Promise<CheckResult>)[]
   }
 }
 
-export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG-3', owner: false }, tokenConfigs = ['eslint.tokens.config.js', 'eslint.config.js'], headers = ['ContainerHeader'] }: AppCheckOptions): GateTicket[] {
+export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG-3', owner: false }, tokenConfigs = ['eslint.tokens.config.js', 'eslint.config.js'], headers = ['Panel'] }: AppCheckOptions): GateTicket[] {
   const WEB = app === '.' ? '' : `${app.replace(/\/$/, '')}/`
   const cwd = app === '.' ? undefined : app
   const PROBE = 'src/components/__gates_probe__.tsx'
@@ -221,7 +221,9 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
     ]),
     ticket('UIG-22', [
       // The Folders pane's own row, at the commit before peek 3dc663b.
-      { what: 'a hand-made column header is an error naming ContainerHeader', run: all(h, headers.map((name) => probe(component('<div className="flex h-full flex-col"><div className="flex items-center gap-2 px-3 py-2"><span>Folders</span></div><div /></div>'), 'error', name)), 'a hand-made column header is an error naming ContainerHeader') },
+      { what: `a hand-made column header is an error naming ${headers.join(' or ')}`, run: all(h, headers.map((name) => probe(component('<div className="flex h-full flex-col"><div className="flex items-center gap-2 px-3 py-2"><span>Folders</span></div><div /></div>'), 'error', name)), `a hand-made column header is an error naming ${headers.join(' or ')}`) },
+      // 26 September: the package's header on its own is a panel made by hand, whose box forgot to scroll.
+      { what: "the package's ContainerHeader on its own is an error naming Panel", run: probe(`import { ContainerHeader } from '@estiva-app/ui'\n${component('<div className="flex flex-col"><ContainerHeader title="Details" /><div className="px-4">x</div></div>')}`, 'error', '`Panel`') },
       { what: 'a group heading inside a list is left alone', run: probe(component('<section className="flex flex-col gap-px"><h3 className="flex h-8 items-center gap-2 px-3"><span>Todo</span></h3><div /></section>'), 'none') },
     ]),
     ticket('UIG-23', [

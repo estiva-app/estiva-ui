@@ -8,7 +8,7 @@ import { bindingOfTag, partsOfFile, type Node, type Parser, type PartBinding } f
  * the browser shows it as its tooltip. `no-native-title.test.ts` holds this
  * list to the catalogue: a part that gains a `title` of its own joins it.
  */
-export const PARTS_WITH_A_TITLE = ['CollapsibleSection', 'ConfirmDialog', 'ContainerHeader', 'DialogShell', 'ListColumn', 'SectionHeader'] as const
+export const PARTS_WITH_A_TITLE = ['CollapsibleSection', 'ConfirmDialog', 'ContainerHeader', 'DialogShell', 'ListColumn', 'Panel', 'SectionHeader'] as const
 
 const child = (node: Node, key: string) => node[key] as Node | null | undefined
 const nameOf = (node: Node | null | undefined): string | undefined =>

@@ -1,0 +1,78 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PanelStories from './Panel.stories'
+
+<Meta of={PanelStories} />
+
+# Panel
+
+A panel of a page: its name in a header, a body that scrolls whenever it is
+taller than the room it has, and a row fixed at the bottom when there is one.
+
+<Canvas of={PanelStories.ALongBody} />
+
+## When
+
+- **Any panel of a page that is not a list**: a side column's details, a
+  thread, another app's card beside a file, the contents of what is open.
+  Its body scrolls by itself, so it is never cut off at the fold, even when
+  today's content fits.
+- `footer` for a row that stays put under the body while it scrolls: a reply
+  box.
+- Two panels in one column share it. Cap the first with a `max-h-*` in
+  `className`, and each scrolls in its own room.
+
+<Canvas of={PanelStories.WithAFooter} />
+
+<Canvas of={PanelStories.TwoInAColumn} />
+
+## When not
+
+- A list of things to open beside the page → **ListColumn**, which is a panel
+  with the list's own width and insets.
+- A window over the page → **DialogShell**.
+- A box inside a panel or a card that should scroll on its own → **ScrollArea**.
+
+## How
+
+```tsx
+import { Panel, IconButton } from '@estiva-app/ui'
+
+<Panel
+  title="Details"
+  actions={
+    <IconButton tooltip="More" aria-label="More" onClick={openMenu}>
+      <IconDotsVertical size={16} stroke={1.5} />
+    </IconButton>
+  }
+  bodyClassName="flex flex-col gap-3 px-4 pt-3 pb-4"
+>
+  {sections}
+</Panel>
+```
+
+- It takes the room its column gives it, never its content's height, so the
+  body is what scrolls. Put it straight into the column.
+- `bodyClassName` is the body's padding, gap and layout. The header is
+  ContainerHeader's: 48px, a hairline under it.
+- A panel that follows its scroll (a thread that opens at its newest reply)
+  reads it with `bodyRef` and `onBodyScroll`.
+- **A crash stays inside it.** If its body, its actions or its footer break,
+  it keeps its title and shows "Something went wrong in the panel… try again"
+  in the room the body had. It is **ErrorBoundary**'s.
+
+<Canvas of={PanelStories.WhenTheBodyBreaks} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws the header: a ContainerHeader with the title and the actions | a header row of your own over a box | ContainerHeader used on its own in an app |
+| Scrolls its body in a ScrollArea whenever it is taller than the panel, with the bar showing | `overflow-auto`, or a box that cuts off what does not fit |  |
+| Keeps the footer fixed under the body | a flex column of your own around the body and the footer |  |
+| Keeps a crash inside itself: its title stays, the message and Try again sit in the room the body had | an error boundary of your own around it |  |
+
+## Props
+
+<Controls of={PanelStories.Default} />

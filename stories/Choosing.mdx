@@ -75,7 +75,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | You need | Reach for |
 |---|---|
 | Label–value rows (a details rail) | **Property** — `row` and `stacked` |
-| The bar across the top of a column: its title, and the buttons that act on the whole column | **ContainerHeader** — one per column; the actions as IconButtons in `actions` |
+| The bar across the top of a column: its title, and the buttons that act on the whole column | **ContainerHeader** — inside the package's columns; in an app, the header comes with **Panel** or **ListColumn** |
 | A box that can hold more than fits — a list that grows with its data counts, even when today's data fits | **ScrollArea** — its bar is drawn over the content and takes no width |
 | A status, a count or a category, in a small pill | **Chip** — six colour types; the colour is the message, the label makes it legible |
 | One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed |
@@ -115,11 +115,12 @@ the **floating** TopBar goes with the **Rail** and the content card.
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
 | The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
 | The list beside the thing that is open | **ListColumn** — 290px, its name in a **ContainerHeader**, the list under it scrolling |
+| A panel of a page that is not a list — details, a thread, what is open — with a body that must never be cut off | **Panel** — a header, a body that scrolls whenever it is taller, and a `footer` that stays put |
 
 ## Deliberately not in the package
 
 - Anything that knows your **product's objects** — its documents, threads,
   files, tickets. Build it in your app, out of these parts, and keep its
   stories in your app's own Storybook.
-- Page layouts beyond the list column (**ListColumn**) and a column's bar
-  (**ContainerHeader**) — split views, side rails — not here yet.
+- Page layouts beyond the list column (**ListColumn**) and a panel
+  (**Panel**) — split views, side rails — not here yet.
