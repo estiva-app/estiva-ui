@@ -73,9 +73,9 @@ export interface TooltipProps extends Omit<ComponentPropsWithRef<'div'>, 'childr
  */
 export function Tooltip({ label, shortcut, className, ...props }: TooltipProps) {
   return (
-    <div role="tooltip" className={cn(FLOATING_SURFACE_CLASSES, 'min-h-[30px] max-w-80 flex items-center justify-center gap-1.5 px-2 py-1', className)} {...props}>
-      <span className="min-w-0 text-caption text-text-primary break-words">{label}</span>
-      {shortcut && <Kbd>{shortcut}</Kbd>}
+    <div role="tooltip" className={cn(FLOATING_SURFACE_CLASSES, 'border-border-tooltip bg-bg-tooltip', 'min-h-[30px] max-w-80 flex items-center justify-center gap-1.5 px-2 py-1', className)} {...props}>
+      <span className="min-w-0 text-caption text-text-tooltip break-words">{label}</span>
+      {shortcut && <Kbd tone="tooltip">{shortcut}</Kbd>}
     </div>
   )
 }

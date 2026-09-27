@@ -118,6 +118,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   FieldLine: ['tone'],
   IconButton: ['variant', 'pressed', 'glow'],
   InputChip: ['truncate'],
+  Kbd: ['tone'],
   Link: ['variant', 'truncate'],
   MenuItem: ['size', 'selected', 'destructive'],
   MenuSub: ['selected'],

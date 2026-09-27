@@ -2607,9 +2607,23 @@
           "takes": "text",
           "required": false,
           "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "default | tooltip",
+          "required": false,
+          "note": "`tooltip` draws the key in the tooltip's own key colours, for a theme whose tooltip is darker than its page (Katerina, 27 September)."
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "default",
+            "tooltip"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -2619,9 +2633,11 @@
       "app": null,
       "looks": [
         "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
         "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary",
         "signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small",
-        "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small"
+        "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
+        "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
     },
     {
@@ -5316,7 +5332,7 @@
       "docPage": "src/Tooltip.mdx",
       "app": null,
       "looks": [
-        "rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg border-border-tooltip bg-bg-tooltip"
       ]
     },
     {

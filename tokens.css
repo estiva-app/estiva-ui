@@ -80,6 +80,15 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #FAFAFA;
+  --text-tooltip:   #18181B;
+  --border-tooltip: #E4E4E7;
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     #F4F4F5;
+  --border-tooltip-key: #D4D4D8;
+  --text-tooltip-key:   #52525B;
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -144,6 +153,15 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #1C1C1F;
+  --text-tooltip:   #FAFAFA;
+  --border-tooltip: #2D2D31;
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     #27272A;
+  --border-tooltip-key: #52525B;
+  --text-tooltip-key:   #AEAEB6;
 }
 
 
@@ -212,6 +230,15 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #191d24;
+  --text-tooltip:   #eef1f6;
+  --border-tooltip: rgba(255, 255, 255, 0.12);
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
+  --border-tooltip-key: rgba(255, 255, 255, 0.22);
+  --text-tooltip-key:   #b2b9c6;
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -286,6 +313,15 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #1c1f28;
+  --text-tooltip:   #e6e8ee;
+  --border-tooltip: rgba(255, 255, 255, 0.12);
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
+  --border-tooltip-key: rgba(255, 255, 255, 0.22);
+  --text-tooltip-key:   #b3b9c7;
 }
 
 /* ─── leaf ─── Leaf's theme: Buzz Light's colours on these same tokens (Katerina,
@@ -300,7 +336,7 @@
   /* bg */
   --bg-base:     #f6f6f6; /* Buzz's chrome (--sidebar-background) */
   --bg-surface:  #ffffff; /* Buzz's --background and --card */
-  --bg-elevated: #ebebeb; /* Buzz's --popover */
+  --bg-elevated: #ffffff; /* menus and the toolbar are white (Katerina, 27 September) */
   --bg-inset:    #f0f0f0; /* Buzz's --muted */
   /* Translucent, as Buzz's sidebar has them, so they read on every surface. */
   --bg-hover:    rgba(0, 0, 0, 0.04); /* --buzz-hover-surface */
@@ -357,4 +393,13 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September). Leaf's are dark on its
+     light page — its text colour as the ground, until Linear's own values are read. */
+  --bg-tooltip:     #24292e;
+  --text-tooltip:   #ffffff;
+  --border-tooltip: #24292e;
+  /* A shortcut key on the dark tooltip: a faint light key, until Linear's values are read. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.1);
+  --border-tooltip-key: rgba(255, 255, 255, 0.18);
+  --text-tooltip-key:   rgba(255, 255, 255, 0.75);
 }

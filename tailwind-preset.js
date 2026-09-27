@@ -153,6 +153,8 @@ export default {
         'bg-selected':  'var(--bg-selected)',
         'bg-active':    'var(--bg-active)',
         'bg-disabled':  'var(--bg-disabled)',
+        'bg-tooltip':   'var(--bg-tooltip)',
+        'bg-tooltip-key': 'var(--bg-tooltip-key)',
         // text
         'text-primary':   'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',
@@ -160,11 +162,15 @@ export default {
         'text-disabled':  'var(--text-disabled)',
         'text-inverse':   'var(--text-inverse)',
         'text-interactive': 'var(--text-interactive)',
+        'text-tooltip':   'var(--text-tooltip)',
+        'text-tooltip-key': 'var(--text-tooltip-key)',
         // border
         'border-subtle':  'var(--border-subtle)',
         'border-default': 'var(--border-default)',
         'border-strong':  'var(--border-strong)',
         'border-focus':   'var(--border-focus)',
+        'border-tooltip': 'var(--border-tooltip)',
+        'border-tooltip-key': 'var(--border-tooltip-key)',
         // accent
         'accent-primary': 'var(--accent-primary)',
         'accent-hover':   'var(--accent-hover)',

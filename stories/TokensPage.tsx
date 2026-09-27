@@ -55,14 +55,14 @@ function resolveVar(name: string): string {
 
 /* ── The vocabulary (mirrors tailwind-preset.js; tokens.test.ts holds the two together) ── */
 
-type Swatch = 'fill' | 'text' | 'text-inverse' | 'border' | 'outline' | 'shadow' | 'drop-shadow'
+type Swatch = 'fill' | 'text' | 'text-inverse' | 'text-tooltip' | 'border' | 'outline' | 'shadow' | 'drop-shadow'
 type Token = { key: string; cssVar: string; cls: string; swatch: Swatch; note?: string }
 type Family = { label: string; blurb: string; utilities: string; tokens: Token[] }
 
 const colour = (prefix: string, key: string, swatch: Swatch, note?: string): Token => ({
   key: `${prefix}-${key}`,
   cssVar: `--${prefix}-${key}`,
-  cls: `${swatch === 'text' || swatch === 'text-inverse' ? 'text' : swatch === 'border' || swatch === 'outline' ? 'border' : 'bg'}-${prefix}-${key}`,
+  cls: `${swatch === 'text' || swatch === 'text-inverse' || swatch === 'text-tooltip' ? 'text' : swatch === 'border' || swatch === 'outline' ? 'border' : 'bg'}-${prefix}-${key}`,
   swatch,
   note,
 })
@@ -85,6 +85,12 @@ const FAMILIES: Family[] = [
     blurb: 'Subtle separates rows, default outlines a control, strong outlines a key or a checkbox, focus is the ring a focused field shows.',
     utilities: COLOUR_UTILITIES,
     tokens: ['subtle', 'default', 'strong', 'focus'].map((k) => colour('border', k, 'border')),
+  },
+  {
+    label: 'Tooltip',
+    blurb: "A tooltip's own colours, so a theme can draw it apart from its menus and popups: its ground, its text and its edge, then the same three for a shortcut key shown on it.",
+    utilities: COLOUR_UTILITIES,
+    tokens: [colour('bg', 'tooltip', 'fill'), colour('text', 'tooltip', 'text-tooltip'), colour('border', 'tooltip', 'border'), colour('bg', 'tooltip-key', 'fill'), colour('text', 'tooltip-key', 'text-tooltip'), colour('border', 'tooltip-key', 'border')],
   },
   {
     label: 'Accent',
@@ -180,8 +186,9 @@ function SwatchBox({ token }: { token: Token }) {
       return <div className={`${base} border border-border-subtle`} style={{ background: v }} />
     case 'text':
     case 'text-inverse':
+    case 'text-tooltip':
       return (
-        <div className={`${base} flex items-center justify-center border border-border-subtle ${token.swatch === 'text-inverse' ? 'bg-accent-primary' : 'bg-bg-surface'}`}>
+        <div className={`${base} flex items-center justify-center border border-border-subtle ${token.swatch === 'text-inverse' ? 'bg-accent-primary' : token.swatch === 'text-tooltip' ? 'bg-bg-tooltip' : 'bg-bg-surface'}`}>
           <span className="text-body-2-strong leading-none" style={{ color: v }}>Ag</span>
         </div>
       )
