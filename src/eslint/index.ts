@@ -28,6 +28,7 @@ import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
 import { noRestyledPart } from './no-restyled-part'
 import { rawElementOutsideAWrapper } from './raw-element-outside-a-wrapper'
+import { APP_RULE_IDS, PLUGIN_KEY, type AppRuleName } from './rule-ids'
 
 export { ESCAPE_MARKER, MIN_REASON, SETTINGS_KEY, isEscaped, type EstivaSettings } from './escape'
 export { OWNED_BEHAVIOURS, type OwnedBehaviour } from './no-rebuilt-behaviour'
@@ -37,14 +38,15 @@ export { MIN_COVER, MIN_SHARED } from './looks-of'
 
 const { version } = createRequire(import.meta.url)('../../package.json') as { version: string }
 
-/** The name the configs register the plugin under, so every rule id is `estiva/<rule>`. */
-export const PLUGIN_KEY = 'estiva'
+export { APP_RULE_IDS, PLUGIN_KEY }
 
 /**
  * The rules an **app** runs: they say an app must not build what the package
  * already has — a raw control (UIG-7), or a behaviour one of its parts owns
  * (UIG-8) — nor restyle a part it uses (UIG-9). `recommended` and `strict`
- * carry these and only these.
+ * carry these and only these. Their names live in `rule-ids.ts`, which
+ * `create-estiva-app` reads without loading a rule; `satisfies` fails the
+ * typecheck when a rule is missing from either.
  */
 const appRules = {
   'no-raw-element': noRawElement,
@@ -54,7 +56,7 @@ const appRules = {
   'no-handmade-empty-state': noHandmadeEmptyState,
   'no-native-title': noNativeTitle,
   'no-copied-look': noCopiedLook,
-}
+} satisfies Record<AppRuleName, unknown>
 
 /**
  * The rules the **package itself** runs, pointed inward (UIG-5): don't bury a
@@ -94,8 +96,6 @@ const plugin = {
   configs: {} as { recommended: Linter.Config; strict: Linter.Config; package: Linter.Config },
 } satisfies ESLint.Plugin
 
-/** The ids `recommended` and `strict` carry — what an app's gate runs and counts. */
-export const APP_RULE_IDS = Object.keys(appRules).map((name) => `${PLUGIN_KEY}/${name}`)
 /** The ids `package` carries — what this package's own gate runs and counts (UIG-5). */
 export const PACKAGE_RULE_IDS = Object.keys(packageRules).map((name) => `${PLUGIN_KEY}/${name}`)
 

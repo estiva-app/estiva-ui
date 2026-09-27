@@ -36,8 +36,10 @@ await build({
 
 /**
  * The lint plugin, `@estiva-app/ui/eslint` (UIG-3): its own bundle, for Node,
- * so nothing of it reaches the components' browser bundle. It imports nothing
- * at run time but Node's own `module`; `eslint` appears in its types only.
+ * so nothing of it reaches the components' browser bundle. At run time it
+ * imports Node's own `module` and, since `no-copied-look` (UIG-25),
+ * `typescript`, which stays the app's own install; `eslint` appears in its
+ * types only.
  */
 await build({
   entryPoints: ['src/eslint/index.ts'],
@@ -61,6 +63,11 @@ await build({
  * the app's `node_modules`. The plugin itself is imported from
  * `../eslint/index.js`, never bundled a second time, so a config that registers
  * both holds one plugin object and ESLint sees one `estiva`.
+ *
+ * `create-estiva-app` is the exception: it runs from `npx` before any app
+ * exists, so it may load only this package's own dependencies. It reads the
+ * rule names from `../eslint/rule-ids`, which has no imports and is bundled in;
+ * `create-app.test.ts` walks the built command and fails on anything else.
  */
 const thePluginOnce = {
   name: 'the-plugin-once',

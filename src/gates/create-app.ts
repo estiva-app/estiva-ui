@@ -34,7 +34,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { APP_RULE_IDS } from '../eslint/index'
+import { APP_RULE_IDS } from '../eslint/rule-ids'
 import { loaderText, SEARCH_RULES } from '../registry/skill'
 
 interface PackageJson {

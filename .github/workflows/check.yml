@@ -23,6 +23,18 @@ jobs:
       - run: npm test
       - run: npm run build
 
+      # `create-estiva-app` runs from `npx` in an empty folder (UIG-10). The
+      # tests run inside this repository, where every tool is installed, and
+      # could not see it stop on a missing TypeScript from 0.34.0 to 0.37.1.
+      # This runs it the way someone new does: from the packed package, in an
+      # empty folder, and fails if it writes no app.
+      - name: create-estiva-app runs from the packed package, in an empty folder
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP" > /dev/null
+          cd "$(mktemp -d)"
+          npx -y -p "$RUNNER_TEMP"/estiva-app-ui-*.tgz create-estiva-app probe --title Probe
+          test -f probe/package.json
+
       # The catalogue (UIG-12) is generated, never written: this rebuilds it
       # from the source and fails if the committed `registry.json` is not what
       # the code produces, or if it does not match its own schema. A registry
