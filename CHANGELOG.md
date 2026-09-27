@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.37.2 — 2026-09-27 — create-estiva-app runs from npm again
+
+### Fixed
+
+- **`create-estiva-app` runs from `npx` in an empty folder again.** From
+  0.34.0 to 0.37.1 it stopped before writing a file, with "Cannot find
+  package 'typescript'": it loaded the lint rules, and one of them imports
+  TypeScript, which npm does not install with this package. It now reads
+  the rule names from a file with no imports. A test walks the built
+  command for any package npm would not install, and CI runs the command
+  from the packed package in an empty folder.
+
 ## 0.37.1 — 2026-09-26 — Panel fills any box
 
 ### Fixed
