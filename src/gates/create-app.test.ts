@@ -1,6 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { builtinModules } from 'node:module'
 import { dirname, join } from 'node:path'
+import ts from 'typescript'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildAppRegistry } from '../registry/app'
 import { validateRegistry } from '../registry/schema'
@@ -210,4 +212,48 @@ describe('a made app, under the checks every app runs', () => {
     // RichText is UIG-30's, not built yet: no app passes that one.
     expect(failed.filter((f) => !f.startsWith('UIG-30 '))).toEqual([])
   }, 300_000)
+})
+
+/**
+ * The command runs from `npx` in an empty folder, where npm has installed this
+ * package and its own `dependencies`, nothing else. From 0.34.0 to 0.37.1 it
+ * loaded the lint rules, which import TypeScript, and stopped before writing a
+ * file (UIG-10, reopened 27 September); the tests above run inside this
+ * repository, where TypeScript is always there, so none of them could see it.
+ * This walks what is published — the built command and every file it loads —
+ * and fails on any package that is not Node's own or a dependency.
+ */
+describe('create-estiva-app, run from npm', () => {
+  it('loads nothing that npm does not install with this package', () => {
+    const { dependencies = {} } = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { dependencies?: Record<string, string> }
+    const builtin = new Set(builtinModules)
+    const allowed = (spec: string) => spec.startsWith('node:') || builtin.has(spec) || Object.keys(dependencies).some((d) => spec === d || spec.startsWith(`${d}/`))
+    // The import declarations and `import()` calls of a built file: parsed, not
+    // grepped, because the command writes app files that hold import lines of
+    // their own inside strings.
+    const importsOf = (file: string) => {
+      const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, false, ts.ScriptKind.JS)
+      const found: string[] = []
+      const visit = (node: ts.Node) => {
+        if ((ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) found.push(node.moduleSpecifier.text)
+        if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && node.arguments[0] && ts.isStringLiteral(node.arguments[0])) found.push(node.arguments[0].text)
+        ts.forEachChild(node, visit)
+      }
+      visit(source)
+      return found
+    }
+    const seen = new Set<string>()
+    const outside: string[] = []
+    const walk = (file: string) => {
+      if (seen.has(file)) return
+      seen.add(file)
+      for (const spec of importsOf(file)) {
+        if (spec.startsWith('.')) walk(join(dirname(file), spec))
+        else if (!allowed(spec)) outside.push(`${file.slice(process.cwd().length + 1)} loads ${spec}`)
+      }
+    }
+    walk(join(process.cwd(), 'dist', 'gates', 'create-app.js'))
+    expect(seen.size).toBeGreaterThan(1)
+    expect(outside).toEqual([])
+  })
 })
