@@ -287,3 +287,74 @@
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
 }
+
+/* ─── leaf ─── Leaf's theme: Buzz Light's colours on these same tokens (Katerina,
+   27 September: "don't make new tokens, apply its theme wherever you can").
+   Read from Buzz desktop (estiva-app/buzz origin/main 5a45bd7): its "buzz" theme
+   is GitHub Light run through its own createThemeVars, with the accent pinned
+   to neutral, plus the `data-buzz-sidebar` rules in theme.css. Where Buzz has
+   no colour for one of these tokens, the light theme's stays. */
+:root[data-theme='leaf'] {
+  color-scheme: light;
+
+  /* bg */
+  --bg-base:     #f6f6f6; /* Buzz's chrome (--sidebar-background) */
+  --bg-surface:  #ffffff; /* Buzz's --background and --card */
+  --bg-elevated: #ebebeb; /* Buzz's --popover */
+  --bg-inset:    #f0f0f0; /* Buzz's --muted */
+  /* Translucent, as Buzz's sidebar has them, so they read on every surface. */
+  --bg-hover:    rgba(0, 0, 0, 0.04); /* --buzz-hover-surface */
+  --bg-selected: rgba(0, 0, 0, 0.07); /* --buzz-active-surface */
+  --bg-active:   rgba(0, 0, 0, 0.07); /* --buzz-active-surface */
+  --bg-disabled: #F4F4F5;
+
+  /* text */
+  --text-primary:   #24292e; /* Buzz's --foreground */
+  --text-secondary: rgba(0, 0, 0, 0.5); /* --buzz-chrome-foreground */
+  --text-muted:     rgba(0, 0, 0, 0.4); /* --buzz-muted-foreground */
+  --text-disabled:  #D4D4D8;
+  --text-inverse:   #ffffff; /* Buzz's --primary-foreground */
+
+  /* borders */
+  --border-subtle:  #F4F4F5;
+  --border-default: #e5e5e6; /* Buzz's --border */
+  --border-strong:  #D4D4D8;
+  --border-focus:   #24292e; /* Buzz's --ring */
+
+  /* accent — Buzz pins it to neutral: its text colour */
+  --accent-primary: #24292e; /* Buzz's --primary */
+  --accent-hover:   #3a3e43; /* its button's hover, primary at 90% on white */
+  --accent-muted:   #f0f0f0; /* Buzz's --accent */
+  --text-interactive: #24292e; /* a link is --primary, underlined */
+
+  /* semantic */
+  --info-default:    #3B82F6;
+  --info-muted:      #DBEAFE;
+  --warning-default: #9a6700; /* Buzz's --ui-warning */
+  --warning-muted:   rgba(154, 103, 0, 0.08); /* --ui-warning-bg */
+  --success-default: #28a745; /* Buzz's --status-added */
+  --success-muted:   #D1FAE5;
+  --error-default:   #d73a49; /* Buzz's --destructive */
+  --error-muted:     #FEE2E2;
+
+  /* shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
+  --focus-ring: 0 0 0 3px rgba(36, 41, 46, 0.16);
+  /* Transparent colours (D16): the light theme's strengths, on Buzz's colours. */
+  --bg-wash:         rgba(0, 0, 0, 0.04);
+  --accent-outline:  rgba(36, 41, 46, 0.3);
+  --info-outline:    rgba(59, 130, 246, 0.3);
+  --warning-outline: rgba(154, 103, 0, 0.3);
+  --success-outline: rgba(40, 167, 69, 0.3);
+  --error-outline:   rgba(215, 58, 73, 0.3);
+  --accent-wash:     rgba(36, 41, 46, 0.11);
+  --success-wash:    rgba(40, 167, 69, 0.11);
+  --glow-warning:    0 0 5px rgba(154, 103, 0, 0.4);
+  --glow-success:    0 0 5px rgba(40, 167, 69, 0.7);
+  --glow-accent:     0 0 5px rgba(36, 41, 46, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
+}

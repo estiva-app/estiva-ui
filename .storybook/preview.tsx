@@ -10,16 +10,16 @@ import './preview.css'
 declare const __ESTIVA_DRAW_ONLY__: boolean | undefined
 
 /**
- * The two themes the apps render, from the toolbar: `signal` is Peek's,
- * `ship` is Ship's (Katerina, 2026-08-28: the reference shows what the apps
- * show). `light` and `dark` exist in tokens.css as the bases Peek's own
+ * The themes the apps render, from the toolbar: `signal` is Peek's, `ship`
+ * is Ship's (Katerina, 2026-08-28: the reference shows what the apps show),
+ * `leaf` is Leaf's (Buzz Light's colours, 27 September). `light` and `dark` exist in tokens.css as the bases Peek's own
  * Storybook and Estiva ID use, and are not offered here.
  *
  * Selected the way the apps select them: `data-theme` on <html>, plus the
  * `.dark.signal` classes for Signal (Peek's way — Signal layers over dark,
  * and its `dark:` variants key on the class).
  */
-const THEMES = ['signal', 'ship'] as const
+const THEMES = ['signal', 'ship', 'leaf'] as const
 type Theme = (typeof THEMES)[number]
 const DEFAULT_THEME: Theme = 'signal'
 

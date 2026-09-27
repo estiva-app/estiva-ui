@@ -40,13 +40,13 @@ function themesInCss(): Map<string, Set<string>> {
   return themes
 }
 
-const EXPECTED_THEMES = [':root', '.dark, :root[data-theme=\'dark\']', '.signal, :root[data-theme=\'signal\']', ':root[data-theme=\'ship\']']
+const EXPECTED_THEMES = [':root', '.dark, :root[data-theme=\'dark\']', '.signal, :root[data-theme=\'signal\']', ':root[data-theme=\'ship\']', ':root[data-theme=\'leaf\']']
 
 describe('tokens.css against tailwind-preset.js', () => {
   const wanted = tokensInPreset()
   const themes = themesInCss()
 
-  it('has the four themes and nothing else', () => {
+  it('has the five themes and nothing else', () => {
     expect([...themes.keys()]).toEqual(EXPECTED_THEMES)
   })
 
