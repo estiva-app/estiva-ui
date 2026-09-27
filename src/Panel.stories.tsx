@@ -61,7 +61,7 @@ export const WithAFooter: Story = {
       footer={
         // A stand-in for whatever the footer holds: the part only keeps it in place.
         <div className="border-t border-border-subtle p-3">
-          <div className="flex h-10 items-center justify-center rounded-md bg-bg-elevated text-caption text-text-muted">Footer</div>
+          <div className="flex h-10 items-center justify-center rounded-md bg-bg-elevated text-caption text-text-secondary">Footer</div>
         </div>
       }
     >
