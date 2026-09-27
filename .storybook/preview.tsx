@@ -1,5 +1,6 @@
+import { DocsContainer, type DocsContainerProps } from '@storybook/addon-docs/blocks'
 import type { Decorator, Preview } from '@storybook/react-vite'
-import { useEffect } from 'react'
+import { type PropsWithChildren, useEffect, useState } from 'react'
 import { addons } from 'storybook/preview-api'
 import { GLOBALS_UPDATED, SET_GLOBALS } from 'storybook/internal/core-events'
 import { themes } from 'storybook/theming'
@@ -12,8 +13,9 @@ declare const __ESTIVA_DRAW_ONLY__: boolean | undefined
 /**
  * The themes the apps render, from the toolbar: `signal` is Peek's, `ship`
  * is Ship's (Katerina, 2026-08-28: the reference shows what the apps show),
- * `leaf` is Leaf's (Buzz Light's colours, 27 September). `light` and `dark` exist in tokens.css as the bases Peek's own
- * Storybook and Estiva ID use, and are not offered here.
+ * `leaf` is Leaf's (Buzz Light's colours, 27 September). `light` and `dark`
+ * exist in tokens.css as the bases Peek's own Storybook and Estiva ID use, and
+ * are not offered here.
  *
  * Selected the way the apps select them: `data-theme` on <html>, plus the
  * `.dark.signal` classes for Signal (Peek's way — Signal layers over dark,
@@ -109,6 +111,32 @@ const withTheme: Decorator = (Story, context) => {
   )
 }
 
+/**
+ * The docs pages' own chrome — their background, headings, tables — follows the
+ * theme in the toolbar: dark under a dark theme, light under a light one. It
+ * was always dark, which suited Signal and Ship; under Leaf, a light theme, the
+ * tokens' dark text sat on the dark page and nothing could be read (Katerina,
+ * 27 September). Read from the theme itself, not a list: a theme is light when
+ * its --bg-base is.
+ */
+const baseIsLight = () => {
+  const hex = getComputedStyle(document.documentElement).getPropertyValue('--bg-base').trim().replace('#', '')
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return false
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5
+}
+const ThemedDocsContainer = (props: PropsWithChildren<DocsContainerProps>) => {
+  const [light, setLight] = useState(baseIsLight)
+  useEffect(() => {
+    const html = document.documentElement
+    const observer = new MutationObserver(() => setLight(baseIsLight()))
+    observer.observe(html, { attributes: true, attributeFilter: ['data-theme', 'class'] })
+    setLight(baseIsLight())
+    return () => observer.disconnect()
+  }, [])
+  return <DocsContainer {...props} theme={light ? themes.light : themes.dark} />
+}
+
 const preview: Preview = {
   tags: ['autodocs'],
   globalTypes: {
@@ -126,7 +154,7 @@ const preview: Preview = {
     // `npm run test:stories` only draws them (R19): vitest.config.ts defines
     // __ESTIVA_DRAW_ONLY__ for that project alone, and axe is off there.
     a11y: { test: typeof __ESTIVA_DRAW_ONLY__ !== 'undefined' && __ESTIVA_DRAW_ONLY__ ? 'off' : 'error' },
-    docs: { theme: themes.dark },
+    docs: { theme: themes.dark, container: ThemedDocsContainer },
     options: {
       storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Components', 'Feedback', 'Overlays', 'Navigation', 'Frame', 'Layout'] },
     },
