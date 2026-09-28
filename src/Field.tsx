@@ -83,7 +83,10 @@ export function Field({ label, required = false, helper, error, children }: Fiel
         })
       : children
   return (
-    <BaseField.Root invalid={!!error} className="flex flex-col gap-2">
+    // `group/field`: the label, the box and the line under it are one thing under the pointer —
+    // anywhere in it strengthens the box's border, as hovering the box does (Katerina, 28 September).
+    // Before, the 8px between the label and the box was a gap where the border went out again.
+    <BaseField.Root invalid={!!error} className="group/field flex flex-col gap-2">
       {/* `cn`, like everywhere else. It was a template literal, with a comment
           saying the type token must never be merged — which stopped being true
           when `cn()` was taught the ramp: `input-label` is in it, and

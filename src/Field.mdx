@@ -53,6 +53,10 @@ import { Field, TextInput } from '@estiva-app/ui'
   `Field` has no `required` of its own, so the Field puts it there. A control
   that says so already is left alone, and a `children` of several elements
   keeps the asterisk and owes its own.
+- **The whole field is one thing under the pointer** (Katerina, 28
+  September): the label, the space under it, the box and the line under the
+  box. Anywhere on it strengthens the box's border, as hovering the box does;
+  a focused box keeps its focus colour, and a switched-off one stays as it is.
 
 ## What it owns
 
@@ -62,6 +66,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Ties the label, the description and the error to the control inside it | `aria-label`, an `id` / `htmlFor` pair, or `aria-describedby` |  |
 | Marks the control invalid when it has an `error`, and announces it | `aria-invalid` |  |
+| Strengthens the box's border while the pointer is anywhere on the field | a hover of your own on the label or around the box |  |
 
 ## Props
 

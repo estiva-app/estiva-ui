@@ -94,7 +94,10 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
           // The focused border survives a hover: hover alone strengthens the
           // hairline, but hover while focused must not grey the focus colour —
           // the stacked variant outranks plain hover by specificity.
+          // Anywhere in the `Field` around it counts as over it (Katerina, 28 September).
           !held && 'hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus',
+          // Left out while focused or open, so their colour stays under the pointer.
+          !held && 'group-hover/field:border-border-strong group-hover/field:focus-visible:border-border-focus group-hover/field:aria-expanded:border-border-focus',
           FIELD_DISABLED_CLASSES,
           held && 'cursor-not-allowed bg-bg-disabled text-text-disabled',
           'focus-visible:border-border-focus aria-expanded:border-border-focus',
