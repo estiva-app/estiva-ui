@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.44.1 — 2026-09-29 — The RichText check stops flagging a feed
+
+### Fixed
+
+- **`gates:status` UIG-30 flags only a file that takes the text tree.** It
+  flagged any file that imports from `@estiva-app/protocol` and draws a
+  `<blockquote>` or an `<ol>`, so Ship's Activity, a feed of related
+  conversations that imports only `Imeta`, failed it. It now looks for the
+  text tree's names (`toRenderTree`, `RenderBlock`, `RenderInline`, the
+  inline parsers) in that import. The two renderers UIG-30 replaced are
+  still caught.
+
+### What an app does to take it
+
+- Nothing. Ship's UIG-30 reads 2 of 2 once it takes this.
+
 ## 0.44.0 — 2026-09-28 — The gates read three places they missed
 
 ### Changed
