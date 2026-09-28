@@ -20,8 +20,8 @@ muted tints; the label is the `chip` type token, 11px / 500.
 
 ## When not
 
-- Something clickable → **Button** (small) or **MenuItem** — a Chip is not
-  a control.
+- Something that does an action → **Button** (small) or **MenuItem**. A Chip
+  is not a control. It can only be a link, with `href`.
 - A removable token in a multi-select → **InputChip** (see ChipInput).
 - A count beside a tab label → **Tabs** draws its own mono number, not a
   Chip.
@@ -37,6 +37,17 @@ import { Chip } from '@estiva-app/ui'
 - `leadingIcon` / `trailingIcon` take a 12px icon; the slots centre it, so
   it never rides the text baseline.
 - A count alone works too — `label="3"`, no icon.
+- `href` makes the chip a link to the thing it names: a real anchor with the
+  chip's round shape, so the keyboard ring is round too. A router app passes
+  `onClick`, as with **Link**. Inside a row whose **Link** has `cover`, it
+  stays clickable on its own: the row opens one thing, the chip another.
+
+```tsx
+<div className="relative flex items-center gap-3">
+  <Link href={itemUrl} variant="plain" cover>Item one</Link>
+  <Chip href={groupUrl} label="Group" />
+</div>
+```
 
 ## What it owns
 

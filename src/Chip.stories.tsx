@@ -27,6 +27,8 @@ export const WithLeadingIcon: Story = { args: { type: 'info', label: 'Replies', 
 export const WithTrailingIcon: Story = { args: { type: 'success', label: 'Sorted', trailingIcon: <IconArrowUp className="size-3" stroke={1.5} /> } }
 /** A count alone. */
 export const CountOnly: Story = { args: { type: 'neutral', label: '2' } }
+/** A link to the thing it names. Tab to it: the ring is round, like the chip. */
+export const AsLink: Story = { args: { type: 'neutral', label: 'Group', href: '#' } }
 
 /** All six colour types. */
 export const AllTypes: Story = {
