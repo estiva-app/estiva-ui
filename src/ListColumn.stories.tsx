@@ -97,7 +97,7 @@ export const WithARowAbove: Story = {
       <ListColumn
         title="Items"
         above={
-          <Form onSubmit={() => setName('')} className="flex items-center gap-2 px-3 pt-3 pb-1">
+          <Form onSubmit={() => setName('')} layout="free" className="flex items-center gap-2 px-3 pt-3 pb-1">
             <TextInput className="min-w-0 flex-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="New item name" aria-label="New item name" />
             <Button className="shrink-0" type="submit" disabled={!name.trim()}>
               Create

@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.42.0 — 2026-09-28 — Fields 24px apart, and one hover per field
+
+### Changed
+
+- **`Form` places its fields: one column, 24px apart.** It drew no layout and
+  every caller chose the space between fields, three ways: Peek's dialogs
+  8px (the label's own distance from its box, so a label sat as close to the
+  field above as to its own), Ship's 24px, the launcher 16px. Katerina, 28
+  September: the package owns it, 24px. `CommandPalette`'s fields are 24px
+  apart too.
+- **`no-restyled-part` refuses a layout passed into a `Form`**: a display, a
+  direction, a gap, a grid or an alignment. Its own space around and size
+  still pass.
+- **A field is one hover.** The label, the space under it, the box and the
+  line under the box: the pointer anywhere on a `Field` strengthens the box's
+  border, as the box alone did (Katerina, 28 September). A focused box keeps
+  its focus colour; a switched-off one no longer lights up when its label is
+  hovered, which it did before.
+
+### Added
+
+- **`<Form layout="free">`**, for a form that is not a list of fields — a
+  field and its button, a composer. It places nothing, and `className` lays
+  it out, as every form did before.
+
+### What an app does to take it
+
+- A `Form` with `className="flex flex-col gap-…"`: drop those classes (the
+  lint names them). Its fields move to 24px apart.
+- A `Form` that is a row or a composer: add `layout="free"` and keep its
+  classes.
+- A `Form` with no `className` now stacks what is inside it 24px apart; with
+  one child nothing moves.
+
 ## 0.41.0 — 2026-09-28 — A row that is one link
 
 ### Added

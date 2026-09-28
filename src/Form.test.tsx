@@ -26,7 +26,7 @@ afterEach(cleanup)
 
 function Harness({ onSubmit = vi.fn(), error, busy = false }: { onSubmit?: () => void; error?: string; busy?: boolean }) {
   return (
-    <Form onSubmit={onSubmit} busy={busy} aria-label="Probe" className="flex flex-col gap-6" id="probe">
+    <Form onSubmit={onSubmit} busy={busy} aria-label="Probe" id="probe">
       <Field label="First">
         <TextInput />
       </Field>
@@ -213,13 +213,27 @@ describe('Form', () => {
     expect(fireEvent.submit(form)).toBe(false)
   })
 
-  it('is a form with no browser validation bubbles, and passes id and className on', () => {
+  it('is a form with no browser validation bubbles, and passes id on', () => {
     render(<Harness />)
     const form = screen.getByRole('form', { name: 'Probe' }) as HTMLFormElement
     expect(form.tagName).toBe('FORM')
     expect(form.noValidate).toBe(true)
     expect(form.id).toBe('probe')
-    expect(form.className).toContain('flex-col')
+  })
+
+  it('stacks its fields 24px apart itself, and a free form places nothing', () => {
+    render(
+      <>
+        <Form onSubmit={() => {}} aria-label="Fields" className="px-5">x</Form>
+        <Form onSubmit={() => {}} aria-label="Free" layout="free" className="flex items-center gap-2">x</Form>
+      </>,
+    )
+    const fields = screen.getByRole('form', { name: 'Fields' }).className.split(' ')
+    expect(fields).toEqual(expect.arrayContaining(['flex', 'flex-col', 'gap-6', 'px-5']))
+    const free = screen.getByRole('form', { name: 'Free' }).className.split(' ')
+    expect(free).not.toContain('flex-col')
+    expect(free).not.toContain('gap-6')
+    expect(free).toEqual(expect.arrayContaining(['flex', 'items-center', 'gap-2']))
   })
 
   it('draws no box of its own around the fields', () => {

@@ -246,7 +246,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
     >
       {/* The box the chips and the input share. `Combobox.Chips` is what makes
           the two one control for the keyboard; the look is what it always was. */}
-      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, 'focus-within:border-border-focus focus-within:hover:border-border-focus px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring')}>
+      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, 'focus-within:border-border-focus focus-within:hover:border-border-focus group-hover/field:focus-within:border-border-focus px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring')}>
         {value.map((option) => (
           <Combobox.Chip key={option.id} className={cn(CHIP_BOX, chipPadding(!!chipLeading, true))}>
             {chipLeading && <span className="flex shrink-0 items-center">{chipLeading(option)}</span>}

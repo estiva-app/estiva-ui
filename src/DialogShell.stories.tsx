@@ -6,6 +6,7 @@ import { Chip } from './Chip'
 import { DialogShell } from './DialogShell'
 import { IconButton } from './IconButton'
 import { Field } from './Field'
+import { Form } from './Form'
 import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
 
@@ -32,22 +33,22 @@ type Story = StoryObj<typeof meta>
  */
 export const Default: Story = {
   args: {
-    bodyClassName: 'flex flex-col gap-6',
     footer: (
       <>
         <Button variant="muted">Cancel</Button>
         <Button variant="primary">Confirm</Button>
       </>
     ),
+    // In a Form, as a dialog's fields always are: it places them 24px apart.
     children: (
-      <>
+      <Form onSubmit={() => {}} aria-label="Example">
         <Field label="Title" required>
           <TextInput placeholder="What is this about?" />
         </Field>
         <Field label="Notes">
           <Textarea placeholder="Optional notes…" className="h-[80px]" />
         </Field>
-      </>
+      </Form>
     ),
   },
 }

@@ -37,6 +37,15 @@ import { FormBusyContext, useFormBusy } from './formBusy'
  * from sending, for a form where only Ctrl+Enter may send (`CommandPalette`).
  * Every way of sending goes through the form's submit, so Base UI's field
  * check runs for each.
+ *
+ * **The form places its fields** (Katerina, 28 September). It drew no box and
+ * left the space between fields to every caller, and they chose three: Peek's
+ * dialogs 8px — the label's own distance from its box, so a label sat as close
+ * to the field above it as to its own — Ship's 24px, and the package's own
+ * launcher 16px. Everything inside now stacks 24px apart, and the gate lint
+ * refuses a layout passed in (`no-restyled-part`). A form that is not a list
+ * of fields — a field and its button, a composer — says `layout="free"` and
+ * lays itself out.
  */
 export interface FormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children' | 'noValidate'> {
   /** Enter in a field, or a submit button. The page's own submit is already prevented. */
@@ -48,8 +57,17 @@ export interface FormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'on
    * Ctrl+Enter may send — a form inside `CommandPalette`. Ctrl+Enter sends either way.
    */
   enterSends?: boolean
+  /**
+   * `fields`, the default: everything inside stacks 24px apart. `free`: the
+   * form places nothing, for a form that is not a list of fields — a field and
+   * its button, a composer — which lays itself out through `className`.
+   */
+  layout?: 'fields' | 'free'
   children: ReactNode
 }
+
+/** A list of fields: one column, 24px apart. `CommandPalette` stacks its fields with it too. */
+export const FIELDS_CLASSES = 'flex flex-col gap-6'
 
 const CONTROL = 'input:not([type="hidden"]), textarea, select, button, [role="checkbox"], [role="combobox"], [tabindex]:not([tabindex="-1"])'
 
@@ -70,7 +88,7 @@ function firstInvalid(form: HTMLElement): HTMLElement | undefined {
   return undefined
 }
 
-export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, className, children, ...props }: FormProps) {
+export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, layout = 'fields', className, children, ...props }: FormProps) {
   // A form inside a busy form is busy too.
   const outerBusy = useFormBusy()
   const busy = ownBusy || outerBusy
@@ -148,7 +166,7 @@ export function Form({ onSubmit, busy: ownBusy = false, enterSends = true, class
       // Focus waits here only while busy; the rest of the time a click between two fields must not land on the form.
       tabIndex={busy ? -1 : props.tabIndex}
       // A form that holds focus for a moment must not draw a focus ring.
-      className={cn('outline-none', className)}
+      className={cn('outline-none', layout === 'fields' && FIELDS_CLASSES, className)}
       onFocus={(event) => {
         if (event.target !== form.current) lastInside.current = event.target
         props.onFocus?.(event)

@@ -36,6 +36,10 @@ import { ESCAPE_MESSAGES, isEscaped } from './escape'
  *
  * `EmptyState` takes no padding either (Katerina's ruling 6 of 14 September):
  * its room comes from the box its rows live in.
+ *
+ * `Form` takes no layout for its fields (Katerina, 28 September): it stacks
+ * them 24px apart itself, so every form reads the same. A form that is not a
+ * list of fields says `layout="free"`, and then lays itself out.
  */
 
 // ---------------------------------------------------------------- the classes
@@ -91,6 +95,14 @@ export function isPlacement(token: string): boolean {
   const { variants, utility } = splitClass(token)
   if (variants.some((variant) => REACHING_VARIANT.test(variant))) return false
   return PLACEMENT.some(({ pattern }) => pattern.test(utility))
+}
+
+/** How a form's fields are laid out: its display, direction, gaps and alignment. */
+const FIELDS_LAYOUT = /^(?:block|flex|grid|inline-flex|inline-grid|contents|flow-root)$|^(?:gap|gap-x|gap-y|space-x|space-y|grid-cols|grid-rows|grid-flow|auto-cols|auto-rows|items|justify|justify-items|place-content|place-items)-|^flex-(?:row|col|wrap|nowrap)|^content-(?!\[)/
+
+const isFieldsLayout = (token: string) => {
+  const { variants, utility } = splitClass(token)
+  return !variants.some((variant) => REACHING_VARIANT.test(variant)) && FIELDS_LAYOUT.test(utility)
 }
 
 const isPadding = (token: string) => {
@@ -608,6 +620,8 @@ export const noRestyledPart: Rule.RuleModule = {
         '{{keys}} in the `style` of {{where}} changes how it looks. A part of @estiva-app/ui is placed from outside, never restyled, by class or by style: only space, size, flex and grid, and position pass in.{{use}} A look for what is around it goes on your own element around it.',
       emptyStatePadding:
         '{{classes}} pads {{where}}. EmptyState takes no padding (Katerina, 14 September): its room comes from the box its rows live in, so put the padding on that box.',
+      formLayout:
+        '{{classes}} lays out the fields of {{where}}. A Form places its own fields, 24px apart (Katerina, 28 September), so every form reads the same: remove it. A form that is not a list of fields (a field and its button, a composer) says `layout="free"` and lays itself out.',
       ...ESCAPE_MESSAGES,
     },
   },
@@ -623,6 +637,15 @@ export const noRestyledPart: Rule.RuleModule = {
       return escapes.get(anchor) === true
     }
 
+    /** A `Form` lays out its own fields unless it says `layout="free"`; a layout the rule cannot read passes. */
+    const placesItsFields = (element: Node) =>
+      !children(element, 'attributes').some((attribute) => {
+        if (attribute?.type !== 'JSXAttribute' || nameOf(child(attribute, 'name')) !== 'layout') return false
+        const value = child(attribute, 'value')
+        const literal = value?.type === 'JSXExpressionContainer' ? child(value, 'expression') : value
+        return !(literal?.type === 'Literal' && literal.value === 'fields')
+      })
+
     const check = (element: Node, binding: PartBinding, prop: string, value: Node | null | undefined, at: Node) => {
       const partProp = binding.props === 'all' ? prop : binding.props[prop]
       if (!partProp || !value) return
@@ -632,7 +655,8 @@ export const noRestyledPart: Rule.RuleModule = {
       const where = `${via}${partProp === 'className' ? '' : `'s \`${partProp}\``}`
       const restyled = [...new Set(classes.filter((token) => !isPlacement(token)))]
       const padding = binding.part === 'EmptyState' && binding.props === 'all' ? [...new Set(classes.filter(isPadding))] : []
-      if (!restyled.length && !padding.length) return
+      const layout = binding.part === 'Form' && partProp === 'className' && placesItsFields(element) ? [...new Set(classes.filter(isFieldsLayout))] : []
+      if (!restyled.length && !padding.length && !layout.length) return
       if (escaped(element)) return
       if (restyled.length) {
         const props = PART_LOOK_PROPS[binding.part]
@@ -640,6 +664,7 @@ export const noRestyledPart: Rule.RuleModule = {
         context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'restyled', data: { classes: code(restyled), where, use } })
       }
       if (padding.length) context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'emptyStatePadding', data: { classes: code(padding), where } })
+      if (layout.length) context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'formLayout', data: { classes: code(layout), where } })
     }
 
     /** `style` on a part: every key it can read must be placement (B6). */

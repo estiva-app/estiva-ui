@@ -74,6 +74,9 @@ tester.run('no-restyled-part', noRestyledPart, {
     { name: 'style the code works out while it runs passes', filename: app, code: ui('Card', '    <Card style={props.style} />') },
     { name: 'style on a component that hands on only its className is not read', filename: app, code: local('ConversationCard', './components/ConversationCard', '    <ConversationCard title="x" style={{ opacity: 0.5 }} />') },
     { name: 'EmptyState placed', filename: app, code: ui('EmptyState', '    <EmptyState className="mt-2 flex-1" message="Nothing yet" />') },
+    { name: 'Form placed, its fields its own', filename: app, code: ui('Form', '    <Form onSubmit={send} className="min-h-0 flex-1 px-5">x</Form>') },
+    { name: 'a free Form lays itself out', filename: app, code: ui('Form', '    <Form onSubmit={send} layout="free" className="flex items-center gap-2">x</Form>') },
+    { name: 'a Form whose layout the rule cannot read passes', filename: app, code: ui('Form', '    <Form onSubmit={send} layout={how} className="flex gap-2">x</Form>') },
     // escapes
     { name: 'escaped, with its reason', filename: app, code: ui('Link', '    // @estiva-escape(no-restyled-part): the whole row is the link, and no part does that yet\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>') },
     // the package itself
@@ -185,6 +188,18 @@ tester.run('no-restyled-part', noRestyledPart, {
       filename: app,
       code: "import { Link, type LinkProps } from '@estiva-app/ui'\nfunction RouterLink({ href, ...props }: LinkProps) {\n  return <Link href={href} {...props} />\n}\nexport function Probe() {\n  return <RouterLink href=\"/x\" className=\"text-h5\">x</RouterLink>\n}\n",
       errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant`, `truncate` or `cover`.') }],
+    },
+    {
+      name: 'a Form laid out by hand',
+      filename: app,
+      code: ui('Form', '    <Form onSubmit={send} className="flex flex-col gap-2 sm:gap-4 mt-2">x</Form>'),
+      errors: [{ message: '`flex` `flex-col` `gap-2` `sm:gap-4` lays out the fields of `Form`. A Form places its own fields, 24px apart (Katerina, 28 September), so every form reads the same: remove it. A form that is not a list of fields (a field and its button, a composer) says `layout="free"` and lays itself out.' }],
+    },
+    {
+      name: 'a Form that says fields is laid out by the Form',
+      filename: app,
+      code: ui('Form', '    <Form onSubmit={send} layout="fields" className="space-y-3">x</Form>'),
+      errors: [{ message: '`space-y-3` lays out the fields of `Form`. A Form places its own fields, 24px apart (Katerina, 28 September), so every form reads the same: remove it. A form that is not a list of fields (a field and its button, a composer) says `layout="free"` and lays itself out.' }],
     },
     {
       name: 'EmptyState padded directly',
@@ -307,7 +322,8 @@ describe('the look props the message names are the package’s own', () => {
   })
 
   /** Named like a look, and not one: AttachmentCard's `size` is the file's, in bytes. */
-  const NOT_A_LOOK: Record<string, string[]> = { AttachmentCard: ['size'] }
+  // Form's `layout` says whether it places its fields at all, not how anything looks.
+  const NOT_A_LOOK: Record<string, string[]> = { AttachmentCard: ['size'], Form: ['layout'] }
 
   it('every look prop a part has is named', () => {
     for (const part of PARTS) {
