@@ -127,6 +127,14 @@ jobs:
         run: npx playwright install --with-deps --only-shell chromium
       - name: Every story draws
         run: npm run test:stories
+      # Every docs page drawn once too (Katerina, 28 September). A page is MDX:
+      # a stray `{label}` in a sentence is run as code, and ErrorBoundary's page
+      # showed Storybook's error screen from 19 to 28 September while every story
+      # passed. The built Storybook, each docs page opened in Chromium.
+      - name: The Storybook, built
+        run: npm run build-storybook -- --quiet
+      - name: Every docs page draws
+        run: npm run test:docs
 
   # Every story rendered in Chromium and run through axe, once per product
   # theme (vitest.config.ts: the storybook-signal and storybook-ship projects).
