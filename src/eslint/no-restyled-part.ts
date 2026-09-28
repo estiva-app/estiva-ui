@@ -119,7 +119,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   IconButton: ['variant', 'pressed', 'glow'],
   InputChip: ['truncate'],
   Kbd: ['tone'],
-  Link: ['variant', 'truncate'],
+  Link: ['variant', 'truncate', 'cover'],
   MenuItem: ['size', 'selected', 'destructive'],
   MenuSub: ['selected'],
   NavItem: ['active'],

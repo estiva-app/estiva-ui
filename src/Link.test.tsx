@@ -88,6 +88,21 @@ describe('Link', () => {
     expect(classesOf(screen.getByRole('link'))).toEqual([])
   })
 
+  it('cover lays a layer over the row and moves the ring onto it; without it, nothing of the kind', () => {
+    render(
+      <>
+        <Link href="#" variant="plain" cover>
+          Row
+        </Link>
+        <Link href="#" variant="plain">
+          Words
+        </Link>
+      </>,
+    )
+    expect(classesOf(screen.getByRole('link', { name: 'Row' }))).toEqual(['after:absolute', 'after:inset-0', 'after:rounded-md', 'focus-visible:outline-none', 'focus-visible:after:[outline-style:auto]'])
+    expect(classesOf(screen.getByRole('link', { name: 'Words' }))).toEqual([])
+  })
+
   it('a ref reaches the anchor', () => {
     const ref = createRef<HTMLAnchorElement>()
     render(

@@ -115,7 +115,7 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'a look behind a variant, and an extra layer',
       filename: app,
       code: ui('Link', '    <Link href="/x" className="signal:hover:bg-success-muted after:absolute [&>*]:shrink-0">x</Link>'),
-      errors: [{ message: restyled('`signal:hover:bg-success-muted` `after:absolute` `[&>*]:shrink-0`', '`Link`', ' Use its `variant` or `truncate`.') }],
+      errors: [{ message: restyled('`signal:hover:bg-success-muted` `after:absolute` `[&>*]:shrink-0`', '`Link`', ' Use its `variant`, `truncate` or `cover`.') }],
     },
     {
       name: 'an inner box’s class prop',
@@ -184,7 +184,7 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'a wrapper declared in the same file',
       filename: app,
       code: "import { Link, type LinkProps } from '@estiva-app/ui'\nfunction RouterLink({ href, ...props }: LinkProps) {\n  return <Link href={href} {...props} />\n}\nexport function Probe() {\n  return <RouterLink href=\"/x\" className=\"text-h5\">x</RouterLink>\n}\n",
-      errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant` or `truncate`.') }],
+      errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant`, `truncate` or `cover`.') }],
     },
     {
       name: 'EmptyState padded directly',
@@ -196,19 +196,19 @@ tester.run('no-restyled-part', noRestyledPart, {
       name: 'an escape with no reason is reported, and so is the class',
       filename: app,
       code: ui('Link', '    // @estiva-escape(no-restyled-part):\n    <Link href="/x" className="text-h2">x</Link>'),
-      errors: [{ messageId: 'escapeWithoutReason' }, { message: restyled('`text-h2`', '`Link`', ' Use its `variant` or `truncate`.') }],
+      errors: [{ messageId: 'escapeWithoutReason' }, { message: restyled('`text-h2`', '`Link`', ' Use its `variant`, `truncate` or `cover`.') }],
     },
     {
       name: 'inside the package: a part imported from a sibling',
       filename: pkg,
       code: local('Link', './Link', '    <Link href="/x" className="rounded-lg border">x</Link>'),
-      errors: [{ message: restyled('`rounded-lg` `border`', '`Link`', ' Use its `variant` or `truncate`.') }],
+      errors: [{ message: restyled('`rounded-lg` `border`', '`Link`', ' Use its `variant`, `truncate` or `cover`.') }],
     },
     {
       name: 'inside the package: a part used in the file that declares it',
       filename: pkg,
       code: 'export function Link() {\n  return null\n}\nexport function Probe() {\n  return <Link className="text-caption" />\n}\n',
-      errors: [{ message: restyled('`text-caption`', '`Link`', ' Use its `variant` or `truncate`.') }],
+      errors: [{ message: restyled('`text-caption`', '`Link`', ' Use its `variant`, `truncate` or `cover`.') }],
     },
   ],
 })
