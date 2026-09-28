@@ -214,8 +214,7 @@ describe('a made app, under the checks every app runs', () => {
         if (result.result === 'fail' || result.result === 'part') failed.push(`${ticket.ref} ${check.what}: ${result.detail}`)
       }
     }
-    // RichText is UIG-30's, not built yet: no app passes that one.
-    expect(failed.filter((f) => !f.startsWith('UIG-30 '))).toEqual([])
+    expect(failed).toEqual([])
   }, 300_000)
 })
 
