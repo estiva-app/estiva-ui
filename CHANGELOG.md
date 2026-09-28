@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.38.0 — 2026-09-28 — the Leaf theme, and tooltips and fields with colours of their own
+
+### Added
+
+- **`leaf`, Leaf's theme: Linear's light colours on the same tokens.** Read
+  from the Linear app itself (its named `--color-bg-*`, `--color-border-*`,
+  `--color-text-*` and `--focus-ring-color`), turned from LCH into sRGB by
+  Chrome. Menus and the toolbar are white; tooltips are dark. Where Linear
+  names no colour, the light theme's stays, marked in `tokens.css`. After
+  Katerina's review: lines one step darker so cards and chips show, an inset
+  fill that is not the ground, a see-through hover, and a readable warning.
+  Select it with `data-theme="leaf"`; `create-estiva-app --theme leaf` offers it.
+- **A `leaf:` variant**, like `signal:` and `ship:`. Keys, the palette's hints,
+  the Menu's move target and section labels are mono in Leaf, and every toast
+  is one grey pill with an edge and a shadow, as in Signal.
+- **Tooltips have their own colours:** `bg-`, `text-` and `border-tooltip`,
+  and the same three for a shortcut key on one (`Kbd tone="tooltip"`, which
+  `Tooltip` passes). The Lightbox's close button wears them too.
+- **Fields have their own colours:** `bg-`, `border-` and `shadow-field`, used
+  by TextInput, Textarea, Select, SearchInput and ChipInput.
+- **Every docs page draws, in the gate job** (`npm run test:docs`): the built
+  Storybook, each docs page opened in Chromium.
+- In Storybook, the docs pages follow the theme: light chrome under a light one.
+
+Every existing theme keeps exactly what it drew: its tooltips, keys and fields
+take the colours they had. Measured against 0.37.2 in Signal and Ship: 38
+pictures, pixel-identical.
+
+### Fixed
+
+- ErrorBoundary's docs page crashed on `{label}` in its prose from 0.25.0 on.
+- Stories: AppShell's empty state is centred (no `h-full`), Tooltip's toolbar
+  story is a Toolbar, the selection toolbar lost its double padding, and
+  MenuItem has one Submenu story, the working one.
+
 ## 0.37.2 — 2026-09-27 — create-estiva-app runs from npm again
 
 ### Fixed
