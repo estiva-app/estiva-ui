@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.43.0 — 2026-09-28 — The palette draws a proposal
+
+### Added
+
+- **`CommandPaletteProposal`: something the palette offers to make, before
+  anything is made.** A card above the rows: where it would be made
+  (`source`, with the app's `mark`), then what it would be, in a sentence.
+  Peek's launcher drew its Make card by hand inside a `Card`; this is that
+  look, unchanged, drawn by the palette as its ruling P4 asks of Ask, Draft
+  and Make (UIG-40, Katerina, 28 September). Story *Proposal*.
+- **`gates:status`, UIG-40:** the package exports it.
+
+Nothing existing changes: no prop, class or token was renamed or removed.
+
 ## 0.42.0 — 2026-09-28 — Fields 24px apart, and one hover per field
 
 ### Changed
