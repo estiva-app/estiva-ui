@@ -358,8 +358,10 @@
   --bg-base:     #efeff0; /* --color-bg-quaternary, the app's ground and sidebar */
   --bg-surface:  #f9f9fa; /* --color-bg-primary, the content panel and header */
   --bg-elevated: #ffffff; /* menus and the toolbar are white (Katerina, 27 September) */
-  --bg-inset:    #efeff0; /* the base, as light has it: a field sits on the ground's colour */
-  --bg-hover:    #e9e9ea; /* --color-bg-secondary */
+  --bg-inset:    #e9e9ea; /* --color-bg-secondary: not the ground, or an inset card and a skeleton vanish on it (Katerina, 28 September) */
+  /* See-through, so a hover shows on a row that is itself hovered or grey (Katerina, 28 September):
+     6.4% black is Linear's --color-bg-secondary (#e9e9ea) on its content panel. */
+  --bg-hover:    rgba(0, 0, 0, 0.064);
   --bg-selected: #e5e5e6; /* --color-bg-tertiary */
   --bg-active:   #e1e1e2; /* the selected sidebar row (lch 89.54%) */
   --bg-disabled: #efeff0; /* the base, as light has it */
@@ -373,7 +375,9 @@
   --text-interactive: #1b1b1b; /* --app-link-color: a link is the text colour */
 
   /* borders */
-  --border-subtle:  #f1f1f1; /* --color-border-primary */
+  /* One step darker than Linear's own faintest line (Katerina, 28 September): our cards, chips and
+     toasts draw their edge with subtle, and Linear's #f1f1f1 vanished on white and on the ground. */
+  --border-subtle:  #e5e5e6; /* --color-bg-tertiary */
   --border-default: #dedede; /* --color-border-secondary */
   --border-strong:  #d3d3d3; /* --color-border-tertiary */
   --border-focus:   #5e69d1; /* --focus-ring-color */
@@ -386,7 +390,7 @@
   /* semantic — light, until Linear's are read */
   --info-default:    #3B82F6;
   --info-muted:      #DBEAFE;
-  --warning-default: #F59E0B;
+  --warning-default: #967000; /* Linear's darkest yellow: readable on the warning wash (Katerina, 28 September) */
   --warning-muted:   #FEF3C7;
   --success-default: #0EA06F;
   --success-muted:   #D1FAE5;
@@ -424,6 +428,6 @@
   /* A field is Linear's: white, a faint line, a soft two-layer shadow (read from its
      comment box, 28 September: lch(100), lch(97.3), 0 3px 6px -2px at 2% and 0 1px 1px at 4%). */
   --bg-field:     #ffffff;
-  --border-field: #f7f7f7;
+  --border-field: #dedede; /* the default line, so a field shows on a white dialog (Katerina, 28 September); Linear's own is #f7f7f7 */
   --shadow-field: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
 }

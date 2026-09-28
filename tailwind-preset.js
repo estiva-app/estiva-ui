@@ -70,6 +70,7 @@ export default {
     plugin(({ addVariant, addComponents }) => {
       addVariant('signal', '.signal &')
       addVariant('ship', "[data-theme='ship'] &")
+      addVariant('leaf', "[data-theme='leaf'] &")
       // The Signal canvas: the control-room dot grid on the app's dark ground,
       // in the Signal theme only. AppShell's floating frame carries
       // `signal-canvas`. Peek's, verbatim (UIG-14, Katerina, 19 September: the

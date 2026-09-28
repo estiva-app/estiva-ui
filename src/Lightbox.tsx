@@ -74,10 +74,12 @@ export function Lightbox({ src, alt, onClose, className }: LightboxProps) {
             onClick={(e) => e.stopPropagation()}
             className={cn('max-w-full max-h-full object-contain rounded-lg', className)}
           />
-          {/* @estiva-escape(no-copied-look): N4 (Katerina, 24 September: record only): the small round button AttachmentCard's remove also draws; a part if a third appears */}
+          {/* On the dark scrim in every theme, so it wears the tooltip's dark colours (Katerina,
+              28 September: Leaf's white circle stood out); in the other themes they are the
+              elevated ground, the strong line and the secondary text it always had. */}
           <Dialog.Close
             aria-label="Close"
-            className="absolute top-4 right-4 size-8 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary"
+            className="absolute top-4 right-4 size-8 rounded-full bg-bg-tooltip border border-border-tooltip-key flex items-center justify-center text-text-tooltip-key hover:text-text-tooltip"
           >
             <IconX size={16} stroke={1.5} />
           </Dialog.Close>

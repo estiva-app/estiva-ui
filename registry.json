@@ -1889,7 +1889,7 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "text-menu signal:font-mono signal:text-small signal:tracking-wider"
+        "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
     },
     {
@@ -2632,8 +2632,8 @@
       "docPage": "src/Kbd.mdx",
       "app": null,
       "looks": [
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
         "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary",
         "signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small",
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
@@ -2712,7 +2712,7 @@
       "docPage": "src/Lightbox.mdx",
       "app": null,
       "looks": [
-        "rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary"
+        "rounded-full bg-bg-tooltip border border-border-tooltip-key text-text-tooltip-key hover:text-text-tooltip"
       ]
     },
     {
@@ -4355,13 +4355,14 @@
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest"
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest",
+        "leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
       ]
     },
     {
@@ -4863,11 +4864,11 @@
       "docPage": "src/Toast.mdx",
       "app": null,
       "looks": [
-        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
-        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md"
       ]
     },
     {
@@ -4912,11 +4913,11 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
-        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md"
       ]
     },
     {
