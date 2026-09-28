@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.39.0 — 2026-09-28 — AppShell's third manner, inset
+
+### Added
+
+- **`<AppShell variant="inset">`: the structured frame the other way round.**
+  The TopBar and the Sidebar stand on the ground with no line or surface, and
+  the content is a Card on it: 16px from the right and bottom, as the floating
+  card is, with 8px corners. Linear's layout, as a choice an app makes in any
+  theme rather than a theme's (Katerina, 28 September). The Sidebar learns it
+  from the frame, so the caller passes nothing; `TopBar` gains the same
+  `inset` manner. Stories *Inset* and *Inset with banner*.
+
+`solid` and `floating` are unchanged: their five stories in Signal and Ship
+are pixel-identical to 0.38.0.
+
 ## 0.38.0 — 2026-09-28 — the Leaf theme, and tooltips and fields with colours of their own
 
 ### Added

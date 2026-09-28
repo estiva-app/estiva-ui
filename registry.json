@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.38.0",
+    "packageVersion": "0.39.0",
     "exports": 88,
     "typeExports": 97,
     "files": null
@@ -21,12 +21,12 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/AppShell.tsx",
-      "purpose": "The frame of an app, in the two manners that pair: `solid` — the structured frame, a solid TopBar over a Sidebar and the content beside it — and `floating` — the TopBar floating over the top edge, a Rail standing on the background, and the content living in the rounded card.",
+      "purpose": "The frame of an app, in three manners: `solid` — the structured frame, a solid TopBar over a Sidebar and the content beside it — `inset` — the same frame the other way round, the TopBar and the Sidebar standing on the ground and the content a lighter card beside them — and `floating` — the TopBar floating over the top edge, a Rail standing on the background, and the content living in the rounded card.",
       "purposeFrom": "page",
       "props": [
         {
           "name": "variant",
-          "takes": "solid | floating",
+          "takes": "solid | floating | inset",
           "required": false,
           "note": null
         },
@@ -78,7 +78,8 @@
           "prop": "variant",
           "values": [
             "solid",
-            "floating"
+            "floating",
+            "inset"
           ]
         }
       ],
@@ -5412,7 +5413,7 @@
       "props": [
         {
           "name": "variant",
-          "takes": "solid | floating",
+          "takes": "solid | floating | inset",
           "required": false,
           "note": null
         },
@@ -5452,7 +5453,8 @@
           "prop": "variant",
           "values": [
             "solid",
-            "floating"
+            "floating",
+            "inset"
           ]
         }
       ],
