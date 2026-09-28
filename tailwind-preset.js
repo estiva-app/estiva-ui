@@ -78,10 +78,6 @@ export default {
       // knows the name. `isolation` and `z-index: -1` keep the grid above
       // the ground and below every child: never over the card, a dialog, a menu.
       addComponents({
-        // The Leaf canvas: Buzz's light gradient behind the floating frame, in the
-        // Leaf theme only (Buzz desktop theme.css, 27 September). It is painted on
-        // the same hook as Signal's grid; the rounded card and the rail sit on it.
-        "[data-theme='leaf'] .signal-canvas": { backgroundImage: 'linear-gradient(to bottom, #e6e6b6, #c4d0da)' },
         '.signal .signal-canvas': { isolation: 'isolate' },
         '.signal .signal-canvas::before': {
           content: "''",

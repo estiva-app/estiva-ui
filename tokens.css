@@ -324,81 +324,80 @@
   --text-tooltip-key:   #b3b9c7;
 }
 
-/* ─── leaf ─── Leaf's theme: Buzz Light's colours on these same tokens (Katerina,
-   27 September: "don't make new tokens, apply its theme wherever you can").
-   Read from Buzz desktop (estiva-app/buzz origin/main 5a45bd7): its "buzz" theme
-   is GitHub Light run through its own createThemeVars, with the accent pinned
-   to neutral, plus the `data-buzz-sidebar` rules in theme.css. Where Buzz has
-   no colour for one of these tokens, the light theme's stays. */
+/* ─── leaf ─── Leaf's theme: Linear's light theme on these same tokens (Katerina,
+   27–28 September: "I like Linear's theme more", and "get it right, not by
+   screenshot"). Read from the Linear app itself: its named colours
+   (--color-bg-*, --color-border-*, --color-text-*, --focus-ring-color), dumped
+   from a signed-in tab on 28 September and turned from LCH into sRGB by Chrome.
+   Where Linear names no colour for one of these tokens, the light theme's stays
+   (marked "light"); menus, the toolbar and tooltips follow her rulings. */
 :root[data-theme='leaf'] {
   color-scheme: light;
 
   /* bg */
-  --bg-base:     #f6f6f6; /* Buzz's chrome (--sidebar-background) */
-  --bg-surface:  #ffffff; /* Buzz's --background and --card */
+  --bg-base:     #efeff0; /* --color-bg-quaternary, the app's ground and sidebar */
+  --bg-surface:  #f9f9fa; /* --color-bg-primary, the content panel and header */
   --bg-elevated: #ffffff; /* menus and the toolbar are white (Katerina, 27 September) */
-  --bg-inset:    #f0f0f0; /* Buzz's --muted */
-  /* Translucent, as Buzz's sidebar has them, so they read on every surface. */
-  --bg-hover:    rgba(0, 0, 0, 0.04); /* --buzz-hover-surface */
-  --bg-selected: rgba(0, 0, 0, 0.07); /* --buzz-active-surface */
-  --bg-active:   rgba(0, 0, 0, 0.07); /* --buzz-active-surface */
-  --bg-disabled: #F4F4F5;
+  --bg-inset:    #efeff0; /* the base, as light has it: a field sits on the ground's colour */
+  --bg-hover:    #e9e9ea; /* --color-bg-secondary */
+  --bg-selected: #e5e5e6; /* --color-bg-tertiary */
+  --bg-active:   #e1e1e2; /* the selected sidebar row (lch 89.54%) */
+  --bg-disabled: #efeff0; /* the base, as light has it */
 
   /* text */
-  --text-primary:   #24292e; /* Buzz's --foreground */
-  --text-secondary: rgba(0, 0, 0, 0.5); /* --buzz-chrome-foreground */
-  --text-muted:     rgba(0, 0, 0, 0.4); /* --buzz-muted-foreground */
-  --text-disabled:  #D4D4D8;
-  --text-inverse:   #ffffff; /* Buzz's --primary-foreground */
+  --text-primary:   #1b1b1b; /* --color-text-primary */
+  --text-secondary: #5c5c5e; /* --color-text-tertiary: labels, descriptions, icons */
+  --text-muted:     #9c9d9f; /* --color-text-quaternary: placeholders, counts */
+  --text-disabled:  #D4D4D8; /* light */
+  --text-inverse:   #ffffff;
+  --text-interactive: #1b1b1b; /* --app-link-color: a link is the text colour */
 
   /* borders */
-  --border-subtle:  #F4F4F5;
-  --border-default: #e5e5e6; /* Buzz's --border */
-  --border-strong:  #D4D4D8;
-  --border-focus:   #24292e; /* Buzz's --ring */
+  --border-subtle:  #f1f1f1; /* --color-border-primary */
+  --border-default: #dedede; /* --color-border-secondary */
+  --border-strong:  #d3d3d3; /* --color-border-tertiary */
+  --border-focus:   #5e69d1; /* --focus-ring-color */
 
-  /* accent — Buzz pins it to neutral: its text colour */
-  --accent-primary: #24292e; /* Buzz's --primary */
-  --accent-hover:   #3a3e43; /* its button's hover, primary at 90% on white */
-  --accent-muted:   #f0f0f0; /* Buzz's --accent */
-  --text-interactive: #24292e; /* a link is --primary, underlined */
+  /* accent — Linear's indigo */
+  --accent-primary: #5e69d1; /* --focus-ring-color, the selection's colour */
+  --accent-hover:   #6b75df; /* not named in Linear's set: the indigo beside it in the app's own values */
+  --accent-muted:   #EDE9FE; /* light */
 
-  /* semantic */
+  /* semantic — light, until Linear's are read */
   --info-default:    #3B82F6;
   --info-muted:      #DBEAFE;
-  --warning-default: #9a6700; /* Buzz's --ui-warning */
-  --warning-muted:   rgba(154, 103, 0, 0.08); /* --ui-warning-bg */
-  --success-default: #28a745; /* Buzz's --status-added */
+  --warning-default: #F59E0B;
+  --warning-muted:   #FEF3C7;
+  --success-default: #0EA06F;
   --success-muted:   #D1FAE5;
-  --error-default:   #d73a49; /* Buzz's --destructive */
+  --error-default:   #EF4444;
   --error-muted:     #FEE2E2;
 
-  /* shadows */
+  /* shadows — light */
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
-  --focus-ring: 0 0 0 3px rgba(36, 41, 46, 0.16);
-  /* Transparent colours (D16): the light theme's strengths, on Buzz's colours. */
+  --focus-ring: 0 0 0 1px #5e69d1; /* --focus-ring-outline: 1px of the accent */
+  /* Transparent colours (D16): light's strengths, on Linear's indigo. */
   --bg-wash:         rgba(0, 0, 0, 0.04);
-  --accent-outline:  rgba(36, 41, 46, 0.3);
+  --accent-outline:  rgba(94, 105, 209, 0.3);
   --info-outline:    rgba(59, 130, 246, 0.3);
-  --warning-outline: rgba(154, 103, 0, 0.3);
-  --success-outline: rgba(40, 167, 69, 0.3);
-  --error-outline:   rgba(215, 58, 73, 0.3);
-  --accent-wash:     rgba(36, 41, 46, 0.11);
-  --success-wash:    rgba(40, 167, 69, 0.11);
-  --glow-warning:    0 0 5px rgba(154, 103, 0, 0.4);
-  --glow-success:    0 0 5px rgba(40, 167, 69, 0.7);
-  --glow-accent:     0 0 5px rgba(36, 41, 46, 0.6);
+  --warning-outline: rgba(245, 158, 11, 0.3);
+  --success-outline: rgba(14, 160, 111, 0.3);
+  --error-outline:   rgba(239, 68, 68, 0.3);
+  --accent-wash:     rgba(94, 105, 209, 0.11);
+  --success-wash:    rgba(14, 160, 111, 0.11);
+  --glow-warning:    0 0 5px rgba(245, 158, 11, 0.4);
+  --glow-success:    0 0 5px rgba(14, 160, 111, 0.7);
+  --glow-accent:     0 0 5px rgba(94, 105, 209, 0.6);
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
-  /* Tooltips have their own colours (Katerina, 27 September). Leaf's are dark on its
-     light page — its text colour as the ground, until Linear's own values are read. */
-  --bg-tooltip:     #24292e;
+  /* Tooltips are dark on the light page (Katerina, 27 September): Linear's text colour as the ground. */
+  --bg-tooltip:     #1b1b1b;
   --text-tooltip:   #ffffff;
-  --border-tooltip: #24292e;
-  /* A shortcut key on the dark tooltip: a faint light key, until Linear's values are read. */
+  --border-tooltip: #1b1b1b;
+  /* A shortcut key on the dark tooltip: a faint light key. */
   --bg-tooltip-key:     rgba(255, 255, 255, 0.1);
   --border-tooltip-key: rgba(255, 255, 255, 0.18);
   --text-tooltip-key:   rgba(255, 255, 255, 0.75);

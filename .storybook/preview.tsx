@@ -13,7 +13,7 @@ declare const __ESTIVA_DRAW_ONLY__: boolean | undefined
 /**
  * The themes the apps render, from the toolbar: `signal` is Peek's, `ship`
  * is Ship's (Katerina, 2026-08-28: the reference shows what the apps show),
- * `leaf` is Leaf's (Buzz Light's colours, 27 September). `light` and `dark`
+ * `leaf` is Leaf's (Linear's light colours, 28 September). `light` and `dark`
  * exist in tokens.css as the bases Peek's own Storybook and Estiva ID use, and
  * are not offered here.
  *
