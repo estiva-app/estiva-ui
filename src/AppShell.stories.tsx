@@ -95,6 +95,25 @@ export const SolidWithBanner: Story = {
   ),
 }
 
+/** The structured frame the other way round: the bar and the sidebar on the ground, the content a lighter card beside them. */
+export const Inset: Story = {
+  args: { variant: 'inset' },
+  render: (args) => (
+    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+      <EmptyState message="Nothing here yet." />
+    </AppShell>
+  ),
+}
+
+export const InsetWithBanner: Story = {
+  args: { variant: 'inset' },
+  render: (args) => (
+    <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} banner={<Banner tone="ok">Public key copied.</Banner>}>
+      <EmptyState message="Nothing here yet." />
+    </AppShell>
+  ),
+}
+
 /** The floating frame: the bar floats over the top edge, the rail stands on the background, and the content lives in the rounded card. */
 export const Floating: Story = {
   render: (args) => (

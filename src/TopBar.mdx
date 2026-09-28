@@ -6,10 +6,10 @@ import * as TopBarStories from './TopBar.stories'
 # TopBar
 
 The 52px top bar: `menu` and `logo` on the left, a `search` slot in the
-centre, the identity cluster on the right. Two manners — **`solid`**, in
-flow with a hairline and a surface, and **`floating`**, an overlay with
-neither, whose bar ignores the pointer so the content underneath stays
-reachable.
+centre, the identity cluster on the right. Three manners — **`solid`**,
+in flow with a hairline and a surface; **`inset`**, in flow with neither,
+standing on the ground; and **`floating`**, an overlay with neither, whose
+bar ignores the pointer so the content underneath stays reachable.
 
 <Canvas of={TopBarStories.Solid} />
 
@@ -19,6 +19,8 @@ reachable.
 
 - **`solid`** — the structured frame's first row, above the sidebar
   (AppShell's `solid` variant wires exactly this).
+- **`inset`** — the first row of AppShell's `inset` frame, on the ground
+  above a sidebar that is on the ground too.
 - **`floating`** — an app whose content runs to the top edge; the bar
   floats over it and only its clusters catch clicks (AppShell's
   `floating` variant).

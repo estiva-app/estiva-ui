@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { cn } from './cn'
 
 /**
- * The 52px top bar, in two manners:
+ * The 52px top bar, in three manners:
  *
  * - `solid` — in flow: a hairline under it, the surface behind it, the
  *   frame's first row (2026-09-02, verbatim from the structured app; its
@@ -11,6 +11,9 @@ import { cn } from './cn'
  *   background, and the bar itself ignores the pointer — only its clusters
  *   catch clicks, so the content underneath stays reachable (2026-09-02,
  *   verbatim from the floating app).
+ * - `inset` — in flow like `solid`, but standing on the ground: no hairline
+ *   and no surface, above a sidebar on the ground and the content's card
+ *   (Katerina, 28 September).
  *
  * Geometry both apps agreed on before extraction: 52px tall, `pl-5
  * pr-[26px]`, right cluster `gap-[6px]`. The left region is two slots
@@ -20,7 +23,7 @@ import { cn } from './cn'
  * searched; it only knows where those go.
  */
 export interface TopBarProps {
-  variant?: 'solid' | 'floating'
+  variant?: 'solid' | 'floating' | 'inset'
   /** Far left: the menu button, in an app whose navigation collapses. Stays the caller's — the bar only places it. */
   menu?: ReactNode
   /** Beside the menu button: the app's logo mark, or its name as text. */
@@ -40,7 +43,7 @@ export function TopBar({ variant = 'solid', menu, logo, search, right, className
         'flex h-[52px] items-center pl-5 pr-[26px]',
         floating
           ? 'pointer-events-none absolute left-0 right-0 top-0 z-10'
-          : 'shrink-0 gap-4 border-b border-border-default bg-bg-surface',
+          : cn('shrink-0 gap-4', variant === 'solid' && 'border-b border-border-default bg-bg-surface'),
         className,
       )}
     >

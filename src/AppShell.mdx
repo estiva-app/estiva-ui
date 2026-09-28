@@ -5,13 +5,17 @@ import * as AppShellStories from './AppShell.stories'
 
 # AppShell
 
-The frame of an app, in the two manners that pair: **`solid`** — the
-structured frame, a solid TopBar over a Sidebar and the content beside
-it — and **`floating`** — the TopBar floating over the top edge, a Rail
+The frame of an app, in three manners: **`solid`** — the structured
+frame, a solid TopBar over a Sidebar and the content beside it —
+**`inset`** — the same frame the other way round, the TopBar and the
+Sidebar standing on the ground and the content a lighter card beside
+them — and **`floating`** — the TopBar floating over the top edge, a Rail
 standing on the background, and the content living in the rounded card.
 Layout only: no data, no routes.
 
 <Canvas of={AppShellStories.Solid} />
+
+<Canvas of={AppShellStories.Inset} />
 
 <Canvas of={AppShellStories.Floating} />
 
@@ -20,6 +24,10 @@ Layout only: no data, no routes.
 - **`solid` + Sidebar** — a place-by-place app: labelled entries, counts,
   groups. Sidebar and main scroll independently, so a long list never
   scrolls the navigation away.
+- **`inset` + Sidebar** — the same place-by-place app, when its pages
+  read as one sheet on a desk: the content is a card 16px from the right
+  and bottom, with 8px corners, and the Sidebar drops its line and surface
+  by itself. Any theme: the ground and the card are its base and surface.
 - **`floating` + Rail** — an app with a handful of top-level places and
   its content in one card; the `menu` button in the bar collapses the
   rail (the collapsing stays the app's).
