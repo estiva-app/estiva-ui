@@ -267,7 +267,12 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
       { what: 'the installed package has RichText', run: () => h.contains(installed, /\bRichText\b/, 'the installed @estiva-app/ui exports RichText') },
       { what: "no file draws the protocol's text tree by hand", run: () => {
         const sources = h.listFiles(at('src'), (n) => /\.tsx$/.test(n) && !/\.(test|stories)\.tsx$/.test(n))
-        const own = sources.filter((f) => { const text = h.read(f); return /from ['"]@estiva-app\/protocol['"]/.test(text) && /<(?:blockquote|ol)\b/.test(text) })
+        // A file that takes the text tree from the protocol and draws a quote or a numbered list
+        // itself, as Peek's MessageBody and Ship's RichText did before UIG-30. Any other import
+        // from the protocol passes: Ship's Activity reads only `Imeta`, and its <ol> is a feed.
+        const TREE = /\b(?:toRenderTree|RenderBlock|RenderInline|parseInlineMarks|parseBodySegments|markersToInlineNodes|InlineTextNode|InlineMarkSpan)\b/
+        const readsTree = (text: string) => [...text.matchAll(/import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*['"]@estiva-app\/protocol['"]/g)].some((m) => TREE.test(m[1]))
+        const own = sources.filter((f) => { const text = h.read(f); return readsTree(text) && /<(?:blockquote|ol)\b/.test(text) })
         return own.length ? h.FAIL(`draws the text tree itself (${own.join(', ')}): pass the tree to RichText`) : h.PASS('formatted text is drawn by RichText only')
       } },
     ]),
