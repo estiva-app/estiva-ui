@@ -28,6 +28,8 @@
  * Where the plugin looks: every `className`, every `cn()` / `clsx()` argument,
  * and the values of a class map whose name ends in `Styles` / `_STYLES` or
  * `Classes` / `_CLASSES`. A class map named any other way is invisible to it.
+ * A class list joined by hand, `[…].join(' ')`, is read by `token-joined`
+ * (`./token-joined.ts`, UIG-42) with the same patterns.
  *
  * Tests are out of `tokenValues` (ruling of 13 September): a test mounts markup
  * to test it. A kept hand-written value says why:
@@ -39,6 +41,7 @@ import type { ESLint, Linter } from 'eslint'
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults'
 import { parser as typescriptParser, plugin as typescriptPlugin } from 'typescript-eslint'
+import { type Restriction, tokenJoinedPlugin } from './token-joined'
 import { INLINE_STYLE_MESSAGE, INLINE_STYLE_TOKEN_KEYS, tokenStylePlugin } from './token-style'
 
 /** Who reads the messages. */
@@ -105,18 +108,38 @@ const WORDS = {
 } satisfies Record<TokenAudience, Record<string, string>>
 
 /**
+ * The variants in front of a class, arbitrary ones too (`[&_pre]:`,
+ * `data-[state=open]:`, `group-hover/row:`), and the `!` that makes a class
+ * important. Until UIG-42 the four class rules read only plain variants, so
+ * `[&_pre]:text-sm` and `group-hover/row:bg-gray-100` passed.
+ */
+const V = '^(?:(?:[^:\\[\\]\\s]|\\[[^\\]]*\\])+:)*!?'
+
+/**
  * The class rules. `no-unknown-classes` reads the app's own Tailwind config, so
  * it knows exactly what the preset and the app generate.
  */
 export function tokenLint({ tailwindConfig = 'tailwind.config.js', audience = 'app' }: TokenLintOptions = {}): Linter.Config {
   const words = WORDS[audience]
+  const restrict: Restriction[] = [
+    { pattern: `${V}text-(?:xs|sm|base|lg|xl|[2-9]xl)$`, message: words.ramp },
+    {
+      pattern: `${V}(?:text|bg|border|ring|outline|fill|stroke|decoration|divide|placeholder|from|via|to|accent|caret|shadow)-(?:black|white|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-[0-9]{2,3})?(?:/[0-9]{1,3})?$`,
+      message: words.palette,
+    },
+    { pattern: `${V}[a-z-]+-\\[[^\\]]*(?:#[0-9a-fA-F]{3}|rgba?\\(|hsla?\\(|oklch\\()`, message: words.raw },
+    {
+      pattern: `${V}(?:text|bg|border|ring|outline|fill|stroke|decoration|divide|placeholder|from|via|to|accent|caret|shadow)-(?:bg|text|border|accent|info|warning|success|error)-[a-z-]+/[0-9]{1,3}$`,
+      message: words.opacity,
+    },
+  ]
   return {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
-    plugins: { 'better-tailwindcss': betterTailwindcss },
+    plugins: { 'better-tailwindcss': betterTailwindcss, 'token-joined': tokenJoinedPlugin },
     settings: {
       'better-tailwindcss': {
         tailwindConfig,
@@ -125,24 +148,9 @@ export function tokenLint({ tailwindConfig = 'tailwind.config.js', audience = 'a
     },
     rules: {
       'better-tailwindcss/no-unknown-classes': 'error',
-      'better-tailwindcss/no-restricted-classes': [
-        'error',
-        {
-          restrict: [
-            { pattern: '^(?:[a-z0-9-]+:)*text-(?:xs|sm|base|lg|xl|[2-9]xl)$', message: words.ramp },
-            {
-              pattern:
-                '^(?:[a-z0-9-]+:)*(?:text|bg|border|ring|outline|fill|stroke|decoration|divide|placeholder|from|via|to|accent|caret|shadow)-(?:black|white|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-[0-9]{2,3})?(?:/[0-9]{1,3})?$',
-              message: words.palette,
-            },
-            { pattern: '^(?:[a-z0-9-]+:)*[a-z-]+-\\[[^\\]]*(?:#[0-9a-fA-F]{3}|rgba?\\(|hsla?\\(|oklch\\()', message: words.raw },
-            {
-              pattern: '^(?:[a-z0-9-]+:)*(?:text|bg|border|ring|outline|fill|stroke|decoration|divide|placeholder|from|via|to|accent|caret|shadow)-(?:bg|text|border|accent|info|warning|success|error)-[a-z-]+/[0-9]{1,3}$',
-              message: words.opacity,
-            },
-          ],
-        },
-      ],
+      'better-tailwindcss/no-restricted-classes': ['error', { restrict }],
+      // A class list joined by hand, which the plugin above cannot read (UIG-42).
+      'token-joined/classes': ['error', { restrict }],
       // UIG-21: "use the package's cn(), never a plain twMerge" was a sentence
       // in all three repos' CLAUDE.md, and nothing checked it.
       'no-restricted-imports': ['error', { paths: [{ name: 'tailwind-merge', message: words.merge }] }],
@@ -150,10 +158,8 @@ export function tokenLint({ tailwindConfig = 'tailwind.config.js', audience = 'a
   }
 }
 
-// UIG-28's patterns. The variant part reads arbitrary variants too
-// (`[&_pre]:`, `data-[state]:`, `group-hover/row:`). A colour inside `text-[…]`
-// is left to the raw-colour rule of `tokenLint`.
-const V = '^(?:(?:[^:\\[\\]\\s]|\\[[^\\]]*\\])+:)*!?'
+// UIG-28's patterns. A colour inside `text-[…]` is left to the raw-colour rule
+// of `tokenLint`.
 const NOT_COLOUR = '(?!color:|#|rgba?\\(|hsla?\\(|oklch\\(|var\\()'
 const HAND_WRITTEN = {
   type: `${V}(?:text-\\[${NOT_COLOUR}|text-\\[length:|leading-\\[|tracking-\\[)[^\\]]+\\](?:/\\S*)?$`,
@@ -201,55 +207,51 @@ export function tokenValues({ audience = 'app' }: Pick<TokenLintOptions, 'audien
   const cornersBySize: Record<string, string[]> = {}
   for (const [name, size] of Object.entries(preset.theme.extend.borderRadius)) (cornersBySize[size] ??= []).push(name === 'DEFAULT' ? 'rounded' : `rounded-${name}`)
 
+  const values: Restriction[] = [
+    ...Object.entries(tokensBySize).map(([size, names]) => ({
+      pattern: `${V}text-\\[${size.replace('.', '\\.')}\\](?:/\\S*)?$`,
+      message: `$0 is the type ramp written by hand. Use ${names.join(' or ')}.`,
+    })),
+    {
+      pattern: HAND_WRITTEN.type,
+      message: words.type,
+    },
+    ...Object.entries(cornersBySize).map(([size, names]) => ({
+      pattern: `${V}rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?-\\[${size.replace('.', '\\.')}\\]$`,
+      message: `$0 is a corner written by hand. Use ${names.join(' or ')} (with the same side, if it has one).`,
+    })),
+    {
+      pattern: HAND_WRITTEN.corner,
+      message: words.corner,
+    },
+    {
+      pattern: HAND_WRITTEN.shadow,
+      message: words.shadow,
+    },
+  ]
+  const spacing: Restriction[] = [
+    {
+      pattern: HAND_WRITTEN.spacing,
+      message: '$0 is a size or a space written by hand. Use a step of the spacing scale (p-3, h-9, gap-2...) if one fits. Reported, not blocked.',
+    },
+    {
+      pattern: HAND_WRITTEN.width,
+      message: '$0 is a border or ring width written by hand. Use border, border-2, ring-1... if one fits. Reported, not blocked.',
+    },
+  ]
+
   return {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/*.test.ts', '**/*.test.tsx'],
-    plugins: { 'token-values': betterTailwindcss, 'token-spacing': betterTailwindcss, 'token-style': tokenStylePlugin },
+    plugins: { 'token-values': betterTailwindcss, 'token-spacing': betterTailwindcss, 'token-style': tokenStylePlugin, 'token-joined': tokenJoinedPlugin },
     rules: {
       // A style kept in a const and passed by name (R9): the selector below cannot follow it.
       'token-style/no-token-style': 'error',
-      'token-values/no-restricted-classes': [
-        'error',
-        {
-          restrict: [
-            ...Object.entries(tokensBySize).map(([size, names]) => ({
-              pattern: `${V}text-\\[${size.replace('.', '\\.')}\\](?:/\\S*)?$`,
-              message: `$0 is the type ramp written by hand. Use ${names.join(' or ')}.`,
-            })),
-            {
-              pattern: HAND_WRITTEN.type,
-              message: words.type,
-            },
-            ...Object.entries(cornersBySize).map(([size, names]) => ({
-              pattern: `${V}rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?-\\[${size.replace('.', '\\.')}\\]$`,
-              message: `$0 is a corner written by hand. Use ${names.join(' or ')} (with the same side, if it has one).`,
-            })),
-            {
-              pattern: HAND_WRITTEN.corner,
-              message: words.corner,
-            },
-            {
-              pattern: HAND_WRITTEN.shadow,
-              message: words.shadow,
-            },
-          ],
-        },
-      ],
-      'token-spacing/no-restricted-classes': [
-        'warn',
-        {
-          restrict: [
-            {
-              pattern: HAND_WRITTEN.spacing,
-              message: '$0 is a size or a space written by hand. Use a step of the spacing scale (p-3, h-9, gap-2...) if one fits. Reported, not blocked.',
-            },
-            {
-              pattern: HAND_WRITTEN.width,
-              message: '$0 is a border or ring width written by hand. Use border, border-2, ring-1... if one fits. Reported, not blocked.',
-            },
-          ],
-        },
-      ],
+      'token-values/no-restricted-classes': ['error', { restrict: values }],
+      'token-spacing/no-restricted-classes': ['warn', { restrict: spacing }],
+      // The same two inside a class list joined by hand (UIG-42).
+      'token-joined/values': ['error', { restrict: values }],
+      'token-joined/spacing': ['warn', { restrict: spacing }],
       'no-restricted-syntax': [
         'error',
         {
