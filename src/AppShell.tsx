@@ -80,7 +80,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, identity, bann
       {bar}
       <div className="flex min-h-0 flex-1">
         {nav}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col leaf:mb-4 leaf:mr-4 leaf:overflow-hidden leaf:rounded-lg leaf:border leaf:border-border-subtle leaf:bg-bg-surface">
           {banner}
           {/* The frame owns the page's scrollbar (Katerina, 2026-09-09: the
               Issues page still had a native bar — D40 said everywhere, and the
