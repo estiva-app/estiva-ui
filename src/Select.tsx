@@ -88,8 +88,8 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
            * `truncate` from ever engaging; in a block container max-w-full is
            * the cap. Full-width callers are unaffected.
            */
-          'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-inset text-left',
-          'border-border-default outline-none transition-colors',
+          'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-field shadow-field text-left',
+          'border-border-field outline-none transition-colors',
           FIELD_TEXT_CLASSES,
           // The focused border survives a hover: hover alone strengthens the
           // hairline, but hover while focused must not grey the focus colour —

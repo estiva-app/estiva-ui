@@ -151,6 +151,7 @@ export default {
         'bg-disabled':  'var(--bg-disabled)',
         'bg-tooltip':   'var(--bg-tooltip)',
         'bg-tooltip-key': 'var(--bg-tooltip-key)',
+        'bg-field':     'var(--bg-field)',
         // text
         'text-primary':   'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',
@@ -167,6 +168,7 @@ export default {
         'border-focus':   'var(--border-focus)',
         'border-tooltip': 'var(--border-tooltip)',
         'border-tooltip-key': 'var(--border-tooltip-key)',
+        'border-field': 'var(--border-field)',
         // accent
         'accent-primary': 'var(--accent-primary)',
         'accent-hover':   'var(--accent-hover)',
@@ -205,6 +207,7 @@ export default {
         // The ring a focused control wears where a theme wants one: Signal's
         // glow. Every theme defines it; the shared inputs use it under `signal:`.
         'focus-ring': 'var(--focus-ring)',
+        'field':      'var(--shadow-field)',
         // Signal's glow and inner highlight (D16); the components use them under `signal:`.
         // All three glows are here as box shadows, and the two below are also
         // drop shadows: a glow on a surface is a box shadow, a glow on an icon

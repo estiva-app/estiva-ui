@@ -89,6 +89,11 @@
   --bg-tooltip-key:     #F4F4F5;
   --border-tooltip-key: #D4D4D8;
   --text-tooltip-key:   #52525B;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #F4F4F5;
+  --border-field: #E4E4E7;
+  --shadow-field: 0 0 #0000;
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -162,6 +167,11 @@
   --bg-tooltip-key:     #27272A;
   --border-tooltip-key: #52525B;
   --text-tooltip-key:   #AEAEB6;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #27272A;
+  --border-field: #2D2D31;
+  --shadow-field: 0 0 #0000;
 }
 
 
@@ -239,6 +249,11 @@
   --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
   --border-tooltip-key: rgba(255, 255, 255, 0.22);
   --text-tooltip-key:   #b2b9c6;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #20242d;
+  --border-field: rgba(255, 255, 255, 0.12);
+  --shadow-field: 0 0 #0000;
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -322,6 +337,11 @@
   --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
   --border-tooltip-key: rgba(255, 255, 255, 0.22);
   --text-tooltip-key:   #b3b9c7;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #1f2330;
+  --border-field: rgba(255, 255, 255, 0.12);
+  --shadow-field: 0 0 #0000;
 }
 
 /* ─── leaf ─── Leaf's theme: Linear's light theme on these same tokens (Katerina,
@@ -401,4 +421,9 @@
   --bg-tooltip-key:     rgba(255, 255, 255, 0.1);
   --border-tooltip-key: rgba(255, 255, 255, 0.18);
   --text-tooltip-key:   rgba(255, 255, 255, 0.75);
+  /* A field is Linear's: white, a faint line, a soft two-layer shadow (read from its
+     comment box, 28 September: lch(100), lch(97.3), 0 3px 6px -2px at 2% and 0 1px 1px at 4%). */
+  --bg-field:     #ffffff;
+  --border-field: #f7f7f7;
+  --shadow-field: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
 }

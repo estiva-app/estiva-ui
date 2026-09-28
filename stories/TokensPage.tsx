@@ -93,6 +93,12 @@ const FAMILIES: Family[] = [
     tokens: [colour('bg', 'tooltip', 'fill'), colour('text', 'tooltip', 'text-tooltip'), colour('border', 'tooltip', 'border'), colour('bg', 'tooltip-key', 'fill'), colour('text', 'tooltip-key', 'text-tooltip'), colour('border', 'tooltip-key', 'border')],
   },
   {
+    label: 'Field',
+    blurb: "A field's own box, so a theme can draw its text boxes apart from the ground it uses for chips and keys: its fill, its line and its shadow.",
+    utilities: COLOUR_UTILITIES,
+    tokens: [colour('bg', 'field', 'fill'), colour('border', 'field', 'border')],
+  },
+  {
     label: 'Accent',
     blurb: 'The brand colour: the primary button, the checked box, the brand chip. Muted is its opaque wash, wash the translucent one a row tints with on hover, outline its thin border.',
     utilities: COLOUR_UTILITIES,
@@ -127,6 +133,7 @@ const FAMILIES: Family[] = [
       { key: 'md', cssVar: '--shadow-md', cls: 'shadow-md', swatch: 'shadow' },
       { key: 'lg', cssVar: '--shadow-lg', cls: 'shadow-lg', swatch: 'shadow' },
       { key: 'focus-ring', cssVar: '--focus-ring', cls: 'shadow-focus-ring', swatch: 'shadow' },
+      { key: 'field', cssVar: '--shadow-field', cls: 'shadow-field', swatch: 'shadow' },
       { key: 'glow-warning', cssVar: '--glow-warning', cls: 'shadow-glow-warning', swatch: 'shadow' },
       { key: 'highlight-inset', cssVar: '--highlight-inset', cls: 'shadow-highlight-inset', swatch: 'shadow' },
       { key: 'glow-success', cssVar: '--glow-success', cls: 'drop-shadow-glow-success', swatch: 'drop-shadow' },
