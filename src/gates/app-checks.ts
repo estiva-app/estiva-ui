@@ -264,6 +264,20 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         return own.length ? h.FAIL(`draws the text tree itself (${own.join(', ')}): pass the tree to RichText`) : h.PASS('formatted text is drawn by RichText only')
       } },
     ]),
+    // UIG-33, Katerina's picks of 28 September: a row that is one link is `Link` with `cover`, and a
+    // chip that is a link is `Chip` with `href`. Before, both apps stretched a link over its row by
+    // hand (`after:absolute`) and rounded a Link round a chip, each under an escape.
+    ticket('UIG-33', [
+      { what: 'the installed package has Link cover and Chip href', run: all(h, [
+        () => h.contains(at('node_modules/@estiva-app/ui/dist/Link.d.ts'), /\bcover\?: boolean/, 'the installed Link takes cover'),
+        () => h.contains(at('node_modules/@estiva-app/ui/dist/Chip.d.ts'), /\bhref\?: string/, 'the installed Chip takes href'),
+      ], 'the installed Link takes cover and Chip takes href') },
+      { what: 'no link is stretched over its row by hand', run: () => {
+        const sources = h.listFiles(at('src'), (n) => /\.tsx$/.test(n) && !/\.(test|stories)\.tsx$/.test(n))
+        const own = sources.filter((f) => /<(?:Link|a)\b[^>]*\bafter:(?:absolute|inset-0)\b/.test(h.read(f)))
+        return own.length ? h.FAIL(`stretches a link by hand (${own.join(', ')}): give the Link cover`) : h.PASS('every whole-row link is Link with cover')
+      } },
+    ]),
     // Katerina's ruling of 17 September (docs/GATES.md §23): one copy, in the package. An app made
     // by create-estiva-app passes this from its first commit; Peek and Ship do once UIG-32 lands.
     ticket('UIG-32', [
