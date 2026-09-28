@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Link } from './Link'
 import { Card } from './Card'
+import { Chip } from './Chip'
 
 const meta = {
   title: 'Navigation/Link',
@@ -67,6 +68,54 @@ export const External: Story = {
     <p className="max-w-[480px] text-body-2 text-text-primary">
       Read <Link {...args} /> in a new tab.
     </p>
+  ),
+}
+
+const ROWS = [
+  { key: 'A-1', title: 'Item one', group: 'Group', time: '2h' },
+  { key: 'A-2', title: 'Item two', group: 'Group', time: '1d' },
+  { key: 'A-3', title: 'Item three', time: '3d' },
+]
+
+/**
+ * A row that is one link: click anywhere on it, or Tab to it and the ring goes
+ * round the whole row. The chip is a second link, and opens something else.
+ */
+export const Cover: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex w-full max-w-xl flex-col">
+      {ROWS.map((row) => (
+        <div key={row.key} className="relative flex h-9 items-center gap-3 rounded-md px-3 transition-colors hover:bg-bg-hover">
+          <Link href="#" variant="plain" cover className="flex min-w-0 flex-1 items-center gap-3">
+            <span className="w-10 shrink-0 font-mono text-caption text-text-muted">{row.key}</span>
+            <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{row.title}</span>
+          </Link>
+          {row.group && <Chip href="#" label={row.group} />}
+          <span className="w-8 shrink-0 text-right text-caption text-text-muted">{row.time}</span>
+        </div>
+      ))}
+    </div>
+  ),
+}
+
+/** The same in a table: the row is `relative`, the title a `quiet` link that covers it. */
+export const CoverInTable: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <table className="w-full max-w-xl text-body-2">
+      <tbody>
+        {ROWS.map((row) => (
+          <tr key={row.key} className="relative border-b border-border-subtle last:border-b-0 hover:bg-bg-hover">
+            <td className="w-14 px-3 py-2 font-mono text-caption text-text-muted">{row.key}</td>
+            <td className="px-3 py-2 text-text-primary">
+              <Link href="#" variant="quiet" cover>{row.title}</Link>
+            </td>
+            <td className="w-16 px-3 py-2 text-right text-caption text-text-muted">{row.time}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   ),
 }
 

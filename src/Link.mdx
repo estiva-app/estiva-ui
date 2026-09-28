@@ -24,6 +24,11 @@ the app decides how it navigates.
   what it wraps draws itself.
 - `external` — another site or app: it opens in a new tab, with
   `noopener noreferrer`.
+- **`cover`** — a row that opens one thing wherever you click it: an item in a
+  list, a row of a table. The link covers the row, and the keyboard ring goes
+  round the whole row.
+
+<Canvas of={LinkStories.Cover} />
 
 ## When not
 
@@ -33,6 +38,13 @@ the app decides how it navigates.
 - A link that looks like an icon button → **IconButton** with `href`.
 - A word standing for a person or a thing, drawn in a small box → **InlineChip**
   with `href`.
+- A box that is one link → **Card** with `href`. `cover` is for a row that has
+  no frame of its own.
+- `cover` on a row whose parts each open something different, or a row with
+  nothing to open. A row with only a second link inside it (a chip, say) is
+  fine: see How.
+- Stretching a link over its row by hand (`after:absolute`): the lint refuses
+  it. Use `cover`.
 
 ## How
 
@@ -59,6 +71,26 @@ import { Link } from '@estiva-app/ui'
 
 - `truncate` keeps a title that is a link on one line, cut with an ellipsis.
   Its size and colour still come from the text around it.
+
+- `cover` covers the nearest box that is `relative`: give the row `relative`.
+  The row keeps its own size, fill and hover; the link only adds the layer
+  and the ring. Pointing anywhere on the row counts as pointing at the link,
+  so `quiet` underlines the title while the row is hovered.
+- A second link inside the row comes **after** the covering link and is
+  `relative` itself, so it sits above the layer. A **Chip** with `href` already
+  is.
+
+```tsx
+<div className="relative flex h-9 items-center gap-3 px-3 hover:bg-bg-hover">
+  <Link href={itemUrl} variant="plain" cover onClick={navigate}>Item one</Link>
+  <Chip href={groupUrl} label="Group" onClick={navigate} />
+</div>
+
+<tr className="relative">
+  <td><Link href={itemUrl} variant="quiet" cover>Item one</Link></td>
+  <td>…</td>
+</tr>
+```
 - `quiet`, `underlined` and `plain` take their size and colour from where they
   sit, so put those on your own element around the link, not on the link —
   the lint refuses a look passed in `className`.

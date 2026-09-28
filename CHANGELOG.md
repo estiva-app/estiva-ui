@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.41.0 — 2026-09-28 — A row that is one link
+
+### Added
+
+- **`<Link cover>`: a row that opens one thing wherever you click it.** The
+  link lays an invisible layer over the nearest `relative` box, a row or a
+  table row, and the keyboard ring moves onto that layer, round the whole row
+  instead of round the words. The row keeps its own size, fill and hover.
+  Both apps stretched a link over its row by hand under an escape (UIG-33);
+  Katerina picked a setting on `Link` over a new row part on 28 September,
+  from photos showing it identical to what the apps draw today.
+- **`<Chip href>`: a chip that is a link.** A real anchor with the chip's
+  round shape, so its keyboard ring is round, and `relative`, so inside a
+  covered row it still opens its own thing. A router app passes `onClick`,
+  as with `Link`.
+- **`gates:status`, UIG-33 in an app:** the installed package has both, and
+  no file in `src` puts `after:absolute` on a link itself.
+
+### Changed
+
+- The `no-restyled-part` message for `Link` names `cover` beside `variant`
+  and `truncate`, so a hand-stretched link is told what to use.
+
+Nothing existing changes: no prop, class or token was renamed or removed, and
+a `Link` or a `Chip` without the new props draws exactly as before.
+
 ## 0.40.0 — 2026-09-28 — RichText: formatted text in one look for every app
 
 ### Added

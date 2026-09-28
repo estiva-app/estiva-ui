@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { MouseEventHandler, ReactNode } from 'react'
 import { cn } from './cn'
 import { CHIP_TEXT_CLASSES } from './looks'
 
@@ -20,6 +20,14 @@ export interface ChipProps {
   label?: string
   leadingIcon?: ReactNode
   trailingIcon?: ReactNode
+  /**
+   * The chip is a link: a real anchor with the chip's own round shape, so the
+   * keyboard ring is round too. It sits above a row's covering `Link`, so the
+   * row opens one thing and the chip another (UIG-33, Katerina 28 September).
+   */
+  href?: string
+  /** With `href`: a router app takes the click here, like `Link`. */
+  onClick?: MouseEventHandler<HTMLAnchorElement>
   className?: string
 }
 
@@ -32,9 +40,10 @@ const typeStyles: Record<ChipType, string> = {
   error: 'bg-error-muted text-error-default signal:border signal:border-error-outline',
 }
 
-export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, className }: ChipProps) {
-  return (
-    <div className={cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)}>
+export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, href, onClick, className }: ChipProps) {
+  const classes = cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)
+  const inside = (
+    <>
       {leadingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{leadingIcon}</span>}
       {label && (
         // A chip given a `max-w-*` cuts a long label with an ellipsis instead
@@ -48,6 +57,9 @@ export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, class
         <span className={cn('min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide', CHIP_TEXT_CLASSES)}>{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
-    </div>
+    </>
   )
+  // `relative` lifts a linked chip above a covering link that comes before it.
+  if (href) return <a href={href} onClick={onClick} className={cn('relative', classes)}>{inside}</a>
+  return <div className={classes}>{inside}</div>
 }

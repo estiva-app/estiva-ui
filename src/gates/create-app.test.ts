@@ -194,8 +194,13 @@ describe('a made app, under the checks every app runs', () => {
     const real = helpers(dir)
     // "The installed package exports Link" reads its declarations, which CI's
     // test step does not build (`pretest` bundles only): the same exports are read
-    // from their source when the declarations are not there.
-    const exportsFrom = (rel: string) => (rel.endsWith('dist/index.d.ts') && !real.exists(rel) ? join(process.cwd(), 'src', 'index.ts') : rel)
+    // from their source when the declarations are not there. A part's own props
+    // (UIG-33: `Link.d.ts`) are read from its source file the same way.
+    const exportsFrom = (rel: string) => {
+      const declared = rel.replace(/\\/g, '/').match(/dist\/(\w+)\.d\.ts$/)
+      if (!declared || real.exists(rel)) return rel
+      return declared[1] === 'index' ? join(process.cwd(), 'src', 'index.ts') : join(process.cwd(), 'src', `${declared[1]}.tsx`)
+    }
     const h: GateHelpers = {
       ...real,
       contains: (rel, needle, label) => real.contains(exportsFrom(rel), needle, label),

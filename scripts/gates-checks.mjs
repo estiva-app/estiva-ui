@@ -380,10 +380,12 @@ export default function define(h) {
     { ref: "UIG-31", owner: true, checks: [
       { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
     ] },
-    // First guesses, from the tickets' text (UIG-14 findings C10 and L; Katerina, 19 September).
+    // Katerina's picks of 28 September: a setting on Link, not a row part; a chip that is a link by itself.
     { ref: "UIG-33", owner: true, checks: [
-      { what: "the package draws a whole row as one link", run: () => /\brow\?:/.test(h.read("src/Link.tsx")) || /\b(RowLink|LinkRow)\b/.test(h.read("src/index.ts")) ? h.PASS("Link takes row, or a row part is exported") : h.FAIL("no whole-row link in the package yet") },
+      { what: "Link takes cover: a row that is one link", run: () => h.contains("src/Link.tsx", /\bcover\?: boolean/, "Link takes cover") },
+      { what: "Chip takes href: a chip that is a link", run: () => h.contains("src/Chip.tsx", /\bhref\?: string/, "Chip takes href") },
     ] },
+    // A first guess, from the ticket's text (UIG-14 finding L; Katerina, 19 September).
     { ref: "UIG-34", owner: true, checks: [
       { what: "a tree part is in the package", run: () => h.contains("src/index.ts", /\bTree\b/, "src/index.ts exports Tree") },
     ] },

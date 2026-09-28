@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.40.0",
+    "packageVersion": "0.41.0",
     "exports": 90,
     "typeExports": 101,
     "files": null
@@ -793,6 +793,18 @@
           "note": null
         },
         {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "The chip is a link: a real anchor with the chip's own round shape, so the keyboard ring is round too."
+        },
+        {
+          "name": "onClick",
+          "takes": "MouseEventHandler<HTMLAnchorElement>",
+          "required": false,
+          "note": "With `href`: a router app takes the click here, like `Link`."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -825,13 +837,13 @@
         "bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
         "bg-success-muted text-success-default signal:border signal:border-success-outline",
         "bg-error-muted text-error-default signal:border signal:border-error-outline",
+        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums",
+        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide",
         "rounded-full bg-accent-muted text-accent-primary signal:border signal:border-accent-outline",
         "rounded-full bg-info-muted text-info-default signal:border signal:border-info-outline",
         "rounded-full bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
         "rounded-full bg-success-muted text-success-default signal:border signal:border-success-outline",
-        "rounded-full bg-error-muted text-error-default signal:border signal:border-error-outline",
-        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums",
-        "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide"
+        "rounded-full bg-error-muted text-error-default signal:border signal:border-error-outline"
       ]
     },
     {
@@ -2750,6 +2762,12 @@
           "note": "One line, cut with an ellipsis when it does not fit — a title that is a link."
         },
         {
+          "name": "cover",
+          "takes": "true/false",
+          "required": false,
+          "note": "The link covers the row it sits in: a click anywhere on the row opens it, and the keyboard ring goes round the whole row."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -2785,8 +2803,13 @@
       "app": null,
       "looks": [
         "text-info-default underline underline-offset-2 hover:opacity-80",
+        "text-info-default underline underline-offset-2 hover:opacity-80 after:rounded-md focus-visible:outline-none",
         "text-info-default underline underline-offset-2 hover:opacity-80 truncate",
-        "underline underline-offset-2 hover:text-text-primary truncate"
+        "text-info-default underline underline-offset-2 hover:opacity-80 truncate after:rounded-md focus-visible:outline-none",
+        "hover:underline truncate after:rounded-md focus-visible:outline-none",
+        "underline underline-offset-2 hover:text-text-primary after:rounded-md focus-visible:outline-none",
+        "underline underline-offset-2 hover:text-text-primary truncate",
+        "underline underline-offset-2 hover:text-text-primary truncate after:rounded-md focus-visible:outline-none"
       ]
     },
     {
