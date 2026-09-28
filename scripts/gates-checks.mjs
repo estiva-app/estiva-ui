@@ -52,6 +52,7 @@ const all = [
   { ref: "UIG-38", owner: "estiva-ui", title: "The gate misses a hand-drawn table and a hand-written Escape (Ship)" },
   { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
   { ref: "UIG-40", owner: "estiva-ui", parts: ["peek"], title: "Launcher leftovers — the chip in the composer and the Make card" },
+  { ref: "UIG-42", owner: "estiva-ui", parts: PEEK_SHIP, title: "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -402,6 +403,14 @@ export default function define(h) {
     // (ruling P4). The composer chip is Peek's own, and Peek's checks hold it.
     { ref: "UIG-40", owner: true, checks: [
       { what: "the palette draws a proposal: CommandPaletteProposal is in the package", run: () => h.contains("src/index.ts", /\bCommandPaletteProposal\b/, "src/index.ts exports CommandPaletteProposal") },
+    ] },
+    // Katerina's ruling of 25 September (cards 13 and 14): what the gate cannot see yet, in one ticket.
+    // Her picks of 28 September: A, a box that places a page EmptyState; not B, the sign-in screen
+    // stays each app's own (ADR 0002 §2); C, photos of every page, to a later ticket.
+    { ref: "UIG-42", owner: true, checks: [
+      { what: "a class behind an arbitrary variant is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"group-hover/row:bg-gray-100\">x</div>\n}\n", expect: "error" }) },
+      { what: "a class list joined by hand is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className={['text-sm', 'p-2'].join(' ')}>x</div>\n}\n", expect: "error" }) },
+      { what: "a box that centres a page EmptyState is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "import { EmptyState } from './EmptyState'\nexport function Probe() {\n  return <div className=\"flex items-center justify-center\"><EmptyState message=\"Nothing here\" /></div>\n}\n", expect: "error", mentions: "page-scope EmptyState" }) },
     ] },
     // UIG-35 closed on 21 September and left no record at all: the status script
     // did not carry the ticket, so nothing read its code back. These do. Both

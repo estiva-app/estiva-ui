@@ -21,6 +21,7 @@ import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { parser as typescriptParser } from 'typescript-eslint'
 import estiva from '../eslint/index'
 import { KNOWN_PLUGINS, TOKEN_LINT_IGNORES } from './token-lint'
+import { tokenJoinedPlugin } from './token-joined'
 import { tokenStylePlugin } from './token-style'
 
 export interface GateConfigOptions {
@@ -72,6 +73,7 @@ export function gateConfig({ audience = 'app', quiet = {}, ignores = [] }: GateC
         'token-values': betterTailwindcss,
         'token-spacing': betterTailwindcss,
         'token-style': tokenStylePlugin,
+        'token-joined': tokenJoinedPlugin,
       },
       // Every other config's directives are unused here, because their rules are
       // off here. Reporting them would be this config complaining about the

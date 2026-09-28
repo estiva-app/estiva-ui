@@ -165,6 +165,16 @@ function standsInForAList(element: Node): boolean {
 /** A content box that fills its viewport: `min-h-full` or `h-full` on `contentClassName`. */
 const FILLS = /^(?:min-h-full|h-full)$/
 
+/** What a box does that a page-scope EmptyState already does itself: centre, or leave room round it. */
+const CENTRES = /^(?:justify-center|items-center|content-center|place-(?:items|content)-center)$/
+const PADS = /^p[xytrblse]?-/
+
+/** The only element a box holds, when it holds one and nothing else but blank space. */
+function onlyElement(box: Node): Node | undefined {
+  const kids = children(box, 'children').filter((kid) => !(kid.type === 'JSXText' && !String(kid.value).trim()))
+  return kids.length === 1 && kids[0].type === 'JSXElement' ? kids[0] : undefined
+}
+
 function isPageScope(opening: Node): boolean {
   const scope = attributeOf(opening, 'scope')
   if (!scope) return true
@@ -265,6 +275,13 @@ const fileName = (file: string) => file.replace(/\\/g, '/').split('/').pop()
  * file and scrolled in another. A `contentClassName` with `min-h-full` or
  * `h-full` gives the state its room, and passes.
  *
+ * **A box that places it** (UIG-42). A plain box holding only a page-scope
+ * `EmptyState` and centring or padding it does the part's own job, and a box
+ * like that pinned the starter's home page 64px from the top (UIG-10). A box
+ * that is only the flex column the state asks for passes, and so does any box
+ * round a `section` state, which takes its inset from the box (Katerina, 14
+ * September).
+ *
  * Not judged: the package's `EmptyState` and a part's own lines (a
  * `FieldLine`, a palette's empty row) — a part is already a part.
  */
@@ -278,6 +295,8 @@ export const noHandmadeEmptyState: Rule.RuleModule = {
         'A line saying there is nothing is an EmptyState. Use `EmptyState` from @estiva-app/ui: `scope="section"` inside a section, `scope="page"` for a whole page.',
       wrongScope:
         'A page-scope EmptyState inside a ScrollArea sits at the top of its pane, not the middle: the ScrollArea\'s content is only as tall as what is in it. Use `scope="section"` when the pane has anything else on it; when the whole pane is empty, draw the page EmptyState in place of the ScrollArea, not inside it.',
+      boxedPage:
+        'This box {{what}} a page-scope EmptyState, which centres itself in the room a flex column gives it and takes no padding. A box that places it can push it out of the middle, as the starter\'s home page did (UIG-10). Draw the EmptyState straight into the column, with `className="h-full"` outside a flex column.',
       wrongScopeVia:
         '`{{component}}` draws a page-scope EmptyState ({{where}}) inside this ScrollArea, where it sits at the top of its pane, not the middle: the ScrollArea\'s content is only as tall as what is in it. Use `scope="section"` there when the pane has anything else on it; when the whole pane is empty, draw the page EmptyState in place of the ScrollArea, not inside it.',
       ...ESCAPE_MESSAGES,
@@ -300,8 +319,25 @@ export const noHandmadeEmptyState: Rule.RuleModule = {
         const opening = child(element, 'openingElement') as Node
         const tag = tagName(element)
 
-        // Shape 1: a plain box holding only a "nothing" line, where a list would be.
         if (tag && /^[a-z]/.test(tag)) {
+          // Shape 3 (UIG-42): a plain box around a page-scope EmptyState that centres or pads it.
+          const only = facts && onlyElement(element)
+          const inner = only && (child(only, 'openingElement') as Node)
+          // Props spread in (`{...args}`) may carry the scope, so it is not judged.
+          const spread = inner && children(inner, 'attributes').some((a) => a.type === 'JSXSpreadAttribute')
+          if (inner && !spread && isPart(bindingOfTag(child(inner, 'name'), facts!.locals), 'EmptyState') && isPageScope(inner)) {
+            const className = attributeOf(opening, 'className')
+            const own = className ? classesOf(child(className, 'value'), scopeOf).map((c) => c.replace(/^(?:[^:\s[\]]+:)+/, '')) : []
+            const centres = own.some((c) => CENTRES.test(c))
+            const pads = own.some((c) => PADS.test(c))
+            if ((centres || pads) && !isEscaped(context, opening)) {
+              const what = centres && pads ? 'centres and pads' : centres ? 'centres' : 'pads'
+              context.report({ loc: opening.loc as NonNullable<Rule.Node['loc']>, messageId: 'boxedPage', data: { what } })
+            }
+            return
+          }
+
+          // Shape 1: a plain box holding only a "nothing" line, where a list would be.
           const words = onlyWords(element)
           if (!words || words.length > SHORT) return
           if (!standsInForAList(element)) return

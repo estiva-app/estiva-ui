@@ -91,6 +91,32 @@ describe('tokenLint and tokenValues', () => {
     expect(await lintWith(gateConfig(), `// eslint-disable-next-line token-style/no-token-style -- @estiva-escape: a colour the probe keeps\n${kept}`, 'src/Probe.tsx')).toEqual([])
   })
 
+  it('read a class behind an arbitrary variant or a `!` (UIG-42)', async () => {
+    for (const name of ['[&_pre]:text-sm', 'group-hover/row:bg-gray-100', 'data-[state=open]:bg-[#fff]', 'group-hover/row:bg-bg-surface/50', '!text-sm']) {
+      const messages = await lintWith([tokenLint(), tokenValues()], component(`<div className="${name}">x</div>`), 'src/Probe.tsx')
+      expect(messages.filter((m) => m.ruleId === 'better-tailwindcss/no-restricted-classes'), name).toEqual([expect.objectContaining({ severity: 2 })])
+    }
+  })
+
+  it('read a class list joined by hand, with the same messages and levels (UIG-42)', async () => {
+    const code = `import { cn } from '@estiva-app/ui'\nconst look = ['text-sm', open ? 'rounded-[3px]' : '', \`h-[240px] \${size}\`].filter(Boolean).join(' ')\n${component("<div className={cn(look, ['bg-gray-100'].join(' '))}>x</div>")}`
+    const messages = (await lintWith([tokenLint(), tokenValues()], code, 'src/Probe.tsx')).filter((m) => m.ruleId?.startsWith('token-joined/'))
+    expect(messages.map((m) => [m.ruleId, m.severity, m.line])).toEqual([
+      ['token-joined/classes', 2, 2],
+      ['token-joined/values', 2, 2],
+      ['token-joined/spacing', 1, 2],
+      ['token-joined/classes', 2, 4],
+    ])
+    expect(messages[0].message).toContain("Tailwind's type ramp")
+    expect(messages[1].message).toContain('rounded-[3px] is a corner written by hand')
+  })
+
+  it('leave a sentence joined with spaces, and a list joined with anything else', async () => {
+    // Peek's prompt hint (src/lib/promptApi.ts) is built this way.
+    const code = "export const hint = ['Reply with only a JSON object, no prose and no code fence.', `It must have exactly these keys: ${keys}.`].join(' ')\nexport const keys = ['text-sm', 'bg-gray-100'].join(', ')\n"
+    expect(await lintWith([tokenLint(), tokenValues()], code, 'src/lib/probe.ts')).toEqual([])
+  })
+
   it('leave a test file to its test', async () => {
     const messages = await lintWith([tokenLint(), tokenValues()], component('<div style={{ color: "red" }}>x</div>'), 'src/Probe.test.tsx')
     expect(messages.filter((m) => m.severity === 2)).toEqual([])

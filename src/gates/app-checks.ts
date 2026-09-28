@@ -57,6 +57,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-30': 'RichText — one component that draws a message\'s text, for both apps',
   'UIG-32': 'Peek and Ship take their gate pieces from the package',
   'UIG-37': 'The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off',
+  'UIG-42': "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check",
 }
 
 /** Run several checks as one: the first that does not pass is the answer. */
@@ -253,6 +254,12 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         if (source.result !== 'pass') return h.FAIL(`source is not checked yet, so this proves nothing: ${source.detail}`)
         return probe(code, 'none', undefined, 'src/components/__gates_probe__.test.tsx', config)()
       }), 'a test file is not checked for hand-written values, while source is') },
+    ]),
+    // Built 28 September: the token check's two blind spots, and a box that places a page EmptyState.
+    ticket('UIG-42', [
+      { what: 'a class behind an arbitrary variant is an error', run: tokenProbe(component('<div className="group-hover/row:bg-gray-100">x</div>'), 'error') },
+      { what: 'a class list joined by hand is read', run: tokenProbe(component("<div className={['text-sm', 'p-2'].join(' ')}>x</div>"), 'error') },
+      { what: 'a box that centres a page EmptyState is an error naming it', run: probe(`import { EmptyState } from '@estiva-app/ui'\n${component('<div className="flex items-center justify-center"><EmptyState message="Nothing here" /></div>')}`, 'error', 'page-scope EmptyState') },
     ]),
     // Built 28 September: both apps drew the protocol's text tree by hand, and drifted apart.
     // A file that reads the protocol and draws a quote or a numbered list itself is a third copy.

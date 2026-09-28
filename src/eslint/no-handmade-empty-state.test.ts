@@ -52,6 +52,8 @@ const jsx = (body: string) => component(`  return (\n${body}\n  )`)
 const scrolled = (imports: string, body: string) =>
   `import { ScrollArea, EmptyState } from '@estiva-app/ui'\n${imports}\nexport function Probe({ rows }: { rows: string[] }) {\n  return (\n${body}\n  )\n}\n`
 const handmade = [{ messageId: 'handmade' }]
+/** A component that draws `body`, with the app's own EmptyState imported. */
+const pageIn = (body: string) => `import { EmptyState } from '@/components/ui/EmptyState'\nexport function Probe() {\n  return (\n${body}\n  )\n}\n`
 
 tester.run('no-handmade-empty-state', noHandmadeEmptyState, {
   valid: [
@@ -100,6 +102,17 @@ tester.run('no-handmade-empty-state', noHandmadeEmptyState, {
     { name: 'a page state inside a ScrollArea whose content fills it', filename: app, code: scrolled('', '<ScrollArea className="flex-1" contentClassName="flex min-h-full flex-col">{rows.length === 0 && <EmptyState message="Nothing here yet." />}</ScrollArea>') },
     { name: 'a scope that is decided at run time is not judged', filename: app, code: scrolled('', '<ScrollArea className="flex-1"><EmptyState scope={rows.length ? "section" : "page"} message="Nothing here yet." /></ScrollArea>') },
     { name: "a component that hands its className to a section state (Ship's Activity), followed and fine", filename: app, code: scrolled("import { Activity } from '@/components/Activity'", '<ScrollArea className="flex-1" contentClassName="px-6"><section><Activity items={rows} /></section></ScrollArea>') },
+
+    // UIG-42: a box around a page state. The column it asks for, and a section's inset, pass.
+    { name: 'a page state in the flex column it asks for (Peek FilePage.tsx:315)', filename: app, code: pageIn('<div className="flex min-h-screen flex-col"><EmptyState message="Nothing here." /></div>') },
+    { name: "a section state in a box that gives it the rows' inset (Katerina, 14 September)", filename: app, code: pageIn('<div className="px-2 py-1"><EmptyState scope="section" message="Nothing starred." /></div>') },
+    { name: 'a page state that is not alone in its padded box (Ship ProjectsView.tsx:30)', filename: app, code: pageIn('<div className="flex flex-1 flex-col gap-4 px-6 py-5"><h2>Projects</h2><EmptyState message="No projects yet." /></div>') },
+    { name: "props spread in may carry the scope, so it is not judged (the package's EmptyState story)", filename: app, code: pageIn('<div className="p-4"><EmptyState {...({ scope: "section" } as const)} /></div>') },
+    {
+      name: 'a box kept with a reason',
+      filename: app,
+      code: pageIn('<>\n{/* @estiva-escape(no-handmade-empty-state): a probe that keeps its box */}\n<div className="p-4"><EmptyState /></div>\n</>'),
+    },
   ],
   invalid: [
     // the hand-made line, each way it stands in for a list
@@ -122,10 +135,19 @@ tester.run('no-handmade-empty-state', noHandmadeEmptyState, {
       errors: [{ messageId: 'escapeWithoutReason' }, ...handmade],
     },
 
+    // UIG-42: a box that places a page state. Peek's direct-message view, and the starter's home page before UIG-10's fix.
+    { name: 'a box that centres a page state', filename: app, code: pageIn('<div className="flex-1 flex items-center justify-center h-full"><EmptyState /></div>'), errors: [{ messageId: 'boxedPage', data: { what: 'centres' } }] },
+    {
+      name: 'a box that centres and pads it, from the package',
+      filename: app,
+      code: "import { EmptyState } from '@estiva-app/ui'\nexport function Probe() {\n  return (\n    <main className=\"flex justify-center px-6 py-16\">\n      <EmptyState message=\"Nothing here yet.\" />\n    </main>\n  )\n}\n",
+      errors: [{ messageId: 'boxedPage', data: { what: 'centres and pads' } }],
+    },
+
     // the wrong scope
     { name: 'a page state straight inside a ScrollArea', filename: app, code: scrolled('', '<ScrollArea className="min-h-0 flex-1">{rows.length === 0 && <EmptyState message="Nothing here yet." />}</ScrollArea>'), errors: [{ messageId: 'wrongScope' }] },
     { name: 'scope="page" said out loud', filename: app, code: scrolled('', '<ScrollArea className="flex-1" contentClassName="flex flex-col gap-3 p-4"><EmptyState scope="page" message="Nothing here yet." /></ScrollArea>'), errors: [{ messageId: 'wrongScope' }] },
-    { name: "through the app's wrapper, one box down", filename: app, code: "import { ScrollArea } from '@estiva-app/ui'\nimport { EmptyState } from '@/components/ui/EmptyState'\nexport function Probe() {\n  return <ScrollArea className=\"flex-1\"><div className=\"p-4\"><EmptyState message=\"Nothing said about this yet.\" /></div></ScrollArea>\n}\n", errors: [{ messageId: 'wrongScope' }] },
+    { name: "through the app's wrapper, one box down", filename: app, code: "import { ScrollArea } from '@estiva-app/ui'\nimport { EmptyState } from '@/components/ui/EmptyState'\nexport function Probe() {\n  return <ScrollArea className=\"flex-1\"><div className=\"p-4\"><EmptyState message=\"Nothing said about this yet.\" /></div></ScrollArea>\n}\n", errors: [{ messageId: 'boxedPage', data: { what: 'pads' } }, { messageId: 'wrongScope' }] },
     {
       name: 'the file conversation at 7f22e5e~1: a view drawn in another file, scrolled here — both its states',
       filename: app,
