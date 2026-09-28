@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.39.0",
-    "exports": 88,
-    "typeExports": 97,
+    "exports": 89,
+    "typeExports": 101,
     "files": null
   },
   "storybook": {
@@ -4078,6 +4078,67 @@
       "docPage": "src/ReactionPicker.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "RichText",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/RichText.tsx",
+      "purpose": "Formatted text, drawn from a parsed tree: headings, paragraphs, both lists, a quote, code, a divider, a table and links, in one look for every app.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "blocks",
+          "takes": "readonly RichTextBlock[]",
+          "required": true,
+          "note": "The tree, already parsed."
+        },
+        {
+          "name": "size",
+          "takes": "default | small",
+          "required": false,
+          "note": "Default `default`, the size of text you read."
+        },
+        {
+          "name": "renderText",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws plain text: what is left of a run once its links are drawn."
+        },
+        {
+          "name": "renderReference",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws a run that stands for an address. By default its text."
+        },
+        {
+          "name": "renderBlock",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws a block this part has no design for (an attachment, a widget)."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "default",
+            "small"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-richtext--docs",
+      "storyId": "components-richtext--every-block",
+      "docPage": "src/RichText.mdx",
+      "app": null,
+      "looks": [
+        "whitespace-pre-wrap break-words rounded-md bg-bg-code",
+        "border border-border-default text-left align-top"
+      ]
     },
     {
       "name": "ScrollArea",

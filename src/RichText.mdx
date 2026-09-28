@@ -1,0 +1,68 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as RichTextStories from './RichText.stories'
+
+<Meta of={RichTextStories} />
+
+# RichText
+
+Formatted text, drawn from a parsed tree: headings, paragraphs, both lists, a
+quote, code, a divider, a table and links, in one look for every app.
+
+<Canvas of={RichTextStories.EveryBlock} />
+
+## When
+
+- **`default`** — text someone reads: a post, a reply, a description.
+- **`small`** — the same text one step down, with every heading, list, quote
+  and table kept: an item shown inside a card.
+- `renderReference` — a run that stands for an address: the app draws what it
+  points at, a person or an item.
+- `renderText` — words the app recognises in plain text, drawn as chips.
+- `renderBlock` — a block this part has no design for, such as an attachment.
+
+## When not
+
+- One word standing for a person or a thing, inside your own sentence →
+  **InlineChip**.
+- One link inside your own sentence → **Link**.
+- A value set out as a label and its value → **Property**.
+
+## How
+
+```tsx
+import { InlineChip, RichText } from '@estiva-app/ui'
+
+// toRenderTree comes from @estiva-app/protocol
+<RichText
+  blocks={toRenderTree(value, format)}
+  renderReference={(reference) => <InlineChip tone="person">{nameOf(reference)}</InlineChip>}
+/>
+```
+
+- **It takes the tree, not the text.** Parse first; the format comes from the
+  item's tag, never from its body. The protocol's `RenderBlock` fits
+  `RichTextBlock`. To draw a block somewhere else (below the text, as a card),
+  leave it out of `blocks`.
+- **The colour is set here**: the text is `text-secondary`, and headings
+  of level 1 and 2 are `text-primary`. Do not wrap it to recolour it.
+- **Links are found here**, in every run that is not code: `[words](address)`
+  and a bare `https://` address. Both open in a new tab, and a click on one
+  is not also a click on what the text sits in, such as a card. `renderText`
+  gets only the text between links, so an address is never read as a name.
+- **Nothing is set as HTML.** Every string reaches the page as text; a `<b>`
+  typed by an author shows as `<b>`.
+- A block of a kind it does not know shows its words and its children. It is
+  never dropped.
+- Code, in a sentence or as a block, is 0.9 of the text around it, so it
+  shrinks with `small`. A long line in a block wraps; nothing scrolls
+  sideways.
+- Each block carries its `id` as `data-block-id`, for an app that points at
+  one block.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls of={RichTextStories.EveryBlock} />
