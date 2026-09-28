@@ -153,6 +153,7 @@ export default {
         'bg-tooltip':   'var(--bg-tooltip)',
         'bg-tooltip-key': 'var(--bg-tooltip-key)',
         'bg-field':     'var(--bg-field)',
+        'bg-code':      'var(--bg-code)',
         // text
         'text-primary':   'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',

@@ -46,6 +46,7 @@ export {
 } from './InlineChip'
 export { Lightbox, type LightboxProps } from './Lightbox'
 export { Link, type LinkProps, type LinkVariant } from './Link'
+export { RichText, richTextClassName, type RichTextProps, type RichTextBlock, type RichTextRun, type RichTextSize } from './RichText'
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'

@@ -129,6 +129,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   RailItem: ['active'],
   Reaction: ['pressed'],
   ReactionPicker: ['surface'],
+  RichText: ['size'],
   SectionHeader: ['hover'],
   SectionLabel: ['tone', 'truncate'],
   Select: ['size'],

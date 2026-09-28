@@ -254,8 +254,15 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         return probe(code, 'none', undefined, 'src/components/__gates_probe__.test.tsx', config)()
       }), 'a test file is not checked for hand-written values, while source is') },
     ]),
+    // Built 28 September: both apps drew the protocol's text tree by hand, and drifted apart.
+    // A file that reads the protocol and draws a quote or a numbered list itself is a third copy.
     ticket('UIG-30', [
       { what: 'the installed package has RichText', run: () => h.contains(installed, /\bRichText\b/, 'the installed @estiva-app/ui exports RichText') },
+      { what: "no file draws the protocol's text tree by hand", run: () => {
+        const sources = h.listFiles(at('src'), (n) => /\.tsx$/.test(n) && !/\.(test|stories)\.tsx$/.test(n))
+        const own = sources.filter((f) => { const text = h.read(f); return /from ['"]@estiva-app\/protocol['"]/.test(text) && /<(?:blockquote|ol)\b/.test(text) })
+        return own.length ? h.FAIL(`draws the text tree itself (${own.join(', ')}): pass the tree to RichText`) : h.PASS('formatted text is drawn by RichText only')
+      } },
     ]),
     // Katerina's ruling of 17 September (docs/GATES.md §23): one copy, in the package. An app made
     // by create-estiva-app passes this from its first commit; Peek and Ship do once UIG-32 lands.

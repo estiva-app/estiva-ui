@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.40.0 — 2026-09-28 — RichText: formatted text in one look for every app
+
+### Added
+
+- **`RichText`: the protocol's text tree, drawn.** Headings, paragraphs, both
+  lists, a quote, code in a sentence and as a block, a divider, a table and
+  links. Peek's `MessageBody` and Ship's `RichText` drew the same tree two
+  ways and had drifted (UIG-30); the look is Katerina's twelve picks of
+  28 September, made from photos of both apps. It takes the parsed tree
+  (`blocks`), not the text, so the package does not depend on
+  `@estiva-app/protocol`; the protocol's `RenderBlock` fits `RichTextBlock`.
+  Links are found in every run that is not code. What a word points at stays
+  the app's: `renderReference`, `renderText`, `renderBlock`. `size="small"`
+  keeps every structure one step down, for an item inside a card.
+- **`richTextClassName(size)`: the same look for an editor's root**, so what
+  is being written looks the same as what is read.
+- **`bg-code`, a colour token:** the fill for code and a table's header row.
+  The dark themes keep `bg-active`; `light` takes `#E9E9EB` and `leaf`
+  `#e9e9ea`, lighter than `bg-active` on a white card (Katerina, 28 September).
+- **`gates:status`, UIG-30 in an app:** no file in `src` both imports
+  `@estiva-app/protocol` and draws a `<blockquote>` or an `<ol>` itself.
+
+Nothing existing changes: no prop, class or token was renamed or removed.
+
 ## 0.39.0 — 2026-09-28 — AppShell's third manner, inset
 
 ### Added
