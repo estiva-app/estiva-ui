@@ -58,6 +58,17 @@ import { InlineChip, RichText } from '@estiva-app/ui'
   sideways.
 - Each block carries its `id` as `data-block-id`, for an app that points at
   one block.
+- **An editor wears the same look.** Put `richTextClassName()` (or
+  `richTextClassName('small')`) on the editor's root, so what is being written
+  looks exactly like what is read. It styles the elements inside the box,
+  including the paragraph an editor puts inside a list item, a quote and a
+  table cell.
+
+```tsx
+import { richTextClassName } from '@estiva-app/ui'
+
+const editorAttributes = { class: richTextClassName('default', 'outline-none') }
+```
 
 ## What it owns
 

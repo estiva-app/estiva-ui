@@ -5,7 +5,7 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.39.0",
-    "exports": 89,
+    "exports": 90,
     "typeExports": 101,
     "files": null
   },
@@ -4136,9 +4136,35 @@
       "docPage": "src/RichText.mdx",
       "app": null,
       "looks": [
-        "whitespace-pre-wrap break-words rounded-md bg-bg-code",
-        "border border-border-default text-left align-top"
+        "[&>:is(h1,h2,h3)]:mb-1 [&>:is(h1,h2,h3)]:mt-2 [&>:is(h1,h2,h3):first-child]:mt-0 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2)]:text-text-primary",
+        "[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-muted [&_ol]:list-decimal [&_ul]:list-disc",
+        "[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-border-strong [&_blockquote]:pl-2.5",
+        "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text-primary",
+        "[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-[0.9em] [&_pre]:text-text-primary",
+        "[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary",
+        "[&_em]:italic [&_strong]:font-semibold [&_u]:underline [&_u]:underline-offset-2",
+        "text-body-2 [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4",
+        "text-caption leading-snug [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold"
       ]
+    },
+    {
+      "name": "richTextClassName",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/RichText.tsx",
+      "purpose": "RichText's look, for a box you draw yourself: an editor's, so that what is being written looks the same as what is read.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-richtext--docs",
+      "storyId": "components-richtext--every-block",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "ScrollArea",

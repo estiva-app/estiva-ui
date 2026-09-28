@@ -77,33 +77,37 @@ export interface RichTextProps {
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
 }
 
-const SIZE_CLASSES: Record<RichTextSize, { root: string; h1: string; h2: string }> = {
-  default: { root: 'text-body-2', h1: 'text-h4', h2: 'text-body-2 font-semibold' },
-  small: { root: 'text-caption leading-snug', h1: 'text-body-2 font-semibold', h2: 'text-caption font-semibold' },
+/**
+ * The whole look, as classes on the box around the text: the elements inside
+ * carry none. That is so an editor can wear the same classes on its own box and
+ * look the same as what it writes — ProseMirror draws the same elements, with a
+ * paragraph inside each list item, quote and table cell (the `> p` lines).
+ */
+const RICH_TEXT_CLASSES = {
+  base: 'flex flex-col gap-1 break-words text-text-secondary',
+  /* A heading binds to what follows it: 12px above (8 and the 4px gap), 8px below (4 and the gap); two headings in a row, 12px apart. Level 3 keeps the text's colour, one step lower. */
+  headings: '[&>:is(h1,h2,h3)]:mb-1 [&>:is(h1,h2,h3)]:mt-2 [&>:is(h1,h2,h3):first-child]:mt-0 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2)]:text-text-primary',
+  lists: '[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-muted [&_ol]:list-decimal [&_ul]:list-disc',
+  // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
+  quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-border-strong [&_blockquote]:pl-2.5',
+  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.9 of the text around it, so it scales with a heading and with `small`; a named size is fixed
+  code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text-primary',
+  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.9 of the text around it; the code inside the block is the block's own size, not 0.9 of it again
+  codeBlock: '[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-[0.9em] [&_pre]:text-text-primary',
+  divider: '[&_hr]:border-border-default',
+  table: '[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary',
+  marks: '[&_em]:italic [&_strong]:font-semibold [&_u]:underline [&_u]:underline-offset-2',
+  default: 'text-body-2 [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4',
+  small: 'text-caption leading-snug [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold',
 }
 
-// eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.9 of the text around it, so it scales with a heading and with `small`; a named size is fixed
-const CODE_SIZE_CLASSES = 'font-mono text-[0.9em] text-text-primary'
-
-const RICH_TEXT_CLASSES = {
-  root: 'flex flex-col gap-1 break-words text-text-secondary',
-  /* A heading binds to what follows it: 12px above (8 and the 4px gap), 8px below (4 and the gap); two headings in a row, 12px apart. */
-  heading: 'mt-2 mb-1 first:mt-0 last:mb-0 [:is(h1,h2,h3)+&]:mt-1',
-  bright: 'text-text-primary',
-  bulletList: 'list-disc pl-5',
-  orderedList: 'list-decimal pl-5',
-  item: 'break-words marker:text-text-muted',
-  // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
-  quote: 'border-l-[3px] border-border-strong pl-2.5',
-  code: 'rounded-sm bg-bg-code px-1 py-0.5',
-  codeBlock: 'whitespace-pre-wrap break-words rounded-md bg-bg-code p-2',
-  divider: 'border-border-default',
-  table: 'w-full border-collapse',
-  cell: 'border border-border-default px-2 py-1 text-left align-top',
-  headerCell: 'bg-bg-code font-medium text-text-primary',
-  bold: 'font-semibold',
-  italic: 'italic',
-  underline: 'underline underline-offset-2',
+/**
+ * RichText's look, for a box you draw yourself: an editor's, so that what is
+ * being written looks the same as what is read. Put it on the editor's root.
+ */
+export function richTextClassName(size: RichTextSize = 'default', className?: string) {
+  const { base, headings, lists, quote, code, codeBlock, divider, table, marks } = RICH_TEXT_CLASSES
+  return cn(base, headings, lists, quote, code, codeBlock, divider, table, marks, RICH_TEXT_CLASSES[size], className)
 }
 
 /**
@@ -145,7 +149,6 @@ function textWithLinks(text: string, renderText: (text: string) => ReactNode): R
 }
 
 interface Draw {
-  size: RichTextSize
   renderText: (text: string) => ReactNode
   renderReference: (reference: string, run: RichTextRun) => ReactNode
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
@@ -158,7 +161,7 @@ function Runs({ runs, draw }: { runs?: readonly RichTextRun[]; draw: Draw }) {
         if (run.reference) return <span key={i}>{draw.renderReference(run.reference, run)}</span>
         // Code carries no other mark, and its words are never read for links.
         if (run.marks.includes('code')) {
-          return <code key={i} className={cn(RICH_TEXT_CLASSES.code, CODE_SIZE_CLASSES)}>{run.text}</code>
+          return <code key={i}>{run.text}</code>
         }
         // A line break inside a run is a line break.
         let node: ReactNode = run.text.split('\n').map((line, j) => (
@@ -167,9 +170,9 @@ function Runs({ runs, draw }: { runs?: readonly RichTextRun[]; draw: Draw }) {
             {textWithLinks(line, draw.renderText)}
           </span>
         ))
-        if (run.marks.includes('underline')) node = <u className={RICH_TEXT_CLASSES.underline}>{node}</u>
-        if (run.marks.includes('italic')) node = <em className={RICH_TEXT_CLASSES.italic}>{node}</em>
-        if (run.marks.includes('bold')) node = <strong className={RICH_TEXT_CLASSES.bold}>{node}</strong>
+        if (run.marks.includes('underline')) node = <u>{node}</u>
+        if (run.marks.includes('italic')) node = <em>{node}</em>
+        if (run.marks.includes('bold')) node = <strong>{node}</strong>
         return <span key={i}>{node}</span>
       })}
     </>
@@ -197,7 +200,6 @@ function Table({ block, draw }: { block: RichTextBlock; draw: Draw }) {
           data-block-id={cell.id}
           colSpan={colspan && colspan > 1 ? colspan : undefined}
           rowSpan={rowspan && rowspan > 1 ? rowspan : undefined}
-          className={cn(RICH_TEXT_CLASSES.cell, header && RICH_TEXT_CLASSES.headerCell)}
         >
           {(cell.children ?? []).map((child, j) => <Runs key={j} runs={child.inline} draw={draw} />)}
           <Runs runs={cell.inline} draw={draw} />
@@ -207,7 +209,7 @@ function Table({ block, draw }: { block: RichTextBlock; draw: Draw }) {
   const first = rows[0].children ?? []
   const headerRow = first.length > 0 && first.every((cell) => named(cell) === 'tableHeader')
   return (
-    <table data-block-id={block.id} className={RICH_TEXT_CLASSES.table}>
+    <table data-block-id={block.id}>
       {headerRow && (
         <thead>
           <tr data-block-id={rows[0].id}>{cells(rows[0])}</tr>
@@ -226,38 +228,36 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
   const own = draw.renderBlock?.(block)
   if (own !== undefined) return own
   const runs = <Runs runs={block.inline} draw={draw} />
-  const size = SIZE_CLASSES[draw.size]
   switch (block.type) {
     case 'heading': {
-      if (block.level === 1) return <h1 data-block-id={block.id} className={cn(size.h1, RICH_TEXT_CLASSES.heading, RICH_TEXT_CLASSES.bright)}>{runs}</h1>
-      // Level 3 looks like level 2 in the text's own colour, one step lower.
-      if (block.level === 3) return <h3 data-block-id={block.id} className={cn(size.h2, RICH_TEXT_CLASSES.heading)}>{runs}</h3>
-      return <h2 data-block-id={block.id} className={cn(size.h2, RICH_TEXT_CLASSES.heading, RICH_TEXT_CLASSES.bright)}>{runs}</h2>
+      if (block.level === 1) return <h1 data-block-id={block.id}>{runs}</h1>
+      if (block.level === 3) return <h3 data-block-id={block.id}>{runs}</h3>
+      return <h2 data-block-id={block.id}>{runs}</h2>
     }
     case 'paragraph':
       return <p data-block-id={block.id}>{runs}</p>
     case 'bulletList':
     case 'orderedList': {
       const items = (block.children ?? []).map((item, i) => (
-        <li key={item.id ?? i} data-block-id={item.id} className={RICH_TEXT_CLASSES.item}>
+        <li key={item.id ?? i} data-block-id={item.id}>
           <Runs runs={item.inline} draw={draw} />
         </li>
       ))
       return block.type === 'bulletList'
-        ? <ul data-block-id={block.id} className={RICH_TEXT_CLASSES.bulletList}>{items}</ul>
-        : <ol data-block-id={block.id} start={block.start} className={RICH_TEXT_CLASSES.orderedList}>{items}</ol>
+        ? <ul data-block-id={block.id}>{items}</ul>
+        : <ol data-block-id={block.id} start={block.start}>{items}</ol>
     }
     case 'blockquote':
-      return <blockquote data-block-id={block.id} className={RICH_TEXT_CLASSES.quote}>{runs}</blockquote>
+      return <blockquote data-block-id={block.id}>{runs}</blockquote>
     case 'codeBlock':
       // Literal: no marks, no links, no chips. A long line wraps; nothing scrolls sideways.
       return (
-        <pre data-block-id={block.id} data-language={block.language} className={cn(RICH_TEXT_CLASSES.codeBlock, CODE_SIZE_CLASSES)}>
+        <pre data-block-id={block.id} data-language={block.language}>
           <code>{(block.inline ?? []).map((run) => run.text).join('')}</code>
         </pre>
       )
     case 'horizontalRule':
-      return <hr data-block-id={block.id} className={RICH_TEXT_CLASSES.divider} />
+      return <hr data-block-id={block.id} />
     case 'table': {
       const table = <Table block={block} draw={draw} />
       if ((block.children ?? []).some((row) => named(row) === 'tableRow')) return table
@@ -285,9 +285,9 @@ export function RichText({
   renderBlock,
 }: RichTextProps) {
   if (blocks.length === 0) return null
-  const draw: Draw = { size, renderText, renderReference, renderBlock }
+  const draw: Draw = { renderText, renderReference, renderBlock }
   return (
-    <div data-rich-text className={cn(RICH_TEXT_CLASSES.root, SIZE_CLASSES[size].root)}>
+    <div data-rich-text className={richTextClassName(size)}>
       {blocks.map((block, i) => <Block key={block.id ?? i} block={block} draw={draw} />)}
     </div>
   )

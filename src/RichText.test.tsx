@@ -7,7 +7,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { RichText, type RichTextBlock, type RichTextRun } from './RichText'
+import { RichText, richTextClassName, type RichTextBlock, type RichTextRun } from './RichText'
 
 afterEach(cleanup)
 
@@ -137,5 +137,13 @@ describe('RichText', () => {
     expect(c.querySelector('h1')).not.toBeNull()
     expect(c.querySelector('ul li')).not.toBeNull()
     expect(c.firstElementChild?.className).toContain('text-caption')
+  })
+
+  it('gives an editor the same look: the classes on its box are the ones an editor gets', () => {
+    for (const size of ['default', 'small'] as const) {
+      const c = draw([p(t('x'))], { size })
+      expect(c.firstElementChild?.className).toBe(richTextClassName(size))
+    }
+    expect(richTextClassName('default', 'outline-none')).toContain('outline-none')
   })
 })

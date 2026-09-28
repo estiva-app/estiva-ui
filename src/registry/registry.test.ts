@@ -45,17 +45,17 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 89 names over 59 files: 82 components, 6 helpers and 1 hook (RichText joined on 28 September)', () => {
+  it('counts 90 names over 59 files: 82 components, 7 helpers and 1 hook (RichText and richTextClassName joined on 28 September)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 82, helper: 6, hook: 1 })
+    expect(kinds).toEqual({ component: 82, helper: 7, hook: 1 })
     expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(59)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
     expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(59)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(30)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(31)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
