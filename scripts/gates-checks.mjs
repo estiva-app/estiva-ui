@@ -51,6 +51,7 @@ const all = [
   { ref: "UIG-37", owner: "estiva-ui", parts: PEEK_SHIP, title: "The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off" },
   { ref: "UIG-38", owner: "estiva-ui", title: "The gate misses a hand-drawn table and a hand-written Escape (Ship)" },
   { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
+  { ref: "UIG-40", owner: "estiva-ui", parts: ["peek"], title: "Launcher leftovers — the chip in the composer and the Make card" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -396,6 +397,11 @@ export default function define(h) {
     ] },
     { ref: "UIG-39", owner: true, checks: [
       { what: "DESIGN.md and llms.txt ship in the package", run: () => (h.exists("DESIGN.md") && h.exists("llms.txt") ? h.PASS("DESIGN.md and llms.txt exist") : h.FAIL("no DESIGN.md or llms.txt yet: a later phase, by Katerina's ruling")) },
+    ] },
+    // UIG-40, Katerina's scope of 28 September: the package's half is Make drawn by a palette part
+    // (ruling P4). The composer chip is Peek's own, and Peek's checks hold it.
+    { ref: "UIG-40", owner: true, checks: [
+      { what: "the palette draws a proposal: CommandPaletteProposal is in the package", run: () => h.contains("src/index.ts", /\bCommandPaletteProposal\b/, "src/index.ts exports CommandPaletteProposal") },
     ] },
     // UIG-35 closed on 21 September and left no record at all: the status script
     // did not carry the ticket, so nothing read its code back. These do. Both

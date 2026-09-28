@@ -16,6 +16,7 @@ import type { BaseUIEvent } from '@base-ui/react/types'
 import { IconLoader2, IconSearch } from '@tabler/icons-react'
 import { cn } from './cn'
 import { Button } from './Button'
+import { Card } from './Card'
 import { InputChip } from './ChipInput'
 import { EmptyState } from './EmptyState'
 import { FieldLine } from './Field'
@@ -660,4 +661,32 @@ export interface CommandPaletteQuoteProps {
 /** Text written to be used elsewhere, set off by a rule at its left edge. */
 export function CommandPaletteQuote({ children }: CommandPaletteQuoteProps) {
   return <p className="whitespace-pre-wrap border-l-2 border-border-default pl-3 text-body-2 text-text-primary">{children}</p>
+}
+
+export interface CommandPaletteProposalProps {
+  /** Where it would be made: the app and the action — "App › New item". */
+  source: string
+  /** The app's mark before the source, as small as the line (about 10px). */
+  mark?: ReactNode
+  /** What would be made, in a sentence. */
+  children: string
+}
+
+/**
+ * Something the palette offers to make, before anything is made: a card with
+ * where it would be made on top, then what it would be. A card because it is a
+ * thing about to exist, not text to read or use; the source first because two
+ * apps may offer something alike (UIG-40, Katerina 28 September: the look Peek's
+ * launcher already had, now drawn by the palette, ruling P4).
+ */
+export function CommandPaletteProposal({ source, mark, children }: CommandPaletteProposalProps) {
+  return (
+    <Card fill="surface" className="flex flex-col gap-1 p-3">
+      <span className="flex items-center gap-2 text-caption text-text-secondary">
+        {mark}
+        {source}
+      </span>
+      <span className="text-body-2 text-text-primary">{children}</span>
+    </Card>
+  )
 }

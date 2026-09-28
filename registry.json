@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.42.0",
-    "exports": 90,
-    "typeExports": 101,
+    "packageVersion": "0.43.0",
+    "exports": 91,
+    "typeExports": 102,
     "files": null
   },
   "storybook": {
@@ -1268,6 +1268,44 @@
           "takes": "anything",
           "required": true,
           "note": "The fields, each in a `Field`."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "overlays-commandpalette--docs",
+      "storyId": "overlays-commandpalette--first-level",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommandPaletteProposal",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CommandPalette.tsx",
+      "purpose": "Something the palette offers to make, before anything is made: a card with where it would be made on top, then what it would be.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "source",
+          "takes": "text",
+          "required": true,
+          "note": "Where it would be made: the app and the action — \"App › New item\"."
+        },
+        {
+          "name": "mark",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's mark before the source, as small as the line (about 10px)."
+        },
+        {
+          "name": "children",
+          "takes": "text",
+          "required": true,
+          "note": "What would be made, in a sentence."
         }
       ],
       "variants": [],

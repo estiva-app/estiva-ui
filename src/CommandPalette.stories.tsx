@@ -7,6 +7,7 @@ import {
   CommandPalette,
   CommandPaletteAnswer,
   CommandPaletteForm,
+  CommandPaletteProposal,
   CommandPaletteQuote,
   CommandPaletteSearch,
   CommandPaletteWorking,
@@ -54,6 +55,7 @@ type Level =
   | { kind: 'place'; name: string }
   | { kind: 'ask' }
   | { kind: 'draft' }
+  | { kind: 'make' }
   | { kind: 'form' }
   | { kind: 'one-list' }
 
@@ -62,7 +64,7 @@ interface Frame {
   query: string
 }
 
-type Start = 'first' | 'arriving' | 'nothing' | 'place' | 'working' | 'answer' | 'draft' | 'form' | 'refused' | 'one-list'
+type Start = 'first' | 'arriving' | 'nothing' | 'place' | 'working' | 'answer' | 'draft' | 'make' | 'form' | 'refused' | 'one-list'
 
 const PLACES = ['Place one', 'Place two']
 const ACTIONS = [
@@ -81,6 +83,7 @@ const GROUPS = [
 ]
 const ANSWER = 'Item one moved on Monday [1], and item two is waiting on a reply [2].\n\nNothing else changed this week.'
 const DRAFT = 'Thanks, both. I will look at item one today\nand reply on item two tomorrow.'
+const PROPOSAL = 'An item for the reply on item two, due tomorrow.'
 
 function startStack(start: Start): Frame[] {
   const first: Frame = { level: { kind: 'first' }, query: '' }
@@ -96,6 +99,8 @@ function startStack(start: Start): Frame[] {
       return [first, { level: { kind: 'ask' }, query: 'What changed this week?' }]
     case 'draft':
       return [first, { level: { kind: 'draft' }, query: 'Say I will look today' }]
+    case 'make':
+      return [first, { level: { kind: 'make' }, query: '' }]
     case 'form':
     case 'refused':
       return [first, { level: { kind: 'place', name: 'Place one' }, query: '' }, { level: { kind: 'form' }, query: '' }]
@@ -180,6 +185,17 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
         },
       ]
     }
+    if (level.kind === 'make') {
+      return [
+        {
+          label: 'Next',
+          rows: [
+            { id: 'make-open', label: 'Open the form', description: 'Place one › Action one · nothing is made until you submit', icon, onSelect: () => push({ kind: 'form' }) },
+            { id: 'make-again', label: 'Suggest something else', icon, onSelect: () => close('Suggest something else') },
+          ],
+        },
+      ]
+    }
     if (level.kind === 'ask' || level.kind === 'draft') {
       if (!asked?.done) return []
       const changed = frame.query.trim() !== asked.question.trim()
@@ -236,6 +252,7 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
           rows: [
             { id: 'ask', label: 'Ask about this page', icon, onSelect: () => push({ kind: 'ask' }) },
             { id: 'draft', label: 'Write a draft', icon, onSelect: () => push({ kind: 'draft' }) },
+            { id: 'make', label: 'Make something from this page', icon, onSelect: () => push({ kind: 'make' }) },
             { id: 'one-list', label: 'Change kind', description: 'Item one', icon, onSelect: () => push({ kind: 'one-list' }) },
           ],
         },
@@ -289,6 +306,7 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
   }
 
   const body = (() => {
+    if (level.kind === 'make') return <CommandPaletteProposal source="Place one › Action one" mark={<IconSquareRounded size={10} stroke={1.5} />}>{PROPOSAL}</CommandPaletteProposal>
     if (level.kind !== 'ask' && level.kind !== 'draft') return undefined
     if (!asked || !asked.done) return <CommandPaletteWorking>Reading 12 notes…</CommandPaletteWorking>
     const changed = frame.query.trim() !== asked.question.trim()
@@ -355,6 +373,8 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
                   ? 'Ask anything about this page'
                   : level.kind === 'draft'
                     ? 'What should it say?'
+                    : level.kind === 'make'
+                    ? 'Looking at this page'
                     : 'Search, or choose a place'
             }
             groups={groups}
@@ -365,6 +385,8 @@ function Demo({ start, where, modKey, label }: { start: Start; where?: string; m
                   ? { label: 'Ask', onBack: back }
                   : level.kind === 'draft'
                     ? { label: 'Draft', onBack: back }
+                    : level.kind === 'make'
+                    ? { label: 'Make', onBack: back }
                     : undefined
             }
             pending={level.kind === 'first' && searching ? 'Searching…' : undefined}
@@ -412,6 +434,9 @@ export const Answer: Story = story('answer')
 export const Quote: Story = story('draft')
 
 /** A form. Ctrl+Enter creates; a missing field says so and takes focus; Backspace in an empty field goes back and keeps what was typed. */
+/** Something it offers to make: where, then what. Nothing is made until the form is sent. */
+export const Proposal: Story = story('make')
+
 export const Form: Story = story('form')
 
 /** Creating is refused: the fields unlock, the reason sits beside the button, and focus is back where it was. */
