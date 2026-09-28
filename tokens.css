@@ -94,6 +94,9 @@
   --bg-field:     #F4F4F5;
   --border-field: #E4E4E7;
   --shadow-field: 0 0 #0000;
+  /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
+     Here, the hover fill: bg-active, #D4D4D8, was the darkest thing on a white card (Katerina, 28 September). */
+  --bg-code:     #E9E9EB;
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -172,6 +175,9 @@
   --bg-field:     #27272A;
   --border-field: #2D2D31;
   --shadow-field: 0 0 #0000;
+  /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
+     Here, bg-active, as Peek draws code (Katerina, 28 September). */
+  --bg-code:     #2D2D31;
 }
 
 
@@ -254,6 +260,9 @@
   --bg-field:     #20242d;
   --border-field: rgba(255, 255, 255, 0.12);
   --shadow-field: 0 0 #0000;
+  /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
+     Here, bg-active, as Peek draws code (Katerina, 28 September). */
+  --bg-code:     rgba(255, 255, 255, 0.08);
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -342,6 +351,9 @@
   --bg-field:     #1f2330;
   --border-field: rgba(255, 255, 255, 0.12);
   --shadow-field: 0 0 #0000;
+  /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
+     Here, bg-active, as Peek draws code (Katerina, 28 September). */
+  --bg-code:     rgba(255, 255, 255, 0.08);
 }
 
 /* ─── leaf ─── Leaf's theme: Linear's light theme on these same tokens (Katerina,
@@ -430,4 +442,7 @@
   --bg-field:     #ffffff;
   --border-field: #dedede; /* the default line, so a field shows on a white dialog (Katerina, 28 September); Linear's own is #f7f7f7 */
   --shadow-field: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
+  /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
+     Here, the inset fill: lighter than bg-active on a white card (Katerina, 28 September). */
+  --bg-code:     #e9e9ea;
 }
