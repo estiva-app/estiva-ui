@@ -39,6 +39,8 @@ export function SectionLabel({
     <span
       className={cn(
         'text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
+        // Leaf's section labels are Signal's type (Katerina, 28 September).
+        'leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest',
         tone === 'secondary' ? 'text-text-secondary' : tone === 'muted' ? 'text-text-muted' : 'text-text-primary',
         truncate && 'min-w-0 truncate',
         className,

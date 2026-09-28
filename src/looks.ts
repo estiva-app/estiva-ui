@@ -12,7 +12,7 @@
  */
 
 /** A field's box: TextInput and Textarea. The hairline strengthens on hover; focus comes after it, so a focused field keeps its colour under the pointer. */
-export const FIELD_BOX_CLASSES = 'bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg'
+export const FIELD_BOX_CLASSES = 'bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg'
 
 /** What a field's words look like, typed or waiting: TextInput, Textarea and Select. */
 export const FIELD_TEXT_CLASSES = 'text-text-primary placeholder:text-text-muted'
@@ -30,7 +30,7 @@ export const FIELD_SIZE_CLASSES = {
 } as const
 
 /** The box around an input that sits inside it, before its focus look: SearchInput and ChipInput. */
-export const FIELD_SHELL_CLASSES = 'bg-bg-inset border border-border-default hover:border-border-strong rounded-lg transition-colors'
+export const FIELD_SHELL_CLASSES = 'bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors'
 
 /** A panel that floats over the page: Menu's panel and Tooltip. */
 export const FLOATING_SURFACE_CLASSES = 'rounded-lg border border-border-default bg-bg-elevated shadow-lg'

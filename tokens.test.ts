@@ -40,19 +40,19 @@ function themesInCss(): Map<string, Set<string>> {
   return themes
 }
 
-const EXPECTED_THEMES = [':root', '.dark, :root[data-theme=\'dark\']', '.signal, :root[data-theme=\'signal\']', ':root[data-theme=\'ship\']']
+const EXPECTED_THEMES = [':root', '.dark, :root[data-theme=\'dark\']', '.signal, :root[data-theme=\'signal\']', ':root[data-theme=\'ship\']', ':root[data-theme=\'leaf\']']
 
 describe('tokens.css against tailwind-preset.js', () => {
   const wanted = tokensInPreset()
   const themes = themesInCss()
 
-  it('has the four themes and nothing else', () => {
+  it('has the five themes and nothing else', () => {
     expect([...themes.keys()]).toEqual(EXPECTED_THEMES)
   })
 
   it('names at least the bg, text, border, accent, semantic and shadow families', () => {
     expect(wanted).toEqual(expect.arrayContaining(['--bg-base', '--text-primary', '--border-subtle', '--accent-primary', '--error-muted', '--shadow-lg']))
-    expect(wanted.length).toBe(47) // 8 bg + 6 text (text-interactive joined 2026-09-01, with Toast) + 4 border + 3 accent + 8 semantic + 3 shadow + focus-ring + 14 transparent colours (11 from D16 2026-09-06; accent-wash and success-wash 2026-09-07; scrim-strong with Lightbox, UIG-35)
+    expect(wanted.length).toBe(56) // 3 field (bg, border, shadow: Katerina, 28 September) + 6 tooltip (bg, text, border, and the same for a key on it: Katerina, 27 September) + 8 bg + 6 text (text-interactive joined 2026-09-01, with Toast) + 4 border + 3 accent + 8 semantic + 3 shadow + focus-ring + 14 transparent colours (11 from D16 2026-09-06; accent-wash and success-wash 2026-09-07; scrim-strong with Lightbox, UIG-35)
   })
 
   for (const selector of EXPECTED_THEMES) {

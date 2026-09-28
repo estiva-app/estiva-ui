@@ -40,6 +40,6 @@ describe('TextInput', () => {
     render(<TextInput aria-label="Title" />)
     const classes = screen.getByRole('textbox').className.split(' ')
     // Both survive cn(); Tailwind emits focus after hover, so the order in CSS decides, not here.
-    for (const c of ['border-border-default', 'hover:border-border-strong', 'focus:border-border-focus']) expect(classes).toContain(c)
+    for (const c of ['border-border-field', 'hover:border-border-strong', 'focus:border-border-focus']) expect(classes).toContain(c)
   })
 })

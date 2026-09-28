@@ -39,7 +39,7 @@ describe('Tooltip, the surface', () => {
     render(<Tooltip label="Bold" className="w-40" />)
     const tip = screen.getByRole('tooltip')
     expect(tip.className).toContain('w-40')
-    expect(tip.className).toContain('bg-bg-elevated')
+    expect(tip.className).toContain('bg-bg-tooltip')
   })
 })
 

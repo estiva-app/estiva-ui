@@ -44,13 +44,14 @@ export interface ToastProps {
 }
 
 // Signal: every toast is the same dark overlay pill (v3) — the type lives in
-// the icon color + glow, not the surface.
+// the icon color + glow, not the surface. Leaf draws them the same way, on its
+// own greys (Katerina, 28 September).
 const SURFACE_STYLES: Record<ToastType, string> = {
-  success: 'bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
-  brand: 'bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
-  neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md',
-  warning: 'bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
-  error: 'bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md',
+  success: 'bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md',
+  brand: 'bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md',
+  neutral: 'bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md',
+  warning: 'bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md',
+  error: 'bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md',
 }
 
 /**

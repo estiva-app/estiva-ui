@@ -175,7 +175,7 @@ type Key = [key: string, word: string]
 function Footer({ keys }: { keys: Key[] }) {
   const { where } = usePalette('The footer')
   return (
-    <div className="flex h-9 shrink-0 items-center gap-4 border-t border-border-subtle px-5 text-caption text-text-secondary signal:font-mono signal:text-small signal:text-text-muted">
+    <div className="flex h-9 shrink-0 items-center gap-4 border-t border-border-subtle px-5 text-caption text-text-secondary signal:font-mono signal:text-small signal:text-text-muted leaf:font-mono leaf:text-small">
       <span className="min-w-0 flex-1 truncate">{where}</span>
       {keys.map(([key, word]) => (
         <span key={key} className="flex shrink-0 items-center gap-1.5">

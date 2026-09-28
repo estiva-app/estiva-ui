@@ -66,9 +66,7 @@ const rail = (
 export const Solid: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
-      <div className="flex h-full items-center justify-center">
-        <EmptyState message="Nothing here yet." />
-      </div>
+      <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
 }
@@ -92,9 +90,7 @@ export const SolidScrolls: Story = {
 export const SolidWithBanner: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} banner={<Banner tone="ok">Public key copied.</Banner>}>
-      <div className="flex h-full items-center justify-center">
-        <EmptyState message="Nothing here yet." />
-      </div>
+      <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
 }
@@ -111,9 +107,7 @@ export const Floating: Story = {
       identity={identity}
       nav={rail}
     >
-      <div className="flex h-full items-center justify-center">
-        <EmptyState message="Nothing here yet." />
-      </div>
+      <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
 }
@@ -130,9 +124,7 @@ export const FloatingWithBanner: Story = {
       nav={rail}
       banner={<Banner tone="info">A new version is available. Reload when convenient.</Banner>}
     >
-      <div className="flex h-full items-center justify-center">
-        <EmptyState message="Nothing here yet." />
-      </div>
+      <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
 }

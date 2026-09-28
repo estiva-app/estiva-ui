@@ -80,6 +80,20 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #FAFAFA;
+  --text-tooltip:   #18181B;
+  --border-tooltip: #E4E4E7;
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     #F4F4F5;
+  --border-tooltip-key: #D4D4D8;
+  --text-tooltip-key:   #52525B;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #F4F4F5;
+  --border-field: #E4E4E7;
+  --shadow-field: 0 0 #0000;
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -144,6 +158,20 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #1C1C1F;
+  --text-tooltip:   #FAFAFA;
+  --border-tooltip: #2D2D31;
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     #27272A;
+  --border-tooltip-key: #52525B;
+  --text-tooltip-key:   #AEAEB6;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #27272A;
+  --border-field: #2D2D31;
+  --shadow-field: 0 0 #0000;
 }
 
 
@@ -212,6 +240,20 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #191d24;
+  --text-tooltip:   #eef1f6;
+  --border-tooltip: rgba(255, 255, 255, 0.12);
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
+  --border-tooltip-key: rgba(255, 255, 255, 0.22);
+  --text-tooltip-key:   #b2b9c6;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #20242d;
+  --border-field: rgba(255, 255, 255, 0.12);
+  --shadow-field: 0 0 #0000;
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -286,4 +328,106 @@
   --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   --scrim:           rgba(0, 0, 0, 0.5);
   --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips have their own colours (Katerina, 27 September); here, the ones they
+     always had: the elevated surface, primary text, the default border. */
+  --bg-tooltip:     #1c1f28;
+  --text-tooltip:   #e6e8ee;
+  --border-tooltip: rgba(255, 255, 255, 0.12);
+  /* A shortcut key on a tooltip: what Kbd always drew here. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.05);
+  --border-tooltip-key: rgba(255, 255, 255, 0.22);
+  --text-tooltip-key:   #b3b9c7;
+  /* A field has its own colours (Katerina, 28 September); here, the ones it always had:
+     the inset ground, the default line, no shadow. */
+  --bg-field:     #1f2330;
+  --border-field: rgba(255, 255, 255, 0.12);
+  --shadow-field: 0 0 #0000;
+}
+
+/* ─── leaf ─── Leaf's theme: Linear's light theme on these same tokens (Katerina,
+   27–28 September: "I like Linear's theme more", and "get it right, not by
+   screenshot"). Read from the Linear app itself: its named colours
+   (--color-bg-*, --color-border-*, --color-text-*, --focus-ring-color), dumped
+   from a signed-in tab on 28 September and turned from LCH into sRGB by Chrome.
+   Where Linear names no colour for one of these tokens, the light theme's stays
+   (marked "light"); menus, the toolbar and tooltips follow her rulings. */
+:root[data-theme='leaf'] {
+  color-scheme: light;
+
+  /* bg */
+  --bg-base:     #efeff0; /* --color-bg-quaternary, the app's ground and sidebar */
+  --bg-surface:  #f9f9fa; /* --color-bg-primary, the content panel and header */
+  --bg-elevated: #ffffff; /* menus and the toolbar are white (Katerina, 27 September) */
+  --bg-inset:    #e9e9ea; /* --color-bg-secondary: not the ground, or an inset card and a skeleton vanish on it (Katerina, 28 September) */
+  /* See-through, so a hover shows on a row that is itself hovered or grey (Katerina, 28 September):
+     6.4% black is Linear's --color-bg-secondary (#e9e9ea) on its content panel. */
+  --bg-hover:    rgba(0, 0, 0, 0.064);
+  --bg-selected: #e5e5e6; /* --color-bg-tertiary */
+  --bg-active:   #e1e1e2; /* the selected sidebar row (lch 89.54%) */
+  --bg-disabled: #efeff0; /* the base, as light has it */
+
+  /* text */
+  --text-primary:   #1b1b1b; /* --color-text-primary */
+  --text-secondary: #5c5c5e; /* --color-text-tertiary: labels, descriptions, icons */
+  --text-muted:     #9c9d9f; /* --color-text-quaternary: placeholders, counts */
+  --text-disabled:  #D4D4D8; /* light */
+  --text-inverse:   #ffffff;
+  --text-interactive: #1b1b1b; /* --app-link-color: a link is the text colour */
+
+  /* borders */
+  /* One step darker than Linear's own faintest line (Katerina, 28 September): our cards, chips and
+     toasts draw their edge with subtle, and Linear's #f1f1f1 vanished on white and on the ground. */
+  --border-subtle:  #e5e5e6; /* --color-bg-tertiary */
+  --border-default: #dedede; /* --color-border-secondary */
+  --border-strong:  #d3d3d3; /* --color-border-tertiary */
+  --border-focus:   #5e69d1; /* --focus-ring-color */
+
+  /* accent — Linear's indigo */
+  --accent-primary: #5e69d1; /* --focus-ring-color, the selection's colour */
+  --accent-hover:   #6b75df; /* not named in Linear's set: the indigo beside it in the app's own values */
+  --accent-muted:   #EDE9FE; /* light */
+
+  /* semantic — light, until Linear's are read */
+  --info-default:    #3B82F6;
+  --info-muted:      #DBEAFE;
+  --warning-default: #967000; /* Linear's darkest yellow: readable on the warning wash (Katerina, 28 September) */
+  --warning-muted:   #FEF3C7;
+  --success-default: #0EA06F;
+  --success-muted:   #D1FAE5;
+  --error-default:   #EF4444;
+  --error-muted:     #FEE2E2;
+
+  /* shadows — light */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
+  --focus-ring: 0 0 0 1px #5e69d1; /* --focus-ring-outline: 1px of the accent */
+  /* Transparent colours (D16): light's strengths, on Linear's indigo. */
+  --bg-wash:         rgba(0, 0, 0, 0.04);
+  --accent-outline:  rgba(94, 105, 209, 0.3);
+  --info-outline:    rgba(59, 130, 246, 0.3);
+  --warning-outline: rgba(245, 158, 11, 0.3);
+  --success-outline: rgba(14, 160, 111, 0.3);
+  --error-outline:   rgba(239, 68, 68, 0.3);
+  --accent-wash:     rgba(94, 105, 209, 0.11);
+  --success-wash:    rgba(14, 160, 111, 0.11);
+  --glow-warning:    0 0 5px rgba(245, 158, 11, 0.4);
+  --glow-success:    0 0 5px rgba(14, 160, 111, 0.7);
+  --glow-accent:     0 0 5px rgba(94, 105, 209, 0.6);
+  --highlight-inset: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --scrim:           rgba(0, 0, 0, 0.5);
+  --scrim-strong:    rgba(0, 0, 0, 0.8);
+  /* Tooltips are dark on the light page (Katerina, 27 September): Linear's text colour as the ground. */
+  --bg-tooltip:     #1b1b1b;
+  --text-tooltip:   #ffffff;
+  --border-tooltip: #1b1b1b;
+  /* A shortcut key on the dark tooltip: a faint light key. */
+  --bg-tooltip-key:     rgba(255, 255, 255, 0.1);
+  --border-tooltip-key: rgba(255, 255, 255, 0.18);
+  --text-tooltip-key:   rgba(255, 255, 255, 0.75);
+  /* A field is Linear's: white, a faint line, a soft two-layer shadow (read from its
+     comment box, 28 September: lch(100), lch(97.3), 0 3px 6px -2px at 2% and 0 1px 1px at 4%). */
+  --bg-field:     #ffffff;
+  --border-field: #dedede; /* the default line, so a field shows on a white dialog (Katerina, 28 September); Linear's own is #f7f7f7 */
+  --shadow-field: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
 }

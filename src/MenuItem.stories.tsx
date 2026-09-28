@@ -48,15 +48,10 @@ export const WithAShortcut: Story = {
   args: { label: 'Copy link', leading: <IconCopy size={16} stroke={1.5} className="text-text-secondary" />, shortcut: 'Ctrl+C' },
 }
 
-/** The row opens another menu. */
-export const Submenu: Story = {
-  args: { label: 'Move to…', submenu: true },
-}
-
 /**
- * The submenu, working. The story above draws the row at rest — the chevron is
- * the whole affordance — but a row that opens another menu can only be tried
- * inside a real one, so here is one.
+ * A row that opens another menu, working: such a row can only be tried inside
+ * a real menu, so this is one (Katerina, 28 September: one story, the working
+ * one; the chevron is the row's whole affordance).
  *
  * Hover **Move to…**, or arrow onto it and press →. The panel opens beside the
  * row, flips to the other side at a screen edge, and stays open while you
@@ -66,7 +61,7 @@ export const Submenu: Story = {
  * into it, and ← closes it and puts the highlight back on the row. Measured in
  * that order — → then ← alone does nothing, because focus has not entered yet.
  */
-export const SubmenuLive: Story = {
+export const Submenu: Story = {
   parameters: { controls: { disable: true } },
   decorators: [(Story) => <Story />],
   render: () => (

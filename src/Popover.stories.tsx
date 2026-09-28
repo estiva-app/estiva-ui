@@ -190,6 +190,9 @@ export const FromASelection: Story = {
           side="top"
           ariaLabel="Formatting"
           className="w-auto min-w-0 p-1"
+          /* No padding of the popup's own: the panel's 4px is the Toolbar's, and
+             the default 8px on top of it drew the panel 16px taller (Katerina, 28 September). */
+          contentClassName="p-0"
         >
           <Toolbar aria-label="Formatting" surface={false}>
             <ToolbarButton aria-label="Bold" tooltip="Bold">

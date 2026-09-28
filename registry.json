@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.37.2",
+    "packageVersion": "0.38.0",
     "exports": 88,
     "typeExports": 97,
     "files": null
@@ -952,7 +952,7 @@
       "app": null,
       "looks": [
         "bg-bg-elevated border border-border-subtle rounded-md",
-        "bg-bg-inset border border-border-default hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
         "focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
         "text-body-2 border-none bg-transparent text-text-primary placeholder:text-text-muted outline-none"
       ]
@@ -1889,7 +1889,7 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "text-menu signal:font-mono signal:text-small signal:tracking-wider"
+        "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
     },
     {
@@ -2607,9 +2607,23 @@
           "takes": "text",
           "required": false,
           "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "default | tooltip",
+          "required": false,
+          "note": "`tooltip` draws the key in the tooltip's own key colours, for a theme whose tooltip is darker than its page (Katerina, 27 September)."
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "default",
+            "tooltip"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -2618,10 +2632,12 @@
       "docPage": "src/Kbd.mdx",
       "app": null,
       "looks": [
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
         "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary",
         "signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small",
-        "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small"
+        "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
+        "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
     },
     {
@@ -2696,7 +2712,7 @@
       "docPage": "src/Lightbox.mdx",
       "app": null,
       "looks": [
-        "rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary"
+        "rounded-full bg-bg-tooltip border border-border-tooltip-key text-text-tooltip-key hover:text-text-tooltip"
       ]
     },
     {
@@ -4184,7 +4200,7 @@
       "docPage": "src/SearchInput.mdx",
       "app": null,
       "looks": [
-        "bg-bg-inset border border-border-default hover:border-border-strong rounded-lg transition-colors focus-within:border-border-strong",
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-strong",
         "text-input-value bg-transparent text-text-primary placeholder:text-text-muted outline-none"
       ]
     },
@@ -4339,13 +4355,14 @@
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest"
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest",
+        "leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
       ]
     },
     {
@@ -4468,15 +4485,15 @@
       "docPage": "src/Select.mdx",
       "app": null,
       "looks": [
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-inset text-left border-border-default outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-inset text-left"
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border bg-bg-field shadow-field text-left"
       ]
     },
     {
@@ -4723,7 +4740,7 @@
       "docPage": "src/Textarea.mdx",
       "app": null,
       "looks": [
-        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted resize-none outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted resize-none outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
       ]
     },
     {
@@ -4764,8 +4781,8 @@
       "docPage": "src/TextInput.mdx",
       "app": null,
       "looks": [
-        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring",
-        "bg-bg-inset border border-border-default hover:border-border-strong focus:border-border-focus rounded-lg text-caption text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring",
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg text-caption text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled signal:transition-shadow signal:focus:shadow-focus-ring"
       ]
     },
     {
@@ -4847,11 +4864,11 @@
       "docPage": "src/Toast.mdx",
       "app": null,
       "looks": [
-        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
-        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md"
       ]
     },
     {
@@ -4896,11 +4913,11 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md",
-        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md",
-        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md"
+        "bg-success-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-accent-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-bg-inset border border-border-subtle signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
+        "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md"
       ]
     },
     {
@@ -5316,7 +5333,7 @@
       "docPage": "src/Tooltip.mdx",
       "app": null,
       "looks": [
-        "rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg border-border-tooltip bg-bg-tooltip"
       ]
     },
     {
