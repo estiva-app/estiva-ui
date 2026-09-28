@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.44.0 — 2026-09-28 — The gates read three places they missed
+
+### Changed
+
+- **A class behind an arbitrary variant is read.** The type-ramp, palette,
+  raw-colour and opacity rules read only plain variants, so
+  `[&_pre]:text-sm`, `group-hover/row:bg-gray-100` and `!text-sm` passed.
+  They read every variant now, as the hand-written-value rules already did
+  (UIG-42).
+- **A class list joined by hand is read.** `['text-sm', 'p-2'].join(' ')`
+  passed every rule: the Tailwind plugin stops at a function call. A new
+  rule, `token-joined`, reads each class in the list with the same patterns
+  and messages, as `token-joined/classes`, `/values` (errors) and
+  `/spacing` (warnings). A sentence joined with spaces passes.
+- **A box that centres or pads a page `EmptyState` is refused**
+  (`no-handmade-empty-state`, UIG-42). The state centres itself in the room
+  a flex column gives it; a box that places it can push it out of the middle,
+  as one did on the starter's home page (UIG-10). The flex column it asks
+  for passes, and so does any box round a `section` state.
+
+### What an app does to take it
+
+- **Peek:** its direct-message view with nothing open draws `<EmptyState />`
+  in a box that centres it. Drop the box; the screen is byte-identical
+  without it.
+- **Ship:** the story `ProjectCard` "Nothing archived" pads a page state.
+  It is a stage: keep it with a reason, or drop the box.
+- **Leaf:** nothing.
+- The colour and size checks find nothing new in any of them. An escape for
+  a joined list names `token-joined/<rule>`.
+
 ## 0.43.0 — 2026-09-28 — The palette draws a proposal
 
 ### Added
