@@ -22,7 +22,7 @@ export function Sidebar({ 'aria-label': ariaLabel = 'Workspace', children, class
   return (
     <nav
       aria-label={ariaLabel}
-      className={cn('flex w-60 shrink-0 flex-col border-r border-border-default bg-bg-surface leaf:border-r-transparent leaf:bg-transparent', className)}
+      className={cn('flex w-60 shrink-0 flex-col border-r border-border-default bg-bg-surface', className)}
     >
       {/* The rows scroll in a ScrollArea: the bar takes no width, so the
           column's padding reads the same with a long list as with a short

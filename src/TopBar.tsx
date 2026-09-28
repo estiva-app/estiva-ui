@@ -40,7 +40,7 @@ export function TopBar({ variant = 'solid', menu, logo, search, right, className
         'flex h-[52px] items-center pl-5 pr-[26px]',
         floating
           ? 'pointer-events-none absolute left-0 right-0 top-0 z-10'
-          : 'shrink-0 gap-4 border-b border-border-default bg-bg-surface leaf:border-b-transparent leaf:bg-transparent',
+          : 'shrink-0 gap-4 border-b border-border-default bg-bg-surface',
         className,
       )}
     >
