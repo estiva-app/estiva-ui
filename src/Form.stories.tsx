@@ -11,7 +11,7 @@ const meta = {
   title: 'Inputs/Form',
   component: Form,
   parameters: { layout: 'padded' },
-  args: { onSubmit: fn(), busy: false, className: 'flex flex-col gap-6', 'aria-label': 'Example', children: null },
+  args: { onSubmit: fn(), busy: false, 'aria-label': 'Example', children: null },
   argTypes: { children: { control: false }, onSubmit: { control: false } },
   decorators: [(Story) => <div className="w-96"><Story /></div>],
 } satisfies Meta<typeof Form>
@@ -35,6 +35,7 @@ const fields = (error?: string) => (
   </>
 )
 
+/** A list of fields: the form stacks them 24px apart itself. */
 export const Default: Story = { render: (args) => <Form {...args}>{fields()}</Form> }
 
 /** Sending: every field and button inside is switched off at once. */
@@ -42,6 +43,22 @@ export const Busy: Story = { args: { busy: true }, render: (args) => <Form {...a
 
 /** A field showing its error. The form does not send while it shows. */
 export const WithError: Story = { render: (args) => <Form {...args}>{fields('That is not a valid value.')}</Form> }
+
+/**
+ * **`layout="free"`**: a form that is not a list of fields, here a field and
+ * its button, places nothing, and lays itself out through `className`.
+ */
+export const Free: Story = {
+  args: { layout: 'free', className: 'flex items-center gap-2' },
+  render: (args) => (
+    <Form {...args}>
+      <TextInput placeholder="Add a name" aria-label="Name" className="min-w-0 flex-1" />
+      <Button variant="primary" type="submit">
+        Add
+      </Button>
+    </Form>
+  ),
+}
 
 /**
  * Live. Press Enter in the first field, or Send: the form is busy for a

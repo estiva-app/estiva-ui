@@ -27,7 +27,7 @@ is switched off at once.
 ```tsx
 import { Button, Field, Form, TextInput } from '@estiva-app/ui'
 
-<Form onSubmit={send} busy={sending} className="flex flex-col gap-6">
+<Form onSubmit={send} busy={sending}>
   <Field label="Title" required error={titleError}>
     <TextInput value={title} onChange={(e) => { setTitle(e.target.value); setTitleError(undefined) }} />
   </Field>
@@ -55,8 +55,13 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
   standing keeps the form from ever sending.
 - The browser's own validation bubbles are off (`noValidate`). `Field`'s
   `required` marks a field; it does not block sending by itself.
-- `className` places the fields: the form draws no box, and neither does the
-  `<fieldset>` inside it.
+- **The form places its fields: one column, 24px apart** (Katerina, 28
+  September), so every form reads the same. Pass no layout of your own: the
+  gate lint refuses a gap, a direction or a grid on a `Form`. `className`
+  still places the form itself: its space around, its size.
+- **`layout="free"`** is for a form that is not a list of fields: a field and
+  its button, a composer. It places nothing, and `className` lays it out.
+- The form draws no box, and neither does the `<fieldset>` inside it.
 
 ## What it owns
 
@@ -67,6 +72,7 @@ It does these by itself. Write none of them around it.
 | Sends on Enter in a one-line field, and on Ctrl+Enter anywhere inside | a key handler that submits |  |
 | Leaves Enter alone where it means something else: a Textarea, a list, a people picker | exceptions of your own |  |
 | Does nothing while it is sending: no second send, and nothing inside takes focus | a busy flag on every control |  |
+| Stacks its fields in one column, 24px apart | a gap, a direction or a grid on the form | `no-restyled-part` |
 
 ## Keys
 

@@ -19,7 +19,7 @@ import { Button } from './Button'
 import { InputChip } from './ChipInput'
 import { EmptyState } from './EmptyState'
 import { FieldLine } from './Field'
-import { Form } from './Form'
+import { FIELDS_CLASSES, Form } from './Form'
 import { Kbd } from './Kbd'
 import { EnterHint, MenuItemBody, menuItemClassName } from './Menu'
 import { ScrollArea } from './ScrollArea'
@@ -563,10 +563,12 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
       {/* The package Form, from the fields to the button (UIG-7). The chip row
           stays outside it, so its ✕ still goes back while the form works; the
           button row is inside it, so focus that was on the button is held.
-          The fields are found through data-command-palette-fields. */}
-      <Form data-command-palette-fields="" busy={busy} enterSends={false} onSubmit={submit} className="flex min-h-0 flex-col">
+          The fields are found through data-command-palette-fields. The form is
+          `free`, a scrolling body over a button row; the fields inside stack as
+          every form's do, 24px apart (Katerina, 28 September: they were 16). */}
+      <Form data-command-palette-fields="" busy={busy} enterSends={false} onSubmit={submit} layout="free" className="flex min-h-0 flex-col">
         <ScrollArea viewportClassName="max-h-[420px]" contentClassName="flex flex-col px-5 py-4">
-          <div className="flex flex-col gap-4">{children}</div>
+          <div className={FIELDS_CLASSES}>{children}</div>
         </ScrollArea>
         <div className="flex shrink-0 items-center gap-3 px-5 pb-4">
           <div className="min-w-0 flex-1">
