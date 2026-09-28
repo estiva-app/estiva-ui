@@ -52,6 +52,7 @@ const all = [
   { ref: "UIG-38", owner: "estiva-ui", title: "The gate misses a hand-drawn table and a hand-written Escape (Ship)" },
   { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
   { ref: "UIG-40", owner: "estiva-ui", parts: ["peek"], title: "Launcher leftovers — the chip in the composer and the Make card" },
+  { ref: "UIG-42", owner: "estiva-ui", parts: PEEK_SHIP, title: "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -402,6 +403,13 @@ export default function define(h) {
     // (ruling P4). The composer chip is Peek's own, and Peek's checks hold it.
     { ref: "UIG-40", owner: true, checks: [
       { what: "the palette draws a proposal: CommandPaletteProposal is in the package", run: () => h.contains("src/index.ts", /\bCommandPaletteProposal\b/, "src/index.ts exports CommandPaletteProposal") },
+    ] },
+    // Katerina's ruling of 25 September (cards 13 and 14): what the gate cannot see yet, in one ticket.
+    // The token check's blind spots are built (28 September); the box and the hand-drawn screen wait on her plan.
+    { ref: "UIG-42", owner: true, checks: [
+      { what: "a class behind an arbitrary variant is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"group-hover/row:bg-gray-100\">x</div>\n}\n", expect: "error" }) },
+      { what: "a class list joined by hand is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className={['text-sm', 'p-2'].join(' ')}>x</div>\n}\n", expect: "error" }) },
+      { what: "a box around a part, or a screen drawn by hand, is caught", run: () => h.FAIL("not built: the plan waits on Katerina (UIG-42, part 1)") },
     ] },
     // UIG-35 closed on 21 September and left no record at all: the status script
     // did not carry the ticket, so nothing read its code back. These do. Both
