@@ -255,11 +255,11 @@ export function appChecks(h: GateHelpers, { app = '.', page, chain = { ref: 'UIG
         return probe(code, 'none', undefined, 'src/components/__gates_probe__.test.tsx', config)()
       }), 'a test file is not checked for hand-written values, while source is') },
     ]),
-    // Built 28 September: the token check's two blind spots. The package's own row holds the
-    // ticket open until the box around a part and the hand-drawn screen are built.
+    // Built 28 September: the token check's two blind spots, and a box that places a page EmptyState.
     ticket('UIG-42', [
       { what: 'a class behind an arbitrary variant is an error', run: tokenProbe(component('<div className="group-hover/row:bg-gray-100">x</div>'), 'error') },
       { what: 'a class list joined by hand is read', run: tokenProbe(component("<div className={['text-sm', 'p-2'].join(' ')}>x</div>"), 'error') },
+      { what: 'a box that centres a page EmptyState is an error naming it', run: probe(`import { EmptyState } from '@estiva-app/ui'\n${component('<div className="flex items-center justify-center"><EmptyState message="Nothing here" /></div>')}`, 'error', 'page-scope EmptyState') },
     ]),
     // Built 28 September: both apps drew the protocol's text tree by hand, and drifted apart.
     // A file that reads the protocol and draws a quote or a numbered list itself is a third copy.
