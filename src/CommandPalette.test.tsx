@@ -17,6 +17,7 @@ import {
   CommandPalette,
   CommandPaletteAnswer,
   CommandPaletteForm,
+  CommandPaletteProposal,
   CommandPaletteQuote,
   CommandPaletteSearch,
   CommandPaletteWorking,
@@ -419,6 +420,19 @@ describe('what sits above the rows', () => {
   it('keeps a quote’s line breaks', () => {
     render(<CommandPaletteQuote>{'Line one\nLine two'}</CommandPaletteQuote>)
     expect(screen.getByText(/Line one/).textContent).toBe('Line one\nLine two')
+  })
+
+  it('draws a proposal as a card: where it would be made, with its mark, then what', () => {
+    const { container } = render(
+      <CommandPaletteProposal source="Place one › Action one" mark={<svg data-testid="mark" />}>
+        An item for tomorrow.
+      </CommandPaletteProposal>,
+    )
+    const lines = container.firstElementChild?.children
+    expect(lines).toHaveLength(2)
+    expect(lines?.[0].textContent).toBe('Place one › Action one')
+    expect(lines?.[0].contains(screen.getByTestId('mark'))).toBe(true)
+    expect(lines?.[1].textContent).toBe('An item for tomorrow.')
   })
 
   it('announces what is being worked on, with its grey bars', () => {
