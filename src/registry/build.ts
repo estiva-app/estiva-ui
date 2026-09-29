@@ -52,6 +52,10 @@ interface Declared {
 }
 
 export const PACKAGE_IMPORT = '@estiva-app/ui'
+/** The editor corner (UIG-31): parts that import Tiptap, kept off the main entry. */
+export const EDITOR_IMPORT = '@estiva-app/ui/editor'
+/** Whether an import names the package: its main entry, or its editor corner. */
+export const isPackageImport = (specifier: string) => specifier === PACKAGE_IMPORT || specifier === EDITOR_IMPORT
 
 /**
  * Storybook's own `sanitize`, which is what turns a title and a story's export
@@ -576,7 +580,11 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
   const src = join(root, 'src')
   const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { name: string; version: string }
   const files = new Set(readdirSync(src))
-  const exported = readIndexExports(readFileSync(join(src, 'index.ts'), 'utf8'))
+  // Two entries: the main one, and the editor corner beside it (UIG-31), whose
+  // parts are imported from their own path.
+  const fromEntry = (file: string, importPath: string) =>
+    existsSync(join(src, file)) ? readIndexExports(readFileSync(join(src, file), 'utf8')).map((entry) => ({ ...entry, importPath })) : []
+  const exported = [...fromEntry('index.ts', PACKAGE_IMPORT), ...fromEntry('editor.ts', EDITOR_IMPORT)]
   const values = exported.filter((entry) => !entry.isType)
 
   type Module = ReturnType<typeof readModule> & { file: string }
@@ -636,7 +644,7 @@ export function buildRegistry({ root = process.cwd(), repo = 'estiva-ui' }: Buil
       name: value.name,
       repo,
       kind: kindOf(value.name),
-      importPath: PACKAGE_IMPORT,
+      importPath: value.importPath,
       sourceFile: module.file,
       purpose,
       purposeFrom: fromPage ? 'page' : 'comment',

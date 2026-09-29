@@ -37,7 +37,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
 import ts from 'typescript'
 import { asBehaviours, baseUiBehaviours, drawnIn, handedOn, isBaseUi, rootsIn, splitTag } from './behaviours'
-import { firstSentence, pageOpening, readModule, sanitize, toId, PACKAGE_IMPORT, type Resolved } from './build'
+import { firstSentence, isPackageImport, pageOpening, readModule, sanitize, toId, type Resolved } from './build'
 import { looksOf, parseForLooks } from '../eslint/looks-of'
 import { SCHEMA_VERSION, type AppFacts, type EntryClass, type FileWithoutPart, type Registry, type RegistryEntry } from './schema'
 
@@ -701,7 +701,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       // A wrapper typed by the package's own props takes what the package's part
       // takes. The package names every part's props type after the part —
       // `SearchInputProps` is `SearchInput`'s, all 65 of them — so its entry answers.
-      if (specifier === PACKAGE_IMPORT) {
+      if (isPackageImport(specifier)) {
         const part = typeName.endsWith('Props') ? theRegistry?.entries.find((entry) => entry.name === typeName.slice(0, -'Props'.length)) : undefined
         return part ? { props: part.props, variants: part.variants } : undefined
       }
@@ -735,7 +735,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     if (held) return held
     const out = new Set<string>()
     if (p.from) {
-      if (p.from.specifier === PACKAGE_IMPORT) for (const id of packageOwns.get(p.from.name) ?? []) out.add(id)
+      if (isPackageImport(p.from.specifier)) for (const id of packageOwns.get(p.from.name) ?? []) out.add(id)
       return out
     }
     const f = facts.get(p.file)
@@ -755,7 +755,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       const from = imported.get(splitTag(tag)[0])
       if (!from) continue
       let inner: Iterable<string> = []
-      if (from.link.specifier === PACKAGE_IMPORT) inner = handedOn(from.imported, packageOwns.get(from.imported) ?? [])
+      if (isPackageImport(from.link.specifier)) inner = handedOn(from.imported, packageOwns.get(from.imported) ?? [])
       else if (from.link.target && from.link.target !== '?') {
         const part = origin(from.link.target, from.imported)
         if (part) inner = handedOn(part.from?.name ?? part.name, ownsOf(part, seen))
@@ -788,7 +788,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     let purposeFrom: RegistryEntry['purposeFrom'] = 'comment'
     if (pass) {
       const as = pass.name === p.name ? '' : ` as ${p.name}`
-      purpose = pass.specifier === PACKAGE_IMPORT ? `The package's ${pass.name}, handed on${as} so the app can import it from ${importPathOf(p.file)}.` : `${pass.name} from ${pass.specifier}, handed on${as} so the app can import it from ${importPathOf(p.file)}.`
+      purpose = isPackageImport(pass.specifier) ? `The package's ${pass.name}, handed on${as} so the app can import it from ${importPathOf(p.file)}.` : `${pass.name} from ${pass.specifier}, handed on${as} so the app can import it from ${importPathOf(p.file)}.`
       purposeFrom = 'package'
     } else if (firstSentence(pageText)) {
       purpose = firstSentence(pageText)
@@ -812,7 +812,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
     let written = false
     if (pass) {
       cls = 're-export'
-      reason = `Its file only hands on ${pass.specifier === PACKAGE_IMPORT ? `the package's ${pass.name}` : `${pass.name} from ${pass.specifier}`}.`
+      reason = `Its file only hands on ${isPackageImport(pass.specifier) ? `the package's ${pass.name}` : `${pass.name} from ${pass.specifier}`}.`
       if (writtenLine) problems.push(`${p.name} in ${p.file} is a pass-on, so its kind is read from the file: remove "@registry ${writtenLine[1]}"`)
     } else if (writtenLine) {
       const said = writtenLine[1] as EntryClass
@@ -842,10 +842,10 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       class: cls,
       reason,
       written,
-      handsOn: pass ? (pass.specifier === PACKAGE_IMPORT ? pass.name : `${pass.name} from ${pass.specifier}`) : null,
+      handsOn: pass ? (isPackageImport(pass.specifier) ? pass.name : `${pass.name} from ${pass.specifier}`) : null,
       usedIn,
       tiedTo: ties,
-      packageNamesake: namesakes.has(p.name) && !(pass && pass.specifier === PACKAGE_IMPORT && pass.name === p.name) ? p.name : null,
+      packageNamesake: namesakes.has(p.name) && !(pass && isPackageImport(pass.specifier) && pass.name === p.name) ? p.name : null,
       defaultExport: p.defaultExport,
     }
     const found = pass ? { docsId: null, storyId: null } : storyOf(p)

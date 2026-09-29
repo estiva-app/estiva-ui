@@ -88,7 +88,7 @@ export const BASE_UI_PARTS: Record<string, OwnerPart | null> = {
 
 const LIST_PART: OwnerPart = {
   use: 'Select',
-  more: ' To pick several, `ChipInput`; to search and act, `CommandPalette`; to tick several in a list, `Checkbox` with `row`.',
+  more: ' To pick several, `ChipInput`; to search and act, `CommandPalette`; to tick several in a list, `Checkbox` with `row`; for the list a text editor opens as you type, `SuggestionMenu`.',
 }
 
 const MESSAGE_PART: OwnerPart = { use: 'FieldLine', more: ' For a notice, `Banner`; for a message that comes and goes, `Toast`.' }
@@ -232,7 +232,7 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
     id: 'walking',
     behaviour: 'Moves through its items with the arrow keys',
     baseUi: ['Menu', 'Select', 'Combobox', 'Autocomplete', 'Tabs', 'Toolbar'],
-    owners: ['Menu', 'Select', 'ChipInput', 'CommandPalette', 'Tabs', 'Toolbar'],
+    owners: ['Menu', 'Select', 'ChipInput', 'CommandPalette', 'SuggestionMenu', 'Tabs', 'Toolbar'],
     reads: `a key compared by hand with ${WALKING_KEYS.join(', ')}`,
   },
   {

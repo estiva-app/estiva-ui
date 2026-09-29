@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.44.1",
-    "exports": 91,
-    "typeExports": 102,
+    "packageVersion": "0.45.0",
+    "exports": 100,
+    "typeExports": 109,
     "files": null
   },
   "storybook": {
@@ -2652,6 +2652,63 @@
       ]
     },
     {
+      "name": "isApplePlatform",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/shortcuts.ts",
+      "purpose": "Whether this machine calls the modifier Cmd rather than Ctrl.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "isSuggestionActive",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/suggestionPopup.tsx",
+      "purpose": "Open, or closed less than 100ms ago — what an Enter handler asks.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "isSuggestionOpen",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/suggestionPopup.tsx",
+      "purpose": "Open *now*, with no grace period — what an Escape handler asks.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Kbd",
       "repo": "estiva-ui",
       "kind": "component",
@@ -2703,6 +2760,25 @@
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
         "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
+    },
+    {
+      "name": "KeptSelection",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "The extension an editor registers so a selection can stay drawn while a field has the focus.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Lightbox",
@@ -3393,6 +3469,25 @@
         "rounded-md text-body-2 transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary",
         "text-center font-mono text-caption tabular-nums text-text-muted"
       ]
+    },
+    {
+      "name": "normalizeHref",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "What somebody typed into the link field → an `href`, or null when it cannot be one.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Panel",
@@ -4659,6 +4754,84 @@
       ]
     },
     {
+      "name": "SelectionToolbar",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "Bold, italic and underline — and code or a link where the editor has them — over text you have already selected in an editor.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The editor whose selection the strip follows."
+        },
+        {
+          "name": "marks",
+          "takes": "readonly MarkId[]",
+          "required": false,
+          "note": "Which marks the strip toggles, in order."
+        },
+        {
+          "name": "link",
+          "takes": "true/false",
+          "required": false,
+          "note": "The Link button and its address field. Needs a link mark in the editor and `KeptSelection`."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
+      "docPage": "src/SelectionToolbar.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "shortcutLabel",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/shortcuts.ts",
+      "purpose": "`Mod-B` → `Cmd+B` on a Mac, `Ctrl+B` elsewhere.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Sidebar",
       "repo": "estiva-ui",
       "kind": "component",
@@ -4782,6 +4955,171 @@
       "migrationStage": null,
       "docsId": "feedback-skeleton--docs",
       "storyId": "feedback-skeleton--list",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "SuggestionMenu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/SuggestionMenu.tsx",
+      "purpose": "The list a text editor opens as you type — `/` for commands, `@` for people — while focus stays in the text.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "rect",
+          "takes": "DOMRect | null",
+          "required": true,
+          "note": "The caret's rect, from the editor. `null` closes the box."
+        },
+        {
+          "name": "editorElement",
+          "takes": "HTMLElement | null",
+          "required": false,
+          "note": "The editor's own element — told which row is active."
+        },
+        {
+          "name": "ariaLabel",
+          "takes": "text",
+          "required": true,
+          "note": "Names the list — \"Commands\", \"People\"."
+        },
+        {
+          "name": "width",
+          "takes": "text",
+          "required": true,
+          "note": "The box's width, e.g. `w-[300px]`."
+        },
+        {
+          "name": "maxHeight",
+          "takes": "text",
+          "required": true,
+          "note": "The cap before the rows scroll, e.g. `max-h-[400px]`."
+        },
+        {
+          "name": "sections",
+          "takes": "readonly SuggestionMenuSection<T>[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "itemKey",
+          "takes": "a handler",
+          "required": true,
+          "note": "A stable key for a row."
+        },
+        {
+          "name": "row",
+          "takes": "a handler",
+          "required": true,
+          "note": "What a row shows."
+        },
+        {
+          "name": "onSelect",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "handle",
+          "takes": "Ref<SuggestionMenuHandle>",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-suggestionmenu--docs",
+      "storyId": "primitives-suggestionmenu--default",
+      "docPage": "src/SuggestionMenu.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "suggestionPopup",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/suggestionPopup.tsx",
+      "purpose": "The `render` of a Tiptap suggestion plugin, drawn as a `SuggestionMenu` — the popup controller Peek wrote four times (`mention.tsx`, `slashCommands.tsx`), once.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "ariaLabel",
+          "takes": "text",
+          "required": true,
+          "note": "Names the list — \"Commands\", \"People\"."
+        },
+        {
+          "name": "width",
+          "takes": "text",
+          "required": true,
+          "note": "The box's width, e.g. `w-[300px]`."
+        },
+        {
+          "name": "maxHeight",
+          "takes": "text",
+          "required": true,
+          "note": "The cap before the rows scroll, e.g. `max-h-[400px]`."
+        },
+        {
+          "name": "sections",
+          "takes": "a handler",
+          "required": false,
+          "note": "The plugin's items, and the typed query, → the sections to draw."
+        },
+        {
+          "name": "itemKey",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "row",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []

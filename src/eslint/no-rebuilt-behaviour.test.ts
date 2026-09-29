@@ -25,7 +25,7 @@ const tester = new RuleTester({
 
 const component = (body: string) => `export function Probe() {\n  return (\n${body}\n  )\n}\n`
 const effect = (body: string) => `useEffect(() => {\n${body}\n}, [])\n`
-const LIST = ' To pick several, `ChipInput`; to search and act, `CommandPalette`; to tick several in a list, `Checkbox` with `row`.'
+const LIST = ' To pick several, `ChipInput`; to search and act, `CommandPalette`; to tick several in a list, `Checkbox` with `row`; for the list a text editor opens as you type, `SuggestionMenu`.'
 
 tester.run('no-rebuilt-behaviour', noRebuiltBehaviour, {
   valid: [
