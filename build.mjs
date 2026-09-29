@@ -35,6 +35,45 @@ await build({
 })
 
 /**
+ * The editor corner, `@estiva-app/ui/editor` (UIG-31): its own bundle, because
+ * it imports Tiptap, which only an app with an editor installs. At `dist/editor.js`,
+ * beside `index.js`, so the apps' Tailwind finds its classes through the
+ * `dist/*.js` that `estivaContent` already lists.
+ *
+ * **It must not carry a second copy of the package.** The parts it draws —
+ * `Popover`, `Toolbar`, `MenuItem`, `SuggestionMenu` — are imported from the
+ * main entry as `@estiva-app/ui`, so an app has one of each: a copy would be a
+ * second set of components, drifting the day one of them changes. The source
+ * imports its siblings relatively, as the rest of `src` does; the plugin below
+ * turns every relative import that is not one of the editor's own files into
+ * `@estiva-app/ui`, which every one of them is exported from.
+ */
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup'])
+await build({
+  entryPoints: ['src/editor.ts'],
+  outfile: 'dist/editor.js',
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  target: 'es2022',
+  jsx: 'automatic',
+  sourcemap: true,
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@tiptap/core', '@tiptap/react', '@tiptap/pm', '@tiptap/suggestion', '@estiva-app/ui'],
+  plugins: [
+    {
+      name: 'main-entry-is-external',
+      setup(on) {
+        on.onResolve({ filter: /^\.\// }, (args) => {
+          if (args.kind === 'entry-point' || EDITOR_OWN.has(args.path)) return undefined
+          return { path: '@estiva-app/ui', external: true }
+        })
+      },
+    },
+  ],
+  logLevel: 'warning',
+})
+
+/**
  * The lint plugin, `@estiva-app/ui/eslint` (UIG-3): its own bundle, for Node,
  * so nothing of it reaches the components' browser bundle. At run time it
  * imports Node's own `module` and, since `no-copied-look` (UIG-25),
@@ -117,4 +156,4 @@ await build({
   logLevel: 'warning',
 })
 
-console.log('built dist/index.js, dist/eslint/index.js, dist/gates/, dist/registry/')
+console.log('built dist/index.js, dist/editor.js, dist/eslint/index.js, dist/gates/, dist/registry/')

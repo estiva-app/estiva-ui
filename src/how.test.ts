@@ -177,7 +177,7 @@ function compilerOptions(): ts.CompilerOptions {
   const parsed = ts.convertCompilerOptionsFromJson(raw.compilerOptions, REPO)
   // A placeholder is `any`: `people.map((p) => …)` would fail noImplicitAny on `p`,
   // the placeholder's fault, not the page's. A callback prop's parameter keeps the part's type.
-  return { ...parsed.options, noEmit: true, noImplicitAny: false, baseUrl: REPO, paths: { '@estiva-app/ui': ['./src/index.ts'] }, types: [] }
+  return { ...parsed.options, noEmit: true, noImplicitAny: false, baseUrl: REPO, paths: { '@estiva-app/ui': ['./src/index.ts'], '@estiva-app/ui/editor': ['./src/editor.ts'] }, types: [] }
 }
 
 function makeHost(options: ts.CompilerOptions, virtual: Map<string, string>): ts.CompilerHost {

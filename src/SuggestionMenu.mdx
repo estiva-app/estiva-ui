@@ -1,0 +1,107 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SuggestionMenuStories from './SuggestionMenu.stories'
+
+<Meta of={SuggestionMenuStories} />
+
+# SuggestionMenu
+
+The list a text editor opens as you type — `/` for commands, `@` for people —
+while focus stays in the text.
+
+<Canvas of={SuggestionMenuStories.Default} />
+
+## When
+
+- **A type-ahead inside an editor**: a character opens a list at the caret,
+  typing narrows it, ↑ ↓ Enter choose, and the words keep the caret the whole
+  time. This is the case it exists for.
+- Sections with headings, divided by a hairline — commands grouped by what they
+  do. A section without a `label` is rows alone.
+- Tall rows with a face and a second line, and Enter's hint on the highlighted
+  one — a list of people.
+
+<Canvas of={SuggestionMenuStories.TallRows} />
+
+## When not
+
+- A list you open with a button and choose from → **Menu**.
+- One value from a set, in a form → **Select**.
+- Searching across everything, in its own field → **CommandPalette**.
+- Picking several values in a field of their own → **ChipInput**.
+
+## How
+
+In an editor, from `@estiva-app/ui/editor`: `suggestionPopup` is the `render`
+of a Tiptap suggestion plugin, and draws this list.
+
+```tsx
+import Suggestion from '@tiptap/suggestion'
+import { suggestionPopup } from '@estiva-app/ui/editor'
+
+interface Command { id: string; label: string; keys?: string }
+
+Suggestion<Command>({
+  editor: editor,
+  char: '/',
+  items: ({ query }) => commands.filter((c) => c.label.toLowerCase().includes(query.toLowerCase())),
+  command: ({ editor, range, props }) => run(editor, range, props),
+  render: suggestionPopup<Command>({
+    ariaLabel: 'Commands',
+    width: 'w-[300px]',
+    maxHeight: 'max-h-[400px]',
+    sections: (items) => [
+      { label: 'Format', items: items.filter(isFormat) },
+      { label: 'Insert', items: items.filter(isInsert) },
+    ],
+    itemKey: (c) => c.id,
+    row: (c) => ({ label: c.label, shortcut: c.keys }),
+  }),
+})
+```
+
+- **`row` returns what a row shows**: `label`, and any of `description`,
+  `leading` (a face, an icon), `shortcut` (the keys you could type instead, drawn
+  at the right) and `hint` (drawn while highlighted — `<EnterHint />`). `size:
+  'tall'` for a row with a face and a second line.
+- **`maxHeight` is load-bearing.** Without a cap, a long list is taller than the
+  room above the caret and below it, and the box goes to the side at full window
+  height. With it, the rows scroll inside the box.
+- **Before an editor acts on Enter or Escape, it asks.** `isSuggestionActive()`
+  is true while a list is open and for 100ms after one closes, so the Enter that
+  chose a row does not also send. `isSuggestionOpen()` has no grace period, for
+  Escape: the first press closes the list, the second is somebody's own.
+- **Outside an editor**, draw `SuggestionMenu` itself with a `rect` to hang from,
+  and call `handle.current.onKeyDown(event)` from wherever the keys arrive.
+
+<Canvas of={SuggestionMenuStories.InAnEditor} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Moves through its items with the arrow keys, and wraps at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a listbox of options, and the editor pointing at the active one | `role="listbox"`, `role="option"`, `aria-activedescendant` | ✓ |
+| Hangs from the caret: above it, below when there is no room, never off the window | position arithmetic | |
+| Scrolls the highlighted row into view, and back to the first row when the list changes | `scrollIntoView` | |
+| Chooses on a press without taking focus from the text | `preventDefault` on each row | |
+
+<Canvas of={SuggestionMenuStories.Scrolling} />
+
+## Keys
+
+The keys arrive in the editor and are handed on.
+
+| Input | What happens |
+|---|---|
+| ↓ / ↑ | the next or previous row, wrapping at the ends |
+| Enter | chooses the highlighted row |
+| Escape | closes the list; the next Escape is the editor's |
+| any other key | stays the editor's — typing narrows the list |
+
+<Canvas of={SuggestionMenuStories.DrivenByKeys} />
+
+## Props
+
+<Controls of={SuggestionMenuStories.Default} />

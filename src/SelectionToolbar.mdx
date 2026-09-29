@@ -1,0 +1,78 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as SelectionToolbarStories from './SelectionToolbar.stories'
+
+<Meta of={SelectionToolbarStories} />
+
+# SelectionToolbar
+
+Bold, italic and underline — and code or a link where the editor has them —
+over text you have already selected in an editor.
+
+<Canvas of={SelectionToolbarStories.Default} />
+
+## When
+
+- **Inside any Tiptap editor.** It mounts with the editor and decides for
+  itself when to appear: once a selection has stood still, centred over it.
+- `marks` chooses the buttons, in order: `bold`, `italic`, `underline`, `code`.
+  The default is the first three.
+- `link` adds the Link button, which turns the strip into one field for the
+  address. Select words that are already a link and the field opens by itself,
+  their address in it.
+
+## When not
+
+- In the `/` list → **SuggestionMenu**. Typing `/` replaces the selection, so
+  there is nothing selected to apply a mark to.
+- A strip of actions on a card or an image → **Toolbar** in a **Popover**. This
+  one's placement exists to centre over a text selection.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { SelectionToolbar, KeptSelection } from '@estiva-app/ui/editor'
+
+const editor = useEditor({ extensions: [StarterKit, KeptSelection], content: text })
+
+<EditorContent editor={editor} />
+<SelectionToolbar editor={editor} marks={['bold', 'italic', 'underline', 'code']} link />
+```
+
+- `editor` is the Tiptap editor, or `null` while it loads. There is nothing to
+  place: it anchors itself to the selection.
+- **`link` needs two things in the editor**: a link mark, and `KeptSelection`,
+  which keeps the words highlighted while the address field has the focus.
+  Without a link mark, leave `link` off.
+- **Each mark must be in the editor's schema.** A button for a mark the editor
+  lacks does nothing.
+- **The address field:** Enter applies it, and so does clicking away. Enter on
+  an empty field removes the link; clicking away with an empty field changes
+  nothing. Escape drops what was typed. `http`, `https` and `mailto` only; a
+  bare host gets `https://`.
+
+<Canvas of={SelectionToolbarStories.WithALink} />
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Appears once a selection has stood still, never mid-drag or on a plain click | a selection listener, a timer | |
+| Centres itself over the selection, above it | position arithmetic | |
+| Keeps the caret in the text while a button is pressed | `preventDefault` on each button | |
+| Keeps the words highlighted while the address field has focus | a second selection | |
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Cmd/Ctrl+B, I, U, E | bold, italic, underline, code — the editor's own keys, named in each tooltip |
+| Tab | onto the strip, as any `Toolbar` |
+| ← / → | between the buttons |
+| Enter, in the address field | applies it; empty removes the link |
+| Escape, in the address field | drops what was typed and puts the caret back |
+
+## Props
+
+<Controls of={SelectionToolbarStories.Default} />

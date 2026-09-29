@@ -66,6 +66,8 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A strip of controls that act on one thing | **Toolbar** — one Tab stop for the row, arrow keys along it |
 | Reactions to choose from | **ReactionPicker** — the row; **Reaction** is the pill it produces |
 | One window to find something and act on it, opened by a shortcut | **CommandPalette** — rows, forms and written answers, one level at a time |
+| A list that opens as you type in an editor — `/` for commands, `@` for people | **SuggestionMenu** — the editor keeps the caret and hands it the arrow keys; `suggestionPopup` from `@estiva-app/ui/editor` wires it to a Tiptap plugin |
+| Bold, italic and the like over selected text in an editor | **SelectionToolbar**, from `@estiva-app/ui/editor` — it follows the selection by itself |
 | Anything with a title, body and footer | **DialogShell** |
 | "Are you sure?" | **ConfirmDialog** |
 | A picture full screen, from a thumbnail | **Lightbox** — an **AttachmentCard** opens one by itself |
