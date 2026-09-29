@@ -36,8 +36,9 @@ describe('the registry builds', () => {
     expect(validateRegistry(registry)).toEqual([])
   })
 
-  it('accounts for every value export of index.ts', () => {
-    const exported = readIndexExports(readFileSync(join(root, 'src', 'index.ts'), 'utf8'))
+  it('accounts for every value export of index.ts and editor.ts', () => {
+    // The main entry and the editor corner beside it (UIG-31).
+    const exported = ['index.ts', 'editor.ts'].flatMap((file) => readIndexExports(readFileSync(join(root, 'src', file), 'utf8')))
     const values = exported.filter((one) => !one.isType)
     expect(registry.builtFrom.exports).toBe(values.length)
     expect(registry.entries.length + registry.excluded.length).toBe(values.length)
@@ -45,17 +46,19 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 91 names over 59 files: 83 components, 7 helpers and 1 hook (CommandPaletteProposal joined on 28 September)', () => {
+  it('counts 100 names over 63 files: 86 components, 13 helpers and 1 hook (the editor parts joined on 29 September, UIG-31)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
+    // KeptSelection counts as a component by its name; it is an editor extension,
+    // documented on SelectionToolbar's page.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 83, helper: 7, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(59)
+    expect(kinds).toEqual({ component: 86, helper: 13, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(63)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(59)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(32)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(61)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(39)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -256,7 +259,8 @@ describe('the ids point at something', () => {
 
   it('gives every component a page and a story, and only a helper none', () => {
     const without = registry.entries.filter((one) => one.docsId === null || one.storyId === null)
-    expect(without.map((one) => one.name)).toEqual(['cn'])
+    // The helpers in a file with no page: cn, the shortcut names, and the editor's suggestion wiring (documented on SuggestionMenu's page).
+    expect(without.map((one) => one.name).sort()).toEqual(['cn', 'isApplePlatform', 'isSuggestionActive', 'isSuggestionOpen', 'shortcutLabel', 'suggestionPopup'])
     expect(without.every((one) => one.kind !== 'component')).toBe(true)
   })
 
@@ -319,7 +323,8 @@ describe('a second parser agrees', async () => {
     }
 
     expect(differences).toEqual([])
-    expect(seen).toBe(registry.entries.filter((one) => one.kind === 'component').length)
+    // KeptSelection is named like a component and is an editor extension: nothing for docgen to read.
+    expect(seen).toBe(registry.entries.filter((one) => one.kind === 'component' && one.name !== 'KeptSelection').length)
   })
 })
 
