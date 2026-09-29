@@ -378,9 +378,10 @@ export default function define(h) {
     { ref: "UIG-30", owner: true, checks: [
       { what: "RichText is in the package", run: () => h.contains("src/index.ts", /\bRichText\b/, "src/index.ts exports RichText") },
     ] },
-    // A first guess, from the ticket's text (much later: Katerina, 16 September).
+    // Built 29 September (0.45.0): the list in the main entry, the editor's wiring and the toolbar in its corner.
     { ref: "UIG-31", owner: true, checks: [
-      { what: "a shared editor-menu part is in the package", run: () => h.contains("src/index.ts", /\b(EditorMenu|SuggestionList|SuggestionMenu)\b/, "src/index.ts exports the editor-menu part") },
+      { what: "the list an editor drives is in the package: SuggestionMenu", run: () => h.contains("src/index.ts", /\bSuggestionMenu\b/, "src/index.ts exports SuggestionMenu") },
+      { what: "the editor corner wires it and holds the selection toolbar", run: () => h.contains("src/editor.ts", /^(?=[\s\S]*\bsuggestionPopup\b)(?=[\s\S]*\bSelectionToolbar\b)/,"src/editor.ts exports suggestionPopup and SelectionToolbar") },
     ] },
     // Katerina's picks of 28 September: a setting on Link, not a row part; a chip that is a link by itself.
     { ref: "UIG-33", owner: true, checks: [

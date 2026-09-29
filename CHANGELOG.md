@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.45.0 — 2026-09-29 — The editor menus: one list for / and @, and the selection toolbar
+
+### Added
+
+- **`SuggestionMenu`**: the list a text editor opens as you type, `/` for
+  commands and `@` for people, while focus stays in the text. The package
+  `Popover` at the caret; ↑ and ↓ (wrapping), Enter, the pointer, a press that
+  chooses without taking focus; back to the first row when the list changes;
+  a listbox of options, with the editor pointing at the active one. Sections
+  with headings, tall rows with a face, keys you could type instead, Enter's
+  hint. UIG-31: what Peek's `SuggestionPopover` and its four menus each wrote,
+  once, now that Ship's description needs a `/` menu too (Katerina, 29
+  September).
+- **`@estiva-app/ui/editor`**, a corner of the package for apps with a Tiptap
+  editor (her ruling, 29 September: one corner, option A). Its own bundle, so
+  the main entry stays free of Tiptap; the Tiptap peers are optional. It draws
+  with the main entry's parts, never a copy of them.
+  - **`SelectionToolbar`** and **`KeptSelection`**: Peek's selection toolbar,
+    moved here at her word, unchanged but for two props: `marks` (bold,
+    italic, underline by default; code available) and `link` (the Link button
+    and its field; off by default).
+  - **`suggestionPopup`**: the `render` of a Tiptap suggestion plugin, drawn as
+    a `SuggestionMenu`; **`isSuggestionActive`** and **`isSuggestionOpen`**, so
+    the key that chose a row does not also send or cancel.
+  - **`normalizeHref`**: what a typed address becomes (`https://` for a bare
+    host; `http`, `https` and `mailto` only).
+- **`shortcutLabel`** and **`isApplePlatform`**: a key named in words for the
+  platform (`Cmd+B`, `Ctrl+B`), never a glyph.
+
+### Changed
+
+- `no-rebuilt-behaviour` names `SuggestionMenu` for a list an editor drives.
+- The catalogue reads the editor corner too, each entry with its own import
+  path: 100 names over 63 files (86 components, 13 helpers, 1 hook).
+
+### What an app does to take it
+
+- Nothing, unless it has an editor. **Peek** draws its `/`, `@`, `!@` and `[`
+  lists with `suggestionPopup` and takes `SelectionToolbar` and
+  `KeptSelection` from `@estiva-app/ui/editor`, deleting `SuggestionPopover`,
+  its own `SelectionToolbar`, `keptSelection` and the popup controllers in
+  `mention.tsx` and `slashCommands.tsx`, and with them the seven escapes that
+  named UIG-31. One difference in Peek: the `@` list's arrows wrapped at
+  neither end; the shared list wraps, as `/` already did.
+
 ## 0.44.1 — 2026-09-29 — The RichText check stops flagging a feed
 
 ### Fixed
