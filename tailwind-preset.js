@@ -175,6 +175,7 @@ export default {
         'accent-primary': 'var(--accent-primary)',
         'accent-hover':   'var(--accent-hover)',
         'accent-muted':   'var(--accent-muted)',
+        'accent-text':    'var(--accent-text)',
         // semantic
         'info-default':    'var(--info-default)',
         'info-muted':      'var(--info-muted)',

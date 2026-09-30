@@ -52,7 +52,7 @@ describe('InlineChip', () => {
     expect(neutral).toContain('text-text-primary')
     const person = inlineChipClassName('person').split(' ')
     expect(person).toContain('text-body-2')
-    expect(person).toContain('text-accent-primary')
+    expect(person).toContain('text-accent-text')
     const urgent = inlineChipClassName('urgent').split(' ')
     expect(urgent).toContain('text-warning-default')
     // quiet is smaller: its caption size replaces the body size, and its colour survives beside it

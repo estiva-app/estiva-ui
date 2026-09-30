@@ -639,7 +639,7 @@ export function CommandPaletteAnswer({ children, note }: CommandPaletteAnswerPro
               before "[1]" would stand between them as a gap. */}
           {paragraph.split(/\s*(\[\d+\])/).map((part, j) =>
             /^\[\d+\]$/.test(part) ? (
-              <sup key={j} className="ml-0.5 font-mono text-small text-accent-primary">
+              <sup key={j} className="ml-0.5 font-mono text-small text-accent-text">
                 {part.slice(1, -1)}
               </sup>
             ) : (

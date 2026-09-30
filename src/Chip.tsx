@@ -33,7 +33,7 @@ export interface ChipProps {
 
 const typeStyles: Record<ChipType, string> = {
   neutral: 'bg-bg-inset text-text-primary',
-  brand: 'bg-accent-muted text-accent-primary signal:border signal:border-accent-outline',
+  brand: 'bg-accent-muted text-accent-text signal:border signal:border-accent-outline',
   info: 'bg-info-muted text-info-default signal:border signal:border-info-outline',
   warning: 'bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning',
   success: 'bg-success-muted text-success-default signal:border signal:border-success-outline',

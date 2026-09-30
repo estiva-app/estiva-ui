@@ -33,7 +33,7 @@ export const INLINE_CHIP_TONE_CLASSES = {
   /** A thing or a place — anything that is not a person. */
   neutral: 'bg-bg-active text-text-primary',
   /** A person. */
-  person: 'bg-accent-muted text-accent-primary',
+  person: 'bg-accent-muted text-accent-text',
   /** A person, called urgently. */
   urgent: 'bg-warning-muted text-warning-default',
   /**
