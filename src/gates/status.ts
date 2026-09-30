@@ -101,6 +101,8 @@ export interface TicketListEntry {
   title: string
   parts?: string[]
   aggregate?: boolean
+  /** Moved to the next phase, and by whose ruling: still checked, shown ⏭, and not waited for by the aggregate. */
+  later?: string
 }
 export interface GateSpec {
   repo: string
@@ -119,6 +121,7 @@ interface Row {
   checks: (CheckResult & { repo: string; what: string })[]
   status?: string
   aggregate?: boolean
+  later?: string
 }
 interface Report {
   schema: 1
@@ -199,9 +202,11 @@ export function helpers(ROOT: string): GateHelpers {
 
     async contract(appDir) {
       try {
-        const { buildAppRegistry, contractProblems, CONTRACT_KINDS } = await import('../registry/index')
+        const { buildAppRegistry, contractProblems, nameableParts, CONTRACT_KINDS } = await import('../registry/index')
         const registry = buildAppRegistry({ root: abs(appDir) })
-        const problems = contractProblems(registry, abs(appDir))
+        // The package's catalogue, beside its package.json: a page may name its parts too, as in CI.
+        const pkg = createRequire(import.meta.url)('../../registry.json') as Parameters<typeof nameableParts>[1]
+        const problems = contractProblems(registry, abs(appDir), nameableParts(registry, pkg))
         const owed = registry.entries.filter((entry) => (CONTRACT_KINDS as readonly string[]).includes(entry.app?.class ?? '')).length
         if (problems.length) return FAIL(`${problems.length} of ${owed}; the first: ${problems[0]}`)
         return PASS(`all ${owed} reusable parts keep the usage-page contract and are drawn somewhere`)
@@ -445,7 +450,7 @@ export function helpers(ROOT: string): GateHelpers {
 
 // ── running the checks ─────────────────────────────────────────────────────
 
-const STATUS: Record<string, string> = { done: '✅', started: '🚧', none: '⬜', unknown: '❔' }
+const STATUS: Record<string, string> = { done: '✅', started: '🚧', none: '⬜', unknown: '❔', later: '⏭' }
 
 function statusOf(checks: CheckResult[]) {
   const n = (r: CheckResult['result']) => checks.filter((c) => c.result === r).length
@@ -553,6 +558,7 @@ function printRows(rows: Row[], { showOwner, detail }: { showOwner: boolean; det
     const pass = r.checks.filter((c) => c.result === 'pass').length
     const count = r.checks.length ? `${pass} of ${r.checks.length}` : 'no checks here'
     lines.push(`${STATUS[r.status ?? 'unknown']}  ${pad(r.ref, 7)} ${pad(r.title ?? '', width)}  ${showOwner ? pad(r.ownerRepo ?? '', 10) : ''}${count}`)
+    if (r.later) lines.push(`        ${r.later}`)
     if (detail || r.status === 'started' || r.status === 'unknown') {
       for (const c of r.checks) {
         const mark = { pass: '✓', part: '½', fail: '✗', unknown: '?' }[c.result]
@@ -565,7 +571,8 @@ function printRows(rows: Row[], { showOwner, detail }: { showOwner: boolean; det
 
 function summary(rows: Row[]) {
   const n = (s: string) => rows.filter((r) => r.status === s).length
-  return `${STATUS.done} ${n('done')} done · ${STATUS.started} ${n('started')} started · ${STATUS.none} ${n('none')} not started · ${STATUS.unknown} ${n('unknown')} could not check`
+  const later = n('later') ? ` · ${STATUS.later} ${n('later')} next phase` : ''
+  return `${STATUS.done} ${n('done')} done · ${STATUS.started} ${n('started')} started · ${STATUS.none} ${n('none')} not started · ${STATUS.unknown} ${n('unknown')} could not check${later}`
 }
 
 export interface StatusOptions {
@@ -667,13 +674,17 @@ export async function runStatus({ root = process.cwd(), app = '.', json = false,
     for (const f of found.filter((f) => f.missing)) {
       if ((t.parts ?? []).includes(f.name) || t.owner === f.name) checks.push({ repo: f.name, what: `${f.name}'s part`, result: 'unknown', detail: f.note })
     }
-    return { ref: t.ref, title: t.title, ownerRepo: t.owner, checks, aggregate: t.aggregate }
+    return { ref: t.ref, title: t.title, ownerRepo: t.owner, checks, aggregate: t.aggregate, later: t.later }
   })
-  for (const row of rows) row.status = statusOf(row.checks)
+  // A ticket moved to the next phase is still checked (--detail shows how far it is), but it
+  // reads ⏭ whatever its checks say, and the aggregate does not wait for it.
+  for (const row of rows) row.status = row.later ? 'later' : statusOf(row.checks)
   for (const row of rows.filter((r) => r.aggregate)) {
-    const others = rows.filter((r) => r !== row)
+    const others = rows.filter((r) => r !== row && !r.later)
     const done = others.filter((r) => r.status === 'done').length
-    row.checks.push({ repo: 'all', what: 'every other ticket is done', ...(done === others.length ? PASS(`${done} of ${others.length} done`) : FAIL(`${done} of ${others.length} done`)) })
+    const moved = rows.filter((r) => r.later).length
+    const said = `${done} of ${others.length} done${moved ? `; ${moved} moved to the next phase` : ''}`
+    row.checks.push({ repo: 'all', what: 'every other ticket of this phase is done', ...(done === others.length ? PASS(said) : FAIL(said)) })
     row.status = statusOf(row.checks)
   }
 

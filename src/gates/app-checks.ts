@@ -56,6 +56,7 @@ export const APP_TICKET_TITLES: Record<string, string> = {
   'UIG-28': 'Close the two holes in the token contract — arbitrary values, and inline style',
   'UIG-30': 'RichText — one component that draws a message\'s text, for both apps',
   'UIG-32': 'Peek and Ship take their gate pieces from the package',
+  'UIG-33': 'Link — a whole row that is one link',
   'UIG-37': 'The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off',
   'UIG-42': "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check",
 }
