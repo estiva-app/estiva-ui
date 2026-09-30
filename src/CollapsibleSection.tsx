@@ -36,6 +36,12 @@ export interface CollapsibleSectionProps {
   /** Beside the title, revealed on hover or focus — `SectionHeader`'s. */
   actions?: SectionAction[]
   showActions?: 'hover' | 'always'
+  /**
+   * `heading` (default): the title is a section heading. `row`: the fold is a
+   * row among rows — a folder in a sidebar — and its rows sit indented under
+   * its title, past the chevron (`SectionHeader`'s `look`).
+   */
+  look?: 'heading' | 'row'
   /** The rows. */
   children: ReactNode
   /** On the section's box: `mt-2` between groups, `shrink-0` in a scrolling column. */
@@ -66,7 +72,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, look = 'heading', children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -76,7 +82,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
   }
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} showActions={showActions} className="shrink-0" render={<Collapsible.Trigger />} />
+      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame
@@ -87,7 +93,8 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
         hiddenUntilFound
         className="h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none data-[starting-style]:h-0 data-[ending-style]:h-0"
       >
-        <div className={cn('flex flex-col', contentClassName)}>{children}</div>
+        {/* A row's rows start under its title: the 16px chevron and its 8px gap (pl-6). */}
+        <div className={cn('flex flex-col', look === 'row' && 'pl-6', contentClassName)}>{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )

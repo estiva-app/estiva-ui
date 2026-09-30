@@ -1046,6 +1046,12 @@
           "note": null
         },
         {
+          "name": "look",
+          "takes": "heading | row",
+          "required": false,
+          "note": "`heading` (default): the title is a section heading."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -1070,6 +1076,13 @@
           "values": [
             "hover",
             "always"
+          ]
+        },
+        {
+          "prop": "look",
+          "values": [
+            "heading",
+            "row"
           ]
         }
       ],
@@ -3477,8 +3490,8 @@
       "docPage": "src/NavItem.mdx",
       "app": null,
       "looks": [
-        "rounded-md text-body-2 transition-colors bg-bg-active text-text-primary",
-        "rounded-md text-body-2 transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary",
+        "text-body-2 rounded-md transition-colors bg-bg-active text-text-primary",
+        "text-body-2 rounded-md transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "text-center font-mono text-caption tabular-nums text-text-muted",
         "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity"
       ]
@@ -4532,6 +4545,12 @@
           "note": "`fill` lights the row under the pointer when it does something (a toggle, actions); `none` keeps it still — a heading whose actions are always shown, where the buttons light up on their own (UIG-14, Katerina, 19 September)."
         },
         {
+          "name": "look",
+          "takes": "heading | quiet | row",
+          "required": false,
+          "note": "`heading` (default): a section's title, the `SectionLabel`."
+        },
+        {
           "name": "render",
           "takes": "useRender.RenderProp",
           "required": false,
@@ -4558,6 +4577,14 @@
             "fill",
             "none"
           ]
+        },
+        {
+          "prop": "look",
+          "values": [
+            "heading",
+            "quiet",
+            "row"
+          ]
         }
       ],
       "ownsBehaviours": [],
@@ -4568,7 +4595,9 @@
       "docPage": "src/SectionHeader.mdx",
       "app": null,
       "looks": [
-        "text-text-secondary transition-transform duration-150 rotate-90",
+        "transition-transform duration-150 text-text-secondary rotate-90",
+        "rounded-md transition-colors text-text-secondary hover:text-text-primary",
+        "rounded-md transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "-mr-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100",
         "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
       ]

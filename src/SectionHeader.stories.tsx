@@ -56,3 +56,18 @@ export const WithTrailing: Story = {
     actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
   },
 }
+
+/** `look="quiet"`: a small grey label over a list, with its action always on screen — "Folders" over the folders. The row never lights up; the button does. */
+export const Quiet: Story = {
+  args: {
+    title: 'Folders',
+    look: 'quiet',
+    showActions: 'always',
+    actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'New folder', onClick: () => {} }],
+  },
+}
+
+/** `look="row"`: a row among rows — the chevron and the title at a sidebar row's size and colour, brightening under the pointer. CollapsibleSection's `look="row"` draws this. */
+export const Row: Story = {
+  args: { title: 'Folder', look: 'row', chevron: true, isExpanded: true, onToggle: () => {} },
+}

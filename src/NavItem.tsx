@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { IconDotsVertical } from '@tabler/icons-react'
 import { cn } from './cn'
+import { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { WithTooltip } from './Tooltip'
@@ -41,7 +42,6 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
 
 export function NavItem({ label, href, count, countLabel, active = false, icon, menu, menuLabel, className, ...props }: NavItemProps) {
   const row = (
-    // @estiva-escape(no-copied-look): N5 (Katerina, 24 September: record only): a row that fills on hover, as PersonTrigger's row also does
     <a
       href={href}
       aria-current={active ? 'page' : undefined}
@@ -49,8 +49,9 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
         // shrink-0: the row keeps its 32px inside an overflowing flex column
         // — without it the list compresses instead of scrolling (the missing-
         // shrink-0 family; Katerina, 2026-09-02).
-        'flex h-8 min-w-0 shrink-0 items-center gap-2 rounded-md px-2 text-body-2 transition-colors',
-        active ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+        'flex h-8 min-w-0 shrink-0 items-center gap-2 px-2 text-body-2',
+        SIDEBAR_ROW_CLASSES,
+        active ? 'bg-bg-active text-text-primary' : cn(SIDEBAR_ROW_TEXT_CLASSES, 'hover:bg-bg-hover'),
         // With a menu the ⋮ sits beside the link, so the row keeps its hover
         // look while the ⋮ is pointed at and while its menu is open.
         menu != null && !active && 'group-hover/nav:bg-bg-hover group-hover/nav:text-text-primary group-has-[[aria-expanded=true]]/nav:bg-bg-hover group-has-[[aria-expanded=true]]/nav:text-text-primary',
