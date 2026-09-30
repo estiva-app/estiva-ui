@@ -56,7 +56,7 @@ export const WithMenuActive: Story = {
   args: { icon: placeholder, count: 6, countLabel: '6 open', menu: MENU, active: true },
 }
 
-/** No count: the ⋮ still appears in the same place. */
+/** No count: the ⋮ still appears in the same place, and a long label stops short of it. */
 export const WithMenuNoCount: Story = {
-  args: { icon: placeholder, menu: MENU },
+  args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, menu: MENU },
 }

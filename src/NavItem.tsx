@@ -76,6 +76,10 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
             {count}
           </span>
         </WithTooltip>
+      ) : menu != null ? (
+        // No count, but a menu: the count's place is kept free, so a long
+        // label truncates before the ⋮ instead of running under it.
+        <span aria-hidden="true" className="min-w-4 shrink-0" />
       ) : null}
     </a>
   )
