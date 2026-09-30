@@ -1,0 +1,242 @@
+import type { ComponentType } from 'react'
+import { Extension, Node } from '@tiptap/core'
+import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
+
+/*
+ * The four nodes an editor of a block document needs that a stock schema does
+ * not have (SPEC §13.3) — moved here from Ship's `editorSchema.tsx` (RIC-14,
+ * SHI-2) when Peek became the second editor of the same documents (MAN-9).
+ *
+ * They are one half of a pair. The other half is `@estiva-app/protocol`'s
+ * `toEditorDocument` / `fromEditorDocument`, which turn a stored document into
+ * the JSON these nodes read and back: the node names (`unknownBlock`,
+ * `reference`, `attachment`) and the `blockId` attribute are that translation's,
+ * and must not drift from it. This package does not import protocol, as
+ * `RichText` does not: the translation hands over everything a view draws.
+ *
+ * Everything else a document can contain is already a ProseMirror node of the
+ * same name — StarterKit's and TableKit's — which is why this file is short.
+ */
+
+/**
+ * The block types §13.3 puts an id on, as the editor's node names —
+ * protocol's `EDITOR_BLOCK_TYPES`, less `unknownBlock`, which declares its own.
+ */
+const BLOCK_TYPES = [
+  'paragraph',
+  'heading',
+  'bulletList',
+  'orderedList',
+  'listItem',
+  'blockquote',
+  'codeBlock',
+  'horizontalRule',
+  // A table and everything inside it (UIG-18): a row or a cell whose id was
+  // re-minted on each save would detach any comment anchored to it.
+  'table',
+  'tableRow',
+  'tableHeader',
+  'tableCell',
+  // Without this an attachment's id is re-minted on every save, and every
+  // comment anchored to it stops resolving.
+  'attachment',
+]
+
+/**
+ * `id` on every block, carried as the `blockId` attribute.
+ *
+ * A global attribute rather than one per node type, because §13.3 puts an id
+ * on **every** block and a type that quietly lacked one would mint a fresh id
+ * on every save — detaching each anchored comment on it (RFC 0.4 §6) with
+ * nothing on screen to say so.
+ *
+ * Rendered as `data-block-id`, which is what `RichText` already emits, so the
+ * reading and the editing surface address a block the same way.
+ */
+export const BlockId = Extension.create({
+  name: 'blockId',
+  addGlobalAttributes() {
+    return [
+      {
+        types: BLOCK_TYPES,
+        attributes: {
+          blockId: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute('data-block-id'),
+            renderHTML: (attributes: Record<string, unknown>) =>
+              attributes.blockId ? { 'data-block-id': String(attributes.blockId) } : {},
+          },
+        },
+      },
+    ]
+  },
+})
+
+/** What a reference's view is handed: the `nostr:` URI it stands for. */
+export interface ReferenceViewProps {
+  uri: string
+}
+
+export interface ReferenceNodeOptions {
+  /**
+   * Draws the reference as the thing it points at — the app's own chip, which
+   * knows how to resolve it. Without one, the URI is drawn as text.
+   */
+  view: ComponentType<ReferenceViewProps> | null
+}
+
+/**
+ * A `nostr:` reference, drawn as the thing it points at — SPEC §13.1.
+ *
+ * An **atom**: it has no editable interior, because its text is the URI and
+ * nobody edits half a `naddr`. Selecting it selects the whole reference, which
+ * is also how deleting one works. `marks` carries the run's other marks, so a
+ * bold reference comes back bold.
+ */
+export const ReferenceNode = Node.create<ReferenceNodeOptions>({
+  name: 'reference',
+  group: 'inline',
+  inline: true,
+  atom: true,
+  selectable: true,
+  draggable: false,
+  addOptions() {
+    return { view: null }
+  },
+  addAttributes() {
+    return {
+      uri: { default: '' },
+      marks: { default: [] as string[] },
+    }
+  },
+  parseHTML() {
+    return [{ tag: 'span[data-reference]' }]
+  },
+  renderHTML({ node }) {
+    // A copy to the clipboard as HTML, and the whole drawing when no view is given.
+    return ['span', { 'data-reference': String(node.attrs.uri) }, String(node.attrs.uri)]
+  },
+  addNodeView() {
+    const View = this.options.view
+    if (!View) return null
+    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => (
+      <NodeViewWrapper as="span" className="inline">
+        <View uri={String(node.attrs.uri ?? '')} />
+      </NodeViewWrapper>
+    ))
+  },
+})
+
+/**
+ * A block this editor has no design for, kept whole.
+ *
+ * §13.3: a reader MUST render an unknown block's inline text and MUST NOT drop
+ * it silently. **An editor is the dangerous case** — ProseMirror discards a
+ * node its schema does not know, and the save after that would delete somebody
+ * else's block with no error anywhere on the way. So the block's own JSON
+ * rides in `source`, and protocol's `fromEditorDocument` hands it back
+ * untouched; `text` is its inline text, worked out by `toEditorDocument`.
+ *
+ * Not editable, deliberately: an affordance that lets a person change
+ * something they cannot see is worse than one that says the content is there
+ * and belongs to another surface.
+ */
+export const UnknownBlock = Node.create({
+  name: 'unknownBlock',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  addAttributes() {
+    return {
+      blockId: { default: null },
+      source: { default: null },
+      text: { default: '' },
+    }
+  },
+  parseHTML() {
+    return [{ tag: 'div[data-unknown-block]' }]
+  },
+  renderHTML({ node }) {
+    return ['div', { 'data-unknown-block': String(node.attrs.blockId ?? '') }, String(node.attrs.text ?? '')]
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(UnknownBlockView)
+  },
+})
+
+function UnknownBlockView({ node }: ReactNodeViewProps) {
+  const source = node.attrs.source as { id?: string; type?: string } | null
+  const text = String(node.attrs.text ?? '')
+  return (
+    <NodeViewWrapper
+      data-block-id={source?.id}
+      data-block-type={source?.type}
+      className="rounded-md border border-border-default bg-bg-inset px-2 py-1 text-text-secondary"
+    >
+      {text || `A ${source?.type ?? 'block'} this app cannot edit yet.`}
+    </NodeViewWrapper>
+  )
+}
+
+/** What an attachment's view is handed: the block's `imeta` fields. */
+export interface AttachmentViewProps {
+  attrs: Record<string, unknown>
+}
+
+export interface AttachmentNodeOptions {
+  /** Draws the file — the app's own attachment card. Without one, its name is drawn as text. */
+  view: ComponentType<AttachmentViewProps> | null
+}
+
+/**
+ * A file placed in a document — SPEC §13.3's `attachment` block (SHI-2).
+ *
+ * An atom: the file is the block, there is nothing inside it to edit, and a
+ * caret that could sit "inside" an image is a way to produce documents no
+ * reader has a rule for. Selectable and deletable, so removing one is Backspace
+ * like anything else.
+ *
+ * Its attributes are the `imeta` fields exactly, because that is what §13.3
+ * specifies. Each is declared, and that is not boilerplate: ProseMirror **drops
+ * an attribute its schema does not name**, so an undeclared `thumb` would
+ * survive the editor and vanish on save — the silent deletion `UnknownBlock`
+ * exists to prevent.
+ */
+export const AttachmentNode = Node.create<AttachmentNodeOptions>({
+  name: 'attachment',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: false,
+  addOptions() {
+    return { view: null }
+  },
+  addAttributes() {
+    return {
+      url: { default: '' },
+      m: { default: '' },
+      x: { default: '' },
+      size: { default: 0 },
+      dim: { default: null },
+      thumb: { default: null },
+      alt: { default: null },
+      filename: { default: null },
+    }
+  },
+  parseHTML() {
+    return [{ tag: 'div[data-attachment-block]' }]
+  },
+  renderHTML({ node }) {
+    // A copy to the clipboard, and the whole drawing when no view is given.
+    return ['div', { 'data-attachment-block': String(node.attrs.x ?? '') }, String(node.attrs.filename ?? 'attachment')]
+  },
+  addNodeView() {
+    const View = this.options.view
+    if (!View) return null
+    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => (
+      <NodeViewWrapper className="my-2">
+        <View attrs={node.attrs} />
+      </NodeViewWrapper>
+    ))
+  },
+})

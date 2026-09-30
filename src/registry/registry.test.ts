@@ -25,6 +25,8 @@ import { SCHEMA_VERSION, validateRegistry, type Registry, type RegistryEntry } f
  */
 const root = process.cwd()
 const registry = buildRegistry({ root })
+/** Editor extensions: named like components by the catalogue, and not React components. */
+const EDITOR_EXTENSIONS = ['KeptSelection', 'BlockId', 'UnknownBlock', 'ReferenceNode', 'AttachmentNode']
 const entry = (name: string): RegistryEntry => {
   const found = registry.entries.find((candidate) => candidate.name === name)
   if (!found) throw new Error(`no entry for ${name}`)
@@ -46,19 +48,19 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 100 names over 63 files: 86 components, 13 helpers and 1 hook (the editor parts joined on 29 September, UIG-31)', () => {
+  it('counts 104 names over 64 files: 90 components, 13 helpers and 1 hook (the block nodes joined on 30 September, MAN-9)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
-    // KeptSelection counts as a component by its name; it is an editor extension,
-    // documented on SelectionToolbar's page.
+    // The five `EDITOR_EXTENSIONS` count as components by their names; they are
+    // editor extensions, documented on SelectionToolbar's and BlockNodes' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 86, helper: 13, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(63)
+    expect(kinds).toEqual({ component: 90, helper: 13, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(64)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
     expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(61)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(39)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(43)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -323,8 +325,8 @@ describe('a second parser agrees', async () => {
     }
 
     expect(differences).toEqual([])
-    // KeptSelection is named like a component and is an editor extension: nothing for docgen to read.
-    expect(seen).toBe(registry.entries.filter((one) => one.kind === 'component' && one.name !== 'KeptSelection').length)
+    // Named like components and are editor extensions: nothing for docgen to read.
+    expect(seen).toBe(registry.entries.filter((one) => one.kind === 'component' && !EDITOR_EXTENSIONS.includes(one.name)).length)
   })
 })
 

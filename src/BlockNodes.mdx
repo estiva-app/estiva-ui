@@ -1,0 +1,82 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as BlockNodesStories from './BlockNodes.stories'
+
+<Meta of={BlockNodesStories} />
+
+# BlockNodes
+
+The Tiptap nodes an editor of a block document needs beside StarterKit: an id
+on every block, a block it cannot edit kept whole, a reference, and a file.
+
+<Canvas of={BlockNodesStories.Default} />
+
+## When
+
+- **An editor that saves a block document** (SPEC §13.3) — anywhere a comment
+  can be anchored to one of its blocks. `BlockId` keeps each block's id across
+  every edit, so the anchor still finds its block after a save.
+- Always with `@estiva-app/protocol`'s `toEditorDocument` to load the document
+  and `fromEditorDocument` (or `publishableFromEditor`) to save it. The node
+  names and the `blockId` attribute are that translation's.
+
+## When not
+
+- Reading a document → **RichText**. Nothing here draws a document that is not
+  being edited.
+- A message composer that writes marker text. It has no block ids to keep.
+
+## How
+
+```tsx
+import type { JSONContent } from '@tiptap/core'
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import {
+  AttachmentNode,
+  BlockId,
+  ReferenceNode,
+  UnknownBlock,
+  type AttachmentViewProps,
+  type ReferenceViewProps,
+} from '@estiva-app/ui/editor'
+
+// toEditorDocument(documentForEditing(value, format)), from @estiva-app/protocol
+const opened: JSONContent = { type: 'doc', content: [] }
+
+const Reference = ({ uri }: ReferenceViewProps) => <span>{uri}</span>
+const File = ({ attrs }: AttachmentViewProps) => <span>{String(attrs.filename)}</span>
+
+const editor = useEditor({
+  extensions: [
+    StarterKit,
+    BlockId,
+    UnknownBlock,
+    ReferenceNode.configure({ view: Reference }),
+    AttachmentNode.configure({ view: File }),
+  ],
+  content: opened,
+})
+
+<EditorContent editor={editor} />
+```
+
+- **Load and save through protocol.** `toEditorDocument(documentForEditing(value, format))`
+  opens the stored value; `publishableFromEditor(editor.getJSON())` is what a
+  save writes, with its `contentFormat`.
+- **Add TableKit** (`@tiptap/extension-table`) beside StarterKit. The
+  translation opens a table as `table`, `tableRow`, `tableHeader` and
+  `tableCell` nodes, and ProseMirror drops a node its schema does not have —
+  the save would delete the table.
+- `ReferenceNode`'s `view` gets the `uri` and draws the thing it points at,
+  resolved by the app. Without one, the URI is drawn as text.
+- `AttachmentNode`'s `view` gets the block's `imeta` fields as `attrs`.
+  Without one, the file's name is drawn as text.
+- `UnknownBlock` draws a block the editor has no design for as its text, in a
+  box. It cannot be changed here, only moved or deleted, and it is saved back
+  exactly as it arrived.
+
+<Canvas of={BlockNodesStories.WithoutViews} />
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
