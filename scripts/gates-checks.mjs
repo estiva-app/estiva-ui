@@ -53,6 +53,7 @@ const all = [
   { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
   { ref: "UIG-40", owner: "estiva-ui", parts: ["peek"], title: "Launcher leftovers — the chip in the composer and the Make card" },
   { ref: "UIG-42", owner: "estiva-ui", parts: PEEK_SHIP, title: "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check" },
+  { ref: "UIG-44", owner: "estiva-ui", parts: ["ship"], title: "NavItem: an actions slot for a row menu (Ship sidebar overlays one today)" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -412,6 +413,16 @@ export default function define(h) {
       { what: "a class behind an arbitrary variant is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className=\"group-hover/row:bg-gray-100\">x</div>\n}\n", expect: "error" }) },
       { what: "a class list joined by hand is read", run: () => h.lint({ config: "eslint.config.js", file: PROBE, code: "export function Probe() {\n  return <div className={['text-sm', 'p-2'].join(' ')}>x</div>\n}\n", expect: "error" }) },
       { what: "a box that centres a page EmptyState is an error in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "import { EmptyState } from './EmptyState'\nexport function Probe() {\n  return <div className=\"flex items-center justify-center\"><EmptyState message=\"Nothing here\" /></div>\n}\n", expect: "error", mentions: "page-scope EmptyState" }) },
+    ] },
+    // Built 30 September (0.46.0): the row's own menu, a vertical ⋮ in the count's place (Katerina).
+    { ref: "UIG-44", owner: true, checks: [
+      { what: "a sidebar row takes a menu: NavItem's menu", run: () => h.contains("src/NavItem.tsx", /\n  menu\?: ReactNode/, "NavItem takes `menu`") },
+      { what: "Ship's sidebar lays nothing over its rows", run: () => {
+        const dir = (process.env.GATES_SHIP ?? "../ship").replace(/[\\/]+$/, "");
+        if (!h.exists(`${dir}/package.json`)) return h.UNKNOWN(`Ship is not at ${dir}`);
+        const t = h.read(`${dir}/src/components/Sidebar.tsx`);
+        return /group\/row|absolute inset-y-0/.test(t) ? h.FAIL("Ship's Sidebar.tsx still positions a menu over its rows") : h.PASS("Ship's Sidebar.tsx gives each row NavItem's menu");
+      } },
     ] },
     // UIG-35 closed on 21 September and left no record at all: the status script
     // did not carry the ticket, so nothing read its code back. These do. Both

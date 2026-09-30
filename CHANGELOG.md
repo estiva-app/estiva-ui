@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.46.0 — 2026-09-30 — Ship's blue reads as text, and a sidebar row's own menu
+
+### Added
+
+- **`NavItem` `menu`** (UIG-44): the row's "More options" menu. Pass the
+  `MenuItem`s; the row draws a vertical ⋮ beside its link, shows it while the
+  row is pointed at, focused or its menu is open, fades the count under it, and
+  keeps the row's hover look while the ⋮ is used. With no count, the count's
+  place is kept so a long label stops before the ⋮. `menuLabel` names it
+  (default "More options for {label}"). Without `menu` the row is unchanged.
+- **The token `--accent-text`**, the accent as text, in every theme. Brand
+  `Chip`, a person `InlineChip`, your `Reaction` and the palette's hint number
+  draw with it.
+
+### Changed
+
+- **Ship's theme only**: the blue as text is lighter (`--accent-text` #9ca3e7,
+  `--info-default` #94a9f0; 2.7:1 → 6.6:1 on a tag, 4.0:1 → 6.9:1 on an info
+  banner), and the fills behind them (`--accent-muted`, `--info-muted`) are the
+  neutral grey instead of navy. Buttons keep #4b58d4. Other themes draw exactly
+  as before.
+
 ## 0.45.0 — 2026-09-29 — The editor menus: one list for / and @, and the selection toolbar
 
 ### Added
