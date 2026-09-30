@@ -48,7 +48,8 @@ await build({
  * turns every relative import that is not one of the editor's own files into
  * `@estiva-app/ui`, which every one of them is exported from.
  */
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup'])
+// The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',

@@ -9,3 +9,13 @@
  */
 export { KeptSelection, SelectionToolbar, normalizeHref, type MarkId, type SelectionToolbarProps } from './SelectionToolbar'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
+export {
+  BlockId,
+  UnknownBlock,
+  ReferenceNode,
+  AttachmentNode,
+  type ReferenceNodeOptions,
+  type ReferenceViewProps,
+  type AttachmentNodeOptions,
+  type AttachmentViewProps,
+} from './BlockNodes'

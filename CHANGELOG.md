@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.48.0 — 2026-09-30 — The block nodes, in the editor corner
+
+### Added
+
+- **`BlockId`, `UnknownBlock`, `ReferenceNode`, `AttachmentNode`** in
+  `@estiva-app/ui/editor` (MAN-9): the Tiptap nodes an editor of a SPEC §13.3
+  block document needs beside StarterKit and TableKit — an id on every block
+  as `blockId` (drawn as `data-block-id`, as `RichText` does), a block the
+  editor has no design for kept whole, a `nostr:` reference as an atom, and a
+  file with every `imeta` field declared. The reference and the file take the
+  app's own view through `configure({ view })`, and draw as text without one.
+  Moved from Ship's `src/components/ui/editorSchema.tsx` (RIC-14, SHI-2):
+  Peek edits Ship's descriptions from a card, and an editor without these
+  re-mints every block id on save and detaches each anchored comment. They
+  pair with `@estiva-app/protocol` 0.26.0's `toEditorDocument` /
+  `fromEditorDocument`; this package still does not depend on protocol.
+  Nothing existing changed.
+
+
 ## 0.47.0 — 2026-09-30 — The close: the status tool knows the next phase, and reads what CI reads
 
 ### Added
