@@ -832,14 +832,14 @@
       "docPage": "src/Chip.mdx",
       "app": null,
       "looks": [
-        "bg-accent-muted text-accent-primary signal:border signal:border-accent-outline",
+        "bg-accent-muted text-accent-text signal:border signal:border-accent-outline",
         "bg-info-muted text-info-default signal:border signal:border-info-outline",
         "bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
         "bg-success-muted text-success-default signal:border signal:border-success-outline",
         "bg-error-muted text-error-default signal:border signal:border-error-outline",
         "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums",
         "overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide",
-        "rounded-full bg-accent-muted text-accent-primary signal:border signal:border-accent-outline",
+        "rounded-full bg-accent-muted text-accent-text signal:border signal:border-accent-outline",
         "rounded-full bg-info-muted text-info-default signal:border signal:border-info-outline",
         "rounded-full bg-warning-muted text-warning-default signal:border signal:border-warning-outline signal:shadow-glow-warning",
         "rounded-full bg-success-muted text-success-default signal:border signal:border-success-outline",
@@ -3450,6 +3450,18 @@
           "note": "16px, stroke 1.5."
         },
         {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The row's \"More options\" menu: `MenuItem`s."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name and tooltip. Default \"More options for {label}\"."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3467,7 +3479,8 @@
       "looks": [
         "rounded-md text-body-2 transition-colors bg-bg-active text-text-primary",
         "rounded-md text-body-2 transition-colors text-text-secondary hover:bg-bg-hover hover:text-text-primary",
-        "text-center font-mono text-caption tabular-nums text-text-muted"
+        "text-center font-mono text-caption tabular-nums text-text-muted",
+        "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity"
       ]
     },
     {
@@ -4186,9 +4199,9 @@
       "docPage": "src/Reaction.mdx",
       "app": null,
       "looks": [
-        "rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary",
+        "rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-accent-primary bg-accent-muted text-accent-text hover:border-accent-hover ship:text-text-primary",
         "rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-50 border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover",
-        "border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary",
+        "border-accent-primary bg-accent-muted text-accent-text hover:border-accent-hover ship:text-text-primary",
         "border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover",
         "text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums"
       ]

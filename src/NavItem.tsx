@@ -1,5 +1,8 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { IconDotsVertical } from '@tabler/icons-react'
 import { cn } from './cn'
+import { IconButton } from './IconButton'
+import { Menu } from './Menu'
 import { WithTooltip } from './Tooltip'
 
 /**
@@ -12,6 +15,12 @@ import { WithTooltip } from './Tooltip'
  * count draws its zero (see Tabs) — both rulings stand, deliberately.
  *
  * Active is the same fill as a selected tab — `bg-active`, neutral.
+ *
+ * `menu` gives the row a "More options" menu (UIG-44, Katerina, 30
+ * September): a ⋮ that shows while the row is pointed at, focused or its
+ * menu is open, in the count's place — the count steps aside rather than
+ * sitting under it. The ⋮ is beside the link, not inside it (a button inside
+ * an anchor is not a button), and follows it in the Tab order.
  */
 export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'> {
   label: string
@@ -23,11 +32,15 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   active?: boolean
   /** 16px, stroke 1.5. */
   icon?: ReactNode
+  /** The row's "More options" menu: `MenuItem`s. Absent, the row has no menu and is exactly the plain row. */
+  menu?: ReactNode
+  /** The ⋮'s accessible name and tooltip. Default "More options for {label}". */
+  menuLabel?: string
   className?: string
 }
 
-export function NavItem({ label, href, count, countLabel, active = false, icon, className, ...props }: NavItemProps) {
-  return (
+export function NavItem({ label, href, count, countLabel, active = false, icon, menu, menuLabel, className, ...props }: NavItemProps) {
+  const row = (
     // @estiva-escape(no-copied-look): N5 (Katerina, 24 September: record only): a row that fills on hover, as PersonTrigger's row also does
     <a
       href={href}
@@ -38,6 +51,9 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
         // shrink-0 family; Katerina, 2026-09-02).
         'flex h-8 min-w-0 shrink-0 items-center gap-2 rounded-md px-2 text-body-2 transition-colors',
         active ? 'bg-bg-active text-text-primary' : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+        // With a menu the ⋮ sits beside the link, so the row keeps its hover
+        // look while the ⋮ is pointed at and while its menu is open.
+        menu != null && !active && 'group-hover/nav:bg-bg-hover group-hover/nav:text-text-primary group-has-[[aria-expanded=true]]/nav:bg-bg-hover group-has-[[aria-expanded=true]]/nav:text-text-primary',
         className,
       )}
       {...props}
@@ -50,9 +66,38 @@ export function NavItem({ label, href, count, countLabel, active = false, icon, 
               here sits on the same axis as a SectionHeader's action above it
               — right edges alone left a digit 4px off a 16px icon (Katerina,
               2026-09-09). A three-digit count grows the box leftwards. */}
-          <span className="min-w-4 shrink-0 text-center font-mono text-caption tabular-nums text-text-muted">{count}</span>
+          <span
+            className={cn(
+              'min-w-4 shrink-0 text-center font-mono text-caption tabular-nums text-text-muted',
+              // With a menu, the ⋮ takes this place while it shows.
+              menu != null && 'transition-opacity group-hover/nav:opacity-0 group-focus-within/nav:opacity-0 group-has-[[aria-expanded=true]]/nav:opacity-0',
+            )}
+          >
+            {count}
+          </span>
         </WithTooltip>
       ) : null}
     </a>
+  )
+  if (menu == null) return row
+  const name = menuLabel ?? `More options for ${label}`
+  return (
+    <div className="group/nav relative shrink-0">
+      {row}
+      {/* `right-1`: the 24px button's 16px icon then ends 8px from the row's
+          edge, where the count ends (px-2), so the ⋮ lands on the number. */}
+      <div className="absolute inset-y-0 right-1 flex items-center opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100">
+        <Menu
+          align="right"
+          trigger={
+            <IconButton tooltip="More options" aria-label={name}>
+              <IconDotsVertical size={16} stroke={1.5} />
+            </IconButton>
+          }
+        >
+          {menu}
+        </Menu>
+      </div>
+    </div>
   )
 }
