@@ -10,6 +10,12 @@
   keeps the row's hover look while the ⋮ is used. With no count, the count's
   place is kept so a long label stops before the ⋮. `menuLabel` names it
   (default "More options for {label}"). Without `menu` the row is unchanged.
+- **`SectionHeader` `look`** and **`CollapsibleSection` `look`**: `quiet`, a
+  small grey label over a list with its action held on screen ("Folders", with
+  its +); `row`, a fold that is a row among rows (a folder in a sidebar), its
+  title at a row's size and colour and its rows indented under it. Katerina's
+  pick from Leaf's vision sidebar (30 September). The row's look is NavItem's,
+  written once in `looks.ts`.
 - **The token `--accent-text`**, the accent as text, in every theme. Brand
   `Chip`, a person `InlineChip`, your `Reaction` and the palette's hint number
   draw with it.
