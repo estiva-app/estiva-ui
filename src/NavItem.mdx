@@ -22,6 +22,12 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.ZeroDrawsNothing} />
 
+- A row with things to do to it — move it, rename it — takes them as
+  `menu`: pass `MenuItem`s, and the row draws the ⋮, shows it while the row
+  is pointed at or focused, and moves the count aside for it.
+
+<Canvas of={NavItemStories.WithMenu} />
+
 ## When not
 
 - An icon rail's tile → **RailItem**.
@@ -47,6 +53,8 @@ import { NavItem } from '@estiva-app/ui'
   `active` from the location, intercept the click, navigate — every
   anchor prop passes through.
 - The label truncates; the count never gives up its width.
+- `menu` is the items only: `menu={<MenuItem label="Move to Folder…" onClick={move} />}`.
+  The ⋮'s name is `More options for {label}` unless `menuLabel` says otherwise.
 
 - A row is 32px tall, 8px in on each side, 8px between the icon and the label,
   the label 14px regular, 6px corners.
@@ -59,6 +67,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Marks the current place for assistive technology when `active` | `aria-current` |  |
 | Keeps its 32px in a scrolling column | `shrink-0` |  |
+| Shows a ⋮ over the count while pointed at, focused or open, and keeps the row's hover look under it | a positioned `IconButton` + `Menu` over the row, `group-hover` reveals |  |
 
 ## Props
 

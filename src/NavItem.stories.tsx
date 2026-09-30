@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
+import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
@@ -36,4 +37,26 @@ export const ZeroDrawsNothing: Story = {
 /** The label gives way; the count never does. */
 export const LongLabelTruncates: Story = {
   args: { label: 'An item whose label runs much longer than the column has room for', count: 7, countLabel: '7 open' },
+}
+
+const MENU = (
+  <>
+    <MenuItem label="Action one" onClick={() => {}} />
+    <MenuItem label="Action two" onClick={() => {}} />
+  </>
+)
+
+/** A row with a menu: point at it (or Tab to it) and a ⋮ takes the count's place; the count comes back when you leave. */
+export const WithMenu: Story = {
+  args: { icon: placeholder, count: 6, countLabel: '6 open', menu: MENU },
+}
+
+/** The active row keeps its fill; the ⋮ sits on it the same way. */
+export const WithMenuActive: Story = {
+  args: { icon: placeholder, count: 6, countLabel: '6 open', menu: MENU, active: true },
+}
+
+/** No count: the ⋮ still appears in the same place, and a long label stops short of it. */
+export const WithMenuNoCount: Story = {
+  args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, menu: MENU },
 }

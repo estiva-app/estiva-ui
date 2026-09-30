@@ -48,6 +48,9 @@
   --accent-primary: #8B5CF6;
   --accent-hover:   #7C3AED;
   --accent-muted:   #EDE9FE;
+  /* The accent as TEXT: a tag's words, a mention. The accent itself unless a
+     theme's accent is too dark to read as text on its own ground (ship). */
+  --accent-text:    #8B5CF6;
   --text-interactive: #8B5CF6;
 
   /* semantic */
@@ -129,6 +132,7 @@
   --accent-primary: #A78BFA;
   --accent-hover:   #8B5CF6;
   --accent-muted:   #2E2554;
+  --accent-text:    #A78BFA; /* the accent as text: the accent itself */
   --text-interactive: #A78BFA;
 
   /* semantic */
@@ -213,6 +217,7 @@
   --accent-primary: #56c8ff;
   --accent-hover:   #8ad6ff;
   --accent-muted:   rgba(86, 200, 255, 0.11);
+  --accent-text:    #56c8ff; /* the accent as text: the accent itself */
   --text-interactive: #8ad6ff;
 
   /* semantic (amber is the attention color) */
@@ -303,12 +308,21 @@
   /* accent — blue with a touch of purple; light text on it reads at 4.9:1 */
   --accent-primary: #4b58d4;
   --accent-hover:   #5c69dc;
-  --accent-muted:   #1c2144;
-  --text-interactive: #4b58d4;
+  /* Grey, not navy (Katerina, 30 September): the navy behind a tag, a
+     mention, a reaction and an info banner was hard to look at. The blue is
+     only the words now — the same grey a neutral tag sits on. */
+  --accent-muted:   var(--bg-inset);
+  /* The accent as text: #4b58d4 read at 2.7:1 on a tag and 3.1:1 on the
+     page. This reads at 6.6:1 on a tag (Katerina's pick, "2", 30 September). */
+  --accent-text:    #9ca3e7;
+  --text-interactive: #9ca3e7;
 
   /* semantic */
-  --info-default:    #5b7be8;
-  --info-muted:      #1a2342;
+  /* Info is only ever text and a small icon (a link, an info banner, an info
+     tag, Ship's In Progress icon): lightened with the accent, 4.0:1 → 6.9:1
+     on its banner. */
+  --info-default:    #94a9f0;
+  --info-muted:      var(--bg-inset);
   --warning-default: #e0b04a;
   --warning-muted:   #3a2f14;
   --success-default: #46c08a;
@@ -398,6 +412,7 @@
   --accent-primary: #5e69d1; /* --focus-ring-color, the selection's colour */
   --accent-hover:   #6b75df; /* not named in Linear's set: the indigo beside it in the app's own values */
   --accent-muted:   #EDE9FE; /* light */
+  --accent-text:    #5e69d1; /* the accent as text: the accent itself */
 
   /* semantic — light, until Linear's are read */
   --info-default:    #3B82F6;

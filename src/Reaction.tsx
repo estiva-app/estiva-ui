@@ -81,7 +81,7 @@ export function Reaction({ emoji, count, pressed = false, className, ...props }:
                (Katerina, 2026-09-08). The number reads in the text colour
                there; the accent keeps the edge and the fill. Signal keeps
                Peek's blue-on-wash, which reads. */
-            'border-accent-primary bg-accent-muted text-accent-primary hover:border-accent-hover ship:text-text-primary'
+            'border-accent-primary bg-accent-muted text-accent-text hover:border-accent-hover ship:text-text-primary'
           : 'border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover',
         className,
       )}

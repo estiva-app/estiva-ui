@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { IconChevronRight } from '@tabler/icons-react'
 import { useRender } from '@base-ui/react/use-render'
 import { cn } from './cn'
+import { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { SectionLabel } from './SectionLabel'
 
@@ -66,6 +67,14 @@ export interface SectionHeaderProps {
    */
   hover?: 'fill' | 'none'
   /**
+   * `heading` (default): a section's title, the `SectionLabel`. `quiet`: a
+   * small grey label over a list (12px, muted) — "Folders" over the folders,
+   * which never reads as one of them. `row`: a row among rows — the chevron
+   * and the title at a row's weight and colour, as a sidebar row is (Katerina,
+   * 30 September: Leaf's folders, in Ship).
+   */
+  look?: 'heading' | 'quiet' | 'row'
+  /**
    * What the title renders as, in Base UI's manner. A plain button with
    * `onToggle` by default; `CollapsibleSection` hands in `Collapsible.Trigger`.
    */
@@ -73,24 +82,32 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', hover = 'fill', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
+  const row = look === 'row'
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
       // `text-left`: a button centres its text. `h-full` and `flex-1`: the
       // whole row up to the actions is the hit target, as it was when the
       // row itself carried the click.
-      className: 'flex h-full min-w-0 flex-1 items-center gap-1 text-left',
+      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row ? 'gap-2' : 'gap-1'),
       children: (
         <>
           {chevron && (
             <IconChevronRight
-              size={12}
+              size={row ? 16 : 12}
               stroke={1.5}
-              className={cn('shrink-0 text-text-secondary transition-transform duration-150', isExpanded && 'rotate-90')}
+              className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
             />
           )}
-          <SectionLabel>{title}</SectionLabel>
+          {look === 'quiet' ? (
+            <span className="min-w-0 truncate text-caption text-text-muted">{title}</span>
+          ) : row ? (
+            // A row's words: NavItem's size and colour, brightening under the pointer with the row.
+            <span className="min-w-0 flex-1 truncate text-body-2">{title}</span>
+          ) : (
+            <SectionLabel>{title}</SectionLabel>
+          )}
         </>
       ),
     },
@@ -99,11 +116,15 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
   return (
     <div
       className={cn(
-        'group flex h-[32px] shrink-0 items-center gap-1 rounded-lg px-2 transition-colors',
+        'group flex h-[32px] shrink-0 items-center gap-1 px-2',
+        !row && 'transition-colors',
+        // A row is NavItem's shape and colour: 6px corners, secondary words that brighten on hover.
+        row ? cn(SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES) : 'rounded-lg',
         // The fill says "this does something": a row with a toggle or actions
         // lights up, a fixed heading over rows does not (2026-09-09, the
         // Sidebar's fixed group).
-        hover === 'fill' && (chevron || (actions && actions.length > 0)) && 'hover:bg-bg-hover',
+        // A quiet label never lights up: it is a label; its button does.
+        hover === 'fill' && look !== 'quiet' && (chevron || (actions && actions.length > 0)) && 'hover:bg-bg-hover',
         className,
       )}
     >

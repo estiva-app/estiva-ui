@@ -42,3 +42,8 @@ export const WithTrailing: Story = {
 /** Close it and reload the page: still closed. This browser remembers, under the key. */
 export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.collapsible-section' } }
 
+
+/** `look="row"`: a fold that is a row among rows — a folder in a sidebar. The title at a row's weight, the rows indented under it, past the chevron. */
+export const AsARow: Story = {
+  args: { title: 'Folder', look: 'row' },
+}
