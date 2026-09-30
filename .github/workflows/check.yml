@@ -43,6 +43,13 @@ jobs:
       - name: The registry is current and valid
         run: npm run registry:check
 
+      # The tests import `src`, so a built entry that names an export another
+      # bundle does not have links fine there and throws in the app (MAN-9:
+      # `dist/editor.js` took the block nodes from `@estiva-app/ui`, which has
+      # none). Loading the built entries is the check the app would make.
+      - name: The built entries load
+        run: node --input-type=module -e "await import('./dist/index.js'); await import('./dist/editor.js')"
+
       # The published entry point must not drag React in. Bundling a peer would
       # put a second React in a consuming app, which breaks hooks at runtime and
       # is invisible at build time.
