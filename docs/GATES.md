@@ -18,6 +18,8 @@ answer
 
 ## §0 Where we are
 
+**30 September 2026, evening. UIG-26 is done, and with it UI Guardrails: a new app is born passing every gate, Leaf has every rule written after it started, and what is left has a name in the next phase.** estiva-ui PR #124 (merge `3e4d07b`, tag `v0.47.0`), ship PR #216 (merge `ccd91e3`), leaf PR #8 (merge `a08ebcd`), and this record's PR. Katerina's words: "merge them yourself", "let the apps have them now". **Her ruling, 30 September:** UIG-34, 39, 41, 43, 44, 45, 46 and 47 move to the next phase, and UIG-26 runs without them. UIG-44 was built the same day in another session (0.46.0, ship #218), so it counts as done and not as next phase; the other seven read ⏭. **0.47.0** holds what UIG-26 found in the gates: `gates:status` read six of Peek's usage pages as broken that CI passed (it knew only the app's own parts; `nameableParts` is now the one copy); a ticket can be moved to the next phase (`later`); Leaf was never named on the rows an app checks (24 ownership warnings); UIG-35's check expected four themes (Leaf's made five); UIG-38 still expected the table rule it closed without; table R missed four pages; a made app's UIG-33 row had no title; the skill's Gotchas were brought up to date (R21). **Ship #216:** its two archive pages named a Storybook title instead of their stories file, so UIG-18 read 5 of 6. Peek and Ship took 0.47.0 inside 0.48.0 (another session's MAN-9 release, the same afternoon); Leaf took 0.48.0 in #8. **Releases are staged by npm now:** 0.46.0 waited for `estiva-admin` to approve it; 0.47.0's release run passed at the same point, and it was live on npm when checked at 20:25 UTC. This record does not know who approved it. The whole close, with its arithmetic, is **The close (UIG-26)** below; what is left is **What the next phase picks up**.
+
 **30 September 2026. UIG-44 is done, and Ship is on 0.46.0.** estiva-ui PR #123 (merge `b5bb850`, tag `v0.46.0`) and ship PR #218 (merge `7eb8a9a`), merged at Katerina's word ("merge and release yourself", "merge the pr once done"). **Ship:** the blue reads (tags, mentions, links, the info banner on grey); the archived notice is a quiet grey box with the reason inside (her option C); the sidebar is Leaf's folders — a quiet "Folders" label whose + makes a Folder, each folder a row with its projects indented under it, each project row's ⋮ its own. Five stories in the centred layout had shrunk to their words; they are padded. The two escapes of the redesign name UIG-46 and UIG-47. **The release was held by npm:** the job publishes through trusted publishing (OIDC, no token), and since September npm lets a trusted-publisher entry allow staging only, publishing directly, or both; ours allowed staging only, so 0.46.0 was *staged* until a maintainer (`estiva-admin`) approved it with 2FA on npmjs.com — a re-run said `E409 Cannot publish over previously staged version`. It was approved and went live at 13:49. (An earlier line here blamed npm's rule on 2FA-bypass tokens; that was wrong — the job has no token.) Every release now waits for that approval, unless `estiva-admin` also allows `npm publish` in the package's trusted-publisher settings. `gates:status`: UIG-44 2 of 2.
 
 **30 September 2026. UIG-44, the package's half, and Ship's blue as text (0.46.0).** Katerina's list for Ship: the archived banner, the blue parts too faint to read, the row ⋯ drawn over the count, and where New folder goes (parked, her word). **`NavItem` takes `menu`**: the items only; the row draws a vertical ⋮ (her ruling: every ⋮ in Peek and Ship is vertical), shows it while pointed at, focused or open, fades the count under it, keeps its hover look and bright label while the ⋮ is used, and keeps the count's place when there is no count so a long label stops before the ⋮ (found by photo in Ship). Measured: the ⋮ ends where the count ends. **Ship's blue**: a new token `--accent-text`, the accent as text, set in every theme to its own accent except ship, whose #4b58d4 read at 2.7:1 on a tag. Ship's text blue #9ca3e7 and info blue #94a9f0 (her pick 2 of 3), on the neutral grey instead of navy ("hard to look at"; her pick 1 of 3): 6.6:1 and 6.9:1. Buttons keep their blue; Peek and Leaf draw as before. Proposals and picks in Storybook (options for the blue, the fill, the archived notice, and five places for New folder, researched on Mobbin); she reviewed both Storybooks: "all good". Then New folder, unparked: Leaf's vision sidebar (a quiet "Folders" label with its +, the folders as rows) was her pick, so `SectionHeader` and `CollapsibleSection` take `look` (`quiet`, `row`), and NavItem's row look is written once (its no-copied-look escape retired, 18 → 17). Next: Ship takes 0.46.0 with the archived notice as a quiet grey box (her option C) and its sidebar on `NavItem`'s menu, which completes UIG-44. New tickets from the Ship redesign: UIG-46 (the writing box into the package) and UIG-47 (looks the parts lack, first a pressed Button).
@@ -237,7 +239,7 @@ Applied: twelve headings, down from a heading count that hid four holding one en
 | ✅ **UIG-18** | ship PR #170 (merge `643823e`): fourteen usage pages, five new stories, tables, and the seven Ship/Peek pairs. `gates:status` 6 of 6. |
 | ✅ **UIG-19** | estiva-ui PR #77 (0.27.0), peek PR #321, ship PR #174: the usage-page contract, the story links and what a story never shows, all in `estiva-ui check`, proved to block a merge in each repo. `gates:status` 9 of 9. |
 | ✅ **UIG-20** | estiva-ui PR #81 (0.29.0), peek PR #326, ship PR #176: the skill runs `estiva-ui find` unasked, in any repo and from `K:\Estiva`. `gates:status` 17 of 17. |
-| ⬜ **UIG-26** | The close. Waits for every other ticket, her ruling of 25 September (§0); UIG-11 (Leaf) is done, 30 September. Its baseline is remade from 0.21.0 and 0.23.0 when it runs. `gates:status` 0 of 1. |
+| ✅ **UIG-26** | estiva-ui PR #124 (0.47.0, merge `3e4d07b`), ship PR #216 (`ccd91e3`), leaf PR #8 (`a08ebcd`), and this record. Baselines remade from 0.21.0 and 0.23.0; a fresh app from 0.48.0 passes every gate on its first commit; Leaf on 0.48.0 at zero; the Gotchas current (R21); the close and the next phase's list are **The close (UIG-26)** and **What the next phase picks up**, above. |
 | ✅ **UIG-35** | estiva-ui PR #73 (0.26.0), peek PR #273, ship PR #166: `Lightbox`, and the attachment card that fetches, opens and saves by itself. `gates:status` 8 of 8. |
 | ✅ **UIG-36** | estiva-id PR #67 (merge `1ece1f3`), peek PR #314 (merge `1654fa0`): Estiva ID's own Storybook on :6009, Peek's shows Peek only. `gates:status` 3 of 3. |
 | ✅ **UIG-38** | New, 23 September, found in UIG-21: the gate misses a hand-drawn `<table>` and an Escape handled by hand on one element. Her rulings, 25 September: the Escape is **allowed**; tables are for later. **Done 29 September, closed with no code** (her yes): an Escape in a field is allowed by design, and a rule on `<table>` waits for a package `Table` part, which is on the next phase's list. |
@@ -250,6 +252,137 @@ Applied: twelve headings, down from a heading count that hid four holding one en
 | ⏭ **UIG-45** | `ArchiveDialog` and `ArchivedNotice` live in Peek and in Ship; move them into estiva-ui. **Next phase** (Katerina, 30 September). |
 | ⏭ **UIG-46** | New, 30 September: Peek's writing box and Ship's copy of it become one package part. Ship's copy is escaped with the ticket's name. **Next phase** (Katerina, 30 September). |
 | ⏭ **UIG-47** | New, 30 September: looks the parts lack, collected as they are found; first a `pressed` Button (Ship's replies button, escaped with the ticket's name). **Next phase** (Katerina, 30 September). |
+
+### The close (UIG-26)
+
+Everything here was measured on 30 September 2026, on estiva-ui main `a748f77` (0.48.0), Peek `3c4b799`, Ship `c87f2e0` and Leaf `a08ebcd`, each a fresh worktree with `npm ci`. Nothing is carried forward from an earlier count. The made apps are kept in `K:\Estiva\reviews\uig26\` (outside every repo).
+
+**1. The baseline, remade.** `create-estiva-app starter --title Starter` from npm, in a clean `node:24` container, from **0.21.0** (UIG-10, 33 files) and **0.23.0** (its reopening, 36 files). One thing a remade baseline cannot give back: `@estiva-app/protocol`, `platform`, `interop` and `identity` are asked of npm when an app is made, so both carry today's versions of those, not September's.
+
+**2. The difference, 0.23.0 → 0.45.0 → 0.48.0, and no gate text in it.** From 0.23.0 to 0.45.0, 11 files differ and one is new (37 files). Every change moves text *into* the package or points at it:
+
+| file | what changed |
+|---|---|
+| `eslint.tokens.config.js` | 12 lines of token-lint wiring became one import: `tokenConfig()` (UIG-37) |
+| `.github/workflows/deploy.yml` | the job `gate` runs `npx estiva-gates ci`, the same command as Peek and Ship, in place of two steps written into the app |
+| `.claude/skills/estiva-ui/SKILL.md` (new) | 8 lines: a loader that reads the installed package's skill text (UIG-20). The text is not copied |
+| `.claude/settings.json` | lets a session run `ui:find` unasked (UIG-20) |
+| `CLAUDE.md`, `eslint.gates.config.js` | the escape names its rule, `@estiva-escape(<rule>)`; `CLAUDE.md` no longer lists the rules, it points at the skill (B16) |
+| `docs/GATES-DEBT.md` | escapes are listed by `gates:status`, not by hand (B1); a section for folders the gate skips (B13) |
+| `.storybook/preview.tsx` | every story file gets a Docs page (`autodocs`), so the catalogue's links lead somewhere |
+| `README.md` | the command table names `npx estiva-gates ci` |
+| `.gates-count.json` | four more rules, all at zero (UIG-22 to UIG-25) |
+| `package.json` | the package's version |
+
+From 0.45.0 to 0.48.0, two files differ: the package's version and the count file's timestamp.
+
+**3. A fresh app from the current package passes every gate on its first commit.** Made from **0.48.0** in `node:24`, installed there, first commit `c5a84d8`, unedited: `npx estiva-gates ci` passes, `typecheck`, 4 tests and `build` pass, and nothing is left changed. Made from 0.45.0 earlier the same day (`e09f98c`): the same.
+
+**4. Reconciliation 1: the same gate checks as Peek and Ship, with nothing missing.** Each app's `gates:status`, rows and checks passed:
+
+| ticket | fresh app (0.48.0) | Leaf | Peek | Ship |
+|---|---|---|---|---|
+| UIG-2 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-3 (Ship: UIG-4, the same chain) | 9/9 | 9/9 | 9/9 | 9/9 |
+| UIG-6 | ❔ 1/2 | 2/2 | 2/2 | 2/2 |
+| UIG-7 | 8/8 | 8/8 | 8/8 | 8/8 |
+| UIG-8 | 9/9 | 9/9 | 9/9 | 9/9 |
+| UIG-9 | 4/4 | 4/4 | 7/7 | 6/6 |
+| UIG-10 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-13 | 5/5 | 5/5 | 5/5 | 5/5 |
+| UIG-19 | 3/3 | 3/3 | 3/3 | 3/3 |
+| UIG-20 | 4/4 | 4/4 | 4/4 | 4/4 |
+| UIG-21 | 3/3 | 3/3 | 3/3 | 3/3 |
+| UIG-22 | 3/3 | 3/3 | 3/3 | 3/3 |
+| UIG-23 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-24 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-25 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-27 | 2/2 | 2/2 | 6/6 | 5/5 |
+| UIG-28 | 8/8 | 8/8 | 8/8 | 8/8 |
+| UIG-30 | 2/2 | 2/2 | 2/2 | 2/2 |
+| UIG-32 | 1/1 | 1/1 | 1/1 | 1/1 |
+| UIG-33 | 2/2 | 2/2 | 2/2 | 2/2 |
+| UIG-37 | 2/2 | 2/2 | 2/2 | 2/2 |
+| UIG-42 | 3/3 | 3/3 | 3/3 | 3/3 |
+| **the shared rows** | **22** | **22** | **22** | **22** |
+| the app's own | 0 | 0 | 4: UIG-17, 29 (Peek's), 31, 40 | 1: UIG-18 |
+
+- **22 = 22 = 22 = 22.** No shared row is missing from any app.
+- UIG-6 reads ❔ on the fresh app only because it has no GitHub repo: the check asks GitHub for the ruleset. Leaf, made the same way, reads 2 of 2 with the ruleset (UIG-11).
+- The extra checks in Peek and Ship (UIG-9: 3 and 2; UIG-27: 4 and 3) read each app's own code: its old copies deleted, its own wrappers followed. A made app has none of that code, so it has nothing for them to read.
+
+**5. Reconciliation 2: Leaf has every rule written after it started.** Leaf was made from 0.37.2 on 27 September and was on 0.44.1. It is on **0.48.0** (leaf #8). Its `.gates-count.json` lists the seven app rules, all at **0 errors, 0 warnings, 0 escapes**. `npx estiva-gates ci` passes, `gates:status` passes every row above, and Leaf needed no hand patch.
+
+**6. The escapes, two ways, adding up.** `gates:status` lists each escape comment. `.gates-count.json` counts each report an escape keeps off. They differ, and here is the arithmetic:
+
+| repo | gate escape comments | that keep something off | reports kept off (= the count file) | that keep nothing off |
+|---|---|---|---|---|
+| estiva-ui | 19 | 19 | 27 (`Card.tsx:130` keeps 3, `Select.tsx:77` 4, `Card.tsx:137`, `PersonTrigger.tsx:63` and `suggestionPopup.tsx:1` 2 each) | 0 |
+| Peek | 12 | 10 | 16 (`MetaText.tsx:31` keeps 6, `PersonRow.tsx:123` keeps 2) | **2**: `looks.ts:13`, `ForeignObjectWidget.tsx:448` |
+| Ship | 8 | 7 | 7 | **1**: `writingBox.tsx:4` |
+| Leaf | 0 | 0 | 0 | 0 |
+
+The token lint's own escapes are listed beside these (estiva-ui 6, Peek 1, Ship 0). The three that keep nothing off carry Katerina's "record only" rulings of 24 and 30 September, so they stay. Nothing reports an escape that has gone stale; that is on the next phase's list.
+
+**7. The numbers at the end, against the start.**
+
+| | 12 September (the tickets' numbers; how Peek's 115 was counted was never written down) | 18 September (the first catalogue count, UIG-13) | 30 September |
+|---|---|---|---|
+| estiva-ui | 44 components, 46 story files, 46 pages | 81 entries | **104 entries**: 90 components, 13 helpers, 1 hook. All 90 components have a story or page. 63 pages, 63 story files |
+| Peek | 115 components, 58 story files, **0** pages | 143 parts (19 pass-ons, 46 reusable, 67 one-off, 7 candidates, 4 unused) | **131 parts** (20 pass-ons, 41 reusable, 65 one-off, 0 candidates, 5 unused). **41 of 41** reusable have a usage page and are drawn in Storybook. 49 pages, 54 story files |
+| Ship | 74 components, 18 story files, **0** pages | 91 parts (41 pass-ons, 10 reusable, 38 one-off, 2 candidates) | **102 parts** (42 pass-ons, 13 reusable, 4 candidates, 43 one-off). **17 of 17** reusable and candidates have a usage page. 19 pages, 25 story files |
+| Leaf | — | — | 3 parts, all one-off, 1 story file; no page owed |
+| **usage pages** | **46** | | **131** (63 + 49 + 19) |
+| **a reusable part with no written rule** | 189 components had none | | **0** |
+| **the gate** | nothing refused anything | | 7 app rules (the package runs five of them on itself, with 4 inward rules of its own), the token contract and `estiva-ui check`, run in the editor, in `lint:rules` and in the job `gate` that `main` requires in all four repos; every count at 0 errors |
+
+**8. `gates:status` in estiva-ui**, over the four mains with this record: **40 done, 0 started, 0 not started, 0 could not check, 7 next phase.** 47 tickets, each owned by exactly one repo, and every repo agrees.
+
+**What UIG-26 found, and where each went:** the six gate fixes in 0.47.0 (§0, above); Ship's two archive pages (ship #216); table R's five missing pages (four in #124, `BlockNodes` here); the escapes that keep nothing off (recorded, next phase); a flaky `check` in estiva-ui's CI (below); and that main's `check` fails on four Storybook stories (FilePicker ×2, Link's two cover stories), which is UIG-41.
+
+**Traps met on the way:** `gh pr checks` said "no checks" on a PR that was only conflicting; `npm view` lagged 0.46.0 by more than ten minutes (the release was staged); the check job's `npx -p <tarball>` failed once with `ERESOLVE … @tiptap/pm@undefined`, passed when re-run, and made its app in a clean container every time (npm's folder, `npx`'s installs with it, is cached between runs); `git` inside a container cannot read a worktree made on Windows (its `.git` names a `K:` path); another session removed this ticket's worktrees halfway through.
+
+### What the next phase picks up
+
+By name. Nothing here blocks anything that is done.
+
+**The seven tickets Katerina moved (30 September):**
+- **UIG-34** A tree part: Peek's Folders column, looks A–N proposed, her pick awaited.
+- **UIG-39** `DESIGN.md` and `llms.txt` (the guide's T4 and T7).
+- **UIG-41** The accessibility pass: the focus ring, faint grey text in Signal, and the stories failing on main.
+- **UIG-43** Photos of every page: the route probe (T19).
+- **UIG-45** `ArchiveDialog` and `ArchivedNotice` live twice: move them into estiva-ui. Ship's catalogue already marks both as candidates.
+- **UIG-46** The compose box lives twice: Peek's writing box into estiva-ui.
+- **UIG-47** Looks the parts lack, first a pressed `Button`.
+
+**The guide's tactics not built (GATES-GUIDE §05):**
+- **Page stories from generators** (T17): 81 folders, 0 folders, loading.
+- **Visual regression per PR** (T18): Katerina accepts only what changed.
+- **The route probe** (T19): UIG-43.
+- **The adoption number, from production** (T20).
+- **The ratchet** (T21). The count is committed in every repo, but CI does not yet fail when it grows.
+- **An MCP server** (T8).
+- **The near-duplicate scan** (T3). `no-copied-look` warns on a copied look, but nothing flags a new component that matches an old one by name or props.
+- **`DESIGN.md` and `llms.txt`** (T4, T7): UIG-39.
+
+**The promotions lists:**
+- **UIG-13 (18 September).** Her A–D are built. Everything else stays in its app, each with her ruling on an `@registry` line: Peek's DateDivider, UnreadDot, ConfirmDelete, ConversationQuickMenu, PeekLogoMark, ReactionHorizon, TopicMoreMenu and the rest named there; Ship's StatusLabel, ConversationCount and NewIssueDialog.
+- **UIG-17 (23 September).** The one candidate, `EditedMarker`, stays Peek's by her ruling.
+- **UIG-18 (22 September).** The seven pairs Ship and Peek both draw. Ruled "record all seven, promote none yet".
+  - Still open: `Reference`/`Reference`, `ConversationThread`/`ConversationCard`, `NewIssueDialog`/`CreateTopicDialog`.
+  - `ForeignObject`/`ForeignObjectWidget` goes to the migration's stage 7.
+  - Already closed: `RichText` (UIG-30) and `StatusLabel`/`StatusPill` (closed in Ship by UIG-18).
+  - `Related`/`ProjectTickets` is not a candidate.
+- **New since, from the catalogues on 30 September:**
+  - Ship marks four parts as candidates: `AppSection`, `Centred`, `ArchiveDialog`, `ArchivedNotice`. The last two are UIG-45.
+  - Peek has five unused parts, for Katerina to rule on: `ActivityTimeline`, `JoinTopicBanner`, `MembersDialog`, `RouterLink`, `ThreadPanelLoading`.
+
+**Found by UIG-26, with no ticket yet:**
+- **An escape that keeps nothing off is not reported.** There are three (Peek 2, Ship 1).
+- **Ship's "stories or Seen in" rule lives only in Ship's own `gates:status`, not in `estiva-ui check`,** so CI never ran it. The two archive pages passed CI while failing it.
+- **A rule on a raw `<table>`** waits for a package `Table` part (UIG-38's table half).
+- **estiva-ui's `check` job** caches npm's folder, and `npx -p <tarball>` failed once on it.
+- **Releases wait for `estiva-admin`'s approval on npmjs.com**, unless the package's trusted-publisher settings also allow `npm publish`.
 
 ### What happened since UIG-2 closed
 
@@ -911,6 +1044,7 @@ UIG-14 + UIG-15 + UIG-16 = **57**. The tickets' "44" was the number of part file
 | 60 | `RichText` | Typing | ✓ | ✓ | new in 0.40.0 (UIG-30, 28 September) |
 | 61 | `SelectionToolbar` | Floating panels | ✓ | ✓ | new in 0.45.0 (UIG-31, 29 September) |
 | 62 | `SuggestionMenu` | Floating panels | ✓ | ✓ | new in 0.45.0 (UIG-31, 29 September) |
+| 63 | `BlockNodes` | Typing | ✓ | ✓ | new in 0.48.0 (MAN-9, 30 September), in the editor corner; listed by UIG-26 |
 
 #### The numbers, then and now (UIG-16)
 
