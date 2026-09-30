@@ -225,7 +225,7 @@ Applied: twelve headings, down from a heading count that hid four holding one en
 | ✅ **UIG-30** | estiva-ui PR #110 (0.40.0, merge `40df1c1`); peek PR #374 (`aaf2deb`), ship PR #200 (`38a40fc`). `RichText`, `richTextClassName` and the token `bg-code`; both apps draw formatted text through it, and their editors wear its look. Her picks from photos, 28 September (§0). In `gates:status`, Peek and Ship pass once their checkouts are installed on 0.40.0; Leaf, on 0.37.2, passes when it takes the current package (UIG-26, step 4). |
 | ✅ **UIG-31** | estiva-ui PR #120 (0.45.0, merge `f48a94e`); peek PR #383 (`53f6a08`). `SuggestionMenu`, and `@estiva-app/ui/editor` with `SelectionToolbar`, `KeptSelection` and `suggestionPopup`; Peek's four lists and its toolbar drawn with them, its seven UIG-31 escapes gone (§0, 29 September). Built when Ship's description became the second app with a `/` menu. |
 | ✅ **UIG-33** | estiva-ui PR #112 (0.41.0, merge `629ee0e`); ship PR #201 (`d8cec6e`), peek PR #376 (`ae2e3d9`). `Link` `cover` and `Chip` `href`; Ship's issue row and project table open their issue from anywhere on the row, with the keyboard ring round the whole row; Peek's unused `ProjectTickets` is deleted. Her picks from photos, 28 September (§0). In `gates:status`, Peek and Ship pass once their checkouts are installed on 0.41.0; Leaf, on 0.37.2, passes when it takes the current package (UIG-26, step 4). |
-| ⬜ **UIG-34** | New, 19 September: a tree part on Base UI, for Peek's file tree and folder list (UIG-14, finding L). |
+| ⏭ **UIG-34** | New, 19 September: a tree part on Base UI, for Peek's file tree and folder list (UIG-14, finding L). 29 September it became a redesign of Peek's Folders column, looks A–N proposed. **Next phase** (Katerina, 30 September). |
 | ✅ **UIG-37** | estiva-ui PR #80 (0.28.0, merge `a9dc295`); the apps took it inside 0.29.0 with UIG-20: peek PR #326 (`f15253f`), ship PR #176 (`c624d0d`). `gateConfig` knows TypeScript's names, `tokenConfig()` is new, a made app uses both; every app's `gates:status` checks it, and this repo's list names the ticket (§0). `gates:status` 6 of 6. |
 | ✅ **UIG-21** | estiva-ui PR #84 (0.30.0, merge `e1df3e8`); peek PR #332 (`19ff88d`), ship PR #177 (`c1fd8c2`). Each `CLAUDE.md` is an index of about 70 lines, the rest in `.claude/rules` files with `paths:` and in skills; the token lint in `gate`; `tailwind-merge` refused; `instructions()` in `gates:status`. Leaf joins when UIG-11 makes it (§0). `gates:status` 9 of 9. |
 | ✅ **UIG-22** | estiva-ui PR #86 (0.31.0, merge `a98aade`); peek PR #338 (`55ccd6c`), ship PR #178 (`52503e6`). `estiva/no-handmade-header`, a shape rule, in the apps and the package: Peek 3 fixed, Ship 0, package 2 (`DialogShell` fixed, the palette's level row escaped). No false positives in the apps (§0). `gates:status` 6 of 6. |
@@ -240,14 +240,16 @@ Applied: twelve headings, down from a heading count that hid four holding one en
 | ⬜ **UIG-26** | The close. Waits for every other ticket, her ruling of 25 September (§0); UIG-11 (Leaf) is done, 30 September. Its baseline is remade from 0.21.0 and 0.23.0 when it runs. `gates:status` 0 of 1. |
 | ✅ **UIG-35** | estiva-ui PR #73 (0.26.0), peek PR #273, ship PR #166: `Lightbox`, and the attachment card that fetches, opens and saves by itself. `gates:status` 8 of 8. |
 | ✅ **UIG-36** | estiva-id PR #67 (merge `1ece1f3`), peek PR #314 (merge `1654fa0`): Estiva ID's own Storybook on :6009, Peek's shows Peek only. `gates:status` 3 of 3. |
-| ⬜ **UIG-38** | New, 23 September, found in UIG-21: the gate misses a hand-drawn `<table>` and an Escape handled by hand on one element. Her rulings, 25 September: the Escape is **allowed**; tables are for later. In `gates:status` since 25 September, 0 of 1. |
-| ⬜ **UIG-39** | New, 24 September: `DESIGN.md` and `llms.txt`, Plan B's T4 and T7, which Katerina moved to a later phase in planning (open source is far off). In `gates:status` since 25 September, 0 of 1. |
+| ✅ **UIG-38** | New, 23 September, found in UIG-21: the gate misses a hand-drawn `<table>` and an Escape handled by hand on one element. Her rulings, 25 September: the Escape is **allowed**; tables are for later. **Done 29 September, closed with no code** (her yes): an Escape in a field is allowed by design, and a rule on `<table>` waits for a package `Table` part, which is on the next phase's list. |
+| ⏭ **UIG-39** | New, 24 September: `DESIGN.md` and `llms.txt`, Plan B's T4 and T7, which Katerina moved to a later phase in planning (open source is far off). **Next phase** (Katerina, 30 September). |
 | ✅ **UIG-40** | estiva-ui PR #115 (0.43.0, merge `b81afd2`); peek PR #378 (`6610f3c`). `CommandPaletteProposal` draws Make; in Peek's composer another app's address is the sent message's chip (`objectMention` → `Reference link={false}`), from the launcher, a paste, a draft or an edit, and is sent as the address it was. Her scope, 28 September (§0): the thread line, typed prefixes and row actions dropped. |
 | ✅ **UIG-42** | estiva-ui PR #117 (0.44.0, merge `6e44f33`); peek PR #379 (`f9b86b6`), ship PR #203 (`5debe73`), leaf PR #5 (`11ed8d7`). The token check reads a class behind an arbitrary variant and a class list joined by hand (`token-joined`); `no-handmade-empty-state` refuses a box that centres or pads a page `EmptyState`. Her picks, 28 September (§0): A yes, B no (the sign-in screen stays each app's own, ADR 0002 §2), C later (UIG-43). |
-| ⬜ **UIG-43** | New, 28 September, option C of UIG-42: photos of every page, the route probe (GATES-GUIDE T17–T19). Later: not started until Katerina asks. |
-| ✅ **UIG-44** | estiva-ui PR #123 (0.46.0, merge `b5bb850`); ship PR #218 (`7eb8a9a`). `NavItem`'s `menu`: a vertical ⋮ in the count's place; Ship's sidebar rows take it, its overlay gone. With it, the quiet label and the folder row (`SectionHeader`/`CollapsibleSection` `look`): Ship's sidebar is Leaf's folders (§0, 30 September). `gates:status` 2 of 2. |
-| ⬜ **UIG-46** | New, 30 September: Peek's writing box and Ship's copy of it become one package part. Ship's copy is escaped with the ticket's name. |
-| ⬜ **UIG-47** | New, 30 September: looks the parts lack, collected as they are found; first a `pressed` Button (Ship's replies button, escaped with the ticket's name). |
+| ⏭ **UIG-43** | New, 28 September, option C of UIG-42: photos of every page, the route probe (GATES-GUIDE T17–T19). **Next phase** (Katerina, 30 September). |
+| ⏭ **UIG-41** | The accessibility pass — the focus ring, and grey text too faint in the Signal theme; the three old failures on main's a11y job (FilePicker ×2, SectionLabel Muted). **Next phase** (Katerina, 30 September). |
+| ✅ **UIG-44** | estiva-ui PR #123 (0.46.0, merge `b5bb850`); ship PR #218 (`7eb8a9a`). `NavItem`'s `menu`: a vertical ⋮ in the count's place; Ship's sidebar rows take it, its overlay gone. With it, the quiet label and the folder row (`SectionHeader`&`CollapsibleSection` `look`): Ship's sidebar is Leaf's folders (§0, 30 September). `gates:status` 2 of 2. |
+| ⏭ **UIG-45** | `ArchiveDialog` and `ArchivedNotice` live in Peek and in Ship; move them into estiva-ui. **Next phase** (Katerina, 30 September). |
+| ⏭ **UIG-46** | New, 30 September: Peek's writing box and Ship's copy of it become one package part. Ship's copy is escaped with the ticket's name. **Next phase** (Katerina, 30 September). |
+| ⏭ **UIG-47** | New, 30 September: looks the parts lack, collected as they are found; first a `pressed` Button (Ship's replies button, escaped with the ticket's name). **Next phase** (Katerina, 30 September). |
 
 ### What happened since UIG-2 closed
 
@@ -905,6 +907,10 @@ UIG-14 + UIG-15 + UIG-16 = **57**. The tickets' "44" was the number of part file
 | 56 | `Tooltip` | Floating panels | ✓ | ✓ |  |
 | 57 | `TopBar` | The frame | ✓ | ✓ |  |
 | 58 | `Lightbox` | Dialogs and messages | ✓ | ✓ | added by UIG-35 (21 September), listed here by UIG-19: its page kept the contract from the day it landed, and only this table missed it |
+| 59 | `Panel` | The frame | ✓ | ✓ | new in 0.37.0 (26 September); listed by UIG-26, which found this table missed it and the next three |
+| 60 | `RichText` | Typing | ✓ | ✓ | new in 0.40.0 (UIG-30, 28 September) |
+| 61 | `SelectionToolbar` | Floating panels | ✓ | ✓ | new in 0.45.0 (UIG-31, 29 September) |
+| 62 | `SuggestionMenu` | Floating panels | ✓ | ✓ | new in 0.45.0 (UIG-31, 29 September) |
 
 #### The numbers, then and now (UIG-16)
 

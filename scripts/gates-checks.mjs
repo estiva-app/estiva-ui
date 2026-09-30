@@ -10,50 +10,60 @@
  * changes its checks, here and in GATES.md §15, in the same session.
  */
 const PEEK_SHIP = ["peek", "ship"];
+// Every app the package checks (`appChecks`): Leaf reports these rows as Peek and Ship do (UIG-11, UIG-26).
+const APPS = ["peek", "ship", "leaf"];
+
+// Katerina, 30 September: these move to the next phase, and UIG-26 closes this one without them.
+const NEXT = "Next phase (Katerina, 30 September): moved out of this one, so UIG-26 does not wait for it";
 
 const all = [
   { ref: "UIG-1", owner: "estiva-ui", title: "Count every candidate lint rule across all three repos" },
-  { ref: "UIG-2", owner: "estiva-ui", parts: PEEK_SHIP, title: "The tracking rails — GATES.md, the status script, the guide committed" },
-  { ref: "UIG-3", owner: "peek", parts: ["estiva-ui"], title: "Tracer bullet — one rule, end to end, blocking in Peek" },
+  { ref: "UIG-2", owner: "estiva-ui", parts: APPS, title: "The tracking rails — GATES.md, the status script, the guide committed" },
+  { ref: "UIG-3", owner: "peek", parts: ["estiva-ui", "leaf"], title: "Tracer bullet — one rule, end to end, blocking in Peek" },
   { ref: "UIG-4", owner: "ship", title: "The same chain, blocking in Ship" },
   { ref: "UIG-5", owner: "estiva-ui", title: "The same chain inside estiva-ui, pointed inward" },
-  { ref: "UIG-6", owner: "estiva-ui", parts: PEEK_SHIP, title: "Branch protection — the backstop, all three repos" },
-  { ref: "UIG-7", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — every remaining raw element" },
-  { ref: "UIG-8", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — forbid the reach" },
-  { ref: "UIG-9", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lint rule — the className allow-list" },
-  { ref: "UIG-10", owner: "estiva-ui", parts: PEEK_SHIP, title: "create-app — a command that makes a new Estiva app that runs" },
+  { ref: "UIG-6", owner: "estiva-ui", parts: APPS, title: "Branch protection — the backstop, all three repos" },
+  { ref: "UIG-7", owner: "estiva-ui", parts: APPS, title: "Lint rule — every remaining raw element" },
+  { ref: "UIG-8", owner: "estiva-ui", parts: APPS, title: "Lint rule — forbid the reach" },
+  { ref: "UIG-9", owner: "estiva-ui", parts: APPS, title: "Lint rule — the className allow-list" },
+  { ref: "UIG-10", owner: "estiva-ui", parts: APPS, title: "create-app — a command that makes a new Estiva app that runs" },
   { ref: "UIG-11", owner: "estiva-ui", title: "Create the Leaf repo from it" },
   { ref: "UIG-12", owner: "estiva-ui", title: "The registry, thin and proved — estiva-ui first" },
-  { ref: "UIG-13", owner: "estiva-ui", parts: PEEK_SHIP, title: "The registry widens to Peek's 115 and Ship's 74, with classification" },
+  { ref: "UIG-13", owner: "estiva-ui", parts: APPS, title: "The registry widens to Peek's 115 and Ship's 74, with classification" },
   { ref: "UIG-14", owner: "estiva-ui", title: "Usage rules — estiva-ui's components that own a behaviour" },
   { ref: "UIG-15", owner: "estiva-ui", title: "Usage rules — estiva-ui's frame and layout components" },
   { ref: "UIG-16", owner: "estiva-ui", title: "Usage rules — the rest of estiva-ui, and close the 44" },
   { ref: "UIG-17", owner: "peek", title: "Usage rules — Peek's own components" },
   { ref: "UIG-18", owner: "ship", title: "Usage rules — Ship's own components" },
-  { ref: "UIG-19", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lock the contract in CI" },
-  { ref: "UIG-20", owner: "estiva-ui", parts: PEEK_SHIP, title: "The Claude skill, reading the registry" },
-  { ref: "UIG-21", owner: "estiva-ui", parts: PEEK_SHIP, title: "CLAUDE.md becomes an index, not a lecture" },
-  { ref: "UIG-22", owner: "estiva-ui", parts: PEEK_SHIP, title: "Fingerprint — a hand-made header row" },
-  { ref: "UIG-23", owner: "estiva-ui", parts: PEEK_SHIP, title: "Fingerprint — a hand-made empty state" },
-  { ref: "UIG-24", owner: "estiva-ui", parts: PEEK_SHIP, title: "Fingerprint — a browser tooltip where ours belongs" },
-  { ref: "UIG-25", owner: "estiva-ui", parts: PEEK_SHIP, title: "Fingerprint — a component copied out by hand" },
+  { ref: "UIG-19", owner: "estiva-ui", parts: APPS, title: "Lock the contract in CI" },
+  { ref: "UIG-20", owner: "estiva-ui", parts: APPS, title: "The Claude skill, reading the registry" },
+  { ref: "UIG-21", owner: "estiva-ui", parts: APPS, title: "CLAUDE.md becomes an index, not a lecture" },
+  { ref: "UIG-22", owner: "estiva-ui", parts: APPS, title: "Fingerprint — a hand-made header row" },
+  { ref: "UIG-23", owner: "estiva-ui", parts: APPS, title: "Fingerprint — a hand-made empty state" },
+  { ref: "UIG-24", owner: "estiva-ui", parts: APPS, title: "Fingerprint — a browser tooltip where ours belongs" },
+  { ref: "UIG-25", owner: "estiva-ui", parts: APPS, title: "Fingerprint — a component copied out by hand" },
   { ref: "UIG-26", owner: "estiva-ui", aggregate: true, title: "Re-run the starter, and close the loop" },
-  { ref: "UIG-27", owner: "estiva-ui", parts: PEEK_SHIP, title: "The components the apps had to build themselves — Link, ProgressBar, EmptyState padding" },
-  { ref: "UIG-28", owner: "estiva-ui", parts: PEEK_SHIP, title: "Close the two holes in the token contract — arbitrary values, and inline style" },
+  { ref: "UIG-27", owner: "estiva-ui", parts: APPS, title: "The components the apps had to build themselves — Link, ProgressBar, EmptyState padding" },
+  { ref: "UIG-28", owner: "estiva-ui", parts: APPS, title: "Close the two holes in the token contract — arbitrary values, and inline style" },
   { ref: "UIG-29", owner: "peek", title: "CommandLauncher — 1,655 lines that will fail almost every lint rule" },
-  { ref: "UIG-30", owner: "estiva-ui", parts: PEEK_SHIP, title: "RichText — one component that draws a message's text, for both apps" },
+  { ref: "UIG-30", owner: "estiva-ui", parts: APPS, title: "RichText — one component that draws a message's text, for both apps" },
   { ref: "UIG-31", owner: "estiva-ui", parts: ["peek"], title: "Editor menus — one shared part for the / @ [ menus" },
-  { ref: "UIG-32", owner: "estiva-ui", parts: PEEK_SHIP, title: "Peek and Ship take their gate pieces from the package" },
-  { ref: "UIG-33", owner: "estiva-ui", title: "Link — a whole row that is one link" },
-  { ref: "UIG-34", owner: "estiva-ui", title: "A tree part — Peek's file tree and folder list" },
+  { ref: "UIG-32", owner: "estiva-ui", parts: APPS, title: "Peek and Ship take their gate pieces from the package" },
+  { ref: "UIG-33", owner: "estiva-ui", parts: APPS, title: "Link — a whole row that is one link" },
+  { ref: "UIG-34", owner: "estiva-ui", later: NEXT, title: "A tree part — Peek's file tree and folder list" },
   { ref: "UIG-35", owner: "estiva-ui", parts: PEEK_SHIP, title: "Lightbox — one attachment part that opens a picture full screen, for both apps" },
   { ref: "UIG-36", owner: "estiva-ui", title: "Estiva ID gets its own Storybook, and leaves Peek's" },
-  { ref: "UIG-37", owner: "estiva-ui", parts: PEEK_SHIP, title: "The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off" },
+  { ref: "UIG-37", owner: "estiva-ui", parts: APPS, title: "The gates refuse a TypeScript eslint-disable comment — know the rule names, rules off" },
   { ref: "UIG-38", owner: "estiva-ui", title: "The gate misses a hand-drawn table and a hand-written Escape (Ship)" },
-  { ref: "UIG-39", owner: "estiva-ui", title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
+  { ref: "UIG-39", owner: "estiva-ui", later: NEXT, title: "DESIGN.md and llms.txt — any AI tool reads estiva-ui correctly (later phase)" },
   { ref: "UIG-40", owner: "estiva-ui", parts: ["peek"], title: "Launcher leftovers — the chip in the composer and the Make card" },
-  { ref: "UIG-42", owner: "estiva-ui", parts: PEEK_SHIP, title: "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check" },
+  { ref: "UIG-41", owner: "estiva-ui", later: NEXT, title: "Accessibility pass — the focus ring, and grey text too faint in the Signal theme" },
+  { ref: "UIG-42", owner: "estiva-ui", parts: APPS, title: "What the gate can't see yet — a box around a part, a screen drawn by hand, two blind spots in the token check" },
+  { ref: "UIG-43", owner: "estiva-ui", later: NEXT, title: "Photos of every page — catch what no rule can see" },
   { ref: "UIG-44", owner: "estiva-ui", parts: ["ship"], title: "NavItem: an actions slot for a row menu (Ship sidebar overlays one today)" },
+  { ref: "UIG-45", owner: "estiva-ui", later: NEXT, title: "ArchiveDialog and ArchivedNotice live twice: move them into estiva-ui" },
+  { ref: "UIG-46", owner: "estiva-ui", later: NEXT, title: "The compose box lives twice: move Peek's writing box into estiva-ui" },
+  { ref: "UIG-47", owner: "estiva-ui", later: NEXT, title: "Looks estiva-ui parts are missing — collect findings here (first: a pressed Button)" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -325,7 +335,7 @@ export default function define(h) {
       { what: "the gate job holds the skill to the catalogue and the record", run: () => h.ciJob("gate", "skill:check") },
       { what: "the hook asks for a search before a new part", run: () => h.contains("src/gates/hook.ts", /searchFirst\(call, file, text/, "runHook runs searchFirst") },
       { what: "an app made by the starter gets the loader", run: () => h.contains("src/gates/create-app.ts", "'.claude/skills/estiva-ui/SKILL.md': loaderText(", "create-app writes the loader") },
-      { what: "every recorded defect is a Gotcha or excluded with a reason", run: () => h.contains("docs/GATES-SKILL.md", /\*\*542\*\* \| \*\*111\*\* \| \*\*431\*\*/, "docs/GATES-SKILL.md reconciles 542 = 111 + 431") },
+      { what: "every recorded defect is a Gotcha or excluded with a reason", run: () => h.contains("docs/GATES-SKILL.md", /\*\*647\*\* \| \*\*113\*\* \| \*\*534\*\*/, "docs/GATES-SKILL.md reconciles 647 = 113 + 534") },
     ] },
     // What loads into every Claude session (UIG-21). The apps' half is appChecks'.
     { ref: "UIG-21", owner: true, checks: [
@@ -357,7 +367,11 @@ export default function define(h) {
       { what: "it is tested on the package copying itself, a wrapper left alone, and a part added later", run: () => h.contains("src/eslint/no-copied-look.test.ts", /TextInput ≈ Textarea[\s\S]*a new part is covered the day it is added/, "the rule's tests hold the ticket's cases") },
       { what: "a copied look is a warning in the package too", run: () => h.lint({ config: "eslint.gates.config.js", file: PROBE, code: "export function Probe() {\n  return <span className=\"text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary\">Label</span>\n}\n", expect: "warning", mentions: "SectionLabel" }) },
     ] },
-    { ref: "UIG-26", owner: true, checks: [] },
+    // Built 30 September. The rest of it is measured, not read from code: the record holds the numbers.
+    { ref: "UIG-26", owner: true, checks: [
+      { what: "a made app runs every app check on its first commit, in the package's tests", run: () => h.contains("src/gates/create-app.test.ts", /it\('passes every one on its first commit/, "create-app.test.ts makes an app and runs every check on it") },
+      { what: "the close is written in GATES.md §0, with the next phase by name", run: () => h.contains("docs/GATES.md", /UIG-26 is done[\s\S]*### What the next phase picks up/, "GATES.md §0 records the close and the next phase's list") },
+    ] },
     { ref: "UIG-27", owner: true, checks: [
       { what: "Link is in the package", run: () => h.contains("src/index.ts", /\bLink\b/, "src/index.ts exports Link") },
       { what: "InlineChip is in the package", run: () => h.contains("src/index.ts", /\bInlineChip\b/, "src/index.ts exports InlineChip") },
@@ -395,9 +409,13 @@ export default function define(h) {
     ] },
     // UIG-38 and UIG-39 were in Ship with no row here (the audit before UIG-26,
     // 25 September). First guesses, from their own text, until each is built.
+    // Closed with no code, 29 September: the Escape is allowed (her ruling of 25 September), and a
+    // table rule waits for a package Table part, on the next phase's list in GATES.md §0.
     { ref: "UIG-38", owner: true, checks: [
-      { what: "the raw-element rule names a part for a raw <table>", run: () => h.contains("src/eslint/no-raw-element.ts", /['"]table['"]/, "no-raw-element maps <table>") },
+      { what: "the record says it closed with no code, and why", run: () => h.contains("docs/GATES.md", /\| ✅ \*\*UIG-38\*\* \|[^\n]*closed with no code/, "GATES.md records UIG-38 closed with no code") },
     ] },
+    // Moved to the next phase (Katerina, 30 September). Their checks are written when each is built.
+    ...["UIG-41", "UIG-43", "UIG-45", "UIG-46", "UIG-47"].map((ref) => ({ ref, owner: true, checks: [] })),
     { ref: "UIG-39", owner: true, checks: [
       { what: "DESIGN.md and llms.txt ship in the package", run: () => (h.exists("DESIGN.md") && h.exists("llms.txt") ? h.PASS("DESIGN.md and llms.txt exist") : h.FAIL("no DESIGN.md or llms.txt yet: a later phase, by Katerina's ruling")) },
     ] },
@@ -432,8 +450,10 @@ export default function define(h) {
       { what: "the viewer is Base UI's Dialog, not a layer built by hand", run: () => h.contains("src/Lightbox.tsx", "@base-ui/react/dialog", "Lightbox.tsx is on Base UI's Dialog") },
       { what: "a viewer built by hand is refused by name", run: () => h.contains("src/eslint/no-rebuilt-behaviour.ts", /owners: \[[^\]]*'Lightbox'/, "no-rebuilt-behaviour.ts names Lightbox as an owner") },
       { what: "a picture dims harder than a dialog, in every theme", run: () => {
-        const n = (h.read("tokens.css").match(/--scrim-strong:/g) ?? []).length;
-        return n === 4 ? h.PASS("--scrim-strong is in all four themes") : h.FAIL(`--scrim-strong is in ${n} themes, not four`);
+        // Every theme that has a dialog's scrim: Leaf's theme (0.38.0) made five, and a fixed four failed.
+        const t = h.read("tokens.css");
+        const themes = (t.match(/--scrim:/g) ?? []).length, n = (t.match(/--scrim-strong:/g) ?? []).length;
+        return n === themes ? h.PASS(`--scrim-strong is in all ${themes} themes`) : h.FAIL(`--scrim-strong is in ${n} of ${themes} themes`);
       } },
       { what: "the card fetches, opens and saves by itself", run: () => {
         const t = h.read("src/AttachmentCard.tsx");

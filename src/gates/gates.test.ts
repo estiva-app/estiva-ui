@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { ESLint, type Linter } from 'eslint'
 import { afterAll, describe, expect, it } from 'vitest'
+import { appChecks } from './app-checks'
 import { countCommitted, hookRuns, skippedFolders, skipsListed } from './ci'
 import { writeGateCount } from './count'
 import { gateConfig, gateLint } from './gate-config'
@@ -424,5 +425,26 @@ describe('gates:status', () => {
     const out = await runStatus({ root: top, app: 'web' })
     expect(out).toContain('Tickets shipish owns (1):')
     expect(out).toContain('✅  UIG-4')
+  })
+
+  // UIG-26, Katerina's ruling of 30 September: eight open tickets moved to the next phase, and the close runs.
+  it('shows a ticket moved to the next phase, still checks it, and the aggregate does not wait for it', async () => {
+    const checks = (later: string) => `export default (h) => ({ repo: 'estiva-ui', siblings: [],\n  all: [\n    { ref: 'UIG-1', owner: 'estiva-ui', title: 'Count' },\n    { ref: 'UIG-26', owner: 'estiva-ui', aggregate: true, title: 'Close' },\n    { ref: 'UIG-39', owner: 'estiva-ui', title: 'Later'${later} },\n  ],\n  tickets: [\n    { ref: 'UIG-1', owner: true, checks: [{ what: 'counted', run: () => h.PASS('yes') }] },\n    { ref: 'UIG-26', owner: true, checks: [] },\n    { ref: 'UIG-39', owner: true, checks: [{ what: 'written', run: () => h.FAIL('not yet') }] },\n  ] })\n`
+    const moved = await runStatus({ root: app('status-later', { 'scripts/gates-checks.mjs': checks(", later: 'Katerina, 30 September: the next phase'") }), detail: true })
+    expect(moved).toContain('⏭  UIG-39')
+    expect(moved).toContain('Katerina, 30 September: the next phase')
+    expect(moved).toContain('✗ estiva-ui  written — not yet')
+    expect(moved).toContain('✅  UIG-26')
+    expect(moved).toContain('1 of 1 done; 1 moved to the next phase')
+    expect(moved).toContain('⏭ 1 next phase')
+    const waiting = await runStatus({ root: app('status-waiting', { 'scripts/gates-checks.mjs': checks('') }) })
+    expect(waiting).toContain('⬜  UIG-26')
+    expect(waiting).not.toContain('next phase')
+  })
+
+  // A made app's UIG-33 row printed with no title (UIG-26): every row the package checks in an app has one.
+  it('gives every ticket an app checks a title', () => {
+    const tickets = appChecks(helpers(app('titles', {})), { page: 'src/pages/HomePage.tsx' })
+    expect(tickets.filter((t) => !t.title).map((t) => t.ref)).toEqual([])
   })
 })

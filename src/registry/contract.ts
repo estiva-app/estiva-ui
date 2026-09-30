@@ -82,6 +82,16 @@ export function linkProblems(registry: Registry, ids: ReadonlySet<string>): stri
 }
 
 /**
+ * The parts an app's page may name under When and When not: the package's and
+ * the app's own (B8). The one copy: `estiva-ui check` and `gates:status` both
+ * read it, so they cannot disagree. Status once knew the app's parts only, and
+ * read six of Peek's pages as broken that CI passed (UIG-26).
+ */
+export function nameableParts(app: Registry, pkg: Registry): Set<string> {
+  return new Set([...pkg.entries, ...app.entries].map((e) => e.name))
+}
+
+/**
  * Every way an app's catalogue breaks the contract, one line each, naming the
  * part, its file and what to do. Empty when it keeps it.
  *

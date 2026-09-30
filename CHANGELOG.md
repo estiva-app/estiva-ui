@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.47.0 — 2026-09-30 — The close: the status tool knows the next phase, and reads what CI reads
+
+### Added
+
+- **A ticket can be moved to the next phase** (`later` on the ticket list).
+  `gates:status` still checks it, shows it ⏭ with the reason under it, and
+  the closing ticket's "every other ticket" no longer waits for it. The
+  summary counts them: `⏭ 7 next phase`. UIG-26, Katerina's ruling of 30
+  September.
+- **`nameableParts`** in `@estiva-app/ui/registry`: the parts a usage page
+  may name under When and When not, the package's and the app's own.
+
+### Fixed
+
+- **`gates:status` read a usage page as broken when CI passed it.** Its
+  contract check knew only the app's own parts, so a *When not* naming a
+  package part (`ListColumn`, `Panel`) failed there and passed in
+  `estiva-ui check`: six of Peek's pages. Both now read `nameableParts`.
+- **A made app's UIG-33 row printed with no title.** A test now holds every
+  row an app checks to a title.
+- **The skill's Gotchas are brought up to date** (R21): a header row is
+  `Panel` now, not `ContainerHeader` alone; a panel's body scrolls; a class
+  list joined by hand is read since 0.44.0.
+
+### What an app does to take it
+
+- Bump `@estiva-app/ui` and its lockfile entry. Peek's UIG-17 reads 2 of 2
+  once it takes this.
 ## 0.46.0 — 2026-09-30 — Ship's blue reads as text, and a sidebar row's own menu
 
 ### Added

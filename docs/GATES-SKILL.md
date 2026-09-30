@@ -2,6 +2,8 @@
 
 Read 23 September 2026. Sources: `K:\Estiva\migration docs\PEEK-ADOPTION.md` §17 (lines 590–642, end of file), `K:\Estiva\migration docs\PLAN.md` §14 (lines 254–870), `docs/GATES-DEBT.md` in estiva-ui / peek / ship at `origin/main`, estiva-ui `docs/GATES.md` at `origin/main` (3,608 lines, all read). Part names and props checked against estiva-ui `origin/main` `registry.json` (87 entries) and the `.mdx` pages.
 
+Brought up to date on 30 September 2026 (UIG-26, Katerina’s ruling R21): what the four sources recorded after that read, from this file’s own commit `349fbfc` to `ffa41bf`, is **Source 5** (rows 543–647). Part names and props checked against `registry.json` at `ffa41bf` (100 entries).
+
 ## A. Counts
 
 | source | defect rows | → a Gotcha | excluded | excluded, by category |
@@ -10,9 +12,10 @@ Read 23 September 2026. Sources: `K:\Estiva\migration docs\PEEK-ADOPTION.md` §1
 | PLAN §14 (rows 14–75) | **62** | 15 | 47 | tooling 33 · a11y 8 · steps 3 · ruled 2 · removed 1 |
 | GATES-DEBT ×3 (rows 76–91) | **16** (estiva-ui 1, peek 5, ship 10) | 1 | 15 | gate 9 · ruled 4 · tooling 2 |
 | GATES.md (rows 92–542) | **451** | 83 | 368 | tooling 225 · ruled 72 · gate 32 · removed 18 · steps 15 · a11y 6 |
-| **total** | **542** | **111** | **431** | tooling 260 · ruled 79 · gate 41 · removed 19 · steps 18 · a11y 14 |
+| after 23 September, to 30 September (rows 543–647) | **105** (GATES.md 104, GATES-DEBT peek 1; PEEK-ADOPTION and PLAN 0) | 2 | 103 | tooling 69 · gate 14 · ruled 12 · removed 6 · steps 1 · a11y 1 |
+| **total** | **647** | **113** | **534** | tooling 329 · ruled 91 · gate 55 · removed 25 · steps 19 · a11y 15 |
 
-**111 + 431 = 542.** Every row is either a Gotcha or one of the six exclusions. The exclusions add up: 260 + 79 + 41 + 19 + 18 + 14 = 431.
+**113 + 534 = 647.** Every row is either a Gotcha or one of the six exclusions. The exclusions add up: 329 + 91 + 55 + 25 + 19 + 15 = 534. To 23 September it was 111 + 431 = 542; Source 5 adds 2 + 103 = 105.
 
 Rows per Gotcha (all 24 carry at least two recorded defects):
 
@@ -29,7 +32,7 @@ Rows per Gotcha (all 24 carry at least two recorded defects):
 | G9 toolbar | 4 | 46, 56, 59, 211 |
 | G10 Form | 3 | 430, 431, 432 |
 | G11 in-app link | 2 | 141, 151 |
-| G12 loading / failure | 7 | 229, 230, 236, 262, 263, 268, 279 |
+| G12 loading / failure | 8 | 229, 230, 236, 262, 263, 268, 279, 567 |
 | G13 floating panel | 2 | 67, 193 |
 | G14 deleting leaves residue | 2 | 61, 65 |
 | G15 story branches / fixtures | 5 | 92, 106, 107, 159, 161 |
@@ -38,11 +41,11 @@ Rows per Gotcha (all 24 carry at least two recorded defects):
 | G18 MDX braces, one-line description | 3 | 98, 116, 124 |
 | G19 escapes | 4 | 220, 408, 464, 465 |
 | G20 class lists the lint cannot see | 3 | 16, 515, 516 |
-| G21 hook reach | 2 | 466, 472 |
+| G21 hook reach | 3 | 466, 472, 646 |
 | G22 lockfile, `npm ci` | 6 | 23, 25, 155, 167, 182, 357 |
 | G23 stale Storybook | 2 | 450, 481 |
 | G24 lagging main, conflicting PR | 2 | 113, 369 |
-| **total** | **111** | |
+| **total** | **113** | |
 
 The rows were counted by a script over table C.
 
@@ -61,6 +64,8 @@ The rows were counted by a script over table C.
 They are in `skill/estiva-ui.md`, the skill's one copy, numbered 1–24 in the order the table below
 calls G1–G24. The text there was shortened from the first draft; the rows each number stands for
 are unchanged. A Gotcha is kept only while at least two recorded defects stand behind it.
+
+On 30 September (UIG-26, R21) the text of 1, 2 and 20 was corrected to what the gates do since: an app’s bare `ContainerHeader` is refused and `Panel` is named (0.37.0), and the token lint reads a list joined by hand (0.44.0). No Gotcha was added (D 18); the rows 1–24 stand for are unchanged, and Source 5 adds one row each to 12 and 21.
 
 ## C. Reconciliation table
 
@@ -672,6 +677,140 @@ All three read "Nothing is owed". The defects are the ones each list records as 
 | 541 | G §23 "Still copied" | Each repo's CLAUDE.md carries its own copy of the gate paragraph | EXCL tooling (UIG-21) |
 | 542 | G §23 "What changes" | One word for the rules and the switch-on files hid a mistake | EXCL tooling |
 
+### Source 5 — recorded after 23 September (to 30 September)
+
+Read 30 September 2026 for UIG-26 (R21), from the ledger's own commit, `349fbfc` (estiva-ui PR #81), to `ffa41bf` (origin/main): `git diff 349fbfc ffa41bf -- docs/GATES.md` (3,629 → 3,862 lines, 282 added), `git log -p` of `docs/GATES-DEBT.md` since 23 September in estiva-ui, peek (`59d261c`) and ship (`4fd5d5d`), and the two migration docs. `PEEK-ADOPTION.md` (642 lines; §17 still ends the file) and `PLAN.md` (1,588 lines) were last changed on 16 September: nothing was added after they were read. The debt lists add one row (647). Where GATES.md names a finding only by its id, the one-line description comes from the review page that holds it: the audit (`https://claude.ai/artifact/7kqeDgG13Rcun9X6ccZxpD`, A–F) and the second review (`https://claude.ai/artifact/8aTHx22Z5PMAvN1KD7QRtF`, R1–R30).
+
+**GATES.md §0, 30 September back to 26 September (UIG-11, UIG-31, UIG-30's check, UIG-42, UIG-40, UIG-33, UIG-30, UIG-10, scrolling, 0.36.0)**
+
+| # | source & location | the defect | where it goes |
+|---|---|---|---|
+| 543 | G §0 30 Sept UIG-11 | The command writes the app's own name as the client id; Estiva ID registered Leaf as `estiva-leaf` | EXCL ruled: not a defect in the command (30 September) |
+| 544 | G §0 29 Sept UIG-31 (photo check) | Peek's hand-built `/` list, narrowed to two groups, drew no line between them | EXCL removed: Peek's lists are the package's `SuggestionMenu` |
+| 545 | G §0 29 Sept UIG-31 ("One behaviour change") | Peek's `@` and `[` lists' arrows stopped at the ends, where the `/` list's wrapped | EXCL removed: as above |
+| 546 | G §0 29 Sept 0.44.1; 28 Sept UIG-42 done ("Seen, not fixed") | The UIG-30 app check flagged Ship's `Activity` for importing the protocol and drawing an `<ol>` (a feed, not a message's text) | EXCL tooling |
+| 547 | G §0 28 Sept UIG-42 part 1 ("Measured on the mains"); UIG-42 done | A box that centres or pads a page `EmptyState`: Peek's direct-message view with nothing open (`useDmConversationView.tsx:136`), removed; Ship's `ProjectCard` "Nothing archived" story, escaped | EXCL gate: `estiva/no-handmade-empty-state` (its third shape) |
+| 548 | G §0 28 Sept UIG-42 token half; §13 UIG-28 found 3 (note); ticket table UIG-42 | 12 probes passed the token check: a class behind an arbitrary variant (`[&_pre]:`, `group-hover/row:`, `data-[state=open]:`), `!text-sm` (not in the ticket), and a list `.join(' ')`ed in `className`, `cn()` or a `const` | EXCL gate: the token lint (the variant pattern on every class rule; `token-joined`) (see D) |
+| 549 | G §0 28 Sept UIG-42 token half | `token-joined`'s own variable was first named `…Classes`, and the check read its settings as a class list | EXCL tooling |
+| 550 | G §0 28 Sept UIG-40 package half ("Found on the way") | The sent message's `Reference` chip, put in the composer as it is, turned blue and underlined, because the editor styles every link | EXCL ruled: not a link while it is written (her scope, 28 September; `link={false}`) (see D) |
+| 551 | G §0 28 Sept UIG-40 (photo check); UIG-30 done (photo check) | Two Screener stories crash on Peek's `main` (`ScreenerItem.tsx:22`, reading `kind`) | EXCL tooling (see D) |
+| 552 | G §0 28 Sept UIG-33 package half (pick 5A) | Ship's project table lit a row on hover while only its title opened | EXCL ruled: 5A, the whole row opens its issue |
+| 553 | G §0 28 Sept UIG-33 done (photo check) | Ship's project chip sat 0.8px high in its 36px row, held by the 21.6px link round it | EXCL ruled: F6, kept centred (`Chip` `href`) |
+| 554 | G §0 28 Sept UIG-33 package half ("Found on the way") | `quiet` with `cover` underlines the title while the row is hovered | EXCL tooling (the package's `Link`) |
+| 555 | G §0 28 Sept UIG-33 package half (pick 6A) | The ticket's places were stale | EXCL tooling |
+| 556 | G §0 28 Sept UIG-33 ("Measured first"; done) | Peek's `ProjectTickets` was unused since FOL-23 | EXCL removed: deleted |
+| 557 | G §0 28 Sept UIG-30 package half ("Photographed first") | Peek drew every code line of a block as its own strip (the inline-code style leaking into the block) | EXCL removed: Peek draws text through `RichText` |
+| 558 | G §0 28 Sept UIG-30 package half | Peek dropped a `table` block entirely (a 0px paragraph) | EXCL removed: as above |
+| 559 | G §0 28 Sept UIG-30 package half | Ship left `[words](address)` and bare addresses as text | EXCL removed: Ship draws text through `RichText` |
+| 560 | G §0 28 Sept UIG-30 package half | The ticket's comment of 22 September said a table became "flat text" | EXCL tooling |
+| 561 | G §0 28 Sept UIG-30 package half and done | The same text drawn two ways: the other nine of the 12 differences, and Ship's view of another app's message as raw text | EXCL ruled: her picks 1A–12A; `small` |
+| 562 | G §0 27 Sept UIG-10 reopened; 27 Sept UIG-11; §15 UIG-11 row | `create-estiva-app` stopped before writing a file from 0.34.0 to 0.37.1 (`no-copied-look` imports TypeScript, which npm does not install with the package); UIG-10 was closed on it, and no test could see it | EXCL tooling |
+| 563 | G §0 26–27 Sept "Scrolling comes from the package" | Peek's panel beside a Ship file cut off a long description: `ContainerHeader` over a box of the app's own, with no scroll; the rule then found 8 such panels in Peek | EXCL gate: `estiva/no-handmade-header` refuses a bare `ContainerHeader` in an app and names `Panel` |
+| 564 | G §0 26–27 Sept; 26 Sept "Also asked the same day" | `ScrollArea`'s bar stayed hidden until the pointer was over it (1,386px of folders in a 442px box, no bar) | EXCL tooling (the package's part, 0.37.0) |
+| 565 | G §0 26–27 Sept (estiva-ui PR #103) | A `Panel` in a plain box with a height grew past it instead of scrolling | EXCL tooling (the package's part, 0.37.1) |
+| 566 | G §0 26–27 Sept (peek PR #373; her ruling, 27 September) | Activity's rows scrolled on their own inside Peek's third column | EXCL ruled: one scroll for the whole column |
+| 567 | G §0 26–27 Sept (peek PR #373) | The conversation skeleton's second line ran past a 380px column (557px wide) | G12 (see D) |
+| 568 | G §0 26 Sept 0.36.0; 25 Sept evening "The wall" (R5) | A plain element with a press handler passed every gate; on main three: Peek's `PersonRow` and Ship's `DescriptionEditor` (escaped), and Peek's search field | EXCL gate: `estiva/no-raw-element` names `Button` (R5); the search field kept by her ruling (card 2, B) |
+| 569 | G §0 26 Sept 0.36.0 (parked); 25 Sept evening "The catalogue" (R20), "leftovers" 8 | Peek had six unused parts; the record listed one | EXCL tooling (`gates:status` names them; parked under "To be removed") |
+
+**GATES.md §0, 25 September (her rulings, the second review, the audit) and "The audit before UIG-26"**
+
+| # | source & location | the defect | where it goes |
+|---|---|---|---|
+| 570 | G §0 25 Sept evening "Escapes" (B1); audit "Plan B" T22 | Escapes were counted as numbers only: not listed, reviewed or dated | EXCL tooling |
+| 571 | G §0 25 Sept evening "Escapes" (B3); audit T22 | One escape marker switched off every rule on its line | EXCL tooling |
+| 572 | G §0 25 Sept evening "The wall" (B4); audit T14 | The hook did not run the token rules | EXCL tooling |
+| 573 | G §0 25 Sept evening "The wall" (B6); audit T13 | `style` on a part was not read | EXCL tooling |
+| 574 | G §0 25 Sept evening "The wall" (R9) | A `style` with quoted keys, or kept in a `const`, passed | EXCL tooling |
+| 575 | G §0 25 Sept evening "The wall" (R10) | The hook said nothing about a copied look | EXCL tooling |
+| 576 | G §0 25 Sept evening "The wall" (R13) | A made app's `gate` steps were written into it once, so a version bump never carried a change | EXCL tooling |
+| 577 | G §0 25 Sept evening "The wall" (B2); audit T23 | Nothing stopped the count rising | EXCL tooling |
+| 578 | G §0 25 Sept evening "The wall" (B11) | Folders the gate skipped were named nowhere | EXCL tooling |
+| 579 | G §0 25 Sept evening "The wall" (B13b) | The wall's own settings (the hook, the gate config) were checked only in `gates:status`, never in CI | EXCL tooling |
+| 580 | G §0 25 Sept evening "The wall" (B13a) | A PR need not be up to date with main to merge; in Peek and Ship an admin still has to switch it on | EXCL tooling |
+| 581 | G §0 25 Sept evening "The catalogue" (B8); 26 Sept 0.36.0; audit T2 | "When not" did not have to name the part to use instead; the words went onto 20 Peek and 5 Ship pages (26 September) | EXCL gate: `estiva-ui check` asks for a part's name or "No alternative:" |
+| 582 | G §0 25 Sept evening "The catalogue" (B9); audit T1 | What a part owns was a hand list, and empty for app parts | EXCL tooling |
+| 583 | G §0 25 Sept evening "The catalogue" (B10); audit T1 | An app part with a page but no stories file had no Storybook link | EXCL tooling |
+| 584 | G §0 25 Sept evening "The catalogue" (R22) | A part with no story link carried no reason; the record's 122 links were 108 | EXCL tooling |
+| 585 | G §0 25 Sept evening "The catalogue" (R19) | A story that throws passed every PR: no app's CI drew a story | EXCL tooling |
+| 586 | G §0 25 Sept evening "The catalogue" (R18); 25 Sept morning ("Not done") | "How" could be met by code elsewhere on the page, and its code was compiled once, not in CI (59 of 68 blocks failed a first try, on stand-in names) | EXCL tooling |
+| 587 | G §0 25 Sept evening "The catalogue" (C6) | "An unclassified part fails the build" was recorded as proved; it was reasoning | EXCL tooling |
+| 588 | G §0 25 Sept evening "Recorded as limits" (B12) | A header row moved into a component of its own passes `no-handmade-header` | EXCL tooling (a recorded limit) |
+| 589 | G §0 25 Sept evening "Recorded as limits" (R12) | A `title` through a wrapper that spreads it onto a `<span>` passes `no-native-title` | EXCL tooling (a recorded limit) |
+| 590 | G §0 25 Sept evening "Not needed" (B14); "Rulings on the guide's six questions" Q5 | No record shows Jan the rule list before it became a gate | EXCL ruled: not needed |
+| 591 | G §0 25 Sept evening "Later" (B15); "Rulings on the guide's six questions" Q3 | Chromatic or the free version was never decided | EXCL ruled: later |
+| 592 | G §0 25 Sept evening "Later" (R21) | The skill's Gotchas stopped learning on 23 September | EXCL tooling (this section) |
+| 593 | G §0 25 Sept evening "Group C" | Changes made without her ruling (C1–C9, and five more on the second review) | EXCL ruled: twelve accepted, C5 and C6 built (25 September) |
+| 594 | G §0 25 Sept evening "Group C" (C5); 26 Sept 0.36.0 (Q5 B) | Folders defect D3 (every folder wore a topic's glyph) was handed to UIG-17 and never reached a page | EXCL tooling (PersonRow's page: "Always pass `type`") |
+| 595 | G §0 25 Sept evening "leftovers (group D)"; §13 (note added 25 September); "added later" row | Thirteen things found on the way had no ticket and no place on UIG-26's list (D1–D13); §13 said nothing was waiting on a missing ticket | EXCL tooling (see D) |
+| 596 | G §0 25 Sept evening "UIG-26 (F1–F3)"; ticket table UIG-26 | UIG-26 could not start as written: its scope and blockers stale, its "UIG-10 made app" baseline deleted on 17 September, and Leaf held | EXCL tooling |
+| 597 | G §0 25 Sept evening "One slip" | The first draw-only Storybook run ran axe on every story: the addon's own global beat the switch | EXCL tooling |
+| 598 | G §0 25 Sept morning (R1) | A made app's required `gate` failed on its first commit (no Docs pages, so `registry:check` refused a link) | EXCL tooling |
+| 599 | G §0 25 Sept morning (R2) | estiva-ui's own hook still let a write through when it could not run | EXCL tooling |
+| 600 | G §0 25 Sept morning (R3) | `gates:compare` had crashed since UIG-19 | EXCL tooling |
+| 601 | G §0 25 Sept morning (R4) | Status's hook check could pass without the raw button being read | EXCL tooling |
+| 602 | G §0 25 Sept morning (R6) | The gate and the hook read only `.ts` and `.tsx` in an app's `src` | EXCL tooling |
+| 603 | G §0 25 Sept morning (R15) | `find` read a neighbour's checkout that was behind main, and did not say so | EXCL tooling |
+| 604 | G §0 25 Sept morning (R16) | The Storybook-map check fitted only Peek's way of writing it, and the package never ran it | EXCL tooling |
+| 605 | G §0 25 Sept morning (R16; ship PR #195) | Ship's heading order named a heading it does not have and left out Pages; its Introduction missed four headings; one old title | EXCL gate: `estiva-ui check` (the Storybook map) |
+| 606 | G §0 25 Sept morning (R17) | "Choosing a component" left out parts that have a page | EXCL tooling (package page) |
+| 607 | G §0 25 Sept morning (R14; peek PR #364) | Seven Peek usage pages named parts and stories FOL-23 had deleted, one of them left by the audit's own fix | EXCL gate: `estiva-ui check` refuses a page that names a part or a story that is not there |
+| 608 | G §0 25 Sept morning ("GitHub, found on the way"); audit ("GitHub ran again"); status row "The audit before UIG-26" | GitHub stopped running Actions for the private repos (billing), so nothing could merge and Peek's deploy was refused | EXCL tooling |
+| 609 | G §0 25 Sept morning ("Also recorded") | estiva-ui's `a11y` job fails three stories on main (FilePicker's two, SectionLabel's Muted) | EXCL a11y |
+| 610 | G §0 25 Sept night; audit "Fixed" A1; §15 UIG-4 row | Ship moved out of `web/` (PER-19), and estiva-ui's status, compare, rules and skills still read `web/` | EXCL tooling |
+| 611 | G §0 25 Sept night; audit A2 | A hook that could not run exited 1 and let the write through; status passed any command containing "gates" | EXCL tooling |
+| 612 | G §0 25 Sept night; audit A3 | Peek's Introduction said 49 reusable parts (41) and named a Huddles heading FOL-23 deleted, `HEADINGS` too; two "Seen in" lines named deleted stories | EXCL gate: `estiva-ui check` (the Storybook map, 0.35.0) |
+| 613 | G §0 25 Sept night; audit A4 | `gates:status` read local checkouts and did not say they were behind (UIG-25 read as not started) | EXCL tooling |
+| 614 | G §0 25 Sept night; audit A5 | Peek's count check read a gitignored `registry.json`; Ship's UIG-18 check had the same trap (ship PR #194) | EXCL tooling |
+| 615 | G §0 25 Sept night; audit B5 | A made app ran the token lint only in `check`, which no merge requires | EXCL tooling |
+| 616 | G §0 25 Sept night; audit B16 | The made `CLAUDE.md`, and Peek's, listed three of the rules, written once | EXCL tooling |
+| 617 | G §0 25 Sept night; audit "Fixed" (—) | Peek's status read `TopicsPage.tsx`, which FOL-23 deleted, and three checks threw | EXCL tooling |
+| 618 | G audit E2; ticket table UIG-3 ("the record said 11"); §15 counts; §16 S2; §21 and §22 debt rows; UIG-18 heading; §3 header row | Stale lines in this file: the ticket table, §15's 32 tickets, §16 S2's merged index, §21–§22's Peek debt list, UIG-18's "none of them fixed", §3's header message, UIG-3's 11 of 11 | EXCL tooling |
+| 619 | G audit E5; "Rulings on the guide's six questions" | Four of her planning rulings were written nowhere here | EXCL tooling |
+| 620 | G audit E3; §0 24 Sept UIG-23 ("launcher escapes … not needed") | Three tickets said the wrong thing: UIG-10's state, UIG-11's shared Storybook and version, UIG-23's closing comment | EXCL tooling |
+| 621 | G audit ("Still hers: E1") | The Ship project description's numbers (29 tickets, 233 components) were out of date | EXCL tooling |
+| 622 | G audit ("Still hers: … E4") | No acceptance box is ticked on any done ticket | EXCL tooling |
+| 623 | G audit "Plan B" T11 (B7); §0 23 Sept UIG-21 (UIG-38 filed); 25 Sept evening "Escapes"; ticket table UIG-38 | An Escape handled by hand on one element passes the gate (Peek 7 places, Ship 1) | EXCL ruled: allowed (25 September) |
+| 624 | G §0 23 Sept UIG-21 (UIG-38 filed); ticket table UIG-38 | The gate misses a hand-drawn `<table>` | EXCL ruled: tables are for later (UIG-38) |
+
+**GATES.md §0, 24 September, and "UIG-25/24/23: building it" (UIG-25, UIG-24, UIG-23, UIG-22)**
+
+| # | source & location | the defect | where it goes |
+|---|---|---|---|
+| 625 | G §0 UIG-25; UIG-25 building it (A1–A6, N1, N2, B2); §3 no-copied-look | The package's own looks copied by hand: field boxes, the floating surface, Chip's words, the bare input, 14 story frames (16 warnings) | EXCL tooling (the package's own code) |
+| 626 | G §0 UIG-25; UIG-25 building it (A4, B1, C1–C4, N4–N8); §3 no-copied-look | Peek's copies (12 warnings): the time typed in nine places, the replies row, the writing box four times, DateDivider ≈ SectionLabel, a 14px title in three panels, Chip's words, a row hover | EXCL gate: `estiva/no-copied-look` (a warning) |
+| 627 | G §0 UIG-25; UIG-25 building it (B2–B5, N9, N10); §3 no-copied-look | Ship's copies (11 warnings): the issues table's Card frame, its headers ≈ Property's label, counts ≈ NavItem's, refs ≈ Breadcrumb's id, the board column | EXCL gate: `estiva/no-copied-look` (a warning) |
+| 628 | G §0 UIG-25; UIG-25 building it D1 | Peek's `CommentAnchor` ≈ Ship's `BlockAnchorNote`: one app's part copied in another, which no lint sees | EXCL steps: 3 (never copy one from another app) |
+| 629 | G UIG-25 building it ("A correction she saw") | The first findings page came from a census that kept only each place's closest part; the built rule found 25 more | EXCL tooling |
+| 630 | G §0 UIG-24; UIG-24 building it ("The count") | `MentionChip.tsx:53` showed a raw address in the browser's tooltip (on an older commit; gone) | EXCL gate: `estiva/no-native-title` names `WithTooltip` |
+| 631 | G §0 UIG-24 ("Also"); UIG-24 building it ("UIG-9's check, widened") | UIG-9's status check pinned the order of the app rules, and a fourth rule turned it red (estiva-ui #88) | EXCL tooling |
+| 632 | G §0 UIG-23; §3 no-handmade-empty-state (recounted); UIG-23 building it | Empty lines drawn by hand where a list's rows would be: the package's `FilePicker` and `ReactionPicker` stories, and four Peek dialogs (`AddToOpenWorkDialog`, `MoveFileDialog`, `MoveUnderDialog`, `StartTopicDialog`) | EXCL gate: `estiva/no-handmade-empty-state` |
+| 633 | G §0 UIG-23; §3 (recounted); UIG-23 building it | UIG-1's wording pass missed Peek's dialogs, and five of its seven Peek hits were the launcher's | EXCL tooling |
+| 634 | G UIG-23 building it (`.verify-empty-scopes.mjs`, retired) | The empty-scope script could not run on Ship, read no stories, and took `ListColumn` for a wrong scope | EXCL tooling |
+| 635 | G §0 UIG-23 ("Found on the way") | Peek's Introduction said 48 reusable parts; the catalogue built 47, and an older `registry.json` still read 48 | EXCL gate: `estiva-ui check` (the Storybook map, 0.35.0) |
+| 636 | G §0 UIG-22; ticket table UIG-22; §3 no-handmade-header | Column header bars drawn by hand: Peek 3 (`FilesPanel`, `ThreadPanel` twice), the package 2 (`DialogShell`, fixed; the palette's level row, escaped) | EXCL gate: `estiva/no-handmade-header` |
+| 637 | G §0 UIG-22 | Three look-alikes: Ship's two status-group headings, Peek's "Huddle" card strip | EXCL ruled: left alone |
+
+**GATES.md §0, 23 September (UIG-21, UIG-37, UIG-20)**
+
+| # | source & location | the defect | where it goes |
+|---|---|---|---|
+| 638 | G §0 23 Sept UIG-21 ("Found on the way and filed") | Four Peek files read data around the seam (PEE-27) | EXCL tooling (app data code) |
+| 639 | G §0 23 Sept UIG-21 ("Found on the way and filed") | Three shared Ship files differ from estiva-agent's copies (SHI-26) | EXCL tooling |
+| 640 | G §0 23 Sept UIG-21; §15 UIG-13 row | UIG-13's check asked `ui:find` to name `--also`, which UIG-20 had replaced | EXCL tooling |
+| 641 | G §0 23 Sept UIG-37 | This repo's ticket list had no UIG-37 row, so status called the apps' rows "not one of the tickets" | EXCL tooling |
+| 642 | G §0 23 Sept UIG-37 ("One correction") | The record said Peek's main went red; the comment was taken out of PR #324 before it merged | EXCL tooling |
+| 643 | G §0 UIG-20 "What was built" (written in `349fbfc`) | The search ranked Peek's `Header` above `ContainerHeader` for "panel header"; a blunter rule buried Ship's `Composer` | EXCL tooling |
+| 644 | G §0 UIG-20 "What was built" (`349fbfc`) | The skill named `Skeleton`, which is not a part (caught by its test on the first run) | EXCL tooling |
+| 645 | G §0 UIG-20 "What Claude Code allowed" (`349fbfc`) | An injected command with `..`, `$(…)` or `node -e` is refused, and a refused command stops the skill opening; `allowed-tools` made opening it ask | EXCL tooling |
+| 646 | G §0 UIG-20 "What Claude Code allowed" (`349fbfc`) | The skill's loader, like the hook, reaches only a session started at the repository's top folder | G21 |
+
+**GATES-DEBT.md, since 23 September**
+
+| # | source & location | the defect | where it goes |
+|---|---|---|---|
+| 647 | debt peek (`6b23614`, 26 September) | The escape counts written by hand had drifted by 25 September (R23) | EXCL tooling |
+
 ## D. Unsure how to classify
 
 1. **Four PLAN findings record no defect, so they have no row:** F11 (stage 0 proof: nothing moved), F14 (two port decisions she ruled), F15 and F18 (the proofs for stages 1 and 2). These are the only entries in the four sources that I read and left without a row. GATES.md also has notes that are not defects and have no row: §0 "UIG-27 overlapped the migration plan", §6 (the escape-boundary numbers), §11 G4 (the docs contract was already met), "the real screens were not re-photographed" (a method note), UIG-29's unbuilt C5 (a ruling not built yet, not a mistake), the UIG-13 "859 pixels" first comparison (the dot grid, not a defect), and the round 2 cards A–M (her decisions on round-1 cards that already have rows).
@@ -684,3 +823,14 @@ All three read "Nothing is owed". The defects are the ones each list records as 
 8. **Stale ticket counts** recur in almost every ticket (#104, #158, #180, #333, #392, #400, #428, #460 …). They are marked `tooling` because they are not screen work, but a session makes this mistake again and again. The skill could add one line: "recount from the code; never trust a ticket's number".
 9. **Two sources overlap.** The UIG-15 table D1–D8 (#325–#332) re-records PEEK-ADOPTION §17 (#1–#7), and PLAN F53 (#64) restates it again. The debt rows #76–#91 re-record instances that also have GATES rows (#379–#391, #403–#417, #425–#427, #476). Each source keeps its own rows, as the ticket asks for counts per source. Rows that count the same instances twice: 8 (UIG-15 table) + 1 (F53) + 16 (debt) = about 25.
 10. **C5–C8, C11, M10, M11 and the S1 correction are only named by id in GATES.md.** Their one-line descriptions come from the review page it links (artifact LUhtwcfi5z5J6uhWhDQx9N, "UIG-14 Findings").
+
+**Added 30 September (Source 5, UIG-26):**
+
+11. **Where Source 5 starts.** It diffs from this file’s own commit, `349fbfc`. But the read above was of 3,608 lines, and `349fbfc`’s GATES.md has 3,629: the UIG-20 paragraph was written after the read, in the same commit. Its four findings are rows 643–646. Separately, the UIG-37 paragraph and its ticket row were in the text read on 23 September (`a9dc295`: the token lint and the gate refused TypeScript’s own `eslint-disable` comment, Peek PR #324), yet they have no row, and D 1 does not list them. They are left as read, not added to Source 4.
+12. **Sources with nothing new.** `PEEK-ADOPTION.md` (642 lines) and `PLAN.md` (1,588) were last changed on 16 September. estiva-ui’s `GATES-DEBT.md` is unchanged since `349fbfc`. Ship’s changed twice: PER-19’s paths (`327d2e2`), and 0.36.0’s "How the escapes are counted now" and "Folders the gate does not read: None" (`1da5561`). Neither records a defect. Peek’s changed once (`6b23614`), which is row 647. Its new line naming `demo-scenarios` records the fix for B11 (row 578), not a new defect.
+13. **Rows the record has since overtaken are kept as read, not re-mapped.** #516 (`.join()`) is read by `token-joined` since 0.44.0, and #520 (arbitrary variants) by the variant pattern. Row 548 records UIG-42’s re-measure of both, with `!text-sm`, which is new. Read today, #516 would be `EXCL gate`. G20 still stands on #16 and #515, and its text now leaves out `.join()`. More defects now have a gate behind them: the hand-made header cases of G1 (`no-handmade-header`, and since 0.37.0 a bare `ContainerHeader` in an app), the hand-made empty states of G3 (`no-handmade-empty-state`), and G8’s `title=` (`no-native-title`). These Gotchas stay: their rows were counted before any gate refused them. #373 (the wider gap) was decided on 28 September (UIG-42): a box that centres or pads a page `EmptyState` is refused, and the sign-in screens stay each app’s own, drawn by hand and read by no gate. That is a ruling on #373, not a new defect, so it has no row, and #373 stays on G3. The whole-row links (#86, #281, #390, ruled "UIG-33") are built: `Link` `cover`, and `no-restyled-part` names `cover` for a link stretched by hand.
+14. **Rows given the nearest category.** #567 (Peek’s conversation skeleton had a 380–420px line that ran past its 380px column; `SkeletonBar` with a fixed `width`, peek `a742986`) → G12. It is a wrong loading state, but G12’s text is about which part to use, not its width. #551 (two Screener stories crash on Peek’s main) → tooling. The record gives only `ScreenerItem.tsx:22`, "reading `kind`", and not why, so I could not tell whether a fixture is to blame (that would make it G15). #550 (`Reference` turned into an editor link in the composer) → ruled, by her scope "not a link while it is written". It happened once.
+15. **Instances counted twice** (as in D 9). #632 includes the `ReactionPicker` story already in #500. #636’s `ThreadPanel` twice is #499’s. #568’s search field is #389’s. #594 is the D3 defect of #3 and #327. #612 and #635 are one page counted on two days. That makes about 6 instances.
+16. **Findings named only by an id in GATES.md.** Their descriptions come from the two review pages cited under Source 5. Rows follow what GATES.md names. R7, R8, R11 and R23–R30 are not named there: R7 is inside #579 (B13), R11 inside #588 (B12), R24 inside #618, and R28 inside #593. R23 is recorded by Peek’s debt list (#647). R8 (token-lint escapes counted nowhere), R25–R27, R29 and R30 have no row. The rulings’ "leftovers (group D), one by one: 1 A … 19 A" are numbered on a page this file does not read, so #595 records them as one gap in the record, not one row each. On group C, the audit page says 9 changes and GATES.md says she accepted twelve and asked for two. Both are true: 9 plus the second review’s five (R28) makes 14 (#593, #594, #587).
+17. **Recorded, but not defects, so no row:** Leaf’s one-socket count under StrictMode, not measured (she ruled the live site enough); Estiva ID answering "Unknown or disabled app" before Jan registered Leaf; UIG-23’s "what it cannot see yet" (neither case exists); UIG-25’s coincidences N6, W1 and W2; UIG-25’s ForeignObjectWidget case, not met on purpose (it is #9); UIG-40’s dropped leftovers and UIG-43 (features and a later ticket, as D 1 treats UIG-29’s C5); axe not running in the scrollbar sweep of 26–27 September.
+18. **No new Gotcha.** The screen work recorded since 23 September is either refused by a gate now (#547, #563, #568, #626, #627, #630, #632, #636) or happened once: #550, #552, #553, #567. None of these has a second recorded defect behind it that no gate refuses. The two nearest: a part that is a link placed inside the editor (#550), and a row lit on hover when only its title opens (#552).

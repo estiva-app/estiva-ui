@@ -13,12 +13,14 @@
  *   used to call drawn nowhere;
  * - a Windows checkout, read with CRLF.
  */
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildAppRegistry } from './app'
-import { contractProblems, hasSeenIn, linkProblems, nameProblems, pageProblem, whenNotProblem } from './contract'
+import { helpers } from '../gates/status'
+import { contractProblems, hasSeenIn, linkProblems, nameableParts, nameProblems, pageProblem, whenNotProblem } from './contract'
+import type { Registry } from './schema'
 
 const made: string[] = []
 afterAll(() => {
@@ -126,6 +128,20 @@ describe('an app against the contract', () => {
       'src/Once.tsx': part('Once', 'one-off'),
     })
     expect(contractProblems(buildAppRegistry({ root: dir, repo: 'fixture' }), dir)).toEqual([])
+  })
+
+  // UIG-26: gates:status knew only the app's own parts, and read six of Peek's pages as broken that CI passed.
+  it('lets a page name a package part, in estiva-ui check and in gates:status alike', async () => {
+    const dir = app({
+      'src/Badge.tsx': part('Badge'),
+      'src/Badge.mdx': PAGE.replace('No alternative: a count has only this badge.', 'A framed column is `Panel`.'),
+      'src/Badge.stories.tsx': "import { Badge } from './Badge'\nconst meta = { title: 'Parts/Badge', component: Badge }\nexport default meta\nexport const Default = {}\n",
+    })
+    const registry = buildAppRegistry({ root: dir, repo: 'fixture' })
+    expect(contractProblems(registry, dir)).toEqual([expect.stringContaining('"When not" names no other part')])
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'registry.json'), 'utf8')) as Registry
+    expect(contractProblems(registry, dir, nameableParts(registry, pkg))).toEqual([])
+    expect(await helpers(dir).contract('.')).toMatchObject({ result: 'pass' })
   })
 
   it('names a reusable part with no page, and the file to write', () => {

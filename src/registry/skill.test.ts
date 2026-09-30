@@ -39,6 +39,7 @@ describe('the skill', () => {
     const props: [string, string][] = [
       ['EmptyState', 'scope'],
       ['ListColumn', 'above'],
+      ['Panel', 'actions'],
       ['IconButton', 'tooltip'],
       ['SectionHeader', 'hover'],
       ['WithTooltip', 'inline'],
@@ -52,6 +53,7 @@ describe('the skill', () => {
 
   it('carries the four regressions the ticket names', () => {
     expect(text).toMatch(/header row drawn by hand[\s\S]*?`ContainerHeader`/)
+    expect(text).toMatch(/header row drawn by hand[\s\S]*?`Panel`/) // an app's bare ContainerHeader is refused since 0.37.0
     expect(text).toMatch(/no scroll container[\s\S]*?`ListColumn`/)
     expect(text).toMatch(/`EditableText` rendering too large/)
     expect(text).toMatch(/`EmptyState` at the wrong level[\s\S]*?scope="page"/)
