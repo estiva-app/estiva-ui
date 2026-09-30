@@ -36,7 +36,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { CONTRACT_KINDS, contractProblems, linkProblems, nameProblems } from './contract'
+import { CONTRACT_KINDS, contractProblems, linkProblems, nameableParts, nameProblems } from './contract'
 import { findInRegistries, formatFindings } from './find'
 import { behindBy, findSiblings, workspaceOf } from './siblings'
 import { loaderPath, loaderProblem, loaderText, repositoryOf, settingsPath, settingsWithSearch } from './skill'
@@ -280,7 +280,7 @@ async function main(): Promise<number> {
         // The usage-page contract and the story links (UIG-19): the one copy, run by every app's `gate` job.
         // A When not may name a part of the package or of this app (B8).
         const pkg = readPackageRegistry()
-        const known = new Set([...pkg.entries, ...registry.entries].map((e) => e.name))
+        const known = nameableParts(registry, pkg)
         const broken = contractProblems(registry, root, known)
         if (broken.length) {
           process.stderr.write(`${broken.length === 1 ? 'a part breaks' : `${broken.length} parts break`} the usage-page contract:\n  ${broken.join('\n  ')}\n`)
