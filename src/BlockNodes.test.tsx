@@ -277,21 +277,11 @@ describe('a block added without an id — MAN-11', () => {
     for (const b of added) expect(b.id).toMatch(ID)
   })
 
-  it('gives a list from the / menu ids on the list and its item', () => {
+  it('gives a quote pasted with its paragraph wrapper an id, and the wrapper none', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: ONE })
-    slash((c) => c.toggleBulletList())
-    const [list] = blocks()
-    expect(list.type).toBe('bulletList')
-    expect(list.id).toMatch(ID)
-    expect(list.inner?.[0]).toMatch(ID)
-  })
-
-  it('gives a quote from the / menu an id', () => {
-    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
-    slash((c) => c.setBlockquote())
-    const [quote] = blocks()
-    expect(quote.type).toBe('blockquote')
-    expect(quote.id).toMatch(ID)
+    editor.commands.setTextSelection(END)
+    editor.view.pasteHTML('<p>x</p><blockquote><p>quoted</p></blockquote>')
+    expect(blocks()[1]).toEqual({ type: 'blockquote', id: expect.stringMatching(ID), inner: [null] })
   })
 
   it('gives the paragraph lifted out of a quote by Backspace an id', () => {
@@ -301,16 +291,16 @@ describe('a block added without an id — MAN-11', () => {
     editor.commands.keyboardShortcut('Backspace')
     const [lifted] = blocks()
     expect(lifted.type).toBe('paragraph')
-    expect(lifted.id).toMatch(ID)
+    expect(lifted.id).toBe('q1')
   })
 
-  it('gives the paragraph of a one-item list turned off an id', () => {
+  it('gives the paragraph of a one-item list turned off the item’s id', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: { type: 'doc', content: [] } })
     editor.commands.setContent({ type: 'doc', content: [{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [{ type: 'listItem', attrs: { blockId: 'i1' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'one' }] }] }] }] })
     editor.chain().setTextSelection(3).toggleBulletList().run()
     const [lifted] = blocks()
     expect(lifted.type).toBe('paragraph')
-    expect(lifted.id).toMatch(ID)
+    expect(lifted.id).toBe('i1')
   })
 
   it('gives a divider and the paragraph kept after it ids', () => {
@@ -333,6 +323,82 @@ describe('a block added without an id — MAN-11', () => {
       editor.destroy()
     }
     editor = undefined
+  })
+})
+
+describe('a commented paragraph turned into a quote or a list — MAN-12', () => {
+  const ID = /^[0-9a-f]{12}$/
+  const TWO = {
+    type: 'doc',
+    content: [
+      { type: 'paragraph', attrs: { blockId: 'p0' }, content: [{ type: 'text', text: 'intro' }] },
+      { type: 'paragraph', attrs: { blockId: 'p1' }, content: [{ type: 'text', text: 'after' }] },
+    ],
+  }
+  type Chain = ReturnType<Editor['chain']>
+  // The ids on the first block, the one inside it, and the one inside that.
+  const first = () => {
+    const outer = editor!.state.doc.child(0)
+    const inner = outer.firstChild?.isBlock ? outer.firstChild : undefined
+    const innermost = inner?.firstChild?.isBlock ? inner.firstChild : undefined
+    return [outer.type.name, outer.attrs.blockId, inner?.attrs.blockId, innermost?.attrs.blockId]
+  }
+  // What a save and a reload hand the next editor: the same JSON, read again.
+  const reload = () => {
+    const saved = editor!.getJSON()
+    editor!.destroy()
+    editor = new Editor({ extensions: EXTENSIONS, content: saved })
+  }
+
+  it('keeps the paragraph’s id on the quote, through a save and a reload', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+    editor.chain().setTextSelection(3).setBlockquote().run()
+    expect(first()).toEqual(['blockquote', 'p0', null, undefined])
+    reload()
+    expect(first()).toEqual(['blockquote', 'p0', null, undefined])
+    expect(editor.state.doc.child(1).attrs.blockId).toBe('p1')
+  })
+
+  for (const [name, toggle, type] of [
+    ['bullet list', (c: Chain) => c.toggleBulletList(), 'bulletList'],
+    ['numbered list', (c: Chain) => c.toggleOrderedList(), 'orderedList'],
+  ] as const) {
+    it(`keeps the paragraph’s id on the item of a ${name}, and gives the list its own, through a save and a reload`, () => {
+      editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+      toggle(editor.chain().setTextSelection(3)).run()
+      const [turned, list, item, paragraph] = first()
+      expect([turned, item, paragraph]).toEqual([type, 'p0', null])
+      expect(list).toMatch(ID)
+      reload()
+      expect(first()).toEqual([type, list, 'p0', null])
+    })
+  }
+
+  it('hands the id back to the paragraph when the quote or the list is turned off', () => {
+    for (const run of [(c: Chain) => c.toggleBlockquote(), (c: Chain) => c.toggleBulletList(), (c: Chain) => c.toggleOrderedList()]) {
+      editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+      run(editor.chain().setTextSelection(3)).run()
+      run(editor.chain().setTextSelection(4)).run()
+      expect(first()).toEqual(['paragraph', 'p0', undefined, undefined])
+      editor.destroy()
+    }
+    editor = undefined
+  })
+
+  it('takes the wrap back with an undo, ids and all', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+    const loaded = editor.getJSON()
+    editor.chain().setTextSelection(3).toggleBulletList().run()
+    editor.commands.undo()
+    expect(editor.getJSON()).toEqual(loaded)
+  })
+
+  it('keeps each paragraph’s id on its own item when both are turned into a list', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+    editor.chain().setTextSelection({ from: 3, to: 10 }).toggleBulletList().run()
+    const list = editor.state.doc.child(0)
+    expect(list.childCount).toBe(2)
+    expect([list.child(0).attrs.blockId, list.child(1).attrs.blockId]).toEqual(['p0', 'p1'])
   })
 })
 

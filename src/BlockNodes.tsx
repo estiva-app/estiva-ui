@@ -95,21 +95,25 @@ function carriedOn(copies: Claim[], before: Claim, mapping: Mapping): Claim | un
     const at = mapping.map(before.pos, 1)
     return copies.find((c) => c.pos === at)
   }
-  // The start of its text, inside the paragraph a list item or quote wraps it in.
-  let start = before.pos + 1
-  if (!before.node.isTextblock) {
+  const at = mapping.map(textStart(before), 1)
+  return copies.find((c) => c.pos < at && at < c.pos + c.node.nodeSize)
+}
+
+/** The start of a block's text, inside the paragraph a list item or quote wraps it in. */
+function textStart({ pos, node }: { pos: number; node: ProseMirrorNode }): number {
+  let start = pos + 1
+  if (!node.isTextblock) {
     let found = false
-    before.node.descendants((node, pos) => {
+    node.descendants((child, at) => {
       if (found) return false
-      if (node.isTextblock) {
-        start = before.pos + 1 + pos + 1
+      if (child.isTextblock) {
+        start = pos + 1 + at + 1
         found = true
       }
       return !found
     })
   }
-  const at = mapping.map(start, 1)
-  return copies.find((c) => c.pos < at && at < c.pos + c.node.nodeSize)
+  return start
 }
 
 /**
@@ -144,16 +148,75 @@ function repeatedBlockIds(doc: ProseMirrorNode, before: ProseMirrorNode, mapping
  */
 const BLOCK_CONTAINERS = new Set(['bulletList', 'orderedList', 'table', 'tableRow', 'tableHeader', 'tableCell'])
 
-/** Where a block the save would give an id has none, so it would get a new one on every save. */
-function unnamedBlocks(doc: ProseMirrorNode): number[] {
-  const out: number[] = []
-  const visit = (block: ProseMirrorNode, at: number) => {
-    if (!BLOCK_TYPE_SET.has(block.type.name)) return
-    const id = block.attrs.blockId
-    if (typeof id !== 'string' || id === '') out.push(at)
-    if (BLOCK_CONTAINERS.has(block.type.name)) block.forEach((child, offset) => visit(child, at + 1 + offset))
+/** The wrappers the save flattens: their paragraphs become inline runs of theirs. */
+const FLATTENED = new Set(['listItem', 'blockquote'])
+
+const idOf = (node: ProseMirrorNode): string | undefined => {
+  const id = node.attrs.blockId
+  return typeof id === 'string' && id !== '' ? id : undefined
+}
+
+/** Every block the save turns into a block, in document order. */
+function addressedBlocks(doc: ProseMirrorNode): { pos: number; node: ProseMirrorNode }[] {
+  const out: { pos: number; node: ProseMirrorNode }[] = []
+  const visit = (node: ProseMirrorNode, pos: number) => {
+    if (!BLOCK_TYPE_SET.has(node.type.name)) return
+    out.push({ pos, node })
+    if (BLOCK_CONTAINERS.has(node.type.name)) node.forEach((child, offset) => visit(child, pos + 1 + offset))
   }
   doc.forEach((node, offset) => visit(node, offset))
+  return out
+}
+
+/** Where a block the save would give an id has none, so it would get a new one on every save. */
+function unnamedBlocks(doc: ProseMirrorNode): number[] {
+  return addressedBlocks(doc)
+    .filter((b) => idOf(b.node) === undefined)
+    .map((b) => b.pos)
+}
+
+/** Where a paragraph inside a list item or a quote claims an id — which the save drops. */
+function hiddenIds(doc: ProseMirrorNode): number[] {
+  const out: number[] = []
+  doc.descendants((node, pos) => {
+    if (!FLATTENED.has(node.type.name)) return
+    node.forEach((child, offset) => {
+      if (child.isTextblock && idOf(child) !== undefined) out.push(pos + 1 + offset)
+    })
+  })
+  return out
+}
+
+/**
+ * The id each block a wrap or a lift brought in takes over — see
+ * {@link BlockId}. An id the save addressed before the change and does not
+ * now goes to the innermost new block its text was carried into: the quote or
+ * the list item around a paragraph, or the paragraph lifted out of one.
+ * Text the change deleted hands nothing on.
+ */
+function handedOver(doc: ProseMirrorNode, before: ProseMirrorNode, mapping: Mapping, unnamed: number[]): Map<number, string> {
+  const out = new Map<number, string>()
+  if (unnamed.length === 0) return out
+  const now = new Set(addressedBlocks(doc).map((b) => idOf(b.node)))
+  // By where their text starts, and of a list and its item around the same text, the item first.
+  const gone = addressedBlocks(before)
+    .filter((b) => !b.node.isLeaf && idOf(b.node) !== undefined && !now.has(idOf(b.node)))
+    .map((b) => ({ ...b, start: textStart(b) }))
+    .sort((a, b) => a.start - b.start || b.pos - a.pos)
+  for (const old of gone) {
+    const id = idOf(old.node)!
+    const { pos: at, deleted } = mapping.mapResult(old.start, 1)
+    if (deleted) continue
+    let inner: number | undefined
+    for (const pos of unnamed) {
+      if (out.has(pos)) continue
+      if (pos < at && at < pos + doc.nodeAt(pos)!.nodeSize && (inner === undefined || pos > inner)) inner = pos
+    }
+    if (inner !== undefined) {
+      out.set(inner, id)
+      now.add(id)
+    }
+  }
   return out
 }
 
@@ -210,6 +273,15 @@ function bringsInBlocks(transactions: readonly Transaction[]): boolean {
  * a comment anchored to it in between was detached. The editor's first
  * document is filled in when it is created, outside the undo history and
  * without an update, so opening a description is not an edit.
+ *
+ * **A wrap or a lift hands the id on** (MAN-12). Turning a paragraph into a
+ * quote or a list wraps it, and ProseMirror leaves its attrs on the paragraph
+ * inside — where the save flattens it and drops the id, so the quote or list
+ * item was published under a new one and every comment anchored to the
+ * paragraph was detached. The quote or the list item takes the paragraph's id
+ * instead, and the list around it a fresh one; lifting the text back out hands
+ * the id to the paragraph again. The paragraph inside keeps no id, as one
+ * loaded from a stored document has none.
  */
 export const BlockId = Extension.create({
   name: 'blockId',
@@ -229,10 +301,15 @@ export const BlockId = Extension.create({
           if (!bringsInBlocks(transactions)) return null
           const mapping = new Mapping()
           for (const tr of transactions) mapping.appendMapping(tr.mapping)
-          const renamed = [...repeatedBlockIds(state.doc, old.doc, mapping), ...unnamedBlocks(state.doc)]
-          if (renamed.length === 0) return null
+          const unnamed = unnamedBlocks(state.doc)
+          const handed = handedOver(state.doc, old.doc, mapping, unnamed)
+          const ids = new Map<number, string | null>()
+          for (const pos of repeatedBlockIds(state.doc, old.doc, mapping)) ids.set(pos, newBlockId())
+          for (const pos of unnamed) ids.set(pos, handed.get(pos) ?? newBlockId())
+          for (const pos of hiddenIds(state.doc)) ids.set(pos, null)
+          if (ids.size === 0) return null
           const tr = state.tr
-          for (const pos of renamed) tr.setNodeAttribute(pos, 'blockId', newBlockId())
+          for (const [pos, id] of ids) tr.setNodeAttribute(pos, 'blockId', id)
           return tr
         },
       }),
