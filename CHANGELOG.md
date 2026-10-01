@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.50.3 — 2026-10-01 — A paragraph turned into a quote or a list keeps its comment
+
+### Fixed
+
+- **`BlockId` hands a paragraph's id to the quote or list item it becomes**
+  (MAN-12, found reviewing MAN-11). A wrap left the id on the paragraph
+  inside, which `@estiva-app/protocol`'s `fromEditorDocument` flattens and
+  drops, and gave the quote or item a fresh one — so the save published it
+  under a new id and every comment anchored to the paragraph was detached.
+  Now the quote or the list item takes the paragraph's id, the list around
+  it gets its own, and the paragraph inside keeps none, as one loaded from a
+  stored document has none. Lifting the text back out (turning the quote or
+  a one-item list off, Backspace at its start) hands the id back to the
+  paragraph instead of minting one. Text a change deleted hands nothing on.
+  No API change; Ship's and Peek's editors get it by taking this version.
+
 ## 0.50.2 — 2026-10-01 — A pasted block keeps one id, and clicking away writes nothing
 
 ### Fixed
