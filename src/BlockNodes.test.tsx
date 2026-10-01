@@ -93,11 +93,11 @@ describe('Enter inside an anchored block — MAN-10', () => {
   }
   // Where "anchored" starts: "intro" is 1 + 5 + 1, then 1 opens the paragraph.
   const START = 8
-  const blocks = () =>
-    ((editor!.getJSON() as Json).content ?? []).map((n) => ({
-      id: n.attrs?.blockId,
-      text: JSON.stringify(n.content ?? []).match(/"text":"([^"]*)"/g)?.map((t) => t.slice(8, -1)).join('') ?? '',
-    }))
+  const blocks = () => {
+    const out: { id: unknown; text: string }[] = []
+    editor!.state.doc.forEach((node) => out.push({ id: node.attrs.blockId, text: node.textContent }))
+    return out
+  }
 
   it('keeps the id on the text when Enter is pressed at the start and the new line is typed into', () => {
     // The usual reason to press Enter there: to write a paragraph above. By the
@@ -145,6 +145,28 @@ describe('Enter inside an anchored block — MAN-10', () => {
     expect(items).toHaveLength(2)
     expect(items[1].attrs?.blockId).toBe('i1')
     expect(items[0].attrs?.blockId).not.toBe('i1')
+  })
+
+  it('leaves the id on the original when a copy is pasted above it', () => {
+    // Both copies hold the same text; only the change says which one was there.
+    editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+    editor.commands.insertContentAt(START - 1, {
+      type: 'paragraph',
+      attrs: { blockId: 'p1' },
+      content: [{ type: 'text', text: 'anchored' }],
+    })
+    const [, pasted, original] = blocks()
+    expect(original).toEqual({ id: 'p1', text: 'anchored' })
+    expect(pasted.text).toBe('anchored')
+    expect(pasted.id).not.toBe('p1')
+  })
+
+  it('never takes an unknown block’s id, which the save hands back untouched', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
+    editor.commands.insertContentAt(0, { type: 'paragraph', attrs: { blockId: 'w1' }, content: [{ type: 'text', text: 'same id' }] })
+    const [first, , , unknown] = blocks()
+    expect(unknown.id).toBe('w1')
+    expect(first.id).not.toBe('w1')
   })
 
   it('takes the fresh id back with an undo of the split', () => {

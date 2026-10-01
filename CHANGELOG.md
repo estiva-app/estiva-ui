@@ -9,12 +9,16 @@
   so Enter at the very start of a paragraph put a copy of its id on the new
   line above. Once something was typed there, the save could not tell the
   halves apart, and the id — with every comment anchored to it (SPEC §13.6) —
-  went to the new line. Now a repeated id stays with the copy that holds text
-  (the first, when none or both do) and the others get fresh ids, in the same
-  transaction, so an undo takes them back. An unknown block always keeps its
-  id. It is the same rule as `@estiva-app/protocol` 0.26.1's
-  `fromEditorDocument`, which stays as the backstop. No API change; Ship's and
-  Peek's editors get it by taking this version.
+  went to the new line. Now, in the same transaction (so an undo takes it
+  back), a repeated id stays with the copy the original block's text carried
+  on into, read from the change's mapping: the lower half for Enter at the
+  start, the upper for Enter anywhere else, and the original — not the copy —
+  when a block is pasted above itself. An unknown block always keeps its id.
+  Where the change says nothing, it falls back to `@estiva-app/protocol`
+  0.26.1's rule (the copy that holds text), which `fromEditorDocument` keeps
+  as the backstop. Most keystrokes skip the check: only a step that brings in
+  blocks can make a repeat. No API change; Ship's and Peek's editors get it
+  by taking this version.
 
 ## 0.50.0 — 2026-10-01 — Words before a form's fields go inside the form
 
