@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.50.4 — 2026-10-01 — The `/` menu and a typed `> ` keep the paragraph's comment too
+
+### Fixed
+
+- **`BlockId` hands the id over when the wrap deletes what was typed**
+  (MAN-12, found by its production check). 0.50.3 asked whether the
+  paragraph's *first character* survived the change. The `/` menu (`/quo`,
+  `/bul`, `/num`) and the typed shortcuts (`> `, `- `, `1. `) delete what
+  was typed at the very start of the text in the same change as the wrap.
+  So on production the quote or list item still got a fresh id. It now asks
+  whether the paragraph's own opening survived, which a wrap or a lift never
+  deletes and a paste over the whole block does. No API change.
+
 ## 0.50.3 — 2026-10-01 — A paragraph turned into a quote or a list keeps its comment
 
 ### Fixed
