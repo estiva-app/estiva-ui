@@ -22,6 +22,10 @@ is switched off at once.
 - One field that saves itself as you leave it → **EditableText**.
 - A field that filters a list as you type → **SearchInput**; nothing is sent.
 
+A `Field`, `TextInput` or `Textarea` with no `Form` around it is refused by
+the gate (`estiva/no-field-outside-a-form`). A question with a field in it is
+**DialogShell** with a form, never **ConfirmDialog**.
+
 ## How
 
 ```tsx
