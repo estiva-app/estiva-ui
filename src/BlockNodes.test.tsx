@@ -374,6 +374,49 @@ describe('a commented paragraph turned into a quote or a list — MAN-12', () =>
     })
   }
 
+  // Ship's `/` menu at the start of the text: type the command, then delete it and wrap in one change.
+  for (const [name, typed, run, type] of [
+    ['quote', '/quo', (c: Chain) => c.setBlockquote(), 'blockquote'],
+    ['bullet list', '/bul', (c: Chain) => c.toggleBulletList(), 'bulletList'],
+    ['numbered list', '/num', (c: Chain) => c.toggleOrderedList(), 'orderedList'],
+  ] as const) {
+    it(`keeps the id when the / menu at the start of the text makes a ${name}`, () => {
+      editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+      editor.chain().setTextSelection(1).insertContent(typed).run()
+      run(editor.chain().focus().deleteRange({ from: 1, to: 1 + typed.length })).run()
+      const [turned, outer, item] = first()
+      expect(turned).toBe(type)
+      expect(type === 'blockquote' ? outer : item).toBe('p0')
+    })
+  }
+
+  // Peek's and Ship's typed shortcuts: the input rule deletes what was typed and wraps.
+  for (const [typed, type] of [['> ', 'blockquote'], ['- ', 'bulletList'], ['1. ', 'orderedList']] as const) {
+    it(`keeps the id when "${typed}" is typed at the start of the text`, () => {
+      editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+      const { view } = editor
+      editor.commands.setTextSelection(1)
+      for (const ch of typed) {
+        const { from, to } = view.state.selection
+        const handled = view.someProp('handleTextInput', (f) => f(view, from, to, ch, () => view.state.tr.insertText(ch, from, to)))
+        if (!handled) view.dispatch(view.state.tr.insertText(ch, from, to))
+      }
+      const [turned, outer, item] = first()
+      expect(turned).toBe(type)
+      expect(type === 'blockquote' ? outer : item).toBe('p0')
+      expect(editor.state.doc.textContent.startsWith('intro')).toBe(true)
+    })
+  }
+
+  it('gives a block pasted over a whole paragraph its own id, not the paragraph’s', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: TWO })
+    editor.commands.setNodeSelection(0)
+    editor.view.pasteHTML('<blockquote><p>new</p></blockquote>')
+    const ids = JSON.stringify(editor.getJSON())
+    expect(editor.state.doc.child(0).type.name).toBe('blockquote')
+    expect(ids).not.toContain('"p0"')
+  })
+
   it('hands the id back to the paragraph when the quote or the list is turned off', () => {
     for (const run of [(c: Chain) => c.toggleBlockquote(), (c: Chain) => c.toggleBulletList(), (c: Chain) => c.toggleOrderedList()]) {
       editor = new Editor({ extensions: EXTENSIONS, content: TWO })

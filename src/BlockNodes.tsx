@@ -192,7 +192,10 @@ function hiddenIds(doc: ProseMirrorNode): number[] {
  * {@link BlockId}. An id the save addressed before the change and does not
  * now goes to the innermost new block its text was carried into: the quote or
  * the list item around a paragraph, or the paragraph lifted out of one.
- * Text the change deleted hands nothing on.
+ * A block the change deleted hands nothing on. What it asks is whether the
+ * block's own opening survived, the token left of its text, not its first
+ * character: the `/` menu and a typed `> ` or `- ` delete what was typed at
+ * the very start of the text in the same change as the wrap.
  */
 function handedOver(doc: ProseMirrorNode, before: ProseMirrorNode, mapping: Mapping, unnamed: number[]): Map<number, string> {
   const out = new Map<number, string>()
@@ -205,7 +208,7 @@ function handedOver(doc: ProseMirrorNode, before: ProseMirrorNode, mapping: Mapp
     .sort((a, b) => a.start - b.start || b.pos - a.pos)
   for (const old of gone) {
     const id = idOf(old.node)!
-    const { pos: at, deleted } = mapping.mapResult(old.start, 1)
+    const { pos: at, deleted } = mapping.mapResult(old.start, -1)
     if (deleted) continue
     let inner: number | undefined
     for (const pos of unnamed) {
