@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react'
 import { Extension, Node } from '@tiptap/core'
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 
 /*
@@ -41,6 +43,46 @@ const BLOCK_TYPES = [
   // comment anchored to it stops resolving.
   'attachment',
 ]
+const BLOCK_TYPE_SET = new Set(BLOCK_TYPES)
+
+/** protocol's `newBlockId`: six random bytes as hex. */
+function newBlockId(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Whether anything typed or inserted is inside — protocol's `holdsText`. An empty paragraph is not; a lone line break is. */
+function holdsText(node: ProseMirrorNode): boolean {
+  let found = false
+  node.descendants((child) => {
+    if (found) return false
+    if ((child.isText && child.text !== '') || child.type.name === 'hardBreak' || child.type.name === 'reference') found = true
+    return !found
+  })
+  return found
+}
+
+/**
+ * Where a block claims an id another block keeps — see {@link BlockId}. An
+ * unknown block always keeps its id: the translation hands its source back
+ * untouched, so re-minting it here would be undone on save.
+ */
+function repeatedBlockIds(doc: ProseMirrorNode): number[] {
+  const claims = new Map<string, { pos: number; node: ProseMirrorNode; fixed: boolean }[]>()
+  doc.descendants((node, pos) => {
+    const fixed = node.type.name === 'unknownBlock'
+    if (!fixed && !BLOCK_TYPE_SET.has(node.type.name)) return
+    const id = node.attrs.blockId
+    if (typeof id !== 'string' || id === '') return
+    claims.set(id, [...(claims.get(id) ?? []), { pos, node, fixed }])
+  })
+  const losers: number[] = []
+  for (const copies of claims.values()) {
+    if (copies.length < 2) continue
+    const owner = copies.find((c) => c.fixed) ?? copies.find((c) => holdsText(c.node)) ?? copies[0]
+    for (const copy of copies) if (copy !== owner && !copy.fixed) losers.push(copy.pos)
+  }
+  return losers
+}
 
 /**
  * `id` on every block, carried as the `blockId` attribute.
@@ -52,9 +94,34 @@ const BLOCK_TYPES = [
  *
  * Rendered as `data-block-id`, which is what `RichText` already emits, so the
  * reading and the editing surface address a block the same way.
+ *
+ * **A split gives the new half its own id, the moment it happens** (MAN-10).
+ * ProseMirror copies a split node's attrs to both halves, so Enter leaves two
+ * blocks claiming one id. Enter at the very start of a paragraph puts the
+ * copy *above* it — and once something is typed there, nothing at save time
+ * can tell which half was the original, so protocol's `fromEditorDocument`
+ * gave the id, and every comment anchored to it, to the new line. Settled
+ * here instead, while the new half is still empty: the copy that holds text
+ * keeps the id (the first one if none or both do), the others get fresh ids.
+ * The same rule as `fromEditorDocument`'s, which stays as the backstop.
  */
 export const BlockId = Extension.create({
   name: 'blockId',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('blockIdSplit'),
+        appendTransaction: (transactions, _old, state) => {
+          if (!transactions.some((tr) => tr.docChanged)) return null
+          const repeats = repeatedBlockIds(state.doc)
+          if (repeats.length === 0) return null
+          const tr = state.tr
+          for (const pos of repeats) tr.setNodeAttribute(pos, 'blockId', newBlockId())
+          return tr
+        },
+      }),
+    ]
+  },
   addGlobalAttributes() {
     return [
       {

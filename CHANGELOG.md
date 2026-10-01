@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.50.1 — 2026-10-01 — Enter at the start of a paragraph keeps its comment on its text
+
+### Fixed
+
+- **`BlockId` gives the new half of a split its own id, as the split
+  happens** (MAN-10). ProseMirror copies a split node's attrs to both halves,
+  so Enter at the very start of a paragraph put a copy of its id on the new
+  line above. Once something was typed there, the save could not tell the
+  halves apart, and the id — with every comment anchored to it (SPEC §13.6) —
+  went to the new line. Now a repeated id stays with the copy that holds text
+  (the first, when none or both do) and the others get fresh ids, in the same
+  transaction, so an undo takes them back. An unknown block always keeps its
+  id. It is the same rule as `@estiva-app/protocol` 0.26.1's
+  `fromEditorDocument`, which stays as the backstop. No API change; Ship's and
+  Peek's editors get it by taking this version.
+
 ## 0.50.0 — 2026-10-01 — Words before a form's fields go inside the form
 
 ### Added
