@@ -54,6 +54,24 @@ export const Default: Story = {
 }
 
 /**
+ * **A long title keeps to its one line** and ends in "…", so the bar stays
+ * 48px and the ✕ stays where it is. A title that names something a person
+ * typed — a file's name in "Archive “…”?" — is the one that gets long.
+ */
+export const ALongTitle: Story = {
+  args: {
+    title: 'Archive “Interesting Claude-generated docs - Renamed 4, with notes from the second review”?',
+    footer: (
+      <>
+        <Button variant="muted">Cancel</Button>
+        <Button variant="primary">Archive topic</Button>
+      </>
+    ),
+    children: <p className="text-body-2 text-text-primary">This hides the topic from every list.</p>,
+  },
+}
+
+/**
  * **`headerContent` replaces the title text** — a back button beside it, a
  * count after it — and the ✕ stays. The dialog is then named by its `title`
  * anyway, since there is no longer a heading to point at.

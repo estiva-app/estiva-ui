@@ -115,11 +115,13 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
             className="bg-bg-elevated border border-border-subtle rounded-lg shadow-lg pointer-events-auto flex flex-col overflow-hidden outline-none"
             style={{ width }}
           >
-            {/* Header: the package's one header bar, with the dialog's own title in it (UIG-22). */}
+            {/* Header: the package's one header bar, with the dialog's own title in it (UIG-22).
+                The title keeps to its one line and ends in "…": a long name wrapped to
+                two lines in the 48px bar and lost its top (Katerina, 1 October). */}
             <ContainerHeader
               title={
                 headerContent ?? (
-                  <Parts.Title className="text-h4 text-text-primary" render={<span />}>
+                  <Parts.Title className="block truncate text-h4 text-text-primary" render={<span />}>
                     {title}
                   </Parts.Title>
                 )
