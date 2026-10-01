@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.49.0 — 2026-10-01 — A dialog's title keeps to one line, and a field needs a form
+
+### Added
+
+- **`estiva/no-field-outside-a-form`**, an app rule that blocks: a `Field`,
+  `TextInput` or `Textarea` with no `Form` around it in its file (the
+  palette's `CommandPaletteForm` counts as one). Without a form nothing owns
+  sending the field — Enter and Ctrl+Enter, `busy`, focus after. A question
+  with a field is `DialogShell` with a `Form`, never a field inside
+  `ConfirmDialog`. `EditableText` and `SearchInput` pass. Katerina, 1 October,
+  after Peek's and Ship's Archive dialog. On the apps' main today it finds
+  their two Archive dialogs (fixed in each app) and Peek's launcher fields,
+  which sit in the palette's form and take an escape.
+
+### Fixed
+
+- **A long dialog title lost its top.** `DialogShell` (and so every
+  `ConfirmDialog`) let its title wrap to two lines inside the 48px bar. It
+  keeps to one line now and ends in "…"; the bar and the ✕ do not move.
+
 ## 0.48.0 — 2026-09-30 — The block nodes, in the editor corner
 
 ### Added

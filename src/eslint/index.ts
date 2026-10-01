@@ -23,6 +23,7 @@ import { noHandRolledBehaviour } from './no-hand-rolled-behaviour'
 import { noHandmadeEmptyState } from './no-handmade-empty-state'
 import { noHandmadeHeader } from './no-handmade-header'
 import { noCopiedLook } from './no-copied-look'
+import { noFieldOutsideAForm } from './no-field-outside-a-form'
 import { noNativeTitle } from './no-native-title'
 import { noRawElement } from './no-raw-element'
 import { noRebuiltBehaviour } from './no-rebuilt-behaviour'
@@ -35,6 +36,7 @@ export { OWNED_BEHAVIOURS, type OwnedBehaviour } from './no-rebuilt-behaviour'
 export { PART_LOOK_PROPS, PLACEMENT } from './no-restyled-part'
 export { PARTS_WITH_A_TITLE } from './no-native-title'
 export { MIN_COVER, MIN_SHARED } from './looks-of'
+export { FIELD_PARTS } from './no-field-outside-a-form'
 
 const { version } = createRequire(import.meta.url)('../../package.json') as { version: string }
 
@@ -56,6 +58,7 @@ const appRules = {
   'no-handmade-empty-state': noHandmadeEmptyState,
   'no-native-title': noNativeTitle,
   'no-copied-look': noCopiedLook,
+  'no-field-outside-a-form': noFieldOutsideAForm,
 } satisfies Record<AppRuleName, unknown>
 
 /**
@@ -119,6 +122,7 @@ plugin.configs.recommended = {
     [`${PLUGIN_KEY}/no-native-title`]: 'error',
     // A warning, never an error (Katerina, 13 September): likeness is a judgement.
     [`${PLUGIN_KEY}/no-copied-look`]: 'warn',
+    [`${PLUGIN_KEY}/no-field-outside-a-form`]: 'error',
   },
 }
 plugin.configs.strict = {

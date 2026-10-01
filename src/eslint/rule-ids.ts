@@ -21,6 +21,7 @@ export const APP_RULE_NAMES = [
   'no-handmade-empty-state',
   'no-native-title',
   'no-copied-look',
+  'no-field-outside-a-form',
 ] as const
 
 export type AppRuleName = (typeof APP_RULE_NAMES)[number]
