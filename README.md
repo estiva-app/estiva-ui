@@ -79,6 +79,8 @@ instead. There are seven — six block, one warns:
   `className` or an inner box's class prop — a colour, a text size, a border, a
   corner, a shadow — and names the part's look props (`PART_LOOK_PROPS`). Only
   placement goes through (`PLACEMENT`), and `EmptyState` takes no padding.
+  A `Form` takes no layout of its own, and sits in no spaced box beside other
+  things: what comes before its fields goes inside it.
 - `estiva/no-handmade-header` refuses a column's header bar drawn by hand: a
   row first in a column, with its own side padding and a title, where the column
   fills its height or the row has a bar's height or hairline. It reads the

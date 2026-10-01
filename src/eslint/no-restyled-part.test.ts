@@ -77,6 +77,10 @@ tester.run('no-restyled-part', noRestyledPart, {
     { name: 'Form placed, its fields its own', filename: app, code: ui('Form', '    <Form onSubmit={send} className="min-h-0 flex-1 px-5">x</Form>') },
     { name: 'a free Form lays itself out', filename: app, code: ui('Form', '    <Form onSubmit={send} layout="free" className="flex items-center gap-2">x</Form>') },
     { name: 'a Form whose layout the rule cannot read passes', filename: app, code: ui('Form', '    <Form onSubmit={send} layout={how} className="flex gap-2">x</Form>') },
+    { name: "Peek's MoveDialog: the sentences one block inside the Form", filename: app, code: ui('Form', '    <Form onSubmit={send}><div className="flex flex-col gap-2"><p>Notes</p><p>Everyone who can read it now still can.</p></div>x</Form>') },
+    { name: 'a spaced box with only the Form in it spaces nothing', filename: app, code: ui('Form', '    <div className="flex flex-col gap-3"><Form onSubmit={send}>x</Form></div>') },
+    { name: 'a box beside the Form with no spacing of its own', filename: app, code: ui('Form', '    <div className="flex flex-col"><p>Hides it.</p><Form onSubmit={send}>x</Form></div>') },
+    { name: 'a free Form in a spaced row is laid out by its row', filename: app, code: ui('Form', '    <div className="flex items-center gap-2"><p>Name</p><Form onSubmit={send} layout="free">x</Form></div>') },
     // escapes
     { name: 'escaped, with its reason', filename: app, code: ui('Link', '    // @estiva-escape(no-restyled-part): the whole row is the link, and no part does that yet\n    <Link href="/x" className="after:absolute after:inset-0">x</Link>') },
     // the package itself
@@ -188,6 +192,18 @@ tester.run('no-restyled-part', noRestyledPart, {
       filename: app,
       code: "import { Link, type LinkProps } from '@estiva-app/ui'\nfunction RouterLink({ href, ...props }: LinkProps) {\n  return <Link href={href} {...props} />\n}\nexport function Probe() {\n  return <RouterLink href=\"/x\" className=\"text-h5\">x</RouterLink>\n}\n",
       errors: [{ message: restyled('`text-h5`', '`RouterLink` (it hands its props to `Link`)', ' Use its `variant`, `truncate` or `cover`.') }],
+    },
+    {
+      name: "Peek's and Ship's ArchiveDialog at 0.49.0: sentences and the Form in a gap-3 box, 12px above the field",
+      filename: app,
+      code: ui('Form', '    <div className="flex flex-col gap-3 text-body-2 text-text-primary"><p>This hides the topic.</p><p>Nothing is deleted.</p><Form id="f" onSubmit={send}>x</Form></div>'),
+      errors: [{ message: '`gap-3` on the box around `Form` spaces the form from what is beside it, so the gap above its first field is not the form’s 24px. Put what is beside it inside the `Form`, as one block before the fields, and drop the box: the Form puts 24px between them (Katerina, 1 October; MoveDialog in Peek does this).' }],
+    },
+    {
+      name: "a DialogShell's body spaced around the Form and a sentence",
+      filename: app,
+      code: ui('DialogShell, Form', '    <DialogShell title="Note" onClose={send} bodyClassName="flex flex-col space-y-4"><p>Say why.</p><Form onSubmit={send}>x</Form></DialogShell>'),
+      errors: [{ message: '`space-y-4` on the box around `Form` spaces the form from what is beside it, so the gap above its first field is not the form’s 24px. Put what is beside it inside the `Form`, as one block before the fields, and drop the box: the Form puts 24px between them (Katerina, 1 October; MoveDialog in Peek does this).' }],
     },
     {
       name: 'a Form laid out by hand',

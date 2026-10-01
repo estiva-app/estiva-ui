@@ -63,6 +63,11 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
   September), so every form reads the same. Pass no layout of your own: the
   gate lint refuses a gap, a direction or a grid on a `Form`. `className`
   still places the form itself: its space around, its size.
+- **Words before the fields go inside the form**, as one block (a title and
+  its sentence, 8px apart): the form then puts the same 24px between them
+  and the first field. A box of your own around the words and the form, with
+  its own gap, sets that space instead, and the gate lint refuses it
+  (Katerina, 1 October: Archive read 12px where Move read 24px).
 - **`layout="free"`** is for a form that is not a list of fields: a field and
   its button, a composer. It places nothing, and `className` lays it out.
 - The form draws no box, and neither does the `<fieldset>` inside it.
@@ -77,6 +82,7 @@ It does these by itself. Write none of them around it.
 | Leaves Enter alone where it means something else: a Textarea, a list, a people picker | exceptions of your own |  |
 | Does nothing while it is sending: no second send, and nothing inside takes focus | a busy flag on every control |  |
 | Stacks its fields in one column, 24px apart | a gap, a direction or a grid on the form | `no-restyled-part` |
+| Puts 24px between the words before the fields and the first one | a spaced box around the words and the form | `no-restyled-part` |
 
 ## Keys
 
