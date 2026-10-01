@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.50.0 — 2026-10-01 — Words before a form's fields go inside the form
+
+### Added
+
+- **`estiva/no-restyled-part` refuses a `Form` spaced from outside**: a box
+  of your own, with a gap (`gap-*`, `space-*`, on its `className` or a part's
+  `bodyClassName`), holding the form and something beside it. The gap above
+  the first field is then the box's, not the form's 24px. The fix is to put
+  the words inside the form, as one block before the fields, as Peek's
+  `MoveDialog` does. Katerina, 1 October: Peek's and Ship's Archive read 12px
+  between its sentences and the Resolution field, where Move reads 24px. On
+  the apps' main it finds those two and nothing else; the package has none.
+
 ## 0.49.0 — 2026-10-01 — A dialog's title keeps to one line, and a field needs a form
 
 ### Added

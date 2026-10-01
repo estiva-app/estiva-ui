@@ -105,6 +105,12 @@ const isFieldsLayout = (token: string) => {
   return !variants.some((variant) => REACHING_VARIANT.test(variant)) && FIELDS_LAYOUT.test(utility)
 }
 
+/** Room between a box's children, down the page or across it: what spaces a Form from its neighbours. */
+const isSpacing = (token: string) => {
+  const { variants, utility } = splitClass(token)
+  return !variants.some((variant) => REACHING_VARIANT.test(variant)) && /^(?:gap|gap-x|gap-y|space-x|space-y)-/.test(utility)
+}
+
 const isPadding = (token: string) => {
   const { variants, utility } = splitClass(token)
   return !variants.some((variant) => REACHING_VARIANT.test(variant)) && /^p[xytrblse]?-/.test(utility)
@@ -623,6 +629,8 @@ export const noRestyledPart: Rule.RuleModule = {
         '{{classes}} pads {{where}}. EmptyState takes no padding (Katerina, 14 September): its room comes from the box its rows live in, so put the padding on that box.',
       formLayout:
         '{{classes}} lays out the fields of {{where}}. A Form places its own fields, 24px apart (Katerina, 28 September), so every form reads the same: remove it. A form that is not a list of fields (a field and its button, a composer) says `layout="free"` and lays itself out.',
+      formSpacedFromOutside:
+        '{{classes}} on the box around `Form` spaces the form from what is beside it, so the gap above its first field is not the form’s 24px. Put what is beside it inside the `Form`, as one block before the fields, and drop the box: the Form puts 24px between them (Katerina, 1 October; MoveDialog in Peek does this).',
       ...ESCAPE_MESSAGES,
     },
   },
@@ -685,6 +693,34 @@ export const noRestyledPart: Rule.RuleModule = {
       context.report({ loc: at.loc as NonNullable<Rule.Node['loc']>, messageId: 'restyledStyle', data: { keys: code([...new Set(keys)]), where, use } })
     }
 
+    /**
+     * A Form with something beside it, in a box that spaces them: the gap
+     * above the first field is then the box's, not the Form's 24px (Peek's and
+     * Ship's ArchiveDialog, 1 October: 12px). Read on the box's own class
+     * props, `className` or a part's `bodyClassName`; a box with only the Form
+     * in it spaces nothing.
+     */
+    const checkSpacedFromOutside = (opening: Node) => {
+      const form = opening.parent as Node | undefined
+      const box = form?.parent as Node | undefined
+      if (form?.type !== 'JSXElement' || box?.type !== 'JSXElement') return
+      const beside = children(box, 'children').filter((node) => {
+        if (!node || node === form) return false
+        if (node.type === 'JSXText') return String(node.value).trim() !== ''
+        if (node.type === 'JSXExpressionContainer') return child(node, 'expression')?.type !== 'JSXEmptyExpression'
+        return true
+      })
+      if (!beside.length) return
+      const boxOpening = child(box, 'openingElement') as Node
+      const spacing = children(boxOpening, 'attributes').flatMap((attribute) => {
+        if (attribute?.type !== 'JSXAttribute') return []
+        const prop = nameOf(child(attribute, 'name'))
+        return prop === 'className' || prop === 'bodyClassName' ? classesOf(child(attribute, 'value'), scopeOf).filter(isSpacing) : []
+      })
+      if (!spacing.length || escaped(opening)) return
+      context.report({ loc: opening.loc as NonNullable<Rule.Node['loc']>, messageId: 'formSpacedFromOutside', data: { classes: code([...new Set(spacing)]) } })
+    }
+
     return {
       Program(program) {
         locals = moduleParts(file, program as unknown as Node, parser, new Set([file])).locals
@@ -693,6 +729,7 @@ export const noRestyledPart: Rule.RuleModule = {
         const element = ruleNode as unknown as Node
         const binding = locals && bindingOfTag(child(element, 'name'), locals)
         if (!binding) return
+        if (binding.part === 'Form' && binding.props === 'all' && placesItsFields(element)) checkSpacedFromOutside(element)
         for (const attribute of children(element, 'attributes')) {
           if (!attribute) continue
           if (attribute.type === 'JSXAttribute') {
