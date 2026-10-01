@@ -6,8 +6,9 @@
 
 - **`BlockId` gives a block that arrives without an id one, as it arrives**
   (MAN-11): a paste, a `/` menu insert (a list and its items, a quote, a
-  divider), the paragraph StarterKit keeps at the end, and the empty
-  paragraph a new editor starts with. `@estiva-app/protocol`'s
+  divider), the paragraph StarterKit keeps at the end, the empty paragraph
+  a new editor starts with, and a paragraph lifted out of a quote or a
+  one-item list (a wrap or lift step is always checked now). `@estiva-app/protocol`'s
   `fromEditorDocument` mints an id for such a block on every save and the
   editor never got it back, so each blur gave the block a different id: a
   blur with no edit published again, and a comment anchored to it between

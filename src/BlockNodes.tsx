@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import { Extension, Node } from '@tiptap/core'
 import type { Node as ProseMirrorNode, Slice } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
-import { Mapping } from '@tiptap/pm/transform'
+import { Mapping, ReplaceAroundStep } from '@tiptap/pm/transform'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 
 /*
@@ -159,12 +159,15 @@ function unnamedBlocks(doc: ProseMirrorNode): number[] {
 
 /**
  * Whether a change could have made a repeat or a block without an id: only a
- * step that brings in blocks can. Typing, deleting and marks bring in none,
- * so most keystrokes skip the walk.
+ * step that brings in blocks can, or one that wraps or lifts them — lifting
+ * the paragraph out of a quote or a one-item list brings in nothing, yet
+ * leaves a block the save addresses with the wrapper's missing id. Typing,
+ * deleting and marks do neither, so most keystrokes skip the walk.
  */
 function bringsInBlocks(transactions: readonly Transaction[]): boolean {
   return transactions.some((tr) =>
     tr.steps.some((step) => {
+      if (step instanceof ReplaceAroundStep) return true
       const slice = (step as { slice?: Slice }).slice
       let blocks = false
       slice?.content.forEach((node) => {

@@ -270,7 +270,9 @@ describe('a block added without an id — MAN-11', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: ONE })
     editor.commands.setTextSelection(END)
     editor.view.pasteText('first\n\nsecond')
-    const [, ...added] = blocks()
+    const [intro, ...added] = blocks()
+    expect(intro.id).toBe('p0')
+    expect(editor.state.doc.lastChild?.textContent).toBe('second')
     expect(added.length).toBeGreaterThan(0)
     for (const b of added) expect(b.id).toMatch(ID)
   })
@@ -290,6 +292,25 @@ describe('a block added without an id — MAN-11', () => {
     const [quote] = blocks()
     expect(quote.type).toBe('blockquote')
     expect(quote.id).toMatch(ID)
+  })
+
+  it('gives the paragraph lifted out of a quote by Backspace an id', () => {
+    // A quote as loaded: its paragraph wrapper has no id, which the save does not need.
+    editor = new Editor({ extensions: EXTENSIONS, content: { type: 'doc', content: [{ type: 'blockquote', attrs: { blockId: 'q1' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'quoted' }] }] }] } })
+    editor.chain().setTextSelection(2).run()
+    editor.commands.keyboardShortcut('Backspace')
+    const [lifted] = blocks()
+    expect(lifted.type).toBe('paragraph')
+    expect(lifted.id).toMatch(ID)
+  })
+
+  it('gives the paragraph of a one-item list turned off an id', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: { type: 'doc', content: [] } })
+    editor.commands.setContent({ type: 'doc', content: [{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [{ type: 'listItem', attrs: { blockId: 'i1' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'one' }] }] }] }] })
+    editor.chain().setTextSelection(3).toggleBulletList().run()
+    const [lifted] = blocks()
+    expect(lifted.type).toBe('paragraph')
+    expect(lifted.id).toMatch(ID)
   })
 
   it('gives a divider and the paragraph kept after it ids', () => {
