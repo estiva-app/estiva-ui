@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.50.2 — 2026-10-01 — A pasted block keeps one id, and clicking away writes nothing
+
+### Fixed
+
+- **`BlockId` gives a block that arrives without an id one, as it arrives**
+  (MAN-11): a paste, a `/` menu insert (a list and its items, a quote, a
+  divider), the paragraph StarterKit keeps at the end, and the empty
+  paragraph a new editor starts with. `@estiva-app/protocol`'s
+  `fromEditorDocument` mints an id for such a block on every save and the
+  editor never got it back, so each blur gave the block a different id: a
+  blur with no edit published again, and a comment anchored to it between
+  two saves was detached. It fills exactly the blocks the save keeps an id
+  for — not the paragraph inside a list item or a quote, which the save
+  flattens. The editor's first document is filled when it is created,
+  outside the undo history and without an `update`, so opening a
+  description is not an edit. A paragraph turned into a heading or code
+  keeps its id, as before. No API change; Ship's and Peek's editors get it
+  by taking this version.
+
 ## 0.50.1 — 2026-10-01 — Enter at the start of a paragraph keeps its comment on its text
 
 ### Fixed

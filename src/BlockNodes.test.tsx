@@ -39,6 +39,11 @@ const DOCUMENT = {
 
 type Json = { type: string; attrs?: Record<string, unknown>; content?: Json[] }
 
+// jsdom has no ClipboardEvent, which ProseMirror's `pasteHTML` and `pasteText` make.
+globalThis.ClipboardEvent ??= class extends Event {
+  clipboardData = null
+} as unknown as typeof ClipboardEvent
+
 let editor: Editor | undefined
 afterEach(() => {
   editor?.destroy()
@@ -178,6 +183,135 @@ describe('Enter inside an anchored block — MAN-10', () => {
       { id: 'p0', text: 'intro' },
       { id: 'p1', text: 'anchored' },
     ])
+  })
+})
+
+describe('a block added without an id — MAN-11', () => {
+  const ID = /^[0-9a-f]{12}$/
+  const ONE = { type: 'doc', content: [{ type: 'paragraph', attrs: { blockId: 'p0' }, content: [{ type: 'text', text: 'intro' }] }] }
+  // The end of "intro": 1 opens the paragraph, then 5 characters.
+  const END = 6
+  const blocks = () => {
+    const out: { type: string; id: unknown; inner?: unknown[] }[] = []
+    editor!.state.doc.forEach((node) => {
+      const inner: unknown[] = []
+      node.forEach((child) => {
+        if (child.isBlock) inner.push(child.attrs.blockId)
+      })
+      out.push({ type: node.type.name, id: node.attrs.blockId, ...(inner.length ? { inner } : {}) })
+    })
+    return out
+  }
+  // The editor's `create` comes a tick after it mounts.
+  const created = () => new Promise((resolve) => setTimeout(resolve, 0))
+  // What the `/` menu does (Ship's `slashMenu.tsx`): delete the typed "/" and run the command.
+  type Chain = ReturnType<Editor['chain']>
+  const slash = (run: (chain: Chain) => Chain) => {
+    editor!.chain().setTextSelection(END).insertContent('/').run()
+    run(editor!.chain().focus().deleteRange({ from: END, to: END + 1 })).run()
+  }
+
+  it('gives the empty paragraph a new editor starts with an id, without an edit to undo or an update', async () => {
+    let updates = 0
+    editor = new Editor({ extensions: EXTENSIONS, onUpdate: () => void updates++ })
+    await created()
+    const [first] = blocks()
+    expect(first.id).toMatch(ID)
+    editor.commands.undo()
+    expect(blocks()[0].id).toBe(first.id)
+    expect(updates).toBe(0)
+  })
+
+  it('keeps the id it gave the first paragraph once it is typed into', async () => {
+    editor = new Editor({ extensions: EXTENSIONS })
+    await created()
+    const [first] = blocks()
+    expect(first.id).toMatch(ID)
+    editor.chain().setTextSelection(1).insertContent('typed').run()
+    expect(blocks()[0].id).toBe(first.id)
+  })
+
+  it('changes nothing in a document whose blocks all have ids', async () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
+    const loaded = editor.getJSON()
+    await created()
+    expect(editor.getJSON()).toEqual(loaded)
+  })
+
+  it('gives each pasted block an id as it is pasted, and the same one on every read after', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    editor.commands.setTextSelection(END)
+    editor.view.pasteHTML('<p>one</p><h2>two</h2><ul><li><p>three</p></li></ul>')
+    const pasted = blocks()
+    // "one" joins the line it is pasted into; the paragraph after the list is the one StarterKit keeps at the end.
+    expect(pasted.map((b) => b.type)).toEqual(['paragraph', 'heading', 'bulletList', 'paragraph'])
+    expect(pasted[0].id).toBe('p0')
+    for (const b of pasted.slice(1)) expect(b.id).toMatch(ID)
+    expect(pasted[2].inner?.[0]).toMatch(ID)
+    // What a later save reads: the same ids, after typing elsewhere as before it.
+    const saved = JSON.stringify(editor.getJSON())
+    editor.chain().setTextSelection(END).insertContent(' more').run()
+    expect(blocks()).toEqual(pasted)
+    expect(JSON.stringify(editor.getJSON()).replace(' more', '')).toBe(saved)
+  })
+
+  it('leaves the paragraph inside a list item or a quote without one, which the save flattens', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    editor.commands.setTextSelection(END)
+    editor.view.pasteHTML('<p>x</p><ul><li><p>item</p></li></ul><blockquote><p>quoted</p></blockquote>')
+    const [, list, quote] = blocks()
+    expect(list.inner?.[0]).toMatch(ID)
+    const item = editor.state.doc.child(1).child(0)
+    expect(item.child(0).attrs.blockId).toBeNull()
+    expect(quote).toEqual({ type: 'blockquote', id: expect.stringMatching(ID), inner: [null] })
+  })
+
+  it('gives a pasted plain text its id too', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    editor.commands.setTextSelection(END)
+    editor.view.pasteText('first\n\nsecond')
+    const [, ...added] = blocks()
+    expect(added.length).toBeGreaterThan(0)
+    for (const b of added) expect(b.id).toMatch(ID)
+  })
+
+  it('gives a list from the / menu ids on the list and its item', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    slash((c) => c.toggleBulletList())
+    const [list] = blocks()
+    expect(list.type).toBe('bulletList')
+    expect(list.id).toMatch(ID)
+    expect(list.inner?.[0]).toMatch(ID)
+  })
+
+  it('gives a quote from the / menu an id', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    slash((c) => c.setBlockquote())
+    const [quote] = blocks()
+    expect(quote.type).toBe('blockquote')
+    expect(quote.id).toMatch(ID)
+  })
+
+  it('gives a divider and the paragraph kept after it ids', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+    editor.commands.setTextSelection(END)
+    editor.commands.setHorizontalRule()
+    const [intro, ...added] = blocks()
+    expect(intro.id).toBe('p0')
+    expect(added.map((b) => b.type)).toContain('horizontalRule')
+    for (const b of added) expect(b.id).toMatch(ID)
+  })
+
+  it('keeps the id on a paragraph the / menu turns into a heading or code', () => {
+    for (const run of [(c: Chain) => c.setHeading({ level: 1 }), (c: Chain) => c.setCodeBlock()]) {
+      editor = new Editor({ extensions: EXTENSIONS, content: ONE })
+      slash(run)
+      const [turned, ...after] = blocks()
+      expect(turned.id).toBe('p0')
+      for (const b of after) expect(b.id).toMatch(ID)
+      editor.destroy()
+    }
+    editor = undefined
   })
 })
 
