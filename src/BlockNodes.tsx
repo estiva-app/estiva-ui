@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import { Extension, Node } from '@tiptap/core'
 import type { Node as ProseMirrorNode, Slice } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
-import { Mapping } from '@tiptap/pm/transform'
+import { Mapping, ReplaceAroundStep } from '@tiptap/pm/transform'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 
 /*
@@ -137,13 +137,37 @@ function repeatedBlockIds(doc: ProseMirrorNode, before: ProseMirrorNode, mapping
 }
 
 /**
- * Whether a change could have made a repeat: only a step that brings in
- * blocks can. Typing, deleting and marks bring in none, so most keystrokes
- * skip the walk.
+ * The blocks a save turns into blocks — exactly what protocol's
+ * `blockFromEditor` walks — so a list, a table and its rows and cells are
+ * walked into, and a list item or a quote is not: the save flattens their
+ * paragraph wrappers into inline runs, so an id there would be dropped.
+ */
+const BLOCK_CONTAINERS = new Set(['bulletList', 'orderedList', 'table', 'tableRow', 'tableHeader', 'tableCell'])
+
+/** Where a block the save would give an id has none, so it would get a new one on every save. */
+function unnamedBlocks(doc: ProseMirrorNode): number[] {
+  const out: number[] = []
+  const visit = (block: ProseMirrorNode, at: number) => {
+    if (!BLOCK_TYPE_SET.has(block.type.name)) return
+    const id = block.attrs.blockId
+    if (typeof id !== 'string' || id === '') out.push(at)
+    if (BLOCK_CONTAINERS.has(block.type.name)) block.forEach((child, offset) => visit(child, at + 1 + offset))
+  }
+  doc.forEach((node, offset) => visit(node, offset))
+  return out
+}
+
+/**
+ * Whether a change could have made a repeat or a block without an id: only a
+ * step that brings in blocks can, or one that wraps or lifts them — lifting
+ * the paragraph out of a quote or a one-item list brings in nothing, yet
+ * leaves a block the save addresses with the wrapper's missing id. Typing,
+ * deleting and marks do neither, so most keystrokes skip the walk.
  */
 function bringsInBlocks(transactions: readonly Transaction[]): boolean {
   return transactions.some((tr) =>
     tr.steps.some((step) => {
+      if (step instanceof ReplaceAroundStep) return true
       const slice = (step as { slice?: Slice }).slice
       let blocks = false
       slice?.content.forEach((node) => {
@@ -177,9 +201,26 @@ function bringsInBlocks(transactions: readonly Transaction[]): boolean {
  * keeps its own rule (the copy that holds text) as the backstop for an
  * editor without this extension; where the change says nothing, this falls
  * back to that rule too.
+ *
+ * **A block that arrives without an id gets one, the moment it arrives**
+ * (MAN-11): a paste, a `/` menu insert, the empty paragraph a new editor
+ * starts with and the one StarterKit keeps at the end. `fromEditorDocument`
+ * mints an id for such a block on every save and the editor never sees it, so
+ * each save gave it a different one — a blur with no edit published again, and
+ * a comment anchored to it in between was detached. The editor's first
+ * document is filled in when it is created, outside the undo history and
+ * without an update, so opening a description is not an edit.
  */
 export const BlockId = Extension.create({
   name: 'blockId',
+  onCreate() {
+    const { state, view } = this.editor
+    const unnamed = unnamedBlocks(state.doc)
+    if (unnamed.length === 0) return
+    const tr = state.tr
+    for (const pos of unnamed) tr.setNodeAttribute(pos, 'blockId', newBlockId())
+    view.dispatch(tr.setMeta('addToHistory', false).setMeta('preventUpdate', true))
+  },
   addProseMirrorPlugins() {
     return [
       new Plugin({
@@ -188,10 +229,10 @@ export const BlockId = Extension.create({
           if (!bringsInBlocks(transactions)) return null
           const mapping = new Mapping()
           for (const tr of transactions) mapping.appendMapping(tr.mapping)
-          const repeats = repeatedBlockIds(state.doc, old.doc, mapping)
-          if (repeats.length === 0) return null
+          const renamed = [...repeatedBlockIds(state.doc, old.doc, mapping), ...unnamedBlocks(state.doc)]
+          if (renamed.length === 0) return null
           const tr = state.tr
-          for (const pos of repeats) tr.setNodeAttribute(pos, 'blockId', newBlockId())
+          for (const pos of renamed) tr.setNodeAttribute(pos, 'blockId', newBlockId())
           return tr
         },
       }),
