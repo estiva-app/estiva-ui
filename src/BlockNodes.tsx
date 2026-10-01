@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react'
 import { Extension, Node } from '@tiptap/core'
+import type { Node as ProseMirrorNode, Slice } from '@tiptap/pm/model'
+import { Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
+import { Mapping } from '@tiptap/pm/transform'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 
 /*
@@ -41,6 +44,115 @@ const BLOCK_TYPES = [
   // comment anchored to it stops resolving.
   'attachment',
 ]
+const BLOCK_TYPE_SET = new Set(BLOCK_TYPES)
+
+/** protocol's `newBlockId`: six random bytes as hex. */
+function newBlockId(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Whether anything typed or inserted is inside — protocol's `holdsText`. An empty paragraph is not; a lone line break is. */
+function holdsText(node: ProseMirrorNode): boolean {
+  let found = false
+  node.descendants((child) => {
+    if (found) return false
+    if ((child.isText && child.text !== '') || child.type.name === 'hardBreak' || child.type.name === 'reference') found = true
+    return !found
+  })
+  return found
+}
+
+interface Claim {
+  pos: number
+  node: ProseMirrorNode
+  /** An unknown block: the translation hands its source back untouched, so re-minting it here would be undone on save. */
+  fixed: boolean
+}
+
+/** Every block that claims an id, by id, in document order. */
+function claimsIn(doc: ProseMirrorNode): Map<string, Claim[]> {
+  const claims = new Map<string, Claim[]>()
+  doc.descendants((node, pos) => {
+    const fixed = node.type.name === 'unknownBlock'
+    if (!fixed && !BLOCK_TYPE_SET.has(node.type.name)) return
+    const id = node.attrs.blockId
+    if (typeof id !== 'string' || id === '') return
+    const copies = claims.get(id)
+    if (copies) copies.push({ pos, node, fixed })
+    else claims.set(id, [{ pos, node, fixed }])
+  })
+  return claims
+}
+
+/**
+ * The copy the block that was there before carried on into: where the start
+ * of its content landed. Enter at the very start pushes that content into the
+ * lower half; a split anywhere else leaves it in the upper; a pasted copy,
+ * above or below, never moves it out of the original.
+ */
+function carriedOn(copies: Claim[], before: Claim, mapping: Mapping): Claim | undefined {
+  if (before.node.isLeaf) {
+    const at = mapping.map(before.pos, 1)
+    return copies.find((c) => c.pos === at)
+  }
+  // The start of its text, inside the paragraph a list item or quote wraps it in.
+  let start = before.pos + 1
+  if (!before.node.isTextblock) {
+    let found = false
+    before.node.descendants((node, pos) => {
+      if (found) return false
+      if (node.isTextblock) {
+        start = before.pos + 1 + pos + 1
+        found = true
+      }
+      return !found
+    })
+  }
+  const at = mapping.map(start, 1)
+  return copies.find((c) => c.pos < at && at < c.pos + c.node.nodeSize)
+}
+
+/**
+ * Where a block claims an id another block keeps — see {@link BlockId}. An
+ * unknown block always keeps its id; otherwise the copy the original carried
+ * on into, and failing that protocol's rule: the first that holds text, or
+ * the first.
+ */
+function repeatedBlockIds(doc: ProseMirrorNode, before: ProseMirrorNode, mapping: Mapping): number[] {
+  const claims = claimsIn(doc)
+  let previous: Map<string, Claim[]> | undefined
+  const losers: number[] = []
+  for (const [id, copies] of claims) {
+    if (copies.length < 2) continue
+    previous ??= claimsIn(before)
+    const original = previous.get(id)?.[0]
+    const owner =
+      copies.find((c) => c.fixed) ??
+      (original && carriedOn(copies, original, mapping)) ??
+      copies.find((c) => holdsText(c.node)) ??
+      copies[0]
+    for (const copy of copies) if (copy !== owner && !copy.fixed) losers.push(copy.pos)
+  }
+  return losers
+}
+
+/**
+ * Whether a change could have made a repeat: only a step that brings in
+ * blocks can. Typing, deleting and marks bring in none, so most keystrokes
+ * skip the walk.
+ */
+function bringsInBlocks(transactions: readonly Transaction[]): boolean {
+  return transactions.some((tr) =>
+    tr.steps.some((step) => {
+      const slice = (step as { slice?: Slice }).slice
+      let blocks = false
+      slice?.content.forEach((node) => {
+        if (node.isBlock) blocks = true
+      })
+      return blocks
+    }),
+  )
+}
 
 /**
  * `id` on every block, carried as the `blockId` attribute.
@@ -52,9 +164,39 @@ const BLOCK_TYPES = [
  *
  * Rendered as `data-block-id`, which is what `RichText` already emits, so the
  * reading and the editing surface address a block the same way.
+ *
+ * **A split gives the new half its own id, the moment it happens** (MAN-10).
+ * ProseMirror copies a split node's attrs to both halves, so Enter leaves two
+ * blocks claiming one id. Enter at the very start of a paragraph puts the
+ * copy *above* it — and once something is typed there, nothing at save time
+ * can tell which half was the original, so protocol's `fromEditorDocument`
+ * gave the id, and every comment anchored to it, to the new line. Settled
+ * here instead, in the same transaction, where the change itself says which
+ * copy the original carried on into — so a copy pasted above a block does
+ * not take its id either. The others get fresh ids. `fromEditorDocument`
+ * keeps its own rule (the copy that holds text) as the backstop for an
+ * editor without this extension; where the change says nothing, this falls
+ * back to that rule too.
  */
 export const BlockId = Extension.create({
   name: 'blockId',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('blockIdSplit'),
+        appendTransaction: (transactions, old, state) => {
+          if (!bringsInBlocks(transactions)) return null
+          const mapping = new Mapping()
+          for (const tr of transactions) mapping.appendMapping(tr.mapping)
+          const repeats = repeatedBlockIds(state.doc, old.doc, mapping)
+          if (repeats.length === 0) return null
+          const tr = state.tr
+          for (const pos of repeats) tr.setNodeAttribute(pos, 'blockId', newBlockId())
+          return tr
+        },
+      }),
+    ]
+  },
   addGlobalAttributes() {
     return [
       {
