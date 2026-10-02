@@ -14,6 +14,7 @@ export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } fr
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { AvatarGroup, type AvatarGroupMember, type AvatarGroupProps } from './AvatarGroup'
 export { Banner, type BannerProps, type BannerTone } from './Banner'
+export { BlockHandle, blockAtY, type BlockHandleProps, type BlockHandleEditing, type HandleBlock } from './BlockHandle'
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'
 export { Card, type CardAttention, type CardFill, type CardHover, type CardProps } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'

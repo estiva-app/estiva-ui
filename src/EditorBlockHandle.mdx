@@ -1,0 +1,65 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as EditorBlockHandleStories from './EditorBlockHandle.stories'
+
+<Meta of={EditorBlockHandleStories} />
+
+# EditorBlockHandle
+
+`BlockHandle` in a Tiptap editor: drag the handle to move the block, press it
+for Turn into, Duplicate and Delete, then the app's rows.
+
+<Canvas of={EditorBlockHandleStories.Default} />
+
+## When
+
+- **An editor of a block document** (SPEC §13.3) that someone reorganises —
+  with `BlockNodes`' `BlockId` in its extensions, so every block has an id.
+- **Not editable**: the same handle reads — no drag, the app's rows only.
+
+## When not
+
+- The document being read, with no editor → **BlockHandle**, from the main
+  entry, which loads no Tiptap.
+- Formatting a few words inside a block → **SelectionToolbar**. This acts on
+  whole blocks.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { BlockId, EditorBlockHandle, type BlockTurnInto } from '@estiva-app/ui/editor'
+import { MenuItem, type HandleBlock } from '@estiva-app/ui'
+
+const turnInto: BlockTurnInto[] = [
+  { label: 'Text', run: (editor) => editor.chain().setParagraph().run(), active: (node) => node.type.name === 'paragraph' },
+  { label: 'Heading', run: (editor) => editor.chain().setHeading({ level: 1 }).run() },
+]
+const rows = (block: HandleBlock) => <MenuItem label="Copy link" onClick={() => navigator.clipboard.writeText(`#${block.id}`)} />
+
+const editor = useEditor({ extensions: [StarterKit, BlockId] })
+
+<EditorBlockHandle editor={editor} turnInto={turnInto} actions={rows}>
+  <EditorContent editor={editor} />
+</EditorBlockHandle>
+```
+
+- `turnInto`'s `run` gets the editor with the caret already in the block, and
+  is offered only for a block of text: a paragraph, a heading, code.
+- **Duplicate and Delete change the document without focusing it.** An
+  editor that saves on blur must also save on an update while unfocused, or
+  the change waits for the next blur.
+- `duplicateBlock`, `deleteBlock` and `startBlockDrag` are the rows' own
+  actions, for a caller that offers them elsewhere (a shortcut, a test).
+
+<Canvas of={EditorBlockHandleStories.NotEditable} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Moves the block through ProseMirror's own drop, so it arrives with its id and its anchored comments still find it | a drop handler, or a delete and an insert | |
+| Duplicates a block under a fresh id, the original keeping its own (`BlockId` decides) | an id for the copy | |
+| Puts the caret in the block before a Turn into row runs | a selection before your `run` | |

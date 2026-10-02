@@ -9,8 +9,9 @@ import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
-import { BlockHandle, deleteBlock, duplicateBlock, startBlockDrag } from './BlockHandle'
+import { BlockHandle } from './BlockHandle'
 import { BlockId } from './BlockNodes'
+import { EditorBlockHandle, deleteBlock, duplicateBlock, startBlockDrag } from './EditorBlockHandle'
 import { MenuItem } from './Menu'
 
 const DOCUMENT = {
@@ -92,7 +93,7 @@ describe('startBlockDrag', () => {
   it('selects the block and drags its slice, with its id, as a move', () => {
     const e = editor()
     const transfer = { data: {} as Record<string, string>, clearData() {}, setData(type: string, value: string) { this.data[type] = value }, effectAllowed: '' }
-    startBlockDrag(e.view, posOf(e, 'p2'), { dataTransfer: transfer as unknown as DataTransfer })
+    startBlockDrag(e, posOf(e, 'p2'), { dataTransfer: transfer as unknown as DataTransfer })
     expect(e.view.dragging?.move).toBe(true)
     expect(e.view.dragging?.slice.content.firstChild?.attrs.blockId).toBe('p2')
     expect(e.state.selection.from).toBe(posOf(e, 'p2'))
@@ -101,7 +102,7 @@ describe('startBlockDrag', () => {
 
   it('a drop of that slice, as ProseMirror makes it, keeps the id', () => {
     const e = editor()
-    startBlockDrag(e.view, posOf(e, 'p1'), { dataTransfer: null })
+    startBlockDrag(e, posOf(e, 'p1'), { dataTransfer: null })
     // ProseMirror's drop: delete the selection, then insert the slice's node at the drop point.
     const node = e.view.dragging!.slice.content.firstChild!
     const tr = e.state.tr.deleteSelection()
@@ -144,9 +145,9 @@ describe('BlockHandle', () => {
     const e = editor()
     const { EditorContent } = await import('@tiptap/react')
     render(
-      <BlockHandle editor={e}>
+      <EditorBlockHandle editor={e}>
         <EditorContent editor={e} />
-      </BlockHandle>,
+      </EditorBlockHandle>,
     )
     const user = userEvent.setup()
     // jsdom lays nothing out: every block's top is 0, so the pointer is on the last.
@@ -155,5 +156,34 @@ describe('BlockHandle', () => {
     expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Duplicate', 'Delete'])
     await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
     expect(ids(e)).toEqual(['p1'])
+  })
+
+  it('an editor that cannot be edited gets the caller’s rows only, and no drag', async () => {
+    const e = editor()
+    e.setEditable(false)
+    const { EditorContent } = await import('@tiptap/react')
+    render(
+      <EditorBlockHandle editor={e} actions={(b) => <MenuItem label={`Copy link ${b.id}`} onClick={() => {}} />}>
+        <EditorContent editor={e} />
+      </EditorBlockHandle>,
+    )
+    const user = userEvent.setup()
+    await act(async () => user.hover(screen.getByText('two')))
+    const handle = screen.getByRole('button', { name: 'Block menu' })
+    expect(handle.getAttribute('draggable')).toBe('false')
+    await press(user, handle)
+    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Copy link p2'])
+  })
+
+  it('draws no handle before its editor exists', async () => {
+    render(
+      <EditorBlockHandle editor={null} actions={() => <MenuItem label="Copy link" onClick={() => {}} />}>
+        <div>
+          <p data-block-id="r1">not yet</p>
+        </div>
+      </EditorBlockHandle>,
+    )
+    await userEvent.setup().hover(screen.getByText('not yet'))
+    expect(screen.queryByRole('button', { name: 'Block menu' })).toBeNull()
   })
 })

@@ -4,14 +4,16 @@
 
 ### Added
 
-- **`BlockHandle` in `@estiva-app/ui/editor`** (RIC-18: Miky, 2026-10-02,
-  "edit a description like a Notion page"; Ship's description is the first
-  caller). The handle left of the block under the pointer: drag it to move
-  the block, press it for the block's menu — Turn into (the caller's rows,
-  for a block of text), Duplicate and Delete while editing, then the
-  caller's own rows. Given no `editor` it reads: no drag and no editing
-  rows, only the caller's, so someone who cannot edit can still link to or
-  comment on one block (Miky's ruling in the kickoff).
+- **`BlockHandle`** (main entry) **and `EditorBlockHandle`** (in
+  `@estiva-app/ui/editor`) — RIC-18: Miky, 2026-10-02, "edit a description
+  like a Notion page"; Ship's description is the first caller. The handle
+  left of the block under the pointer, and the block's menu behind it.
+  `EditorBlockHandle` drags the block and offers Turn into (the caller's
+  rows, for a block of text), Duplicate and Delete, then the caller's own
+  rows. `BlockHandle` over a document being read offers the caller's rows
+  only, so someone who cannot edit can still link to or comment on one
+  block (Miky's ruling in the kickoff). Two entries because a reader must
+  not download an editor: the main entry still loads no Tiptap.
   - The drag is the browser's own, started as ProseMirror starts one of a
     selected node, so ProseMirror's drop moves the block **with its id** —
     a comment anchored to it still finds it. Measured with a real mouse drag
