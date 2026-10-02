@@ -145,6 +145,40 @@ describe('[', () => {
   })
 })
 
+describe('a chip through HTML (copy and paste)', () => {
+  it('keeps who it names and what it points at, and takes no key or uri from a crafted attribute', async () => {
+    render(<Composer />)
+    await act(async () => {
+      editor!.commands.setContent([
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'mention', attrs: { id: 'ada', label: 'Ada Lovelace', pubkey: KEY } },
+            { type: 'messageMention', attrs: { id: ITEMS[0].id, label: 'Ada', snippet: 'line 0', uri: ITEMS[0].uri } },
+          ],
+        },
+      ])
+    })
+    const html = editor!.getHTML()
+    await act(async () => {
+      editor!.commands.setContent(html)
+    })
+    expect(nodes()).toEqual([
+      { type: 'mention', attrs: { id: 'ada', label: 'Ada Lovelace', pubkey: KEY } },
+      { type: 'messageMention', attrs: { id: ITEMS[0].id, label: 'Ada', snippet: 'line 0', uri: ITEMS[0].uri } },
+    ])
+    await act(async () => {
+      editor!.commands.setContent(
+        '<p><span data-urgent-mention="true" data-id="x" data-label="Ada" data-pubkey="not-a-key">@Ada</span>' +
+          '<span data-message-mention="true" data-id="y" data-label="Ada" data-uri="javascript:alert(1)">Ada</span></p>',
+      )
+    })
+    const [person, reference] = nodes()
+    expect([person.type, person.attrs.label, person.attrs.pubkey]).toEqual(['urgentMention', 'Ada', null])
+    expect([reference.type, reference.attrs.uri]).toEqual(['messageMention', null])
+  })
+})
+
 describe('/', () => {
   it('opens Format first, then the app’s sections, and runs the chosen row', async () => {
     render(<Composer />)

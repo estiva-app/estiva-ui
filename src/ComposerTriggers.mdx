@@ -13,8 +13,8 @@ opens a `SuggestionMenu` at the caret; a pick inserts a chip.
 
 ## When
 
-- **`PersonMention` and `UrgentPersonMention`** — any editor that writes a
-  message. The urgent one is the same chip in the urgent tone.
+- **`PersonMention` and `UrgentPersonMention`** — any editor whose text names
+  people. The urgent one is the same chip in the urgent tone.
 - **`CaptionedReference` and `ReferenceTrigger`** — referencing something the
   app can list, drawn as who wrote it and its opening words.
 - **`SlashCommands`** — `formatSection()` first, then only the rows the app can
@@ -71,7 +71,7 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
 
 - **The body is written by `@estiva-app/conversation`, not here.** A mention
   chip carries `pubkey` and `label` for its `mentionText`; a reference chip
-  carries the `uri` its `messageReference` made, written back verbatim. The
+  carries the `uri` the app built with that package, written back verbatim. The
   urgency is not in the text: hand `urgentPubkeys(editor)` to `urgentTagsFor`.
 - **The lists ask each time the query changes.** `people` and `items` are
   functions, so they read the app's current data. `@` shows the first six

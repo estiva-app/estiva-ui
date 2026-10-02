@@ -28,6 +28,16 @@
 - **New optional peer `@tiptap/extension-mention`** (^3.22.1), which Peek
   already installs. Only an app that imports `@estiva-app/ui/editor` needs it.
 
+### Fixed (found reviewing CON-27)
+
+- **A chip survives a copy and paste.** Peek's chips wrote none of their values
+  into their HTML, so a mention or a reference that went through the clipboard
+  came back with every value null and was sent as `@null` / `null`. The chips
+  now carry `data-id`, `data-label`, `data-pubkey`, `data-snippet` and
+  `data-uri`, and read them back checked: a `data-pubkey` that is not a 64-hex
+  key, or a `data-uri` that is not a `nostr:` reference, is dropped, so crafted
+  HTML cannot put another person's key or a foreign link into the body.
+
 ## 0.50.4 — 2026-10-01 — The `/` menu and a typed `> ` keep the paragraph's comment too
 
 ### Fixed

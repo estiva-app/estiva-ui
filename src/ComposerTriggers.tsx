@@ -81,9 +81,8 @@ function optionsOf<T>(editor: Editor, name: string): T | undefined {
   return editor.extensionManager.extensions.find((one) => one.name === name)?.options as T | undefined
 }
 
-/** `@`'s list and pick, or `!@`'s: the node it inserts is `urgentMention` or `mention`. */
-function personSuggestion(urgent: boolean) {
-  const name = urgent ? 'urgentMention' : 'mention'
+/** `@`'s list and pick, or `!@`'s, for the node `name` — the extension's own, so a renamed one still finds its people. */
+function personSuggestion(urgent: boolean, name: string) {
   return {
     ...(urgent ? { char: '!@' } : {}),
     items: ({ query, editor }: { query: string; editor: Editor }) => filterPeople(optionsOf<PersonMentionOptions>(editor, name)?.people() ?? [], query),
@@ -101,16 +100,44 @@ function personSuggestion(urgent: boolean) {
   }
 }
 
+/*
+  What a chip keeps through HTML — a copy and paste, inside an editor or
+  between two. The chip's own `renderHTML` writes each as a `data-*` attribute
+  and these read them back. Until CON-27 none was written, so a pasted chip
+  came back with every value null and was sent as `@null`. What is read is
+  checked: a crafted `data-pubkey` that is not a key, or a `data-uri` that is
+  not a `nostr:` reference, is dropped rather than written into the body.
+*/
+const HEX_KEY = /^[0-9a-f]{64}$/
+const NOSTR_URI = /^nostr:[a-z0-9]+$/i
+const fromData = (name: string, valid?: RegExp) => ({
+  parseHTML: (element: HTMLElement) => {
+    const value = element.getAttribute(`data-${name}`)
+    return value !== null && (!valid || valid.test(value)) ? value : null
+  },
+  // The node's own `renderHTML` writes it.
+  renderHTML: () => ({}),
+})
+
 const personAttributes = () => ({
-  id: { default: null },
-  label: { default: null },
+  id: { default: null, ...fromData('id') },
+  label: { default: null, ...fromData('label') },
   /**
    * The person's Nostr key, when they have one — SPEC §13.1. `id` is the app's
    * own and means nothing to another app; this is what the body is written
    * with, so a mention survives a rename.
    */
-  pubkey: { default: null },
+  pubkey: { default: null, ...fromData('pubkey', HEX_KEY) },
 })
+
+/** The `data-*` a person chip is written with, so a paste reads it back. */
+function personData(attrs: Record<string, unknown>): Record<string, string> {
+  return {
+    'data-id': String(attrs.id ?? ''),
+    'data-label': String(attrs.label ?? ''),
+    ...(typeof attrs.pubkey === 'string' && attrs.pubkey ? { 'data-pubkey': attrs.pubkey } : {}),
+  }
+}
 
 /**
  * `@` — a person, as a chip that writes their key (SPEC §13.1).
@@ -122,12 +149,12 @@ const personAttributes = () => ({
 export const PersonMention = Mention.extend<MentionOptions<MentionPerson, MentionPerson> & PersonMentionOptions>({
   name: 'mention',
   addOptions() {
-    return { ...this.parent!(), HTMLAttributes: {}, people: () => [], suggestion: personSuggestion(false) }
+    return { ...this.parent!(), HTMLAttributes: {}, people: () => [], suggestion: personSuggestion(false, this.name) }
   },
   addAttributes: personAttributes,
   renderHTML({ node }) {
     // No node view, so this spec is what the editor draws: the one chip.
-    return ['span', { 'data-mention': 'true', 'data-id': node.attrs.id, class: inlineChipClassName('person', 'cursor-default') }, `@${node.attrs.label}`]
+    return ['span', { 'data-mention': 'true', ...personData(node.attrs), class: inlineChipClassName('person', 'cursor-default') }, `@${node.attrs.label}`]
   },
   parseHTML() {
     return [{ tag: 'span[data-mention]' }]
@@ -142,13 +169,13 @@ export const PersonMention = Mention.extend<MentionOptions<MentionPerson, Mentio
 export const UrgentPersonMention = Mention.extend<MentionOptions<MentionPerson, MentionPerson> & PersonMentionOptions>({
   name: 'urgentMention',
   addOptions() {
-    return { ...this.parent!(), HTMLAttributes: {}, people: () => [], suggestion: personSuggestion(true) }
+    return { ...this.parent!(), HTMLAttributes: {}, people: () => [], suggestion: personSuggestion(true, this.name) }
   },
   addAttributes: personAttributes,
   renderHTML({ node }) {
     return [
       'span',
-      { 'data-urgent-mention': 'true', 'data-id': node.attrs.id, class: inlineChipClassName('urgent', 'cursor-default') },
+      { 'data-urgent-mention': 'true', ...personData(node.attrs), class: inlineChipClassName('urgent', 'cursor-default') },
       `@${node.attrs.label}`,
     ]
   },
@@ -223,16 +250,16 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
   },
   addAttributes() {
     return {
-      id: { default: null },
-      label: { default: null },
-      snippet: { default: '' },
-      uri: { default: null },
+      id: { default: null, ...fromData('id') },
+      label: { default: null, ...fromData('label') },
+      snippet: { default: '', parseHTML: (element: HTMLElement) => element.getAttribute('data-snippet') ?? '', renderHTML: () => ({}) },
+      uri: { default: null, ...fromData('uri', NOSTR_URI) },
     }
   },
   renderHTML({ node }) {
     return [
       'span',
-      { [`data-${this.name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`]: 'true', 'data-id': node.attrs.id, class: inlineChipClassName('neutral', 'cursor-default') },
+      { [`data-${this.name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`]: 'true', 'data-id': String(node.attrs.id ?? ''), 'data-label': String(node.attrs.label ?? ''), 'data-snippet': String(node.attrs.snippet ?? ''), ...(node.attrs.uri ? { 'data-uri': String(node.attrs.uri) } : {}), class: inlineChipClassName('neutral', 'cursor-default') },
       captionOf(node.attrs.label, node.attrs.snippet),
     ]
   },
@@ -244,7 +271,7 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
     return ReactNodeViewRenderer(
       ({ node }: ReactNodeViewProps) => (
         <NodeViewWrapper as="span" className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
-          <span className="flex size-4 shrink-0 items-center justify-center text-text-secondary">{icon}</span>
+          <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{icon}</span>
           <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
         </NodeViewWrapper>
       ),
@@ -441,7 +468,7 @@ export interface SlashCommandsOptions {
   sections: readonly SlashSection[]
 }
 
-type SlashRow = SlashCommand & { section: string }
+type SlashRow = SlashCommand & { section: number }
 
 /**
  * `/` — format the line or insert something, at the caret, mid-sentence too.
@@ -461,7 +488,7 @@ export const SlashCommands = Extension.create<SlashCommandsOptions>({
         char: '/',
         startOfLine: false,
         pluginKey: new PluginKey('slashCommands'),
-        items: ({ query }) => filterSlashSections(sections, query).flatMap((section) => section.commands.map((command) => ({ ...command, section: section.label }))),
+        items: ({ query }) => filterSlashSections(sections, query).flatMap((section, at) => section.commands.map((command) => ({ ...command, section: at }))),
         command: ({ editor, range, props }) => {
           editor.chain().focus().deleteRange(range).run()
           props.run(editor)
@@ -470,7 +497,7 @@ export const SlashCommands = Extension.create<SlashCommandsOptions>({
           ariaLabel: 'Commands',
           width: 'w-[300px]',
           maxHeight: 'max-h-[400px]',
-          sections: (rows) => sections.map((section) => ({ label: section.label, items: rows.filter((row) => row.section === section.label) })),
+          sections: (rows) => sections.map((section, at) => ({ label: section.label, items: rows.filter((row) => row.section === at) })),
           itemKey: (row) => row.key,
           row: (row) => row.row,
         }),
