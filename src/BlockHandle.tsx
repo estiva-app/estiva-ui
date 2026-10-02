@@ -70,6 +70,22 @@ export function blockAtY(container: HTMLElement, y: number, editor?: Editor | nu
   return found ?? candidates[0] ?? null
 }
 
+/** The handle's 24px, against the block's first line. */
+const HANDLE = 24
+
+/**
+ * How far down the block the handle starts, so it is centred on the first
+ * line: a heading's line is taller than a paragraph's. A table's or a list's
+ * first line is its first descendant's.
+ */
+function firstLineOffset(element: HTMLElement): number {
+  const text = element.querySelector<HTMLElement>('p, h1, h2, h3, pre, li') ?? element
+  const line = parseFloat(getComputedStyle(text).lineHeight)
+  if (!Number.isFinite(line)) return 0
+  const inset = text === element ? 0 : text.getBoundingClientRect().top - element.getBoundingClientRect().top
+  return inset + (line - HANDLE) / 2
+}
+
 /** A copy of the block straight after it. `BlockId` gives the copy a fresh id; the original keeps its own. */
 export function duplicateBlock(editor: Editor, pos: number): boolean {
   const node = editor.state.doc.nodeAt(pos)
@@ -135,7 +151,7 @@ export function BlockHandle({ editor, turnInto = [], actions, children, classNam
       const root = editor ? editor.view.dom : (content.current.firstElementChild as HTMLElement | null) ?? content.current
       const found = blockAtY(root, y, editor)
       setBlock(found)
-      if (found) setTop(found.element.getBoundingClientRect().top - frame.current.getBoundingClientRect().top)
+      if (found) setTop(found.element.getBoundingClientRect().top - frame.current.getBoundingClientRect().top + firstLineOffset(found.element))
     },
     [editor],
   )
