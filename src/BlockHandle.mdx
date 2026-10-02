@@ -1,0 +1,79 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as BlockHandleStories from './BlockHandle.stories'
+
+<Meta of={BlockHandleStories} />
+
+# BlockHandle
+
+The handle left of the block under the pointer, as a block-document page has
+it: drag it to move the block, press it for the block's menu. Editing, the menu
+offers Turn into, Duplicate and Delete, then the caller's rows; reading, only
+the caller's rows.
+
+<Canvas of={BlockHandleStories.Default} />
+
+## When
+
+- **A document made of blocks that someone reorganises** — the editor of a
+  block document (SPEC §13.3), with `BlockNodes` beside it.
+- **The same document read by someone who cannot edit it**, when the caller
+  has something to offer on one block — a link to it, a comment on it. Give
+  no `editor` and the handle neither drags nor edits.
+
+## When not
+
+- Formatting a few words inside a block → **SelectionToolbar**. The handle
+  acts on whole blocks.
+- Reading a document with nothing to offer on one block → **RichText** alone.
+- A message composer, or any text without block ids: there is nothing a row
+  could address.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { BlockHandle, BlockId, type BlockTurnInto } from '@estiva-app/ui/editor'
+import { MenuItem } from '@estiva-app/ui'
+
+const turnInto: BlockTurnInto[] = [
+  { label: 'Text', run: (editor) => editor.chain().setParagraph().run(), active: (node) => node.type.name === 'paragraph' },
+  { label: 'Heading', run: (editor) => editor.chain().setHeading({ level: 1 }).run() },
+]
+
+const editor = useEditor({ extensions: [StarterKit, BlockId] })
+
+<BlockHandle
+  editor={editor}
+  turnInto={turnInto}
+  actions={(block) => <MenuItem label="Copy link" onClick={() => navigator.clipboard.writeText(`#${block.id}`)} />}
+>
+  <EditorContent editor={editor} />
+</BlockHandle>
+```
+
+- **Leave room on the left.** The handle sits 28px left of the content, in
+  the page's margin, so wrapping the content moves nothing. A surface flush
+  with its container's left edge clips it.
+- **Reading:** give `children` a reading surface whose top-level elements
+  carry `data-block-id` — `RichText` does — and no `editor`. With no
+  `actions` either, no handle is drawn.
+- `turnInto`'s `run` gets the editor with the caret already in the block, and
+  is offered only for a block of text (a paragraph, a heading, code).
+- `HandleBlock.id` is the block's §13.3 id: what a link or a comment
+  addresses. It is `undefined` only for a block that has none yet.
+- `duplicateBlock`, `deleteBlock` and `startBlockDrag` are the rows' own
+  actions, for a caller that offers them somewhere else (a shortcut, a test).
+
+<Canvas of={BlockHandleStories.Reading} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Finds the block under the pointer, by height: the gap between two blocks belongs to the one above | a pointer handler on each block | |
+| Moves the block through ProseMirror's own drop, so it arrives with its id and its anchored comments still find it | a drop handler, or a delete and an insert | |
+| Duplicates a block under a fresh id, the original keeping its own (`BlockId` decides) | an id for the copy | |
+| Puts the caret in the block before a Turn into row runs | a selection before your `run` | |
