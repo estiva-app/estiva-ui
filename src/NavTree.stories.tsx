@@ -5,7 +5,7 @@ import { IconArrowUpRight, IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { UnreadDot } from './UnreadDot'
 import { NavItem } from './NavItem'
-import { NavTree, type NavTreeGroup } from './NavTree'
+import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 import { Sidebar } from './Sidebar'
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
@@ -113,5 +113,28 @@ export const ReadAsItOpens: Story = {
       ] },
     ],
     selected: undefined,
+  },
+}
+
+/** Groups the app draws itself, as `NavTree`'s children: each a `NavTreeSection` with `NavItem` rows — for groups and rows that each read their own data. */
+export const AppDrawnGroups: Story = {
+  args: { groups: undefined },
+  render: function Render(args) {
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree title={args.title}>
+            <NavTreeSection title="Group one" trailing={<UnreadDot />}>
+              <NavItem href="#" label="Item one" icon={placeholder} unread />
+              <NavItem href="#" label="Item two" icon={placeholder} active>
+                <NavItem href="#" label="Item three" icon={placeholder} />
+              </NavItem>
+            </NavTreeSection>
+            <NavTreeSection title="Group two" loading />
+            <NavTreeSection title="Group three" message="Nothing in this yet." />
+          </NavTree>
+        </Sidebar>
+      </div>
+    )
   },
 }

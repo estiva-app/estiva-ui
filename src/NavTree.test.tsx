@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { NavTree, type NavTreeGroup } from './NavTree'
+import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 
 afterEach(cleanup)
 
@@ -98,5 +98,20 @@ describe('NavTree read as it opens', () => {
     render(<NavTree groups={[{ id: 'a', title: 'Group a', nodes: [], onIntent }]} emptyMessage="Nothing here yet." />)
     screen.getByRole('button', { name: 'Group a' }).focus()
     expect(onIntent).toHaveBeenCalled()
+  })
+})
+
+describe('NavTree drawn by the app', () => {
+  it('draws NavTreeSections given as children, each with its rows, line or skeleton', () => {
+    render(
+      <NavTree title="Groups">
+        <NavTreeSection title="Group a"><a href="#a">Item a</a></NavTreeSection>
+        <NavTreeSection title="Group b" message="Nothing in this yet." />
+        <NavTreeSection title="Group c" loading />
+      </NavTree>,
+    )
+    expect(screen.getByRole('button', { name: 'Group a' })).not.toBeNull()
+    expect(screen.getByText('Item a')).not.toBeNull()
+    expect(screen.getByText('Nothing in this yet.')).not.toBeNull()
   })
 })

@@ -69,14 +69,23 @@ export interface NavTreeProps {
   title?: string
   /** Beside the label, always shown: "New", typically. */
   titleActions?: SectionAction[]
-  /** `null` while the first read is on its way: a skeleton in the groups' place. */
-  groups: NavTreeGroup[] | null
+  /**
+   * `null` while the first read is on its way: a skeleton in the groups' place.
+   * Absent when the app draws its own groups as `children`.
+   */
+  groups?: NavTreeGroup[] | null
+  /**
+   * The groups, drawn by the app: `NavTreeSection`s with `NavItem` rows — for
+   * an app whose groups and rows each read their own data. Used when `groups`
+   * is absent.
+   */
+  children?: ReactNode
   /** The row that is current: `active`, and its group starts open. */
   selected?: string
   /** A row was clicked. A router app prevents the default and navigates. */
   onSelect?: (node: NavTreeNode, event: MouseEvent<HTMLAnchorElement>) => void
-  /** What to say when there are no groups. The words are the caller's. */
-  emptyMessage: string
+  /** What to say when `groups` is empty. The words are the caller's. */
+  emptyMessage?: string
   /** Remember each group open or closed in this browser, under this key and the group's id. The app prefixes it. */
   storageKey?: string
 }
@@ -129,9 +138,58 @@ function Row({ node, selected, onSelect }: { node: NavTreeNode } & Pick<NavTreeP
 }
 
 function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup } & Pick<NavTreeProps, 'selected' | 'onSelect' | 'storageKey'>) {
+  return (
+    <NavTreeSection
+      title={group.title}
+      message={group.message}
+      loading={group.nodes === null}
+      trailing={group.trailing}
+      actions={group.actions}
+      defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
+      open={group.open}
+      onOpenChange={group.onOpenChange}
+      storageKey={storageKey ? `${storageKey}.${group.id}` : undefined}
+      onIntent={group.onIntent}
+    >
+      {group.nodes?.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} />)}
+    </NavTreeSection>
+  )
+}
+
+export interface NavTreeSectionProps {
+  title: string
+  /** Said in the rows' place, level with them. The caller's words. */
+  message?: string
+  /** Beside the title, always shown: an `UnreadDot`, typically. */
+  trailing?: ReactNode
+  /** Beside the title, shown on hover or focus: "Open", typically. */
+  actions?: SectionAction[]
+  /** Open unless told otherwise. */
+  defaultOpen?: boolean
+  /** The caller owns whether the group is open. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  /** The pointer rests on the group, or the keyboard reaches it: read its rows now. */
+  onIntent?: () => void
+  /** Its rows are being read: a skeleton in their place. */
+  loading?: boolean
+  /** Remember it open or closed in this browser, under this key. */
+  storageKey?: string
+  /** The rows: `NavItem`s. */
+  children?: ReactNode
+}
+
+/**
+ * One group of a `NavTree`, for an app that draws its own: the standard
+ * heading folding its rows, lightly indented under its title, with the
+ * group's line, skeleton, actions and `onIntent`. `NavTree` draws these from
+ * `groups`; an app whose groups each read their own data draws them itself,
+ * as `NavTree`'s children.
+ */
+export function NavTreeSection({ title, message, loading = false, trailing, actions, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
-  const intent = group.onIntent
+  const intent = onIntent
   return (
     <div
       className="shrink-0"
@@ -140,24 +198,18 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
       onFocus={intent}
     >
       <CollapsibleSection
-        title={group.title}
+        title={title}
         indent
-        defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
-        open={group.open}
-        onOpenChange={group.onOpenChange}
-        storageKey={storageKey ? `${storageKey}.${group.id}` : undefined}
-        trailing={group.trailing}
-        actions={group.actions}
+        defaultOpen={defaultOpen}
+        open={open}
+        onOpenChange={onOpenChange}
+        storageKey={storageKey}
+        trailing={trailing}
+        actions={actions}
         className="mt-2 shrink-0"
         contentClassName="gap-px"
       >
-        {group.message !== undefined ? (
-          <Line message={group.message} />
-        ) : group.nodes === null ? (
-          <SkeletonList rows={3} />
-        ) : (
-          group.nodes.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} />)
-        )}
+        {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
       </CollapsibleSection>
     </div>
   )
@@ -172,11 +224,13 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
  * open. Only the group that holds the current row starts open, unless the
  * caller owns it.
  */
-export function NavTree({ title, titleActions, groups, selected, onSelect, emptyMessage, storageKey }: NavTreeProps) {
+export function NavTree({ title, titleActions, groups, children, selected, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
   return (
     <>
       {title && <SectionHeader title={title} look="quiet" showActions="always" actions={titleActions} className="mt-4 shrink-0" />}
-      {groups === null ? (
+      {groups === undefined ? (
+        children
+      ) : groups === null ? (
         <SkeletonList rows={5} />
       ) : groups.length === 0 ? (
         <Line message={emptyMessage} />
