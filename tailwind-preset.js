@@ -149,6 +149,7 @@ export default {
         'bg-hover':     'var(--bg-hover)',
         'bg-selected':  'var(--bg-selected)',
         'bg-active':    'var(--bg-active)',
+        'bg-nav-active': 'var(--bg-nav-active)',
         'bg-disabled':  'var(--bg-disabled)',
         'bg-tooltip':   'var(--bg-tooltip)',
         'bg-tooltip-key': 'var(--bg-tooltip-key)',
