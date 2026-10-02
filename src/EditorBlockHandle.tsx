@@ -37,21 +37,30 @@ function editorBlocks(view: EditorView): HandleBlock[] {
   return out
 }
 
-/** A copy of the block straight after it. `BlockId` gives the copy a fresh id; the original keeps its own. */
+/*
+  Duplicate and Delete leave the editor focused, as Turn into and a drop do: the
+  person is still in the field, so an editor that saves when they leave it saves
+  these too — and one that loads someone else's edit while unfocused does not
+  load it over them.
+*/
+
+/** A copy of the block straight after it, the caret in the copy. `BlockId` gives the copy a fresh id; the original keeps its own. */
 export function duplicateBlock(editor: Editor, pos: number): boolean {
   const node = editor.state.doc.nodeAt(pos)
   if (!node) return false
   editor.view.dispatch(editor.state.tr.insert(pos + node.nodeSize, node).scrollIntoView())
+  editor.commands.focus(pos + node.nodeSize + 1)
   return true
 }
 
-/** Removes the block. The last block of a document becomes an empty paragraph, since a document holds at least one. */
+/** Removes the block, the caret where it was. The last block of a document becomes an empty paragraph, since a document holds at least one. */
 export function deleteBlock(editor: Editor, pos: number): boolean {
   const { state } = editor
   const node = state.doc.nodeAt(pos)
   if (!node) return false
   const tr = state.doc.childCount === 1 ? state.tr.replaceWith(pos, pos + node.nodeSize, state.schema.nodes.paragraph.create()) : state.tr.delete(pos, pos + node.nodeSize)
   editor.view.dispatch(tr)
+  editor.commands.focus(Math.min(pos + 1, editor.state.doc.content.size))
   return true
 }
 

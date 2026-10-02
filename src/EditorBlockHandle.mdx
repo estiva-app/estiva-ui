@@ -46,9 +46,9 @@ const editor = useEditor({ extensions: [StarterKit, BlockId] })
 
 - `turnInto`'s `run` gets the editor with the caret already in the block, and
   is offered only for a block of text: a paragraph, a heading, code.
-- **Duplicate and Delete change the document without focusing it.** An
-  editor that saves on blur must also save on an update while unfocused, or
-  the change waits for the next blur.
+- **Every row leaves the editor focused**, as a drop does: Turn into in the
+  block, Duplicate in the copy, Delete where the block was. An editor that
+  saves when the person leaves it saves these the same way.
 - `duplicateBlock`, `deleteBlock` and `startBlockDrag` are the rows' own
   actions, for a caller that offers them elsewhere (a shortcut, a test).
 
