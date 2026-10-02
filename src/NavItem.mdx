@@ -41,6 +41,13 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.WithHintLongLabel} />
 
+- Something new on the row is `unread`: its words and icon brighten, the
+  label is set in medium, and the **UnreadDot** sits at the right.
+  `urgent` with it draws the warning badge in the dot's place. Say "unread"
+  in the row's own accessible name too: a dot reads as nothing.
+
+<Canvas of={NavItemStories.Unread} />
+
 ## When not
 
 - An icon rail's tile → **RailItem**.
@@ -73,9 +80,14 @@ import { NavItem } from '@estiva-app/ui'
   `Hide what is under {label}` or `Show what is under {label}`.
 - `hint` takes room only while it shows, so a label at rest keeps its full
   width.
+- The ⋮ lands on what is at the right: the count, or the dot. With nothing
+  there it keeps no room at rest, so the label has the row's whole width,
+  and takes its 24px slot only while it shows.
+- `active` is `bg-nav-active`, the current row in a sidebar, which each theme
+  sets for itself.
 
 - A row is 32px tall, 8px in on each side, 8px between the icon and the label,
-  the label 14px regular, 6px corners.
+  the label 14px regular (medium when unread), 8px corners as a **MenuItem**'s.
 
 ## What it owns
 
@@ -89,6 +101,7 @@ It does these by itself. Write none of them around it.
 | Turns its icon into the arrow that folds `children` while pointed at or focused, and slides them | a positioned `IconButton` over the icon, open state, `group-hover` reveals, an indented box |  |
 | Tells assistive technology whether its rows are open | `aria-expanded`, `aria-controls` |  |
 | Shows `hint` only while pointed at or focused, and makes the label give way | a positioned chip over the row, `group-hover` reveals |  |
+| Draws the dot or the badge for `unread` and `urgent`, and brightens the row | an **UnreadDot** placed by hand, a weight or colour passed in |  |
 
 ## Keys
 

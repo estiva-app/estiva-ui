@@ -1,0 +1,57 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as UnreadDotStories from './UnreadDot.stories'
+
+<Meta of={UnreadDotStories} />
+
+# UnreadDot
+
+The accent dot that says "something new here": a 6px disc centred in a 24px
+slot, so it sits exactly where a control would and the row does not shift
+when one replaces the other.
+
+<Canvas of={UnreadDotStories.InARow} />
+
+## When
+
+- On any row or card that can be unread: a place in a sidebar, a
+  conversation, a reply.
+- Anywhere a control appears on hover and the dot is what is there at rest.
+  The 24px slot keeps the two the same size.
+- In a sidebar row, pass **NavItem** `unread` rather than placing it: the row
+  draws it, and brightens its words.
+
+## When not
+
+- As the only thing that says "unread". A coloured disc reads as nothing to a
+  screen reader, so the row that draws it must say "unread" in its own
+  accessible name. This part carries no label of its own.
+- For a count. It says that there is something new, never how much: a count
+  is **NavItem** `count` or a **Chip**.
+
+## How
+
+```tsx
+import { UnreadDot } from '@estiva-app/ui'
+
+<div className="flex items-center">
+  <span>{title}</span>
+  {isUnread && <UnreadDot />}
+</div>
+```
+
+- It renders unconditionally, so the caller decides whether there is
+  anything new.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The 6px disc in a 24px slot | a sized box around a round div |  |
+| `data-unread`, the attribute tests and photo runs select on | a marker of your own |  |
+| Keeps its size in a tight row | `shrink-0` |  |
+
+## Props
+
+<Controls of={UnreadDotStories.Default} />
