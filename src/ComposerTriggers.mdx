@@ -1,0 +1,108 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as ComposerTriggersStories from './ComposerTriggers.stories'
+
+<Meta of={ComposerTriggersStories} />
+
+# ComposerTriggers
+
+The four keys a composer shares across apps: `@` and `!@` to mention a person,
+`[` to reference something, `/` to format the line or insert something. Each
+opens a `SuggestionMenu` at the caret; a pick inserts a chip.
+
+<Canvas of={ComposerTriggersStories.Default} />
+
+## When
+
+- **`PersonMention` and `UrgentPersonMention`** — any editor whose text names
+  people. The urgent one is the same chip in the urgent tone.
+- **`CaptionedReference` and `ReferenceTrigger`** — referencing something the
+  app can list, drawn as who wrote it and its opening words.
+- **`SlashCommands`** — `formatSection()` first, then only the rows the app can
+  perform. `formatSection('block')` makes Code a block, for an editor of a
+  block document.
+
+## When not
+
+- Formatting text already written → **SelectionToolbar**. Bold, italic and
+  underline are not in `/` for that reason.
+- A list that is not opened by a key typed in an editor → **CommandPalette** or
+  **Menu**.
+- Drawing a sent body → **RichText**. These are for editing only.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { IconSquareRounded } from '@tabler/icons-react'
+import {
+  CaptionedReference,
+  PersonMention,
+  ReferenceTrigger,
+  SlashCommands,
+  UrgentPersonMention,
+  formatSection,
+  typeTrigger,
+  urgentPubkeys,
+  type CaptionedItem,
+  type MentionPerson,
+} from '@estiva-app/ui/editor'
+
+const people = (): MentionPerson[] => [{ id: 'one', name: 'Person one', pubkey: null }]
+const items = (): CaptionedItem[] => [{ id: 'one', label: 'Person one', snippet: 'Item one', uri: 'nostr:item' }]
+
+const editor = useEditor({
+  extensions: [
+    StarterKit,
+    PersonMention.configure({ people }),
+    UrgentPersonMention.configure({ people }),
+    CaptionedReference.configure({ icon: <IconSquareRounded size={14} stroke={1.5} /> }),
+    ReferenceTrigger.configure({ items, ariaLabel: 'Items', sectionLabel: 'Items', icon: <IconSquareRounded size={16} stroke={1.5} /> }),
+    SlashCommands.configure({
+      sections: [formatSection(), { label: 'Insert', commands: [{ key: 'insert-@', row: { label: 'Mention', shortcut: '@' }, run: typeTrigger('@') }] }],
+    }),
+  ],
+})
+
+const urgent = editor ? urgentPubkeys(editor) : undefined
+
+<EditorContent editor={editor} />
+```
+
+- **The body is written by `@estiva-app/conversation`, not here.** A mention
+  chip carries `pubkey` and `label` for its `mentionText`; a reference chip
+  carries the `uri` the app built with that package, written back verbatim. The
+  urgency is not in the text: hand `urgentPubkeys(editor)` to `urgentTagsFor`.
+- **The lists ask each time the query changes.** `people` and `items` are
+  functions, so they read the app's current data. `@` shows the first six
+  names holding the query; `[` the last six whose label or `search` (default:
+  `snippet`) holds it.
+- **An app's own node name:** `CaptionedReference.extend({ name: 'yourName' })`
+  and `ReferenceTrigger.configure({ nodeName: 'yourName' })`. The chip's HTML
+  attribute follows the name (`data-your-name`).
+- **A row that opens another list** runs `typeTrigger('@')`: it types the key
+  once the `/query` is gone.
+- An open list is reported by `isSuggestionActive()`, so an editor that sends
+  on Enter does not send on the Enter that picked a row.
+
+<Canvas of={ComposerTriggersStories.CodeAsABlock} />
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Keys
+
+The lists are `SuggestionMenu`s, and their keys are its own. What the body
+says, the tags it earns and sending stay the app's.
+
+
+| Key | Does |
+| --- | --- |
+| `@` after a space or at the line's start | Opens the people list |
+| `!@` | Opens the urgent list |
+| `[` | Opens the reference list |
+| `/` after a space or at the line's start | Opens Format and the app's sections |
+| ↑ ↓ | Move the highlight, wrapping at the ends |
+| Enter | Inserts the highlighted row, or runs it |
+| Escape | Closes the list |

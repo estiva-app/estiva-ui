@@ -68,6 +68,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | One window to find something and act on it, opened by a shortcut | **CommandPalette** — rows, forms and written answers, one level at a time |
 | A list that opens as you type in an editor — `/` for commands, `@` for people | **SuggestionMenu** — the editor keeps the caret and hands it the arrow keys; `suggestionPopup` from `@estiva-app/ui/editor` wires it to a Tiptap plugin |
 | Bold, italic and the like over selected text in an editor | **SelectionToolbar**, from `@estiva-app/ui/editor` — it follows the selection by itself |
+| A composer's `@`, `!@`, `[` and `/` — mention a person, reference something, format or insert | **ComposerTriggers** — `PersonMention`, `UrgentPersonMention`, `CaptionedReference`, `ReferenceTrigger` and `SlashCommands` from `@estiva-app/ui/editor`; the app passes its people, its items and its own `/` rows |
 | An editor that saves a block document and must keep its block ids | **BlockNodes** — `BlockId`, `UnknownBlock`, `ReferenceNode` and `AttachmentNode` from `@estiva-app/ui/editor`, beside StarterKit and TableKit |
 | Anything with a title, body and footer | **DialogShell** |
 | "Are you sure?" | **ConfirmDialog** |

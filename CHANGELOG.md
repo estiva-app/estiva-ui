@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.52.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
+
+### Added
+
+- **ComposerTriggers in `@estiva-app/ui/editor`** (CON-27, slice 1 of CON-26:
+  Miky, 2026-10-02, "all of that should be across apps"). Peek's four composer
+  triggers move here unchanged from its `mention.tsx`, `slashCommands.tsx`,
+  `MentionMenu.tsx`, `FilesMenu.tsx` and `composerFormats.ts`, so Ship
+  (CON-25) takes them rather than copying them:
+  - `PersonMention` (`@`) and `UrgentPersonMention` (`!@`), configured with
+    the app's `people`, and the `peopleMenu` they open. `urgentPubkeys(editor)`
+    is what the write turns into `["urgent", <pubkey>]`.
+  - `CaptionedReference` and `ReferenceTrigger` (`[`), configured with the
+    app's `items`, its copy and its icons, and the `referenceMenu` they open.
+    An app keeps its own node name with `.extend({ name })` and `nodeName`.
+  - `SlashCommands` (`/`), configured with `sections`: `formatSection()` first
+    (`formatSection('block')` for code as a block), then the app's own rows.
+    `typeTrigger('@')` makes a row that opens another list. `FORMATS` and
+    `applyFormat` come with it.
+  - What a pick writes in the body is `@estiva-app/conversation` 0.3.0's
+    (`mentionText`, `messageReference`, `urgentTagsFor`), not this package's.
+  - Classes are Peek's, verbatim except the reference chip's `24ch` cap, which
+    was an inline `style` and is now `max-w-[24ch]`: the same rule. The
+    package's review: Miky, 2026-10-02, landed without Katerina's because
+    nothing on screen changes.
+- **New optional peer `@tiptap/extension-mention`** (^3.22.1), which Peek
+  already installs. Only an app that imports `@estiva-app/ui/editor` needs it.
+
+### Fixed (found reviewing CON-27)
+
+- **A chip survives a copy and paste.** Peek's chips wrote none of their values
+  into their HTML, so a mention or a reference that went through the clipboard
+  came back with every value null and was sent as `@null` / `null`. The chips
+  now carry `data-id`, `data-label`, `data-pubkey`, `data-snippet` and
+  `data-uri`, and read them back checked: a `data-pubkey` that is not a 64-hex
+  key, or a `data-uri` that is not a `nostr:` reference, is dropped, so crafted
+  HTML cannot put another person's key or a foreign link into the body.
+
 ## 0.51.0 — 2026-10-02 — A sidebar's tree
 
 ### Added

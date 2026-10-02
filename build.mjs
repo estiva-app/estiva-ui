@@ -49,7 +49,7 @@ await build({
  * `@estiva-app/ui`, which every one of them is exported from.
  */
 // The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes'])
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',
@@ -59,7 +59,7 @@ await build({
   target: 'es2022',
   jsx: 'automatic',
   sourcemap: true,
-  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@tiptap/core', '@tiptap/react', '@tiptap/pm', '@tiptap/suggestion', '@estiva-app/ui'],
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@tiptap/core', '@tiptap/extension-mention', '@tiptap/react', '@tiptap/pm', '@tiptap/suggestion', '@estiva-app/ui'],
   plugins: [
     {
       name: 'main-entry-is-external',
