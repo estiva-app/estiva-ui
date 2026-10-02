@@ -13,8 +13,8 @@
     the app's `people`, and the `peopleMenu` they open. `urgentPubkeys(editor)`
     is what the write turns into `["urgent", <pubkey>]`.
   - `CaptionedReference` and `ReferenceTrigger` (`[`), configured with the
-    app's `items`, its copy and its icons. An app keeps its own node name with
-    `.extend({ name })` and `nodeName`.
+    app's `items`, its copy and its icons, and the `referenceMenu` they open.
+    An app keeps its own node name with `.extend({ name })` and `nodeName`.
   - `SlashCommands` (`/`), configured with `sections`: `formatSection()` first
     (`formatSection('block')` for code as a block), then the app's own rows.
     `typeTrigger('@')` makes a row that opens another list. `FORMATS` and
