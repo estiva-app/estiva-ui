@@ -47,3 +47,8 @@ export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.collap
 export const AsARow: Story = {
   args: { title: 'Folder', look: 'row' },
 }
+
+/** `indent`: the heading look, its rows starting under its title, past the chevron — a folder in a sidebar. */
+export const Indented: Story = {
+  args: { title: 'Group', indent: true },
+}
