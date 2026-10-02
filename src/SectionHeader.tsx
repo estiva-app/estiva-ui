@@ -106,7 +106,7 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
             // A row's words: NavItem's size and colour, brightening under the pointer with the row.
             <span className="min-w-0 flex-1 truncate text-body-2">{title}</span>
           ) : (
-            <SectionLabel>{title}</SectionLabel>
+            <SectionLabel folds={chevron}>{title}</SectionLabel>
           )}
         </>
       ),

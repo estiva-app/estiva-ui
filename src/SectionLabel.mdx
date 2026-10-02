@@ -40,7 +40,10 @@ It is a bare span: the caller owns the row it sits in and the spacing
 around it. Read it `tone="secondary"` where it labels rather than leads — menu
 headings and the command palette's groups do. `tone="muted"` where it marks a
 place in a list rather than heading it — a date between messages. `truncate`
-cuts a long label short with an ellipsis where its row has no room. A colour
+cuts a long label short with an ellipsis where its row has no room. `folds`
+is the title of a group that opens and closes: **SectionHeader** passes it
+whenever it draws the chevron, so in Leaf a folding group keeps Ship's type
+while every other label takes Signal's. A colour
 passed in `className` is refused by the lint.
 
 - Import it — never copy its classes. A copied class list drifts the first time

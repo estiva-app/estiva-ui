@@ -18,6 +18,10 @@ import { cn } from './cn'
  * long label short with an ellipsis where its row has no room, as a date line in
  * a narrow panel must.
  *
+ * `folds` is the title of a group that opens and closes: in Leaf it keeps
+ * Ship's type rather than taking Signal's micro-label, so a folder reads as
+ * a name (Katerina, 2 October). Every other Leaf label keeps Signal's.
+ *
  * Deliberately NOT the same thing as Property's stacked field label (the
  * 9px `menu`-token one): they were merged for a day and unmerged by
  * Katerina's ruling (2026-09-01) — a section title and a field label are
@@ -27,20 +31,24 @@ export function SectionLabel({
   children,
   tone = 'primary',
   truncate = false,
+  folds = false,
   className,
 }: {
   children: ReactNode
   tone?: 'primary' | 'secondary' | 'muted'
   /** Cut a long label short with an ellipsis instead of letting it wrap or spill. */
   truncate?: boolean
+  /** The title of a group that opens and closes. In Leaf, Ship's type instead of the micro-label. */
+  folds?: boolean
   className?: string
 }) {
   return (
     <span
       className={cn(
         'text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
-        // Leaf's section labels are Signal's type (Katerina, 28 September).
-        'leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest',
+        // Leaf's section labels are Signal's type (Katerina, 28 September),
+        // but a group that folds keeps Ship's (Katerina, 2 October).
+        !folds && 'leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest',
         tone === 'secondary' ? 'text-text-secondary' : tone === 'muted' ? 'text-text-muted' : 'text-text-primary',
         truncate && 'min-w-0 truncate',
         className,
