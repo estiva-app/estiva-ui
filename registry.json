@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.50.4",
-    "exports": 104,
-    "typeExports": 113,
+    "exports": 105,
+    "typeExports": 116,
     "files": null
   },
   "storybook": {
@@ -1088,6 +1088,12 @@
           "takes": "heading | row",
           "required": false,
           "note": "`heading` (default): the title is a section heading."
+        },
+        {
+          "name": "indent",
+          "takes": "true/false",
+          "required": false,
+          "note": "With the `heading` look: the rows start under the title, past the chevron — a folder in a sidebar, its files lightly indented under its name (Katerina, 2 October)."
         },
         {
           "name": "children",
@@ -3513,6 +3519,36 @@
           "note": "The ⋮'s accessible name and tooltip. Default \"More options for {label}\"."
         },
         {
+          "name": "hint",
+          "takes": "anything",
+          "required": false,
+          "note": "Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Rows under this one, folding under it: `NavItem`s."
+        },
+        {
+          "name": "defaultOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: open unless told otherwise."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: the caller owns the state."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3520,7 +3556,12 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "frame-navitem--docs",
@@ -3531,8 +3572,65 @@
         "text-body-2 rounded-md transition-colors bg-bg-active text-text-primary",
         "text-body-2 rounded-md transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "text-center font-mono text-caption tabular-nums text-text-muted",
-        "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity"
+        "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity",
+        "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
       ]
+    },
+    {
+      "name": "NavTree",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/NavTree.tsx",
+      "purpose": "A sidebar's tree from one nested list: a quiet label, groups that fold under the standard heading with their rows lightly indented, and rows under rows to any depth.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": false,
+          "note": "The quiet label over the groups. Absent, none is drawn."
+        },
+        {
+          "name": "groups",
+          "takes": "NavTreeGroup[] | null",
+          "required": true,
+          "note": "`null` while the first read is on its way: a skeleton in the rows' place."
+        },
+        {
+          "name": "selected",
+          "takes": "text",
+          "required": false,
+          "note": "The row that is current: `active`, and its group starts open."
+        },
+        {
+          "name": "onSelect",
+          "takes": "a handler",
+          "required": false,
+          "note": "A row was clicked. A router app prevents the default and navigates."
+        },
+        {
+          "name": "emptyMessage",
+          "takes": "text",
+          "required": true,
+          "note": "What to say when there are no groups. The words are the caller's."
+        },
+        {
+          "name": "storageKey",
+          "takes": "text",
+          "required": false,
+          "note": "Remember each group open or closed in this browser, under this key and the group's id."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-navtree--docs",
+      "storyId": "frame-navtree--default",
+      "docPage": "src/NavTree.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "normalizeHref",
@@ -4687,6 +4785,12 @@
           "note": "Cut a long label short with an ellipsis instead of letting it wrap or spill."
         },
         {
+          "name": "folds",
+          "takes": "true/false",
+          "required": false,
+          "note": "The title of a group that opens and closes."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -4711,6 +4815,12 @@
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
+        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
