@@ -9,6 +9,7 @@
  */
 export { KeptSelection, SelectionToolbar, normalizeHref, type MarkId, type SelectionToolbarProps } from './SelectionToolbar'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
+export { EditorBlockHandle, deleteBlock, duplicateBlock, startBlockDrag, type EditorBlockHandleProps, type BlockTurnInto } from './EditorBlockHandle'
 export {
   PersonMention,
   UrgentPersonMention,

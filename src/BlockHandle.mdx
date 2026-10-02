@@ -1,0 +1,58 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as BlockHandleStories from './BlockHandle.stories'
+
+<Meta of={BlockHandleStories} />
+
+# BlockHandle
+
+The handle left of the block under the pointer, as a block-document page has
+it, and the block's menu behind it. Over a document being read, the menu is
+the app's rows only — a link to the block, a comment on it.
+
+<Canvas of={BlockHandleStories.Default} />
+
+## When
+
+- **A document made of blocks, read by someone who cannot edit it**, when the
+  app has something to offer on one block: a link to it, a comment on it.
+
+## When not
+
+- The same document being edited → **EditorBlockHandle**, from
+  `@estiva-app/ui/editor`: the same handle, which also drags and has Turn
+  into, Duplicate and Delete.
+- Reading a document with nothing to offer on one block → **RichText** alone.
+
+## How
+
+```tsx
+import { BlockHandle, MenuItem, RichText, type HandleBlock, type RichTextBlock } from '@estiva-app/ui'
+
+const blocks: RichTextBlock[] = [{ type: 'paragraph', id: 'b1', inline: [{ text: 'Label', marks: [] }] }]
+const rows = (block: HandleBlock) => <MenuItem label="Copy link" onClick={() => navigator.clipboard.writeText(`#${block.id}`)} />
+
+<BlockHandle actions={rows}>
+  <RichText blocks={blocks} />
+</BlockHandle>
+```
+
+- **Leave room on the left.** The handle sits 28px left of the content, in
+  the page's margin, so wrapping the content moves nothing. A surface flush
+  with its container's left edge clips it.
+- `children` is a surface whose top-level elements carry `data-block-id`, as
+  `RichText` draws them. `HandleBlock.id` is that §13.3 id: what a link or a
+  comment addresses.
+- With no `actions`, or `actions` that return nothing for a block, no handle
+  is drawn.
+- **In the main entry on purpose**: a reader must not download an editor.
+  `editing` is how `EditorBlockHandle` makes this part edit, not a prop to
+  fill by hand.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Finds the block under the pointer, by height: the gap between two blocks belongs to the one above | a pointer handler on each block | |
+| Centres the handle on the block's first line, a heading's or a paragraph's | a position for the handle | |
