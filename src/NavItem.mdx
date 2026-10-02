@@ -28,6 +28,19 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.WithMenu} />
 
+- A row with rows under it takes them as `children`: more `NavItem`s. The
+  row stays a link; while it is pointed at or focused, its icon becomes the
+  arrow that folds them, in the icon's own place, and they slide shut. For a
+  whole tree from one list, use **NavTree**.
+
+<Canvas of={NavItemStories.WithRowsUnder} />
+
+- A word that helps only while the row is pointed at — where the item comes
+  from — is `hint`: pass a neutral **Chip**. It shows left of the count, and
+  the label ends with "…" before it instead of running under it.
+
+<Canvas of={NavItemStories.WithHintLongLabel} />
+
 ## When not
 
 - An icon rail's tile → **RailItem**.
@@ -55,6 +68,11 @@ import { NavItem } from '@estiva-app/ui'
 - The label truncates; the count never gives up its width.
 - `menu` is the items only: `menu={<MenuItem label="Move to Folder…" onClick={move} />}`.
   The ⋮'s name is `More options for {label}` unless `menuLabel` says otherwise.
+- `children` start open; `defaultOpen={false}` starts them folded, and
+  `open` with `onOpenChange` hands the state to the app. The arrow's name is
+  `Hide what is under {label}` or `Show what is under {label}`.
+- `hint` takes room only while it shows, so a label at rest keeps its full
+  width.
 
 - A row is 32px tall, 8px in on each side, 8px between the icon and the label,
   the label 14px regular, 6px corners.
@@ -68,6 +86,18 @@ It does these by itself. Write none of them around it.
 | Marks the current place for assistive technology when `active` | `aria-current` |  |
 | Keeps its 32px in a scrolling column | `shrink-0` |  |
 | Shows a ⋮ over the count while pointed at, focused or open, and keeps the row's hover look under it | a positioned `IconButton` + `Menu` over the row, `group-hover` reveals |  |
+| Turns its icon into the arrow that folds `children` while pointed at or focused, and slides them | a positioned `IconButton` over the icon, open state, `group-hover` reveals, an indented box |  |
+| Tells assistive technology whether its rows are open | `aria-expanded`, `aria-controls` |  |
+| Shows `hint` only while pointed at or focused, and makes the label give way | a positioned chip over the row, `group-hover` reveals |  |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | the link, then its arrow (with `children`), then its ⋮ (with `menu`) |
+| Enter, Space | on the arrow: folds or unfolds the rows under it |
+
+The rows are not an ARIA tree: there are no arrow keys between rows yet.
 
 ## Props
 

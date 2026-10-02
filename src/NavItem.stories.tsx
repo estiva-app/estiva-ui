@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
+import { Chip } from './Chip'
 import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
 
@@ -59,4 +60,37 @@ export const WithMenuActive: Story = {
 /** No count: the ⋮ still appears in the same place, and a long label stops short of it. */
 export const WithMenuNoCount: Story = {
   args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, menu: MENU },
+}
+
+/** A hint shows only while the row is pointed at or focused, left of the count: here a neutral Chip. */
+export const WithHint: Story = {
+  args: { icon: placeholder, count: 3, countLabel: '3 open', hint: <Chip type="neutral" label="Label" /> },
+}
+
+/** A long label gives way to the hint while it shows: it ends with "…" before the chip instead of running under it. */
+export const WithHintLongLabel: Story = {
+  args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, count: 12, countLabel: '12 open', hint: <Chip type="neutral" label="Label" /> },
+}
+
+/** Rows under a row: point at it and its icon becomes the arrow that folds them. The row itself stays a link. */
+export const WithRowsUnder: Story = {
+  args: { icon: placeholder },
+  render: (args) => (
+    <NavItem {...args}>
+      <NavItem href="#" label="Item two" icon={placeholder} />
+      <NavItem href="#" label="Item three" icon={placeholder}>
+        <NavItem href="#" label="Item four" icon={placeholder} />
+      </NavItem>
+    </NavItem>
+  ),
+}
+
+/** Starts folded: point at it, or Tab to its arrow, to open it. */
+export const WithRowsUnderClosed: Story = {
+  args: { icon: placeholder, defaultOpen: false },
+  render: (args) => (
+    <NavItem {...args}>
+      <NavItem href="#" label="Item two" icon={placeholder} />
+    </NavItem>
+  ),
 }
