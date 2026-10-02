@@ -45,3 +45,6 @@ export const Truncated: Story = {
     </div>
   ),
 }
+
+/** The title of a group that folds: in Leaf it keeps Ship's type; in Signal and Ship it looks like any label. Switch the toolbar to Leaf to see the difference. */
+export const Folds: Story = { args: { folds: true, children: 'Group' } }

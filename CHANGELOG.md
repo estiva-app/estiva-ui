@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.51.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
+## 0.52.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
 
 ### Added
 
@@ -37,6 +37,37 @@
   `data-uri`, and read them back checked: a `data-pubkey` that is not a 64-hex
   key, or a `data-uri` that is not a `nostr:` reference, is dropped, so crafted
   HTML cannot put another person's key or a foreign link into the body.
+
+## 0.51.0 — 2026-10-02 — A sidebar's tree
+
+### Added
+
+- **`NavTree`**: a sidebar's tree from one nested list (Katerina, 2 October:
+  Leaf's folder tree). A quiet label, then each group as the standard
+  heading folding its rows, lightly indented under its title; rows under
+  rows to any depth. `selected` opens the group that holds the current row;
+  `onSelect` is for a router app; `groups={null}` draws a skeleton and `[]`
+  the caller's `emptyMessage`; `storageKey` remembers each group.
+- **`NavItem` `children`**: rows under a row. The row stays a link; while it
+  is pointed at or focused its icon becomes the arrow that folds them, in the
+  icon's own place. `defaultOpen`, `open` and `onOpenChange` as
+  `CollapsibleSection` has them.
+- **`NavItem` `hint`**: shown only while the row is pointed at or focused,
+  left of the count (a neutral `Chip`, typically). The label ends with "…"
+  before it instead of running under it.
+- **`CollapsibleSection` `indent`**: the heading look's rows start under its
+  title, 16px in.
+- **`SectionLabel` `folds`**, passed by `SectionHeader` whenever it draws the
+  chevron. In Leaf a group that folds keeps Ship's type; every other Leaf
+  label keeps Signal's micro-label (Katerina's ruling of 28 September,
+  narrowed on 2 October). Signal and Ship look as before.
+
+### Changed
+
+- The Collapsible slide is written once (`COLLAPSIBLE_PANEL_CLASSES` in
+  `looks.ts`) and shared by `CollapsibleSection` and `NavItem`.
+- A `NavItem`'s ⋮ is found by its own marker, so an open arrow beside it
+  does not hold it open. No change for a row without `children`.
 
 ## 0.50.4 — 2026-10-01 — The `/` menu and a typed `> ` keep the paragraph's comment too
 

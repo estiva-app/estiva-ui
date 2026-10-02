@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from './cn'
 import { SectionHeader, type SectionAction } from './SectionHeader'
+import { COLLAPSIBLE_PANEL_CLASSES } from './looks'
 
 /**
  * A section that opens and closes: a `SectionHeader` whose title is the
@@ -42,6 +43,12 @@ export interface CollapsibleSectionProps {
    * its title, past the chevron (`SectionHeader`'s `look`).
    */
   look?: 'heading' | 'row'
+  /**
+   * With the `heading` look: the rows start under the title, past the
+   * chevron — a folder in a sidebar, its files lightly indented under its
+   * name (Katerina, 2 October). The `row` look always indents.
+   */
+  indent?: boolean
   /** The rows. */
   children: ReactNode
   /** On the section's box: `mt-2` between groups, `shrink-0` in a scrolling column. */
@@ -72,7 +79,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, look = 'heading', children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -91,10 +98,11 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
           prefers-reduced-motion. */}
       <Collapsible.Panel
         hiddenUntilFound
-        className="h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none data-[starting-style]:h-0 data-[ending-style]:h-0"
+        className={COLLAPSIBLE_PANEL_CLASSES}
       >
-        {/* A row's rows start under its title: the 16px chevron and its 8px gap (pl-6). */}
-        <div className={cn('flex flex-col', look === 'row' && 'pl-6', contentClassName)}>{children}</div>
+        {/* A row's rows start under its title: the 16px chevron and its 8px gap
+            (pl-6). An indented heading's: its 12px chevron and 4px gap (pl-4). */}
+        <div className={cn('flex flex-col', look === 'row' ? 'pl-6' : indent && 'pl-4', contentClassName)}>{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )

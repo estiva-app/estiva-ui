@@ -46,3 +46,11 @@ export const BARE_INPUT_CLASSES = 'bg-transparent text-text-primary placeholder:
 /** A sidebar row's shape and its words at rest, brightening under the pointer: NavItem, and SectionHeader's `row` (a folder among rows). */
 export const SIDEBAR_ROW_CLASSES = 'rounded-md transition-colors'
 export const SIDEBAR_ROW_TEXT_CLASSES = 'text-text-secondary hover:text-text-primary'
+
+/**
+ * A panel that slides open and shut on Base UI's Collapsible: Base UI measures
+ * it and writes its height to a variable, `auto` again once the slide ends, and
+ * the panel is 0 high on its opening and closing frames. None under
+ * prefers-reduced-motion. CollapsibleSection's rows, and the rows under a NavItem.
+ */
+export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none data-[starting-style]:h-0 data-[ending-style]:h-0'

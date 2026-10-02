@@ -1,0 +1,83 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as NavTreeStories from './NavTree.stories'
+
+<Meta of={NavTreeStories} />
+
+# NavTree
+
+A sidebar's tree from one nested list: a quiet label, groups that fold
+under the standard heading with their rows lightly indented, and rows under
+rows to any depth.
+
+<Canvas of={NavTreeStories.Default} />
+
+## When
+
+- Places that nest, in a **Sidebar**: groups, rows in them, rows under
+  those rows. Hand it the whole list; it draws every level.
+- `selected` is the current row: it is `active`, and only its group starts
+  open. Rows with rows under them start open.
+
+<Canvas of={NavTreeStories.CurrentDeep} />
+
+- A row's `hint` (a neutral **Chip**), `count` and `menu` are **NavItem**'s,
+  passed through.
+- `groups={null}` while the first read is on its way draws a skeleton;
+  `[]` draws `emptyMessage`, level with the rows.
+
+<Canvas of={NavTreeStories.Loading} />
+
+## When not
+
+- A flat list of places → **NavItem** rows in the **Sidebar**.
+- One group that folds, written by hand → **CollapsibleSection**.
+- A list beside the thing that is open → **ListColumn**.
+
+## How
+
+```tsx
+import { NavTree, Sidebar } from '@estiva-app/ui'
+
+<Sidebar>
+  <NavTree
+    title="Groups"
+    groups={groups}
+    selected={currentId}
+    onSelect={(node, event) => {
+      event.preventDefault()
+      navigate(node.href)
+    }}
+    emptyMessage="Nothing here yet."
+    storageKey="app.sidebar.groups"
+  />
+</Sidebar>
+```
+
+- Each row is a **NavItem**, so a row is a link: a router app prevents the
+  default in `onSelect` and navigates.
+- `storageKey` remembers each group open or closed in this browser, under
+  the key and the group's id. The rows under a row are not remembered yet.
+- The words in `emptyMessage` are the caller's.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws every level from one list, rows under rows | a recursive render of **NavItem**s and **CollapsibleSection**s |  |
+| Opens the group that holds the current row | a search through the list for the current row |  |
+| Says it is loading, or empty, in the rows' place | a skeleton or an **EmptyState** placed by hand |  |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | each group's title, then its rows: each row's link, then its arrow |
+| Enter, Space | on a group's title or a row's arrow: folds or unfolds |
+
+It is not an ARIA tree yet: there are no arrow keys between rows.
+
+## Props
+
+<Controls of={NavTreeStories.Default} />
