@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.51.0",
-    "exports": 118,
-    "typeExports": 124,
+    "exports": 119,
+    "typeExports": 125,
     "files": null
   },
   "storybook": {
@@ -4480,6 +4480,44 @@
       "docsId": "components-reactionpicker--docs",
       "storyId": "components-reactionpicker--default",
       "docPage": "src/ReactionPicker.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "referenceMenu",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposerTriggers.tsx",
+      "purpose": "The list `[` opens: one section of `label: snippet` rows, the same box as the people list.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "ariaLabel",
+          "takes": "text",
+          "required": true,
+          "note": "Names the list, e.g. what can be referenced."
+        },
+        {
+          "name": "sectionLabel",
+          "takes": "text",
+          "required": true,
+          "note": "The section's heading."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": true,
+          "note": "At each row's start: a 16px icon."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composertriggers--docs",
+      "storyId": "primitives-composertriggers--default",
+      "docPage": null,
       "app": null,
       "looks": []
     },

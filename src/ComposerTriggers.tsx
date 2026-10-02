@@ -253,17 +253,32 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
   },
 })
 
-export interface ReferenceTriggerOptions {
-  /** Everything `[` can offer, asked each time the query changes. */
-  items: () => readonly CaptionedItem[]
-  /** The node a pick inserts. Default `captionedReference`. */
-  nodeName: string
+export interface ReferenceMenuOptions {
   /** Names the list, e.g. what can be referenced. */
   ariaLabel: string
   /** The section's heading. */
   sectionLabel: string
   /** At each row's start: a 16px icon. */
   icon: ReactNode
+}
+
+/** The list `[` opens: one section of `label: snippet` rows, the same box as the people list. */
+export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOptions): SuggestionPopupOptions<CaptionedItem> {
+  return {
+    ariaLabel,
+    width: 'w-[658px]',
+    maxHeight: 'max-h-[360px]',
+    sections: (items) => [{ label: sectionLabel, items, className: 'px-2' }],
+    itemKey: (item) => `reference-${item.id}`,
+    row: (item) => ({ leading: icon, label: captionOf(item.label, item.snippet), hint: <EnterHint /> }),
+  }
+}
+
+export interface ReferenceTriggerOptions extends ReferenceMenuOptions {
+  /** Everything `[` can offer, asked each time the query changes. */
+  items: () => readonly CaptionedItem[]
+  /** The node a pick inserts. Default `captionedReference`. */
+  nodeName: string
 }
 
 /**
@@ -290,14 +305,7 @@ export const ReferenceTrigger = Extension.create<ReferenceTriggerOptions>({
           return !!type && !!state.doc.resolve(range.from).parent.type.contentMatch.matchType(type)
         },
         items: ({ query }) => filterReferences(options.items(), query),
-        render: suggestionPopup<CaptionedItem>({
-          ariaLabel: options.ariaLabel,
-          width: 'w-[658px]',
-          maxHeight: 'max-h-[360px]',
-          sections: (items) => [{ label: options.sectionLabel, items, className: 'px-2' }],
-          itemKey: (item) => `reference-${item.id}`,
-          row: (item) => ({ leading: options.icon, label: captionOf(item.label, item.snippet), hint: <EnterHint /> }),
-        }),
+        render: suggestionPopup(referenceMenu(options)),
         command: ({ editor, range, props: item }) => {
           editor
             .chain()
