@@ -115,3 +115,10 @@ describe('NavTree drawn by the app', () => {
     expect(screen.getByText('Nothing in this yet.')).not.toBeNull()
   })
 })
+
+describe('NavTree marks its groups', () => {
+  it('each group box carries data-nav-group with its id', () => {
+    const { container } = render(<NavTree groups={[{ id: 'g1', title: 'Group a', nodes: [] }]} emptyMessage="Nothing here yet." />)
+    expect(container.querySelector('[data-nav-group="g1"]')).not.toBeNull()
+  })
+})

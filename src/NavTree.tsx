@@ -140,6 +140,7 @@ function Row({ node, selected, onSelect }: { node: NavTreeNode } & Pick<NavTreeP
 function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup } & Pick<NavTreeProps, 'selected' | 'onSelect' | 'storageKey'>) {
   return (
     <NavTreeSection
+      id={group.id}
       title={group.title}
       message={group.message}
       loading={group.nodes === null}
@@ -158,6 +159,8 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
 
 export interface NavTreeSectionProps {
   title: string
+  /** Marks the group's box as `data-nav-group`, for tests and photo runs to find it. */
+  id?: string
   /** Said in the rows' place, level with them. The caller's words. */
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
@@ -186,13 +189,14 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ title, message, loading = false, trailing, actions, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, trailing, actions, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
   return (
     <div
       className="shrink-0"
+      data-nav-group={id}
       onPointerEnter={intent ? () => { clearTimeout(timer.current); timer.current = setTimeout(intent, NAV_TREE_INTENT_MS) } : undefined}
       onPointerLeave={intent ? () => clearTimeout(timer.current) : undefined}
       onFocus={intent}
