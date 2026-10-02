@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.52.0",
+    "packageVersion": "0.53.0",
     "exports": 125,
     "typeExports": 131,
     "files": null

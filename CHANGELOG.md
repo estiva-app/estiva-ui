@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.53.0 — 2026-10-02 — A handle on every block
+
+### Added
+
+- **`BlockHandle` in `@estiva-app/ui/editor`** (RIC-18: Miky, 2026-10-02,
+  "edit a description like a Notion page"; Ship's description is the first
+  caller). The handle left of the block under the pointer: drag it to move
+  the block, press it for the block's menu — Turn into (the caller's rows,
+  for a block of text), Duplicate and Delete while editing, then the
+  caller's own rows. Given no `editor` it reads: no drag and no editing
+  rows, only the caller's, so someone who cannot edit can still link to or
+  comment on one block (Miky's ruling in the kickoff).
+  - The drag is the browser's own, started as ProseMirror starts one of a
+    selected node, so ProseMirror's drop moves the block **with its id** —
+    a comment anchored to it still finds it. Measured with a real mouse drag
+    in Chromium on the story, not only in jsdom.
+  - `duplicateBlock`, `deleteBlock`, `startBlockDrag` and `blockAtY` are its
+    actions, exported for a caller that offers them elsewhere. A duplicate
+    gets a fresh id from `BlockId`; the original keeps its own.
+
 ## 0.52.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
 
 ### Added
