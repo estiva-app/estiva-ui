@@ -10,6 +10,33 @@
 export { KeptSelection, SelectionToolbar, normalizeHref, type MarkId, type SelectionToolbarProps } from './SelectionToolbar'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
 export {
+  PersonMention,
+  UrgentPersonMention,
+  CaptionedReference,
+  ReferenceTrigger,
+  SlashCommands,
+  peopleMenu,
+  filterPeople,
+  urgentPubkeys,
+  filterReferences,
+  formatSection,
+  applyFormat,
+  typeTrigger,
+  filterSlashSections,
+  FORMATS,
+  type MentionPerson,
+  type PersonMentionOptions,
+  type CaptionedItem,
+  type CaptionedReferenceOptions,
+  type ReferenceTriggerOptions,
+  type SlashCommand,
+  type SlashSection,
+  type SlashCommandsOptions,
+  type FormatId,
+  type FormatDef,
+  type CodeFormat,
+} from './ComposerTriggers'
+export {
   BlockId,
   UnknownBlock,
   ReferenceNode,
