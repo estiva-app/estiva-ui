@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.53.1 — 2026-10-03 — A made app stays on its registered port, and its tests ignore .env.local
+
+### Fixed
+
+- **`create-estiva-app` sets Vite's `strictPort`** (docs.estiva.app Quickstart,
+  `a7a4ddbb`). Estiva ID matches a redirect exactly, and the relay matches an
+  origin exactly, so a made app is registered as `http://localhost:5173/`. On
+  a busy port Vite used to move to `:5174`, and the app then failed at sign-in
+  with nothing saying why. It now stops at `npm run dev` with "Port 5173 is
+  already in use". Only newly made apps change; an existing app adds
+  `server: { strictPort: true }` to its `vite.config.ts` itself.
+- **A made app's tests pass once `.env.local` is filled in.** Vitest loads
+  `.env.local` as the dev server does, so the made `App.test.tsx`, which checks
+  the anonymous frame, failed for anyone who had configured sign-in and the
+  relay. The made `vite.config.ts` now empties the three `VITE_` settings
+  for tests.
+
 ## 0.53.0 — 2026-10-03 — `[` draws sections that fill in as answers land
 
 ### Added

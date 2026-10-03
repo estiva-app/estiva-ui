@@ -207,8 +207,15 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     dedupe: ['react', 'react-dom'],
   },
+  // Sign-in and the relay both name this app by its exact origin,
+  // http://localhost:5173. On a busy port Vite would otherwise move to :5174,
+  // which both refuse, and the failure would surface at sign-in instead of here.
+  server: { strictPort: true },
   test: {
     environment: 'jsdom',
+    // Vitest reads .env.local like the dev server does. Without this, the tests
+    // would run signed in to the real relay as soon as .env.local is filled in.
+    env: { VITE_ESTIVA_ID_ORIGIN: '', VITE_ESTIVA_ID_CLIENT_ID: '', VITE_RELAY_URL: '' },
   },
 })
 `,
