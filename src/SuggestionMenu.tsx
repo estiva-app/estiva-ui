@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useImperativeHandle, useMemo, useState, type ReactNode, type Ref } from 'react'
+import { useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type ReactNode, type Ref } from 'react'
 import { MenuItem, MenuSection, MenuSeparator, type MenuItemProps } from './Menu'
 import { Popover } from './Popover'
 
@@ -85,8 +85,18 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
   const base = useId()
   const listboxId = `${base}-list`
 
-  // A new list is a new list: the old index may not exist in it.
-  useEffect(() => setHighlight(0), [keys])
+  // The row the person arrowed to, by key — read as the list was when they
+  // moved, so not re-run when `keys` changes.
+  const chosen = useRef<string | null>(null)
+  useEffect(() => void (chosen.current = highlight > 0 ? (keys.split('\n')[highlight] ?? null) : null), [highlight])
+
+  // A new list is a new list: the old index may not exist in it. A row the
+  // person arrowed to stays highlighted while it is still listed, so an answer
+  // landing late does not move their pick under the Enter key.
+  useEffect(() => {
+    const at = chosen.current ? keys.split('\n').indexOf(chosen.current) : -1
+    setHighlight(at > 0 ? at : 0)
+  }, [keys])
 
   useImperativeHandle(handle, () => ({
     // The editor hands its arrow keys to this list: Base UI's lists need a text field of their own, and an editor is not one.

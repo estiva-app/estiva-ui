@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.53.0 — 2026-10-03 — `[` draws sections that fill in as answers land
+
+### Added
+
+- **`ReferenceTrigger` takes `sections` and `subscribe`** (PEE-21, slice 3 of
+  CON-26: Miky, 2026-10-02, "`[` lists messages and files, ranked by where you
+  are"). `sections(query)` answers the labelled groups to draw, already
+  narrowed and ordered by the app — Peek and Ship rank them with
+  `@estiva-app/conversation`'s `rankReferences` — and an empty one is not
+  drawn. `subscribe(listener)` lets the app say a search answer has landed;
+  the open list is drawn again for the same query, with no spinner while it
+  waits. `ReferenceSection` is the group's type. The redraw is
+  `suggestionPopup`'s own `subscribe` and `refresh` options, so any trigger can
+  take late data.
+- **`CaptionedItem.description`**: a row's second line. The chip does not wear it.
+
+### Changed
+
+- **`SuggestionMenu` keeps a row the person arrowed to** when the list is drawn
+  again and that row is still in it (PEE-21 review): a search landing late no
+  longer moves the highlight back to the top under the Enter key. An untouched
+  list still highlights its first row.
+
+### Unchanged
+
+- `items`, `filterReferences` and `REFERENCE_LIMIT` keep working for an app
+  that has not moved to `sections` — no caller changes. Nothing new is drawn:
+  the rows, headings and box are `SuggestionMenu`'s as before.
+
 ## 0.52.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
 
 ### Added

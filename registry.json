@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.52.0",
+    "packageVersion": "0.53.0",
     "exports": 120,
     "typeExports": 128,
     "files": null
@@ -4587,7 +4587,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
-      "purpose": "The list `[` opens: one section of `label: snippet` rows, the same box as the people list.",
+      "purpose": "The list `[` opens: `label: snippet` rows, the same box as the people list.",
       "purposeFrom": "comment",
       "props": [
         {
@@ -5568,6 +5568,18 @@
           "takes": "a handler",
           "required": true,
           "note": null
+        },
+        {
+          "name": "subscribe",
+          "takes": "a handler",
+          "required": false,
+          "note": "With `refresh`: called with a listener while the list is open; the app calls it when its data has changed (a search landing), and the open list is drawn again for the same query."
+        },
+        {
+          "name": "refresh",
+          "takes": "a handler",
+          "required": false,
+          "note": "The items for a query, as the plugin's `items` answers — asked again when `subscribe` fires."
         }
       ],
       "variants": [],

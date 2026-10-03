@@ -44,6 +44,15 @@ export interface SuggestionPopupOptions<T> {
   sections?: (items: T[], query: string) => readonly SuggestionMenuSection<T>[]
   itemKey: (item: T) => string
   row: (item: T) => SuggestionMenuRow
+  /**
+   * With `refresh`: called with a listener while the list is open; the app
+   * calls it when its data has changed (a search landing), and the open list is
+   * drawn again for the same query. Returns the unsubscribe, run when the list
+   * closes however it closes.
+   */
+  subscribe?: (listener: () => void) => () => void
+  /** The items for a query, as the plugin's `items` answers — asked again when `subscribe` fires. */
+  refresh?: (query: string) => T[]
 }
 
 type Props<T> = SuggestionProps<T> & { options: SuggestionPopupOptions<T> }
@@ -88,7 +97,12 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
   return () => {
     let component: ReactRenderer<SuggestionMenuHandle, Props<T>> | null = null
     let container: HTMLDivElement | null = null
+    let last: SuggestionProps<T> | null = null
+    let unsubscribe: (() => void) | undefined
     const exit = () => {
+      unsubscribe?.()
+      unsubscribe = undefined
+      last = null
       if (!component) return
       openCount = Math.max(0, openCount - 1)
       lastClose = Date.now()
@@ -104,8 +118,22 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
         container = document.createElement('div')
         document.body.appendChild(container)
         container.appendChild(component.element)
+        last = props
+        const { subscribe, refresh } = options
+        if (subscribe && refresh) {
+          // The plugin asks for items only when the query changes; an answer
+          // landing later draws the open list again with the same props.
+          unsubscribe = subscribe(() => {
+            if (!last || !component) return
+            last = { ...last, items: refresh(last.query) }
+            component.updateProps({ ...last, options })
+          })
+        }
       },
-      onUpdate: (props) => component?.updateProps({ ...props, options }),
+      onUpdate: (props) => {
+        last = props
+        component?.updateProps({ ...props, options })
+      },
       onKeyDown: ({ event }: SuggestionKeyDownProps) => {
         if (event.key === 'Escape') {
           exit()
