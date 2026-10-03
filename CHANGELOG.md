@@ -11,9 +11,17 @@
   `@estiva-app/conversation`'s `rankReferences` — and an empty one is not
   drawn. `subscribe(listener)` lets the app say a search answer has landed;
   the open list is drawn again for the same query, with no spinner while it
-  waits. `ReferenceSection` is the group's type.
-- **`CaptionedItem.description` and `CaptionedItem.leading`**: a row's second
-  line and its own icon in place of the list's. The chip wears neither.
+  waits. `ReferenceSection` is the group's type. The redraw is
+  `suggestionPopup`'s own `subscribe` and `refresh` options, so any trigger can
+  take late data.
+- **`CaptionedItem.description`**: a row's second line. The chip does not wear it.
+
+### Changed
+
+- **`SuggestionMenu` keeps a row the person arrowed to** when the list is drawn
+  again and that row is still in it (PEE-21 review): a search landing late no
+  longer moves the highlight back to the top under the Enter key. An untouched
+  list still highlights its first row.
 
 ### Unchanged
 

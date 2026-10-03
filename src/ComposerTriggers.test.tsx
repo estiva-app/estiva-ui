@@ -175,15 +175,28 @@ describe('[', () => {
     expect(screen.queryByText('Empty')).toBeNull()
     expect(listeners.size).toBe(1)
 
+    // The person arrows to a row, then a late answer lands: their row stays highlighted.
+    await press('ArrowDown')
     late = [{ id: 'f'.repeat(64), label: 'Plan', snippet: 'Q3 roadmap', uri: 'nostr:naddr1example', description: 'Planning' }]
     await act(async () => listeners.forEach((listener) => listener()))
     expect(options()).toEqual(['Ada: line 0', 'Ada: line 1', 'Plan: Q3 roadmapPlanning'])
     expect(screen.getByText('Found')).toBeTruthy()
+    await press('Enter')
+    expect(nodes().map((node) => node.attrs.id)).toEqual([ITEMS[1].id])
+    expect(listeners.size).toBe(0)
 
+    // A row that arrived late is picked like any other.
+    await type('[')
     await press('ArrowDown')
     await press('ArrowDown')
     await press('Enter')
-    expect(nodes()).toEqual([{ type: 'messageMention', attrs: { id: 'f'.repeat(64), label: 'Plan', snippet: 'Q3 roadmap', uri: 'nostr:naddr1example' } }])
+    expect(nodes()[1]).toEqual({ type: 'messageMention', attrs: { id: 'f'.repeat(64), label: 'Plan', snippet: 'Q3 roadmap', uri: 'nostr:naddr1example' } })
+
+    await type('[')
+    expect(listeners.size).toBe(1)
+    await press('Escape')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    // Escape closes the list and stops listening.
     expect(listeners.size).toBe(0)
   })
 

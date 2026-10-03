@@ -82,7 +82,8 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   an empty group is not drawn — and `subscribe(listener)`, which the app calls
   when a slower answer (a search) has landed. The open list is drawn again for
   the same query; nothing waits for it. A row's `description` is its second
-  line and `leading` its own icon; the chip wears neither.
+  line, which the chip does not wear. A row the person has arrowed to stays
+  highlighted when the list is drawn again.
 - **An app's own node name:** `CaptionedReference.extend({ name: 'yourName' })`
   and `ReferenceTrigger.configure({ nodeName: 'yourName' })`. The chip's HTML
   attribute follows the name (`data-your-name`).

@@ -5568,6 +5568,18 @@
           "takes": "a handler",
           "required": true,
           "note": null
+        },
+        {
+          "name": "subscribe",
+          "takes": "a handler",
+          "required": false,
+          "note": "With `refresh`: called with a listener while the list is open; the app calls it when its data has changed (a search landing), and the open list is drawn again for the same query."
+        },
+        {
+          "name": "refresh",
+          "takes": "a handler",
+          "required": false,
+          "note": "The items for a query, as the plugin's `items` answers — asked again when `subscribe` fires."
         }
       ],
       "variants": [],

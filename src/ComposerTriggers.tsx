@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import Mention, { type MentionOptions } from '@tiptap/extension-mention'
-import Suggestion, { type SuggestionProps } from '@tiptap/suggestion'
+import Suggestion from '@tiptap/suggestion'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Avatar } from './Avatar'
 import { EnterHint } from './Menu'
@@ -213,8 +213,6 @@ export interface CaptionedItem {
   search?: string
   /** The row's second line, e.g. where the thing sits. The chip does not wear it. */
   description?: string
-  /** At the row's start, in place of the list's own icon: a 16px icon. */
-  leading?: ReactNode
 }
 
 /** One labelled group of `[`'s rows, in the order the list draws them. */
@@ -323,7 +321,7 @@ export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOp
       return groups
     },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: item.leading ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
+    row: (item) => ({ leading: icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
   }
 }
 
@@ -374,35 +372,7 @@ export const ReferenceTrigger = Extension.create<ReferenceTriggerOptions>({
           return !!type && !!state.doc.resolve(range.from).parent.type.contentMatch.matchType(type)
         },
         items: ({ query }) => listed(options, query),
-        render: () => {
-          // The plugin asks for items only when the query changes; an answer
-          // landing later draws the open list again with the same props.
-          const popup = suggestionPopup(referenceMenu(options))()
-          let last: SuggestionProps<CaptionedItem> | null = null
-          let unsubscribe: (() => void) | undefined
-          return {
-            ...popup,
-            onStart: (props) => {
-              last = props
-              popup.onStart?.(props)
-              unsubscribe = options.subscribe?.(() => {
-                if (!last) return
-                last = { ...last, items: listed(options, last.query) }
-                popup.onUpdate?.(last)
-              })
-            },
-            onUpdate: (props) => {
-              last = props
-              popup.onUpdate?.(props)
-            },
-            onExit: (props) => {
-              unsubscribe?.()
-              unsubscribe = undefined
-              last = null
-              popup.onExit?.(props)
-            },
-          }
-        },
+        render: suggestionPopup({ ...referenceMenu(options), subscribe: options.subscribe, refresh: (query) => listed(options, query) }),
         command: ({ editor, range, props: item }) => {
           editor
             .chain()
