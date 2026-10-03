@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import Mention, { type MentionOptions } from '@tiptap/extension-mention'
-import Suggestion from '@tiptap/suggestion'
+import Suggestion, { type SuggestionProps } from '@tiptap/suggestion'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Avatar } from './Avatar'
 import { EnterHint } from './Menu'
@@ -211,6 +211,16 @@ export interface CaptionedItem {
   uri: string
   /** What the query is matched against beside `label`. Default: `snippet`. */
   search?: string
+  /** The row's second line, e.g. where the thing sits. The chip does not wear it. */
+  description?: string
+  /** At the row's start, in place of the list's own icon: a 16px icon. */
+  leading?: ReactNode
+}
+
+/** One labelled group of `[`'s rows, in the order the list draws them. */
+export interface ReferenceSection {
+  label: string
+  items: readonly CaptionedItem[]
 }
 
 /** How many references the list shows. */
@@ -289,24 +299,56 @@ export interface ReferenceMenuOptions {
   icon: ReactNode
 }
 
-/** The list `[` opens: one section of `label: snippet` rows, the same box as the people list. */
+/** A row as the list holds it: which section it is drawn under, when the list has several. */
+type ListedItem = CaptionedItem & { section?: string }
+
+/**
+ * The list `[` opens: `label: snippet` rows, the same box as the people list.
+ * One section headed `sectionLabel`, or — when the rows say which section they
+ * are in — a heading for each, in the order the rows arrive.
+ */
 export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOptions): SuggestionPopupOptions<CaptionedItem> {
   return {
     ariaLabel,
     width: 'w-[658px]',
     maxHeight: 'max-h-[360px]',
-    sections: (items) => [{ label: sectionLabel, items, className: 'px-2' }],
+    sections: (items: ListedItem[]) => {
+      const groups: { label: string; items: CaptionedItem[]; className: string }[] = []
+      for (const item of items) {
+        const label = item.section ?? sectionLabel
+        const last = groups[groups.length - 1]
+        if (last?.label === label) last.items.push(item)
+        else groups.push({ label, items: [item], className: 'px-2' })
+      }
+      return groups
+    },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: icon, label: captionOf(item.label, item.snippet), hint: <EnterHint /> }),
+    row: (item) => ({ leading: item.leading ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
   }
 }
 
 export interface ReferenceTriggerOptions extends ReferenceMenuOptions {
-  /** Everything `[` can offer, asked each time the query changes. */
+  /** Everything `[` can offer, asked each time the query changes. Narrowed by {@link filterReferences}. */
   items: () => readonly CaptionedItem[]
+  /**
+   * In place of `items`: the sections to draw for what was typed, already
+   * narrowed and ordered by the app. Empty sections are not drawn.
+   */
+  sections?: (query: string) => readonly ReferenceSection[]
+  /**
+   * Called with a listener while the list is open; the app calls it when what
+   * `sections` would answer has changed — a search landing — and the open list
+   * is drawn again for the same query. Returns the unsubscribe.
+   */
+  subscribe?: (listener: () => void) => () => void
   /** The node a pick inserts. Default `captionedReference`. */
   nodeName: string
 }
+
+const listed = (options: ReferenceTriggerOptions, query: string): ListedItem[] =>
+  options.sections
+    ? options.sections(query).flatMap((section) => section.items.map((item) => ({ ...item, section: section.label })))
+    : filterReferences(options.items(), query)
 
 /**
  * `[` — reference something, inserted as a {@link CaptionedReference} chip.
@@ -331,8 +373,36 @@ export const ReferenceTrigger = Extension.create<ReferenceTriggerOptions>({
           const type = state.schema.nodes[options.nodeName]
           return !!type && !!state.doc.resolve(range.from).parent.type.contentMatch.matchType(type)
         },
-        items: ({ query }) => filterReferences(options.items(), query),
-        render: suggestionPopup(referenceMenu(options)),
+        items: ({ query }) => listed(options, query),
+        render: () => {
+          // The plugin asks for items only when the query changes; an answer
+          // landing later draws the open list again with the same props.
+          const popup = suggestionPopup(referenceMenu(options))()
+          let last: SuggestionProps<CaptionedItem> | null = null
+          let unsubscribe: (() => void) | undefined
+          return {
+            ...popup,
+            onStart: (props) => {
+              last = props
+              popup.onStart?.(props)
+              unsubscribe = options.subscribe?.(() => {
+                if (!last) return
+                last = { ...last, items: listed(options, last.query) }
+                popup.onUpdate?.(last)
+              })
+            },
+            onUpdate: (props) => {
+              last = props
+              popup.onUpdate?.(props)
+            },
+            onExit: (props) => {
+              unsubscribe?.()
+              unsubscribe = undefined
+              last = null
+              popup.onExit?.(props)
+            },
+          }
+        },
         command: ({ editor, range, props: item }) => {
           editor
             .chain()

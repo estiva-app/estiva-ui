@@ -139,6 +139,54 @@ describe('[', () => {
     expect(editor!.getHTML()).toContain('data-message-mention="true"')
   })
 
+  it('draws the app’s sections in order, skips an empty one, and redraws the open list when told', async () => {
+    const listeners = new Set<() => void>()
+    let late: CaptionedItem[] = []
+    const sections = (query: string) => [
+      { label: 'Recent', items: ITEMS.slice(0, 2).filter((item) => item.snippet.includes(query)) },
+      { label: 'Empty', items: [] },
+      { label: 'Found', items: late },
+    ]
+    function Sectioned() {
+      const made = useEditor({
+        extensions: [
+          StarterKit,
+          Chip,
+          ReferenceTrigger.configure({
+            items: () => [],
+            sections,
+            subscribe: (listener) => {
+              listeners.add(listener)
+              return () => listeners.delete(listener)
+            },
+            nodeName: 'messageMention',
+            ariaLabel: 'Things',
+            sectionLabel: 'Things',
+          }),
+        ],
+      })
+      editor = made
+      return <EditorContent editor={made} />
+    }
+    render(<Sectioned />)
+    await type('[')
+    expect(options()).toEqual(['Ada: line 0', 'Ada: line 1'])
+    expect(screen.getByText('Recent')).toBeTruthy()
+    expect(screen.queryByText('Empty')).toBeNull()
+    expect(listeners.size).toBe(1)
+
+    late = [{ id: 'f'.repeat(64), label: 'Plan', snippet: 'Q3 roadmap', uri: 'nostr:naddr1example', description: 'Planning' }]
+    await act(async () => listeners.forEach((listener) => listener()))
+    expect(options()).toEqual(['Ada: line 0', 'Ada: line 1', 'Plan: Q3 roadmapPlanning'])
+    expect(screen.getByText('Found')).toBeTruthy()
+
+    await press('ArrowDown')
+    await press('ArrowDown')
+    await press('Enter')
+    expect(nodes()).toEqual([{ type: 'messageMention', attrs: { id: 'f'.repeat(64), label: 'Plan', snippet: 'Q3 roadmap', uri: 'nostr:naddr1example' } }])
+    expect(listeners.size).toBe(0)
+  })
+
   it('matches who said it, or the text it searches', () => {
     expect(filterReferences(ITEMS, 'bea').map((item) => item.id)).toEqual([ITEMS[7].id])
     expect(filterReferences(ITEMS, '**line** 3').map((item) => item.id)).toEqual([ITEMS[3].id])

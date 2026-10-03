@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.52.0",
+    "packageVersion": "0.53.0",
     "exports": 120,
     "typeExports": 128,
     "files": null
@@ -4587,7 +4587,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
-      "purpose": "The list `[` opens: one section of `label: snippet` rows, the same box as the people list.",
+      "purpose": "The list `[` opens: `label: snippet` rows, the same box as the people list.",
       "purposeFrom": "comment",
       "props": [
         {

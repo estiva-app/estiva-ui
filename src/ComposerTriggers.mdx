@@ -77,6 +77,12 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   functions, so they read the app's current data. `@` shows the first six
   names holding the query; `[` the last six whose label or `search` (default:
   `snippet`) holds it.
+- **`[` in sections, filled in as answers land:** pass `sections(query)` in
+  place of `items` — labelled groups the app has already narrowed and ordered;
+  an empty group is not drawn — and `subscribe(listener)`, which the app calls
+  when a slower answer (a search) has landed. The open list is drawn again for
+  the same query; nothing waits for it. A row's `description` is its second
+  line and `leading` its own icon; the chip wears neither.
 - **An app's own node name:** `CaptionedReference.extend({ name: 'yourName' })`
   and `ReferenceTrigger.configure({ nodeName: 'yourName' })`. The chip's HTML
   attribute follows the name (`data-your-name`).
