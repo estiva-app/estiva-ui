@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type DragEvent, type MouseEvent, type ReactNode } from 'react'
+import type { BaseUIEvent } from '@base-ui/react/types'
 import { IconGripVertical } from '@tabler/icons-react'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
@@ -85,7 +86,8 @@ function firstLineOffset(element: HTMLElement): number {
  * and Delete.
  *
  * It sits in the gutter left of the content, 28px out, so wrapping the content
- * moves nothing.
+ * moves nothing. The gutter counts as the block's, as in Notion: the handle
+ * stays while the pointer crosses to it.
  */
 export function BlockHandle({ actions, editing, children, className }: BlockHandleProps) {
   const frame = useRef<HTMLDivElement>(null)
@@ -127,6 +129,8 @@ export function BlockHandle({ actions, editing, children, className }: BlockHand
       }}
     >
       <div ref={content}>{children}</div>
+      {/* The gutter is the frame's own, so the pointer on its way from the text to the handle never leaves it. */}
+      <div aria-hidden className="absolute inset-y-0 -left-7 w-7" />
       {block && (rows || own) && (
         // The top is the block's, measured: it depends on the document, not on a size of ours.
         <div className={cn('absolute -left-7', rows && 'cursor-grab active:cursor-grabbing')} style={{ top }}>
@@ -138,6 +142,14 @@ export function BlockHandle({ actions, editing, children, className }: BlockHand
                 aria-label="Block menu"
                 tooltip={rows ? 'Drag to move, click for the menu' : 'Menu'}
                 draggable={!!rows}
+                // Base UI opens a menu on the press, so a drag flashed it open.
+                // The handle's menu opens on the click instead, as Notion's does:
+                // a press that becomes a drag never clicks.
+                onMouseDown={(e: BaseUIEvent<MouseEvent<HTMLButtonElement>>) => e.preventBaseUIHandler()}
+                onClick={(e: BaseUIEvent<MouseEvent<HTMLButtonElement>>) => {
+                  e.preventBaseUIHandler()
+                  setOpen((was) => !was)
+                }}
                 onDragStart={(e: DragEvent<HTMLButtonElement>) => {
                   if (!editing || !rows) return
                   setOpen(false)
