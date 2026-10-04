@@ -22,6 +22,8 @@ export interface BlockHandleEditing {
   rows: (block: HandleBlock) => ReactNode
   /** Starts the browser's drag of the block; the handle is draggable only with this. */
   startDrag: (block: HandleBlock, event: globalThis.DragEvent) => void
+  /** Drops the dragged block before `target`, or after it: a drop in the gutter, where the editor has none. */
+  drop: (target: HandleBlock, after: boolean) => void
   endDrag: () => void
   /** Calls back when the document changes, so a block found before is found again. Returns the unsubscribe. */
   onChange: (changed: () => void) => () => void
@@ -117,6 +119,30 @@ export function BlockHandle({ actions, editing, children, className }: BlockHand
   const rows = editing && block ? editing.rows(block) : null
   const own = actions && block ? actions(block) : null
 
+  /*
+    A block dragged down the gutter lands by height, as in Notion: the top half
+    of a block puts it before, the bottom half after, and the line shows where.
+    Over the text, the editor draws its own line and makes its own drop.
+  */
+  const dragging = useRef(false)
+  const [line, setLine] = useState<number | null>(null)
+  const inGutter = (e: DragEvent<HTMLDivElement>) => dragging.current && !!editing && !!content.current && !content.current.contains(e.target as Node)
+  const landing = (y: number) => {
+    const target = editing?.find(y)
+    if (!target || !frame.current) return null
+    const box = target.element.getBoundingClientRect()
+    const after = y > box.top + box.height / 2
+    // Midway across the gap to the neighbour, where the editor draws its own line.
+    const neighbour = (after ? target.element.nextElementSibling : target.element.previousElementSibling)?.getBoundingClientRect()
+    const edge = after ? (neighbour ? (box.bottom + neighbour.top) / 2 : box.bottom) : neighbour ? (neighbour.bottom + box.top) / 2 : box.top
+    return { target, after, top: edge - frame.current.getBoundingClientRect().top }
+  }
+  const endDrag = () => {
+    dragging.current = false
+    setLine(null)
+    editing?.endDrag()
+  }
+
   return (
     <div
       ref={frame}
@@ -127,10 +153,28 @@ export function BlockHandle({ actions, editing, children, className }: BlockHand
       onMouseLeave={() => {
         if (!open) setBlock(null)
       }}
+      onDragOver={(e) => {
+        if (!inGutter(e)) return setLine(null)
+        e.preventDefault()
+        setLine(landing(e.clientY)?.top ?? null)
+      }}
+      onDrop={(e) => {
+        if (inGutter(e)) {
+          e.preventDefault()
+          const at = landing(e.clientY)
+          if (at) editing?.drop(at.target, at.after)
+        }
+        // The drop can redraw the document and take the handle with it, before its dragend.
+        endDrag()
+      }}
+      onDragLeave={(e) => {
+        if (!frame.current?.contains(e.relatedTarget as Node)) setLine(null)
+      }}
     >
       <div ref={content}>{children}</div>
       {/* The gutter is the frame's own, so the pointer on its way from the text to the handle never leaves it. */}
       <div aria-hidden className="absolute inset-y-0 -left-7 w-7" />
+      {line !== null && <div aria-hidden className="pointer-events-none absolute inset-x-0 h-px bg-accent-primary" style={{ top: line }} />}
       {block && (rows || own) && (
         // The top is the block's, measured: it depends on the document, not on a size of ours.
         <div className={cn('absolute -left-7', rows && 'cursor-grab active:cursor-grabbing')} style={{ top }}>
@@ -153,10 +197,11 @@ export function BlockHandle({ actions, editing, children, className }: BlockHand
                 onDragStart={(e: DragEvent<HTMLButtonElement>) => {
                   if (!editing || !rows) return
                   setOpen(false)
+                  dragging.current = true
                   editing.startDrag(block, e.nativeEvent)
                 }}
                 onDragEnd={() => {
-                  editing?.endDrag()
+                  endDrag()
                   setBlock(null)
                 }}
               >

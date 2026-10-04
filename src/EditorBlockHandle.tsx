@@ -65,6 +65,22 @@ export function deleteBlock(editor: Editor, pos: number): boolean {
 }
 
 /**
+ * Moves the block at `from` to `to` (a position between top-level blocks), the
+ * caret in it: what a drop in the gutter does, where the editor has no drop of
+ * its own. The node moves whole, attributes and all, so it keeps its id, as
+ * ProseMirror's drop keeps it.
+ */
+export function moveBlock(editor: Editor, from: number, to: number): boolean {
+  const node = editor.state.doc.nodeAt(from)
+  if (!node || (to >= from && to <= from + node.nodeSize)) return false
+  const tr = editor.state.tr.delete(from, from + node.nodeSize)
+  const at = tr.mapping.map(to)
+  editor.view.dispatch(tr.insert(at, node).scrollIntoView())
+  editor.commands.focus(at + 1)
+  return true
+}
+
+/**
  * Starts the browser's own drag of the block, as ProseMirror starts one of a
  * selected node: the block selected, its slice on `view.dragging` with `move`,
  * and its HTML on the transfer. ProseMirror's drop then deletes the selection
@@ -94,7 +110,7 @@ export function startBlockDrag(editor: Editor, pos: number, event: Pick<globalTh
  */
 export const blockDropCursor = { color: false, class: 'bg-accent-primary' } as const
 
-const NOTHING_YET: BlockHandleEditing = { find: () => null, rows: () => null, startDrag: () => {}, endDrag: () => {}, onChange: () => () => {} }
+const NOTHING_YET: BlockHandleEditing = { find: () => null, rows: () => null, startDrag: () => {}, drop: () => {}, endDrag: () => {}, onChange: () => () => {} }
 
 /**
  * `BlockHandle` in an editor: drag the handle to move the block, and the menu
@@ -104,6 +120,8 @@ export function EditorBlockHandle({ editor, turnInto = [], actions, children, cl
   const editing = useMemo<BlockHandleEditing>(() => {
     // Before the editor exists there is no block to find — not the editor's whole element read as one.
     if (!editor) return NOTHING_YET
+    // Where the block being dragged starts.
+    let dragged: number | undefined
     return {
       find: (y) => blockAtY(editorBlocks(editor.view), y),
       rows: (block) => {
@@ -136,7 +154,13 @@ export function EditorBlockHandle({ editor, turnInto = [], actions, children, cl
         )
       },
       startDrag: (block, event) => {
+        dragged = block.pos
         if (block.pos !== undefined) startBlockDrag(editor, block.pos, event, block.element)
+      },
+      drop: (target, after) => {
+        const node = target.pos === undefined ? null : editor.state.doc.nodeAt(target.pos)
+        if (dragged === undefined || target.pos === undefined || !node) return
+        moveBlock(editor, dragged, after ? target.pos + node.nodeSize : target.pos)
       },
       // ProseMirror clears `dragging` on its own dragend, which a drag started outside its element never reaches.
       endDrag: () => setTimeout(() => (editor.view.dragging = null), 50),
