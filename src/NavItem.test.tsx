@@ -80,3 +80,34 @@ describe('NavItem with a hint', () => {
     expect(container.firstElementChild?.tagName).toBe('A')
   })
 })
+
+describe('NavItem unread', () => {
+  it('draws the dot, and sets the label in medium', () => {
+    const { container } = render(<NavItem href="#" label="Item one" unread />)
+    expect(container.querySelector('[data-unread]')).not.toBeNull()
+    expect(screen.getByText('Item one').className).toContain('font-medium')
+  })
+
+  it('urgent draws the badge in the dot’s place', () => {
+    const { container } = render(<NavItem href="#" label="Item one" unread urgent />)
+    expect(container.querySelector('[data-urgent]')).not.toBeNull()
+    expect(container.querySelector('[data-unread]')).toBeNull()
+  })
+
+  it('urgent without unread draws nothing', () => {
+    const { container } = render(<NavItem href="#" label="Item one" urgent />)
+    expect(container.querySelector('[data-urgent], [data-unread]')).toBeNull()
+  })
+
+  it('with a menu, the ⋮ sits in the 24px slot over the dot', () => {
+    render(<NavItem href="#" label="Item one" unread menu={<span>Action</span>} />)
+    const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')
+    expect(menu?.className).toContain('right-2')
+  })
+
+  it('with a count and a menu, the ⋮ lands on the count', () => {
+    render(<NavItem href="#" label="Item one" count={3} menu={<span>Action</span>} />)
+    const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')
+    expect(menu?.className).toContain('right-1')
+  })
+})

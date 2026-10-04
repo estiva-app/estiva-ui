@@ -1,10 +1,11 @@
 import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
-import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
+import { IconAlertSquareRounded, IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { cn } from './cn'
 import { COLLAPSIBLE_PANEL_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
+import { UnreadDot } from './UnreadDot'
 import { WithTooltip } from './Tooltip'
 
 /**
@@ -34,6 +35,15 @@ import { WithTooltip } from './Tooltip'
  * `hint` is shown only while the row is pointed at or focused, left of the
  * count — a neutral `Chip`, typically. It takes its own room while it shows,
  * so the label ends with "…" before it instead of running under it.
+ *
+ * `unread` brightens the row's words and icon, sets the label in medium, and
+ * draws the `UnreadDot` at the right; `urgent` with it draws the warning badge
+ * in the dot's place (Katerina, 2 October: Peek's row, moved in). The ⋮ lands
+ * on whatever is in that place, and with nothing there it takes no room until
+ * the row is pointed at, so a label at rest keeps the row's whole width.
+ *
+ * Active is `bg-nav-active`, the current row in a sidebar, which each theme
+ * sets: the selected tab's neutral fill in most, Signal's blue in Signal.
  */
 export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href' | 'children'> {
   label: string
@@ -51,6 +61,10 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   menuLabel?: string
   /** Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically. */
   hint?: ReactNode
+  /** Something new here: brighter words, the label in medium, and the `UnreadDot` at the right. Say so in the row's own words for assistive tech too. */
+  unread?: boolean
+  /** With `unread`: the warning badge in the dot's place. */
+  urgent?: boolean
   /** Rows under this one, folding under it: `NavItem`s. While the row is pointed at or focused, its icon becomes the arrow. */
   children?: ReactNode
   /** With `children`: open unless told otherwise. */
@@ -71,6 +85,8 @@ export function NavItem({
   menu,
   menuLabel,
   hint,
+  unread = false,
+  urgent = false,
   children,
   defaultOpen = true,
   open: openProp,
@@ -89,6 +105,10 @@ export function NavItem({
   // The row draws beside it — the ⋮, the arrow — so the pointer can leave the
   // link for them while the row still reads as the one it is on.
   const besides = menu != null || hasRows
+  // What sits at the right at rest, after the count: the dot, or the badge.
+  const mark = unread ? (urgent ? <UrgentMark /> : <UnreadDot />) : null
+  // Under the ⋮ while it shows: the count and the mark step aside for it.
+  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-focus-within/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0'
 
   const row = (
     <a
@@ -100,7 +120,7 @@ export function NavItem({
         // shrink-0 family; Katerina, 2026-09-02).
         'flex h-8 min-w-0 shrink-0 items-center gap-2 px-2 text-body-2',
         SIDEBAR_ROW_CLASSES,
-        active ? 'bg-bg-active text-text-primary' : cn(SIDEBAR_ROW_TEXT_CLASSES, 'hover:bg-bg-hover'),
+        active ? 'bg-bg-nav-active text-text-primary' : cn(unread ? 'text-text-primary' : SIDEBAR_ROW_TEXT_CLASSES, 'hover:bg-bg-hover'),
         // With a menu the ⋮ sits beside the link, so the row keeps its hover
         // look while the ⋮ is pointed at and while its menu is open. The same
         // for the arrow.
@@ -121,7 +141,7 @@ export function NavItem({
           {icon}
         </span>
       )}
-      <span className="flex-1 truncate">{label}</span>
+      <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
       {hint != null && (
         // Takes room only while it shows, so the label gives way to it.
         <span className="hidden shrink-0 items-center group-hover/nav:flex group-focus-within/nav:flex">{hint}</span>
@@ -135,17 +155,21 @@ export function NavItem({
           <span
             className={cn(
               'min-w-4 shrink-0 text-center font-mono text-caption tabular-nums text-text-muted',
-              // With a menu, the ⋮ takes this place while it shows.
-              menu != null && 'transition-opacity group-hover/nav:opacity-0 group-focus-within/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0',
+              // With a menu and no mark after it, the ⋮ takes this place while it shows.
+              !mark && stepsAside,
             )}
           >
             {count}
           </span>
         </WithTooltip>
-      ) : menu != null ? (
-        // No count, but a menu: the count's place is kept free, so a long
-        // label truncates before the ⋮ instead of running under it.
-        <span aria-hidden="true" className="min-w-4 shrink-0" />
+      ) : null}
+      {mark ? (
+        <span className={cn('flex shrink-0', stepsAside)}>{mark}</span>
+      ) : menu != null && !count ? (
+        // Nothing at the right, but a menu: no room is kept at rest, so the
+        // label has the row's whole width; while the ⋮ shows, its 24px slot
+        // is kept, so a long label ends before it instead of running under it.
+        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-focus-within/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block" />
       ) : null}
     </a>
   )
@@ -170,9 +194,11 @@ export function NavItem({
         </div>
       )}
       {menu != null && (
-        // `right-1`: the 24px button's 16px icon then ends 8px from the row's
-        // edge, where the count ends (px-2), so the ⋮ lands on the number.
-        <div data-nav-menu className="absolute inset-y-0 right-1 flex items-center opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100">
+        // On a count, `right-1`: the 24px button's 16px icon then ends 8px
+        // from the row's edge, where the count ends (px-2), so the ⋮ lands on
+        // the number. On the mark or the empty slot, `right-2`: the button
+        // sits in the 24px slot itself.
+        <div data-nav-menu className={cn('absolute inset-y-0 flex items-center', count && !mark ? 'right-1' : 'right-2', 'opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
           <Menu
             align="right"
             trigger={
@@ -202,5 +228,16 @@ export function NavItem({
         <div className="flex flex-col gap-px pl-6">{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
+  )
+}
+
+/** Urgent and unread: a 12px warning mark on its tint, in the dot's 24px slot. */
+function UrgentMark() {
+  return (
+    <div className="flex h-6 w-6 shrink-0 items-center justify-center" data-urgent>
+      <div className="flex items-center rounded-full bg-warning-muted p-0.5 signal:shadow-glow-warning">
+        <IconAlertSquareRounded size={12} stroke={2.5} className="text-warning-default" />
+      </div>
+    </div>
   )
 }

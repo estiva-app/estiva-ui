@@ -44,7 +44,8 @@ export const CHIP_TEXT_CLASSES = 'text-chip signal:font-mono signal:text-small s
 export const BARE_INPUT_CLASSES = 'bg-transparent text-text-primary placeholder:text-text-muted outline-none'
 
 /** A sidebar row's shape and its words at rest, brightening under the pointer: NavItem, and SectionHeader's `row` (a folder among rows). */
-export const SIDEBAR_ROW_CLASSES = 'rounded-md transition-colors'
+// 8px corners, a MenuItem row's (Katerina, 2 October).
+export const SIDEBAR_ROW_CLASSES = 'rounded-lg transition-colors'
 export const SIDEBAR_ROW_TEXT_CLASSES = 'text-text-secondary hover:text-text-primary'
 
 /**
