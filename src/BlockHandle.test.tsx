@@ -4,14 +4,14 @@
  * it offers. The drag itself is the browser's and is driven in real Chromium
  * (the PR says how); here, the slice it starts with and what a drop of it keeps.
  */
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { BlockHandle } from './BlockHandle'
 import { BlockId } from './BlockNodes'
-import { EditorBlockHandle, deleteBlock, duplicateBlock, startBlockDrag } from './EditorBlockHandle'
+import { EditorBlockHandle, deleteBlock, duplicateBlock, moveBlock, startBlockDrag } from './EditorBlockHandle'
 import { MenuItem } from './Menu'
 
 const DOCUMENT = {
@@ -48,6 +48,15 @@ async function press(user: ReturnType<typeof userEvent.setup>, target: HTMLEleme
   await user.pointer({ keys: '[/MouseLeft]', target })
   await screen.findByRole('menu')
 }
+
+// jsdom lays nothing out, so a Range has no rects. The editor measures the caret
+// a frame after Duplicate, Delete or a move gives it the focus back; under load
+// that frame came while a test still ran (CI, 5 October), and threw.
+beforeAll(() => {
+  const none = { top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}) }
+  Range.prototype.getClientRects = () => [] as unknown as DOMRectList
+  Range.prototype.getBoundingClientRect = () => none as DOMRect
+})
 
 afterEach(() => {
   cleanup()
@@ -86,6 +95,22 @@ describe('deleteBlock', () => {
     deleteBlock(e, 0)
     expect(e.getText()).toBe('')
     expect(e.state.doc.childCount).toBe(1)
+  })
+})
+
+describe('moveBlock', () => {
+  it('moves the block whole, so it keeps its id, as a drop in the gutter does', () => {
+    const e = editor()
+    moveBlock(e, posOf(e, 'p1'), e.state.doc.content.size)
+    expect(ids(e)).toEqual(['p2', 'p1'])
+    expect(e.getText()).toBe('two\n\none')
+  })
+
+  it('does nothing when the block would land where it is', () => {
+    const e = editor()
+    const before = e.getJSON()
+    expect(moveBlock(e, posOf(e, 'p2'), posOf(e, 'p2'))).toBe(false)
+    expect(e.getJSON()).toEqual(before)
   })
 })
 
@@ -155,6 +180,8 @@ describe('BlockHandle', () => {
     await press(user, screen.getByRole('button', { name: 'Block menu' }))
     expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Duplicate', 'Delete'])
     await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    // The editor takes the focus back a frame later and measures the caret then: wait for it, so it is part of the test.
+    await act(() => new Promise<void>((done) => requestAnimationFrame(() => done())))
     expect(ids(e)).toEqual(['p1'])
   })
 
