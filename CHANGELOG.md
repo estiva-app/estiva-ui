@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.54.0 — 2026-10-05 — Peek's tree and Ship's sidebar on NavTree
+
+### Added
+
+- **`UnreadDot`** moves into the package from Peek, unchanged: the 6px
+  accent dot in a 24px slot, marked `data-unread`.
+- **`NavItem` `unread`**: the words and icon brighten, the label is set in
+  medium, and the `UnreadDot` sits at the right. **`urgent`** with it draws
+  the warning badge in the dot's place (Katerina, 2 October: Peek's row).
+- **`bg-nav-active`**, a colour each theme sets: the current row in a
+  sidebar. Signal's is its blue (Peek's selected row); Ship, Leaf and the
+  rest keep the grey they had. `NavItem` `active` uses it.
+- **`NavTree`** grows for Peek and Ship: `titleActions` beside the label, a
+  group's `actions`, `trailing`, `open`/`onOpenChange` and `onIntent` (the
+  pointer resting 150ms, or the keyboard reaching it); groups and rows read
+  as they open (`nodes={null}`, `message`, a node's `hasChildren` and
+  `childrenMessage`). With no groups and no `emptyMessage`, it says nothing.
+- **`NavTreeSection`**: one group of a `NavTree`, for an app that draws its
+  own groups as `NavTree`'s children. Marked `data-nav-group`.
+
+### Changed
+
+- Sidebar rows (`NavItem`, `SectionHeader`'s `row` look) take a `MenuItem`'s
+  8px corners, from 6px.
+- A `NavItem`'s ⋮ keeps no room at rest: it lands on the count, or on the
+  dot, or takes a 24px slot only while it shows, so a label at rest has the
+  row's whole width.
+
 ## 0.53.1 — 2026-10-03 — A made app stays on its registered port, and its tests ignore .env.local
 
 ### Fixed
