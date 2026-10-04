@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.53.0",
-    "exports": 128,
-    "typeExports": 133,
+    "packageVersion": "0.55.0",
+    "exports": 130,
+    "typeExports": 134,
     "files": null
   },
   "storybook": {
@@ -3847,6 +3847,18 @@
           "note": "Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically."
         },
         {
+          "name": "unread",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something new here: brighter words, the label in medium, and the `UnreadDot` at the right."
+        },
+        {
+          "name": "urgent",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `unread`: the warning badge in the dot's place."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": false,
@@ -3891,8 +3903,9 @@
       "docPage": "src/NavItem.mdx",
       "app": null,
       "looks": [
-        "text-body-2 rounded-md transition-colors bg-bg-active text-text-primary",
-        "text-body-2 rounded-md transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
+        "text-body-2 rounded-lg transition-colors bg-bg-nav-active text-text-primary",
+        "text-body-2 rounded-lg transition-colors text-text-primary hover:bg-bg-hover",
+        "text-body-2 rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "text-center font-mono text-caption tabular-nums text-text-muted",
         "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity",
         "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
@@ -3914,10 +3927,22 @@
           "note": "The quiet label over the groups. Absent, none is drawn."
         },
         {
+          "name": "titleActions",
+          "takes": "SectionAction[]",
+          "required": false,
+          "note": "Beside the label, always shown: \"New\", typically."
+        },
+        {
           "name": "groups",
           "takes": "NavTreeGroup[] | null",
-          "required": true,
-          "note": "`null` while the first read is on its way: a skeleton in the rows' place."
+          "required": false,
+          "note": "`null` while the first read is on its way: a skeleton in the groups' place."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "The groups, drawn by the app: `NavTreeSection`s with `NavItem` rows — for an app whose groups and rows each read their own data."
         },
         {
           "name": "selected",
@@ -3934,8 +3959,8 @@
         {
           "name": "emptyMessage",
           "takes": "text",
-          "required": true,
-          "note": "What to say when there are no groups. The words are the caller's."
+          "required": false,
+          "note": "What to say when `groups` is empty. The words are the caller's; absent, nothing is said."
         },
         {
           "name": "storageKey",
@@ -3951,6 +3976,98 @@
       "docsId": "frame-navtree--docs",
       "storyId": "frame-navtree--default",
       "docPage": "src/NavTree.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "NavTreeSection",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/NavTree.tsx",
+      "purpose": "One group of a `NavTree`, for an app that draws its own: the standard heading folding its rows, lightly indented under its title, with the group's line, skeleton, actions and `onIntent`.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "id",
+          "takes": "text",
+          "required": false,
+          "note": "Marks the group's box as `data-nav-group`, for tests and photo runs to find it."
+        },
+        {
+          "name": "message",
+          "takes": "text",
+          "required": false,
+          "note": "Said in the rows' place, level with them."
+        },
+        {
+          "name": "trailing",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the title, always shown: an `UnreadDot`, typically."
+        },
+        {
+          "name": "actions",
+          "takes": "SectionAction[]",
+          "required": false,
+          "note": "Beside the title, shown on hover or focus: \"Open\", typically."
+        },
+        {
+          "name": "defaultOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "Open unless told otherwise."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "The caller owns whether the group is open."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onIntent",
+          "takes": "a handler",
+          "required": false,
+          "note": "The pointer rests on the group, or the keyboard reaches it: read its rows now."
+        },
+        {
+          "name": "loading",
+          "takes": "true/false",
+          "required": false,
+          "note": "Its rows are being read: a skeleton in their place."
+        },
+        {
+          "name": "storageKey",
+          "takes": "text",
+          "required": false,
+          "note": "Remember it open or closed in this browser, under this key."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "The rows: `NavItem`s."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-navtree--docs",
+      "storyId": "frame-navtree--default",
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -4776,7 +4893,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
-      "purpose": "The list `[` opens: one section of `label: snippet` rows, the same box as the people list.",
+      "purpose": "The list `[` opens: `label: snippet` rows, the same box as the people list.",
       "purposeFrom": "comment",
       "props": [
         {
@@ -5168,8 +5285,8 @@
       "app": null,
       "looks": [
         "transition-transform duration-150 text-text-secondary rotate-90",
-        "rounded-md transition-colors text-text-secondary hover:text-text-primary",
-        "rounded-md transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
+        "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
+        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "-mr-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100",
         "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
       ]
@@ -5776,6 +5893,18 @@
           "takes": "a handler",
           "required": true,
           "note": null
+        },
+        {
+          "name": "subscribe",
+          "takes": "a handler",
+          "required": false,
+          "note": "With `refresh`: called with a listener while the list is open; the app calls it when its data has changed (a search landing), and the open list is drawn again for the same query."
+        },
+        {
+          "name": "refresh",
+          "takes": "a handler",
+          "required": false,
+          "note": "The items for a query, as the plugin's `items` answers — asked again when `subscribe` fires."
         }
       ],
       "variants": [],
@@ -6665,6 +6794,32 @@
       "docsId": "primitives-blocknodes--docs",
       "storyId": "primitives-blocknodes--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "UnreadDot",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/UnreadDot.tsx",
+      "purpose": "The accent dot that says \"something new here\": a 6px disc centred in a 24px slot, so it sits exactly where a control would and the row does not shift when one replaces the other.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-unreaddot--docs",
+      "storyId": "primitives-unreaddot--default",
+      "docPage": "src/UnreadDot.mdx",
       "app": null,
       "looks": []
     },

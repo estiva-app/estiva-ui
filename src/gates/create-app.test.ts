@@ -77,6 +77,14 @@ describe('create-estiva-app', () => {
     expect(files['docs/GATES-DEBT.md']).toContain('Nothing.')
   })
 
+  it('keeps the dev server on its registered port rather than moving to the next one', () => {
+    expect(files['vite.config.ts']).toContain('server: { strictPort: true }')
+  })
+
+  it('runs its tests with no sign-in and no relay, whatever .env.local holds', () => {
+    expect(files['vite.config.ts']).toContain("env: { VITE_ESTIVA_ID_ORIGIN: '', VITE_ESTIVA_ID_CLIENT_ID: '', VITE_RELAY_URL: '' }")
+  })
+
   it('never points at the real Estiva ID by itself', () => {
     expect(files['.env.example']).toContain('VITE_ESTIVA_ID_ORIGIN=\n')
     expect(Object.values(files).join('\n')).not.toContain('id.estiva.app')

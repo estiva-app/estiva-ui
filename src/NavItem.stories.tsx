@@ -94,3 +94,18 @@ export const WithRowsUnderClosed: Story = {
     </NavItem>
   ),
 }
+
+/** Something new: the words brighten, the label is medium, and the dot sits at the right. */
+export const Unread: Story = {
+  args: { icon: placeholder, unread: true },
+}
+
+/** Urgent and unread: the warning badge in the dot's place. */
+export const UnreadUrgent: Story = {
+  args: { icon: placeholder, unread: true, urgent: true },
+}
+
+/** Unread, with a menu: point at it and the ⋮ lands on the dot. */
+export const UnreadWithMenu: Story = {
+  args: { icon: placeholder, unread: true, menu: MENU },
+}

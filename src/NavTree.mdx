@@ -27,6 +27,30 @@ rows to any depth.
 
 <Canvas of={NavTreeStories.Loading} />
 
+- `titleActions` sit beside the label, always shown ("New"); a group's
+  `actions` beside its title on hover ("Open"), its `trailing` always (an
+  **UnreadDot**). A row's `unread` and `urgent` are **NavItem**'s.
+
+<Canvas of={NavTreeStories.WithActionsAndUnread} />
+
+- Rows can be read as they open. A group's `nodes={null}` is a skeleton in
+  its rows' place, and its `message` a line in their place ("Nothing in this
+  yet."). A row with `hasChildren` and no `children` has its arrow, a
+  skeleton under it once open, and `onOpenChange` says when to read them;
+  `childrenMessage` is the line under it. `onIntent` on a group says the
+  pointer rests on it or the keyboard reached it: read it then, so opening
+  it draws rows.
+
+<Canvas of={NavTreeStories.ReadAsItOpens} />
+
+- An app whose groups and rows each read their own data draws the groups
+  itself: leave out `groups` and pass **NavTreeSection**s as children, each
+  with **NavItem** rows. A `NavTreeSection` is one group exactly as `groups`
+  draws it — the heading, the light indent, `message`, `loading`, `trailing`,
+  `actions`, `onIntent`.
+
+<Canvas of={NavTreeStories.AppDrawnGroups} />
+
 ## When not
 
 - A flat list of places → **NavItem** rows in the **Sidebar**.
@@ -68,6 +92,7 @@ It does these by itself. Write none of them around it.
 | Draws every level from one list, rows under rows | a recursive render of **NavItem**s and **CollapsibleSection**s |  |
 | Opens the group that holds the current row | a search through the list for the current row |  |
 | Says it is loading, or empty, in the rows' place | a skeleton or an **EmptyState** placed by hand |  |
+| Says when the pointer rests on a group, 150ms, and not while it sweeps past | a timer on pointer enter and leave |  |
 
 ## Keys
 

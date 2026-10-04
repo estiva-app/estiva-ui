@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.53.0 — 2026-10-02 — A handle on every block
+## 0.55.0 — 2026-10-05 — A handle on every block
 
 ### Added
 
@@ -21,6 +21,94 @@
   - `duplicateBlock`, `deleteBlock`, `startBlockDrag` and `blockAtY` are its
     actions, exported for a caller that offers them elsewhere. A duplicate
     gets a fresh id from `BlockId`; the original keeps its own.
+  - **From Katerina's review in Storybook, 5 October**, each measured with a
+    real mouse in Ship, Signal and Leaf:
+    - The handle can be reached. The pointer left the frame in the 4px
+      between the text and the handle, so the handle went before it could be
+      pressed; the 28px gutter is now the block's, as in Notion.
+    - Its menu opens on the click (and Enter), not the press, so starting a
+      drag no longer flashes it open.
+    - A block dragged down the gutter lands by height — the top half of a
+      block puts it before, the bottom half after — and a line shows where.
+      Over the text the editor still draws and drops. **`moveBlock`** is that
+      move; the node moves whole, so it keeps its id.
+    - **`blockDropCursor`** draws the editor's drop line in `accent-primary`
+      instead of the text's colour: `StarterKit.configure({ dropcursor:
+      blockDropCursor })`.
+
+## 0.54.0 — 2026-10-05 — Peek's tree and Ship's sidebar on NavTree
+
+### Added
+
+- **`UnreadDot`** moves into the package from Peek, unchanged: the 6px
+  accent dot in a 24px slot, marked `data-unread`.
+- **`NavItem` `unread`**: the words and icon brighten, the label is set in
+  medium, and the `UnreadDot` sits at the right. **`urgent`** with it draws
+  the warning badge in the dot's place (Katerina, 2 October: Peek's row).
+- **`bg-nav-active`**, a colour each theme sets: the current row in a
+  sidebar. Signal's is its blue (Peek's selected row); Ship, Leaf and the
+  rest keep the grey they had. `NavItem` `active` uses it.
+- **`NavTree`** grows for Peek and Ship: `titleActions` beside the label, a
+  group's `actions`, `trailing`, `open`/`onOpenChange` and `onIntent` (the
+  pointer resting 150ms, or the keyboard reaching it); groups and rows read
+  as they open (`nodes={null}`, `message`, a node's `hasChildren` and
+  `childrenMessage`). With no groups and no `emptyMessage`, it says nothing.
+- **`NavTreeSection`**: one group of a `NavTree`, for an app that draws its
+  own groups as `NavTree`'s children. Marked `data-nav-group`.
+
+### Changed
+
+- Sidebar rows (`NavItem`, `SectionHeader`'s `row` look) take a `MenuItem`'s
+  8px corners, from 6px.
+- A `NavItem`'s ⋮ keeps no room at rest: it lands on the count, or on the
+  dot, or takes a 24px slot only while it shows, so a label at rest has the
+  row's whole width.
+
+## 0.53.1 — 2026-10-03 — A made app stays on its registered port, and its tests ignore .env.local
+
+### Fixed
+
+- **`create-estiva-app` sets Vite's `strictPort`** (docs.estiva.app Quickstart,
+  `a7a4ddbb`). Estiva ID matches a redirect exactly, and the relay matches an
+  origin exactly, so a made app is registered as `http://localhost:5173/`. On
+  a busy port Vite used to move to `:5174`, and the app then failed at sign-in
+  with nothing saying why. It now stops at `npm run dev` with "Port 5173 is
+  already in use". Only newly made apps change; an existing app adds
+  `server: { strictPort: true }` to its `vite.config.ts` itself.
+- **A made app's tests pass once `.env.local` is filled in.** Vitest loads
+  `.env.local` as the dev server does, so the made `App.test.tsx`, which checks
+  the anonymous frame, failed for anyone who had configured sign-in and the
+  relay. The made `vite.config.ts` now empties the three `VITE_` settings
+  for tests.
+
+## 0.53.0 — 2026-10-03 — `[` draws sections that fill in as answers land
+
+### Added
+
+- **`ReferenceTrigger` takes `sections` and `subscribe`** (PEE-21, slice 3 of
+  CON-26: Miky, 2026-10-02, "`[` lists messages and files, ranked by where you
+  are"). `sections(query)` answers the labelled groups to draw, already
+  narrowed and ordered by the app — Peek and Ship rank them with
+  `@estiva-app/conversation`'s `rankReferences` — and an empty one is not
+  drawn. `subscribe(listener)` lets the app say a search answer has landed;
+  the open list is drawn again for the same query, with no spinner while it
+  waits. `ReferenceSection` is the group's type. The redraw is
+  `suggestionPopup`'s own `subscribe` and `refresh` options, so any trigger can
+  take late data.
+- **`CaptionedItem.description`**: a row's second line. The chip does not wear it.
+
+### Changed
+
+- **`SuggestionMenu` keeps a row the person arrowed to** when the list is drawn
+  again and that row is still in it (PEE-21 review): a search landing late no
+  longer moves the highlight back to the top under the Enter key. An untouched
+  list still highlights its first row.
+
+### Unchanged
+
+- `items`, `filterReferences` and `REFERENCE_LIMIT` keep working for an app
+  that has not moved to `sections` — no caller changes. Nothing new is drawn:
+  the rows, headings and box are `SuggestionMenu`'s as before.
 
 ## 0.52.0 — 2026-10-02 — `@`, `!@`, `[` and `/` for every composer
 

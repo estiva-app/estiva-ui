@@ -13,6 +13,7 @@ import {
   typeTrigger,
   type CaptionedItem,
   type MentionPerson,
+  type ReferenceSection,
   type SlashSection,
 } from './ComposerTriggers'
 
@@ -43,6 +44,21 @@ const ITEMS: CaptionedItem[] = ['one', 'two', 'three'].map((n) => ({
   uri: `nostr:item-${n}`,
 }))
 
+const DESCRIBED: CaptionedItem[] = ['four', 'five'].map((n) => ({
+  id: `item-${n}`,
+  label: 'Label',
+  snippet: `Item ${n}`,
+  uri: `nostr:item-${n}`,
+  description: 'Label',
+}))
+
+const matching = (items: CaptionedItem[], query: string) => items.filter((item) => item.snippet.toLowerCase().includes(query.toLowerCase()))
+
+const SECTIONS = (query: string): ReferenceSection[] => [
+  { label: 'Group one', items: matching(ITEMS, query) },
+  { label: 'Group two', items: matching(DESCRIBED, query) },
+]
+
 const INSERT: SlashSection = {
   label: 'Insert',
   commands: [
@@ -51,7 +67,7 @@ const INSERT: SlashSection = {
   ],
 }
 
-function Composer({ code }: { code: 'inline' | 'block' }) {
+function Composer({ code, sections }: { code: 'inline' | 'block'; sections?: typeof SECTIONS }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -60,6 +76,7 @@ function Composer({ code }: { code: 'inline' | 'block' }) {
       CaptionedReference.configure({ icon: <IconSquareRounded size={14} stroke={1.5} /> }),
       ReferenceTrigger.configure({
         items: () => ITEMS,
+        sections,
         ariaLabel: 'Items',
         sectionLabel: 'Items',
         icon: <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />,
@@ -77,3 +94,6 @@ export const Default: Story = { render: () => <Composer code="inline" /> }
 
 /** Code as a block of its own, for an editor of a block document. */
 export const CodeAsABlock: Story = { render: () => <Composer code="block" /> }
+
+/** `[` with the app's own groups, each headed, a row with a second line. */
+export const ReferencesInSections: Story = { render: () => <Composer code="inline" sections={SECTIONS} /> }

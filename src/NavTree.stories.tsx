@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { useState } from 'react'
+import { IconArrowUpRight, IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
+import { UnreadDot } from './UnreadDot'
 import { NavItem } from './NavItem'
-import { NavTree, type NavTreeGroup } from './NavTree'
+import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 import { Sidebar } from './Sidebar'
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
@@ -82,3 +84,57 @@ export const Empty: Story = { args: { groups: [] } }
 
 /** Close a group and reload the page: still closed. This browser remembers each group, under the key. */
 export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.nav-tree' } }
+
+/** Actions beside the label and on each group, a group's dot, and unread rows — one urgent. */
+export const WithActionsAndUnread: Story = {
+  args: {
+    titleActions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'New', onClick: () => {} }],
+    groups: [
+      { id: 'u1', title: 'Group one', trailing: <UnreadDot />, actions: [{ icon: <IconArrowUpRight size={16} stroke={1.5} />, tooltip: 'Open', onClick: () => {} }], defaultOpen: true, nodes: [
+        { id: 'u1a', label: 'Item two', href: '#', icon: placeholder, unread: true },
+        { id: 'u1b', label: 'Item three', href: '#', icon: placeholder, unread: true, urgent: true },
+        { id: 'u1c', label: 'Item four', href: '#', icon: placeholder },
+      ] },
+      { id: 'u2', title: 'Group two', actions: [{ icon: <IconArrowUpRight size={16} stroke={1.5} />, tooltip: 'Open', onClick: () => {} }], nodes: [{ id: 'u2a', label: 'Item five', href: '#', icon: placeholder }] },
+    ],
+    selected: 'u1c',
+  },
+}
+
+/** Read as it opens: a group still being read, a group with nothing in it, a row whose rows are read when it opens, and one that could not be read. */
+export const ReadAsItOpens: Story = {
+  args: {
+    groups: [
+      { id: 'l1', title: 'Being read', defaultOpen: true, nodes: null },
+      { id: 'l2', title: 'Empty', defaultOpen: true, nodes: [], message: 'Nothing in this yet.' },
+      { id: 'l3', title: 'Rows read on open', defaultOpen: true, nodes: [
+        { id: 'l3a', label: 'Item with rows not read yet', href: '#', icon: placeholder, hasChildren: true, defaultOpen: false },
+        { id: 'l3b', label: 'Item whose rows failed', href: '#', icon: placeholder, hasChildren: true, childrenMessage: 'This could not be read.' },
+      ] },
+    ],
+    selected: undefined,
+  },
+}
+
+/** Groups the app draws itself, as `NavTree`'s children: each a `NavTreeSection` with `NavItem` rows — for groups and rows that each read their own data. */
+export const AppDrawnGroups: Story = {
+  args: { groups: undefined },
+  render: function Render(args) {
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree title={args.title}>
+            <NavTreeSection title="Group one" trailing={<UnreadDot />}>
+              <NavItem href="#" label="Item one" icon={placeholder} unread />
+              <NavItem href="#" label="Item two" icon={placeholder} active>
+                <NavItem href="#" label="Item three" icon={placeholder} />
+              </NavItem>
+            </NavTreeSection>
+            <NavTreeSection title="Group two" loading />
+            <NavTreeSection title="Group three" message="Nothing in this yet." />
+          </NavTree>
+        </Sidebar>
+      </div>
+    )
+  },
+}

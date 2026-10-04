@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { NavItem } from './NavItem'
 import { SectionLabel } from './SectionLabel'
 
 /** Every section title renders through this span — a style change is one edit. Under Signal it becomes the mono uppercase micro-label. */
@@ -22,9 +23,7 @@ export const HeadingAList: Story = {
         <SectionLabel>Recent</SectionLabel>
       </div>
       {['Quarterly plan', 'Reading list', 'Archive'].map((row) => (
-        <div key={row} className="rounded-lg px-2 py-1.5 text-body-2 text-text-primary hover:bg-bg-hover">
-          {row}
-        </div>
+        <NavItem key={row} href="#" label={row} />
       ))}
     </div>
   ),

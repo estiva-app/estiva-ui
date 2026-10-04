@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { NavTree, type NavTreeGroup } from './NavTree'
+import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 
 afterEach(cleanup)
 
@@ -50,5 +50,82 @@ describe('NavTree', () => {
   it('draws no rows while loading', () => {
     render(<NavTree groups={null} emptyMessage="Nothing here yet." />)
     expect(screen.queryAllByRole('link')).toHaveLength(0)
+  })
+})
+
+describe('NavTree read as it opens', () => {
+  it('a group being read draws no rows; a group’s message is said in their place', () => {
+    render(
+      <NavTree
+        groups={[
+          { id: 'a', title: 'Group a', defaultOpen: true, nodes: null },
+          { id: 'b', title: 'Group b', defaultOpen: true, nodes: [], message: 'Nothing in this yet.' },
+        ]}
+        emptyMessage="Nothing here yet."
+      />,
+    )
+    expect(screen.queryAllByRole('link')).toHaveLength(0)
+    expect(screen.getByText('Nothing in this yet.')).not.toBeNull()
+  })
+
+  it('a row with hasChildren has its arrow, and says when it opens', async () => {
+    const onOpenChange = vi.fn()
+    render(
+      <NavTree
+        groups={[{ id: 'a', title: 'Group a', defaultOpen: true, nodes: [{ id: 'x', label: 'Item x', href: '#x', hasChildren: true, defaultOpen: false, onOpenChange }] }]}
+        emptyMessage="Nothing here yet."
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: /Show what is under Item x/ }))
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+  })
+
+  it('the label’s and a group’s actions are drawn', () => {
+    render(
+      <NavTree
+        title="Groups"
+        titleActions={[{ icon: <span />, tooltip: 'New', onClick: () => {} }]}
+        groups={[{ id: 'a', title: 'Group a', nodes: [], actions: [{ icon: <span />, tooltip: 'Open', onClick: () => {} }] }]}
+        emptyMessage="Nothing here yet."
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'New' })).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Open' })).not.toBeNull()
+  })
+
+  it('onIntent: the keyboard reaching a group says so at once', () => {
+    const onIntent = vi.fn()
+    render(<NavTree groups={[{ id: 'a', title: 'Group a', nodes: [], onIntent }]} emptyMessage="Nothing here yet." />)
+    screen.getByRole('button', { name: 'Group a' }).focus()
+    expect(onIntent).toHaveBeenCalled()
+  })
+})
+
+describe('NavTree drawn by the app', () => {
+  it('draws NavTreeSections given as children, each with its rows, line or skeleton', () => {
+    render(
+      <NavTree title="Groups">
+        <NavTreeSection title="Group a"><a href="#a">Item a</a></NavTreeSection>
+        <NavTreeSection title="Group b" message="Nothing in this yet." />
+        <NavTreeSection title="Group c" loading />
+      </NavTree>,
+    )
+    expect(screen.getByRole('button', { name: 'Group a' })).not.toBeNull()
+    expect(screen.getByText('Item a')).not.toBeNull()
+    expect(screen.getByText('Nothing in this yet.')).not.toBeNull()
+  })
+})
+
+describe('NavTree marks its groups', () => {
+  it('each group box carries data-nav-group with its id', () => {
+    const { container } = render(<NavTree groups={[{ id: 'g1', title: 'Group a', nodes: [] }]} emptyMessage="Nothing here yet." />)
+    expect(container.querySelector('[data-nav-group="g1"]')).not.toBeNull()
+  })
+})
+
+describe('NavTree with no groups and no words', () => {
+  it('draws no line at all', () => {
+    const { container } = render(<NavTree groups={[]} />)
+    expect(container.textContent).toBe('')
   })
 })

@@ -29,6 +29,7 @@
   --bg-hover:    #E9E9EB;
   --bg-selected: #E4E4E7;
   --bg-active:   #D4D4D8;
+  --bg-nav-active: #D4D4D8; /* the current row in a sidebar */
   --bg-disabled: #F4F4F5;
 
   /* text */
@@ -113,6 +114,7 @@
   --bg-hover:    #232326;
   --bg-selected: #1F1F22;
   --bg-active:   #2D2D31;
+  --bg-nav-active: #2D2D31; /* the current row in a sidebar */
   --bg-disabled: #1C1C1F;
 
   /* text */
@@ -198,6 +200,7 @@
   --bg-hover:    rgba(255, 255, 255, 0.05);
   --bg-selected: rgba(86, 200, 255, 0.11);
   --bg-active:   rgba(255, 255, 255, 0.08);
+  --bg-nav-active: rgba(86, 200, 255, 0.11); /* the current row in a sidebar: Peek's selected row (Katerina, 2 October) */
   --bg-disabled: #191d24;
 
   /* text */
@@ -285,6 +288,7 @@
   --bg-hover:    rgba(255, 255, 255, 0.05);
   --bg-selected: rgba(75, 88, 212, 0.16);
   --bg-active:   rgba(255, 255, 255, 0.08);
+  --bg-nav-active: rgba(255, 255, 255, 0.08); /* the current row in a sidebar */
   --bg-disabled: #16181f;
 
   /* text */
@@ -390,6 +394,7 @@
   --bg-hover:    rgba(0, 0, 0, 0.064);
   --bg-selected: #e5e5e6; /* --color-bg-tertiary */
   --bg-active:   #e1e1e2; /* the selected sidebar row (lch 89.54%) */
+  --bg-nav-active: #e1e1e2; /* the current row in a sidebar */
   --bg-disabled: #efeff0; /* the base, as light has it */
 
   /* text */
