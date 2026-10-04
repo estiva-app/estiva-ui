@@ -84,7 +84,7 @@ export interface NavTreeProps {
   selected?: string
   /** A row was clicked. A router app prevents the default and navigates. */
   onSelect?: (node: NavTreeNode, event: MouseEvent<HTMLAnchorElement>) => void
-  /** What to say when `groups` is empty. The words are the caller's. */
+  /** What to say when `groups` is empty. The words are the caller's; absent, nothing is said. */
   emptyMessage?: string
   /** Remember each group open or closed in this browser, under this key and the group's id. The app prefixes it. */
   storageKey?: string
@@ -237,7 +237,8 @@ export function NavTree({ title, titleActions, groups, children, selected, onSel
       ) : groups === null ? (
         <SkeletonList rows={5} />
       ) : groups.length === 0 ? (
-        <Line message={emptyMessage} />
+        // No words, no line: an app that says nothing when it has no groups.
+        emptyMessage ? <Line message={emptyMessage} /> : null
       ) : (
         groups.map((group) => <Group key={group.id} group={group} selected={selected} onSelect={onSelect} storageKey={storageKey} />)
       )}

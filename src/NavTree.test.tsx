@@ -122,3 +122,10 @@ describe('NavTree marks its groups', () => {
     expect(container.querySelector('[data-nav-group="g1"]')).not.toBeNull()
   })
 })
+
+describe('NavTree with no groups and no words', () => {
+  it('draws no line at all', () => {
+    const { container } = render(<NavTree groups={[]} />)
+    expect(container.textContent).toBe('')
+  })
+})
