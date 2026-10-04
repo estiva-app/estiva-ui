@@ -87,6 +87,13 @@ export function startBlockDrag(editor: Editor, pos: number, event: Pick<globalTh
   view.dragging = { slice, move: true }
 }
 
+/**
+ * The drop line a dragged block shows, in the package's accent instead of the
+ * editor's default (the text's colour). Give it to the editor's StarterKit:
+ * `StarterKit.configure({ dropcursor: blockDropCursor })`.
+ */
+export const blockDropCursor = { color: false, class: 'bg-accent-primary' } as const
+
 const NOTHING_YET: BlockHandleEditing = { find: () => null, rows: () => null, startDrag: () => {}, endDrag: () => {}, onChange: () => () => {} }
 
 /**

@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { IconLink, IconMessage } from '@tabler/icons-react'
 import type { HandleBlock } from './BlockHandle'
 import { BlockId } from './BlockNodes'
-import { EditorBlockHandle, type BlockTurnInto } from './EditorBlockHandle'
+import { EditorBlockHandle, blockDropCursor, type BlockTurnInto } from './EditorBlockHandle'
 import { MenuItem } from './Menu'
 import { richTextClassName } from './RichText'
 
@@ -58,7 +58,7 @@ function rows(block: HandleBlock) {
 
 function Editing({ editable }: { editable: boolean }) {
   const editor = useEditor({
-    extensions: [StarterKit, BlockId],
+    extensions: [StarterKit.configure({ dropcursor: blockDropCursor }), BlockId],
     content: DOCUMENT,
     editable,
     editorProps: { attributes: { class: richTextClassName('default', 'outline-none'), 'aria-label': 'Text' } },
