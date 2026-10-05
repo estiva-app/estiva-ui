@@ -227,7 +227,8 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         menu={menu}
         icon={icon}
         className="shrink-0"
-        contentClassName="gap-px"
+        // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
+        contentClassName="gap-0.5"
       >
         {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
       </CollapsibleSection>
