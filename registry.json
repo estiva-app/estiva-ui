@@ -1769,6 +1769,12 @@
           "note": "A chevron after the title, for a title that opens something."
         },
         {
+          "name": "titleMenu",
+          "takes": "anything",
+          "required": false,
+          "note": "The menu the title opens: `MenuItem`s — the column's views (Katerina, 5 October: Peek's Topics column, Topics or Folders)."
+        },
+        {
           "name": "actions",
           "takes": "anything",
           "required": false,
@@ -1782,14 +1788,29 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "navigation-containerheader--docs",
-      "storyId": "navigation-containerheader--default",
+      "storyId": "navigation-containerheader--with-title-menu",
       "docPage": "src/ContainerHeader.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "-ml-1.5 cursor-pointer rounded-md transition-colors hover:bg-bg-hover"
+      ]
     },
     {
       "name": "deleteBlock",
@@ -3339,6 +3360,12 @@
           "note": "A chevron after the title, as `ContainerHeader` draws it."
         },
         {
+          "name": "titleMenu",
+          "takes": "anything",
+          "required": false,
+          "note": "The menu the title opens — `ContainerHeader`'s: the column's views."
+        },
+        {
           "name": "actions",
           "takes": "anything",
           "required": false,
@@ -4350,8 +4377,8 @@
       "docPage": "src/PersonTrigger.mdx",
       "app": null,
       "looks": [
-        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover",
-        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover bg-bg-hover"
+        "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover",
+        "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover bg-bg-hover"
       ]
     },
     {
@@ -5332,12 +5359,11 @@
       "docPage": "src/SectionHeader.mdx",
       "app": null,
       "looks": [
-        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100",
-        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100 rotate-90",
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100",
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 rotate-90",
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
-        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
-        "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover"
       ]
     },
     {
@@ -5398,20 +5424,16 @@
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
+        "text-h5 leading-3 text-text-secondary truncate",
+        "text-h5 leading-3 text-text-muted truncate",
+        "text-h5 leading-3 text-text-primary truncate",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
         "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest",
-        "leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
+        "signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
       ]
     },
     {
@@ -6967,7 +6989,7 @@
           "name": "aria-label",
           "takes": "text",
           "required": false,
-          "note": "What it switches: \"View\". Read before the chosen icon's name."
+          "note": "What it switches: \"View\". Read before the chosen option's name."
         },
         {
           "name": "className",

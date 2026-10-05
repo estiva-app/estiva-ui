@@ -28,7 +28,20 @@ const TWO: ViewSwitchOption<'one' | 'two'>[] = [
 /** Two views. Click the other icon, or Tab in and use the arrow keys. */
 export const Two: Story = { render: () => <Demo options={TWO} initial="one" /> }
 
-/** Three views — the most it takes; more, or words, are Tabs. */
+/** Words: no icons, each option its name. Where the switch is a column's title. */
+export const Words: Story = {
+  render: () => (
+    <Demo
+      initial="one"
+      options={[
+        { value: 'one', label: 'Topics' },
+        { value: 'two', label: 'Folders' },
+      ]}
+    />
+  ),
+}
+
+/** Three views — the most it takes; more are Tabs. */
 export const Three: Story = {
   render: () => (
     <Demo

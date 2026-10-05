@@ -222,7 +222,9 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         actions={actions}
         menu={menu}
         icon={icon}
-        className="mt-2 shrink-0"
+        // 4px between groups: a folded group's heading sits 38px from the next
+        // (Katerina, 5 October: 42 was too far from rows 33 apart; halved).
+        className="mt-1 shrink-0"
         contentClassName="gap-px"
       >
         {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}

@@ -48,6 +48,9 @@ export const BARE_INPUT_CLASSES = 'bg-transparent text-text-primary placeholder:
 /** A quiet icon control: secondary, brightening on a hover fill — IconButton's `muted`, and ViewSwitch's icons. */
 export const MUTED_CONTROL_CLASSES = 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
 
+/** A control that opens a menu: a hover fill, held while its menu is up — PersonTrigger's row, and a ContainerHeader title with a menu. */
+export const MENU_TRIGGER_CLASSES = 'cursor-pointer rounded-md transition-colors hover:bg-bg-hover data-[popup-open]:bg-bg-hover'
+
 export const SIDEBAR_ROW_CLASSES = 'rounded-lg transition-colors'
 export const SIDEBAR_ROW_TEXT_CLASSES = 'text-text-secondary hover:text-text-primary'
 

@@ -2,6 +2,7 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react-vite'
 import { IconEdit, IconSortDescending, IconX } from '@tabler/icons-react'
 import { ContainerHeader } from './ContainerHeader'
 import { IconButton } from './IconButton'
+import { MenuItem } from './Menu'
 import { Card } from './Card'
 
 // The top of a column: a surface with a hairline, so the bar's own hairline and height can be seen.
@@ -17,6 +18,19 @@ const meta = {
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+/** A title that opens a menu: the title and its chevron are one button. Click it. */
+export const WithTitleMenu: Story = {
+  args: {
+    title: 'View one',
+    titleMenu: (
+      <>
+        <MenuItem label="View one" selected />
+        <MenuItem label="View two" />
+      </>
+    ),
+  },
+}
 
 /** A string title, one line, alone. */
 export const Default: Story = {}

@@ -37,6 +37,11 @@ describe('ViewSwitch', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  it('an option with no icon shows its name in words, and has no tooltip to need', () => {
+    render(<ViewSwitch options={[{ value: 'a', label: 'Topics' }, { value: 'b', label: 'Folders' }]} value="a" onChange={() => {}} />)
+    expect(screen.getByRole('button', { name: 'Folders' }).textContent).toBe('Folders')
+  })
+
   it('the group is named, "View" unless told', () => {
     render(<ViewSwitch options={OPTIONS} value="mine" onChange={() => {}} />)
     expect(screen.getByRole('group', { name: 'View' })).not.toBeNull()

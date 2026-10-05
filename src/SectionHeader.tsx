@@ -111,7 +111,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
   // 5 October). A count stays beside them: it is information (09-09).
   const dot = isValidElement(trailing) && trailing.type === UnreadDot
   const shared = acts && showActions === 'hover' && dot
-  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 has-[[aria-expanded=true]]:opacity-100'
+  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100'
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
@@ -124,12 +124,12 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
         <>
           {icon != null ? (
             <span className="relative flex size-4 shrink-0 items-center justify-center text-text-secondary">
-              <span className={cn('flex', chevron && 'transition-opacity group-hover:opacity-0 group-focus-within:opacity-0')}>{icon}</span>
+              <span className={cn('flex', chevron && 'transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0')}>{icon}</span>
               {chevron && (
                 <IconChevronRight
                   size={row ? 16 : 12}
                   stroke={1.5}
-                  className={cn('absolute opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100', isExpanded && 'rotate-90')}
+                  className={cn('absolute opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-has-[:focus-visible]:opacity-100', isExpanded && 'rotate-90')}
                 />
               )}
             </span>
@@ -214,7 +214,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
           {shared && (
             // The dot in the last button's 24px place, on the axis of its icon;
             // gone while the buttons show.
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-focus-within/acts:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-has-[:focus-visible]/acts:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0">
               {trailing}
             </div>
           )}

@@ -108,7 +108,11 @@ export function NavItem({
   // What sits at the right at rest, after the count: the dot, or the badge.
   const mark = unread ? (urgent ? <UrgentMark /> : <UnreadDot />) : null
   // Under the ⋮ while it shows: the count and the mark step aside for it.
-  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-focus-within/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0'
+  // "While it shows" is the pointer on the row or the keyboard in it
+  // (`:focus-visible`), never any focus: a clicked row keeps its focus, and
+  // with `focus-within` its icon and dot went while the arrow and the ⋮ stayed
+  // hidden (Katerina, 5 October).
+  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0'
 
   const row = (
     <a
@@ -135,7 +139,7 @@ export function NavItem({
           className={cn(
             // With rows under it the slot is kept even with no icon: the arrow lands in it.
             'flex min-w-4 shrink-0 items-center',
-            hasRows && 'transition-opacity group-hover/nav:opacity-0 group-focus-within/nav:opacity-0',
+            hasRows && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0',
           )}
         >
           {icon}
@@ -144,7 +148,7 @@ export function NavItem({
       <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
       {hint != null && (
         // Takes room only while it shows, so the label gives way to it.
-        <span className="hidden shrink-0 items-center group-hover/nav:flex group-focus-within/nav:flex">{hint}</span>
+        <span className="hidden shrink-0 items-center group-hover/nav:flex group-has-[:focus-visible]/nav:flex">{hint}</span>
       )}
       {count ? (
         <WithTooltip label={countLabel ?? `${count} open`}>
@@ -172,7 +176,7 @@ export function NavItem({
         // Nothing at the right, but a menu: no room is kept at rest, so the
         // label has the row's whole width; while the ⋮ shows, its 24px slot
         // is kept, so a long label ends before it instead of running under it.
-        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-focus-within/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block" />
+        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block" />
       ) : null}
     </a>
   )
@@ -184,7 +188,7 @@ export function NavItem({
       {hasRows && (
         // `left-1`: the 24px button's 16px arrow then sits where the icon
         // sits (the row's px-2), so the icon turns into the arrow in place.
-        <div className="absolute inset-y-0 left-1 flex items-center opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100">
+        <div className="absolute inset-y-0 left-1 flex items-center opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100">
           <IconButton
             tooltip={open ? 'Collapse' : 'Expand'}
             aria-label={open ? `Hide what is under ${label}` : `Show what is under ${label}`}
@@ -203,7 +207,7 @@ export function NavItem({
         // (Katerina, 5 October: the rows move to the heading, not the
         // heading to the rows). Over a dot or the empty slot it sits 4px
         // right of the slot's centre.
-        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
+        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
           <Menu
             align="right"
             trigger={

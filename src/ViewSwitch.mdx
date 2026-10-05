@@ -20,9 +20,15 @@ pressed. Each icon's name is its tooltip.
 
 <Canvas of={ViewSwitchStories.Three} />
 
+- An option with no `icon` shows its `label` in words — in a column's title,
+  where the switch is the title, "Topics | Folders". All the options share the
+  widest one's width, so the fill slides by whole options.
+
+<Canvas of={ViewSwitchStories.Words} />
+
 ## When not
 
-- Views named in words, or more than three → **Tabs**.
+- More than three views, or views with counts → **Tabs**.
 - Something that is on or off, like Bold → a pressed **ToolbarButton**.
 - Going to a different place → **NavItem** or **Link**.
 

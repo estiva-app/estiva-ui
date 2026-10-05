@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { IconChevronDown } from '@tabler/icons-react'
+import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
+import { MENU_TRIGGER_CLASSES } from './looks'
+import { Menu } from './Menu'
 
 /**
  * The bar across the top of a column — a list, a thread, a side panel: its
@@ -20,20 +23,42 @@ export interface ContainerHeaderProps {
   title: ReactNode
   /** A chevron after the title, for a title that opens something. */
   chevron?: boolean
+  /**
+   * The menu the title opens: `MenuItem`s — the column's views (Katerina,
+   * 5 October: Peek's Topics column, Topics or Folders). The title and its
+   * chevron are then one button, lit under the pointer; the chevron is drawn.
+   */
+  titleMenu?: ReactNode
   /** The column's own buttons, at the right edge: IconButtons with tooltips, 4px apart. */
   actions?: ReactNode
   className?: string
 }
 
-export function ContainerHeader({ title, chevron = false, actions, className }: ContainerHeaderProps) {
+export function ContainerHeader({ title, chevron = false, titleMenu, actions, className }: ContainerHeaderProps) {
   const text = typeof title === 'string'
+  const name = (
+    <div className={cn('flex items-center gap-1', text ? 'shrink-0' : 'min-w-0 flex-1')}>
+      {text ? <span className="whitespace-nowrap text-body-2-strong text-text-primary">{title}</span> : <div className="min-w-0 flex-1">{title}</div>}
+      {(chevron || titleMenu != null) && <IconChevronDown size={12} stroke={1.5} className="shrink-0 text-text-secondary" />}
+    </div>
+  )
   return (
     <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4 pl-5', className)}>
       <div className={cn('flex items-center gap-2 overflow-hidden', text ? 'shrink-0' : 'min-w-0 flex-1')}>
-        <div className={cn('flex items-center gap-1', text ? 'shrink-0' : 'min-w-0 flex-1')}>
-          {text ? <span className="whitespace-nowrap text-body-2-strong text-text-primary">{title}</span> : <div className="min-w-0 flex-1">{title}</div>}
-          {chevron && <IconChevronDown size={12} stroke={1.5} className="shrink-0 text-text-secondary" />}
-        </div>
+        {titleMenu != null ? (
+          <Menu
+            trigger={
+              // `-ml-1.5` with `px-1.5`: the words stay where a title's are (pl-5), and the fill reaches past them.
+              <BaseButton type="button" className={cn('-ml-1.5 flex min-w-0 items-center px-1.5 py-1', MENU_TRIGGER_CLASSES)}>
+                {name}
+              </BaseButton>
+            }
+          >
+            {titleMenu}
+          </Menu>
+        ) : (
+          name
+        )}
       </div>
       {actions && (
         <div className="flex shrink-0 items-center justify-end gap-3">
