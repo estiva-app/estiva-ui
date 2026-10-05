@@ -45,7 +45,7 @@ export const BARE_INPUT_CLASSES = 'bg-transparent text-text-primary placeholder:
 
 /** A sidebar row's shape and its words at rest, brightening under the pointer: NavItem, and SectionHeader's `row` (a folder among rows). */
 // 8px corners, a MenuItem row's (Katerina, 2 October).
-/** A quiet icon control: secondary, brightening on a hover fill — IconButton's `muted`, and ViewSwitch's icons. */
+/** A quiet icon control: secondary, brightening on a hover fill — IconButton's `muted`. */
 export const MUTED_CONTROL_CLASSES = 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
 
 /** A control that opens a menu: a hover fill, held while its menu is up — PersonTrigger's row, and a ContainerHeader title with a menu. */
