@@ -27,7 +27,7 @@ const write = (path: string, text: string) => {
   mkdirSync(dirname(join(root, path)), { recursive: true })
   writeFileSync(join(root, path), text)
 }
-const SECTION_LABEL = 'text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary'
+const SECTION_LABEL = 'text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary'
 const registry = (entries: { name: string; sourceFile: string; looks: string[] }[]) => JSON.stringify({ schemaVersion: 2, entries })
 write('app/package.json', '{ "name": "app" }')
 write(
@@ -78,7 +78,7 @@ tester.run('no-copied-look', noCopiedLook, {
     {
       name: 'the same look, the words in another order and one class more',
       filename: app,
-      code: probe('<span className="text-text-secondary signal:tracking-widest signal:uppercase text-h5 signal:text-small signal:font-mono leading-3 shrink-0">x</span>'),
+      code: probe('<span className="text-text-secondary leaf:tracking-widest leaf:uppercase text-h5 leaf:text-small leaf:font-mono leading-3 shrink-0">x</span>'),
       errors: [{ messageId: 'usePart' }],
     },
     {

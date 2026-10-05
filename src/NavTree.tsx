@@ -52,6 +52,10 @@ export interface NavTreeGroup {
   trailing?: ReactNode
   /** Beside the title, shown on hover or focus: "Open", typically. */
   actions?: SectionAction[]
+  /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
+  menu?: ReactNode
+  /** 16px, before the title — a folder's; the arrow takes its place on hover. */
+  icon?: ReactNode
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
   open?: boolean
@@ -146,6 +150,8 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
       loading={group.nodes === null}
       trailing={group.trailing}
       actions={group.actions}
+      menu={group.menu}
+      icon={group.icon}
       defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
       open={group.open}
       onOpenChange={group.onOpenChange}
@@ -167,6 +173,10 @@ export interface NavTreeSectionProps {
   trailing?: ReactNode
   /** Beside the title, shown on hover or focus: "Open", typically. */
   actions?: SectionAction[]
+  /** The group's "More options" menu, after its actions: `MenuItem`s. */
+  menu?: ReactNode
+  /** 16px, before the title; the arrow takes its place on hover. */
+  icon?: ReactNode
   /** Open unless told otherwise. */
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
@@ -189,13 +199,17 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, trailing, actions, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
   return (
     <div
-      className="shrink-0"
+      // 4px between groups, none above the first: a folded group's heading
+      // sits 38px from the next (Katerina, 5 October: 42 was too far from rows
+      // 33 apart; halved), and the list starts 16px under its header, as every
+      // list column does (on the first group it read 20, Topics against People).
+      className="mt-1 shrink-0 first:mt-0"
       data-nav-group={id}
       onPointerEnter={intent ? () => { clearTimeout(timer.current); timer.current = setTimeout(intent, NAV_TREE_INTENT_MS) } : undefined}
       onPointerLeave={intent ? () => clearTimeout(timer.current) : undefined}
@@ -210,8 +224,11 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         storageKey={storageKey}
         trailing={trailing}
         actions={actions}
-        className="mt-2 shrink-0"
-        contentClassName="gap-px"
+        menu={menu}
+        icon={icon}
+        className="shrink-0"
+        // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
+        contentClassName="gap-0.5"
       >
         {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
       </CollapsibleSection>

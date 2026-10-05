@@ -45,9 +45,12 @@ export function SectionLabel({
   return (
     <span
       className={cn(
-        'text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest',
-        // Leaf's section labels are Signal's type (Katerina, 28 September),
-        // but a group that folds keeps Ship's (Katerina, 2 October).
+        'text-h5 leading-3',
+        // Ship's type in every theme but Leaf, whose section labels are the
+        // micro-label (Katerina, 28 September) unless the group folds (2
+        // October). Signal dropped its micro-label on 5 October: every one of
+        // Peek's section labels is Ship's type, folding or not, so Desk's
+        // Screener and its Urgent and Open work read as one.
         !folds && 'leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest',
         tone === 'secondary' ? 'text-text-secondary' : tone === 'muted' ? 'text-text-muted' : 'text-text-primary',
         truncate && 'min-w-0 truncate',

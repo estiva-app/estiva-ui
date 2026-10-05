@@ -7,6 +7,8 @@
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MenuItem } from './Menu'
 import { ContainerHeader } from './ContainerHeader'
 
 afterEach(cleanup)
@@ -43,5 +45,11 @@ describe('ContainerHeader', () => {
     expect(container.querySelector('svg')).not.toBeNull()
     expect(container.firstElementChild!.children).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'New' }).closest('div')!.className).toContain('gap-1')
+  })
+
+  it('a title with a menu is one button, and opens it', async () => {
+    render(<ContainerHeader title="View one" titleMenu={<MenuItem label="View two" />} />)
+    await userEvent.click(screen.getByRole('button', { name: 'View one' }))
+    expect(await screen.findByRole('menuitem', { name: 'View two' })).not.toBeNull()
   })
 })

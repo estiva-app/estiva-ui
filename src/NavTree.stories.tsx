@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { useState } from 'react'
-import { IconArrowUpRight, IconPlus } from '@tabler/icons-react'
+import { IconArrowUpRight, IconFolder, IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { UnreadDot } from './UnreadDot'
+import { MenuItem, MenuSeparator } from './Menu'
 import { NavItem } from './NavItem'
 import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 import { Sidebar } from './Sidebar'
@@ -101,6 +102,52 @@ export const WithActionsAndUnread: Story = {
   },
 }
 
+const groupMenu = (
+  <>
+    <MenuItem label="Add" />
+    <MenuItem label="Rename" />
+    <MenuItem label="Archive…" />
+    <MenuSeparator />
+    <MenuItem label="Delete" destructive />
+  </>
+)
+const rowMenu = (
+  <>
+    <MenuItem label="Move…" />
+    <MenuItem label="Rename" />
+  </>
+)
+
+/** A group's `menu`: its "More options", after its dot. Each row has its own. Hover a group's title. */
+export const GroupMenus: Story = {
+  args: {
+    groups: [
+      { id: 'm1', title: 'Group one', trailing: <UnreadDot />, menu: groupMenu, defaultOpen: true, nodes: [
+        { id: 'm1a', label: 'Item two', href: '#', icon: placeholder, unread: true, menu: rowMenu },
+        { id: 'm1b', label: 'Item three', href: '#', icon: placeholder, menu: rowMenu },
+      ] },
+      { id: 'm2', title: 'Group two', menu: groupMenu, nodes: [{ id: 'm2a', label: 'Item four', href: '#', icon: placeholder, menu: rowMenu }] },
+    ],
+    selected: 'm1b',
+  },
+}
+
+const folder = <IconFolder size={16} stroke={1.5} />
+
+/** A group's `icon`: a folder before its title, the arrow in its place on hover; its rows start under the title. */
+export const GroupIcons: Story = {
+  args: {
+    groups: [
+      { id: 'i1', title: 'Group one', icon: folder, menu: groupMenu, defaultOpen: true, nodes: [
+        { id: 'i1a', label: 'Item two', href: '#', icon: placeholder, unread: true, menu: rowMenu },
+        { id: 'i1b', label: 'Item three', href: '#', icon: placeholder, menu: rowMenu },
+      ] },
+      { id: 'i2', title: 'Group two', icon: folder, menu: groupMenu, nodes: [{ id: 'i2a', label: 'Item four', href: '#', icon: placeholder }] },
+    ],
+    selected: 'i1b',
+  },
+}
+
 /** Read as it opens: a group still being read, a group with nothing in it, a row whose rows are read when it opens, and one that could not be read. */
 export const ReadAsItOpens: Story = {
   args: {
@@ -124,7 +171,7 @@ export const AppDrawnGroups: Story = {
       <div className="flex h-screen bg-bg-base">
         <Sidebar>
           <NavTree title={args.title}>
-            <NavTreeSection title="Group one" trailing={<UnreadDot />}>
+            <NavTreeSection title="Group one" trailing={<UnreadDot />} menu={groupMenu}>
               <NavItem href="#" label="Item one" icon={placeholder} unread />
               <NavItem href="#" label="Item two" icon={placeholder} active>
                 <NavItem href="#" label="Item three" icon={placeholder} />

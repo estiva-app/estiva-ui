@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconPlus, IconSortDescending } from '@tabler/icons-react'
 import { Chip } from './Chip'
+import { MenuItem, MenuSeparator } from './Menu'
 import { SectionHeader } from './SectionHeader'
 
 /** The 32px row a section starts with. Hover it: the row fills, and its actions appear. A section that folds is CollapsibleSection, whose header this is. */
@@ -46,6 +47,23 @@ export const StillOnHover: Story = {
     showActions: 'always',
     hover: 'none',
     actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }],
+  },
+}
+
+/** `menu`: the section's "More options", after its actions and revealed with them. The row keeps its hover look while the menu is open. */
+export const WithMenu: Story = {
+  args: {
+    chevron: true,
+    isExpanded: true,
+    onToggle: () => {},
+    menu: (
+      <>
+        <MenuItem label="Add" />
+        <MenuItem label="Rename" />
+        <MenuSeparator />
+        <MenuItem label="Delete" destructive />
+      </>
+    ),
   },
 }
 

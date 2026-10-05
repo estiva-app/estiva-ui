@@ -32,6 +32,8 @@ export interface ListColumnProps {
   title: ReactNode
   /** A chevron after the title, as `ContainerHeader` draws it. */
   chevron?: boolean
+  /** The menu the title opens — `ContainerHeader`'s: the column's views. */
+  titleMenu?: ReactNode
   /** The column's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`. */
   actions?: ReactNode
   /** A row between the header and the list that stays put while the list scrolls — a field that adds to the list. */
@@ -44,7 +46,7 @@ export interface ListColumnProps {
   className?: string
 }
 
-function Column({ title, chevron = false, actions, above, collapsed = false, children, className, broken = false }: ListColumnProps & { broken?: boolean }) {
+function Column({ title, chevron = false, titleMenu, actions, above, collapsed = false, children, className, broken = false }: ListColumnProps & { broken?: boolean }) {
   return (
     <div
       className={cn(
@@ -55,7 +57,7 @@ function Column({ title, chevron = false, actions, above, collapsed = false, chi
       )}
       data-collapsed={collapsed || undefined}
     >
-      <ContainerHeader title={title} chevron={chevron} actions={actions} />
+      <ContainerHeader title={title} chevron={chevron} titleMenu={titleMenu} actions={actions} />
       {above}
       {broken ? (
         // The message takes the room the list had and centres itself in it (Katerina, 19 September).

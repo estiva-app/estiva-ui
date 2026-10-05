@@ -1,10 +1,12 @@
-import type { ReactNode } from 'react'
-import { IconChevronRight } from '@tabler/icons-react'
+import { isValidElement, type ReactNode } from 'react'
+import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { useRender } from '@base-ui/react/use-render'
 import { cn } from './cn'
 import { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
+import { Menu } from './Menu'
 import { SectionLabel } from './SectionLabel'
+import { UnreadDot } from './UnreadDot'
 
 /**
  * The 32px row a section starts with (Peek's SectionHeader, 2026-09-01):
@@ -45,10 +47,19 @@ export interface SectionHeaderProps {
   title: string
   /** Collapsible: draws the chevron and makes the title a button that toggles. */
   chevron?: boolean
+  /**
+   * 16px, stroke 1.5, before the title — a folder's (Katerina, 5 October:
+   * Peek's Folders, the standard heading with a folder icon). With `chevron`
+   * the icon is what shows at rest and the arrow takes its place under the
+   * pointer or the keyboard, as a NavItem's icon turns into its arrow.
+   */
+  icon?: ReactNode
   isExpanded?: boolean
   onToggle?: () => void
   /**
-   * Beside the title and always visible, before the actions — a count.
+   * Beside the title and always visible, before the actions — a count. An
+   * `UnreadDot` instead sits in the last action's place (the ⋮'s, with a
+   * `menu`) and steps aside while the actions show, as a NavItem's dot does.
    *
    * The actions come and go with the hover; this does not, because a count is
    * information rather than an affordance. Peek's Screener header carries its
@@ -58,6 +69,16 @@ export interface SectionHeaderProps {
   trailing?: ReactNode
   /** Right-aligned, in the order given. */
   actions?: SectionAction[]
+  /**
+   * The heading's "More options" menu: `MenuItem`s — what acts on the whole
+   * section, a folder's Rename or Archive (Katerina, 5 October: Peek's Folders
+   * page goes, and its folder actions move onto the folder's heading). The ⋮
+   * is NavItem's, after the actions and revealed with them; it stays while its
+   * menu is open.
+   */
+  menu?: ReactNode
+  /** The ⋮'s accessible name. Default "More options for" the title. */
+  menuLabel?: string
   /** `hover` reveals the actions while the row is hovered or focused; `always` keeps them. */
   showActions?: 'hover' | 'always'
   /**
@@ -82,23 +103,51 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
   const row = look === 'row'
+  /*
+    One arrow for everything that folds, a NavItem's 16px, and the title 8px
+    after it as a row's label is (Katerina, 5 October: a folder heading and
+    the rows under it fold with one arrow; then every folding heading, Peek's
+    Starred too). It was 12px with a 4px gap; with an icon, the arrow now
+    fills the icon's place exactly.
+  */
+  const acts = (actions && actions.length > 0) || menu != null
+  // A dot sits in the place of the last button and steps aside while the
+  // buttons show — the rows' dot and ⋮ share a place the same way (Katerina,
+  // 5 October). A count stays beside them: it is information (09-09).
+  const dot = isValidElement(trailing) && trailing.type === UnreadDot
+  const shared = acts && showActions === 'hover' && dot
+  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100'
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
       // `text-left`: a button centres its text. `h-full` and `flex-1`: the
       // whole row up to the actions is the hit target, as it was when the
       // row itself carried the click.
-      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row ? 'gap-2' : 'gap-1'),
+      // An icon is a row's: NavItem's 8px after it.
+      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row || chevron || icon != null ? 'gap-2' : 'gap-1'),
       children: (
         <>
-          {chevron && (
-            <IconChevronRight
-              size={row ? 16 : 12}
-              stroke={1.5}
-              className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
-            />
+          {icon != null ? (
+            <span className="relative flex size-4 shrink-0 items-center justify-center text-text-secondary">
+              <span className={cn('flex', chevron && 'transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0')}>{icon}</span>
+              {chevron && (
+                <IconChevronRight
+                  size={16}
+                  stroke={1.5}
+                  className={cn('absolute opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-has-[:focus-visible]:opacity-100', isExpanded && 'rotate-90')}
+                />
+              )}
+            </span>
+          ) : (
+            chevron && (
+              <IconChevronRight
+                size={16}
+                stroke={1.5}
+                className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
+              />
+            )
           )}
           {look === 'quiet' ? (
             <span className="min-w-0 truncate text-caption text-text-muted">{title}</span>
@@ -124,7 +173,10 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
         // lights up, a fixed heading over rows does not (2026-09-09, the
         // Sidebar's fixed group).
         // A quiet label never lights up: it is a label; its button does.
-        hover === 'fill' && look !== 'quiet' && (chevron || (actions && actions.length > 0)) && 'hover:bg-bg-hover',
+        hover === 'fill' && look !== 'quiet' && (chevron || acts) && 'hover:bg-bg-hover',
+        // While its menu is open the pointer is on the menu, not the row: the
+        // row keeps its hover look, as a NavItem's does.
+        hover === 'fill' && look !== 'quiet' && menu != null && 'has-[[data-section-menu]_[aria-expanded=true]]:bg-bg-hover',
         className,
       )}
     >
@@ -132,23 +184,47 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
       {/* Outside the title button, like the actions: a chip inside a button
           would be part of the button's accessible name and part of its hit
           target, and the count is neither. */}
-      {trailing != null && <div className="flex shrink-0 items-center">{trailing}</div>}
-      {actions && actions.length > 0 && (
+      {trailing != null && !shared && (
+        // A dot with no buttons to share a place with still sits on their
+        // axis — the rows' dots and ⋮ (`-mr-1`, as the buttons are pulled).
+        <div className={cn('flex shrink-0 items-center', dot && !acts && '-mr-1')}>{trailing}</div>
+      )}
+      {acts && (
         <div
           // `-mr-1`: an IconButton is 24px around a 16px icon, so at the row's
           // `px-2` its icon ended 12px from the edge while a NavItem's number
           // ends 8px from it; pulled 4px, the icon and the number share a
           // right edge (Katerina, 2026-09-09; measured 4px off, then 0).
-          className={cn(
-            '-mr-1 flex shrink-0 items-center gap-1',
-            showActions === 'hover' && 'opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100',
-          )}
+          className="group/acts relative -mr-1 flex shrink-0 items-center"
         >
-          {actions.map((action) => (
-            <IconButton key={action.tooltip} tooltip={action.tooltip} aria-label={action.tooltip} onClick={action.onClick}>
-              {action.icon}
-            </IconButton>
-          ))}
+          <div className={cn('flex items-center gap-1', reveal)}>
+            {actions?.map((action) => (
+              <IconButton key={action.tooltip} tooltip={action.tooltip} aria-label={action.tooltip} onClick={action.onClick}>
+                {action.icon}
+              </IconButton>
+            ))}
+            {menu != null && (
+              <div data-section-menu className="flex items-center">
+                <Menu
+                  align="right"
+                  trigger={
+                    <IconButton tooltip="More options" aria-label={menuLabel ?? `More options for ${title}`}>
+                      <IconDotsVertical size={16} stroke={1.5} />
+                    </IconButton>
+                  }
+                >
+                  {menu}
+                </Menu>
+              </div>
+            )}
+          </div>
+          {shared && (
+            // The dot in the last button's 24px place, on the axis of its icon;
+            // gone while the buttons show.
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-has-[:focus-visible]/acts:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0">
+              {trailing}
+            </div>
+          )}
         </div>
       )}
     </div>

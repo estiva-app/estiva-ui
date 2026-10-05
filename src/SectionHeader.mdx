@@ -24,6 +24,12 @@ title the toggle — that is where a section folds.
 
 <Canvas of={SectionHeaderStories.PersistentActions} />
 
+- `menu` gives the section a "More options" ⋮ after its actions, with what
+  acts on the whole section — a folder's Rename, Archive. It is **NavItem**'s
+  ⋮, revealed with the actions, and stays while its menu is open.
+
+<Canvas of={SectionHeaderStories.WithMenu} />
+
 - `look="quiet"`: a small grey label over a list whose rows are rows, not
   headings — "Folders" over the folders — with its action held on screen.
   It never lights up under the pointer; its button does.

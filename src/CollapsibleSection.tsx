@@ -32,10 +32,16 @@ export interface CollapsibleSectionProps {
   onOpenChange?: (open: boolean) => void
   /** Remember open or closed in this browser, under this key. The app prefixes it. */
   storageKey?: string
+  /** 16px, before the title; the arrow takes its place on hover — `SectionHeader`'s. */
+  icon?: ReactNode
   /** Beside the title and always visible, before the actions — a count. `SectionHeader`'s. */
   trailing?: ReactNode
   /** Beside the title, revealed on hover or focus — `SectionHeader`'s. */
   actions?: SectionAction[]
+  /** Beside the actions, revealed with them: the section's "More options" menu, `MenuItem`s — `SectionHeader`'s. */
+  menu?: ReactNode
+  /** The ⋮'s accessible name — `SectionHeader`'s. */
+  menuLabel?: string
   showActions?: 'hover' | 'always'
   /**
    * `heading` (default): the title is a section heading. `row`: the fold is a
@@ -79,7 +85,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -89,7 +95,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
   }
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
+      <SectionHeader title={title} chevron icon={icon} isExpanded={open} trailing={trailing} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame
@@ -101,8 +107,8 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
         className={COLLAPSIBLE_PANEL_CLASSES}
       >
         {/* A row's rows start under its title: the 16px chevron and its 8px gap
-            (pl-6). An indented heading's: its 12px chevron and 4px gap (pl-4). */}
-        <div className={cn('flex flex-col', look === 'row' ? 'pl-6' : indent && 'pl-4', contentClassName)}>{children}</div>
+            (pl-6). An indented heading's: the same — its arrow is a row's now (5 October). */}
+        <div className={cn('flex flex-col pt-0.5', (look === 'row' || indent) && 'pl-6', contentClassName)}>{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )

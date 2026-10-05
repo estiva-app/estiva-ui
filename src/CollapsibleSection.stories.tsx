@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
+import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
 
 /** A section that opens and closes: the header's title is the toggle, and the rows slide. */
@@ -9,7 +10,7 @@ const meta = {
   title: 'Navigation/CollapsibleSection',
   component: CollapsibleSection,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
-  args: { title: 'Section', contentClassName: 'gap-px', children: null },
+  args: { title: 'Section', contentClassName: 'gap-0.5', children: null },
   argTypes: { children: { control: false }, actions: { control: false } },
   render: (args) => (
     <CollapsibleSection {...args}>
@@ -46,6 +47,18 @@ export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.collap
 /** `look="row"`: a fold that is a row among rows — a folder in a sidebar. The title at a row's weight, the rows indented under it, past the chevron. */
 export const AsARow: Story = {
   args: { title: 'Folder', look: 'row' },
+}
+
+/** `menu`: the section's "More options" ⋮, after its actions — a folder's Rename, Archive. Hover the title. */
+export const WithMenu: Story = {
+  args: {
+    menu: (
+      <>
+        <MenuItem label="Rename" />
+        <MenuItem label="Delete" destructive />
+      </>
+    ),
+  },
 }
 
 /** `indent`: the heading look, its rows starting under its title, past the chevron — a folder in a sidebar. */

@@ -2,6 +2,7 @@ import type { ComponentPropsWithRef } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { IconChevronDown } from '@tabler/icons-react'
 import { cn } from './cn'
+import { MENU_TRIGGER_CLASSES } from './looks'
 import { Avatar } from './Avatar'
 import { Person, type PersonProps } from './Person'
 
@@ -66,13 +67,13 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       aria-haspopup="menu"
       aria-expanded={open}
       className={cn(
-        'flex h-8 min-h-8 cursor-pointer items-center gap-1.5 rounded-md pl-1.5 pr-1.5 text-body-2 text-text-primary transition-colors hover:bg-bg-hover',
+        'flex h-8 min-h-8 items-center gap-1.5 pl-1.5 pr-1.5 text-body-2 text-text-primary',
+        MENU_TRIGGER_CLASSES,
         open && 'bg-bg-hover',
         // Under a `Menu` the open state is Base UI's, not a prop: the trigger
-        // carries `data-popup-open` while its menu is up, and sets its own
-        // `aria-expanded`. Both spellings hold the fill, so this works whether
-        // the caller drives it or the menu does.
-        'data-[popup-open]:bg-bg-hover',
+        // carries `data-popup-open` while its menu is up (MENU_TRIGGER_CLASSES
+        // holds the fill for it), and sets its own `aria-expanded`; `open`
+        // holds it for a caller that drives it.
         className,
       )}
       {...props}

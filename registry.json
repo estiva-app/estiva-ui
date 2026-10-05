@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.55.0",
+    "packageVersion": "0.56.0",
     "exports": 130,
     "typeExports": 134,
     "files": null
@@ -1186,6 +1186,12 @@
           "note": "Remember open or closed in this browser, under this key."
         },
         {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, before the title; the arrow takes its place on hover — `SectionHeader`'s."
+        },
+        {
           "name": "trailing",
           "takes": "anything",
           "required": false,
@@ -1196,6 +1202,18 @@
           "takes": "SectionAction[]",
           "required": false,
           "note": "Beside the title, revealed on hover or focus — `SectionHeader`'s."
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the actions, revealed with them: the section's \"More options\" menu, `MenuItem`s — `SectionHeader`'s."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name — `SectionHeader`'s."
         },
         {
           "name": "showActions",
@@ -1751,6 +1769,12 @@
           "note": "A chevron after the title, for a title that opens something."
         },
         {
+          "name": "titleMenu",
+          "takes": "anything",
+          "required": false,
+          "note": "The menu the title opens: `MenuItem`s — the column's views (Katerina, 5 October: Peek's Topics column, Topics or Folders)."
+        },
+        {
           "name": "actions",
           "takes": "anything",
           "required": false,
@@ -1764,14 +1788,29 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "navigation-containerheader--docs",
-      "storyId": "navigation-containerheader--default",
+      "storyId": "navigation-containerheader--with-title-menu",
       "docPage": "src/ContainerHeader.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-md transition-colors hover:bg-bg-hover"
+      ]
     },
     {
       "name": "deleteBlock",
@@ -3321,6 +3360,12 @@
           "note": "A chevron after the title, as `ContainerHeader` draws it."
         },
         {
+          "name": "titleMenu",
+          "takes": "anything",
+          "required": false,
+          "note": "The menu the title opens — `ContainerHeader`'s: the column's views."
+        },
+        {
           "name": "actions",
           "takes": "anything",
           "required": false,
@@ -4019,6 +4064,18 @@
           "note": "Beside the title, shown on hover or focus: \"Open\", typically."
         },
         {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The group's \"More options\" menu, after its actions: `MenuItem`s."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, before the title; the arrow takes its place on hover."
+        },
+        {
           "name": "defaultOpen",
           "takes": "true/false",
           "required": false,
@@ -4320,8 +4377,8 @@
       "docPage": "src/PersonTrigger.mdx",
       "app": null,
       "looks": [
-        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover",
-        "cursor-pointer rounded-md text-body-2 text-text-primary transition-colors hover:bg-bg-hover bg-bg-hover"
+        "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover",
+        "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover bg-bg-hover"
       ]
     },
     {
@@ -5198,6 +5255,12 @@
           "note": "Collapsible: draws the chevron and makes the title a button that toggles."
         },
         {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, stroke 1.5, before the title — a folder's (Katerina, 5 October: Peek's Folders, the standard heading with a folder icon)."
+        },
+        {
           "name": "isExpanded",
           "takes": "true/false",
           "required": false,
@@ -5220,6 +5283,18 @@
           "takes": "SectionAction[]",
           "required": false,
           "note": "Right-aligned, in the order given."
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The heading's \"More options\" menu: `MenuItem`s — what acts on the whole section, a folder's Rename or Archive (Katerina, 5 October: Peek's Folders page goes, and its folder actions move onto the folder's heading)."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name. Default \"More options for\" the title."
         },
         {
           "name": "showActions",
@@ -5284,11 +5359,11 @@
       "docPage": "src/SectionHeader.mdx",
       "app": null,
       "looks": [
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100",
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 rotate-90",
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
-        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
-        "-mr-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100",
-        "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
+        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover"
       ]
     },
     {
@@ -5349,19 +5424,15 @@
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest",
+        "text-h5 leading-3 text-text-secondary truncate",
+        "text-h5 leading-3 text-text-muted truncate",
+        "text-h5 leading-3 text-text-primary truncate",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
         "leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
       ]
     },
