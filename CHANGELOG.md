@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.56.0 — 2026-10-05 — Folders you can manage from the tree
+
+Katerina's work on Peek's Folders (direction A of her proposal, 5 October:
+no Folders page; one column, Topics and Folders, managed from ⋮ menus),
+and what she ruled while reviewing it in Storybook the same day. It changes
+how every app's sidebars and menus look: see "Changed".
+
+### Added
+
+- **A heading's ⋮ menu** — `SectionHeader`, `CollapsibleSection`,
+  `NavTreeSection` and `NavTree`'s groups take `menu` (and `menuLabel`): a
+  folder's own actions (Start a topic, Rename, Archive…, Delete). It is
+  NavItem's ⋮, revealed with the heading's buttons and kept while open.
+- **A heading's icon** — `icon` on the same four: a folder before the
+  title; the arrow takes its place under the pointer or the keyboard, as a
+  row's icon turns into its arrow.
+- **A title that opens a menu** — `ContainerHeader` and `ListColumn` take
+  `titleMenu`: the title and its chevron are one button opening the
+  column's views (Peek's Topics / Folders; an Archive view later).
+- `MENU_TRIGGER_CLASSES` and `MUTED_CONTROL_CLASSES` in `looks.ts`, shared by
+  `PersonTrigger`, `IconButton` and the title menu.
+
+### Changed
+
+- **One arrow for everything that folds**: a row's 16px arrow (it was 12px
+  on headings), the title 8px after it, and an indented section's rows
+  under the title (`pl-6`). Peek's Starred and Screener, Ship's and Leaf's
+  folder headings.
+- **Every Peek section label is Ship's type** (Signal drops the mono
+  uppercase micro-label), folding or not. Leaf keeps its own rule.
+- **2px between every line of a list**: menus (0 → 2), a tree's and a
+  sidebar's rows (1 → 2), under a heading and under a row with rows
+  (0 → 2) — as a list column's rows already were.
+- **Folders closer**: 4px between a tree's groups (was 8), none above the
+  first, so every list column starts 16px under its header.
+- **One axis on the right**: a row's ⋮ and its unread dot or urgent mark
+  sit where counts and a heading's buttons end; a heading's `UnreadDot`
+  sits in its last button's place and steps aside for it.
+
+### Fixed
+
+- **A clicked row kept its focus, and lost its icon and dot** while the
+  arrow and the ⋮ stayed hidden (also in Peek's tree). `NavItem` and
+  `SectionHeader` reveal on the pointer or the keyboard (`:focus-visible`),
+  never on any focus.
+
 ## 0.55.0 — 2026-10-05 — A handle on every block
 
 ### Added
