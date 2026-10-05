@@ -49,7 +49,8 @@ await build({
  * `@estiva-app/ui`, which every one of them is exported from.
  */
 // The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers'])
+// So is EditorBlockHandle (RIC-18); the BlockHandle it wraps is the main entry's, and imported from there.
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',
@@ -73,6 +74,21 @@ await build({
   ],
   logLevel: 'warning',
 })
+
+/*
+  Every name the editor corner takes from the main entry must be one it exports.
+  A file left out of EDITOR_OWN is turned into an import from `@estiva-app/ui`
+  that no test here can see — they run on `src` — and an app's first import of
+  the editor then fails (RIC-18: EditorBlockHandle, before it was listed).
+*/
+{
+  const { readFileSync } = await import('node:fs')
+  const names = (list) => list.split(',').map((s) => s.trim()).filter(Boolean)
+  const main = new Set([...readFileSync('dist/index.js', 'utf8').matchAll(/export\s*\{([^}]*)\}/g)].flatMap((m) => names(m[1]).map((s) => s.split(/\s+as\s+/).pop())))
+  const taken = [...readFileSync('dist/editor.js', 'utf8').matchAll(/import\s*\{([^}]*)\}\s*from\s*"@estiva-app\/ui"/g)].flatMap((m) => names(m[1]).map((s) => s.split(/\s+as\s+/)[0]))
+  const missing = taken.filter((name) => !main.has(name))
+  if (missing.length) throw new Error(`dist/editor.js imports ${missing.join(', ')} from @estiva-app/ui, which does not export them: add the file to EDITOR_OWN in build.mjs`)
+}
 
 /**
  * The lint plugin, `@estiva-app/ui/eslint` (UIG-3): its own bundle, for Node,

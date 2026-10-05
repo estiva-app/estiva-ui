@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.55.0 — 2026-10-05 — A handle on every block
+
+### Added
+
+- **`BlockHandle`** (main entry) **and `EditorBlockHandle`** (in
+  `@estiva-app/ui/editor`) — RIC-18: Miky, 2026-10-02, "edit a description
+  like a Notion page"; Ship's description is the first caller. The handle
+  left of the block under the pointer, and the block's menu behind it.
+  `EditorBlockHandle` drags the block and offers Turn into (the caller's
+  rows, for a block of text), Duplicate and Delete, then the caller's own
+  rows. `BlockHandle` over a document being read offers the caller's rows
+  only, so someone who cannot edit can still link to or comment on one
+  block (Miky's ruling in the kickoff). Two entries because a reader must
+  not download an editor: the main entry still loads no Tiptap.
+  - The drag is the browser's own, started as ProseMirror starts one of a
+    selected node, so ProseMirror's drop moves the block **with its id** —
+    a comment anchored to it still finds it. Measured with a real mouse drag
+    in Chromium on the story, not only in jsdom.
+  - `duplicateBlock`, `deleteBlock`, `startBlockDrag` and `blockAtY` are its
+    actions, exported for a caller that offers them elsewhere. A duplicate
+    gets a fresh id from `BlockId`; the original keeps its own.
+  - **From Katerina's review in Storybook, 5 October**, each measured with a
+    real mouse in Ship, Signal and Leaf:
+    - The handle can be reached. The pointer left the frame in the 4px
+      between the text and the handle, so the handle went before it could be
+      pressed; the 28px gutter is now the block's, as in Notion.
+    - Its menu opens on the click (and Enter), not the press, so starting a
+      drag no longer flashes it open.
+    - A block dragged down the gutter lands by height — the top half of a
+      block puts it before, the bottom half after — and a line shows where.
+      Over the text the editor still draws and drops. **`moveBlock`** is that
+      move; the node moves whole, so it keeps its id.
+    - **`blockDropCursor`** draws the editor's drop line in `accent-primary`
+      instead of the text's colour: `StarterKit.configure({ dropcursor:
+      blockDropCursor })`.
+
 ## 0.54.0 — 2026-10-05 — Peek's tree and Ship's sidebar on NavTree
 
 ### Added

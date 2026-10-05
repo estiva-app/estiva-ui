@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.54.0",
-    "exports": 122,
-    "typeExports": 129,
+    "packageVersion": "0.55.0",
+    "exports": 130,
+    "typeExports": 134,
     "files": null
   },
   "storybook": {
@@ -455,6 +455,88 @@
       "docsId": "feedback-banner--docs",
       "storyId": "feedback-banner--ok",
       "docPage": "src/Banner.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "blockAtY",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/BlockHandle.tsx",
+      "purpose": "The last of `blocks` whose top is at or above `y` — the gap between two blocks belongs to the one before.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-blockhandle--docs",
+      "storyId": "primitives-blockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "blockDropCursor",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "The drop line a dragged block shows, in the package's accent instead of the editor's default (the text's colour).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "BlockHandle",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/BlockHandle.tsx",
+      "purpose": "The handle left of the block under the pointer, as a block-document page has it, and the block's menu behind it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "actions",
+          "takes": "a handler",
+          "required": false,
+          "note": "The caller's own rows — a link to the block, a comment on it."
+        },
+        {
+          "name": "editing",
+          "takes": "BlockHandleEditing",
+          "required": false,
+          "note": "Given by `EditorBlockHandle` (from `@estiva-app/ui/editor`)."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "What the blocks are drawn in. Reading: a surface whose top-level elements carry `data-block-id`, as `RichText` draws."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-blockhandle--docs",
+      "storyId": "primitives-blockhandle--default",
+      "docPage": "src/BlockHandle.mdx",
       "app": null,
       "looks": []
     },
@@ -1692,6 +1774,25 @@
       "looks": []
     },
     {
+      "name": "deleteBlock",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "Removes the block, the caret where it was.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "DialogShell",
       "repo": "estiva-ui",
       "kind": "component",
@@ -1865,6 +1966,25 @@
       "looks": []
     },
     {
+      "name": "duplicateBlock",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "A copy of the block straight after it, the caret in the copy.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "EditableText",
       "repo": "estiva-ui",
       "kind": "component",
@@ -1950,6 +2070,56 @@
         "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-muted",
         "rounded-md border border-transparent text-left transition-colors hover:border-border-default"
       ]
+    },
+    {
+      "name": "EditorBlockHandle",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "`BlockHandle` in a Tiptap editor: drag the handle to move the block, press it for Turn into, Duplicate and Delete, then the app's rows.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The editor. Not editable, or not there yet, and the handle reads: the caller's rows only."
+        },
+        {
+          "name": "turnInto",
+          "takes": "readonly BlockTurnInto[]",
+          "required": false,
+          "note": "Turn into's rows. Offered for a block of text — a paragraph, a heading, code."
+        },
+        {
+          "name": "actions",
+          "takes": "a handler",
+          "required": false,
+          "note": "The caller's own rows, after the editing ones."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The `EditorContent`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": "src/EditorBlockHandle.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "EmptyState",
@@ -3590,6 +3760,25 @@
       "migrationStage": null,
       "docsId": "overlays-menu--docs",
       "storyId": "overlays-menu--items",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "moveBlock",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "Moves the block at `from` to `to` (a position between top-level blocks), the caret in it: what a drop in the gutter does, where the editor has no drop of its own.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5528,6 +5717,25 @@
       "migrationStage": null,
       "docsId": "primitives-composertriggers--docs",
       "storyId": "primitives-composertriggers--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "startBlockDrag",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "Starts the browser's own drag of the block, as ProseMirror starts one of a selected node: the block selected, its slice on `view.dragging` with `move`, and its HTML on the transfer.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
