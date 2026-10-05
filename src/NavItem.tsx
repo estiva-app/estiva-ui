@@ -178,7 +178,10 @@ export function NavItem({
         // Nothing at the right, but a menu: no room is kept at rest, so the
         // label has the row's whole width; while the ⋮ shows, its 24px slot
         // is kept, so a long label ends before it instead of running under it.
-        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block [@media(hover:none)]:block" />
+        // `-mr-1`: the ⋮ sits at `right-1`, 4px into the row's padding, so the
+        // slot does too — at the padding's edge it kept 4px the ⋮ never
+        // covers, and the label stopped 12px short of the button, not 8.
+        <span aria-hidden="true" className="-mr-1 hidden w-6 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block [@media(hover:none)]:block" />
       ) : null}
     </a>
   )

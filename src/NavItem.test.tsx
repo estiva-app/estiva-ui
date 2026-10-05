@@ -117,6 +117,13 @@ describe('NavItem unread', () => {
     expect(container.querySelector('a > [aria-hidden="true"]')!.className.split(' ')).toContain('[@media(hover:none)]:block')
   })
 
+  it('with nothing at the right, the ⋮’s kept place is the ⋮’s own, at right-1, so the label loses no more than it covers', () => {
+    const { container } = render(<NavItem href="#" label="Item one" menu={<span>Action</span>} />)
+    // The slot is pulled 4px into the padding, as the ⋮ is (`right-1`): measured, the label then stops 8px before the button, not 12.
+    expect(container.querySelector('a > [aria-hidden="true"]')!.className.split(' ')).toEqual(expect.arrayContaining(['-mr-1', 'w-6']))
+    expect(screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')!.className).toContain('right-1')
+  })
+
   it('with a count and a menu, the ⋮ lands on the count', () => {
     render(<NavItem href="#" label="Item one" count={3} menu={<span>Action</span>} />)
     const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')
