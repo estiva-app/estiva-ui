@@ -50,7 +50,7 @@ export interface NavTreeGroup {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
-  /** Beside the title, shown on hover or focus: "Open", typically. */
+  /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
   menu?: ReactNode
@@ -171,7 +171,7 @@ export interface NavTreeSectionProps {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
-  /** Beside the title, shown on hover or focus: "Open", typically. */
+  /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s. */
   menu?: ReactNode
@@ -209,7 +209,11 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
       // sits 38px from the next (Katerina, 5 October: 42 was too far from rows
       // 33 apart; halved), and the list starts 16px under its header, as every
       // list column does (on the first group it read 20, Topics against People).
-      className="mt-1 shrink-0 first:mt-0"
+      // The margin is on a group that follows a group (`[&+&]`), not "all but
+      // the first child": NavTree draws its quiet title before the groups, so
+      // with `first:mt-0` the first group under a title still took the 4px
+      // (measured 6px under the title, 2px once the margin went).
+      className="shrink-0 [&+&]:mt-1"
       data-nav-group={id}
       onPointerEnter={intent ? () => { clearTimeout(timer.current); timer.current = setTimeout(intent, NAV_TREE_INTENT_MS) } : undefined}
       onPointerLeave={intent ? () => clearTimeout(timer.current) : undefined}

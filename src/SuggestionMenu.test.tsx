@@ -48,6 +48,14 @@ describe('SuggestionMenu', () => {
     expect(screen.getByRole('group', { name: 'Second' })).toBeTruthy()
   })
 
+  it('puts 2px between rows, with a heading or without one', async () => {
+    draw({ sections: [{ items: ['One', 'Two'] }, { label: 'Second', items: ['Three'] }] })
+    const list = await screen.findByRole('listbox')
+    // The rows with no heading are the listbox's own; under a heading, MenuSection's.
+    expect(list.className.split(' ')).toContain('gap-0.5')
+    expect(screen.getByRole('group', { name: 'Second' }).firstElementChild!.className.split(' ')).toContain('gap-0.5')
+  })
+
   it('draws nothing when there is nothing to show', () => {
     draw({ sections: [{ label: 'First', items: [] }] })
     expect(screen.queryByRole('listbox')).toBeNull()

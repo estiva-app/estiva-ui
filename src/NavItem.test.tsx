@@ -94,6 +94,17 @@ describe('NavItem unread', () => {
     expect(container.querySelector('[data-unread]')).toBeNull()
   })
 
+  it('the dot and the badge are pulled 4px right (-mr-1), onto the axis of a count and of the ⋮', () => {
+    const { container } = render(
+      <>
+        <NavItem href="#" label="Item one" unread />
+        <NavItem href="#" label="Item two" unread urgent />
+      </>,
+    )
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('-mr-1')
+    expect(container.querySelector('[data-urgent]')!.parentElement!.className.split(' ')).toContain('-mr-1')
+  })
+
   it('urgent without unread draws nothing', () => {
     const { container } = render(<NavItem href="#" label="Item one" urgent />)
     expect(container.querySelector('[data-urgent], [data-unread]')).toBeNull()
@@ -103,6 +114,25 @@ describe('NavItem unread', () => {
     render(<NavItem href="#" label="Item one" unread menu={<span>Action</span>} />)
     const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')
     expect(menu?.className).toContain('right-1')
+  })
+
+  it('on a screen with no hover the ⋮ always shows, and the count steps aside for it', () => {
+    render(<NavItem href="#" label="Item one" count={3} menu={<span>Action</span>} />)
+    const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')!
+    expect(menu.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
+    expect(screen.getByText('3').className.split(' ')).toContain('[@media(hover:none)]:opacity-0')
+  })
+
+  it('on a screen with no hover, with nothing at the right, the ⋮’s place is kept so the label stops before it', () => {
+    const { container } = render(<NavItem href="#" label="Item one" menu={<span>Action</span>} />)
+    expect(container.querySelector('a > [aria-hidden="true"]')!.className.split(' ')).toContain('[@media(hover:none)]:block')
+  })
+
+  it('with nothing at the right, the ⋮’s kept place is the ⋮’s own, at right-1, so the label loses no more than it covers', () => {
+    const { container } = render(<NavItem href="#" label="Item one" menu={<span>Action</span>} />)
+    // The slot is pulled 4px into the padding, as the ⋮ is (`right-1`): measured, the label then stops 8px before the button, not 12.
+    expect(container.querySelector('a > [aria-hidden="true"]')!.className.split(' ')).toEqual(expect.arrayContaining(['-mr-1', 'w-6']))
+    expect(screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')!.className).toContain('right-1')
   })
 
   it('with a count and a menu, the ⋮ lands on the count', () => {

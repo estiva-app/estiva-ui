@@ -6,7 +6,8 @@ import * as SectionHeaderStories from './SectionHeader.stories'
 # SectionHeader
 
 The 32px row a section starts with: a SectionLabel, and actions that
-appear on hover or focus as IconButtons with tooltips. It is also the
+appear while the row is hovered or keyboard-focused, as IconButtons with
+tooltips — always, on a screen with no hover. It is also the
 header of a **CollapsibleSection**, which draws the chevron and makes the
 title the toggle — that is where a section folds.
 
@@ -86,7 +87,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | With `chevron`, its title is a button that calls `onToggle` on a click, Enter or Space, and says whether it is open | a button of your own, or `aria-expanded` |  |
-| Shows its actions while one of them has focus | a focus style of your own |  |
+| Shows its actions while the keyboard is in the row — on the title or on one of them — and always on a screen with no hover | a focus style of your own |  |
 | Keeps its 32px in a scrolling column | `shrink-0` |  |
 
 ## Keys
@@ -94,7 +95,7 @@ It does these by itself. Write none of them around it.
 | Key | Does |
 |---|---|
 | Enter, Space | on the title, with `chevron`: calls `onToggle` |
-| Tab | the title, then each action — the actions show while one has focus |
+| Tab | the title, then each action — the actions show from the title on |
 
 ## Props
 

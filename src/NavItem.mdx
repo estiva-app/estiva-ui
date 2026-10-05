@@ -24,7 +24,9 @@ count — a muted mono number whose tooltip says what it counts.
 
 - A row with things to do to it — move it, rename it — takes them as
   `menu`: pass `MenuItem`s, and the row draws the ⋮, shows it while the row
-  is pointed at or focused, and moves the count aside for it.
+  is pointed at or keyboard-focused, and moves the count aside for it. On a
+  screen with no hover the ⋮ always shows, and the count or dot under it
+  stays aside: the row reads as it does under a pointer.
 
 <Canvas of={NavItemStories.WithMenu} />
 

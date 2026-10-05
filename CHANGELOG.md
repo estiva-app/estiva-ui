@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.57.0 — 2026-10-05 — 0.56.0, reviewed
+
+A review of 0.56.0 found small things: lists that missed the 2px,
+a first folder 4px too low, buttons a keyboard or a touch screen could not
+reach. What people see change:
+
+### Changed
+
+- **2px between every picker's rows too**: Select's options (they
+  touched), ChipInput's suggestions, and the editor's `@`, `/` and `[`
+  rows where a section has no heading, and the search palette (Ctrl+K),
+  between its rows and under each heading. Row heights are the same.
+- **A heading's buttons show when its title gets keyboard focus**, as a
+  row's ⋮ shows when its link does. They showed only once Tab reached one
+  of the buttons.
+- **Touch screens show every ⋮ and every heading's buttons**: with no
+  pointer to hover, they were out of reach. What shares their place (a
+  count, a dot) steps aside, as it does under a pointer.
+- **A row's label is 4px longer beside its ⋮** when nothing else is on
+  the right (the room kept for the ⋮ was 4px wider than the ⋮).
+
+### Fixed
+
+- **The first folder under a tree's title sat 6px under it, not 2.**
+  0.56.0 said "none above the first", but a tree with a title still gave
+  its first group the 4px; now only a group after a group takes it.
+- **A heading's unread dot steps aside wherever it is wrapped**: it moved
+  into the ⋮'s place only when it was exactly `<UnreadDot />`; in a
+  tooltip or an app's own wrapper it sat beside the buttons instead.
+- Checked, nothing to fix: after a ⋮ menu is used with the mouse, the ⋮
+  goes once the pointer leaves (the focus comes back to it, but not as
+  keyboard focus).
+
 ## 0.56.0 — 2026-10-05 — Folders you can manage from the tree
 
 Katerina's work on Peek's Folders (direction A of her proposal, 5 October:

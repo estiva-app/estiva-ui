@@ -83,6 +83,21 @@ export const Default: Story = {
   ),
 }
 
+/** No heading: rows the editor ranks itself, 2px apart as under one. */
+export const NoHeading: Story = {
+  render: () => (
+    <AtACaret<Command>
+      ariaLabel="Commands"
+      width="w-[300px]"
+      maxHeight="max-h-[400px]"
+      sections={[{ items: FORMAT }]}
+      itemKey={(c) => c.id}
+      row={commandRow}
+      onSelect={() => {}}
+    />
+  ),
+}
+
 /** Tall rows: a face, a second line, and Enter's hint on the highlighted one. */
 export const TallRows: Story = {
   render: () => (

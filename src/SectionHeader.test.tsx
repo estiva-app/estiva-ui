@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MenuItem } from './Menu'
+import { NavItem } from './NavItem'
 import { SectionHeader } from './SectionHeader'
 import { UnreadDot } from './UnreadDot'
 
@@ -51,6 +52,55 @@ describe('SectionHeader', () => {
 })
 
 /**
+ * When the buttons show. The pointer and the menu are Chrome's to prove (the
+ * stories); what is pinned here is which element each reveal asks.
+ */
+describe('SectionHeader, the reveal', () => {
+  const menu = <MenuItem label="Rename" />
+  const actions = [{ icon: <span />, tooltip: 'Add', onClick: () => {} }]
+
+  it('shows the buttons once the title’s toggle has keyboard focus, as a NavItem shows its ⋮ for its link', () => {
+    const { container } = render(<SectionHeader title="Section" chevron onToggle={() => {}} actions={actions} menu={menu} />)
+    const row = container.firstElementChild as HTMLElement
+    const toggle = screen.getByRole('button', { name: 'Section' })
+    const buttons = screen.getByRole('button', { name: 'Add' }).parentElement!
+    // The row is the group, and it holds the toggle: the reveal asks the row, not the buttons' own box.
+    expect(row.className.split(' ')).toContain('group')
+    expect(row.contains(toggle)).toBe(true)
+    expect(buttons.className.split(' ')).toContain('group-has-[:focus-visible]:opacity-100')
+    expect(buttons.className.split(' ')).not.toContain('has-[:focus-visible]:opacity-100')
+    // An open menu holds them, asked of their own box: the toggle's aria-expanded must not.
+    expect(buttons.className.split(' ')).toContain('has-[[aria-expanded=true]]:opacity-100')
+  })
+
+  it('on a screen with no hover the buttons always show, and a dot under them steps aside', () => {
+    const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} actions={actions} menu={menu} />)
+    expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('[@media(hover:none)]:has-[[data-unread]]:opacity-0')
+  })
+
+  it('no reveal answers to any focus (`focus-within`): a clicked row kept its focus and lost its icon and dot (0.56.0)', () => {
+    const { container } = render(
+      <>
+        <SectionHeader title="Section" chevron icon={<span />} onToggle={() => {}} trailing={<UnreadDot />} actions={actions} menu={menu} />
+        <NavItem href="#" label="Item one" icon={<span />} count={2} hint={<span>Label</span>} menu={menu}>
+          <NavItem href="#" label="Item two" unread menu={menu} />
+        </NavItem>
+      </>,
+    )
+    const classes = [...container.querySelectorAll('*')].map((e) => e.getAttribute('class') ?? '').join(' ')
+    expect(classes).not.toContain('focus-within')
+    // The keyboard's reveal is what replaced it.
+    expect(classes).toContain('group-has-[:focus-visible]')
+  })
+
+  it('with showActions="always" there is nothing to reveal', () => {
+    render(<SectionHeader title="Section" actions={actions} showActions="always" />)
+    expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className).not.toContain('opacity-0')
+  })
+})
+
+/**
  * The trailing slot (0.12.2, ADOPTION B23). Peek's Screener header carries its
  * count as a Chip there, and was the last hand-drawn folding header in the app
  * for want of it.
@@ -78,11 +128,24 @@ describe('SectionHeader, the trailing slot', () => {
     const { container } = render(
       <SectionHeader title="Section" trailing={<UnreadDot />} actions={[{ icon: <span />, tooltip: 'Open', onClick: () => {} }]} menu={<MenuItem label="Rename" />} />,
     )
-    const dot = container.querySelector('[data-unread]')!
-    // Inside the buttons' box, over the last one — not a slot of its own before them.
-    expect(dot.closest('[class~="group/acts"]')).not.toBe(null)
-    expect(dot.parentElement!.className).toContain('group-hover:opacity-0')
+    const slot = container.querySelector('[data-unread]')!.parentElement!
+    // Over the last button, out of the row's flow — not a slot of its own before them — and gone while they show.
+    expect(slot.className.split(' ')).toEqual(expect.arrayContaining(['has-[[data-unread]]:absolute', 'has-[[data-unread]]:right-1', 'has-[[data-unread]]:w-6', 'group-hover:has-[[data-unread]]:opacity-0']))
+    expect(slot.matches(':has([data-unread])')).toBe(true)
     expect(screen.getByRole('button', { name: 'More options for Section' })).not.toBeNull()
+  })
+
+  it('a dot is found by what it draws, not by its element: one in a wrapper of the app’s own steps aside too', () => {
+    render(
+      <SectionHeader title="Section" trailing={<span data-testid="wrapped"><UnreadDot /></span>} menu={<MenuItem label="Rename" />} />,
+    )
+    const slot = screen.getByTestId('wrapped').parentElement!
+    expect(slot.matches(':has([data-unread])')).toBe(true)
+    expect(slot.className.split(' ')).toContain('has-[[data-unread]]:absolute')
+    // A count holds no dot, so the same slot keeps it beside the buttons.
+    cleanup()
+    render(<SectionHeader title="Section" trailing={<span data-testid="count">2</span>} menu={<MenuItem label="Rename" />} />)
+    expect(screen.getByTestId('count').parentElement!.matches(':has([data-unread])')).toBe(false)
   })
 
   it('an icon shows at rest, and folding, the arrow is in its place', () => {
@@ -95,6 +158,6 @@ describe('SectionHeader, the trailing slot', () => {
 
   it('a dot with no buttons sits on their axis all the same', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} />)
-    expect(container.querySelector('[data-unread]')!.parentElement!.className).toContain('-mr-1')
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('has-[[data-unread]]:-mr-1')
   })
 })

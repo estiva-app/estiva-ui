@@ -94,6 +94,12 @@ describe('CommandPaletteSearch — rows', () => {
     expect(groups.map((g) => g.firstElementChild?.textContent)).toEqual(['First', 'Second'])
   })
 
+  it('puts 2px between its rows and under each heading, as a menu does', () => {
+    render(<Search groups={[{ label: 'Group', rows: [row('One'), row('Two')] }]} />)
+    const [first] = screen.getAllByRole('option')
+    expect(first.parentElement!.className.split(' ')).toContain('gap-0.5')
+  })
+
   it('lights the first row, and Enter does what it does', async () => {
     const onSelect = vi.fn()
     const user = userEvent.setup()

@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.56.0",
+    "packageVersion": "0.57.0",
     "exports": 130,
     "typeExports": 134,
     "files": null
@@ -1201,7 +1201,7 @@
           "name": "actions",
           "takes": "SectionAction[]",
           "required": false,
-          "note": "Beside the title, revealed on hover or focus — `SectionHeader`'s."
+          "note": "Beside the title, revealed while the row is hovered or keyboard-focused — `SectionHeader`'s."
         },
         {
           "name": "menu",
@@ -3952,7 +3952,7 @@
         "text-body-2 rounded-lg transition-colors text-text-primary hover:bg-bg-hover",
         "text-body-2 rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "text-center font-mono text-caption tabular-nums text-text-muted",
-        "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity",
+        "text-center font-mono text-caption tabular-nums text-text-muted transition-opacity [@media(hover:none)]:opacity-0",
         "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
       ]
     },
@@ -4061,7 +4061,7 @@
           "name": "actions",
           "takes": "SectionAction[]",
           "required": false,
-          "note": "Beside the title, shown on hover or focus: \"Open\", typically."
+          "note": "Beside the title, shown while the row is hovered or keyboard-focused: \"Open\", typically."
         },
         {
           "name": "menu",
@@ -5239,7 +5239,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/SectionHeader.tsx",
-      "purpose": "The 32px row a section starts with: a SectionLabel, and actions that appear on hover or focus as IconButtons with tooltips.",
+      "purpose": "The 32px row a section starts with: a SectionLabel, and actions that appear while the row is hovered or keyboard-focused, as IconButtons with tooltips — always, on a screen with no hover.",
       "purposeFrom": "page",
       "props": [
         {
@@ -5300,7 +5300,7 @@
           "name": "showActions",
           "takes": "hover | always",
           "required": false,
-          "note": "`hover` reveals the actions while the row is hovered or focused; `always` keeps them."
+          "note": "`hover` reveals the actions while the row is hovered or keyboard-focused (always on a screen with no hover); `always` keeps them."
         },
         {
           "name": "hover",
@@ -5363,7 +5363,8 @@
         "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 rotate-90",
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
-        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover"
+        "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
+        "opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
       ]
     },
     {

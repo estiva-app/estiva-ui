@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { CollapsibleSection } from './CollapsibleSection'
+import { MenuItem } from './Menu'
 
 afterEach(cleanup)
 beforeEach(() => window.localStorage.clear())
@@ -77,5 +78,28 @@ describe('CollapsibleSection', () => {
     await userEvent.click(title())
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(title().getAttribute('aria-expanded')).toBe('false')
+  })
+})
+
+/** What it hands its header (0.56.0): the folder's ⋮, the ⋮'s name, and the icon before the title. */
+describe('CollapsibleSection, its header', () => {
+  it('passes menu and menuLabel on: the ⋮ is named by menuLabel and opens the menu', async () => {
+    render(<CollapsibleSection title="Section" menu={<MenuItem label="Rename" />} menuLabel="Section options">{rows}</CollapsibleSection>)
+    await userEvent.click(screen.getByRole('button', { name: 'Section options' }))
+    expect(await screen.findByRole('menuitem', { name: 'Rename' })).not.toBeNull()
+    // The ⋮ acts; it does not fold the section.
+    expect(title().getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('with menu and no menuLabel, the ⋮ is named for the title', () => {
+    render(<CollapsibleSection title="Section" menu={<MenuItem label="Rename" />}>{rows}</CollapsibleSection>)
+    expect(screen.getByRole('button', { name: 'More options for Section' })).not.toBeNull()
+  })
+
+  it('passes icon on: it is drawn inside the title’s toggle, before the words', () => {
+    render(<CollapsibleSection title="Section" icon={<span data-testid="icon" />}>{rows}</CollapsibleSection>)
+    const icon = screen.getByTestId('icon')
+    expect(title().contains(icon)).toBe(true)
+    expect(icon.compareDocumentPosition(screen.getByText('Section')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

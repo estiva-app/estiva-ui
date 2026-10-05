@@ -277,10 +277,12 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
               for; `--anchor-width` is the positioner's own answer, and the
               anchor is the box (see `box` above), not the input. The padding
               is on the scrolling content so the bar hugs the panel (D63), and
-              240px is the cap this list has always had. */}
+              240px is the cap this list has always had. The rows are the
+              list's own children, so the 2px between them, a menu's, is on
+              the list. */}
           <Combobox.Popup className="w-[var(--anchor-width)] p-0" render={<MenuPanel />}>
             <ScrollArea viewportClassName="max-h-[240px]" contentClassName="flex flex-col p-2">
-              <Combobox.List>
+              <Combobox.List className="flex flex-col gap-0.5">
                 {(option: T) => (
                   <Combobox.Item
                     key={option.id}

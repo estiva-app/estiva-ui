@@ -1,4 +1,4 @@
-import { isValidElement, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { useRender } from '@base-ui/react/use-render'
 import { cn } from './cn'
@@ -6,13 +6,12 @@ import { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { SectionLabel } from './SectionLabel'
-import { UnreadDot } from './UnreadDot'
 
 /**
  * The 32px row a section starts with (Peek's SectionHeader, 2026-09-01):
  * a SectionLabel, an optional collapse chevron that makes the title the
- * toggle, and actions that appear while the row is hovered or focused, as
- * IconButtons with tooltips.
+ * toggle, and actions that appear while the row is hovered or keyboard-focused,
+ * as IconButtons with tooltips.
  *
  * Three things changed on 2026-09-09, for `CollapsibleSection`:
  *
@@ -79,7 +78,7 @@ export interface SectionHeaderProps {
   menu?: ReactNode
   /** The ⋮'s accessible name. Default "More options for" the title. */
   menuLabel?: string
-  /** `hover` reveals the actions while the row is hovered or focused; `always` keeps them. */
+  /** `hover` reveals the actions while the row is hovered or keyboard-focused (always on a screen with no hover); `always` keeps them. */
   showActions?: 'hover' | 'always'
   /**
    * `fill` lights the row under the pointer when it does something (a toggle,
@@ -113,12 +112,35 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
     fills the icon's place exactly.
   */
   const acts = (actions && actions.length > 0) || menu != null
-  // A dot sits in the place of the last button and steps aside while the
-  // buttons show — the rows' dot and ⋮ share a place the same way (Katerina,
-  // 5 October). A count stays beside them: it is information (09-09).
-  const dot = isValidElement(trailing) && trailing.type === UnreadDot
-  const shared = acts && showActions === 'hover' && dot
-  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100'
+  /*
+    A dot sits in the place of the last button and steps aside while the
+    buttons show — the rows' dot and ⋮ share a place the same way (Katerina,
+    5 October). A count stays beside them: it is information (09-09).
+
+    "A dot" is whatever holds an `UnreadDot`, found by the `data-unread` it
+    draws, so the CSS decides (`has-[[data-unread]]`) rather than a check of
+    the element's type: that missed a dot in a tooltip or in an app's own
+    wrapper, which then sat beside the buttons as a count does. With no
+    buttons it sits on their axis all the same (`-mr-1`, as they are pulled).
+    In the last button's place it is the 24px slot at `right-1`, where the
+    buttons' box ends, gone while they show — on a screen with no hover, then,
+    always.
+  */
+  const trailingClasses = !acts
+    ? 'has-[[data-unread]]:-mr-1'
+    : showActions === 'hover' &&
+      'has-[[data-unread]]:pointer-events-none has-[[data-unread]]:absolute has-[[data-unread]]:inset-y-0 has-[[data-unread]]:right-1 has-[[data-unread]]:w-6 has-[[data-unread]]:justify-center has-[[data-unread]]:transition-opacity group-hover:has-[[data-unread]]:opacity-0 group-has-[:focus-visible]:has-[[data-unread]]:opacity-0 group-has-[[data-section-menu]_[aria-expanded=true]]:has-[[data-unread]]:opacity-0 [@media(hover:none)]:has-[[data-unread]]:opacity-0'
+  /*
+    The buttons show under the pointer, while the keyboard is anywhere in the
+    row — the title's toggle included, as a NavItem's ⋮ shows once its link
+    has keyboard focus; it was only one of the buttons themselves — and while
+    the menu is open. `aria-expanded` is asked of the buttons' own box: the
+    toggle says it too, and an open section would keep them for good.
+
+    A screen with no hover (a phone, a tablet) shows them always: nothing
+    there can point at the row, so hidden they could never be reached.
+  */
+  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100'
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
@@ -165,7 +187,8 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
   return (
     <div
       className={cn(
-        'group flex h-[32px] shrink-0 items-center gap-1 px-2',
+        // `relative`: a dot in the last button's place is placed against the row.
+        'group relative flex h-[32px] shrink-0 items-center gap-1 px-2',
         !row && 'transition-colors',
         // A row is NavItem's shape and colour: 6px corners, secondary words that brighten on hover.
         row ? cn(SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES) : 'rounded-lg',
@@ -184,18 +207,14 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
       {/* Outside the title button, like the actions: a chip inside a button
           would be part of the button's accessible name and part of its hit
           target, and the count is neither. */}
-      {trailing != null && !shared && (
-        // A dot with no buttons to share a place with still sits on their
-        // axis — the rows' dots and ⋮ (`-mr-1`, as the buttons are pulled).
-        <div className={cn('flex shrink-0 items-center', dot && !acts && '-mr-1')}>{trailing}</div>
-      )}
+      {trailing != null && <div className={cn('flex shrink-0 items-center', trailingClasses)}>{trailing}</div>}
       {acts && (
         <div
           // `-mr-1`: an IconButton is 24px around a 16px icon, so at the row's
           // `px-2` its icon ended 12px from the edge while a NavItem's number
           // ends 8px from it; pulled 4px, the icon and the number share a
           // right edge (Katerina, 2026-09-09; measured 4px off, then 0).
-          className="group/acts relative -mr-1 flex shrink-0 items-center"
+          className="-mr-1 flex shrink-0 items-center"
         >
           <div className={cn('flex items-center gap-1', reveal)}>
             {actions?.map((action) => (
@@ -218,13 +237,6 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
               </div>
             )}
           </div>
-          {shared && (
-            // The dot in the last button's 24px place, on the axis of its icon;
-            // gone while the buttons show.
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-has-[:focus-visible]/acts:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0">
-              {trailing}
-            </div>
-          )}
         </div>
       )}
     </div>
