@@ -10,7 +10,8 @@ reach. What people see change:
 
 - **2px between every picker's rows too**: Select's options (they
   touched), ChipInput's suggestions, and the editor's `@`, `/` and `[`
-  rows where a section has no heading. Row heights are the same.
+  rows where a section has no heading, and the search palette (Ctrl+K),
+  between its rows and under each heading. Row heights are the same.
 - **A heading's buttons show when its title gets keyboard focus**, as a
   row's ⋮ shows when its link does. They showed only once Tab reached one
   of the buttons.

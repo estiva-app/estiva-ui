@@ -397,9 +397,10 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
 
         <Autocomplete.List className="flex flex-col">
           {(group: ListGroup) => (
-            <Autocomplete.Group key={group.value} items={group.items} className="flex flex-col">
+            <Autocomplete.Group key={group.value} items={group.items} className="flex flex-col gap-0.5">
               {/* A heading labels the rows, it is not one of them: read
-                  secondary, as in a menu (MenuSection). */}
+                  secondary, as in a menu (MenuSection). 2px under it and
+                  between its rows, as every list has (Katerina, 5 October). */}
               <Autocomplete.GroupLabel className="flex h-7 shrink-0 items-center px-3">
                 <SectionLabel tone="secondary">{group.value}</SectionLabel>
               </Autocomplete.GroupLabel>
