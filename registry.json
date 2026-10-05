@@ -1192,6 +1192,12 @@
           "note": "16px, before the title; the arrow takes its place on hover — `SectionHeader`'s."
         },
         {
+          "name": "arrow",
+          "takes": "heading | row",
+          "required": false,
+          "note": "The arrow's size — `SectionHeader`'s: `row`, 16px, a tree's heading."
+        },
+        {
           "name": "trailing",
           "takes": "anything",
           "required": false,
@@ -1253,6 +1259,13 @@
         }
       ],
       "variants": [
+        {
+          "prop": "arrow",
+          "values": [
+            "heading",
+            "row"
+          ]
+        },
         {
           "prop": "showActions",
           "values": [
@@ -5261,6 +5274,12 @@
           "note": "16px, stroke 1.5, before the title — a folder's (Katerina, 5 October: Peek's Folders, the standard heading with a folder icon)."
         },
         {
+          "name": "arrow",
+          "takes": "heading | row",
+          "required": false,
+          "note": "The arrow's size: `heading`, 12px, a section's; `row`, 16px, a NavItem's — a tree's heading, so a folder and the rows under it fold with one arrow (Katerina, 5 October), and with an `icon` the arrow fills the icon's place exactly."
+        },
+        {
           "name": "isExpanded",
           "takes": "true/false",
           "required": false,
@@ -5328,6 +5347,13 @@
         }
       ],
       "variants": [
+        {
+          "prop": "arrow",
+          "values": [
+            "heading",
+            "row"
+          ]
+        },
         {
           "prop": "showActions",
           "values": [

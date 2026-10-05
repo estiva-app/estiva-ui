@@ -222,6 +222,10 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         actions={actions}
         menu={menu}
         icon={icon}
+        // The rows' arrow, 16px: the heading and the rows under it fold with
+        // one arrow (Katerina, 5 October), so the two views of Peek's
+        // Folders, with an icon and without, put arrow and title in one place.
+        arrow="row"
         // 4px between groups: a folded group's heading sits 38px from the next
         // (Katerina, 5 October: 42 was too far from rows 33 apart; halved).
         className="mt-1 shrink-0"

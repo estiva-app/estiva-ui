@@ -54,6 +54,13 @@ export interface SectionHeaderProps {
    * pointer or the keyboard, as a NavItem's icon turns into its arrow.
    */
   icon?: ReactNode
+  /**
+   * The arrow's size: `heading`, 12px, a section's; `row`, 16px, a NavItem's —
+   * a tree's heading, so a folder and the rows under it fold with one arrow
+   * (Katerina, 5 October), and with an `icon` the arrow fills the icon's place
+   * exactly. The title then starts 8px after it, as a row's label does.
+   */
+  arrow?: 'heading' | 'row'
   isExpanded?: boolean
   onToggle?: () => void
   /**
@@ -103,8 +110,10 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, icon, arrow, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
   const row = look === 'row'
+  /** A row's 16px arrow and 8px gap: the `row` look, or a tree's heading. */
+  const rowArrow = row || arrow === 'row'
   const acts = (actions && actions.length > 0) || menu != null
   // A dot sits in the place of the last button and steps aside while the
   // buttons show — the rows' dot and ⋮ share a place the same way (Katerina,
@@ -119,7 +128,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
       // whole row up to the actions is the hit target, as it was when the
       // row itself carried the click.
       // An icon is a row's: NavItem's 8px after it.
-      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row || icon != null ? 'gap-2' : 'gap-1'),
+      className: cn('flex h-full min-w-0 flex-1 items-center text-left', rowArrow || icon != null ? 'gap-2' : 'gap-1'),
       children: (
         <>
           {icon != null ? (
@@ -127,7 +136,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
               <span className={cn('flex', chevron && 'transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0')}>{icon}</span>
               {chevron && (
                 <IconChevronRight
-                  size={row ? 16 : 12}
+                  size={rowArrow ? 16 : 12}
                   stroke={1.5}
                   className={cn('absolute opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-has-[:focus-visible]:opacity-100', isExpanded && 'rotate-90')}
                 />
@@ -136,7 +145,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
           ) : (
             chevron && (
               <IconChevronRight
-                size={row ? 16 : 12}
+                size={rowArrow ? 16 : 12}
                 stroke={1.5}
                 className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
               />
