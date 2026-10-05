@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { IconArrowUpRight, IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { UnreadDot } from './UnreadDot'
+import { MenuItem, MenuSeparator } from './Menu'
 import { NavItem } from './NavItem'
 import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 import { Sidebar } from './Sidebar'
@@ -98,6 +99,36 @@ export const WithActionsAndUnread: Story = {
       { id: 'u2', title: 'Group two', actions: [{ icon: <IconArrowUpRight size={16} stroke={1.5} />, tooltip: 'Open', onClick: () => {} }], nodes: [{ id: 'u2a', label: 'Item five', href: '#', icon: placeholder }] },
     ],
     selected: 'u1c',
+  },
+}
+
+const groupMenu = (
+  <>
+    <MenuItem label="Add" />
+    <MenuItem label="Rename" />
+    <MenuItem label="Archive…" />
+    <MenuSeparator />
+    <MenuItem label="Delete" destructive />
+  </>
+)
+const rowMenu = (
+  <>
+    <MenuItem label="Move…" />
+    <MenuItem label="Rename" />
+  </>
+)
+
+/** A group's `menu`: its "More options", after its dot. Each row has its own. Hover a group's title. */
+export const GroupMenus: Story = {
+  args: {
+    groups: [
+      { id: 'm1', title: 'Group one', trailing: <UnreadDot />, menu: groupMenu, defaultOpen: true, nodes: [
+        { id: 'm1a', label: 'Item two', href: '#', icon: placeholder, unread: true, menu: rowMenu },
+        { id: 'm1b', label: 'Item three', href: '#', icon: placeholder, menu: rowMenu },
+      ] },
+      { id: 'm2', title: 'Group two', menu: groupMenu, nodes: [{ id: 'm2a', label: 'Item four', href: '#', icon: placeholder, menu: rowMenu }] },
+    ],
+    selected: 'm1b',
   },
 }
 

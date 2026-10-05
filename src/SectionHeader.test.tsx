@@ -7,7 +7,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MenuItem } from './Menu'
 import { SectionHeader } from './SectionHeader'
+import { UnreadDot } from './UnreadDot'
 
 afterEach(cleanup)
 
@@ -70,5 +72,21 @@ describe('SectionHeader, the trailing slot', () => {
     expect(title.textContent).toBe('Section')
     // Not part of the hover reveal either — a count is information, not an affordance.
     expect(count.closest('.opacity-0')).toBe(null)
+  })
+
+  it('a dot sits in the last button’s place and steps aside for it; a count stays beside the buttons', () => {
+    const { container } = render(
+      <SectionHeader title="Section" trailing={<UnreadDot />} actions={[{ icon: <span />, tooltip: 'Open', onClick: () => {} }]} menu={<MenuItem label="Rename" />} />,
+    )
+    const dot = container.querySelector('[data-unread]')!
+    // Inside the buttons' box, over the last one — not a slot of its own before them.
+    expect(dot.closest('[class~="group/acts"]')).not.toBe(null)
+    expect(dot.parentElement!.className).toContain('group-hover:opacity-0')
+    expect(screen.getByRole('button', { name: 'More options for Section' })).not.toBeNull()
+  })
+
+  it('a dot with no buttons sits on their axis all the same', () => {
+    const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} />)
+    expect(container.querySelector('[data-unread]')!.parentElement!.className).toContain('-mr-1')
   })
 })

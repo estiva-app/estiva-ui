@@ -52,6 +52,8 @@ export interface NavTreeGroup {
   trailing?: ReactNode
   /** Beside the title, shown on hover or focus: "Open", typically. */
   actions?: SectionAction[]
+  /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
+  menu?: ReactNode
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
   open?: boolean
@@ -146,6 +148,7 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
       loading={group.nodes === null}
       trailing={group.trailing}
       actions={group.actions}
+      menu={group.menu}
       defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
       open={group.open}
       onOpenChange={group.onOpenChange}
@@ -167,6 +170,8 @@ export interface NavTreeSectionProps {
   trailing?: ReactNode
   /** Beside the title, shown on hover or focus: "Open", typically. */
   actions?: SectionAction[]
+  /** The group's "More options" menu, after its actions: `MenuItem`s. */
+  menu?: ReactNode
   /** Open unless told otherwise. */
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
@@ -189,7 +194,7 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, trailing, actions, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, trailing, actions, menu, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
@@ -210,6 +215,7 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         storageKey={storageKey}
         trailing={trailing}
         actions={actions}
+        menu={menu}
         className="mt-2 shrink-0"
         contentClassName="gap-px"
       >

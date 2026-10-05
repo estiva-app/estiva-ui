@@ -1198,6 +1198,18 @@
           "note": "Beside the title, revealed on hover or focus — `SectionHeader`'s."
         },
         {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside the actions, revealed with them: the section's \"More options\" menu, `MenuItem`s — `SectionHeader`'s."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name — `SectionHeader`'s."
+        },
+        {
           "name": "showActions",
           "takes": "hover | always",
           "required": false,
@@ -4019,6 +4031,12 @@
           "note": "Beside the title, shown on hover or focus: \"Open\", typically."
         },
         {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The group's \"More options\" menu, after its actions: `MenuItem`s."
+        },
+        {
           "name": "defaultOpen",
           "takes": "true/false",
           "required": false,
@@ -5222,6 +5240,18 @@
           "note": "Right-aligned, in the order given."
         },
         {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The heading's \"More options\" menu: `MenuItem`s — what acts on the whole section, a folder's Rename or Archive (Katerina, 5 October: Peek's Folders page goes, and its folder actions move onto the folder's heading)."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name. Default \"More options for\" the title."
+        },
+        {
           "name": "showActions",
           "takes": "hover | always",
           "required": false,
@@ -5287,7 +5317,6 @@
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
-        "-mr-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100",
         "opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
       ]
     },

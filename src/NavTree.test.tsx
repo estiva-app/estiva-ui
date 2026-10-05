@@ -7,6 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MenuItem } from './Menu'
 import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 
 afterEach(cleanup)
@@ -91,6 +92,12 @@ describe('NavTree read as it opens', () => {
     )
     expect(screen.getByRole('button', { name: 'New' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Open' })).not.toBeNull()
+  })
+
+  it('a group’s menu is a ⋮ named for the group, and opens its items', async () => {
+    render(<NavTree groups={[{ id: 'a', title: 'Group a', nodes: [], menu: <MenuItem label="Rename" /> }]} />)
+    await userEvent.click(screen.getByRole('button', { name: 'More options for Group a' }))
+    expect(await screen.findByRole('menuitem', { name: 'Rename' })).not.toBeNull()
   })
 
   it('onIntent: the keyboard reaching a group says so at once', () => {

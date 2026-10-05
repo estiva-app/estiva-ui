@@ -99,10 +99,10 @@ describe('NavItem unread', () => {
     expect(container.querySelector('[data-urgent], [data-unread]')).toBeNull()
   })
 
-  it('with a menu, the ⋮ sits in the 24px slot over the dot', () => {
+  it('with a menu over the dot, the ⋮ ends where a heading’s ⋮ ends', () => {
     render(<NavItem href="#" label="Item one" unread menu={<span>Action</span>} />)
     const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')
-    expect(menu?.className).toContain('right-2')
+    expect(menu?.className).toContain('right-1')
   })
 
   it('with a count and a menu, the ⋮ lands on the count', () => {

@@ -164,7 +164,10 @@ export function NavItem({
         </WithTooltip>
       ) : null}
       {mark ? (
-        <span className={cn('flex shrink-0', stepsAside)}>{mark}</span>
+        // `-mr-1`: the 24px slot's dot then sits on the axis of a count and
+        // of the ⋮ (8px from the edge to the 16px box), one column with a
+        // folder heading's dot and ⋮ (Katerina, 5 October).
+        <span className={cn('-mr-1 flex shrink-0', stepsAside)}>{mark}</span>
       ) : menu != null && !count ? (
         // Nothing at the right, but a menu: no room is kept at rest, so the
         // label has the row's whole width; while the ⋮ shows, its 24px slot
@@ -194,11 +197,13 @@ export function NavItem({
         </div>
       )}
       {menu != null && (
-        // On a count, `right-1`: the 24px button's 16px icon then ends 8px
-        // from the row's edge, where the count ends (px-2), so the ⋮ lands on
-        // the number. On the mark or the empty slot, `right-2`: the button
-        // sits in the 24px slot itself.
-        <div data-nav-menu className={cn('absolute inset-y-0 flex items-center', count && !mark ? 'right-1' : 'right-2', 'opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
+        // `right-1`: the 24px button's 16px icon ends 8px from the row's
+        // edge, where a count ends (px-2) — and where a SectionHeader's
+        // actions and ⋮ end, so a folder's ⋮ and its rows' ⋮ are one column
+        // (Katerina, 5 October: the rows move to the heading, not the
+        // heading to the rows). Over a dot or the empty slot it sits 4px
+        // right of the slot's centre.
+        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity focus-within:opacity-100 group-hover/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
           <Menu
             align="right"
             trigger={

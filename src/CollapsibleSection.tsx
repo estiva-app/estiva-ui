@@ -36,6 +36,10 @@ export interface CollapsibleSectionProps {
   trailing?: ReactNode
   /** Beside the title, revealed on hover or focus — `SectionHeader`'s. */
   actions?: SectionAction[]
+  /** Beside the actions, revealed with them: the section's "More options" menu, `MenuItem`s — `SectionHeader`'s. */
+  menu?: ReactNode
+  /** The ⋮'s accessible name — `SectionHeader`'s. */
+  menuLabel?: string
   showActions?: 'hover' | 'always'
   /**
    * `heading` (default): the title is a section heading. `row`: the fold is a
@@ -79,7 +83,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -89,7 +93,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
   }
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
+      <SectionHeader title={title} chevron isExpanded={open} trailing={trailing} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame
