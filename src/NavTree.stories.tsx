@@ -171,7 +171,7 @@ export const AppDrawnGroups: Story = {
       <div className="flex h-screen bg-bg-base">
         <Sidebar>
           <NavTree title={args.title}>
-            <NavTreeSection title="Group one" trailing={<UnreadDot />}>
+            <NavTreeSection title="Group one" trailing={<UnreadDot />} menu={groupMenu}>
               <NavItem href="#" label="Item one" icon={placeholder} unread />
               <NavItem href="#" label="Item two" icon={placeholder} active>
                 <NavItem href="#" label="Item three" icon={placeholder} />
