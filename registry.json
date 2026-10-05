@@ -5364,8 +5364,7 @@
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
-        "opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100",
-        "pointer-events-none transition-opacity group-hover:opacity-0 [@media(hover:none)]:opacity-0"
+        "opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
       ]
     },
     {

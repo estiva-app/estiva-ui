@@ -75,7 +75,7 @@ describe('SectionHeader, the reveal', () => {
   it('on a screen with no hover the buttons always show, and a dot under them steps aside', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} actions={actions} menu={menu} />)
     expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
-    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-0')
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('[@media(hover:none)]:has-[[data-unread]]:opacity-0')
   })
 
   it('with showActions="always" there is nothing to reveal', () => {
@@ -112,11 +112,24 @@ describe('SectionHeader, the trailing slot', () => {
     const { container } = render(
       <SectionHeader title="Section" trailing={<UnreadDot />} actions={[{ icon: <span />, tooltip: 'Open', onClick: () => {} }]} menu={<MenuItem label="Rename" />} />,
     )
-    const dot = container.querySelector('[data-unread]')!
-    // Inside the buttons' box, over the last one — not a slot of its own before them.
-    expect(dot.closest('[class~="group/acts"]')).not.toBe(null)
-    expect(dot.parentElement!.className).toContain('group-hover:opacity-0')
+    const slot = container.querySelector('[data-unread]')!.parentElement!
+    // Over the last button, out of the row's flow — not a slot of its own before them — and gone while they show.
+    expect(slot.className.split(' ')).toEqual(expect.arrayContaining(['has-[[data-unread]]:absolute', 'has-[[data-unread]]:right-1', 'has-[[data-unread]]:w-6', 'group-hover:has-[[data-unread]]:opacity-0']))
+    expect(slot.matches(':has([data-unread])')).toBe(true)
     expect(screen.getByRole('button', { name: 'More options for Section' })).not.toBeNull()
+  })
+
+  it('a dot is found by what it draws, not by its element: one in a wrapper of the app’s own steps aside too', () => {
+    render(
+      <SectionHeader title="Section" trailing={<span data-testid="wrapped"><UnreadDot /></span>} menu={<MenuItem label="Rename" />} />,
+    )
+    const slot = screen.getByTestId('wrapped').parentElement!
+    expect(slot.matches(':has([data-unread])')).toBe(true)
+    expect(slot.className.split(' ')).toContain('has-[[data-unread]]:absolute')
+    // A count holds no dot, so the same slot keeps it beside the buttons.
+    cleanup()
+    render(<SectionHeader title="Section" trailing={<span data-testid="count">2</span>} menu={<MenuItem label="Rename" />} />)
+    expect(screen.getByTestId('count').parentElement!.matches(':has([data-unread])')).toBe(false)
   })
 
   it('an icon shows at rest, and folding, the arrow is in its place', () => {
@@ -129,6 +142,6 @@ describe('SectionHeader, the trailing slot', () => {
 
   it('a dot with no buttons sits on their axis all the same', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} />)
-    expect(container.querySelector('[data-unread]')!.parentElement!.className).toContain('-mr-1')
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('has-[[data-unread]]:-mr-1')
   })
 })
