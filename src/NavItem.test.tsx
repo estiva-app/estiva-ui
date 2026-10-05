@@ -105,6 +105,18 @@ describe('NavItem unread', () => {
     expect(menu?.className).toContain('right-1')
   })
 
+  it('on a screen with no hover the ⋮ always shows, and the count steps aside for it', () => {
+    render(<NavItem href="#" label="Item one" count={3} menu={<span>Action</span>} />)
+    const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')!
+    expect(menu.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
+    expect(screen.getByText('3').className.split(' ')).toContain('[@media(hover:none)]:opacity-0')
+  })
+
+  it('on a screen with no hover, with nothing at the right, the ⋮’s place is kept so the label stops before it', () => {
+    const { container } = render(<NavItem href="#" label="Item one" menu={<span>Action</span>} />)
+    expect(container.querySelector('a > [aria-hidden="true"]')!.className.split(' ')).toContain('[@media(hover:none)]:block')
+  })
+
   it('with a count and a menu, the ⋮ lands on the count', () => {
     render(<NavItem href="#" label="Item one" count={3} menu={<span>Action</span>} />)
     const menu = screen.getByRole('button', { name: 'More options for Item one' }).closest('[data-nav-menu]')

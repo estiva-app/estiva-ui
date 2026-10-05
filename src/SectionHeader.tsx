@@ -11,8 +11,8 @@ import { UnreadDot } from './UnreadDot'
 /**
  * The 32px row a section starts with (Peek's SectionHeader, 2026-09-01):
  * a SectionLabel, an optional collapse chevron that makes the title the
- * toggle, and actions that appear while the row is hovered or focused, as
- * IconButtons with tooltips.
+ * toggle, and actions that appear while the row is hovered or keyboard-focused,
+ * as IconButtons with tooltips.
  *
  * Three things changed on 2026-09-09, for `CollapsibleSection`:
  *
@@ -79,7 +79,7 @@ export interface SectionHeaderProps {
   menu?: ReactNode
   /** The ⋮'s accessible name. Default "More options for" the title. */
   menuLabel?: string
-  /** `hover` reveals the actions while the row is hovered or focused; `always` keeps them. */
+  /** `hover` reveals the actions while the row is hovered or keyboard-focused (always on a screen with no hover); `always` keeps them. */
   showActions?: 'hover' | 'always'
   /**
    * `fill` lights the row under the pointer when it does something (a toggle,
@@ -118,7 +118,17 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
   // 5 October). A count stays beside them: it is information (09-09).
   const dot = isValidElement(trailing) && trailing.type === UnreadDot
   const shared = acts && showActions === 'hover' && dot
-  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100'
+  /*
+    The buttons show under the pointer, while the keyboard is anywhere in the
+    row — the title's toggle included, as a NavItem's ⋮ shows once its link
+    has keyboard focus; it was only one of the buttons themselves — and while
+    the menu is open. `aria-expanded` is asked of the buttons' own box: the
+    toggle says it too, and an open section would keep them for good.
+
+    A screen with no hover (a phone, a tablet) shows them always: nothing
+    there can point at the row, so hidden they could never be reached.
+  */
+  const reveal = showActions === 'hover' && 'opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100'
   const titleElement = useRender({
     render: render ?? (chevron ? <button type="button" onClick={onToggle} aria-expanded={isExpanded} /> : <span />),
     props: {
@@ -221,7 +231,7 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
           {shared && (
             // The dot in the last button's 24px place, on the axis of its icon;
             // gone while the buttons show.
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-has-[:focus-visible]/acts:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex w-6 items-center justify-center transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0 group-has-[[aria-expanded=true]]/acts:opacity-0 [@media(hover:none)]:opacity-0">
               {trailing}
             </div>
           )}

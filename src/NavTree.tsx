@@ -50,7 +50,7 @@ export interface NavTreeGroup {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
-  /** Beside the title, shown on hover or focus: "Open", typically. */
+  /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
   menu?: ReactNode
@@ -171,7 +171,7 @@ export interface NavTreeSectionProps {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
-  /** Beside the title, shown on hover or focus: "Open", typically. */
+  /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s. */
   menu?: ReactNode

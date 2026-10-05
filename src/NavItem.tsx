@@ -112,7 +112,9 @@ export function NavItem({
   // (`:focus-visible`), never any focus: a clicked row keeps its focus, and
   // with `focus-within` its icon and dot went while the arrow and the ⋮ stayed
   // hidden (Katerina, 5 October).
-  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0'
+  // A screen with no hover shows the ⋮ always (below), so what it lands on
+  // steps aside always: the row reads as it does under a pointer.
+  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0 [@media(hover:none)]:opacity-0'
 
   const row = (
     <a
@@ -176,7 +178,7 @@ export function NavItem({
         // Nothing at the right, but a menu: no room is kept at rest, so the
         // label has the row's whole width; while the ⋮ shows, its 24px slot
         // is kept, so a long label ends before it instead of running under it.
-        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block" />
+        <span aria-hidden="true" className="hidden w-6 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block [@media(hover:none)]:block" />
       ) : null}
     </a>
   )
@@ -207,7 +209,9 @@ export function NavItem({
         // (Katerina, 5 October: the rows move to the heading, not the
         // heading to the rows). Over a dot or the empty slot it sits 4px
         // right of the slot's centre.
-        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100')}>
+        // On a screen with no hover it always shows: nothing there can point
+        // at the row, and the menu has no other way in.
+        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100')}>
           <Menu
             align="right"
             trigger={

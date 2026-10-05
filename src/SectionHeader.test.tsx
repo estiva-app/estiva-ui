@@ -51,6 +51,40 @@ describe('SectionHeader', () => {
 })
 
 /**
+ * When the buttons show. The pointer and the menu are Chrome's to prove (the
+ * stories); what is pinned here is which element each reveal asks.
+ */
+describe('SectionHeader, the reveal', () => {
+  const menu = <MenuItem label="Rename" />
+  const actions = [{ icon: <span />, tooltip: 'Add', onClick: () => {} }]
+
+  it('shows the buttons once the title’s toggle has keyboard focus, as a NavItem shows its ⋮ for its link', () => {
+    const { container } = render(<SectionHeader title="Section" chevron onToggle={() => {}} actions={actions} menu={menu} />)
+    const row = container.firstElementChild as HTMLElement
+    const toggle = screen.getByRole('button', { name: 'Section' })
+    const buttons = screen.getByRole('button', { name: 'Add' }).parentElement!
+    // The row is the group, and it holds the toggle: the reveal asks the row, not the buttons' own box.
+    expect(row.className.split(' ')).toContain('group')
+    expect(row.contains(toggle)).toBe(true)
+    expect(buttons.className.split(' ')).toContain('group-has-[:focus-visible]:opacity-100')
+    expect(buttons.className.split(' ')).not.toContain('has-[:focus-visible]:opacity-100')
+    // An open menu holds them, asked of their own box: the toggle's aria-expanded must not.
+    expect(buttons.className.split(' ')).toContain('has-[[aria-expanded=true]]:opacity-100')
+  })
+
+  it('on a screen with no hover the buttons always show, and a dot under them steps aside', () => {
+    const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} actions={actions} menu={menu} />)
+    expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-0')
+  })
+
+  it('with showActions="always" there is nothing to reveal', () => {
+    render(<SectionHeader title="Section" actions={actions} showActions="always" />)
+    expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className).not.toContain('opacity-0')
+  })
+})
+
+/**
  * The trailing slot (0.12.2, ADOPTION B23). Peek's Screener header carries its
  * count as a Chip there, and was the last hand-drawn folding header in the app
  * for want of it.

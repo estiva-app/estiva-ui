@@ -36,7 +36,7 @@ export interface CollapsibleSectionProps {
   icon?: ReactNode
   /** Beside the title and always visible, before the actions — a count. `SectionHeader`'s. */
   trailing?: ReactNode
-  /** Beside the title, revealed on hover or focus — `SectionHeader`'s. */
+  /** Beside the title, revealed while the row is hovered or keyboard-focused — `SectionHeader`'s. */
   actions?: SectionAction[]
   /** Beside the actions, revealed with them: the section's "More options" menu, `MenuItem`s — `SectionHeader`'s. */
   menu?: ReactNode
