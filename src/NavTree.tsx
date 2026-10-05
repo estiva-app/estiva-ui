@@ -205,7 +205,11 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
   const intent = onIntent
   return (
     <div
-      className="shrink-0"
+      // 4px between groups, none above the first: a folded group's heading
+      // sits 38px from the next (Katerina, 5 October: 42 was too far from rows
+      // 33 apart; halved), and the list starts 16px under its header, as every
+      // list column does (on the first group it read 20, Topics against People).
+      className="mt-1 shrink-0 first:mt-0"
       data-nav-group={id}
       onPointerEnter={intent ? () => { clearTimeout(timer.current); timer.current = setTimeout(intent, NAV_TREE_INTENT_MS) } : undefined}
       onPointerLeave={intent ? () => clearTimeout(timer.current) : undefined}
@@ -222,9 +226,7 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         actions={actions}
         menu={menu}
         icon={icon}
-        // 4px between groups: a folded group's heading sits 38px from the next
-        // (Katerina, 5 October: 42 was too far from rows 33 apart; halved).
-        className="mt-1 shrink-0"
+        className="shrink-0"
         contentClassName="gap-px"
       >
         {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
