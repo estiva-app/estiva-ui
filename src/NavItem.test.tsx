@@ -94,6 +94,17 @@ describe('NavItem unread', () => {
     expect(container.querySelector('[data-unread]')).toBeNull()
   })
 
+  it('the dot and the badge are pulled 4px right (-mr-1), onto the axis of a count and of the ⋮', () => {
+    const { container } = render(
+      <>
+        <NavItem href="#" label="Item one" unread />
+        <NavItem href="#" label="Item two" unread urgent />
+      </>,
+    )
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('-mr-1')
+    expect(container.querySelector('[data-urgent]')!.parentElement!.className.split(' ')).toContain('-mr-1')
+  })
+
   it('urgent without unread draws nothing', () => {
     const { container } = render(<NavItem href="#" label="Item one" urgent />)
     expect(container.querySelector('[data-urgent], [data-unread]')).toBeNull()

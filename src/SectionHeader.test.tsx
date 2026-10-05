@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MenuItem } from './Menu'
+import { NavItem } from './NavItem'
 import { SectionHeader } from './SectionHeader'
 import { UnreadDot } from './UnreadDot'
 
@@ -76,6 +77,21 @@ describe('SectionHeader, the reveal', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} actions={actions} menu={menu} />)
     expect(screen.getByRole('button', { name: 'Add' }).parentElement!.className.split(' ')).toContain('[@media(hover:none)]:opacity-100')
     expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('[@media(hover:none)]:has-[[data-unread]]:opacity-0')
+  })
+
+  it('no reveal answers to any focus (`focus-within`): a clicked row kept its focus and lost its icon and dot (0.56.0)', () => {
+    const { container } = render(
+      <>
+        <SectionHeader title="Section" chevron icon={<span />} onToggle={() => {}} trailing={<UnreadDot />} actions={actions} menu={menu} />
+        <NavItem href="#" label="Item one" icon={<span />} count={2} hint={<span>Label</span>} menu={menu}>
+          <NavItem href="#" label="Item two" unread menu={menu} />
+        </NavItem>
+      </>,
+    )
+    const classes = [...container.querySelectorAll('*')].map((e) => e.getAttribute('class') ?? '').join(' ')
+    expect(classes).not.toContain('focus-within')
+    // The keyboard's reveal is what replaced it.
+    expect(classes).toContain('group-has-[:focus-visible]')
   })
 
   it('with showActions="always" there is nothing to reveal', () => {

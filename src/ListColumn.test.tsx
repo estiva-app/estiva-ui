@@ -2,6 +2,8 @@
 /** What the ListColumn page claims, pinned. Sizes are measured in the browser; these pin the parts. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MenuItem } from './Menu'
 import { ListColumn } from './ListColumn'
 
 afterEach(cleanup)
@@ -10,6 +12,12 @@ describe('ListColumn', () => {
   it('is headed by its title', () => {
     render(<ListColumn title="Items">{null}</ListColumn>)
     expect(screen.getByText('Items')).toBeTruthy()
+  })
+
+  it('titleMenu: the title is the button that opens the column’s views', async () => {
+    render(<ListColumn title="View one" titleMenu={<MenuItem label="View two" />}>{null}</ListColumn>)
+    await userEvent.click(screen.getByRole('button', { name: 'View one' }))
+    expect(await screen.findByRole('menuitem', { name: 'View two' })).not.toBeNull()
   })
 
   it('is 290px wide with a line on its right, and keeps its width', () => {
