@@ -62,8 +62,9 @@ export function ViewSwitch<T extends string>({ options, value, onChange, 'aria-l
       }}
       loopFocus
       aria-label={ariaLabel}
-      className={cn('grid shrink-0 auto-cols-fr grid-flow-col self-center rounded-lg border border-border-default p-0.5', className)}
+      className={cn('inline-grid shrink-0 auto-cols-fr grid-flow-col self-center rounded-lg border border-border-default p-0.5', className)}
     >
+      {/* `inline-grid`: as wide as its options, never the room it is given — in a title it kept changing width with the buttons beside it. */}
       {/* The fill, under the options: the first column's box, sliding to the chosen one; still under prefers-reduced-motion. */}
       <span
         aria-hidden="true"
