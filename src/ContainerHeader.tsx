@@ -43,13 +43,16 @@ export function ContainerHeader({ title, chevron = false, titleMenu, actions, cl
     </div>
   )
   return (
-    <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4 pl-5', className)}>
+    // With a title menu the bar gives the button 6px of its left padding
+    // (pl-3.5 + the button's px-1.5 = pl-5): the words stay where a title's
+    // are, and the fill is inside the bar — a negative margin had it clipped
+    // (Katerina, 5 October).
+    <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-3.5' : 'pl-5', className)}>
       <div className={cn('flex items-center gap-2 overflow-hidden', text ? 'shrink-0' : 'min-w-0 flex-1')}>
         {titleMenu != null ? (
           <Menu
             trigger={
-              // `-ml-1.5` with `px-1.5`: the words stay where a title's are (pl-5), and the fill reaches past them.
-              <BaseButton type="button" className={cn('-ml-1.5 flex min-w-0 items-center px-1.5 py-1', MENU_TRIGGER_CLASSES)}>
+              <BaseButton type="button" className={cn('flex min-w-0 items-center px-1.5 py-1', MENU_TRIGGER_CLASSES)}>
                 {name}
               </BaseButton>
             }
