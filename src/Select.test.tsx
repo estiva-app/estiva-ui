@@ -104,6 +104,14 @@ describe('Select', () => {
     expect(screen.getByRole('combobox', { name: 'Status' }).getAttribute('aria-expanded')).toBe('true')
   })
 
+  it('puts 2px between options, as between a menu’s rows', async () => {
+    const user = userEvent.setup()
+    render(<Controlled initial="todo" />)
+    await user.click(screen.getByRole('combobox', { name: 'Status' }))
+    const [first] = await screen.findAllByRole('option')
+    expect(first.parentElement!.className.split(' ')).toContain('gap-0.5')
+  })
+
   it('opens from the keyboard, moves with arrows, picks with Enter, and gives focus back', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()

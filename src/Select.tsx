@@ -174,8 +174,11 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
              * to the right side". The rows keep their 4px inset, because the
              * padding that was the panel's is the content's; and the cap loses
              * its `- 0.5rem`, because that padding is inside the box that
-             * scrolls now, so 288px stays 288px. */}
-            <ScrollArea viewportClassName="max-h-[min(288px,var(--available-height))]" contentClassName="flex flex-col p-2">
+             * scrolls now, so 288px stays 288px.
+             *
+             * `gap-0.5`: 2px between the options, as between a menu's rows —
+             * they touched, while every menu had moved to 2px (0.56.0). */}
+            <ScrollArea viewportClassName="max-h-[min(288px,var(--available-height))]" contentClassName="flex flex-col gap-0.5 p-2">
             {options.map((option) => (
               <BaseSelect.Item
                 key={option.value}

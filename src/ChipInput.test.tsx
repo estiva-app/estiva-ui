@@ -70,6 +70,14 @@ describe('ChipInput', () => {
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
+  it('puts 2px between its rows, as a menu does', async () => {
+    const user = userEvent.setup()
+    render(<Harness />)
+    await user.type(screen.getByRole('combobox'), 'a')
+    const [first] = await screen.findAllByRole('option')
+    expect(first.parentElement!.className.split(' ')).toContain('gap-0.5')
+  })
+
   it('names the highlighted row through aria-activedescendant', async () => {
     const user = userEvent.setup()
     render(<Harness />)

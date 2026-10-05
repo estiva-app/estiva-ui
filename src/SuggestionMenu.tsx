@@ -177,8 +177,10 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
 
   return (
     <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel}>
-      {/* The list the editor drives from its caret: a listbox, because Base UI's lists need a text field of their own. */}
-      <div id={listboxId} role="listbox" aria-label={ariaLabel} className="flex flex-col">
+      {/* The list the editor drives from its caret: a listbox, because Base UI's lists need a text field of their own.
+          `gap-0.5`: 2px between rows, as a menu's — a section with a heading
+          had them from `MenuSection`, and rows without one touched. */}
+      <div id={listboxId} role="listbox" aria-label={ariaLabel} className="flex flex-col gap-0.5">
         {shown.map((section, i) => (
           <div key={section.label ?? i} className="contents">
             {i > 0 && <MenuSeparator />}
