@@ -130,6 +130,27 @@ describe('NavTree marks its groups', () => {
   })
 })
 
+/**
+ * 4px between groups and none above the first, title or no title. The margin
+ * was `mt-1 first:mt-0`, and the quiet title is drawn before the groups, so
+ * the first group under a title was never the first child and took the 4px
+ * (measured in Chrome: 6px under the title, 2px after).
+ */
+describe('NavTree spaces its groups', () => {
+  it('only a group after a group takes the 4px, so the first sits at the column’s 2px under the title', () => {
+    const { container } = render(<NavTree title="Groups" groups={GROUPS} emptyMessage="Nothing here yet." />)
+    const boxes = [...container.querySelectorAll<HTMLElement>('[data-nav-group]')]
+    for (const box of boxes) {
+      const classes = box.className.split(' ')
+      expect(classes).toContain('[&+&]:mt-1')
+      expect(classes).not.toContain('mt-1')
+    }
+    // The selector's own terms: the first group follows the title, which is no group.
+    expect(boxes[0].previousElementSibling!.className.split(' ')).not.toContain('[&+&]:mt-1')
+    expect(boxes[1].previousElementSibling).toBe(boxes[0])
+  })
+})
+
 describe('NavTree with no groups and no words', () => {
   it('draws no line at all', () => {
     const { container } = render(<NavTree groups={[]} />)
