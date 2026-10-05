@@ -6963,6 +6963,14 @@
           "behaviour": "Is built on Base UI"
         },
         {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "walking",
+          "behaviour": "Moves through its items with the arrow keys"
+        },
+        {
           "id": "tab-stop",
           "behaviour": "Is reachable with Tab"
         }

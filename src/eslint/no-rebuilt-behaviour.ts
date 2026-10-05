@@ -68,6 +68,7 @@ export const BASE_UI_PARTS: Record<string, OwnerPart | null> = {
   tabs: { use: 'Tabs' },
   toast: { use: 'Toast' },
   toggle: { use: 'Reaction' },
+  'toggle-group': { use: 'ViewSwitch' },
   toolbar: { use: 'Toolbar' },
   tooltip: { use: 'Tooltip', more: ' Around a control, `WithTooltip`.' },
   accordion: null,
@@ -83,7 +84,6 @@ export const BASE_UI_PARTS: Record<string, OwnerPart | null> = {
   'radio-group': null,
   slider: null,
   switch: null,
-  'toggle-group': null,
 }
 
 const LIST_PART: OwnerPart = {
@@ -203,8 +203,8 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
   {
     id: 'page-keys',
     behaviour: 'Takes its keys by itself',
-    baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox', 'Tooltip', 'PreviewCard', 'Toast'],
-    owners: ['DialogShell', 'Lightbox', 'Popover', 'Menu', 'Select', 'Tabs', 'Toolbar'],
+    baseUi: ['Dialog', 'AlertDialog', 'Popover', 'Menu', 'Select', 'Combobox', 'Tooltip', 'PreviewCard', 'Toast', 'ToggleGroup'],
+    owners: ['DialogShell', 'Lightbox', 'Popover', 'Menu', 'Select', 'Tabs', 'Toolbar', 'ViewSwitch'],
     reads: 'a keydown, keyup or keypress listener on window or document',
   },
   {
@@ -231,8 +231,8 @@ export const OWNED_BEHAVIOURS: OwnedBehaviour[] = [
   {
     id: 'walking',
     behaviour: 'Moves through its items with the arrow keys',
-    baseUi: ['Menu', 'Select', 'Combobox', 'Autocomplete', 'Tabs', 'Toolbar'],
-    owners: ['Menu', 'Select', 'ChipInput', 'CommandPalette', 'SuggestionMenu', 'Tabs', 'Toolbar'],
+    baseUi: ['Menu', 'Select', 'Combobox', 'Autocomplete', 'Tabs', 'Toolbar', 'ToggleGroup'],
+    owners: ['Menu', 'Select', 'ChipInput', 'CommandPalette', 'SuggestionMenu', 'Tabs', 'Toolbar', 'ViewSwitch'],
     reads: `a key compared by hand with ${WALKING_KEYS.join(', ')}`,
   },
   {

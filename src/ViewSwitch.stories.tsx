@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconFolders, IconLayoutGrid, IconLayoutList, IconMessages, IconSquareRounded } from '@tabler/icons-react'
-import { ContainerHeader } from './ContainerHeader'
+import { EmptyState } from './EmptyState'
+import { ListColumn } from './ListColumn'
 import { ViewSwitch, type ViewSwitchOption } from './ViewSwitch'
 
 /** Two or three views of one place, as icons in one box. Hover an icon for its name; the chosen one is pressed. */
@@ -46,8 +47,10 @@ export const InAHeader: Story = {
   render: function Render() {
     const [value, setValue] = useState<'one' | 'two'>('one')
     return (
-      <div className="w-[290px] bg-bg-surface">
-        <ContainerHeader title={value === 'one' ? 'View one' : 'View two'} actions={<ViewSwitch options={TWO} value={value} onChange={setValue} />} />
+      <div className="flex h-64 bg-bg-surface">
+        <ListColumn title={value === 'one' ? 'View one' : 'View two'} actions={<ViewSwitch options={TWO} value={value} onChange={setValue} />}>
+          <EmptyState scope="section" message={value === 'one' ? 'The first view.' : 'The second view.'} />
+        </ListColumn>
       </div>
     )
   },
