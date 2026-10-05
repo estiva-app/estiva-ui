@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { useState } from 'react'
-import { IconArrowUpRight, IconPlus } from '@tabler/icons-react'
+import { IconArrowUpRight, IconFolder, IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { UnreadDot } from './UnreadDot'
 import { MenuItem, MenuSeparator } from './Menu'
@@ -129,6 +129,22 @@ export const GroupMenus: Story = {
       { id: 'm2', title: 'Group two', menu: groupMenu, nodes: [{ id: 'm2a', label: 'Item four', href: '#', icon: placeholder, menu: rowMenu }] },
     ],
     selected: 'm1b',
+  },
+}
+
+const folder = <IconFolder size={16} stroke={1.5} />
+
+/** A group's `icon`: a folder before its title, the arrow in its place on hover; its rows start under the title. */
+export const GroupIcons: Story = {
+  args: {
+    groups: [
+      { id: 'i1', title: 'Group one', icon: folder, menu: groupMenu, defaultOpen: true, nodes: [
+        { id: 'i1a', label: 'Item two', href: '#', icon: placeholder, unread: true, menu: rowMenu },
+        { id: 'i1b', label: 'Item three', href: '#', icon: placeholder, menu: rowMenu },
+      ] },
+      { id: 'i2', title: 'Group two', icon: folder, menu: groupMenu, nodes: [{ id: 'i2a', label: 'Item four', href: '#', icon: placeholder }] },
+    ],
+    selected: 'i1b',
   },
 }
 

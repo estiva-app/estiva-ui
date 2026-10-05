@@ -85,6 +85,14 @@ describe('SectionHeader, the trailing slot', () => {
     expect(screen.getByRole('button', { name: 'More options for Section' })).not.toBeNull()
   })
 
+  it('an icon shows at rest, and folding, the arrow is in its place', () => {
+    const { container } = render(<SectionHeader title="Section" chevron icon={<span data-icon />} onToggle={() => {}} />)
+    const icon = container.querySelector('[data-icon]')!
+    expect(icon.parentElement!.className).toContain('group-hover:opacity-0')
+    // The arrow is the icon's sibling, hidden until the pointer comes.
+    expect(icon.parentElement!.parentElement!.querySelector('svg')!.getAttribute('class')).toContain('group-hover:opacity-100')
+  })
+
   it('a dot with no buttons sits on their axis all the same', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} />)
     expect(container.querySelector('[data-unread]')!.parentElement!.className).toContain('-mr-1')

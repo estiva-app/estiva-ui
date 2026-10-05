@@ -39,6 +39,12 @@ rows to any depth.
 
 <Canvas of={NavTreeStories.GroupMenus} />
 
+- A group's `icon` sits before its title — a folder's — and the arrow takes
+  its place under the pointer, as a row's icon turns into its arrow. Its rows
+  then start under the title, past the icon.
+
+<Canvas of={NavTreeStories.GroupIcons} />
+
 - Rows can be read as they open. A group's `nodes={null}` is a skeleton in
   its rows' place, and its `message` a line in their place ("Nothing in this
   yet."). A row with `hasChildren` and no `children` has its arrow, a
@@ -53,7 +59,7 @@ rows to any depth.
   itself: leave out `groups` and pass **NavTreeSection**s as children, each
   with **NavItem** rows. A `NavTreeSection` is one group exactly as `groups`
   draws it — the heading, the light indent, `message`, `loading`, `trailing`,
-  `actions`, `menu`, `onIntent`.
+  `actions`, `menu`, `icon`, `onIntent`.
 
 <Canvas of={NavTreeStories.AppDrawnGroups} />
 

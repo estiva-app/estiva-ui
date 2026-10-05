@@ -47,6 +47,13 @@ export interface SectionHeaderProps {
   title: string
   /** Collapsible: draws the chevron and makes the title a button that toggles. */
   chevron?: boolean
+  /**
+   * 16px, stroke 1.5, before the title — a folder's (Katerina, 5 October:
+   * Peek's Folders, the standard heading with a folder icon). With `chevron`
+   * the icon is what shows at rest and the arrow takes its place under the
+   * pointer or the keyboard, as a NavItem's icon turns into its arrow.
+   */
+  icon?: ReactNode
   isExpanded?: boolean
   onToggle?: () => void
   /**
@@ -96,7 +103,7 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
   const row = look === 'row'
   const acts = (actions && actions.length > 0) || menu != null
   // A dot sits in the place of the last button and steps aside while the
@@ -111,15 +118,29 @@ export function SectionHeader({ title, chevron = false, isExpanded = true, onTog
       // `text-left`: a button centres its text. `h-full` and `flex-1`: the
       // whole row up to the actions is the hit target, as it was when the
       // row itself carried the click.
-      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row ? 'gap-2' : 'gap-1'),
+      // An icon is a row's: NavItem's 8px after it.
+      className: cn('flex h-full min-w-0 flex-1 items-center text-left', row || icon != null ? 'gap-2' : 'gap-1'),
       children: (
         <>
-          {chevron && (
-            <IconChevronRight
-              size={row ? 16 : 12}
-              stroke={1.5}
-              className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
-            />
+          {icon != null ? (
+            <span className="relative flex size-4 shrink-0 items-center justify-center text-text-secondary">
+              <span className={cn('flex', chevron && 'transition-opacity group-hover:opacity-0 group-focus-within:opacity-0')}>{icon}</span>
+              {chevron && (
+                <IconChevronRight
+                  size={row ? 16 : 12}
+                  stroke={1.5}
+                  className={cn('absolute opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100', isExpanded && 'rotate-90')}
+                />
+              )}
+            </span>
+          ) : (
+            chevron && (
+              <IconChevronRight
+                size={row ? 16 : 12}
+                stroke={1.5}
+                className={cn('shrink-0 transition-transform duration-150', !row && 'text-text-secondary', isExpanded && 'rotate-90')}
+              />
+            )
           )}
           {look === 'quiet' ? (
             <span className="min-w-0 truncate text-caption text-text-muted">{title}</span>

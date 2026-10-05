@@ -1186,6 +1186,12 @@
           "note": "Remember open or closed in this browser, under this key."
         },
         {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, before the title; the arrow takes its place on hover — `SectionHeader`'s."
+        },
+        {
           "name": "trailing",
           "takes": "anything",
           "required": false,
@@ -4037,6 +4043,12 @@
           "note": "The group's \"More options\" menu, after its actions: `MenuItem`s."
         },
         {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, before the title; the arrow takes its place on hover."
+        },
+        {
           "name": "defaultOpen",
           "takes": "true/false",
           "required": false,
@@ -5216,6 +5228,12 @@
           "note": "Collapsible: draws the chevron and makes the title a button that toggles."
         },
         {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, stroke 1.5, before the title — a folder's (Katerina, 5 October: Peek's Folders, the standard heading with a folder icon)."
+        },
+        {
           "name": "isExpanded",
           "takes": "true/false",
           "required": false,
@@ -5314,6 +5332,8 @@
       "docPage": "src/SectionHeader.mdx",
       "app": null,
       "looks": [
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100",
+        "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 group-focus-within:opacity-100 rotate-90",
         "transition-transform duration-150 text-text-secondary rotate-90",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",

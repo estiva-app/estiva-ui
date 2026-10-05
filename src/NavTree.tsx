@@ -54,6 +54,8 @@ export interface NavTreeGroup {
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
   menu?: ReactNode
+  /** 16px, before the title — a folder's; the arrow takes its place on hover. */
+  icon?: ReactNode
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
   open?: boolean
@@ -149,6 +151,7 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
       trailing={group.trailing}
       actions={group.actions}
       menu={group.menu}
+      icon={group.icon}
       defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
       open={group.open}
       onOpenChange={group.onOpenChange}
@@ -172,6 +175,8 @@ export interface NavTreeSectionProps {
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s. */
   menu?: ReactNode
+  /** 16px, before the title; the arrow takes its place on hover. */
+  icon?: ReactNode
   /** Open unless told otherwise. */
   defaultOpen?: boolean
   /** The caller owns whether the group is open. */
@@ -194,7 +199,7 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, trailing, actions, menu, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
@@ -216,6 +221,7 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         trailing={trailing}
         actions={actions}
         menu={menu}
+        icon={icon}
         className="mt-2 shrink-0"
         contentClassName="gap-px"
       >
