@@ -5427,13 +5427,13 @@
         "text-h5 leading-3 text-text-secondary truncate",
         "text-h5 leading-3 text-text-muted truncate",
         "text-h5 leading-3 text-text-primary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
-        "text-h5 leading-3 signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
-        "signal:font-mono signal:text-small signal:uppercase signal:tracking-widest leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-secondary truncate",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-muted truncate",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary",
+        "text-h5 leading-3 leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest text-text-primary truncate",
+        "leaf:font-mono leaf:text-small leaf:uppercase leaf:tracking-widest"
       ]
     },
     {
