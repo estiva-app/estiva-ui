@@ -234,7 +234,7 @@ export function NavItem({
         className={COLLAPSIBLE_PANEL_CLASSES}
       >
         {/* `pl-6`: past the 16px icon and its 8px gap, so the rows' icons start under this row's label. */}
-        <div className="flex flex-col gap-0.5 pl-6">{children}</div>
+        <div className="flex flex-col gap-0.5 pt-0.5 pl-6">{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )
