@@ -1,0 +1,70 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ViewSwitchStories from './ViewSwitch.stories'
+
+<Meta of={ViewSwitchStories} />
+
+# ViewSwitch
+
+Two or three views of one place, as icons in one box: the chosen one is
+pressed. Each icon's name is its tooltip.
+
+<Canvas of={ViewSwitchStories.InAHeader} />
+
+## When
+
+- A column or panel that shows the same place two or three ways, switched
+  from its header: what you follow or every Folder, a list or a grid.
+- The place it sits in names the view that is showing too — a column's
+  title changes with it — so an icon never has to be read to know where you
+  are.
+
+<Canvas of={ViewSwitchStories.Three} />
+
+## When not
+
+- Views named in words, or more than three → **Tabs**.
+- Something that is on or off, like Bold → a pressed **ToolbarButton**.
+- Going to a different place → **NavItem** or **Link**.
+
+## How
+
+```tsx
+import { ViewSwitch } from '@estiva-app/ui'
+
+<ViewSwitch
+  options={[
+    { value: 'mine', icon: <IconMessages size={16} stroke={1.5} />, label: 'Mine' },
+    { value: 'all', icon: <IconFolders size={16} stroke={1.5} />, label: 'All folders' },
+  ]}
+  value={view}
+  onChange={setView}
+/>
+```
+
+- One is always chosen: pressing the chosen icon again changes nothing, and
+  `onChange` is called only for another view.
+- Generic over the value type — `onChange` hands back your union.
+- `aria-label` names the group, "View" unless told.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Takes its keys by itself: Enter and Space choose the focused view | a key listener on the page | ✓ |
+| Moves through its items with the arrow keys, and wraps at the ends | an arrow-key handler | ✓ |
+| Says what it is to assistive technology: a group of pressed and unpressed buttons | `role="group"`, `aria-pressed` | ✓ |
+| Is one Tab stop | `tabIndex` on each icon |  |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Into the group, onto the chosen view; out of it on the next press. |
+| ← → | Move to the previous / next icon. The ends wrap. |
+| Enter / Space | Choose the focused view. |
+
+## Props
+
+<Controls of={ViewSwitchStories.Two} />

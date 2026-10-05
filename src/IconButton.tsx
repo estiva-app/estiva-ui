@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
+import { MUTED_CONTROL_CLASSES } from './looks'
 import { useFormBusy } from './formBusy'
 import { TooltipTrigger } from './Tooltip'
 
@@ -82,7 +83,7 @@ export function IconButton({
       // stretched and carries no `self-center` — see the note there.
       'flex items-center justify-center p-1 rounded-lg transition-colors shrink-0 self-center cursor-pointer',
       !off && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse',
-      !off && (variant === 'muted' || variant === 'resolve') && 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+      !off && (variant === 'muted' || variant === 'resolve') && MUTED_CONTROL_CLASSES,
       !off && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-secondary',
       !off && variant === 'current' && 'hover:bg-bg-hover',
       off && variant === 'primary' && 'bg-bg-disabled text-text-disabled',

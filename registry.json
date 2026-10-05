@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.55.0",
-    "exports": 130,
-    "typeExports": 134,
+    "exports": 131,
+    "typeExports": 136,
     "files": null
   },
   "storybook": {
@@ -6915,6 +6915,67 @@
       "docPage": null,
       "app": null,
       "looks": []
+    },
+    {
+      "name": "ViewSwitch",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ViewSwitch.tsx",
+      "purpose": "Two or three views of one place, as icons in one box: the chosen one is pressed.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "options",
+          "takes": "ViewSwitchOption<T>[]",
+          "required": true,
+          "note": "Two or three."
+        },
+        {
+          "name": "value",
+          "takes": "T",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": true,
+          "note": "Only for a person's choice, and never for the view already chosen."
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": "What it switches: \"View\". Read before the chosen icon's name."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "navigation-viewswitch--docs",
+      "storyId": "navigation-viewswitch--two",
+      "docPage": "src/ViewSwitch.mdx",
+      "app": null,
+      "looks": [
+        "pointer-events-none rounded-md bg-bg-nav-active transition-transform duration-200 ease-out motion-reduce:transition-none"
+      ]
     },
     {
       "name": "WithTooltip",
