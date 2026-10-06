@@ -82,9 +82,10 @@ export interface PopoverProps {
    * the trigger and this is not needed. An anchored panel never took focus, so
    * this only matters when something inside it did — a field the person tabbed
    * or clicked into: point it at what they came from, or focus is left on the
-   * document body.
+   * document body. `false` moves nothing: a panel that closes because focus
+   * left for somewhere else must not pull it back (`SuggestionMenu`).
    */
-  finalFocus?: RefObject<HTMLElement | null>
+  finalFocus?: RefObject<HTMLElement | null> | false
   /** Base UI's imperative handle. `actions.current?.close()` shuts the panel —
    *  for the Cancel and Save buttons a form panel ends with. */
   actionsRef?: RefObject<{ close: () => void; unmount: () => void } | null>

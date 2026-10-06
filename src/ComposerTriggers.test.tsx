@@ -367,6 +367,9 @@ describe('leaving the box', () => {
     expect(isSuggestionOpen()).toBe(true)
     await act(async () => other().focus())
     expect(screen.queryByRole('listbox')).toBeNull()
+    // The closing list does not pull focus back into the box that was left.
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 50)))
+    expect(document.activeElement).toBe(other())
     // So the other box's own Escape and Enter are its own — no grace either.
     expect(isSuggestionOpen()).toBe(false)
     expect(isSuggestionActive()).toBe(false)
