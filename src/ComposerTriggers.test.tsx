@@ -6,7 +6,7 @@
  */
 import { act } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { render, screen, cleanup, within } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent, within } from '@testing-library/react'
 import type { Editor } from '@tiptap/core'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -340,6 +340,59 @@ describe('more than one word', () => {
     await press('Enter')
     expect(nodes()).toEqual([{ type: 'mention', attrs: { id: 'bea', label: 'Bea', pubkey: null } }])
     expect(editor!.getText()).toBe('@ada love @Bea ')
+  })
+})
+
+describe('leaving the box', () => {
+  // A page with a second box, as Ship's issue page: the message box and the description.
+  function Page() {
+    return (
+      <>
+        <Composer />
+        <input aria-label="Other box" />
+      </>
+    )
+  }
+  const other = () => screen.getByRole<HTMLInputElement>('textbox', { name: 'Other box' })
+
+  it('hides the list and stops counting it when focus moves to another box, and draws it again on return', async () => {
+    render(<Page />)
+    await type('see [')
+    expect(options()).toHaveLength(6)
+    expect(isSuggestionOpen()).toBe(true)
+    await act(async () => other().focus())
+    expect(screen.queryByRole('listbox')).toBeNull()
+    // So the other box's own Escape is its own.
+    expect(isSuggestionOpen()).toBe(false)
+    // A click back in, as the view takes it (the focus command waits a frame).
+    await act(async () => editor!.view.focus())
+    expect(options()).toHaveLength(6)
+    expect(isSuggestionOpen()).toBe(true)
+    await press('Escape')
+    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('keeps the list when the window loses focus, not the page', async () => {
+    render(<Page />)
+    await type('see [')
+    // What a browser sends when another window takes focus: a blur, with the editor still the active element.
+    await act(async () => {
+      editor!.view.dom.dispatchEvent(new FocusEvent('blur'))
+    })
+    expect(document.activeElement).toBe(editor!.view.dom)
+    expect(options()).toHaveLength(6)
+    expect(isSuggestionOpen()).toBe(true)
+  })
+
+  it('still picks a row by mouse, which never takes focus from the text', async () => {
+    render(<Page />)
+    await type('see [')
+    const row = within(screen.getByRole('listbox')).getAllByRole('option')[2]
+    await act(async () => {
+      fireEvent.mouseDown(row)
+    })
+    expect(nodes()).toEqual([{ type: 'messageMention', attrs: { id: ITEMS[4].id, label: 'Ada', snippet: 'line 4', uri: ITEMS[4].uri } }])
+    expect(isSuggestionOpen()).toBe(false)
   })
 })
 
