@@ -123,6 +123,14 @@ describe('Tabs', () => {
     expect(list.getAttribute('aria-labelledby')).toBeNull()
   })
 
+  it('an unread tab draws the dot and says "new" in its name; the others draw neither', () => {
+    const tabs: TabDef<Id>[] = [{ id: 'one', label: 'One' }, { id: 'two', label: 'Two', count: 3, unread: true }, { id: 'three', label: 'Three' }]
+    render(<Tabs tabs={tabs} active="one" onChange={() => {}} />)
+    expect(screen.getByRole('tab', { name: /^Two.*\bnew$/ }).querySelector('[data-unread]')).not.toBeNull()
+    expect(screen.getByRole('tab', { name: 'One' }).querySelector('[data-unread]')).toBeNull()
+    expect(screen.getByRole('tab', { name: 'Three' }).querySelector('[data-unread]')).toBeNull()
+  })
+
   it('puts className on the outer box, around the row', () => {
     const { container } = render(<Tabs tabs={THREE} active="one" onChange={() => {}} className="mt-4" />)
     const outer = container.firstElementChild as HTMLElement

@@ -74,6 +74,21 @@ export const WithAnIcon: Story = {
   ),
 }
 
+/** `unread`: something new behind a tab you are not on — the accent dot after the label. */
+export const WithUnread: Story = {
+  args: { tabs: [], active: 'overview', onChange: () => {} },
+  render: () => (
+    <Demo
+      initial="overview"
+      tabs={[
+        { id: 'overview', label: 'Overview' },
+        { id: 'activity', label: 'Activity', unread: true },
+        { id: 'all', label: 'All', count: 12, unread: true },
+      ]}
+    />
+  ),
+}
+
 /** `small` is the 12px geometry. */
 export const Small: Story = {
   args: { tabs: [], active: 'conversations', onChange: () => {} },

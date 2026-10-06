@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.57.2 — 2026-10-06
+
+### Added
+
+- **`Tabs`: a tab can say something new is behind it.** `TabDef` gains an
+  optional `unread`: the `UnreadDot` after the label (and count), without
+  its 24px slot so the row keeps one height, and "new" in the tab's
+  accessible name. Ship's issue and project pages light their Activity tab
+  with it once opening Overview stops reading the conversation
+  (ship 66b31c4b, Miky 2026-10-06). Nothing changes for a tab without it.
+
 ## 0.57.1 — 2026-10-06
 
 ### Changed
