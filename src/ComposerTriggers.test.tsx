@@ -89,10 +89,13 @@ const nodes = () => {
 }
 
 // jsdom lays nothing out, so it has no `scrollIntoView`; the highlighted row calls it.
-// Nor `getClientRects`, which the editor's own Enter asks for when it scrolls to the caret, after the key has returned.
+// Nor `getClientRects`, which the editor asks for when it scrolls to the caret, after the call has returned.
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn()
   Element.prototype.getClientRects = () => [] as unknown as DOMRectList
+  // …and a caret in text is measured through a Range.
+  Range.prototype.getClientRects = () => [] as unknown as DOMRectList
+  Range.prototype.getBoundingClientRect = () => new DOMRect()
   ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 })
 
@@ -319,10 +322,11 @@ describe('more than one word', () => {
     await type('lovelace')
     expect(screen.queryByRole('listbox')).toBeNull()
     expect(isSuggestionOpen()).toBe(false)
-    await act(async () => {
-      editor!.commands.clearContent()
-    })
-    await type('- [ ] line')
+  })
+
+  it('opens nothing for a task box, "[ ]"', async () => {
+    render(<Loose />)
+    await type('[ ] line')
     expect(screen.queryByRole('listbox')).toBeNull()
   })
 
