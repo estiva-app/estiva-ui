@@ -89,7 +89,7 @@ const nodes = () => {
 }
 
 // jsdom lays nothing out, so it has no `scrollIntoView`; the highlighted row calls it.
-// Nor `getClientRects`, which the editor's own Enter asks for when it scrolls to the caret.
+// Nor `getClientRects`, which the editor's own Enter asks for when it scrolls to the caret, after the key has returned.
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn()
   Element.prototype.getClientRects = () => [] as unknown as DOMRectList
@@ -292,24 +292,38 @@ describe('more than one word', () => {
     expect(screen.queryByRole('listbox')).toBeNull()
   })
 
-  it('counts a list as open only while it shows rows, so the Enter after "meet @ 5pm" still sends', async () => {
+  it('counts a list as open only while it shows rows, so an Enter with none still sends', async () => {
+    // The grace after the last test's list closed is module-wide: let it pass.
+    await new Promise((resolve) => setTimeout(resolve, 120))
     render(<Composer />)
-    await type('meet @')
+    await type('meet @ad')
     expect(isSuggestionOpen()).toBe(true)
-    await type(' 5pm')
+    await type(' at noon')
     expect(screen.queryByRole('listbox')).toBeNull()
+    // A keystroke that left no rows closed nothing, so no grace either.
     expect(isSuggestionOpen()).toBe(false)
-    // Past the grace an Enter that picked a row is given.
-    const now = Date.now()
-    vi.spyOn(Date, 'now').mockReturnValue(now + 200)
     expect(isSuggestionActive()).toBe(false)
-    vi.restoreAllMocks()
     // Words that match again count again.
     await act(async () => {
-      editor!.commands.deleteRange({ from: editor!.state.selection.from - 4, to: editor!.state.selection.from })
+      editor!.commands.deleteRange({ from: editor!.state.selection.from - 8, to: editor!.state.selection.from })
     })
-    await type('ad')
+    await type('a lo')
     expect(isSuggestionOpen()).toBe(true)
+  })
+
+  it('takes a space straight after the key for prose, not a query', async () => {
+    render(<Composer />)
+    // Every two-word name holds a space, so "@ " would list them all.
+    await type('meet @ ')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await type('lovelace')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(isSuggestionOpen()).toBe(false)
+    await act(async () => {
+      editor!.commands.clearContent()
+    })
+    await type('- [ ] line')
+    expect(screen.queryByRole('listbox')).toBeNull()
   })
 
   it('finds a person by first and last name, and a second @ starts over', async () => {

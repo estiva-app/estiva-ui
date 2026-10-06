@@ -87,10 +87,12 @@ function optionsOf<T>(editor: Editor, name: string): T | undefined {
  * or the cursor leaving — Suggestion's own — and once the query holds `stop`:
  * `]` for `[`, so "see [the notes] above" ends as text. While nothing matches,
  * the list is hidden rather than closed, and comes back if the words match again.
+ * A space straight after the key is prose ("meet @ 5pm", "- [ ] task"), not a
+ * query: every two-word name holds a space.
  */
 const listening = (stop: string) => ({
   allowSpaces: true,
-  shouldShow: ({ query }: { query: string }) => !query.includes(stop),
+  shouldShow: ({ query }: { query: string }) => !/^\s/.test(query) && !query.includes(stop),
 })
 
 /** `@`'s list and pick, or `!@`'s, for the node `name` — the extension's own, so a renamed one still finds its people. */

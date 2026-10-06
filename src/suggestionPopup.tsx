@@ -107,16 +107,15 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
     const count = (shown: boolean) => {
       if (shown === counted) return
       counted = shown
-      if (shown) openCount++
-      else {
-        openCount = Math.max(0, openCount - 1)
-        lastClose = Date.now()
-      }
+      openCount = shown ? openCount + 1 : Math.max(0, openCount - 1)
     }
     const exit = () => {
       unsubscribe?.()
       unsubscribe = undefined
       last = null
+      // The grace is for the Enter that picked a row and closed the list, not
+      // for a keystroke that only left it with no rows.
+      if (counted) lastClose = Date.now()
       count(false)
       if (!component) return
       component.destroy()

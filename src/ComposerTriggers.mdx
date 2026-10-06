@@ -81,7 +81,8 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   name or a title is typed whole. The list hides while nothing matches and
   comes back if the words match again; it stops listening at `]` (for `[`),
   at another `@` (for `@` and `!@`), at a new line, at Escape for the rest of
-  that query, at a pick, or when the caret leaves. A long query reaches
+  that query, at a pick, or when the caret leaves. A space straight after the
+  key is prose ("meet @ 5pm", "- [ ] task") and opens nothing. A long query reaches
   `sections(query)` on every keystroke: an app that asks a server for it
   pauses first, as `referenceSearch` does.
 - **`[` in sections, filled in as answers land:** pass `sections(query)` in
