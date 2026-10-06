@@ -26,6 +26,7 @@ import {
   type MentionPerson,
   type SlashSection,
 } from './ComposerTriggers'
+import { isSuggestionActive, isSuggestionOpen } from './suggestionPopup'
 
 const KEY = 'b'.repeat(64)
 const PEOPLE: MentionPerson[] = [
@@ -88,8 +89,13 @@ const nodes = () => {
 }
 
 // jsdom lays nothing out, so it has no `scrollIntoView`; the highlighted row calls it.
+// Nor `getClientRects`, which the editor asks for when it scrolls to the caret, after the call has returned.
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn()
+  Element.prototype.getClientRects = () => [] as unknown as DOMRectList
+  // …and a caret in text is measured through a Range.
+  Range.prototype.getClientRects = () => [] as unknown as DOMRectList
+  Range.prototype.getBoundingClientRect = () => new DOMRect()
   ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 })
 
@@ -203,6 +209,137 @@ describe('[', () => {
   it('matches who said it, or the text it searches', () => {
     expect(filterReferences(ITEMS, 'bea').map((item) => item.id)).toEqual([ITEMS[7].id])
     expect(filterReferences(ITEMS, '**line** 3').map((item) => item.id)).toEqual([ITEMS[3].id])
+  })
+})
+
+// f586437a (Miky, 2026-10-06): a space keeps the list listening; `]`, Escape, a pick or a new line ends it.
+describe('more than one word', () => {
+  // The start of a title finds it, and so does a sentence holding it — so only the stop can close the list.
+  function Loose() {
+    const made = useEditor({
+      extensions: [
+        StarterKit,
+        Chip,
+        ReferenceTrigger.configure({
+          sections: (query) => [{ label: 'Things', items: ITEMS.filter((item) => item.snippet.startsWith(query) || query.includes(item.snippet)) }],
+          nodeName: 'messageMention',
+          ariaLabel: 'Things',
+          sectionLabel: 'Things',
+        }),
+      ],
+    })
+    editor = made
+    return <EditorContent editor={made} />
+  }
+
+  it('narrows [ across a space, and the pick replaces every word typed', async () => {
+    render(<Loose />)
+    await type('see [line')
+    expect(options()).toHaveLength(8)
+    await type(' 3')
+    expect(options()).toEqual(['Ada: line 3'])
+    await press('Enter')
+    expect(nodes()).toEqual([{ type: 'messageMention', attrs: { id: ITEMS[3].id, label: 'Ada', snippet: 'line 3', uri: ITEMS[3].uri } }])
+    // Nothing typed after `[` is left behind the chip.
+    expect(editor!.getText()).not.toMatch(/\[|line/)
+  })
+
+  it('hides the list while nothing matches and draws it again when the words do', async () => {
+    render(<Loose />)
+    await type('[line 9')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await act(async () => {
+      editor!.commands.deleteRange({ from: editor!.state.selection.from - 1, to: editor!.state.selection.from })
+    })
+    await type('3')
+    expect(options()).toEqual(['Ada: line 3'])
+  })
+
+  it('leaves Enter a new line while no row shows', async () => {
+    render(<Loose />)
+    await type('[line 9')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await press('Enter')
+    // No trigger took the key, so the editor's own Enter split the line.
+    expect(editor!.state.doc.childCount).toBe(2)
+    expect(nodes()).toEqual([])
+  })
+
+  it('stops at ], so a bracket in a sentence stays text', async () => {
+    render(<Loose />)
+    await type('see [line 3 above')
+    expect(options()).toEqual(['Ada: line 3'])
+    await type('] and more')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await press('Enter')
+    expect(nodes()).toEqual([])
+  })
+
+  it('stays closed after Escape for the rest of that bracket', async () => {
+    render(<Loose />)
+    await type('[line 3')
+    expect(options()).toEqual(['Ada: line 3'])
+    await press('Escape')
+    await type(' still line 3')
+    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('stops at a new line', async () => {
+    render(<Loose />)
+    await type('[line 3')
+    expect(options()).toEqual(['Ada: line 3'])
+    // A Shift+Enter line, inserted without the scroll jsdom cannot measure.
+    await act(async () => {
+      editor!.commands.insertContent([{ type: 'hardBreak' }, { type: 'text', text: 'line 3' }])
+    })
+    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('counts a list as open only while it shows rows, so an Enter with none still sends', async () => {
+    // The grace after the last test's list closed is module-wide: let it pass.
+    await new Promise((resolve) => setTimeout(resolve, 120))
+    render(<Composer />)
+    await type('meet @ad')
+    expect(isSuggestionOpen()).toBe(true)
+    await type(' at noon')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    // A keystroke that left no rows closed nothing, so no grace either.
+    expect(isSuggestionOpen()).toBe(false)
+    expect(isSuggestionActive()).toBe(false)
+    // Words that match again count again.
+    await act(async () => {
+      editor!.commands.deleteRange({ from: editor!.state.selection.from - 8, to: editor!.state.selection.from })
+    })
+    await type('a lo')
+    expect(isSuggestionOpen()).toBe(true)
+  })
+
+  it('takes a space straight after the key for prose, not a query', async () => {
+    render(<Composer />)
+    // Every two-word name holds a space, so "@ " would list them all.
+    await type('meet @ ')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await type('lovelace')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(isSuggestionOpen()).toBe(false)
+  })
+
+  it('opens nothing for a task box, "[ ]"', async () => {
+    render(<Loose />)
+    await type('[ ] line')
+    expect(screen.queryByRole('listbox')).toBeNull()
+  })
+
+  it('finds a person by first and last name, and a second @ starts over', async () => {
+    render(<Composer />)
+    // A row's text starts with its avatar's initials.
+    await type('@ada lo')
+    expect(options()).toEqual([expect.stringContaining('Ada Lovelace')])
+    await type('ve @be')
+    expect(options()).toEqual([expect.stringContaining('Bea')])
+    await press('Enter')
+    expect(nodes()).toEqual([{ type: 'mention', attrs: { id: 'bea', label: 'Bea', pubkey: null } }])
+    expect(editor!.getText()).toBe('@ada love @Bea ')
   })
 })
 
