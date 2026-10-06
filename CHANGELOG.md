@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.57.2 — 2026-10-06
+
+### Changed
+
+- **`[`, `@` and `!@` take more than one word**: a space no longer closes
+  the list, so `[relay search` finds a title and `@ada lo` a full name.
+  The list hides while nothing matches and comes back if the words do; it
+  stops at `]` (for `[`), at another `@`, at a new line, at Escape, at a
+  pick, or when the caret leaves — so "see [the notes] above" stays text.
+  Found by QA-1 on production during PEE-21's check; the rule is Miky's,
+  2026-10-06 (f586437a). Peek and Ship take it with a bump; no caller
+  changes.
+- **`isSuggestionActive()` and `isSuggestionOpen()` count a list only while
+  it shows rows**, not while its trigger listens. Otherwise "meet @ 5pm"
+  would leave `@` listening behind a hidden list, and that Enter would not
+  send, nor the first Escape cancel an edit. Peek's `ComposeBox`,
+  `ConversationCard`, `ReplyCard` and `MessageBox` ask them, unchanged.
+
 ## 0.57.1 — 2026-10-06
 
 ### Changed

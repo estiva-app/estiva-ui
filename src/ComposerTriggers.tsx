@@ -81,10 +81,24 @@ function optionsOf<T>(editor: Editor, name: string): T | undefined {
   return editor.extensionManager.extensions.find((one) => one.name === name)?.options as T | undefined
 }
 
+/**
+ * A list keeps listening across spaces, so a name or a title can be more than
+ * one word (f586437a, Miky 2026-10-06). It stops at a new line, Escape, a pick
+ * or the cursor leaving — Suggestion's own — and once the query holds `stop`:
+ * `]` for `[`, so "see [the notes] above" ends as text. While nothing matches,
+ * the list is hidden rather than closed, and comes back if the words match again.
+ */
+const listening = (stop: string) => ({
+  allowSpaces: true,
+  shouldShow: ({ query }: { query: string }) => !query.includes(stop),
+})
+
 /** `@`'s list and pick, or `!@`'s, for the node `name` — the extension's own, so a renamed one still finds its people. */
 function personSuggestion(urgent: boolean, name: string) {
   return {
     ...(urgent ? { char: '!@' } : {}),
+    // A second `@` starts another mention; the first one has ended.
+    ...listening('@'),
     items: ({ query, editor }: { query: string; editor: Editor }) => filterPeople(optionsOf<PersonMentionOptions>(editor, name)?.people() ?? [], query),
     render: suggestionPopup(peopleMenu(urgent)),
     command: ({ editor, range, props: person }: { editor: Editor; range: { from: number; to: number }; props: MentionPerson }) => {
@@ -366,6 +380,7 @@ export const ReferenceTrigger = Extension.create<ReferenceTriggerOptions>({
         editor: this.editor,
         char: '[',
         pluginKey: new PluginKey('referenceTrigger'),
+        ...listening(']'),
         // As a mention's: only where the chip may go.
         allow: ({ state, range }) => {
           const type = state.schema.nodes[options.nodeName]

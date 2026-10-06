@@ -12,6 +12,10 @@ import { SuggestionMenu, type SuggestionMenuHandle, type SuggestionMenuRow, type
  * moment while one hands over to the other (`/` choosing "Mention" types `@`).
  * An editor asks before it acts on Enter or Escape, so a key that chose a row
  * does not also send the message or cancel the edit.
+ *
+ * A list counts while it shows rows, not while its trigger listens: since a
+ * space stopped closing one (f586437a), "meet @ 5pm" leaves `@` listening
+ * behind a hidden list to the end of the line, and that Enter must still send.
  */
 let openCount = 0
 let lastClose = 0
@@ -99,13 +103,22 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
     let container: HTMLDivElement | null = null
     let last: SuggestionProps<T> | null = null
     let unsubscribe: (() => void) | undefined
+    let counted = false
+    const count = (shown: boolean) => {
+      if (shown === counted) return
+      counted = shown
+      if (shown) openCount++
+      else {
+        openCount = Math.max(0, openCount - 1)
+        lastClose = Date.now()
+      }
+    }
     const exit = () => {
       unsubscribe?.()
       unsubscribe = undefined
       last = null
+      count(false)
       if (!component) return
-      openCount = Math.max(0, openCount - 1)
-      lastClose = Date.now()
       component.destroy()
       container?.remove()
       component = null
@@ -113,7 +126,7 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
     }
     return {
       onStart: (props) => {
-        openCount++
+        count(props.items.length > 0)
         component = new ReactRenderer<SuggestionMenuHandle, Props<T>>(Popup as never, { props: { ...props, options }, editor: props.editor })
         container = document.createElement('div')
         document.body.appendChild(container)
@@ -126,12 +139,14 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
           unsubscribe = subscribe(() => {
             if (!last || !component) return
             last = { ...last, items: refresh(last.query) }
+            count(last.items.length > 0)
             component.updateProps({ ...last, options })
           })
         }
       },
       onUpdate: (props) => {
         last = props
+        count(props.items.length > 0)
         component?.updateProps({ ...props, options })
       },
       onKeyDown: ({ event }: SuggestionKeyDownProps) => {

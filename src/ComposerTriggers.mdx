@@ -77,6 +77,13 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   functions, so they read the app's current data. `@` shows the first six
   names holding the query; `[` the last six whose label or `search` (default:
   `snippet`) holds it.
+- **A query can be more than one word.** A space does not close a list, so a
+  name or a title is typed whole. The list hides while nothing matches and
+  comes back if the words match again; it stops listening at `]` (for `[`),
+  at another `@` (for `@` and `!@`), at a new line, at Escape for the rest of
+  that query, at a pick, or when the caret leaves. A long query reaches
+  `sections(query)` on every keystroke: an app that asks a server for it
+  pauses first, as `referenceSearch` does.
 - **`[` in sections, filled in as answers land:** pass `sections(query)` in
   place of `items` — labelled groups the app has already narrowed and ordered;
   an empty group is not drawn — and `subscribe(listener)`, which the app calls
@@ -90,7 +97,8 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
 - **A row that opens another list** runs `typeTrigger('@')`: it types the key
   once the `/query` is gone.
 - An open list is reported by `isSuggestionActive()`, so an editor that sends
-  on Enter does not send on the Enter that picked a row.
+  on Enter does not send on the Enter that picked a row. A list counts only
+  while it shows rows: with none, Enter sends and Escape is the app's.
 
 <Canvas of={ComposerTriggersStories.CodeAsABlock} />
 
@@ -110,6 +118,8 @@ says, the tags it earns and sending stay the app's.
 | `!@` | Opens the urgent list |
 | `[` | Opens the reference list |
 | `/` after a space or at the line's start | Opens Format and the app's sections |
+| Space | Part of the query: the list stays open |
+| `]` after `[` | Ends the query; what was typed stays text |
 | ↑ ↓ | Move the highlight, wrapping at the ends |
-| Enter | Inserts the highlighted row, or runs it |
-| Escape | Closes the list |
+| Enter | Inserts the highlighted row, or runs it; with no row, a new line |
+| Escape | Closes the list until the caret leaves that query |
