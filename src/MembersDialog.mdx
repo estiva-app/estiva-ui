@@ -1,0 +1,69 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as MembersDialogStories from './MembersDialog.stories'
+
+<Meta of={MembersDialogStories} />
+
+# MembersDialog
+
+Who is in this, with joining, leaving and adding people — the list a
+**MembersPill** opens.
+
+<Canvas of={MembersDialogStories.Member} />
+
+## When
+
+- The full roster behind a **MembersPill**: everyone in it, the viewer's own
+  Join or Leave, and "Add members" to bring somebody in.
+
+## When not
+
+- A glance at who is in it → **MembersPill** or **AvatarGroup**.
+- Picking people for something that is not membership → **ChipInput** in your own **DialogShell**.
+
+## How
+
+```tsx
+import { MembersDialog } from '@estiva-app/ui'
+
+const roster: { id: string; name: string; picture?: string; caption?: string }[] = []
+const directory: { id: string; label: string; picture?: string }[] = []
+const [open, setOpen] = useState(false)
+
+{open && (
+  <MembersDialog
+    members={roster}
+    self={{ action: 'join', onToggle: () => {} }}
+    candidates={directory}
+    onAdd={(chosen) => {}}
+    onClose={() => setOpen(false)}
+  />
+)}
+```
+
+- A row is `{ id, name, picture?, caption? }`. The caption is the second
+  line: a role, a relation such as "Assignee", or a state. Name the viewer's
+  own row "You".
+- `self` puts **Join** or **Leave** on top. Leave it out while membership is
+  still being read: no row is better than a wrong one. The row waits while
+  `onToggle`'s promise runs.
+- `onAdd` shows **Add members**, which opens the add layer: an "Invite people"
+  **ChipInput** over `candidates`, leaving out anyone already a member by id.
+  Return `false` to stay on the layer; otherwise it returns to the roster.
+- `count` is the number in the title when it differs from the rows — a row
+  for somebody who left but still holds a role, say.
+- `note` is one line under the roster, for what membership does not cover.
+
+## What it owns
+
+It does these by itself, on top of what **DialogShell** and **ChipInput** own.
+What a join, a leave or an add does is yours.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Goes between the roster and the add layer, and back after an add | a view state, or a second dialog |  |
+| Waits on the Join or Leave row while `onToggle` runs, so one press is one change | a busy flag around it |  |
+| Leaves current members out of the picker | a filter over your directory |  |
+
+## Props
+
+<Controls of={MembersDialogStories.Member} />

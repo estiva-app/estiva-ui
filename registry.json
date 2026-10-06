@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.57.4",
-    "exports": 130,
-    "typeExports": 134,
+    "packageVersion": "0.58.0",
+    "exports": 132,
+    "typeExports": 139,
     "files": null
   },
   "storybook": {
@@ -3152,10 +3152,9 @@
       "docPage": "src/Kbd.mdx",
       "app": null,
       "looks": [
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small",
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
-        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary",
-        "signal:border-b-2 signal:bg-bg-wash signal:font-mono signal:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:font-mono signal:text-small signal:border-b-2 signal:bg-bg-wash ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans text-caption text-text-secondary signal:font-mono signal:text-small signal:border-b-2 signal:bg-bg-wash ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small leaf:font-mono leaf:text-small border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key",
+        "whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset font-sans",
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
         "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
@@ -3405,6 +3404,149 @@
       "docPage": "src/ListColumn.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "MembersDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/MembersDialog.tsx",
+      "purpose": "Who is in this, with joining, leaving and adding people — the list a MembersPill opens.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "members",
+          "takes": "MembersDialogMember[]",
+          "required": true,
+          "note": "The roster, in the order to draw it. The viewer's own row is the caller's to name (\"You\")."
+        },
+        {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "The number in the title's chip. Defaults to how many rows there are."
+        },
+        {
+          "name": "self",
+          "takes": "a handler",
+          "required": false,
+          "note": "The viewer's own row on top: \"Join\" when they are not in, \"Leave\" when they are."
+        },
+        {
+          "name": "candidates",
+          "takes": "MembersDialogCandidate[]",
+          "required": false,
+          "note": "Who \"Add members\" may offer. Members are left out by id."
+        },
+        {
+          "name": "onAdd",
+          "takes": "a handler",
+          "required": false,
+          "note": "Adds the people chosen. With it, the \"Add members\" row shows and opens the add layer."
+        },
+        {
+          "name": "note",
+          "takes": "anything",
+          "required": false,
+          "note": "One line under the roster — what membership does and does not cover."
+        },
+        {
+          "name": "initialView",
+          "takes": "list | add",
+          "required": false,
+          "note": "`add` opens straight on the add layer."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "initialView",
+          "values": [
+            "list",
+            "add"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-membersdialog--docs",
+      "storyId": "primitives-membersdialog--member",
+      "docPage": "src/MembersDialog.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "MembersPill",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/MembersPill.tsx",
+      "purpose": "Who is in this: up to three faces and the total, in a small outlined pill that opens the full list.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "members",
+          "takes": "AvatarGroupMember[]",
+          "required": true,
+          "note": "Who is in it, in order. Up to three faces are drawn."
+        },
+        {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "The number beside the faces. Defaults to how many members there are."
+        },
+        {
+          "name": "onClick",
+          "takes": "a handler",
+          "required": false,
+          "note": "Opens the list — usually a `MembersDialog`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-memberspill--docs",
+      "storyId": "primitives-memberspill--two-members",
+      "docPage": "src/MembersPill.mdx",
+      "app": null,
+      "looks": [
+        "text-caption text-text-secondary signal:font-mono signal:text-small signal:tabular-nums"
+      ]
     },
     {
       "name": "Menu",

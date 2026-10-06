@@ -1,0 +1,45 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as MembersPillStories from './MembersPill.stories'
+
+<Meta of={MembersPillStories} />
+
+# MembersPill
+
+Who is in this: up to three faces and the total, in a small outlined pill
+that opens the full list.
+
+<Canvas of={MembersPillStories.TwoMembers} />
+
+## When
+
+- A page or conversation header that says, at a glance, who is in it, and
+  opens the list — a **MembersDialog** — on a press.
+
+## When not
+
+- The faces alone, with nothing to open → **AvatarGroup**.
+- The people need to be readable → **MembersDialog**, or a list of **Person** rows.
+
+## How
+
+```tsx
+import { MembersPill } from '@estiva-app/ui'
+
+const people: { name: string; picture?: string }[] = []
+const [open, setOpen] = useState(false)
+
+<MembersPill members={people} onClick={() => setOpen(true)} />
+```
+
+- `members` is what **AvatarGroup** takes; the first three are drawn.
+- `count` is the number beside the faces when it is not `members.length` —
+  pass three faces and the real total.
+- No `onClick` disables it; no members draws nothing.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls of={MembersPillStories.TwoMembers} />

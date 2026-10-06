@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.58.0 — 2026-10-06
+
+### Added
+
+- **`MembersPill` and `MembersDialog`**, moved from Peek, where they have
+  been unused since the Convex topics went (FOL-23). They are Katerina's design
+  of 22 July: a pill with up to three faces and the count, opening a roster
+  with a count chip, 48px rows and an "Add members" layer. Ship needs them to
+  let a person Join or Leave an issue or project and add somebody (SHI-31; Miky,
+  2026-10-06: "follow the old designs"), and Peek's file page gets them next.
+  Peek's copy now ships here with three additions: `self` (a Join or Leave row
+  on top that waits while the change runs), a caption per row in place of
+  Peek's profile-role lookup, and `note` under the roster. No caller changes:
+  Peek's own files are unused.
+
+### Changed
+
+- **`MONO_CAPTION_CLASSES` in `looks.ts`**: `Kbd`, `CommandPalette`'s footer
+  and `MembersPill`'s count wrote the same four classes. Nothing moves a pixel.
+
 ## 0.57.4 — 2026-10-06
 
 ### Fixed

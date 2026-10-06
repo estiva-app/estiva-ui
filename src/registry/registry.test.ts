@@ -48,19 +48,19 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 130 names over 69 files: 100 components, 29 helpers and 1 hook (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, and moveBlock and blockDropCursor, the drop in the gutter, on 5 October)', () => {
+  it('counts 132 names over 71 files: 102 components, 29 helpers and 1 hook (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, and MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     // The ten `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 100, helper: 29, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(69)
+    expect(kinds).toEqual({ component: 102, helper: 29, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(71)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(65)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(67)
     expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(65)
   })
 

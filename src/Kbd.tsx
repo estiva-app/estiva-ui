@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from './cn'
+import { MONO_CAPTION_CLASSES } from './looks'
 
 /**
  * A keyboard hint — the small chip that names the key which does the same thing.
@@ -36,8 +37,9 @@ export function Kbd({ children, className, tone = 'default' }: KbdProps) {
   return (
     <kbd
       className={cn(
-        'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset px-1 py-px font-sans text-caption text-text-secondary',
-        'signal:border-b-2 signal:pt-[2px] signal:pb-px signal:bg-bg-wash signal:font-mono signal:text-small',
+        'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-sm border border-border-strong bg-bg-inset px-1 py-px font-sans',
+        MONO_CAPTION_CLASSES,
+        'signal:border-b-2 signal:pt-[2px] signal:pb-px signal:bg-bg-wash',
         'ship:border-b-2 ship:pt-[2px] ship:pb-px ship:bg-bg-wash ship:font-mono ship:text-small',
         // Leaf sets its keys in mono, as Signal does (Katerina, 28 September): the type, not the key's shape.
         'leaf:font-mono leaf:text-small',
