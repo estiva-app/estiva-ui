@@ -265,4 +265,10 @@ describe('/', () => {
     await act(async () => code.run(editor!))
     expect(editor!.getJSON().content?.[0].type).toBe('codeBlock')
   })
+
+  it("hints the fence beside Code when it makes a block, and the backtick when it doesn't", () => {
+    const hint = (section: ReturnType<typeof formatSection>) => section.commands.find((c) => c.key === 'format-code')!.row.shortcut
+    expect(hint(formatSection('block'))).toBe('```')
+    expect(hint(formatSection())).toBe('`')
+  })
 })
