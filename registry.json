@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.57.3",
+    "packageVersion": "0.57.4",
     "exports": 130,
     "typeExports": 134,
     "files": null
@@ -4428,7 +4428,7 @@
         },
         {
           "name": "finalFocus",
-          "takes": "RefObject<HTMLElement | null>",
+          "takes": "RefObject<HTMLElement | null> | false",
           "required": false,
           "note": "Where focus goes when the panel closes. With a `trigger` it goes back to the trigger and this is not needed."
         },

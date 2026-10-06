@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.57.4 — 2026-10-06
+
+### Fixed
+
+- **Clicking out of a box with a `[`, `@` or `/` list open leaves the box.**
+  0.57.3 ended the list on blur, but the closing panel handed focus back to
+  the editor (Floating UI's return focus, with `document.activeElement` on
+  the body mid-blur). So the click outside put the caret straight back into
+  the box. Found on production as QA-1 in Peek and Ship (71a4577b).
+  `SuggestionMenu` now closes with `finalFocus={false}`.
+
+### Added
+
+- **`Popover`'s `finalFocus` takes `false`**: nothing is focused on close.
+  This is an addition to the prop's type, and no caller changes.
+
 ## 0.57.3 — 2026-10-06
 
 ### Fixed

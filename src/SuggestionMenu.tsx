@@ -186,7 +186,8 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
   }
 
   return (
-    <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel}>
+    // finalFocus={false}: focus never left the text, and a list that closes because focus moved elsewhere must not pull it back (71a4577b).
+    <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel} finalFocus={false}>
       {/* The list the editor drives from its caret: a listbox, because Base UI's lists need a text field of their own.
           `gap-0.5`: 2px between rows, as a menu's — a section with a heading
           had them from `MenuSection`, and rows without one touched. */}
