@@ -6,7 +6,7 @@
  */
 import { act } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { render, screen, cleanup, within } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent, within } from '@testing-library/react'
 import type { Editor } from '@tiptap/core'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -340,6 +340,80 @@ describe('more than one word', () => {
     await press('Enter')
     expect(nodes()).toEqual([{ type: 'mention', attrs: { id: 'bea', label: 'Bea', pubkey: null } }])
     expect(editor!.getText()).toBe('@ada love @Bea ')
+  })
+})
+
+describe('leaving the box', () => {
+  // A page with a second box, as Ship's issue page: the message box and the description.
+  function Page() {
+    return (
+      <>
+        <Composer />
+        <input aria-label="Other box" />
+      </>
+    )
+  }
+  const other = () => screen.getByRole<HTMLInputElement>('textbox', { name: 'Other box' })
+
+  it('ends the list when focus moves to another box, and coming back finds none', async () => {
+    // The grace after the last test's list closed is module-wide: let it pass.
+    await new Promise((resolve) => setTimeout(resolve, 120))
+    render(<Page />)
+    await type('see [')
+    // The caret is in the text before it leaves (the focus command waits a frame).
+    await act(async () => editor!.view.focus())
+    expect(document.activeElement).toBe(editor!.view.dom)
+    expect(options()).toHaveLength(6)
+    expect(isSuggestionOpen()).toBe(true)
+    await act(async () => other().focus())
+    expect(screen.queryByRole('listbox')).toBeNull()
+    // So the other box's own Escape and Enter are its own — no grace either.
+    expect(isSuggestionOpen()).toBe(false)
+    expect(isSuggestionActive()).toBe(false)
+    // A click back in, as the view takes it (the focus command waits a frame).
+    await act(async () => editor!.view.focus())
+    expect(screen.queryByRole('listbox')).toBeNull()
+    // As after Escape: the rest of that bracket is text.
+    await type('line')
+    expect(screen.queryByRole('listbox')).toBeNull()
+    await press('Enter')
+    expect(nodes()).toEqual([])
+  })
+
+  it('keeps focus in the text when the list’s own panel is pressed (its scrollbar)', async () => {
+    render(<Page />)
+    await type('see [')
+    const panel = screen.getByRole('listbox').closest('[role="dialog"]')!
+    const pressed = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+    panel.dispatchEvent(pressed)
+    expect(pressed.defaultPrevented).toBe(true)
+    // A press anywhere else on the page is left alone.
+    const elsewhere = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+    other().dispatchEvent(elsewhere)
+    expect(elsewhere.defaultPrevented).toBe(false)
+  })
+
+  it('keeps the list when the window loses focus, not the page', async () => {
+    render(<Page />)
+    await type('see [')
+    // What a browser sends when another window takes focus: a blur, with the editor still the active element.
+    await act(async () => {
+      editor!.view.dom.dispatchEvent(new FocusEvent('blur'))
+    })
+    expect(document.activeElement).toBe(editor!.view.dom)
+    expect(options()).toHaveLength(6)
+    expect(isSuggestionOpen()).toBe(true)
+  })
+
+  it('still picks a row by mouse, which never takes focus from the text', async () => {
+    render(<Page />)
+    await type('see [')
+    const row = within(screen.getByRole('listbox')).getAllByRole('option')[2]
+    await act(async () => {
+      fireEvent.mouseDown(row)
+    })
+    expect(nodes()).toEqual([{ type: 'messageMention', attrs: { id: ITEMS[4].id, label: 'Ada', snippet: 'line 4', uri: ITEMS[4].uri } }])
+    expect(isSuggestionOpen()).toBe(false)
   })
 })
 
