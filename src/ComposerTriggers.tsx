@@ -412,6 +412,8 @@ export interface FormatDef {
   label: string
   /** What you type to get it — the input rule the extension registers. Blank when there is none. */
   trigger?: string
+  /** The trigger when the format makes a block instead — Code's fence. Blank when it is the same. */
+  blockTrigger?: string
 }
 
 /**
@@ -424,7 +426,7 @@ export const FORMATS: readonly FormatDef[] = [
   { id: 'heading', label: 'Heading', trigger: '#' },
   { id: 'subheading', label: 'Subheading', trigger: '##' },
   { id: 'quote', label: 'Quote', trigger: '>' },
-  { id: 'code', label: 'Code', trigger: '`' },
+  { id: 'code', label: 'Code', trigger: '`', blockTrigger: '```' },
   { id: 'bulletList', label: 'Bulleted list', trigger: '-' },
   { id: 'orderedList', label: 'Numbered list', trigger: '1.' },
 ]
@@ -475,7 +477,7 @@ export function formatSection(code: CodeFormat = 'inline'): SlashSection {
     label: 'Format',
     commands: FORMATS.map((format) => ({
       key: `format-${format.id}`,
-      row: { label: format.label, shortcut: format.trigger },
+      row: { label: format.label, shortcut: (code === 'block' && format.blockTrigger) || format.trigger },
       keywords: [format.id],
       run: (editor) => {
         applyFormat(editor, format.id, code)

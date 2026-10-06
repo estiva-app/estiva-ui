@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.57.1 — 2026-10-06
+
+### Changed
+
+- **The block `/` menu hints ```` ``` ```` beside Code**: `formatSection('block')`
+  makes a code block, and a backtick makes inline code, so the hint now says
+  what makes a block. `formatSection()` keeps `` ` ``. `FormatDef` gains an
+  optional `blockTrigger` for it. Ship set this itself (`codeAsBlock` in
+  `src/components/editing/slashMenu.tsx`, CON-25) and drops that override
+  with this release (CON-32).
+
 ## 0.57.0 — 2026-10-05 — 0.56.0, reviewed
 
 A review of 0.56.0 found small things: lists that missed the 2px,
