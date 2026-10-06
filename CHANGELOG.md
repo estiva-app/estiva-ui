@@ -4,14 +4,15 @@
 
 ### Fixed
 
-- **A `[`, `@` or `/` list follows its box's focus.** Clicking or tabbing
-  into another box hides the list and stops `isSuggestionOpen()` and
-  `isSuggestionActive()` counting it; focus back in draws the same list
-  again. Before, a list left by a click stayed drawn and counted, and Ship's
-  description (and Peek's composer beside a reply box) gave Escape away to a
-  list that was not theirs. Switching windows keeps the list (Miky,
-  2026-10-06). Found by review on ship#260 (71a4577b). Peek and Ship take it
-  with a bump; no caller changes.
+- **Leaving the box ends a `[`, `@` or `/` list**, as Escape does. Clicking
+  or tabbing into another box closes it, so `isSuggestionOpen()` and
+  `isSuggestionActive()` stop counting it (with no grace); coming back finds
+  no list, and Enter sends. Before, a list left by a click stayed drawn and
+  counted, and Ship's description (and Peek's composer beside a reply box)
+  gave Escape away to a list that was not theirs. Switching windows keeps the
+  list, and a press inside the list's panel (its scrollbar) no longer takes
+  focus from the text (Miky, 2026-10-06). Found by review on ship#260
+  (71a4577b). Peek and Ship take it with a bump; no caller changes.
 
 ## 0.57.2 — 2026-10-06
 

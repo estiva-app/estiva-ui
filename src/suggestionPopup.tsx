@@ -1,7 +1,7 @@
 // @estiva-escape(component-has-a-page, component-has-a-story): draws nothing of its own — it opens a SuggestionMenu from a Tiptap suggestion plugin, and SuggestionMenu's page and stories show it (UIG-31)
 import { forwardRef, useRef, useImperativeHandle } from 'react'
 import { ReactRenderer } from '@tiptap/react'
-import type { SuggestionKeyDownProps, SuggestionOptions, SuggestionProps } from '@tiptap/suggestion'
+import { exitSuggestion, type SuggestionKeyDownProps, type SuggestionOptions, type SuggestionProps } from '@tiptap/suggestion'
 import { SuggestionMenu, type SuggestionMenuHandle, type SuggestionMenuRow, type SuggestionMenuSection } from './SuggestionMenu'
 
 /*
@@ -17,8 +17,8 @@ import { SuggestionMenu, type SuggestionMenuHandle, type SuggestionMenuRow, type
  * space stopped closing one (f586437a), "meet @ 5pm" leaves `@` listening
  * behind a hidden list to the end of the line, and that Enter must still send.
  *
- * And only while its editor has focus (71a4577b): a list left by a click is
- * hidden and uncounted, or it would swallow Escape in the box clicked into.
+ * And only while its editor has focus (71a4577b): a list left by a click ends,
+ * or it would stay counted and swallow Escape in the box clicked into.
  */
 let openCount = 0
 let lastClose = 0
@@ -107,54 +107,38 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
     let last: SuggestionProps<T> | null = null
     let unsubscribe: (() => void) | undefined
     let counted = false
-    let away = false
     let unlisten: (() => void) | undefined
     const count = (shown: boolean) => {
       if (shown === counted) return
       counted = shown
       openCount = shown ? openCount + 1 : Math.max(0, openCount - 1)
     }
-    // Hidden while its editor is left, drawn again from the same props on return.
-    const draw = (props: SuggestionProps<T>) => {
-      count(!away && props.items.length > 0)
-      component?.updateProps({ ...props, ...(away ? { clientRect: () => null } : {}), options })
-    }
-    // The plugin's state outlives a blur — no transaction runs — so the list
-    // follows the editor's focus instead. Leaving the window is not leaving the
-    // box: coming back finds the list where it was (Miky, 2026-10-06). Focus
-    // that lands in the list's own panel (its scrollbar) goes back to the text.
+    // The plugin's state outlives a blur — no transaction runs — so leaving the
+    // box ends the query here, as Escape does: coming back finds no list, and
+    // Enter sends (Miky, 2026-10-06). Leaving the window is not leaving the box,
+    // and a press in the list's own panel never takes focus (SuggestionMenu).
     const listen = (props: SuggestionProps<T>) => {
-      const dom = props.editor.view.dom
-      const onBlur = (event: FocusEvent) => {
+      const { view } = props.editor
+      const dom = view.dom
+      const onBlur = () => {
         // A window that loses focus leaves its active element where it was.
-        if (dom.contains(document.activeElement)) return
-        const listId = dom.getAttribute('aria-controls')
-        const panel = listId ? document.getElementById(listId)?.closest('[role="dialog"]') : null
-        if (panel && event.relatedTarget instanceof Node && panel.contains(event.relatedTarget)) {
-          props.editor.view.focus()
-          return
+        if (dom.contains(document.activeElement) || !last) return
+        const from = last.range.from
+        // Not a pick: no grace for the other box's Enter.
+        count(false)
+        for (const plugin of view.state.plugins) {
+          const state = plugin.getState(view.state) as { active?: boolean; range?: { from: number } } | undefined
+          if (state?.active && state.range?.from === from && plugin.spec.key) exitSuggestion(view, plugin.spec.key)
         }
-        away = true
-        if (last) draw(last)
-      }
-      const onFocus = () => {
-        if (!away) return
-        away = false
-        if (last) draw(last)
       }
       dom.addEventListener('blur', onBlur)
-      dom.addEventListener('focus', onFocus)
-      unlisten = () => {
-        dom.removeEventListener('blur', onBlur)
-        dom.removeEventListener('focus', onFocus)
-      }
+      unlisten = () => dom.removeEventListener('blur', onBlur)
     }
     const exit = () => {
       unsubscribe?.()
       unsubscribe = undefined
       unlisten?.()
       unlisten = undefined
-      away = false
       last = null
       // The grace is for the Enter that picked a row and closed the list, not
       // for a keystroke that only left it with no rows.
@@ -182,13 +166,15 @@ export function suggestionPopup<T>(options: SuggestionPopupOptions<T>): NonNulla
           unsubscribe = subscribe(() => {
             if (!last || !component) return
             last = { ...last, items: refresh(last.query) }
-            draw(last)
+            count(last.items.length > 0)
+            component.updateProps({ ...last, options })
           })
         }
       },
       onUpdate: (props) => {
         last = props
-        draw(props)
+        count(props.items.length > 0)
+        component?.updateProps({ ...props, options })
       },
       onKeyDown: ({ event }: SuggestionKeyDownProps) => {
         if (event.key === 'Escape') {

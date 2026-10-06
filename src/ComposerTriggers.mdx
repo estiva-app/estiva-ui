@@ -100,9 +100,10 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
 - An open list is reported by `isSuggestionActive()`, so an editor that sends
   on Enter does not send on the Enter that picked a row. A list counts only
   while it shows rows: with none, Enter sends and Escape is the app's.
-- **A list follows its box's focus.** Click or Tab into another box and the
-  list hides and stops counting, so that box's Escape is its own; come back
-  and the same list is there. Switching to another window keeps it open.
+- **Leaving the box ends the list.** Click or Tab into another box and the
+  list closes as it does on Escape, so that box's Escape is its own; coming
+  back finds no list, and Enter sends. A press inside the list (its scrollbar)
+  keeps the caret in the text, and switching to another window keeps the list.
 
 <Canvas of={ComposerTriggersStories.CodeAsABlock} />
 
