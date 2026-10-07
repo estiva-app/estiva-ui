@@ -37,6 +37,9 @@ export const FIELD_SHELL_CLASSES = 'bg-bg-field border border-border-field shado
 /** A panel that floats over the page: Menu's panel and Tooltip. */
 export const FLOATING_SURFACE_CLASSES = 'rounded-lg border border-border-default bg-bg-elevated shadow-lg'
 
+/** A count beside a label, in the muted colour: NavItem's number and SectionHeader's `count`. */
+export const COUNT_TEXT_CLASSES = 'font-mono text-caption tabular-nums text-text-muted'
+
 /** A chip's words: Chip's label and Reaction's count. */
 export const CHIP_TEXT_CLASSES = 'text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums'
 

@@ -118,7 +118,9 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
             {/* Header: the package's one header bar, with the dialog's own title in it (UIG-22).
                 The title keeps to its one line and ends in "…": a long name wrapped to
                 two lines in the 48px bar and lost its top (Katerina, 1 October). */}
+            {/* `pl-5`: a dialog's title stays 20px in, over its body and footer, which are. */}
             <ContainerHeader
+              className="pl-5"
               title={
                 headerContent ?? (
                   <Parts.Title className="block truncate text-h4 text-text-primary" render={<span />}>

@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.58.0 — 2026-10-07
+
+### Changed
+
+- **A column's title is 16px in, where its content starts** (Katerina,
+  7 October; it was 20px). `ContainerHeader` and so every `Panel` and
+  `ListColumn` bar; a title with a menu moves with it (`pl-2.5` plus the
+  button's 6px). Dialogs keep their 20px: `DialogShell`'s title, body and
+  footer stay lined up with each other. Apps take it with a bump; no caller
+  changes.
+
+### Added
+
+- **`ShowMore`**: long content cut at a height (96px by default) behind a
+  fade into the surface under it, with "Show more" / "Show less". It
+  measures, and content that fits is drawn whole with no button; focus
+  arriving inside the cut part opens it. For a long description above
+  controls a reader needs.
+- **`SectionHeader`'s `count`**: how many, 8px after the title, in the
+  count style a `NavItem`'s number has (`COUNT_TEXT_CLASSES` in looks, now
+  shared by both). `trailing` stays at the row's end; its page said "beside
+  the title", which it never was, and now says where it is.
+
 ## 0.57.4 — 2026-10-06
 
 ### Fixed
