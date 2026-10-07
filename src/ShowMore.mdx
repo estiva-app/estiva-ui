@@ -31,16 +31,16 @@ Long content cut at a height behind a fade, with "Show more" under it.
 ```tsx
 import { ShowMore } from '@estiva-app/ui'
 
-<ShowMore fadeClassName="from-bg-inset">
+<ShowMore surface="inset">
   <p className="text-caption text-text-secondary">{description}</p>
 </ShowMore>
 ```
 
 - Wrap only the part that runs long. Keep titles and controls outside it, so
   they are never the part that is cut.
-- `fadeClassName` is the surface under the content, as a `from-` background
-  token: `from-bg-surface` by default, `from-bg-inset` inside an inset card.
-  A fade into the wrong colour shows as a band.
+- `surface` is what the content sits on, for the fade to end in: `surface`
+  (a panel, the default) or `inset` (inside an inset card). A fade into the
+  wrong colour shows as a band.
 - `maxHeight` is in px, 96 by default.
 
 <Canvas of={ShowMoreStories.InACard} />
