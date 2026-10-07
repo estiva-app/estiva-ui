@@ -4969,7 +4969,7 @@
           "name": "icon",
           "takes": "anything",
           "required": true,
-          "note": "At each row's start: a 16px icon."
+          "note": "At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`)."
         }
       ],
       "variants": [],

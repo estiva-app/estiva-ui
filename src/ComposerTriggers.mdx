@@ -92,6 +92,13 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   the same query; nothing waits for it. A row's `description` is its second
   line, which the chip does not wear. A row the person has arrowed to stays
   highlighted when the list is drawn again.
+- **Several kinds of thing in one `[` list:** a row's `icon` is drawn in
+  place of the list's, and the chip's `iconFor(uri)` picks the chip's from
+  what it points at, so the chip wears what its row wore. A row with no `icon`,
+  or a `uri` `iconFor` answers `undefined` for, keeps the one icon.
+
+<Canvas of={ComposerTriggersStories.ReferencesOfSeveralKinds} />
+
 - **An app's own node name:** `CaptionedReference.extend({ name: 'yourName' })`
   and `ReferenceTrigger.configure({ nodeName: 'yourName' })`. The chip's HTML
   attribute follows the name (`data-your-name`).
