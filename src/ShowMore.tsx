@@ -14,6 +14,9 @@ import { cn } from './cn'
  *
  * The fade ends in the surface the content sits on, which only the caller
  * knows: `fadeClassName`, a `from-` background token.
+ *
+ * Focus arriving inside the cut content opens it: a field or a link there,
+ * reached by Tab or a click, is never worked on out of sight.
  */
 export interface ShowMoreProps {
   children: ReactNode
@@ -43,7 +46,7 @@ export function ShowMore({ children, maxHeight = 96, fadeClassName = 'from-bg-su
   const cut = overflows && !open
   return (
     <div className={cn('flex flex-col items-start', className)}>
-      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden')} style={cut ? { maxHeight } : undefined}>
+      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden')} style={cut ? { maxHeight } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
         {children}
         {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', fadeClassName)} />}
       </div>

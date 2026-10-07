@@ -15,8 +15,9 @@
 
 - **`ShowMore`**: long content cut at a height (96px by default) behind a
   fade into the surface under it, with "Show more" / "Show less". It
-  measures, and content that fits is drawn whole with no button. For a long
-  description above controls a reader needs.
+  measures, and content that fits is drawn whole with no button; focus
+  arriving inside the cut part opens it. For a long description above
+  controls a reader needs.
 - **`SectionHeader`'s `count`**: how many, 8px after the title, in the
   count style a `NavItem`'s number has (`COUNT_TEXT_CLASSES` in looks, now
   shared by both). `trailing` stays at the row's end; its page said "beside
