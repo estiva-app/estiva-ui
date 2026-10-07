@@ -28,10 +28,10 @@ describe('ShowMore', () => {
     expect(screen.getByText('Long').parentElement!.style.maxHeight).toBe('')
   })
 
-  it('opens when focus arrives inside the cut content', () => {
+  it('opens when focus arrives inside the cut content', async () => {
     contentHeight(300)
     render(<ShowMore maxHeight={96}><input aria-label="Field" /></ShowMore>)
-    screen.getByRole('textbox', { name: 'Field' }).focus()
+    await userEvent.click(screen.getByRole('textbox', { name: 'Field' }))
     expect(screen.getByRole('button', { name: 'Show less' })).toBeTruthy()
   })
 
