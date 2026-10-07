@@ -27,9 +27,9 @@ export const Short: Story = {
   args: { children: <p className="text-caption text-text-secondary">One line of description.</p> },
 }
 
-/** Inside an inset card: the fade ends in the card's fill, `from-bg-inset`. */
+/** Inside an inset card: `surface="inset"`, so the fade ends in the card's fill. */
 export const InACard: Story = {
-  args: { fadeClassName: 'from-bg-inset' },
+  args: { surface: 'inset' },
   render: (args) => (
     <Card fill="inset" className="p-3">
       <p className="text-body-2-strong text-text-primary">Title</p>

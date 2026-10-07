@@ -5675,10 +5675,10 @@
           "note": "The height to cut at, in px. Default 96: about seven lines of caption text."
         },
         {
-          "name": "fadeClassName",
-          "takes": "text",
+          "name": "surface",
+          "takes": "surface | inset",
           "required": false,
-          "note": "The surface under the content, as a gradient start: `from-bg-surface` (default), `from-bg-inset` inside an inset card."
+          "note": "What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`."
         },
         {
           "name": "className",
@@ -5687,7 +5687,15 @@
           "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "surface",
+          "values": [
+            "surface",
+            "inset"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -5695,7 +5703,10 @@
       "storyId": "layout-showmore--long",
       "docPage": "src/ShowMore.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "pointer-events-none bg-gradient-to-t to-transparent from-bg-surface",
+        "pointer-events-none bg-gradient-to-t to-transparent from-bg-inset"
+      ]
     },
     {
       "name": "Sidebar",

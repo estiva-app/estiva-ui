@@ -13,7 +13,7 @@ import { cn } from './cn'
  * edit that makes it long or short brings the button or takes it away.
  *
  * The fade ends in the surface the content sits on, which only the caller
- * knows: `fadeClassName`, a `from-` background token.
+ * knows: `surface`, by name, so no app writes a colour into the part.
  *
  * Focus arriving inside the cut content opens it: a field or a link there,
  * reached by Tab or a click, is never worked on out of sight.
@@ -22,12 +22,14 @@ export interface ShowMoreProps {
   children: ReactNode
   /** The height to cut at, in px. Default 96: about seven lines of caption text. */
   maxHeight?: number
-  /** The surface under the content, as a gradient start: `from-bg-surface` (default), `from-bg-inset` inside an inset card. */
-  fadeClassName?: string
+  /** What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`. */
+  surface?: 'surface' | 'inset'
   className?: string
 }
 
-export function ShowMore({ children, maxHeight = 96, fadeClassName = 'from-bg-surface', className }: ShowMoreProps) {
+const FADE_CLASSES = { surface: 'from-bg-surface', inset: 'from-bg-inset' } as const
+
+export function ShowMore({ children, maxHeight = 96, surface = 'surface', className }: ShowMoreProps) {
   const box = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [overflows, setOverflows] = useState(false)
@@ -48,7 +50,7 @@ export function ShowMore({ children, maxHeight = 96, fadeClassName = 'from-bg-su
     <div className={cn('flex flex-col items-start', className)}>
       <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden')} style={cut ? { maxHeight } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
         {children}
-        {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', fadeClassName)} />}
+        {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', FADE_CLASSES[surface])} />}
       </div>
       {overflows && (
         // `-ml-1.5`: the small button's own 6px inset, so its words start where the content's do.
