@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { cn } from './cn'
+import { UnreadDot } from './UnreadDot'
 
 /**
  * A row of tabs. Ship's Tabs (2026-09-01), which was Peek's TopicTabs with
@@ -26,6 +27,8 @@ export interface TabDef<T extends string> {
   count?: number
   /** 16px, stroke 1.5. */
   icon?: ReactNode
+  /** Something new behind this tab: the `UnreadDot` after the label, and "new" in the tab's accessible name. */
+  unread?: boolean
 }
 
 export interface TabsProps<T extends string> {
@@ -91,6 +94,15 @@ export function Tabs<T extends string>({ tabs, active, onChange, size = 'default
                 <span className="ml-2.5 font-mono text-caption tabular-nums text-text-secondary">{tab.count}</span>
               ) : null}
             </span>
+            {/* The dot without its 24px slot: a tab is a line of text, and the
+                slot would make an unread tab taller than its neighbours. The
+                disc says nothing to a screen reader, so the name says "new". */}
+            {tab.unread ? (
+              <>
+                <UnreadDot className="h-auto w-auto" />
+                <span className="sr-only">new</span>
+              </>
+            ) : null}
           </BaseTabs.Tab>
         ))}
       </BaseTabs.List>
