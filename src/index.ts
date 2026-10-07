@@ -76,6 +76,7 @@ export { NavTree, NavTreeSection, type NavTreeGroup, type NavTreeNode, type NavT
 export { Popover, type PopoverProps } from './Popover'
 export { SuggestionMenu, type SuggestionMenuHandle, type SuggestionMenuProps, type SuggestionMenuRow, type SuggestionMenuSection } from './SuggestionMenu'
 export { ScrollArea, type ScrollAreaProps } from './ScrollArea'
+export { ShowMore, type ShowMoreProps } from './ShowMore'
 export { ReactionPicker, type ReactionOption, type ReactionPickerProps } from './ReactionPicker'
 export { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator, type ToolbarProps, type ToolbarButtonProps, type ToolbarInputProps, type ToolbarLinkProps } from './Toolbar'
 export { PreviewCard, type PreviewCardProps } from './PreviewCard'

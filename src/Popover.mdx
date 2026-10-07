@@ -99,7 +99,9 @@ so it is the one case the caller drives:
 - **It does not take focus**, on purpose: the person is still in the text, and
   a toolbar that moved the caret out of it would end the edit it exists to
   serve. `finalFocus` is therefore only for a panel something inside it *did*
-  take focus into — a field the person clicked.
+  take focus into — a field the person clicked. `finalFocus={false}` moves
+  nothing on close: a panel that closes because focus left for somewhere else
+  (a type-ahead list whose box was clicked out of) must not pull it back.
 - **Render it always and toggle `open`.** Not `{rect && <Popover…>}`: mounting
   the panel only while it is open takes Base UI's state machine with it, and
   its exits go too — measured, Escape and re-opening both became intermittent.

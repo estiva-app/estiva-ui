@@ -1,15 +1,78 @@
 # Changelog
 
-## 0.57.2 — 2026-10-06
+## 0.58.0 — 2026-10-07
+
+### Changed
+
+- **A column's title is 16px in, where its content starts** (Katerina,
+  7 October; it was 20px). `ContainerHeader` and so every `Panel` and
+  `ListColumn` bar; a title with a menu moves with it (`pl-2.5` plus the
+  button's 6px). Dialogs keep their 20px: `DialogShell`'s title, body and
+  footer stay lined up with each other. Apps take it with a bump; no caller
+  changes.
 
 ### Added
 
-- **`Tabs`: a tab can say something new is behind it.** `TabDef` gains an
-  optional `unread`: the `UnreadDot` after the label (and count), without
-  its 24px slot so the row keeps one height, and "new" in the tab's
-  accessible name. Ship's issue and project pages light their Activity tab
-  with it once opening Overview stops reading the conversation
-  (ship 66b31c4b, Miky 2026-10-06). Nothing changes for a tab without it.
+- **`ShowMore`**: long content cut at a height (96px by default) behind a
+  fade into the surface under it, with "Show more" / "Show less". It
+  measures, and content that fits is drawn whole with no button; focus
+  arriving inside the cut part opens it. For a long description above
+  controls a reader needs.
+- **`SectionHeader`'s `count`**: how many, 8px after the title, in the
+  count style a `NavItem`'s number has (`COUNT_TEXT_CLASSES` in looks, now
+  shared by both). `trailing` stays at the row's end; its page said "beside
+  the title", which it never was, and now says where it is.
+
+## 0.57.4 — 2026-10-06
+
+### Fixed
+
+- **Clicking out of a box with a `[`, `@` or `/` list open leaves the box.**
+  0.57.3 ended the list on blur, but the closing panel handed focus back to
+  the editor (Floating UI's return focus, with `document.activeElement` on
+  the body mid-blur). So the click outside put the caret straight back into
+  the box. Found on production as QA-1 in Peek and Ship (71a4577b).
+  `SuggestionMenu` now closes with `finalFocus={false}`.
+
+### Added
+
+- **`Popover`'s `finalFocus` takes `false`**: nothing is focused on close.
+  This is an addition to the prop's type, and no caller changes.
+
+## 0.57.3 — 2026-10-06
+
+### Fixed
+
+- **Leaving the box ends a `[`, `@` or `/` list**, as Escape does. Clicking
+  or tabbing into another box closes it, so `isSuggestionOpen()` and
+  `isSuggestionActive()` stop counting it (with no grace); coming back finds
+  no list, and Enter sends. Before, a list left by a click stayed drawn and
+  counted, and Ship's description (and Peek's composer beside a reply box)
+  gave Escape away to a list that was not theirs. Switching windows keeps the
+  list, and a press inside the list's panel (its scrollbar) no longer takes
+  focus from the text (Miky, 2026-10-06). Found by review on ship#260
+  (71a4577b). Peek and Ship take it with a bump; no caller changes.
+
+## 0.57.2 — 2026-10-06
+
+### Changed
+
+- **`[`, `@` and `!@` take more than one word**: a space no longer closes
+  the list, so `[relay search` finds a title and `@ada lo` a full name.
+  The list hides while nothing matches and comes back if the words do; it
+  stops at `]` (for `[`), at another `@`, at a new line, at Escape, at a
+  pick, or when the caret leaves — so "see [the notes] above" stays text.
+  A space straight after the key is prose ("meet @ 5pm", "- [ ] task")
+  and opens nothing.
+  Found by QA-1 on production during PEE-21's check; the rule is Miky's,
+  2026-10-06 (f586437a). Peek and Ship take it with a bump; no caller
+  changes.
+- **`isSuggestionActive()` and `isSuggestionOpen()` count a list only while
+  it shows rows**, not while its trigger listens. Otherwise "meet @ada at
+  noon" would leave `@` listening behind a hidden list, and that Enter would
+  not send, nor the first Escape cancel an edit. The 100ms grace follows only
+  a list that closed, not a keystroke that left it with no rows. Peek's `ComposeBox`,
+  `ConversationCard`, `ReplyCard` and `MessageBox` ask them, unchanged.
 
 ## 0.57.1 — 2026-10-06
 

@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.57.2",
-    "exports": 130,
-    "typeExports": 134,
+    "packageVersion": "0.58.0",
+    "exports": 131,
+    "typeExports": 135,
     "files": null
   },
   "storybook": {
@@ -4428,7 +4428,7 @@
         },
         {
           "name": "finalFocus",
-          "takes": "RefObject<HTMLElement | null>",
+          "takes": "RefObject<HTMLElement | null> | false",
           "required": false,
           "note": "Where focus goes when the panel closes. With a `trigger` it goes back to the trigger and this is not needed."
         },
@@ -5279,6 +5279,12 @@
           "note": "Beside the title and always visible, before the actions — a count."
         },
         {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "How many there are, 8px after the title — not at the row's end, where `trailing` goes (Katerina, 7 October: a heading over a list says its count beside its name, as a tab does)."
+        },
+        {
           "name": "actions",
           "takes": "SectionAction[]",
           "required": false,
@@ -5362,6 +5368,7 @@
         "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100",
         "opacity-0 transition-[opacity,transform] duration-150 group-hover:opacity-100 rotate-90",
         "transition-transform duration-150 text-text-secondary rotate-90",
+        "font-mono text-caption tabular-nums text-text-muted",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary",
         "rounded-lg transition-colors text-text-secondary hover:text-text-primary hover:bg-bg-hover",
         "opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100"
@@ -5645,6 +5652,61 @@
       "docPage": null,
       "app": null,
       "looks": []
+    },
+    {
+      "name": "ShowMore",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ShowMore.tsx",
+      "purpose": "Long content cut at a height behind a fade, with \"Show more\" under it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "maxHeight",
+          "takes": "number",
+          "required": false,
+          "note": "The height to cut at, in px. Default 96: about seven lines of caption text."
+        },
+        {
+          "name": "surface",
+          "takes": "surface | inset",
+          "required": false,
+          "note": "What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "surface",
+          "values": [
+            "surface",
+            "inset"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "layout-showmore--docs",
+      "storyId": "layout-showmore--long",
+      "docPage": "src/ShowMore.mdx",
+      "app": null,
+      "looks": [
+        "pointer-events-none bg-gradient-to-t to-transparent from-bg-surface",
+        "pointer-events-none bg-gradient-to-t to-transparent from-bg-inset"
+      ]
     },
     {
       "name": "Sidebar",

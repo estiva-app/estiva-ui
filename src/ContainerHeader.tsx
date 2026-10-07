@@ -43,11 +43,12 @@ export function ContainerHeader({ title, chevron = false, titleMenu, actions, cl
     </div>
   )
   return (
+    // The title 16px in, where the column's content starts (Katerina, 7 October; it was 20px).
     // With a title menu the bar gives the button 6px of its left padding
-    // (pl-3.5 + the button's px-1.5 = pl-5): the words stay where a title's
+    // (pl-2.5 + the button's px-1.5 = pl-4): the words stay where a title's
     // are, and the fill is inside the bar — a negative margin had it clipped
     // (Katerina, 5 October).
-    <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-3.5' : 'pl-5', className)}>
+    <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-2.5' : 'pl-4', className)}>
       <div className={cn('flex items-center gap-2 overflow-hidden', text ? 'shrink-0' : 'min-w-0 flex-1')}>
         {titleMenu != null ? (
           <Menu

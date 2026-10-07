@@ -138,6 +138,16 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
     if (!editorElement || !open) return
     editorElement.setAttribute('aria-activedescendant', `${base}-${highlight}`)
   }, [editorElement, open, base, highlight])
+  // A press anywhere in the panel — its padding, its scrollbar — keeps focus in
+  // the text, as a row's does: the editor ends its list when it loses focus.
+  // On the list's own mount, because the panel portals in after it opens.
+  const keepFocus = useCallback((list: HTMLDivElement | null) => {
+    const panel = list?.closest('[role="dialog"]')
+    if (!panel) return
+    const keep = (event: Event) => event.preventDefault()
+    panel.addEventListener('mousedown', keep)
+    return () => panel.removeEventListener('mousedown', keep)
+  }, [])
 
   const scrollRef = useCallback((el: HTMLElement | null) => {
     el?.scrollIntoView({ block: 'nearest' })
@@ -176,11 +186,12 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
   }
 
   return (
-    <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel}>
+    // finalFocus={false}: focus never left the text, and a list that closes because focus moved elsewhere must not pull it back (71a4577b).
+    <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel} finalFocus={false}>
       {/* The list the editor drives from its caret: a listbox, because Base UI's lists need a text field of their own.
           `gap-0.5`: 2px between rows, as a menu's — a section with a heading
           had them from `MenuSection`, and rows without one touched. */}
-      <div id={listboxId} role="listbox" aria-label={ariaLabel} className="flex flex-col gap-0.5">
+      <div ref={keepFocus} id={listboxId} role="listbox" aria-label={ariaLabel} className="flex flex-col gap-0.5">
         {shown.map((section, i) => (
           <div key={section.label ?? i} className="contents">
             {i > 0 && <MenuSeparator />}
