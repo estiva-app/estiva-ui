@@ -10,7 +10,7 @@ const meta = {
   component: SectionHeader,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
   args: { title: 'Section', showActions: 'hover' },
-  argTypes: { showActions: { control: 'inline-radio', options: ['hover', 'always'] }, chevron: { control: false }, isExpanded: { control: false }, trailing: { control: false } },
+  argTypes: { showActions: { control: 'inline-radio', options: ['hover', 'always'] }, chevron: { control: false }, isExpanded: { control: false }, trailing: { control: false }, count: { control: 'number' } },
 } satisfies Meta<typeof SectionHeader>
 
 export default meta
@@ -67,7 +67,12 @@ export const WithMenu: Story = {
   },
 }
 
-/** A count beside the title, held on screen while the actions come and go. */
+/** `count`: how many, right after the title. */
+export const WithCount: Story = {
+  args: { count: 2, hover: 'none' },
+}
+
+/** `trailing`: a chip at the row's end, held on screen while the actions come and go. */
 export const WithTrailing: Story = {
   args: {
     trailing: <Chip type="brand" label="2" />,

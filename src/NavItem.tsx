@@ -2,7 +2,7 @@ import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from '
 import { Collapsible } from '@base-ui/react/collapsible'
 import { IconAlertSquareRounded, IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { cn } from './cn'
-import { COLLAPSIBLE_PANEL_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
+import { COLLAPSIBLE_PANEL_CLASSES, COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { UnreadDot } from './UnreadDot'
@@ -160,7 +160,8 @@ export function NavItem({
               2026-09-09). A three-digit count grows the box leftwards. */}
           <span
             className={cn(
-              'min-w-4 shrink-0 text-center font-mono text-caption tabular-nums text-text-muted',
+              'min-w-4 shrink-0 text-center',
+              COUNT_TEXT_CLASSES,
               // With a menu and no mark after it, the ⋮ takes this place while it shows.
               !mark && stepsAside,
             )}

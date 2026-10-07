@@ -1,0 +1,62 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ShowMoreStories from './ShowMore.stories'
+
+<Meta of={ShowMoreStories} />
+
+# ShowMore
+
+Long content cut at a height behind a fade, with "Show more" under it.
+
+<Canvas of={ShowMoreStories.Long} />
+
+## When
+
+- A block of text that can run long beside other things the reader needs:
+  a description above controls, a summary above a list. Cut, it keeps what
+  is under it in view.
+- Content whose length you do not know. It measures: what fits is drawn
+  whole, with no fade and no button.
+
+<Canvas of={ShowMoreStories.Short} />
+
+## When not
+
+- A whole section that opens and closes under its heading → **CollapsibleSection**.
+- A message or reply in a conversation: read it whole.
+- Content the reader came for, the page's own subject: show it all.
+- A preview of something that lives elsewhere, on hover → **PreviewCard**.
+
+## How
+
+```tsx
+import { ShowMore } from '@estiva-app/ui'
+
+<ShowMore surface="inset">
+  <p className="text-caption text-text-secondary">{description}</p>
+</ShowMore>
+```
+
+- Wrap only the part that runs long. Keep titles and controls outside it, so
+  they are never the part that is cut.
+- `surface` is what the content sits on, for the fade to end in: `surface`
+  (a panel, the default) or `inset` (inside an inset card). A fade into the
+  wrong colour shows as a band.
+- `maxHeight` is in px, 96 by default.
+
+<Canvas of={ShowMoreStories.InACard} />
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Measures the content, and again whenever it changes size, to decide whether to cut | a length check on the text, or a `line-clamp` |  |
+| Draws the fade and the "Show more" / "Show less" button, which says whether it is open (`aria-expanded`) | a gradient and a toggle of your own |  |
+| Opens when focus arrives inside the cut part: a field or link there is never used out of sight | a focus handler that opens it |  |
+
+The cut content stays in the page, so assistive technology reads all of it.
+
+## Props
+
+<Controls of={ShowMoreStories.Long} />

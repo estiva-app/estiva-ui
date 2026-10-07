@@ -1,24 +1,27 @@
 # Changelog
 
-## 0.58.0 — 2026-10-06
-
-### Added
-
-- **`MembersPill` and `MembersDialog`**, moved from Peek, where they have
-  been unused since the Convex topics went (FOL-23). They are Katerina's design
-  of 22 July: a pill with up to three faces and the count, opening a roster
-  with a count chip, 48px rows and an "Add members" layer. Ship needs them to
-  let a person Join or Leave an issue or project and add somebody (SHI-31; Miky,
-  2026-10-06: "follow the old designs"), and Peek's file page gets them next.
-  Peek's copy now ships here with three additions: `self` (a Join or Leave row
-  on top that waits while the change runs), a caption per row in place of
-  Peek's profile-role lookup, and `note` under the roster. No caller changes:
-  Peek's own files are unused.
+## 0.58.0 — 2026-10-07
 
 ### Changed
 
-- **`MONO_CAPTION_CLASSES` in `looks.ts`**: `Kbd`, `CommandPalette`'s footer
-  and `MembersPill`'s count wrote the same four classes. Nothing moves a pixel.
+- **A column's title is 16px in, where its content starts** (Katerina,
+  7 October; it was 20px). `ContainerHeader` and so every `Panel` and
+  `ListColumn` bar; a title with a menu moves with it (`pl-2.5` plus the
+  button's 6px). Dialogs keep their 20px: `DialogShell`'s title, body and
+  footer stay lined up with each other. Apps take it with a bump; no caller
+  changes.
+
+### Added
+
+- **`ShowMore`**: long content cut at a height (96px by default) behind a
+  fade into the surface under it, with "Show more" / "Show less". It
+  measures, and content that fits is drawn whole with no button; focus
+  arriving inside the cut part opens it. For a long description above
+  controls a reader needs.
+- **`SectionHeader`'s `count`**: how many, 8px after the title, in the
+  count style a `NavItem`'s number has (`COUNT_TEXT_CLASSES` in looks, now
+  shared by both). `trailing` stays at the row's end; its page said "beside
+  the title", which it never was, and now says where it is.
 
 ## 0.57.4 — 2026-10-06
 
