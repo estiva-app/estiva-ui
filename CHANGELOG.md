@@ -13,6 +13,29 @@
   References Of Several Kinds*; the usage page says how. Peek takes it for a
   topic, a Ship project, an issue and a message.
 
+- **`Tabs`: a tab can say something new is behind it.** `TabDef` gains an
+  optional `unread`: the `UnreadDot` after the label (and count), without
+  its 24px slot so the row keeps one height, and "new" in the tab's
+  accessible name. Ship's issue and project pages light their Activity tab
+  with it once opening Overview stops reading the conversation
+  (ship 66b31c4b, Miky 2026-10-06). Nothing changes for a tab without it. (estiva-ui#148, Miky)
+
+- **`MembersPill` and `MembersDialog`**, moved from Peek, where they have
+  been unused since the Convex topics went (FOL-23). They are Katerina's design
+  of 22 July: a pill with up to three faces and the count, opening a roster
+  with a count chip, 48px rows and an "Add members" layer. Ship needs them to
+  let a person Join or Leave an issue or project and add somebody (SHI-31; Miky,
+  2026-10-06: "follow the old designs"), and Peek's file page gets them next.
+  Peek's copy now ships here with three additions: `self` (a Join or Leave row
+  on top that waits while the change runs), a caption per row in place of
+  Peek's profile-role lookup, and `note` under the roster. No caller changes:
+  Peek's own files are unused. (estiva-ui#152, Miky)
+
+### Changed
+
+- **`MONO_CAPTION_CLASSES` in `looks.ts`**: `Kbd`, `CommandPalette`'s footer
+  and `MembersPill`'s count wrote the same four classes. Nothing moves a pixel.
+
 ## 0.58.0 — 2026-10-07
 
 ### Changed
