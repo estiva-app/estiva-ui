@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.59.0 — 2026-10-07
+
+### Added
+
+- **`[` can offer several kinds of thing, each with its own icon** (Katerina,
+  7 October). `CaptionedItem.icon` is a row's own 16px icon, drawn in place of
+  the list's `icon`; `CaptionedReference`'s `iconFor(uri)` picks the chip's
+  14px icon from what it points at, so the chip wears what its row wore.
+  `undefined` from `iconFor`, or neither prop, keeps the one icon: an app that
+  passes neither looks as before. Story *Primitives/ComposerTriggers →
+  References Of Several Kinds*; the usage page says how. Peek takes it for a
+  topic, a Ship project, an issue and a message.
+
 ## 0.58.0 — 2026-10-07
 
 ### Changed
