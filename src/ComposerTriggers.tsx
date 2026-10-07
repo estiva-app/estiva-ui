@@ -229,6 +229,12 @@ export interface CaptionedItem {
   search?: string
   /** The row's second line, e.g. where the thing sits. The chip does not wear it. */
   description?: string
+  /**
+   * This row's own 16px icon, in place of the list's `icon`: what the thing is,
+   * when the list holds several kinds — a topic, a project, a message
+   * (Katerina, 7 October). Absent, the list's icon.
+   */
+  icon?: ReactNode
 }
 
 /** One labelled group of `[`'s rows, in the order the list draws them. */
@@ -256,6 +262,12 @@ const captionOf = (label: string, snippet: string) => (snippet ? `${label}: ${sn
 export interface CaptionedReferenceOptions {
   /** Drawn before the caption: a 14px icon. */
   icon: ReactNode
+  /**
+   * The chip's 14px icon from what it points at — its `uri` — when chips name
+   * several kinds of thing; `undefined` from it, or no `iconFor`, draws `icon`.
+   * The same answer the list's row gave (Katerina, 7 October).
+   */
+  iconFor?: (uri: string | null) => ReactNode | undefined
 }
 
 /**
@@ -270,7 +282,7 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
   inline: true,
   atom: true,
   addOptions() {
-    return { ...this.parent!(), HTMLAttributes: {}, icon: null, suggestion: { char: '\0', items: () => [] } }
+    return { ...this.parent!(), HTMLAttributes: {}, icon: null, iconFor: undefined, suggestion: { char: '\0', items: () => [] } }
   },
   addAttributes() {
     return {
@@ -291,11 +303,11 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
     return [{ tag: `span[data-${this.name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}]` }]
   },
   addNodeView() {
-    const icon = this.options.icon
+    const { icon, iconFor } = this.options
     return ReactNodeViewRenderer(
       ({ node }: ReactNodeViewProps) => (
         <NodeViewWrapper as="span" className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
-          <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{icon}</span>
+          <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{iconFor?.(node.attrs.uri ?? null) ?? icon}</span>
           <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
         </NodeViewWrapper>
       ),
@@ -309,7 +321,7 @@ export interface ReferenceMenuOptions {
   ariaLabel: string
   /** The section's heading. */
   sectionLabel: string
-  /** At each row's start: a 16px icon. */
+  /** At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`). */
   icon: ReactNode
 }
 
@@ -337,7 +349,7 @@ export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOp
       return groups
     },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
+    row: (item) => ({ leading: item.icon ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
   }
 }
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconSquareRounded } from '@tabler/icons-react'
+import { IconCircle, IconSquareRounded, IconTriangle } from '@tabler/icons-react'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { richTextClassName } from './RichText'
@@ -59,6 +59,35 @@ const SECTIONS = (query: string): ReferenceSection[] => [
   { label: 'Group two', items: matching(DESCRIBED, query) },
 ]
 
+/* Three kinds of thing in one list, each row with its own icon, and the chip it inserts wearing the same. */
+const KIND_ICONS = { circle: IconCircle, triangle: IconTriangle, square: IconSquareRounded } as const
+type Kind = keyof typeof KIND_ICONS
+const kindOf = (uri: string | null): Kind | undefined => (Object.keys(KIND_ICONS) as Kind[]).find((kind) => uri?.includes(kind))
+const KINDS = (query: string): ReferenceSection[] => [
+  {
+    label: 'Items',
+    items: matching(
+      (['circle', 'triangle', 'square'] as const).map((kind, i) => {
+        const Icon = KIND_ICONS[kind]
+        return {
+          id: `kind-${kind}`,
+          label: `Item ${['one', 'two', 'three'][i]}`,
+          snippet: '',
+          uri: `nostr:${kind}`,
+          icon: <Icon size={16} stroke={1.5} className="text-text-secondary" />,
+        }
+      }),
+      query,
+    ),
+  },
+]
+const kindIcon = (uri: string | null) => {
+  const kind = kindOf(uri)
+  if (!kind) return undefined
+  const Icon = KIND_ICONS[kind]
+  return <Icon size={14} stroke={1.5} />
+}
+
 const INSERT: SlashSection = {
   label: 'Insert',
   commands: [
@@ -67,13 +96,13 @@ const INSERT: SlashSection = {
   ],
 }
 
-function Composer({ code, sections }: { code: 'inline' | 'block'; sections?: typeof SECTIONS }) {
+function Composer({ code, sections, kinds = false }: { code: 'inline' | 'block'; sections?: typeof SECTIONS; kinds?: boolean }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
       PersonMention.configure({ people: () => PEOPLE }),
       UrgentPersonMention.configure({ people: () => PEOPLE }),
-      CaptionedReference.configure({ icon: <IconSquareRounded size={14} stroke={1.5} /> }),
+      CaptionedReference.configure({ icon: <IconSquareRounded size={14} stroke={1.5} />, iconFor: kinds ? kindIcon : undefined }),
       ReferenceTrigger.configure({
         items: () => ITEMS,
         sections,
@@ -83,7 +112,9 @@ function Composer({ code, sections }: { code: 'inline' | 'block'; sections?: typ
       }),
       SlashCommands.configure({ sections: [formatSection(code), INSERT] }),
     ],
-    content: '<p>Type @, !@, [ or / after a space: </p>',
+    content: kinds
+      ? '<p>Picked from [: <span data-captioned-reference="true" data-id="kind-circle" data-label="Item one" data-snippet="" data-uri="nostr:circle"></span> and <span data-captioned-reference="true" data-id="kind-triangle" data-label="Item two" data-snippet="" data-uri="nostr:triangle"></span>. Type [ for more: </p>'
+      : '<p>Type @, !@, [ or / after a space: </p>',
     editorProps: { attributes: { class: richTextClassName('default', 'min-h-[80px] w-[480px] rounded-md border border-border-default p-3 outline-none') } },
   })
   return <EditorContent editor={editor} />
@@ -97,3 +128,11 @@ export const CodeAsABlock: Story = { render: () => <Composer code="block" /> }
 
 /** `[` with the app's own groups, each headed, a row with a second line. */
 export const ReferencesInSections: Story = { render: () => <Composer code="inline" sections={SECTIONS} /> }
+
+/**
+ * `[` offering several kinds of thing: each row brings its own icon
+ * (`CaptionedItem.icon`), and the chip it inserts wears the same one, from its
+ * `uri` (`iconFor`). A row with no icon, or a chip `iconFor` cannot name, keeps
+ * the list's and the chip's one icon.
+ */
+export const ReferencesOfSeveralKinds: Story = { render: () => <Composer code="inline" sections={KINDS} kinds /> }

@@ -206,6 +206,39 @@ describe('[', () => {
     expect(listeners.size).toBe(0)
   })
 
+  it('draws a row’s own icon in place of the list’s, and the chip its `iconFor` answer (7 October)', async () => {
+    const own = [
+      { id: 'a'.repeat(64), label: 'Plan', snippet: '', uri: 'nostr:naddr1plan', icon: <svg data-icon="row-own" /> },
+      { id: 'b'.repeat(64), label: 'Note', snippet: '', uri: 'nostr:naddr1note' },
+    ]
+    function Kinds() {
+      const made = useEditor({
+        extensions: [
+          StarterKit,
+          CaptionedReference.extend({ name: 'messageMention' }).configure({
+            icon: <svg data-icon="chip-default" />,
+            iconFor: (uri) => (uri === 'nostr:naddr1plan' ? <svg data-icon="chip-own" /> : undefined),
+          }),
+          ReferenceTrigger.configure({ items: () => own, nodeName: 'messageMention', ariaLabel: 'Things', sectionLabel: 'Things', icon: <svg data-icon="list" /> }),
+        ],
+      })
+      editor = made
+      return <EditorContent editor={made} />
+    }
+    render(<Kinds />)
+    await type('[')
+    const rows = within(screen.getByRole('listbox')).getAllByRole('option')
+    expect(rows[0].querySelector('[data-icon="row-own"]')).not.toBeNull()
+    expect(rows[1].querySelector('[data-icon="list"]')).not.toBeNull()
+    await press('Enter')
+    await type('[')
+    await press('ArrowDown')
+    await press('Enter')
+    const chips = document.querySelectorAll('[data-node-view-wrapper]')
+    expect(chips[0].querySelector('[data-icon="chip-own"]')).not.toBeNull()
+    expect(chips[1].querySelector('[data-icon="chip-default"]')).not.toBeNull()
+  })
+
   it('matches who said it, or the text it searches', () => {
     expect(filterReferences(ITEMS, 'bea').map((item) => item.id)).toEqual([ITEMS[7].id])
     expect(filterReferences(ITEMS, '**line** 3').map((item) => item.id)).toEqual([ITEMS[3].id])

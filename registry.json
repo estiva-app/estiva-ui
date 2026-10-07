@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.58.0",
+    "packageVersion": "0.59.0",
     "exports": 133,
     "typeExports": 140,
     "files": null
@@ -5111,7 +5111,7 @@
           "name": "icon",
           "takes": "anything",
           "required": true,
-          "note": "At each row's start: a 16px icon."
+          "note": "At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`)."
         }
       ],
       "variants": [],
