@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { useRender } from '@base-ui/react/use-render'
 import { cn } from './cn'
-import { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
+import { COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { SectionLabel } from './SectionLabel'
@@ -66,6 +66,12 @@ export interface SectionHeaderProps {
    * app for want of the slot (ADOPTION B23).
    */
   trailing?: ReactNode
+  /**
+   * How many there are, 8px after the title — not at the row's end, where
+   * `trailing` goes (Katerina, 7 October: a heading over a list says its
+   * count beside its name, as a tab does).
+   */
+  count?: number
   /** Right-aligned, in the order given. */
   actions?: SectionAction[]
   /**
@@ -102,7 +108,7 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
+export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, count, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
   const row = look === 'row'
   /*
     One arrow for everything that folds, a NavItem's 16px, and the title 8px
@@ -179,6 +185,8 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
           ) : (
             <SectionLabel folds={chevron}>{title}</SectionLabel>
           )}
+          {/* 8px after the title with the 4px gap, in a row's count style. */}
+          {count != null && <span className={cn('ml-1 shrink-0', COUNT_TEXT_CLASSES)}>{count}</span>}
         </>
       ),
     },

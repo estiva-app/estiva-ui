@@ -160,4 +160,10 @@ describe('SectionHeader, the trailing slot', () => {
     const { container } = render(<SectionHeader title="Section" trailing={<UnreadDot />} />)
     expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('has-[[data-unread]]:-mr-1')
   })
+
+  it('a count sits right after the title, inside the title, not at the row end', () => {
+    render(<SectionHeader title="Section" count={2} />)
+    const count = screen.getByText('2')
+    expect(count.previousElementSibling?.textContent).toBe('Section')
+  })
 })
