@@ -43,6 +43,9 @@ export const COUNT_TEXT_CLASSES = 'font-mono text-caption tabular-nums text-text
 /** A chip's words: Chip's label and Reaction's count. */
 export const CHIP_TEXT_CLASSES = 'text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums'
 
+/** Small secondary words that turn mono under signal: Kbd's key, CommandPalette's footer and MembersPill's count. */
+export const MONO_CAPTION_CLASSES = 'text-caption text-text-secondary signal:font-mono signal:text-small'
+
 /** Words typed straight into an input with no box of its own: SearchInput and ChipInput. */
 export const BARE_INPUT_CLASSES = 'bg-transparent text-text-primary placeholder:text-text-muted outline-none'
 
