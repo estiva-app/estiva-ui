@@ -17,7 +17,12 @@ is a neutral fill, not the accent — selection is a place, not a highlight.
   baseline — the one way a number sits beside a label. A count of `0` is
   still drawn ("Assigned to me · 0" is an answer); an absent count draws
   nothing.
+- A tab with `unread` draws the **UnreadDot** after its label (and count),
+  without the dot's 24px slot so the row keeps one height, and says "new" in
+  its accessible name.
 - Two sizes: `default` (14px) and `small` (12px, the denser geometry).
+
+<Canvas of={TabsStories.WithUnread} />
 
 <Canvas of={TabsStories.WithAZero} />
 
