@@ -60,7 +60,8 @@ export interface MembersDialogProps {
   onClose: () => void
 }
 
-const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-primary'
+// The icon in the accent as text: Ship's button blue read at 2.7:1 on its grey square (Katerina, 8 October).
+const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-text'
 
 /**
  * Who is in this, with joining, leaving and adding people — the list a
