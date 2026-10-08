@@ -9,6 +9,7 @@
  */
 export { KeptSelection, SelectionToolbar, normalizeHref, type MarkId, type SelectionToolbarProps } from './SelectionToolbar'
 export { PastedImages, pastedImages, pastedImageName, type PastedImagesOptions, type ClipboardSource } from './PastedImages'
+export { CodeBlockColours } from './CodeBlockColours'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
 export { EditorBlockHandle, blockDropCursor, deleteBlock, moveBlock, duplicateBlock, startBlockDrag, type EditorBlockHandleProps, type BlockTurnInto } from './EditorBlockHandle'
 export {

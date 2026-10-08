@@ -1,0 +1,48 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as CodeBlockColoursStories from './CodeBlockColours.stories'
+
+<Meta of={CodeBlockColoursStories} />
+
+# CodeBlockColours
+
+A code block in an editor, coloured by its language as you type. The colours
+are the ones RichText reads it in, so writing looks the same as reading.
+
+<Canvas of={CodeBlockColoursStories.InAnEditor} />
+
+## When
+
+- **Any editor that writes RichText**: a message box, an edit box, a
+  description. Use it in place of the starter kit's code block.
+
+## When not
+
+- Drawing text that is already written → **RichText**, which colours its code
+  blocks itself.
+- Code in a sentence → the code mark. It is amber and takes no other colours.
+
+## How
+
+```tsx
+import StarterKit from '@tiptap/starter-kit'
+import { CodeBlockColours } from '@estiva-app/ui/editor'
+import { richTextClassName } from '@estiva-app/ui'
+
+useEditor({
+  extensions: [StarterKit.configure({ codeBlock: false }), CodeBlockColours],
+  editorProps: { attributes: { class: richTextClassName() } },
+})
+```
+
+- **The editor's root must wear `richTextClassName`.** The colours live in its
+  class list; without it the words are named but drawn in one colour.
+- The block keeps the name `codeBlock` and its `language`, so text written
+  before it was added reads the same.
+- It colours highlight.js's 37 everyday languages. A block in any other
+  language, or in none, stays one colour.
+- The app installs `@tiptap/extension-code-block-lowlight`, as it installs the
+  other Tiptap parts.
+
+## What it owns
+
+Nothing. It names each word of a code block; the RichText class list colours them.

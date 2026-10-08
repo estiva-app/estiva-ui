@@ -30,7 +30,7 @@ await build({
   target: 'es2022',
   jsx: 'automatic',
   sourcemap: true,
-  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', 'clsx', 'tailwind-merge', '@base-ui/react'],
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', 'clsx', 'tailwind-merge', '@base-ui/react', 'lowlight'],
   logLevel: 'warning',
 })
 
@@ -50,7 +50,8 @@ await build({
  */
 // The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
 // So is EditorBlockHandle (RIC-18); the BlockHandle it wraps is the main entry's, and imported from there.
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle', './PastedImages'])
+// CodeBlockColours imports Tiptap; it brings codeColours, so the editor colours with its own highlight.js instance (lowlight itself stays external, one copy).
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle', './PastedImages', './CodeBlockColours', './codeColours'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',
@@ -60,7 +61,7 @@ await build({
   target: 'es2022',
   jsx: 'automatic',
   sourcemap: true,
-  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@tiptap/core', '@tiptap/extension-mention', '@tiptap/react', '@tiptap/pm', '@tiptap/suggestion', '@estiva-app/ui'],
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@tiptap/core', '@tiptap/extension-mention', '@tiptap/react', '@tiptap/pm', '@tiptap/suggestion', '@tiptap/extension-code-block-lowlight', 'lowlight', '@estiva-app/ui'],
   plugins: [
     {
       name: 'main-entry-is-external',

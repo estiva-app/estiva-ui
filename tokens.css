@@ -101,6 +101,16 @@
   /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
      Here, the hover fill: bg-active, #D4D4D8, was the darkest thing on a white card (Katerina, 28 September). */
   --bg-code:     #E9E9EB;
+  /* Inline code's text: amber, on --bg-code (Katerina, 9 October: option I). Darker than the warning amber, which is 3.8 : 1 on the code fill; this is 4.8. */
+  --text-code:   #855f00;
+  /* Colours inside a code block, by language (Katerina, 9 October). GitHub's light set; the keyword one shade darker (#cf222e is 4.4 : 1 on our fill, this 4.9). */
+  --syntax-keyword: #c21f2b;
+  --syntax-function: #6639ba;
+  --syntax-constant: #0550ae;
+  --syntax-string: #0a3069;
+  --syntax-variable: #953800;
+  --syntax-comment: #59636e;
+  --syntax-tag: #116329;
 }
 
 /* ─── dark ─── Peek's dark theme (peek/src/index.css .dark, 2026-08-28). */
@@ -184,6 +194,16 @@
   /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
      Here, bg-active, as Peek draws code (Katerina, 28 September). */
   --bg-code:     #2D2D31;
+  /* Inline code's text: amber, on --bg-code (Katerina, 9 October: option I). Amber 400, as on GitHub's dark ground. */
+  --text-code:   #fbbf24;
+  /* Colours inside a code block, by language (Katerina, 9 October). GitHub's dark set. */
+  --syntax-keyword: #ff7b72;
+  --syntax-function: #d2a8ff;
+  --syntax-constant: #79c0ff;
+  --syntax-string: #a5d6ff;
+  --syntax-variable: #ffa657;
+  --syntax-comment: #9198a1;
+  --syntax-tag: #7ee787;
 }
 
 
@@ -271,6 +291,16 @@
   /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
      Here, bg-active, as Peek draws code (Katerina, 28 September). */
   --bg-code:     rgba(255, 255, 255, 0.08);
+  /* Inline code's text: amber, on --bg-code (Katerina, 9 October: option I). Signal's warning amber. */
+  --text-code:   #ffb020;
+  /* Colours inside a code block, by language (Katerina, 9 October). GitHub's dark set. */
+  --syntax-keyword: #ff7b72;
+  --syntax-function: #d2a8ff;
+  --syntax-constant: #79c0ff;
+  --syntax-string: #a5d6ff;
+  --syntax-variable: #ffa657;
+  --syntax-comment: #9198a1;
+  --syntax-tag: #7ee787;
 }
 
 /* ─── ship ─── Ship's palette (Katerina's ruling, 2026-08-28; ship/web/src/index.css). */
@@ -372,6 +402,16 @@
   /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
      Here, bg-active, as Peek draws code (Katerina, 28 September). */
   --bg-code:     rgba(255, 255, 255, 0.08);
+  /* Inline code's text: amber, on --bg-code (Katerina, 9 October: option I). Ship's warning amber. */
+  --text-code:   #e0b04a;
+  /* Colours inside a code block, by language (Katerina, 9 October). GitHub's dark set. */
+  --syntax-keyword: #ff7b72;
+  --syntax-function: #d2a8ff;
+  --syntax-constant: #79c0ff;
+  --syntax-string: #a5d6ff;
+  --syntax-variable: #ffa657;
+  --syntax-comment: #9198a1;
+  --syntax-tag: #7ee787;
 }
 
 /* ─── leaf ─── Leaf's theme: Linear's light theme on these same tokens (Katerina,
@@ -465,4 +505,14 @@
   /* Code, in a sentence and as a block, and a table's header row (RichText, UIG-30).
      Here, the inset fill: lighter than bg-active on a white card (Katerina, 28 September). */
   --bg-code:     #e9e9ea;
+  /* Inline code's text: amber, on --bg-code (Katerina, 9 October: option I). Darker than Leaf's warning amber (#967000, 3.8 : 1 on the code fill); this is 4.8. */
+  --text-code:   #855f00;
+  /* Colours inside a code block, by language (Katerina, 9 October). GitHub's light set; the keyword one shade darker (#cf222e is 4.4 : 1 on our fill, this 4.9). */
+  --syntax-keyword: #c21f2b;
+  --syntax-function: #6639ba;
+  --syntax-constant: #0550ae;
+  --syntax-string: #0a3069;
+  --syntax-variable: #953800;
+  --syntax-comment: #59636e;
+  --syntax-tag: #116329;
 }

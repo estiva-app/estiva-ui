@@ -26,7 +26,7 @@ import { SCHEMA_VERSION, validateRegistry, type Registry, type RegistryEntry } f
 const root = process.cwd()
 const registry = buildRegistry({ root })
 /** Editor extensions: named like components by the catalogue, and not React components. */
-const EDITOR_EXTENSIONS = ['KeptSelection', 'BlockId', 'UnknownBlock', 'ReferenceNode', 'AttachmentNode', 'PersonMention', 'UrgentPersonMention', 'CaptionedReference', 'ReferenceTrigger', 'SlashCommands', 'PastedImages']
+const EDITOR_EXTENSIONS = ['KeptSelection', 'BlockId', 'UnknownBlock', 'ReferenceNode', 'AttachmentNode', 'PersonMention', 'UrgentPersonMention', 'CaptionedReference', 'ReferenceTrigger', 'SlashCommands', 'PastedImages', 'CodeBlockColours']
 const entry = (name: string): RegistryEntry => {
   const found = registry.entries.find((candidate) => candidate.name === name)
   if (!found) throw new Error(`no entry for ${name}`)
@@ -48,19 +48,19 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 139 names over 75 files: 106 components, 32 helpers and 1 hook (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October)', () => {
+  it('counts 140 names over 76 files: 107 components, 32 helpers and 1 hook (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
-    // The ten `EDITOR_EXTENSIONS` count as components by their names; they are
+    // The `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 106, helper: 32, hook: 1 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(75)
+    expect(kinds).toEqual({ component: 107, helper: 32, hook: 1 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(76)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(71)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(72)
     expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(68)
   })
 

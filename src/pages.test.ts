@@ -41,6 +41,7 @@ const NOTHING = 'Nothing. It only draws. Clicks and keys are yours.'
 const HOLDS_ONLY: Record<string, string> = {
   AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.',
   PastedImages: 'Nothing. It draws nothing; it hands a pasted picture to the app, named.',
+  CodeBlockColours: 'Nothing. It names each word of a code block; the RichText class list colours them.',
 }
 
 const dir = new URL('.', import.meta.url)

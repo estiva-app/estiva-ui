@@ -1,5 +1,58 @@
 # Changelog
 
+## 0.64.0 — 2026-10-09
+
+The look of formatted text, after a research page and Katerina's answers of
+9 October. Every app that draws `RichText` or wears `richTextClassName`
+changes look when it takes this version; nothing it calls changes name.
+
+### Changed
+
+- **`RichText`: more room.** Blocks sit 8px apart (6px in `small`; 4px
+  before), and lines 1.5 apart in the default size (1.4 before). A list's own
+  items still touch. A divider has 16px either side. Headings, lists and
+  tables keep their sizes and spacing.
+- **`RichText`: clearer colours.** Bold takes the heading colour, not only a
+  heavier weight. Bullets and numbers are the text's colour: a number is
+  text, and the muted grey was 2.4 : 1 in Leaf. The quote line is the muted
+  text grey (the border grey was 1.3 : 1 in Leaf). An underlined word draws
+  a faint line, so it does not read as a link.
+- **Code in a sentence is amber**, from a new token, `text-code`: amber in
+  every theme, one shade darker in Leaf and light so it reads on the code
+  fill (4.8 : 1). Code is 0.85 of the text around it (0.9 before), and a code
+  block has 12px either side and 10px above and below (8px before).
+- **`Link`'s `text` look is the theme's link colour** (`text-interactive`),
+  not the info colour. In Peek they are the same; Ship's moves a hair
+  (#94a9f0 → #9ca3e7); Leaf's links are its text colour, as Leaf's own
+  link colour says, instead of a blue at 3.2 : 1. Only `RichText` draws
+  this look today.
+
+### Added
+
+- **Code blocks are coloured by their language** — keywords, names, strings,
+  numbers, comments — in `RichText`, for highlight.js's 37 common languages.
+  A block in another language, or none, stays one colour. Seven new tokens
+  per theme, `syntax-keyword`, `-function`, `-constant`, `-string`,
+  `-variable`, `-comment` and `-tag`: GitHub's set, the keyword one shade
+  darker in the light themes. Adds `lowlight` as a dependency, about 52 KB
+  gzipped in an app's bundle.
+- **`CodeBlockColours`** (`@estiva-app/ui/editor`): an editor's code block,
+  coloured as you type with the same colours. Use it in place of the starter
+  kit's: `StarterKit.configure({ codeBlock: false })`, then
+  `CodeBlockColours`. Needs `@tiptap/extension-code-block-lowlight`, a new
+  optional peer, like the other Tiptap parts.
+
+### Where it lands
+
+- Peek: `MessageBody.tsx`, `ForeignBody.tsx`, `PartCard.tsx`,
+  `BlockDocumentField.tsx`; the editors in `extensions/peekEditor.ts` take
+  `CodeBlockColours`. The message box's `[&>p+p]:-mt-1` must become `-mt-2`,
+  or lines typed with Enter sit 8px apart while writing.
+- Ship: `ThreadList.tsx`, `Related.tsx`, `LiveHeader.tsx`, `ForeignObject.tsx`,
+  `ShipRichText`; the editors in `MessageBox.tsx` and `LiveDescription.tsx`
+  take `CodeBlockColours`.
+- Leaf: draws no formatted text yet.
+
 ## 0.63.0 — 2026-10-08
 
 ### Added
