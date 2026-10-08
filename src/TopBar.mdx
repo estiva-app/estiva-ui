@@ -64,6 +64,8 @@ import { TopBar, IdentityMenu } from '@estiva-app/ui'
   don't restyle it per app.
 - `onSearch` is called on every Ctrl+K, open or not: to close the launcher
   on a second Ctrl+K, toggle in your handler.
+- A click on the field leaves focus where it was, so a launcher can act on the
+  text box and the selection you were in. Tab still reaches the field.
 - The frame is desktop-only for now — there is no narrow-screen
   behaviour; the menu button collapses panels, it does not open a drawer.
 
