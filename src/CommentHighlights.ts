@@ -74,8 +74,15 @@ function rangeIn(doc: ProseMirrorNode, anchor: CommentAnchor): { from: number; t
   return { from: positions[at], to: positions[at + anchor.quote.length - 1] + 1 }
 }
 
+declare module '@tiptap/core' {
+  interface EditorEvents {
+    /** A comment's highlight was clicked: `editor.on('commentSelect', ({ id }) => …)`. */
+    commentSelect: { id: string }
+  }
+}
+
 export interface CommentHighlightsOptions {
-  /** A highlight was clicked: the thread to show. */
+  /** A highlight was clicked: the thread to show. Or listen for the editor's `commentSelect`. */
   onSelect: ((id: string) => void) | null
 }
 
@@ -89,6 +96,7 @@ export const CommentHighlights = Extension.create<CommentHighlightsOptions>({
 
   addProseMirrorPlugins() {
     const options = this.options
+    const editor = this.editor
     return [
       new Plugin<HighlightState>({
         key: commentHighlightsKey,
@@ -116,7 +124,10 @@ export const CommentHighlights = Extension.create<CommentHighlightsOptions>({
               const range = rangeIn(view.state.doc, anchor)
               return range !== null && pos >= range.from && pos <= range.to
             })
-            if (hit && options.onSelect) options.onSelect(hit.id)
+            if (hit) {
+              options.onSelect?.(hit.id)
+              editor.emit('commentSelect', { id: hit.id })
+            }
             return false
           },
         },
