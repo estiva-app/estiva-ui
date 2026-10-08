@@ -42,7 +42,7 @@ export const InACard: Story = {
 
 /** `action`: one more small button, level with Show more at the right of its row. */
 export const WithAnAction: Story = {
-  args: { surface: 'inset', action: <Button size="small" trailingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />}>Open in Estiva Ship</Button> },
+  args: { surface: 'inset', action: <Button size="small" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />}>Open in Estiva Ship</Button> },
   render: InACard.render,
 }
 

@@ -47,8 +47,6 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   size?: ButtonSize
   /** 16px, stroke 1.5 on the default size; 14px on small. */
   leadingIcon?: ReactNode
-  /** After the label, sized as `leadingIcon` is: where the action leads, like the open-out arrow on "Open in Ship". Ignored beside a `leadingIcon`. */
-  trailingIcon?: ReactNode
   /** Why the action cannot succeed right now. Disables the button, keeps it
    *  reachable by keyboard, and shows the reason as a tooltip on hover. */
   disabledReason?: string
@@ -59,7 +57,6 @@ export function Button({
   variant = 'muted',
   size = 'default',
   leadingIcon,
-  trailingIcon,
   className,
   children,
   disabled,
@@ -68,7 +65,6 @@ export function Button({
   ...props
 }: ButtonProps) {
   const hasLeadingIcon = !!leadingIcon
-  const hasTrailingIcon = !!trailingIcon && !hasLeadingIcon
   // Inside a busy Form: switched off, and looking it (formBusy.ts).
   const formBusy = useFormBusy()
   const button = (
@@ -92,10 +88,9 @@ export function Button({
           'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
           size === 'default' && 'h-8 min-h-8 text-btn-default',
           size === 'small' && 'h-6 min-h-6 text-btn-small',
-          // Extra padding on the side away from an icon, for optical balance:
-          // right of a leading icon, left of a trailing one.
-          size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : hasTrailingIcon ? 'pl-3 pr-2' : 'px-2'),
-          size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : hasTrailingIcon ? 'pl-2 pr-1.5' : 'px-1.5'),
+          // Extra right padding beside a leading icon, for optical balance.
+          size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
+          size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
           !state.disabled && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
           // @estiva-escape(no-copied-look): W2 (Katerina, 24 September: leave alone): an outlined button shares four words with Reaction's pill by coincidence
           !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
@@ -119,7 +114,6 @@ export function Button({
     >
       {leadingIcon}
       {children}
-      {hasTrailingIcon && trailingIcon}
     </BaseButton>
   )
   return disabledReason ? <TooltipTrigger label={disabledReason}>{button}</TooltipTrigger> : button

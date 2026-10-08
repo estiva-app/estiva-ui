@@ -40,18 +40,6 @@ describe('Button', () => {
     expect(button.firstElementChild).toBe(screen.getByTestId('icon'))
   })
 
-  it('renders the trailing icon after the label, padded the other way round', () => {
-    render(<Button size="small" trailingIcon={<svg data-testid="icon" />}>Label</Button>)
-    const button = screen.getByRole('button', { name: 'Label' })
-    expect(button.lastElementChild).toBe(screen.getByTestId('icon'))
-    expect(button.className).toMatch(/pl-2 pr-1\.5/)
-  })
-
-  it('draws only the leading icon when given both', () => {
-    render(<Button leadingIcon={<svg data-testid="lead" />} trailingIcon={<svg data-testid="trail" />}>Label</Button>)
-    expect(screen.queryByTestId('trail')).toBeNull()
-  })
-
   it('disabled: a real disabled button, out of the Tab order, that ignores clicks', async () => {
     const user = userEvent.setup()
     const onClick = vi.fn()

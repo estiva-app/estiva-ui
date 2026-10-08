@@ -676,12 +676,6 @@
           "note": "16px, stroke 1.5 on the default size; 14px on small."
         },
         {
-          "name": "trailingIcon",
-          "takes": "anything",
-          "required": false,
-          "note": "After the label, sized as `leadingIcon` is: where the action leads, like the open-out arrow on \"Open in Ship\"."
-        },
-        {
           "name": "disabledReason",
           "takes": "text",
           "required": false,
@@ -5882,7 +5876,7 @@
           "name": "action",
           "takes": "anything",
           "required": false,
-          "note": "A small muted `Button` at the right of the toggle's row."
+          "note": "A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives."
         },
         {
           "name": "className",

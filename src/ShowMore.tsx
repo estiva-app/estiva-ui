@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import { Button } from './Button'
 import { cn } from './cn'
 
@@ -28,7 +29,7 @@ export interface ShowMoreProps {
   maxHeight?: number
   /** What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`. */
   surface?: 'surface' | 'inset'
-  /** A small muted `Button` at the right of the toggle's row. Inset as the toggle is, so its words end where the content does. */
+  /** A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives. Its words end where the content does. */
   action?: ReactNode
   className?: string
 }
@@ -61,8 +62,8 @@ export function ShowMore({ children, maxHeight = 96, surface = 'surface', action
       {action ? (
         <div className={cn('mt-1 flex w-full items-center gap-2', overflows ? 'justify-between' : 'justify-end')}>
           {overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} />}
-          {/* `-mr-1.5`: the small button's own 6px inset, so its words end where the content's do. */}
-          <div className="-mr-1.5 flex shrink-0">{action}</div>
+          {/* `-mr-2`: a small button's 8px right inset beside a leading icon, so its words end where the content's do. */}
+          <div className="-mr-2 flex shrink-0">{action}</div>
         </div>
       ) : (
         overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} className="mt-1" />
@@ -71,10 +72,22 @@ export function ShowMore({ children, maxHeight = 96, surface = 'surface', action
   )
 }
 
+/**
+ * Outlined, with a chevron that says which way it goes (Katerina, 8 October):
+ * the one control of the part, so it has an edge. Its edge starts where the
+ * content does.
+ */
 function Toggle({ open, onToggle, className }: { open: boolean; onToggle: () => void; className?: string }) {
+  const Icon = open ? IconChevronUp : IconChevronDown
   return (
-    // `-ml-1.5`: the small button's own 6px inset, so its words start where the content's do.
-    <Button variant="muted" size="small" className={cn('-ml-1.5', className)} aria-expanded={open} onClick={onToggle}>
+    <Button
+      variant="outlined"
+      size="small"
+      leadingIcon={<Icon stroke={1.5} className="size-3.5" />}
+      className={className}
+      aria-expanded={open}
+      onClick={onToggle}
+    >
       {open ? 'Show less' : 'Show more'}
     </Button>
   )

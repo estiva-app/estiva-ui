@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconExternalLink, IconPlus } from '@tabler/icons-react'
+import { IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 
 const meta = {
@@ -10,7 +10,6 @@ const meta = {
     variant: { control: 'inline-radio', options: ['primary', 'outlined', 'muted', 'destructive', 'resolve'] },
     size: { control: 'inline-radio', options: ['default', 'small'] },
     leadingIcon: { control: false },
-    trailingIcon: { control: false },
   },
 } satisfies Meta<typeof Button>
 
@@ -24,10 +23,6 @@ export const Muted: Story = { args: { variant: 'muted' } }
 export const Destructive: Story = { args: { variant: 'destructive', children: 'Delete project' } }
 export const Small: Story = { args: { variant: 'primary', size: 'small' } }
 export const WithLeadingIcon: Story = { args: { variant: 'primary', leadingIcon: <IconPlus stroke={1.5} className="size-4" /> } }
-/** An icon after the label says where the action leads: here, out of the app. */
-export const WithTrailingIcon: Story = {
-  args: { variant: 'muted', size: 'small', children: 'Open in Estiva Ship', trailingIcon: <IconExternalLink stroke={1.5} className="size-3.5" /> },
-}
 /** Disabled is for a control that is momentarily unavailable — say why, with `disabledReason`. A control someone may never use is absent, not disabled. */
 export const Disabled: Story = { args: { variant: 'primary', disabled: true } }
 
