@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.60.1 — 2026-10-08
+
+### Fixed
+
+- **A click on the top bar's search field leaves focus where it was**, as
+  Peek's own field did. Peek's launcher acts on the text box you were typing in
+  and its selection; in 0.60.0 the click moved focus to the field first, so the
+  launcher saw neither and closing it left focus on the field. Tab still
+  reaches it, and Enter or Space presses it.
+
 ## 0.60.0 — 2026-10-08
 
 ### Added

@@ -29,6 +29,30 @@ describe('TopBar search', () => {
     expect(onSearch).toHaveBeenCalledTimes(1)
   })
 
+  it('leaves focus where it was on a click', async () => {
+    const onSearch = vi.fn()
+    render(
+      <>
+        <input aria-label="composer" />
+        <TopBar onSearch={onSearch} />
+      </>,
+    )
+    const composer = screen.getByRole('textbox', { name: 'composer' })
+    composer.focus()
+    await userEvent.click(screen.getByRole('button', { name: /Search…/ }))
+    expect(onSearch).toHaveBeenCalledTimes(1)
+    expect(document.activeElement).toBe(composer)
+  })
+
+  it('is reached with Tab and pressed with Enter', async () => {
+    const onSearch = vi.fn()
+    render(<TopBar onSearch={onSearch} />)
+    await userEvent.tab()
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: /Search…/ }))
+    await userEvent.keyboard('{Enter}')
+    expect(onSearch).toHaveBeenCalledTimes(1)
+  })
+
   it('says "Search…" when given no words', () => {
     render(<TopBar onSearch={() => {}} />)
     expect(screen.getByRole('button', { name: /Search…/ })).toBeTruthy()

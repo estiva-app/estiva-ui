@@ -32,6 +32,11 @@ import { shortcutLabel } from './shortcuts'
  * app searches with — and Ctrl+K (Cmd+K on a Mac) presses it from anywhere.
  * Before, every app drew its own field and listened for the keys itself.
  * A `search` of the caller's own still takes the centre.
+ *
+ * **A click leaves focus where it was**, as Peek's field did: what searching
+ * opens often acts on what you were in — Peek's launcher reads the composer
+ * you were typing in and its selection — and taking focus would leave it
+ * nothing. Tab still reaches the field, and Enter or Space presses it.
  */
 export interface TopBarProps {
   variant?: 'solid' | 'floating' | 'inset'
@@ -73,7 +78,7 @@ export function TopBar({ variant = 'solid', menu, logo, search, onSearch, search
   const centre =
     search ??
     (onSearch && (
-      <BaseButton type="button" onClick={onSearch} className={cn('flex w-[290px] cursor-pointer items-center gap-2 px-3 py-2', FIELD_SHELL_CLASSES)}>
+      <BaseButton type="button" onMouseDown={(event) => event.preventDefault()} onClick={onSearch} className={cn('flex w-[290px] cursor-pointer items-center gap-2 px-3 py-2', FIELD_SHELL_CLASSES)}>
         <span className="min-w-0 flex-1 truncate text-left text-input-value text-text-muted">{searchPlaceholder}</span>
         <Kbd>{shortcutLabel('Mod-K')}</Kbd>
       </BaseButton>
