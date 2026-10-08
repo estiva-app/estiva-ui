@@ -57,6 +57,7 @@ export const Links: Story = {
     blocks: [
       p(t('A link with its own words: [the guide](https://example.com/guide). A bare address: https://example.com/a/long/address/that/breaks/where/it/must.')),
       p(t('Inside code it stays text: '), t('[not a link](https://example.com)', 'code')),
+      p(t('An '), t('underlined', 'underline'), t(' word beside [a link](https://example.com), and '), t('item.count', 'code'), t(' in a sentence.')),
     ],
   },
 }
@@ -87,5 +88,28 @@ export const WithTheAppsOwnParts: Story = {
 export const UnknownBlock: Story = {
   args: {
     blocks: [p(t('The block below is of a kind this part does not know.')), { type: 'unknown', typeName: 'later', inline: [t('Its words are still here.')] }],
+  },
+}
+
+/** A code block in a named language. */
+export const CodeInALanguage: Story = {
+  args: {
+    blocks: [
+      {
+        type: 'codeBlock',
+        language: 'ts',
+        inline: [
+          t(
+            [
+              '// Count the items that are done',
+              'export function countDone(items: Item[]): number {',
+              "  const done = items.filter((item) => item.state === 'done')",
+              '  return done.length + 0',
+              '}',
+            ].join('\n'),
+          ),
+        ],
+      },
+    ],
   },
 }

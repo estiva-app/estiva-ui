@@ -15,7 +15,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Inside written text: the info colour, always underlined. Hover dims it. */
+/** Inside written text: the theme's link colour, always underlined. Hover dims it. */
 export const Text: Story = {
   render: (args) => (
     <p className="max-w-[480px] text-body-2 text-text-primary">

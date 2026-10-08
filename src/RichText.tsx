@@ -1,6 +1,7 @@
 import type { MouseEvent, ReactNode } from 'react'
 import { cn } from './cn'
 import { Link } from './Link'
+import { codeColours } from './codeColours'
 
 /**
  * Formatted text, drawn: headings, paragraphs, lists, a quote, code, a divider,
@@ -11,7 +12,8 @@ import { Link } from './Link'
  * and the two had drifted: headings, list markers, quotes and code differed,
  * one app had tables and the other dropped them, one had links and the other
  * printed the brackets (UIG-30). The look here is Katerina's picks of
- * 28 September, one per difference, most of them Peek's.
+ * 28 September, one per difference, most of them Peek's, with the room and
+ * colours she changed on 9 October.
  *
  * **It takes the tree, not the text.** The caller parses (the format comes from
  * the item's tag, never from the body) and hands the blocks in. So this package
@@ -84,21 +86,32 @@ export interface RichTextProps {
  * paragraph inside each list item, quote and table cell (the `> p` lines).
  */
 const RICH_TEXT_CLASSES = {
-  base: 'flex flex-col gap-1 break-words text-text-secondary',
-  /* A heading binds to what follows it: 12px above (8 and the 4px gap), 8px below (4 and the gap); two headings in a row, 12px apart. Level 3 keeps the text's colour, one step lower. */
-  headings: '[&>:is(h1,h2,h3)]:mb-1 [&>:is(h1,h2,h3)]:mt-2 [&>:is(h1,h2,h3):first-child]:mt-0 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2)]:text-text-primary',
-  lists: '[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-muted [&_ol]:list-decimal [&_ul]:list-disc',
+  /* Blocks 8px apart (Katerina, 9 October; 4 before). A list's own items stay together. */
+  base: 'flex flex-col gap-2 break-words text-text-secondary',
+  /* A heading binds to what follows it: 12px above (4 and the 8px gap), 8px below (the gap); two headings in a row, 12px apart. The same as before the gap grew (Katerina, 9 October: headings do not change). Level 3 keeps the text's colour, one step lower: at the same size as level 2, colour is what tells them apart (Katerina, 9 October). */
+  headings: '[&>:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2,h3):first-child]:mt-0 [&>:is(h1,h2)]:text-text-primary',
+  /* Bullets and numbers in the text's own colour, so a number can be read (Katerina, 9 October; they were the muted grey, 2.4 : 1 in Leaf). */
+  lists: '[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-secondary [&_ol]:list-decimal [&_ul]:list-disc',
+  /* The line in the muted text grey, not the border grey: a border grey was 1.3 : 1 in Leaf (Katerina, 9 October). */
   // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
-  quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-border-strong [&_blockquote]:pl-2.5',
-  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.9 of the text around it, so it scales with a heading and with `small`; a named size is fixed
-  code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text-primary',
-  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.9 of the text around it; the code inside the block is the block's own size, not 0.9 of it again
-  codeBlock: '[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-[0.9em] [&_pre]:text-text-primary',
-  divider: '[&_hr]:border-border-default',
+  quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5',
+  /* Code in a sentence is amber, its own colour (Katerina, 9 October: option I). */
+  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it, so it scales with a heading and with `small`; a named size is fixed
+  code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:text-text-code [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary',
+  /* 12px either side, 10px above and below, looser lines than the text (Katerina, 9 October; 8px all round before). */
+  // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it; the code inside the block is the block's own size, not 0.85 of it again
+  codeBlock: '[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:px-3 [&_pre]:py-2.5 [&_pre]:font-mono [&_pre]:text-[0.85em] [&_pre]:leading-relaxed [&_pre]:text-text-primary',
+  /* Colours inside a code block, by language: the classes `codeColours` gives each word, after highlight.js's own GitHub theme (Katerina, 9 October). */
+  syntax: '[&_:is(.hljs-keyword,.hljs-doctag,.hljs-type,.hljs-template-tag,.hljs-template-variable)]:text-syntax-keyword [&_.hljs-title]:text-syntax-function [&_:is(.hljs-number,.hljs-literal,.hljs-attr,.hljs-attribute,.hljs-meta,.hljs-variable,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id)]:text-syntax-constant [&_:is(.hljs-string,.hljs-regexp)]:text-syntax-string [&_:is(.hljs-built_in,.hljs-symbol)]:text-syntax-variable [&_.hljs-comment]:text-syntax-comment [&_:is(.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo)]:text-syntax-tag',
+  /* A divider splits the text in two: 16px either side (Katerina, 9 October; 4 before). */
+  divider: '[&_hr]:my-2 [&_hr]:border-border-default',
   table: '[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary',
-  marks: '[&_em]:italic [&_strong]:font-semibold [&_u]:underline [&_u]:underline-offset-2',
-  default: 'text-body-2 [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4',
-  small: 'text-caption leading-snug [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold',
+  /* Bold in the heading colour, not only heavier. An underlined word draws a faint line, so it does not read as a link (Katerina, 9 October). */
+  marks: '[&_em]:italic [&_strong]:font-semibold [&_strong]:text-text-primary [&_u]:underline [&_u]:decoration-text-muted [&_u]:underline-offset-2',
+  /* Lines 1.5 apart (Katerina, 9 October; 1.4 before). */
+  default: 'text-body-2 leading-normal [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4',
+  /* Blocks 6px apart; a heading keeps its 12px above and 8px below. */
+  small: 'gap-1.5 text-caption leading-snug [&>:is(h1,h2,h3)]:mb-0.5 [&>:is(h1,h2,h3)]:mt-1.5 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold',
 }
 
 /**
@@ -106,8 +119,8 @@ const RICH_TEXT_CLASSES = {
  * being written looks the same as what is read. Put it on the editor's root.
  */
 export function richTextClassName(size: RichTextSize = 'default', className?: string) {
-  const { base, headings, lists, quote, code, codeBlock, divider, table, marks } = RICH_TEXT_CLASSES
-  return cn(base, headings, lists, quote, code, codeBlock, divider, table, marks, RICH_TEXT_CLASSES[size], className)
+  const { base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks } = RICH_TEXT_CLASSES
+  return cn(base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks, RICH_TEXT_CLASSES[size], className)
 }
 
 /**
@@ -251,9 +264,10 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
       return <blockquote data-block-id={block.id}>{runs}</blockquote>
     case 'codeBlock':
       // Literal: no marks, no links, no chips. A long line wraps; nothing scrolls sideways.
+      // In a language highlight.js knows, each word takes its colour; in any other, the text as it is.
       return (
         <pre data-block-id={block.id} data-language={block.language}>
-          <code>{(block.inline ?? []).map((run) => run.text).join('')}</code>
+          <code>{codeColours((block.inline ?? []).map((run) => run.text).join(''), block.language)}</code>
         </pre>
       )
     case 'horizontalRule':

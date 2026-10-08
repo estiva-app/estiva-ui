@@ -9,7 +9,7 @@ import { cn } from './cn'
  * on 13 September 2026, in three jobs (UIG-27). The looks are the ones those
  * links already had, reduced by Katerina's ruling:
  *
- * - `text` — a link inside written text: the info colour, always underlined,
+ * - `text` — a link inside written text: the theme's link colour, always underlined,
  *   dimming on hover. The look a link in a body of text already had.
  * - `quiet` — a title or a timestamp that is also a link. It takes the colour
  *   and size of the text it sits in and underlines on hover. Two looks that
@@ -43,7 +43,7 @@ export type LinkVariant = 'text' | 'quiet' | 'underlined' | 'plain'
 const COVER_CLASSES = 'after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:[outline-style:auto]'
 
 const VARIANT_CLASSES: Record<LinkVariant, string> = {
-  text: 'text-info-default underline underline-offset-2 hover:opacity-80',
+  text: 'text-text-interactive underline underline-offset-2 hover:opacity-80',
   quiet: 'hover:underline',
   underlined: 'underline underline-offset-2 hover:text-text-primary',
   plain: '',

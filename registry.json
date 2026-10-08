@@ -5,7 +5,7 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.63.0",
-    "exports": 139,
+    "exports": 140,
     "typeExports": 145,
     "files": null
   },
@@ -1193,6 +1193,25 @@
       "docsId": null,
       "storyId": null,
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CodeBlockColours",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CodeBlockColours.ts",
+      "purpose": "A code block in an editor, coloured by its language as you type.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-codeblockcolours--docs",
+      "storyId": "primitives-codeblockcolours--in-an-editor",
+      "docPage": "src/CodeBlockColours.mdx",
       "app": null,
       "looks": []
     },
@@ -3439,10 +3458,10 @@
       "docPage": "src/Link.mdx",
       "app": null,
       "looks": [
-        "text-info-default underline underline-offset-2 hover:opacity-80",
-        "text-info-default underline underline-offset-2 hover:opacity-80 after:rounded-md focus-visible:outline-none",
-        "text-info-default underline underline-offset-2 hover:opacity-80 truncate",
-        "text-info-default underline underline-offset-2 hover:opacity-80 truncate after:rounded-md focus-visible:outline-none",
+        "text-text-interactive underline underline-offset-2 hover:opacity-80",
+        "text-text-interactive underline underline-offset-2 hover:opacity-80 after:rounded-md focus-visible:outline-none",
+        "text-text-interactive underline underline-offset-2 hover:opacity-80 truncate",
+        "text-text-interactive underline underline-offset-2 hover:opacity-80 truncate after:rounded-md focus-visible:outline-none",
         "hover:underline truncate after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary truncate",
@@ -5394,15 +5413,15 @@
       "docPage": "src/RichText.mdx",
       "app": null,
       "looks": [
-        "[&>:is(h1,h2,h3)]:mb-1 [&>:is(h1,h2,h3)]:mt-2 [&>:is(h1,h2,h3):first-child]:mt-0 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2)]:text-text-primary",
-        "[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-muted [&_ol]:list-decimal [&_ul]:list-disc",
-        "[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-border-strong [&_blockquote]:pl-2.5",
-        "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-text-primary",
-        "[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:p-2 [&_pre]:font-mono [&_pre]:text-[0.9em] [&_pre]:text-text-primary",
+        "[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-secondary [&_ol]:list-decimal [&_ul]:list-disc",
+        "[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5",
+        "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:text-text-code [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary",
+        "[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:px-3 [&_pre]:py-2.5 [&_pre]:font-mono [&_pre]:text-[0.85em] [&_pre]:leading-relaxed [&_pre]:text-text-primary",
+        "[&_:is(.hljs-keyword,.hljs-doctag,.hljs-type,.hljs-template-tag,.hljs-template-variable)]:text-syntax-keyword [&_.hljs-title]:text-syntax-function [&_:is(.hljs-number,.hljs-literal,.hljs-attr,.hljs-attribute,.hljs-meta,.hljs-variable,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id)]:text-syntax-constant [&_:is(.hljs-string,.hljs-regexp)]:text-syntax-string [&_:is(.hljs-built_in,.hljs-symbol)]:text-syntax-variable [&_.hljs-comment]:text-syntax-comment [&_:is(.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo)]:text-syntax-tag",
         "[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary",
-        "[&_em]:italic [&_strong]:font-semibold [&_u]:underline [&_u]:underline-offset-2",
-        "text-body-2 [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4",
-        "text-caption leading-snug [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold"
+        "[&_em]:italic [&_strong]:font-semibold [&_strong]:text-text-primary [&_u]:underline [&_u]:decoration-text-muted [&_u]:underline-offset-2",
+        "text-body-2 leading-normal [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4",
+        "text-caption leading-snug [&>:is(h1,h2,h3)]:mb-0.5 [&>:is(h1,h2,h3)]:mt-1.5 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold"
       ]
     },
     {

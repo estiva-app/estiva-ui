@@ -53,10 +53,10 @@ describe('Link', () => {
     expect(screen.getByRole('link', { name: 'Documents' }).getAttribute('href')).toBe('/documents')
   })
 
-  it('text is the info colour, always underlined, and is the default', () => {
+  it('text is the link colour, always underlined, and is the default', () => {
     render(<Link href="#">Label</Link>)
     const classes = classesOf(screen.getByRole('link'))
-    expect(classes).toContain('text-info-default')
+    expect(classes).toContain('text-text-interactive')
     expect(classes).toContain('underline')
     expect(classes).toContain('underline-offset-2')
   })
