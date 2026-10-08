@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.61.0 — 2026-10-08
+
+### Added
+
+- **`ShowMore` takes an `action`**: one small muted `Button`, with a leading
+  icon, at the right of the toggle's row (Katerina, 8 October: Peek's block
+  card puts "Open in Estiva Ship" level with Show more). Its words end where
+  the content does. The row is drawn for it when the content fits too, with
+  no toggle.
+
+### Changed
+
+- **Show more / Show less is the small outlined button, with a chevron**:
+  down on Show more, up on Show less (Katerina, 8 October). Its edge starts
+  where the content does. Everywhere ShowMore is used, it looks like this
+  now: in Peek, a Ship card's long description.
+
 ## 0.60.2 — 2026-10-08
 
 ### Fixed

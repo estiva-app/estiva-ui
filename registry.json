@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.60.2",
+    "packageVersion": "0.61.0",
     "exports": 134,
     "typeExports": 141,
     "files": null
@@ -5871,6 +5871,12 @@
           "takes": "surface | inset",
           "required": false,
           "note": "What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`."
+        },
+        {
+          "name": "action",
+          "takes": "anything",
+          "required": false,
+          "note": "A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives."
         },
         {
           "name": "className",
