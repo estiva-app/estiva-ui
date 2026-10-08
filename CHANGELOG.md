@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.62.1 — 2026-10-08
+
+### Fixed
+
+- **`MembersDialog`: the icon in the Add members and Join squares reads in
+  Ship.** It was the button blue, 2.7:1 on Ship's grey square; it is now the
+  accent as text (`--accent-text`), 6.6:1 (Katerina, 8 October). Every other
+  theme draws the two in one colour, so only Ship changes.
+
 ## 0.62.0 — 2026-10-08
 
 ### Changed
