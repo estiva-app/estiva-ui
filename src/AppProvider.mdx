@@ -54,7 +54,9 @@ function Root({ children }) {
   did, which is also what a story or a test sees without one.
 - `pictureFor` gets the person's name and returns an address, or nothing for
   the initials.
-- `navigate` gets the link's `href` exactly as written. The browser keeps
+- `navigate` gets the link's path, query and `#` part (`/message/1?x=2`),
+  also when the `href` is the app's whole address (`https://app.test/message/1`):
+  a router reads a whole address as a path under the current page. The browser keeps
   every other click: one already handled (`preventDefault`), one with Ctrl,
   Cmd, Shift or Alt, the middle button, a link that opens a new tab or
   downloads, and an address on another site or in another scheme
