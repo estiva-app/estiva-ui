@@ -1,4 +1,5 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 
 /**
@@ -70,13 +71,15 @@ export interface LinkProps extends ComponentPropsWithRef<'a'> {
   children: ReactNode
 }
 
-export function Link({ href, variant = 'text', external = false, truncate = false, cover = false, className, children, ...props }: LinkProps) {
+export function Link({ href, variant = 'text', external = false, truncate = false, cover = false, className, children, onClick, ...props }: LinkProps) {
+  const inApp = useInAppClick(href, onClick)
   return (
     <a
       href={href}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       className={cn(VARIANT_CLASSES[variant], truncate && 'truncate', cover && COVER_CLASSES, className)}
       {...props}
+      onClick={inApp}
     >
       {children}
     </a>

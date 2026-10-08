@@ -1,0 +1,69 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as AppProviderStories from './AppProvider.stories'
+
+<Meta of={AppProviderStories} />
+
+# AppProvider
+
+What the parts need to know about the app they are in, said once at its root:
+where a person's picture comes from, and how to change page without a reload.
+
+<Canvas of={AppProviderStories.Pictures} />
+
+## When
+
+- Every app, once, around everything it draws — beside `ToastProvider`.
+- `pictureFor`: the app keeps people's pictures somewhere the package cannot
+  know. Every face handed no picture asks it: **Avatar**, and so **Person**,
+  **AvatarGroup**, **MembersPill**, **MembersDialog**, **PersonTrigger** and
+  **IdentityMenu**.
+- `navigate`: the app changes page with a router. A plain click on a link to
+  the app's own address then goes through it: **Link**, **Card** and
+  **Breadcrumb**'s crumbs, **NavItem** and **NavTree**'s rows, **RailItem**,
+  **Chip**, **InlineChip**, **IconButton** and **ToolbarLink**.
+
+<Canvas of={AppProviderStories.ChangingPage} />
+
+## When not
+
+- A wrapper around a part that only looks a picture up, or only stops a
+  reload → this, once. Peek and Ship each kept their own Avatar, Person or
+  NavItem for one of these two jobs (Katerina, 8 October).
+- One face with a picture you already have → pass it to **Avatar**'s `src`
+  or **Person**'s `picture`. A picture handed in always wins.
+- One **Link** that does something other than change page → give it its own
+  `onClick` and `preventDefault()`; the provider leaves it alone.
+
+## How
+
+```tsx
+import { AppProvider } from '@estiva-app/ui'
+
+function Root({ children }) {
+  const pictureFor = usePictureLookup() // the app's own
+  const navigate = useNavigate() // the app's router
+  return (
+    <AppProvider pictureFor={pictureFor} navigate={navigate}>
+      {children}
+    </AppProvider>
+  )
+}
+```
+
+- Both are optional. A part with no provider above it draws as it always
+  did, which is also what a story or a test sees without one.
+- `pictureFor` gets the person's name and returns an address, or nothing for
+  the initials.
+- `navigate` gets the link's `href` exactly as written. The browser keeps
+  every other click: one already handled (`preventDefault`), one with Ctrl,
+  Cmd, Shift or Alt, the middle button, a link that opens a new tab or
+  downloads, and an address on another site or in another scheme
+  (`folder:`, `mailto:`).
+- A link's own `onClick` runs first, so an app that still passes its router
+  click per link keeps working while it moves over.
+- `active` is still the caller's: say which row is the current page where you
+  place it.
+
+## What it owns
+
+Nothing. It draws nothing; it holds two answers for the parts below it.

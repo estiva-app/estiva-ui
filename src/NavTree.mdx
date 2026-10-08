@@ -92,8 +92,9 @@ import { NavTree, Sidebar } from '@estiva-app/ui'
 </Sidebar>
 ```
 
-- Each row is a **NavItem**, so a row is a link: a router app prevents the
-  default in `onSelect` and navigates.
+- Each row is a **NavItem**, so a row is a link, and changes page as one
+  does: through **AppProvider**'s `navigate`, or `onSelect` preventing the
+  default and navigating.
 - `storageKey` remembers each group open or closed in this browser, under
   the key and the group's id. The rows under a row are not remembered yet.
 - The words in `emptyMessage` are the caller's.

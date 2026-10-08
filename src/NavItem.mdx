@@ -71,9 +71,9 @@ import { NavItem } from '@estiva-app/ui'
 />
 ```
 
-- It renders a plain anchor. A router app keeps a thin wrapper: compute
-  `active` from the location, intercept the click, navigate — every
-  anchor prop passes through.
+- It renders a plain anchor, and every anchor prop passes through. Under
+  **AppProvider**'s `navigate` a click changes page without a reload, so no
+  wrapper is needed: compute `active` from the location where you place it.
 - The label truncates; the count never gives up its width.
 - `menu` is the items only: `menu={<MenuItem label="Move to Folder…" onClick={move} />}`.
   The ⋮'s name is `More options for {label}` unless `menuLabel` says otherwise.

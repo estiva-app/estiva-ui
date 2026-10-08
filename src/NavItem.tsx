@@ -1,6 +1,7 @@
 import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { IconAlertSquareRounded, IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 import { COLLAPSIBLE_PANEL_CLASSES, COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
@@ -92,8 +93,10 @@ export function NavItem({
   open: openProp,
   onOpenChange,
   className,
+  onClick,
   ...props
 }: NavItemProps) {
+  const inApp = useInAppClick(href, onClick)
   const [openState, setOpenState] = useState(defaultOpen)
   const panelId = useId()
   const hasRows = children != null && children !== false
@@ -135,6 +138,7 @@ export function NavItem({
         className,
       )}
       {...props}
+      onClick={inApp}
     >
       {(icon || hasRows) && (
         <span

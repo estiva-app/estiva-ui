@@ -9,6 +9,7 @@
  * `src/` still ships in the tarball, so stepping into a component lands on the
  * TypeScript that produced it.
  */
+export { AppProvider, type AppProviderProps } from './AppProvider'
 export { AppShell, type AppShellProps } from './AppShell'
 export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } from './AttachmentCard'
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'

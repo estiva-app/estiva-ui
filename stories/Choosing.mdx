@@ -122,10 +122,12 @@ the **floating** TopBar goes with the **Rail** and the content card.
 | The structured frame: solid bar, sidebar, content | **AppShell** `solid` |
 | The floating frame: bar over the content, rail, rounded card | **AppShell** `floating` |
 | The 52px bar alone | **TopBar** — `solid` in flow, or `floating` over the content |
+| A search field in the bar that opens your launcher, with Ctrl+K | the TopBar's `onSearch` — the bar draws the field |
 | A 240px navigation column | **Sidebar**, filled with **NavItem** rows |
 | Groups of rows in that column, rows under rows, from one nested list | **NavTree**, inside the **Sidebar** |
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
 | The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
+| Where pictures come from, and how to change page without a reload, said once | **AppProvider**, around the whole app |
 | The list beside the thing that is open | **ListColumn** — 290px, its name in a **ContainerHeader**, the list under it scrolling |
 | A panel of a page that is not a list — details, a thread, what is open — with a body that must never be cut off | **Panel** — a header, a body that scrolls whenever it is taller, and a `footer` that stays put |
 

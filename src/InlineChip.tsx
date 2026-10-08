@@ -1,4 +1,5 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 
 /**
@@ -67,6 +68,7 @@ export interface InlineChipProps extends Omit<ComponentPropsWithRef<'a'>, 'child
 }
 
 export function InlineChip({ tone = 'neutral', icon, href, className, children, ...props }: InlineChipProps) {
+  const inApp = useInAppClick(href, props.onClick)
   const body = (
     <>
       {icon && <span className="flex size-4 shrink-0 items-center justify-center text-text-secondary">{icon}</span>}
@@ -83,7 +85,7 @@ export function InlineChip({ tone = 'neutral', icon, href, className, children, 
     )
   }
   return (
-    <a href={href} className={classes} {...props}>
+    <a href={href} className={classes} {...props} onClick={inApp}>
       {body}
     </a>
   )

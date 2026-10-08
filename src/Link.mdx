@@ -60,9 +60,11 @@ import { Link } from '@estiva-app/ui'
 </h3>
 ```
 
-- It renders a plain anchor and passes every anchor prop through. A router app
-  passes `onClick`, prevents the default and navigates; the `href` stays a real
-  address, so a modified click or a new tab still works.
+- It renders a plain anchor and passes every anchor prop through. Under
+  **AppProvider**'s `navigate`, a plain click on an address in the app changes page
+  without a reload; without it, a router app passes `onClick`, prevents the
+  default and navigates. The `href` stays a real address, so a modified click
+  or a new tab still works.
 - `quiet` and `underlined` set no size and no colour at rest: put them inside
   the text whose look they should take.
 - `plain` wraps a block: give the Link `className="block"` and let the child

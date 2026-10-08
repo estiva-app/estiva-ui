@@ -8,7 +8,6 @@ import { NavItem } from './NavItem'
 import { PersonTrigger } from './PersonTrigger'
 import { Rail } from './Rail'
 import { RailItem } from './RailItem'
-import { SearchInput } from './SearchInput'
 import { Sidebar } from './Sidebar'
 
 const meta = {
@@ -27,6 +26,7 @@ const meta = {
     menu: { control: false },
     logo: { control: false },
     search: { control: false },
+    onSearch: { control: false },
     identity: { control: false },
     banner: { control: false },
     nav: { control: false },
@@ -65,7 +65,7 @@ const rail = (
 /** The structured frame: solid bar, sidebar, content beside it. */
 export const Solid: Story = {
   render: (args) => (
-    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+    <AppShell {...args} logo="Estiva" onSearch={() => {}} identity={identity} nav={sidebar}>
       <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
@@ -75,7 +75,7 @@ export const Solid: Story = {
 /** A page taller than the frame: it scrolls in the frame's own bar — the region every page passes through — never a native one. */
 export const SolidScrolls: Story = {
   render: (args) => (
-    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+    <AppShell {...args} logo="Estiva" onSearch={() => {}} identity={identity} nav={sidebar}>
       <div className="flex flex-col gap-px px-6 py-5">
         {Array.from({ length: 60 }, (_, i) => (
           <p key={i} className="rounded-md px-2 py-1.5 text-body-2 text-text-primary">
@@ -99,7 +99,7 @@ export const SolidWithBanner: Story = {
 export const Inset: Story = {
   args: { variant: 'inset' },
   render: (args) => (
-    <AppShell {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} identity={identity} nav={sidebar}>
+    <AppShell {...args} logo="Estiva" onSearch={() => {}} identity={identity} nav={sidebar}>
       <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
@@ -122,7 +122,7 @@ export const Floating: Story = {
       variant="floating"
       menu={menuButton}
       logo="Estiva"
-      search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />}
+      onSearch={() => {}}
       identity={identity}
       nav={rail}
     >

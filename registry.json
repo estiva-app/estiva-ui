@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.59.0",
-    "exports": 133,
-    "typeExports": 140,
+    "packageVersion": "0.60.0",
+    "exports": 134,
+    "typeExports": 141,
     "files": null
   },
   "storybook": {
@@ -31,6 +31,44 @@
       "docsId": "primitives-composertriggers--docs",
       "storyId": "primitives-composertriggers--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "AppProvider",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AppProvider.tsx",
+      "purpose": "What the parts need to know about the app they are in, said once at its root: where a person's picture comes from, and how to change page without a reload.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "pictureFor",
+          "takes": "a handler",
+          "required": false,
+          "note": "Where this app keeps a person's picture."
+        },
+        {
+          "name": "navigate",
+          "takes": "a handler",
+          "required": false,
+          "note": "How this app changes page without reloading."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-appprovider--docs",
+      "storyId": "frame-appprovider--pictures",
+      "docPage": "src/AppProvider.mdx",
       "app": null,
       "looks": []
     },
@@ -65,7 +103,19 @@
           "name": "search",
           "takes": "anything",
           "required": false,
-          "note": "The top bar's centre — a search field, when there is one."
+          "note": "The top bar's centre: something of the caller's own."
+        },
+        {
+          "name": "onSearch",
+          "takes": "a handler",
+          "required": false,
+          "note": "What searching opens: the top bar then draws its search field and answers Ctrl+K (`TopBar`'s `onSearch`)."
+        },
+        {
+          "name": "searchPlaceholder",
+          "takes": "text",
+          "required": false,
+          "note": "The words in the top bar's search field."
         },
         {
           "name": "identity",
@@ -301,7 +351,7 @@
           "name": "src",
           "takes": "text",
           "required": false,
-          "note": "The picture URL, resolved by the caller."
+          "note": "The picture URL, resolved by the caller — or, when none is given, by the app's `AppProvider`."
         },
         {
           "name": "name",
@@ -6976,7 +7026,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/TopBar.tsx",
-      "purpose": "The 52px top bar: `menu` and `logo` on the left, a `search` slot in the centre, the identity cluster on the right.",
+      "purpose": "The 52px top bar: `menu` and `logo` on the left, the search field in the centre, the identity cluster on the right.",
       "purposeFrom": "page",
       "props": [
         {
@@ -7001,7 +7051,19 @@
           "name": "search",
           "takes": "anything",
           "required": false,
-          "note": "The centre: a search field, or a launcher affordance — or nothing; the slot holds its place."
+          "note": "The centre: something of the caller's own."
+        },
+        {
+          "name": "onSearch",
+          "takes": "a handler",
+          "required": false,
+          "note": "What searching opens — the app's command launcher."
+        },
+        {
+          "name": "searchPlaceholder",
+          "takes": "text",
+          "required": false,
+          "note": "The words in the bar's own search field."
         },
         {
           "name": "right",
@@ -7026,14 +7088,30 @@
           ]
         }
       ],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        },
+        {
+          "id": "role",
+          "behaviour": "Says what it is to assistive technology"
+        },
+        {
+          "id": "tab-stop",
+          "behaviour": "Is reachable with Tab"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "frame-topbar--docs",
       "storyId": "frame-topbar--solid",
       "docPage": "src/TopBar.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors",
+        "truncate text-left text-input-value text-text-muted"
+      ]
     },
     {
       "name": "typeTrigger",

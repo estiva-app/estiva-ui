@@ -13,12 +13,11 @@ focus, and an optional keyboard hint at the right edge.
 ## When
 
 - Filtering a list, live, above the list it filters.
-- As a **launcher affordance**: keep the input `pointer-events-none` and
-  open your command surface from a click on the surround — the component
-  is the same either way, and `shortcut` shows the way in ("Ctrl+K").
 
 ## When not
 
+- The way into a launcher from the top bar → **TopBar**'s `onSearch`. The
+  bar draws this look as a button, 290px, and answers Ctrl+K itself.
 - General text entry → **TextInput**.
 - Picking entries from a directory → **ChipInput** or **Select**.
 
@@ -35,7 +34,7 @@ import { SearchInput } from '@estiva-app/ui'
   `Input` since stage 3; the border, the focus-within rule and the `Kbd`
   hint are this component's.
 - **Give it an `aria-label` ("Search")** — the placeholder is not a name,
-  and this usually stands alone in a top bar rather than in a `Field`.
+  and this usually stands alone above its list rather than in a `Field`.
   Inside one, the label names it and you add nothing.
 
 ## What it owns

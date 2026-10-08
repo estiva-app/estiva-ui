@@ -1,5 +1,6 @@
 import { Avatar as BaseAvatar } from '@base-ui/react/avatar'
 import { IconUserFilled } from '@tabler/icons-react'
+import { usePictureFor } from './AppProvider'
 import { cn } from './cn'
 
 /**
@@ -51,7 +52,7 @@ export const initialsFor = (name: string) => {
 }
 
 export interface AvatarProps {
-  /** The picture URL, resolved by the caller. Until it arrives, and if it fails, the initials show. */
+  /** The picture URL, resolved by the caller — or, when none is given, by the app's `AppProvider`. Until it arrives, and if it fails, the initials show. */
   src?: string
   /** The person's name — where the initials and the colour come from. */
   name?: string
@@ -76,6 +77,9 @@ export interface AvatarProps {
 
 export function Avatar({ src, name, alt = '', size = 36, label: spoken, className }: AvatarProps) {
   const label = name || alt
+  // No picture handed in: the app's own, when it has said where pictures live (`AppProvider`).
+  const pictureFor = usePictureFor()
+  const picture = src ?? (label && pictureFor ? (pictureFor(label) ?? undefined) : undefined)
   return (
     <BaseAvatar.Root
       // A div, as it was drawn: Base UI's default is a span.
@@ -87,9 +91,9 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
       className={cn('rounded-sm overflow-hidden shrink-0 bg-bg-inset', className)}
       style={{ width: size, height: size }}
     >
-      {src && (
+      {picture && (
         <BaseAvatar.Image
-          src={src}
+          src={picture}
           alt=""
           /*
             `keepMounted`: the <img> is in the tile from the first render, as it

@@ -5,7 +5,7 @@ import * as TopBarStories from './TopBar.stories'
 
 # TopBar
 
-The 52px top bar: `menu` and `logo` on the left, a `search` slot in the
+The 52px top bar: `menu` and `logo` on the left, the search field in the
 centre, the identity cluster on the right. Three manners — **`solid`**,
 in flow with a hairline and a surface; **`inset`**, in flow with neither,
 standing on the ground; and **`floating`**, an overlay with neither, whose
@@ -27,8 +27,12 @@ bar ignores the pointer so the content underneath stays reachable.
 - `menu` is the menu button, in an app whose navigation collapses — the
   collapsing itself stays the caller's. `logo` sits beside it: the app's
   name as text, or a mark.
-- The `search` slot holds its place even while empty, so a search field
-  drops in later without moving anything.
+- `onSearch` is what searching opens — your command launcher. With it the
+  bar draws the search field itself: **SearchInput**'s look, 290px, as a
+  button showing `searchPlaceholder` ("Search…") and the shortcut. A click on
+  it, and Ctrl+K (Cmd+K on a Mac) anywhere on the page, call `onSearch`.
+- The centre holds its place even while empty, so search drops in later
+  without moving anything.
 
 <Canvas of={TopBarStories.FloatingNoSearch} />
 
@@ -37,25 +41,29 @@ bar ignores the pointer so the content underneath stays reachable.
 - Page-level headers inside the content → not this; this is the frame's
   bar, once per app. The top of a column is **ContainerHeader**.
 - Anything the bar would need to know — who you are, what is searched —
-  stays outside: pass composed slots.
+  stays outside: pass composed slots, and what searching opens as `onSearch`.
+- A search field of your own in the centre → only for something the bar's
+  does not do; pass it as `search`, which takes the centre (`onSearch` still
+  answers Ctrl+K). A field that filters a list sits above that list:
+  **SearchInput**.
 
 ## How
 
 ```tsx
-import { TopBar, IdentityMenu, SearchInput } from '@estiva-app/ui'
+import { TopBar, IdentityMenu } from '@estiva-app/ui'
 
 <TopBar
   logo="Estiva"
-  search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />}
+  onSearch={openLauncher}
+  searchPlaceholder="Search Estiva…"
   right={<IdentityMenu me={me} signedIn={signedIn} />}
 />
 ```
 
 - Geometry is fixed: 52px, `pl-5 pr-[26px]`, right cluster `gap-[6px]` —
   don't restyle it per app.
-- In `floating`, a launcher-affordance search is the caller's trick: keep
-  the input `pointer-events-none` and open the launcher from a wrapper's
-  `mousedown` (see SearchInput's page).
+- `onSearch` is called on every Ctrl+K, open or not: to close the launcher
+  on a second Ctrl+K, toggle in your handler.
 - The frame is desktop-only for now — there is no narrow-screen
   behaviour; the menu button collapses panels, it does not open a drawer.
 
@@ -69,6 +77,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Keeps its 52px in a scrolling column | `shrink-0` |  |
+| Answers Ctrl+K (Cmd+K) anywhere on the page, given `onSearch` | a `keydown` listener on the window |  |
 
 ## Props
 

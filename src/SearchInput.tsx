@@ -13,9 +13,9 @@ import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES } from './looks'
  * The one product string — Peek's default placeholder "Search Peek..." —
  * stays in Peek; the default here says only "Search…".
  *
- * In Peek's top bar this is a launcher affordance rather than a live field:
- * the input is `pointer-events-none` and clicking the surround opens the
- * command launcher. The component is the same either way.
+ * The top bar's way into a launcher is not this: `TopBar`'s `onSearch` draws
+ * this look as a button and answers Ctrl+K itself (8 October). Peek used to
+ * make this field inert and catch the click around it.
  *
  * On Base UI's `Input` since stage 3 of the migration (2026-09-07), so a
  * search field inside a `Field` is labelled by it without the caller wiring
