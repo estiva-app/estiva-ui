@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.62.1",
-    "exports": 134,
-    "typeExports": 141,
+    "packageVersion": "0.63.0",
+    "exports": 139,
+    "typeExports": 145,
     "files": null
   },
   "storybook": {
@@ -3229,6 +3229,68 @@
       "looks": []
     },
     {
+      "name": "KindIcon",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/KindIcon.tsx",
+      "purpose": "The icon before a thing's name that says what kind of thing it is: a topic, a project, an issue, another app's file, or a message.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "kind",
+          "takes": "topic | project | issue | file | message",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "14 | 16",
+          "required": false,
+          "note": "16 in a row or a list; 14 inside a chip."
+        },
+        {
+          "name": "tone",
+          "takes": "secondary | inherit",
+          "required": false,
+          "note": "`secondary`: the quieter grey a list row's icon wears."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Space and position only."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "kind",
+          "values": [
+            "topic",
+            "project",
+            "issue",
+            "file",
+            "message"
+          ]
+        },
+        {
+          "prop": "tone",
+          "values": [
+            "secondary",
+            "inherit"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-kindicon--docs",
+      "storyId": "primitives-kindicon--default",
+      "docPage": "src/KindIcon.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Lightbox",
       "repo": "estiva-ui",
       "kind": "component",
@@ -4414,6 +4476,63 @@
       "looks": []
     },
     {
+      "name": "pastedImageName",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/PastedImages.ts",
+      "purpose": "`'Screenshot 2026-09-07 14-32-05.png'`: sortable, and readable on a file card.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-pastedimages--docs",
+      "storyId": "primitives-pastedimages--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "pastedImages",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/PastedImages.ts",
+      "purpose": "The pictures on the clipboard, named — `[]` when there is nothing to attach.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-pastedimages--docs",
+      "storyId": "primitives-pastedimages--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "PastedImages",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/PastedImages.ts",
+      "purpose": "Pasting a picture into an editor attaches it.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-pastedimages--docs",
+      "storyId": "primitives-pastedimages--in-an-editor",
+      "docPage": "src/PastedImages.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "peopleMenu",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -5161,7 +5280,13 @@
           "name": "icon",
           "takes": "anything",
           "required": true,
-          "note": "At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`)."
+          "note": "At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`), or `iconFor` answers."
+        },
+        {
+          "name": "iconFor",
+          "takes": "a handler",
+          "required": false,
+          "note": "A row's 16px icon from what it points at — its `uri` — when the list holds several kinds of thing; `undefined` from it draws `icon`."
         }
       ],
       "variants": [],
@@ -6409,6 +6534,25 @@
         "bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg text-input-value text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field signal:transition-shadow signal:focus:shadow-focus-ring",
         "bg-bg-field border border-border-field shadow-field hover:border-border-strong focus:border-border-focus rounded-lg text-caption text-text-primary placeholder:text-text-muted outline-none transition-colors disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field signal:transition-shadow signal:focus:shadow-focus-ring"
       ]
+    },
+    {
+      "name": "thingKindOf",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/KindIcon.tsx",
+      "purpose": "The kind of thing behind an event kind: a message is a message, a channel or a bare file is a topic, a project and an issue are themselves, and anything else is another app's file.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-kindicon--docs",
+      "storyId": "primitives-kindicon--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Toast",

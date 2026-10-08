@@ -131,6 +131,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Card: ['fill', 'hover', 'attention', 'selected', 'active', 'hovered', 'quietUntilHover', 'unreadable', 'clip'],
   Checkbox: ['row'],
   Chip: ['type'],
+  KindIcon: ['tone'],
   CollapsibleSection: ['look'],
   Divider: ['tone', 'orientation'],
   EmptyState: ['scope'],

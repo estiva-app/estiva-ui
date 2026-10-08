@@ -321,8 +321,14 @@ export interface ReferenceMenuOptions {
   ariaLabel: string
   /** The section's heading. */
   sectionLabel: string
-  /** At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`). */
+  /** At each row's start: a 16px icon — unless the row brings its own (`CaptionedItem.icon`), or `iconFor` answers. */
   icon: ReactNode
+  /**
+   * A row's 16px icon from what it points at — its `uri` — when the list holds
+   * several kinds of thing; `undefined` from it draws `icon`. Give the chip the
+   * same answer at 14px (`CaptionedReference`'s `iconFor`), so a pick keeps it.
+   */
+  iconFor?: (uri: string) => ReactNode | undefined
 }
 
 /** A row as the list holds it: which section it is drawn under, when the list has several. */
@@ -333,7 +339,7 @@ type ListedItem = CaptionedItem & { section?: string }
  * One section headed `sectionLabel`, or — when the rows say which section they
  * are in — a heading for each, in the order the rows arrive.
  */
-export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOptions): SuggestionPopupOptions<CaptionedItem> {
+export function referenceMenu({ ariaLabel, sectionLabel, icon, iconFor }: ReferenceMenuOptions): SuggestionPopupOptions<CaptionedItem> {
   return {
     ariaLabel,
     width: 'w-[658px]',
@@ -349,7 +355,7 @@ export function referenceMenu({ ariaLabel, sectionLabel, icon }: ReferenceMenuOp
       return groups
     },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: item.icon ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
+    row: (item) => ({ leading: item.icon ?? iconFor?.(item.uri) ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
   }
 }
 

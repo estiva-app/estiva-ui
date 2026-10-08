@@ -1,0 +1,61 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as PastedImagesStories from './PastedImages.stories'
+
+<Meta of={PastedImagesStories} />
+
+# PastedImages
+
+Pasting a picture into an editor attaches it. A screenshot on the clipboard
+reaches the app as named files, the same as a pick from its file picker.
+
+<Canvas of={PastedImagesStories.InAnEditor} />
+
+## When
+
+- **Any editor that can attach files**: a message box, an edit box, a
+  description. Give it the same upload the paperclip uses.
+
+## When not
+
+- A box that cannot attach files → leave it out; a pasted picture then does
+  nothing, which is the honest answer.
+- Any file other than a picture → the app's file picker. A paste attaches
+  pictures only.
+- Drawing the attached file → **AttachmentCard**, `pending` while it uploads.
+
+## How
+
+```tsx
+import StarterKit from '@tiptap/starter-kit'
+import { PastedImages } from '@estiva-app/ui/editor'
+
+useEditor({
+  extensions: [
+    StarterKit,
+    PastedImages.configure({
+      // Return true when the upload started; false lets the editor paste as usual.
+      onImages: (files) => {
+        if (!canUpload) return false
+        uploads.add(files)
+        return true
+      },
+    }),
+  ],
+})
+```
+
+- **Text wins.** A copy from a spreadsheet or a document carries a picture of
+  the selection beside its text. That paste stays text.
+- **A screenshot gets a name**: `Screenshot 2026-09-07 14-32-05.png`, with
+  `(2)`, `(3)` when one paste holds several. A picture that already has a real
+  name keeps it.
+- A picture type the app does not accept keeps its own extension, so the app's
+  own check refuses it by name.
+- `pastedImages(clipboardData)` is the same rule as a function, for an editor
+  that handles its own `handlePaste`.
+- Which clipboard contents count as pictures, and their names, are this
+  part's. The upload, its limits and its messages are the app's.
+
+## What it owns
+
+Nothing. It draws nothing; it hands a pasted picture to the app, named.

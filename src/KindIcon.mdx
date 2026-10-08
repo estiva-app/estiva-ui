@@ -1,0 +1,58 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as KindIconStories from './KindIcon.stories'
+
+<Meta of={KindIconStories} />
+
+# KindIcon
+
+The icon before a thing's name that says what kind of thing it is: a topic, a
+project, an issue, another app's file, or a message. One table for every app,
+so the same thing wears the same icon wherever it is named.
+
+<Canvas of={KindIconStories.EveryKind} />
+
+## When
+
+- **Before a thing's name in a list row**, at 16px: a `[` list row, a recent
+  file, a search result.
+- **Inside a chip**, at 14px: `InlineChip`'s `icon` when a sentence names a
+  thing.
+- **As `iconFor` of the `[` list and its chip** (`ReferenceTrigger`,
+  `CaptionedReference`), so every row and every chip it inserts wears its own
+  kind.
+
+<Canvas of={KindIconStories.InAChip} />
+
+## When not
+
+- A person → **Avatar** or **Person**. A person is a face, not a kind.
+- A status (open, resolved) → **Chip**, or the app's own status mark.
+- An icon for an action → **IconButton** with the icon you need.
+
+## How
+
+```tsx
+import { KindIcon, thingKindOf } from '@estiva-app/ui'
+
+<KindIcon kind="issue" />                          // 16px, in a row
+<KindIcon kind={thingKindOf(event.kind)} size={14} tone="inherit" /> // inside a chip
+```
+
+- `thingKindOf(eventKind)` turns an event kind into a kind of thing. A pointer
+  written as `nostr:naddr…` carries its kind once decoded; a `nostr:nevent…`
+  is a message.
+- The icon is `aria-hidden`: the name beside it says what it is.
+- **Which icon is which kind is this part's.** An app never picks its own icon
+  for these. Its stroke is 1.5; it comes in two sizes and two tones: the
+  quieter grey of a list row, or `inherit`, the ink of the chip or row that
+  holds it.
+
+<Canvas of={KindIconStories.InAList} />
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls of={KindIconStories.Default} />
