@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.63.0 — 2026-10-08
+
+### Added
+
+- **`KindIcon` and `thingKindOf`: the icon for what a thing is** — a topic, a
+  project, an issue, another app's file, or a message. One table for every
+  app, so the same thing wears the same icon wherever it is named (Katerina,
+  8 October; the one part allowed to name Estiva's kinds of thing).
+  `thingKindOf(eventKind)` turns an event kind into one. 16px in a row, 14px
+  in a chip; `tone` is the row's quieter grey or the ink around it. Moved from
+  Peek's own `GlyphIcon` and `fileGlyph`.
+- **`ReferenceTrigger`'s `iconFor(uri)`**: every row of the `[` list wears the
+  icon of what it points at, from one function, instead of the app setting an
+  icon on each row. A row's own `icon` still wins.
+- **`PastedImages`, `pastedImages` and `pastedImageName`** (`@estiva-app/ui/editor`):
+  pasting a picture into an editor hands it to the app as named files, the
+  way the file picker would. Text on the clipboard wins, so a copy from a
+  spreadsheet stays text; a screenshot is named
+  `Screenshot 2026-09-07 14-32-05.png`. Moved from Peek, so every app's
+  editor can attach a pasted picture.
+
 ## 0.62.1 — 2026-10-08
 
 ### Fixed

@@ -92,10 +92,12 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
   the same query; nothing waits for it. A row's `description` is its second
   line, which the chip does not wear. A row the person has arrowed to stays
   highlighted when the list is drawn again.
-- **Several kinds of thing in one `[` list:** a row's `icon` is drawn in
-  place of the list's, and the chip's `iconFor(uri)` picks the chip's from
-  what it points at, so the chip wears what its row wore. A row with no `icon`,
-  or a `uri` `iconFor` answers `undefined` for, keeps the one icon.
+- **Several kinds of thing in one `[` list:** give `ReferenceTrigger` and
+  `CaptionedReference` the same `iconFor(uri)` — at 16px for the rows, 14px
+  for the chip — and every row and the chip it inserts wear what they point
+  at. **KindIcon** is the answer for Estiva's own kinds. A row's own `icon`
+  wins over `iconFor`; a row with neither, or a `uri` `iconFor` answers
+  `undefined` for, keeps the list's one icon.
 
 <Canvas of={ComposerTriggersStories.ReferencesOfSeveralKinds} />
 

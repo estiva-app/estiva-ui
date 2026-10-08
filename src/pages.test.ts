@@ -38,7 +38,10 @@ const WAITING: string[] = []
 
 const NOTHING = 'Nothing. It only draws. Clicks and keys are yours.'
 /** A part that draws nothing at all says so instead: it only holds what the parts below it ask for. */
-const HOLDS_ONLY: Record<string, string> = { AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.' }
+const HOLDS_ONLY: Record<string, string> = {
+  AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.',
+  PastedImages: 'Nothing. It draws nothing; it hands a pasted picture to the app, named.',
+}
 
 const dir = new URL('.', import.meta.url)
 const read = (file: string) => readFileSync(new URL(file, dir), 'utf8').replace(/\r\n/g, '\n')

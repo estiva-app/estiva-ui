@@ -96,7 +96,9 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | Where am I, and the way back up | **Breadcrumb** |
 | A link — in text, on a title, beside a note, or a whole box | **Link** — `text`, `quiet`, `underlined`, `plain`; `external` for a new tab |
 | A document or an image attached to something, posted or waiting to be sent | **AttachmentCard** — the file decides the shape; `pending` in a composer |
+| A picture pasted into an editor, attached rather than pasted | **PastedImages** — from `@estiva-app/ui/editor`; the app hands it its upload |
 | A person or a thing named inside a sentence | **InlineChip** — one line high, level with the words; `href` makes it a link |
+| What kind of thing a name stands for — a topic, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; `thingKindOf` turns an event kind into one |
 | Formatted text: headings, lists, a quote, code, a table, links | **RichText** — pass the parsed tree; `small` inside a card |
 | The key that does this too | **Kbd** — or the `shortcut` prop on **MenuItem**, **Tooltip** and **SearchInput** |
 

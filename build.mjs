@@ -50,7 +50,7 @@ await build({
  */
 // The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
 // So is EditorBlockHandle (RIC-18); the BlockHandle it wraps is the main entry's, and imported from there.
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle'])
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle', './PastedImages'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',

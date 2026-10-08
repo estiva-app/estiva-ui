@@ -145,6 +145,36 @@ describe('[', () => {
     expect(editor!.getHTML()).toContain('data-message-mention="true"')
   })
 
+  it('gives each row the icon `iconFor` answers for its uri; a row’s own icon wins, and no answer keeps the list’s', async () => {
+    const rows = [
+      { ...ITEMS[0], uri: 'nostr:a' },
+      { ...ITEMS[1], uri: 'nostr:b', icon: <i data-icon="own" /> },
+      { ...ITEMS[2], uri: 'nostr:c' },
+    ]
+    function Iconed() {
+      const made = useEditor({
+        extensions: [
+          StarterKit,
+          Chip,
+          ReferenceTrigger.configure({
+            items: () => rows,
+            nodeName: 'messageMention',
+            ariaLabel: 'Things',
+            sectionLabel: 'Things',
+            icon: <i data-icon="list" />,
+            iconFor: (uri) => (uri === 'nostr:a' ? <i data-icon="kind-a" /> : undefined),
+          }),
+        ],
+      })
+      editor = made
+      return <EditorContent editor={made} />
+    }
+    render(<Iconed />)
+    await type('[')
+    const icons = within(screen.getByRole('listbox')).getAllByRole('option').map((row) => row.querySelector('[data-icon]')?.getAttribute('data-icon'))
+    expect(icons).toEqual(['kind-a', 'own', 'list'])
+  })
+
   it('draws the app’s sections in order, skips an empty one, and redraws the open list when told', async () => {
     const listeners = new Set<() => void>()
     let late: CaptionedItem[] = []
