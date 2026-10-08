@@ -25,6 +25,7 @@ Who is in this, with joining, leaving and adding people — the list a
 ```tsx
 import { MembersDialog } from '@estiva-app/ui'
 
+const myId = ''
 const roster: { id: string; name: string; picture?: string; caption?: string }[] = []
 const directory: { id: string; label: string; picture?: string }[] = []
 const [open, setOpen] = useState(false)
@@ -32,7 +33,7 @@ const [open, setOpen] = useState(false)
 {open && (
   <MembersDialog
     members={roster}
-    self={{ action: 'join', onToggle: () => {} }}
+    self={{ action: 'join', onToggle: () => {}, id: myId }}
     candidates={directory}
     onAdd={(chosen) => {}}
     onClose={() => setOpen(false)}
@@ -43,9 +44,11 @@ const [open, setOpen] = useState(false)
 - A row is `{ id, name, picture?, caption? }`. The caption is the second
   line: a role, a relation such as "Assignee", or a state. Name the viewer's
   own row "You".
-- `self` puts **Join** or **Leave** on top. Leave it out while membership is
-  still being read: no row is better than a wrong one. The row waits while
-  `onToggle`'s promise runs.
+- `self` gives the viewer **Join** or **Leave**. `self.id` is their row in
+  `members`. A member's row comes first, with a small red **Leave** at its end.
+  A non-member has no row: **Join** is a row on top, like "Add members". Leave
+  `self` out while membership is still being read: no button is better than a
+  wrong one. The button waits while `onToggle`'s promise runs.
 - `onAdd` shows **Add members**, which opens the add layer: an "Invite people"
   **ChipInput** over `candidates`, leaving out anyone already a member by id.
   Return `false` to stay on the layer; otherwise it returns to the roster.

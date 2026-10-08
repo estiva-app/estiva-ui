@@ -34,13 +34,16 @@ export interface MembersDialogProps {
   /** The number in the title's chip. Defaults to how many rows there are. */
   count?: number
   /**
-   * The viewer's own row on top: "Join" when they are not in, "Leave" when
-   * they are. Absent while it is not known, or where they cannot change it —
-   * no row is better than a wrong one.
+   * What the viewer can do: "Leave" on their own row when they are in, which
+   * is drawn first; a "Join" row on top when they are not. Absent while it is
+   * not known, or where they cannot change it — no button is better than a
+   * wrong one.
    */
   self?: {
     action: MembersDialogSelfAction
     onToggle: () => void | Promise<unknown>
+    /** The viewer's id: the row in `members` that carries Leave and comes first. */
+    id: string
   }
   /** Who "Add members" may offer. Members are left out by id. */
   candidates?: MembersDialogCandidate[]
@@ -65,8 +68,10 @@ const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center jus
  *
  * Moved from Peek's `MembersDialog` (2026-10-06; Katerina's design of 22 July,
  * with the row and inset rulings of 15 September). Two layers in one dialog:
- * the roster, with the viewer's Join or Leave and "Add members" on top, and the
- * add layer, whose back arrow returns to the roster. Adding returns to the
+ * the roster, with "Add members" (and Join, for a non-member) on top, and the
+ * add layer, whose back arrow returns to the roster. Leave is a small red
+ * button on the viewer's own row, which always comes first (Katerina, 8
+ * October: a Leave row on top looked like an invite, the same as Add members). Adding returns to the
  * roster so the new people are visible at once.
  */
 export function MembersDialog({ members, count, self, candidates = [], onAdd, note, initialView = 'list', onClose }: MembersDialogProps) {
@@ -91,6 +96,11 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
     setChosen([])
     setView('list')
   }
+
+  // Leave sits on the viewer's own row, drawn first. A viewer with no row of their own gets Leave on top, as Join is.
+  const ownRow = self?.action === 'leave' ? members.find((m) => m.id === self.id) : undefined
+  const roster = ownRow ? [ownRow, ...members.filter((m) => m !== ownRow)] : members
+  const selfOnTop = self && !ownRow
 
   if (view === 'add' && onAdd) {
     return (
@@ -146,9 +156,9 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
     >
       {/* MenuItem outside a Menu is a plain button. Its fill sits 8px in from the dialog's sides,
           and its own 12px inset puts the square over the rows' faces, 20px in, at the same 48px. */}
-      {(self || onAdd) && (
+      {(selfOnTop || onAdd) && (
         <div className="flex flex-col px-2">
-          {self && (
+          {selfOnTop && (
             <MenuItem
               size="tall"
               className="py-2"
@@ -169,13 +179,18 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
           )}
         </div>
       )}
-      {members.map((member) => (
+      {roster.map((member) => (
         <div key={member.id} className="flex h-12 items-center gap-3 px-5">
           <Avatar size={32} name={member.name} src={member.picture} />
           <div className="flex min-w-0 flex-1 flex-col justify-center gap-[2px]">
             <div className="truncate text-body-2 text-text-primary">{member.name}</div>
             {member.caption && <div className="truncate text-caption text-text-secondary">{member.caption}</div>}
           </div>
+          {member === ownRow && (
+            <Button variant="destructive" size="small" disabled={toggling} onClick={() => void toggle()}>
+              Leave
+            </Button>
+          )}
         </div>
       ))}
       {note && <div className="px-5 pb-2 pt-3 text-caption text-text-secondary">{note}</div>}

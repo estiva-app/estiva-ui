@@ -16,7 +16,7 @@ const meta = {
       { id: 'me', name: 'You', caption: 'Product designer' },
       { id: 'ana', name: 'Ana Duarte', caption: 'Assignee' },
     ],
-    self: { action: 'leave', onToggle: () => {} },
+    self: { action: 'leave', onToggle: () => {}, id: 'me' },
     candidates: people,
     onAdd: () => {},
     onClose: () => {},
@@ -26,21 +26,32 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** A member: Leave and "Add members" on top. */
+/** A member: "Add members" on top, and Leave on your own row. */
 export const Member: Story = {}
 
-/** Not a member yet: Join on top, and nothing to add until you are in. */
+/** Not a member yet: Join on top, no row of your own, and nothing to add until you are in. */
 export const NotAMember: Story = {
   args: {
     members: [{ id: 'ana', name: 'Ana Duarte', caption: 'Assignee' }],
-    self: { action: 'join', onToggle: () => {} },
+    self: { action: 'join', onToggle: () => {}, id: 'me' },
     onAdd: undefined,
   },
 }
 
-/** Membership still being read: no row on top rather than a wrong one. */
+/** Membership still being read: no Join or Leave rather than a wrong one. */
 export const Unknown: Story = {
   args: { self: undefined, onAdd: undefined },
+}
+
+/** Your row comes first, whatever order the roster is given in. */
+export const YouListedLast: Story = {
+  args: {
+    members: [
+      { id: 'ana', name: 'Ana Duarte', caption: 'Assignee' },
+      { id: 'ravi', name: 'Ravi Mehta' },
+      { id: 'me', name: 'You', caption: 'Author' },
+    ],
+  },
 }
 
 /** Someone who left but still holds a role, and a line about what membership covers. */

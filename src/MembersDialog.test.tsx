@@ -31,10 +31,24 @@ describe('MembersDialog', () => {
   it('says Join to a non-member and Leave to a member, and calls onToggle once', async () => {
     const user = userEvent.setup()
     const onToggle = vi.fn()
-    const { rerender } = render(<MembersDialog members={members} self={{ action: 'join', onToggle }} onClose={() => {}} />)
+    const { rerender } = render(<MembersDialog members={members.slice(1)} self={{ action: 'join', onToggle, id: 'me' }} onClose={() => {}} />)
     await user.click(await screen.findByRole('button', { name: 'Join' }))
     expect(onToggle).toHaveBeenCalledTimes(1)
-    rerender(<MembersDialog members={members} self={{ action: 'leave', onToggle }} onClose={() => {}} />)
+    rerender(<MembersDialog members={members} self={{ action: 'leave', onToggle, id: 'me' }} onClose={() => {}} />)
+    await user.click(await screen.findByRole('button', { name: 'Leave' }))
+    expect(onToggle).toHaveBeenCalledTimes(2)
+  })
+
+  it("puts Leave on the viewer's own row, and that row first", async () => {
+    render(<MembersDialog members={[...members].reverse()} self={{ action: 'leave', onToggle: () => {}, id: 'me' }} onClose={() => {}} />)
+    const leave = await screen.findByRole('button', { name: 'Leave' })
+    const row = leave.parentElement!
+    expect(row.textContent).toContain('You')
+    expect(row.parentElement!.textContent!.indexOf('You')).toBeLessThan(row.parentElement!.textContent!.indexOf('Ana Duarte'))
+  })
+
+  it('keeps Leave on top when the viewer has no row of their own', async () => {
+    render(<MembersDialog members={members.slice(1)} self={{ action: 'leave', onToggle: () => {}, id: 'me' }} onClose={() => {}} />)
     expect(await screen.findByRole('button', { name: 'Leave' })).toBeTruthy()
   })
 
