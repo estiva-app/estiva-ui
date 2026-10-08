@@ -103,7 +103,10 @@ const FIXTURE: Record<string, string> = {
     '  return <li>{title}</li>',
     '}',
     '',
-    '/** A card that lists its rows and a button. */',
+    '/**',
+    ' * A card that lists its rows and a button.',
+    " * @registry namesake: the fixture's own card",
+    ' */',
     'export function Card({ title }: CardProps) {',
     '  return <ul><CardRow title={title} /><Button>Go</Button></ul>',
     '}',
@@ -128,7 +131,7 @@ const FIXTURE: Record<string, string> = {
   'src/components/Shown.tsx': '/** A part only its story uses. */\nexport function Shown() {\n  return <span />\n}\n',
   'src/components/Shown.stories.tsx': "import { Shown } from './Shown'\nconst meta = { title: 'Shown', component: Shown }\nexport default meta\nexport const Plain = {}\n",
   'src/components/Wide.tsx': '/**\n * A general strip of things.\n * @registry reusable: general; one screen uses it so far\n */\nexport function Wide() {\n  return <div />\n}\n',
-  'src/components/EmptyState.tsx': "import { EmptyState as Shared } from '@estiva-app/ui'\n\n/** The package's empty state, with this app's own default words. */\nexport function EmptyState() {\n  return <Shared message=\"Nothing here\" />\n}\n",
+  'src/components/EmptyState.tsx': "import { EmptyState as Shared } from '@estiva-app/ui'\n\n/**\n * The package's empty state, with this app's own default words.\n * @registry namesake: the words are this app's\n */\nexport function EmptyState() {\n  return <Shared message=\"Nothing here\" />\n}\n",
   'src/pages/Lazy.tsx': '/** A page loaded only when it is opened. */\nexport default function Lazy() {\n  return <main />\n}\n',
   'src/pages/HomePage.tsx': [
     "import { lazy } from 'react'",
@@ -287,7 +290,7 @@ describe('what the first descriptions found', () => {
   const faults = buildAppRegistry({
     root: app({
       // Peek's Skeleton.tsx: imported from the package, then exported on a line of its own.
-      'src/Skeleton.tsx': "import { SkeletonBar, SkeletonRow, SkeletonList as Shared } from '@estiva-app/ui'\n\n/** Grey rows in the shape of a list, while it loads. */\nexport function SkeletonList() {\n  return <div><SkeletonBar /><SkeletonRow /></div>\n}\n\n/** Peek's name for the package's list placeholder. */\nexport const SkeletonSidebarList = Shared\n\nexport { SkeletonBar, SkeletonRow }\n",
+      'src/Skeleton.tsx': "import { SkeletonBar, SkeletonRow, SkeletonList as Shared } from '@estiva-app/ui'\n\n/**\n * Grey rows in the shape of a list, while it loads.\n * @registry namesake: the fixture says so\n */\nexport function SkeletonList() {\n  return <div><SkeletonBar /><SkeletonRow /></div>\n}\n\n/** Peek's name for the package's list placeholder. */\nexport const SkeletonSidebarList = Shared\n\nexport { SkeletonBar, SkeletonRow }\n",
       // A file with its own description at the very top, and one on its part.
       'src/Row.tsx': "/**\n * Everything about rows.\n */\nimport { useState } from 'react'\n\n/** One row of a list, with a hover state of its own. */\nexport function Row() {\n  const [on] = useState(false)\n  return <li>{String(on)}</li>\n}\n",
       // A class, described above itself, with its props from what it extends.
@@ -397,10 +400,10 @@ describe('what the third review found', () => {
     root: app({
       'tsconfig.json': '{ "compilerOptions": { "baseUrl": "." } }\n',
       'src/Choice.tsx': "/** A choice, taken as text or as a number. */\nexport function Choice(props: { value: string }): JSX.Element\nexport function Choice(props: { value: number }): JSX.Element\nexport function Choice(props: { value: string | number }) {\n  return <span>{String(props.value)}</span>\n}\n",
-      'src/Kbd.tsx': '/** One key, drawn as a keycap. */\nexport function Kbd() {\n  return <kbd />\n}\n\n/** Keys in a row. */\nexport function KbdRow() {\n  return <span><Kbd /></span>\n}\n',
+      'src/Kbd.tsx': '/**\n * One key, drawn as a keycap.\n * @registry namesake: the fixture says so\n */\nexport function Kbd() {\n  return <kbd />\n}\n\n/** Keys in a row. */\nexport function KbdRow() {\n  return <span><Kbd /></span>\n}\n',
       'src/Guard.tsx': "import { Component } from 'react'\n\ninterface Props {\n  /** What it guards. */\n  label: string\n}\n\n/** Something else in the file. */\nexport function Other() {\n  return <i />\n}\n\n/** Catches what crashes below it. */\nexport default class extends Component<Props> {\n  render() {\n    return <div>{this.props.label}</div>\n  }\n}\n",
       'src/List.tsx': "import { memo } from 'react'\n\n/** One row of the list. */\nexport function Row() {\n  return <li />\n}\n\n/** The list, drawing its rows. */\nexport default memo(function List() {\n  return <ul><Row /></ul>\n})\n",
-      'src/parts/Card.tsx': '/** A card. */\nexport function Card() {\n  return <div />\n}\n',
+      'src/parts/Card.tsx': '/**\n * A card.\n * @registry namesake: the fixture says so\n */\nexport function Card() {\n  return <div />\n}\n',
       'src/parts/index.ts': "export * as Parts from './Card'\n",
       'src/UsesCard.tsx': "import { Parts } from './parts'\n\n/** Draws a card through a namespace. */\nexport function UsesCard() {\n  return <Parts.Card />\n}\n",
       'src/Badge.tsx': '/** A small badge. */\nexport function Badge() {\n  return <b />\n}\n',
@@ -414,7 +417,7 @@ describe('what the third review found', () => {
       // Found by the narrow pass on those fixes.
       'src/routesTable.ts': 'export const routes: unknown[] = []\n',
       'src/router.tsx': "import { createBrowserRouter } from 'react-router-dom'\nimport { routes } from './routesTable'\n\nexport default createBrowserRouter(routes)\n",
-      'src/Chip.tsx': "import { forwardRef, memo, type ComponentType } from 'react'\n\n/** A chip nothing uses. */\nexport function Chip() {\n  return <i />\n}\n\nexport default memo(forwardRef(Chip)) as ComponentType\n",
+      'src/Chip.tsx': "import { forwardRef, memo, type ComponentType } from 'react'\n\n/**\n * A chip nothing uses.\n * @registry namesake: the fixture says so\n */\nexport function Chip() {\n  return <i />\n}\n\nexport default memo(forwardRef(Chip)) as ComponentType\n",
     }),
     repo: 'third',
     packageRegistry,
@@ -511,6 +514,21 @@ describe('an app the catalogue refuses', () => {
 
   it('a kind nobody may write', () => {
     expect(refused({ 'src/One.tsx': '/**\n * One.\n * @registry unused: gone\n */\nexport function One() {\n  return <i />\n}\n' })).toMatch(/the kinds a person may write are reusable, one-off, promote-candidate/)
+  })
+
+  it("a part with a package part's name and no reason it is kept", () => {
+    const pill = "import { Button } from '@estiva-app/ui'\n\n/** Who is in this. */\nexport function EmptyState() {\n  return <Button>3</Button>\n}\n"
+    expect(refused({ 'src/EmptyState.tsx': pill })).toContain(
+      `EmptyState in src/EmptyState.tsx has the name of the package's EmptyState. Use the package's, or write why this one is kept: "@registry namesake: <reason>" in its /** … */ comment.`,
+    )
+    // The reason, and nothing else, lets it through; a kind written beside it still counts.
+    const kept = pill.replace('/** Who is in this. */', '/**\n * Who is in this.\n * @registry reusable: general\n * @registry namesake: the words are this app\'s\n */')
+    expect(refused({ 'src/EmptyState.tsx': kept })).toBe('')
+    expect(refused({ 'src/EmptyState.tsx': pill.replace('Who is in this.', 'Who is in this. @registry namesake:') })).toMatch(/has the name of the package's EmptyState/)
+  })
+
+  it("not a pass-on of the package's own part", () => {
+    expect(refused({ 'src/EmptyState.tsx': "export { EmptyState } from '@estiva-app/ui'\n" })).toBe('')
   })
 
   it('export * from a package, which hides what it hands on', () => {

@@ -81,7 +81,8 @@ another; take them from tokens.
     which owns the keys, `busy` and focus. Clear a field's `error` when it
     changes, or the form will not send.
 11. **A link to an in-app page as a bare `href`**: every click reloads the app
-    → go through the app's router, as `NavItem` does.
+    → give the app's router to `AppProvider`'s `navigate`, once at the root;
+    every link part then changes page in place.
 12. **Wrong loading and failure states**: an `EmptyState` while data is still
     coming, a hand-made pulsing box → a skeleton shaped like what is coming
     (`SkeletonList`, `SkeletonRow`, `SkeletonBar`). Say a failure in

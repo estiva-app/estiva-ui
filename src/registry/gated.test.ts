@@ -38,6 +38,7 @@ const find = (dir: string) => gatedFindings(buildAppRegistry({ root: dir, repo: 
 const card = `/**
  * A card.
  * @registry reusable: the fixture says so
+ * @registry namesake: the fixture says so
  */
 export function Card({ title, onReply, onShare }: { title: string; onReply?: () => void; onShare?: () => void }) {
   return (

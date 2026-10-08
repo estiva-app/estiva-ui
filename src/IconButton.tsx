@@ -1,5 +1,6 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 import { MUTED_CONTROL_CLASSES } from './looks'
 import { useFormBusy } from './formBusy'
@@ -67,6 +68,8 @@ export function IconButton({
 }: IconButtonProps) {
   // Inside a busy Form: switched off, and looking it (formBusy.ts).
   const formBusy = useFormBusy()
+  const anchor = props as unknown as ComponentPropsWithRef<'a'>
+  const inApp = useInAppClick(href, anchor.onClick)
   const unusable = disabled || !!disabledReason || formBusy
   const look = (off: boolean) =>
     cn(
@@ -104,7 +107,7 @@ export function IconButton({
     )
   const button =
     href && !unusable ? (
-      <a href={href} className={look(false)} {...(props as unknown as ComponentPropsWithRef<'a'>)}>
+      <a href={href} className={look(false)} {...anchor} onClick={inApp}>
         {children}
       </a>
     ) : (

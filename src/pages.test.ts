@@ -37,6 +37,8 @@ const NOT_A_ROW = ['base-ui']
 const WAITING: string[] = []
 
 const NOTHING = 'Nothing. It only draws. Clicks and keys are yours.'
+/** A part that draws nothing at all says so instead: it only holds what the parts below it ask for. */
+const HOLDS_ONLY: Record<string, string> = { AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.' }
 
 const dir = new URL('.', import.meta.url)
 const read = (file: string) => readFileSync(new URL(file, dir), 'utf8').replace(/\r\n/g, '\n')
@@ -134,7 +136,7 @@ describe('the page contract', () => {
         const body = (section(t, 'What it owns') ?? '').trim()
         if (!rows.length) {
           expect(owned, `${page} owns ${owned.join(', ')}; the page says nothing`).toEqual([])
-          expect(body).toBe(NOTHING)
+          expect(body).toBe(HOLDS_ONLY[page] ?? NOTHING)
           return
         }
         const said = rows.flatMap((r) => Object.entries(ROW).filter(([, re]) => re.test(r.does)).map(([id]) => ({ id, ticked: r.ticked, does: r.does })))

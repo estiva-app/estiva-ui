@@ -62,7 +62,7 @@ import { Card } from '@estiva-app/ui'
 - It draws no padding and no layout of its own: put them in `className`, or let
   the content pad itself.
 - With `href` it renders `Link`'s anchor, with every anchor prop passed through,
-  so a router app takes the click and the address stays real.
+  so it changes page as **Link** does and the address stays real.
 - Without `href`, a card that responds to a click gets `cursor-pointer` from its
   `hover` and your `onClick` — the selected one too, since it can open again;
   the one being changed does not. Controls inside it should stop their own

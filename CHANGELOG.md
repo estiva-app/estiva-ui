@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.60.0 — 2026-10-08
+
+### Added
+
+- **`AppProvider`: what the parts need to know about the app, said once at
+  its root** (Katerina, 8 October: "we would handle these in estiva-ui so we
+  don't keep copies"). `pictureFor(name)` is where the app keeps people's
+  pictures: `Avatar` asks it whenever it is handed none, and so does every
+  part that draws a face through it — `Person`, `AvatarGroup`, `MembersPill`,
+  `MembersDialog`, `PersonTrigger`, `IdentityMenu`. `navigate(href)` is how the
+  app changes page: a plain click on a link to the app's own address goes
+  through it instead of reloading — `Link`, `Card`, `Breadcrumb`, `NavItem`,
+  `NavTree`, `RailItem`, `Chip`, `InlineChip`, `IconButton`, `ToolbarLink`.
+  A picture handed in still wins; the browser keeps every other click (Ctrl,
+  Cmd, Shift, Alt, the middle button, a new tab, a download, another site or
+  scheme, one the caller already handled), and a link's own `onClick` runs
+  first, so an app that passes its router click per link is unchanged.
+  Without a provider nothing changes. Peek's `Avatar` and `Person` and both
+  apps' `NavItem` existed only for one of these two jobs. Page *Frame/AppProvider*.
+
+- **`TopBar` and `AppShell` draw the search field themselves** (Katerina,
+  8 October). Given `onSearch`, the bar's centre is `SearchInput`'s look,
+  290px, as a button showing `searchPlaceholder` (default "Search…") and the
+  shortcut; a click on it and Ctrl+K (Cmd+K on a Mac) anywhere call
+  `onSearch`. Before, each app drew its own field there and listened for the
+  keys itself: Peek through an inert `SearchInput` and an escape (UIG-9). The
+  stories now use it, and every top bar story is identical to the pixel in
+  all three themes. A `search` of the caller's own still takes the centre.
+
+### Changed
+
+- **The catalogue refuses an app part with a package part's name** unless the
+  reason it is kept is written beside it: `@registry namesake: <reason>`
+  (UIG-49). Peek's own `MembersPill` stayed in two headers for two days after
+  the package gained one in 0.58.0, built from the package's parts, so no rule
+  saw it. An app that takes this release fails `registry:check` until each of
+  its namesakes is deleted, renamed, or kept with its reason.
+
 ## 0.59.0 — 2026-10-07
 
 ### Added

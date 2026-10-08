@@ -42,9 +42,9 @@ import { InlineChip } from '@estiva-app/ui'
 - It belongs inside running text at the body size. `h-[1.4em]` is one line of
   that text, and `align-top` pins the chip to the line, so a line with a chip
   is the same height as a line without one.
-- It renders a plain anchor when it has an `href`. A router app passes
-  `onClick`, prevents the default and navigates; the `href` stays a real
-  address for a modified click or a new tab. Inside something that opens on
+- It renders a plain anchor when it has an `href`, and changes page as
+  **Link** does: through **AppProvider**'s `navigate`, or a router app's `onClick`.
+  The `href` stays a real address for a modified click or a new tab. Inside something that opens on
   click, stop the event there so the chip's click is not also the container's.
 - A long label: pass `className="max-w-[24ch]"` and wrap the text in
   `<span className="truncate">`.

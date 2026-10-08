@@ -34,8 +34,12 @@ export interface AppShellProps {
   menu?: ReactNode
   /** The top bar's left: the app's logo mark, or its name as text. */
   logo?: ReactNode
-  /** The top bar's centre — a search field, when there is one. */
+  /** The top bar's centre: something of the caller's own. */
   search?: ReactNode
+  /** What searching opens: the top bar then draws its search field and answers Ctrl+K (`TopBar`'s `onSearch`). */
+  onSearch?: () => void
+  /** The words in the top bar's search field. */
+  searchPlaceholder?: string
   /** The top bar's right cluster — an `IdentityMenu`. */
   identity?: ReactNode
   /** A `Banner`, or nothing — drawn at the top of the content area. */
@@ -45,8 +49,8 @@ export interface AppShellProps {
   children: ReactNode
 }
 
-export function AppShell({ variant = 'solid', menu, logo, search, identity, banner, nav, children }: AppShellProps) {
-  const bar = <TopBar variant={variant} menu={menu} logo={logo} search={search} right={identity} />
+export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, children }: AppShellProps) {
+  const bar = <TopBar variant={variant} menu={menu} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} right={identity} />
   const inset = variant === 'inset'
 
   if (variant === 'floating') {

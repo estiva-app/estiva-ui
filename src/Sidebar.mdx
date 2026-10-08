@@ -48,8 +48,8 @@ import { Sidebar, NavItem, CollapsibleSection, SectionHeader } from '@estiva-app
 ```
 
 **Every row is a plain anchor, so in a router app each click would reload
-the page.** Keep NavItem's rule: a thin wrapper computes `active` from the
-location, intercepts the click and navigates in place — see **NavItem**.
+the page** — unless the app gives **AppProvider**'s `navigate`, which
+changes page in place. See **NavItem**.
 
 Anything you place directly in the column needs `shrink-0` (both headings
 above take it in `className`):

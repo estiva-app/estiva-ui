@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconMenu2 } from '@tabler/icons-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { IconButton } from './IconButton'
 import { PersonTrigger } from './PersonTrigger'
-import { SearchInput } from './SearchInput'
 import { TopBar } from './TopBar'
 
 /**
@@ -26,6 +25,7 @@ const meta = {
     menu: { control: false },
     logo: { control: false },
     search: { control: false },
+    onSearch: { control: false },
     right: { control: false },
   },
 } satisfies Meta<typeof TopBar>
@@ -60,9 +60,27 @@ const Behind = ({ children }: { children: ReactNode }) => (
 export const Solid: Story = {
   render: (args) => (
     <Below>
-      <TopBar {...args} logo="Estiva" search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} right={face} />
+      <TopBar {...args} logo="Estiva" onSearch={() => {}} right={face} />
     </Below>
   ),
+}
+
+/**
+ * The bar's own search field: a click on it, or Ctrl+K (Cmd+K on a Mac)
+ * anywhere, calls `onSearch` — here it counts, where an app opens its launcher.
+ */
+export const Search: Story = {
+  render: function Search(args) {
+    const [opened, setOpened] = useState(0)
+    return (
+      <div className="flex h-40 flex-col overflow-hidden bg-bg-base">
+        <TopBar {...args} logo="Estiva" onSearch={() => setOpened((n) => n + 1)} searchPlaceholder="Search Estiva…" right={face} />
+        <div className="flex flex-1 items-center justify-center text-body-2 text-text-secondary">
+          {opened === 0 ? 'Click the field, or press Ctrl+K.' : `Search opened ${opened} ${opened === 1 ? 'time' : 'times'}.`}
+        </div>
+      </div>
+    )
+  },
 }
 
 /** No search yet: the centre slot holds its place, so it drops in later without moving anything. */
@@ -78,7 +96,7 @@ export const SolidNoSearch: Story = {
 export const Floating: Story = {
   render: (args) => (
     <Behind>
-      <TopBar {...args} variant="floating" menu={menuButton} search={<SearchInput shortcut="Ctrl+K" className="w-[290px]" />} right={face} />
+      <TopBar {...args} variant="floating" menu={menuButton} onSearch={() => {}} right={face} />
     </Behind>
   ),
 }

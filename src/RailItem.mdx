@@ -40,9 +40,9 @@ import { Rail, RailItem } from '@estiva-app/ui'
 </Rail>
 ```
 
-- Both render plain anchors and a `nav` region. A router app keeps a thin
-  wrapper per item: compute `active` from the location, intercept the
-  click, navigate.
+- Both render plain anchors and a `nav` region. Under **AppProvider**'s `navigate`
+  a click changes page without a reload; compute `active` from the location
+  where you place each item.
 - Icons are 16px at stroke 1.5.
 
 - A tile is 64px wide and 48px tall: the 16px icon in its 32px square, over its

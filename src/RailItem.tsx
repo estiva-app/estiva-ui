@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 
 /**
@@ -22,13 +23,15 @@ export interface RailItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href
   className?: string
 }
 
-export function RailItem({ href, icon, label, active = false, className, ...props }: RailItemProps) {
+export function RailItem({ href, icon, label, active = false, className, onClick, ...props }: RailItemProps) {
+  const inApp = useInAppClick(href, onClick)
   return (
     <a
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn('group flex h-12 w-full shrink-0 flex-col items-center gap-0.5 px-2 py-0.5', className)}
       {...props}
+      onClick={inApp}
     >
       <div
         className={cn(

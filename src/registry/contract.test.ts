@@ -70,7 +70,7 @@ const PAGE = [
 ].join('\n')
 
 const part = (name: string, cls = 'reusable') =>
-  `/**\n * ${name}, for the fixture.\n * @registry ${cls}: the fixture says so\n */\nexport function ${name}() {\n  return <span>${name}</span>\n}\n`
+  `/**\n * ${name}, for the fixture.\n * @registry ${cls}: the fixture says so\n * @registry namesake: the fixture says so\n */\nexport function ${name}() {\n  return <span>${name}</span>\n}\n`
 
 describe('a usage page', () => {
   it('keeps the contract with an opening line and the four sections in order', () => {

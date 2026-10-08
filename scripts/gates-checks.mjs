@@ -64,6 +64,7 @@ const all = [
   { ref: "UIG-45", owner: "estiva-ui", later: NEXT, title: "ArchiveDialog and ArchivedNotice live twice: move them into estiva-ui" },
   { ref: "UIG-46", owner: "estiva-ui", later: NEXT, title: "The compose box lives twice: move Peek's writing box into estiva-ui" },
   { ref: "UIG-47", owner: "estiva-ui", later: NEXT, title: "Looks estiva-ui parts are missing — collect findings here (first: a pressed Button)" },
+  { ref: "UIG-49", owner: "estiva-ui", parts: PEEK_SHIP, title: "An app part with an estiva-ui part's name fails the gate unless its reason is written" },
 ];
 
 // `app` is the folder a repo's app sits in, where its install and its checks file are (UIG-32).
@@ -416,6 +417,13 @@ export default function define(h) {
     ] },
     // Moved to the next phase (Katerina, 30 September). Their checks are written when each is built.
     ...["UIG-41", "UIG-43", "UIG-45", "UIG-46", "UIG-47"].map((ref) => ({ ref, owner: true, checks: [] })),
+    // Katerina, 8 October: Peek's own MembersPill hid in two headers; she ruled the gate, and that what
+    // only looked a picture up, stopped a reload or drew the bar's search is the package's to do.
+    { ref: "UIG-49", owner: true, checks: [
+      { what: "the catalogue refuses an app part with a package part's name and no written reason", run: () => h.contains("src/registry/app.ts", /has the name of the package's/, "src/registry/app.ts refuses a namesake") },
+      { what: "AppProvider: pictures and page changes, said once", run: () => h.contains("src/index.ts", /\bAppProvider\b/, "src/index.ts exports AppProvider") },
+      { what: "the top bar draws its own search and answers Ctrl+K", run: () => h.contains("src/TopBar.tsx", /\n  onSearch\?: \(\) => void/, "TopBar takes onSearch") },
+    ] },
     { ref: "UIG-39", owner: true, checks: [
       { what: "DESIGN.md and llms.txt ship in the package", run: () => (h.exists("DESIGN.md") && h.exists("llms.txt") ? h.PASS("DESIGN.md and llms.txt exist") : h.FAIL("no DESIGN.md or llms.txt yet: a later phase, by Katerina's ruling")) },
     ] },

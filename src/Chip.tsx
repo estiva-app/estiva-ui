@@ -1,4 +1,5 @@
 import type { MouseEventHandler, ReactNode } from 'react'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 import { CHIP_TEXT_CLASSES } from './looks'
 
@@ -41,6 +42,7 @@ const typeStyles: Record<ChipType, string> = {
 }
 
 export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, href, onClick, className }: ChipProps) {
+  const inApp = useInAppClick(href, onClick)
   const classes = cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)
   const inside = (
     <>
@@ -60,6 +62,6 @@ export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, href,
     </>
   )
   // `relative` lifts a linked chip above a covering link that comes before it.
-  if (href) return <a href={href} onClick={onClick} className={cn('relative', classes)}>{inside}</a>
+  if (href) return <a href={href} onClick={inApp} className={cn('relative', classes)}>{inside}</a>
   return <div className={classes}>{inside}</div>
 }
