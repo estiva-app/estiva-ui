@@ -31,6 +31,18 @@
  *      * @registry reusable: general; one screen uses it so far
  *      *\/
  *
+ * A part that shares its name with a package part is refused unless the reason
+ * it is kept is written beside it, the same way:
+ *
+ *     /**
+ *      * The package's `Avatar`, handed the picture this app knows about.
+ *      * @registry namesake: the package cannot know where pictures come from
+ *      *\/
+ *
+ * Peek's own MembersPill stayed in two headers for two days after the package
+ * gained one (0.58.0, 6 October) — built from the package's parts, so no rule
+ * saw it (Katerina, 8 October).
+ *
  * TypeScript is the app's own install, as it is for the package's builder.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
@@ -54,7 +66,9 @@ export interface AppBuildOptions {
 
 /** The kinds a person may write beside a part. A pass-on is a fact about its file; so is being used nowhere. */
 const WRITABLE: EntryClass[] = ['reusable', 'one-off', 'promote-candidate']
-const WRITTEN = /^@registry\s+([a-z-]+)\s*:\s*(.+)$/m
+const WRITTEN = /^@registry\s+(?!namesake\b)([a-z-]+)\s*:\s*(.+)$/m
+/** Why a part with a package part's name is kept: `@registry namesake: <reason>`. */
+const NAMESAKE = /^@registry\s+namesake\s*:\s*\S/m
 
 const isStory = (file: string) => /\.stories\.[cm]?[jt]sx?$/.test(file)
 const isTest = (file: string) => /\.(test|spec)\.[cm]?[jt]sx?$/.test(file) || /(^|\/)__(tests|mocks)__\//.test(file)
@@ -837,6 +851,11 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       reason = `Used in ${usedIn.length} places, and everything it uses is already in the package.`
     }
 
+    const namesake = namesakes.has(p.name) && !(pass && isPackageImport(pass.specifier) && pass.name === p.name) ? p.name : null
+    if (namesake && !(NAMESAKE.test(doc) || (onePart && NAMESAKE.test(header)))) {
+      problems.push(`${p.name} in ${p.file} has the name of the package's ${namesake}. Use the package's, or write why this one is kept: "@registry namesake: <reason>" in its /** … */ comment.`)
+    }
+
     const shape: Resolved = declared ? module!.resolve(declared.propsType) : { props: [], variants: [] }
     const facts_: AppFacts = {
       class: cls,
@@ -845,7 +864,7 @@ export function buildAppRegistry({ root = process.cwd(), repo, packageRegistry, 
       handsOn: pass ? (isPackageImport(pass.specifier) ? pass.name : `${pass.name} from ${pass.specifier}`) : null,
       usedIn,
       tiedTo: ties,
-      packageNamesake: namesakes.has(p.name) && !(pass && isPackageImport(pass.specifier) && pass.name === p.name) ? p.name : null,
+      packageNamesake: namesake,
       defaultExport: p.defaultExport,
     }
     const found = pass ? { docsId: null, storyId: null } : storyOf(p)
