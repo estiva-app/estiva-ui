@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.60.2 — 2026-10-08
+
+### Fixed
+
+- **A link written as the app's whole address changes page again.** Since
+  0.60.0 `AppProvider` handed `navigate` the `href` as written, and a router
+  reads `https://peek.estiva.app/message/…` as a path under the current page:
+  Peek's reply timestamp landed on an empty page. `navigate` now gets the
+  path, query and `#` part (`/message/…`) whichever way the link was written.
+
 ## 0.60.1 — 2026-10-08
 
 ### Fixed

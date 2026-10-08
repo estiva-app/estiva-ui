@@ -10,8 +10,9 @@ export interface AppProviderProps {
   pictureFor?: (name: string) => string | null | undefined
   /**
    * How this app changes page without reloading. A plain click on a link to
-   * this app's own address calls it with the link's `href` instead of loading
-   * the page again: `Link` (and so `Card` and `Breadcrumb`'s crumbs),
+   * this app's own address calls it with the link's path (`/message/1`, also
+   * when the `href` is the whole `https://…` address) instead of loading the
+   * page again: `Link` (and so `Card` and `Breadcrumb`'s crumbs),
    * `NavItem` (and so `NavTree`'s rows), `RailItem`, `Chip`, `InlineChip`, and
    * `IconButton` (and so `ToolbarLink`).
    */
@@ -71,6 +72,8 @@ export function useInAppClick<E extends HTMLElement>(href: string | undefined, o
     }
     if (url.origin !== window.location.origin) return
     event.preventDefault()
-    navigate(href)
+    // The path, never the whole address: a router reads `https://…` as a path
+    // under the current page and lands nowhere (Peek's message link, 8 October).
+    navigate(`${url.pathname}${url.search}${url.hash}`)
   }
 }

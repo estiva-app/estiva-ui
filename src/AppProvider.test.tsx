@@ -86,6 +86,13 @@ describe('changing page', () => {
     expect(navigate).toHaveBeenCalledWith('/topics')
   })
 
+  it("hands over the path when the href is the app's whole address", async () => {
+    const navigate = vi.fn()
+    inApp(navigate, <Link href={`${window.location.origin}/message/1?thread=2#r3`}>Message</Link>)
+    await userEvent.click(screen.getByRole('link'))
+    expect(navigate).toHaveBeenCalledWith('/message/1?thread=2#r3')
+  })
+
   it("runs the caller's own onClick first", async () => {
     const order: string[] = []
     inApp(() => order.push('navigate'), <Link href="/topics" onClick={() => order.push('caller')}>Topics</Link>)
