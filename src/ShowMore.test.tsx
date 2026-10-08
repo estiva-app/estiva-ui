@@ -6,6 +6,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Button } from './Button'
 import { ShowMore } from './ShowMore'
 
 afterEach(() => {
@@ -40,5 +41,20 @@ describe('ShowMore', () => {
     render(<ShowMore maxHeight={96}><p>Short</p></ShowMore>)
     expect(screen.queryByRole('button')).toBeNull()
     expect(screen.getByText('Short').parentElement!.style.maxHeight).toBe('')
+  })
+
+  it('puts an action level with the toggle, at the right of its row', () => {
+    contentHeight(300)
+    render(<ShowMore maxHeight={96} action={<Button>Open</Button>}><p>Long</p></ShowMore>)
+    const row = screen.getByRole('button', { name: 'Show more' }).parentElement!
+    expect(row.contains(screen.getByRole('button', { name: 'Open' }))).toBe(true)
+    expect(row.className).toMatch(/justify-between/)
+  })
+
+  it('keeps the action when the content fits, with no toggle', () => {
+    contentHeight(40)
+    render(<ShowMore maxHeight={96} action={<Button>Open</Button>}><p>Short</p></ShowMore>)
+    expect(screen.queryByRole('button', { name: /Show/ })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Open' })).toBeTruthy()
   })
 })

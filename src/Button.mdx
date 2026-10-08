@@ -48,6 +48,10 @@ import { IconPlus } from '@tabler/icons-react'
 
 - `leadingIcon` is 16px at stroke 1.5 (14px, `size-3.5`, on `small`); the
   button balances its own padding around it.
+- `trailingIcon` goes after the label, at the same sizes, and says where the
+  action leads: an open-out arrow on "Open in Estiva Ship". The padding
+  balances the other way round. Beside a `leadingIcon` it is not drawn: one
+  icon per button.
 - `type` defaults to `"button"` — inside a form it submits only when you
   say `type="submit"`.
 - It is a native `<button>` on Base UI's Button, and every native prop

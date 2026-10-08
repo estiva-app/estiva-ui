@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { IconExternalLink } from '@tabler/icons-react'
+import { Button } from './Button'
 import { Card } from './Card'
 import { ShowMore } from './ShowMore'
 
@@ -36,4 +38,16 @@ export const InACard: Story = {
       <ShowMore {...args} className="mt-1" />
     </Card>
   ),
+}
+
+/** `action`: one more small button, level with Show more at the right of its row. */
+export const WithAnAction: Story = {
+  args: { surface: 'inset', action: <Button size="small" trailingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />}>Open in Estiva Ship</Button> },
+  render: InACard.render,
+}
+
+/** Short content with an action: no toggle, and the action keeps its place at the right. */
+export const ShortWithAnAction: Story = {
+  args: { ...WithAnAction.args, children: <p className="text-caption text-text-secondary">One line of description.</p> },
+  render: InACard.render,
 }

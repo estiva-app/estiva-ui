@@ -42,6 +42,11 @@ import { ShowMore } from '@estiva-app/ui'
   (a panel, the default) or `inset` (inside an inset card). A fade into the
   wrong colour shows as a band.
 - `maxHeight` is in px, 96 by default.
+- `action` is one more small muted `Button` on the toggle's row, at its
+  right: the way out to where the content lives ("Open in Estiva Ship"). The
+  row is drawn for it even when the content fits and there is no toggle.
+
+<Canvas of={ShowMoreStories.WithAnAction} />
 
 <Canvas of={ShowMoreStories.InACard} />
 

@@ -17,6 +17,10 @@ import { cn } from './cn'
  *
  * Focus arriving inside the cut content opens it: a field or a link there,
  * reached by Tab or a click, is never worked on out of sight.
+ *
+ * `action` is one more small button on the toggle's row, at its right
+ * (Katerina, 8 October: Peek's block card puts "Open in Estiva Ship" level with
+ * Show more). The row is drawn for it whether or not the content is cut.
  */
 export interface ShowMoreProps {
   children: ReactNode
@@ -24,12 +28,14 @@ export interface ShowMoreProps {
   maxHeight?: number
   /** What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`. */
   surface?: 'surface' | 'inset'
+  /** A small muted `Button` at the right of the toggle's row. Inset as the toggle is, so its words end where the content does. */
+  action?: ReactNode
   className?: string
 }
 
 const FADE_CLASSES = { surface: 'from-bg-surface', inset: 'from-bg-inset' } as const
 
-export function ShowMore({ children, maxHeight = 96, surface = 'surface', className }: ShowMoreProps) {
+export function ShowMore({ children, maxHeight = 96, surface = 'surface', action, className }: ShowMoreProps) {
   const box = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [overflows, setOverflows] = useState(false)
@@ -52,12 +58,24 @@ export function ShowMore({ children, maxHeight = 96, surface = 'surface', classN
         {children}
         {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', FADE_CLASSES[surface])} />}
       </div>
-      {overflows && (
-        // `-ml-1.5`: the small button's own 6px inset, so its words start where the content's do.
-        <Button variant="muted" size="small" className="-ml-1.5 mt-1" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-          {open ? 'Show less' : 'Show more'}
-        </Button>
+      {action ? (
+        <div className={cn('mt-1 flex w-full items-center gap-2', overflows ? 'justify-between' : 'justify-end')}>
+          {overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} />}
+          {/* `-mr-1.5`: the small button's own 6px inset, so its words end where the content's do. */}
+          <div className="-mr-1.5 flex shrink-0">{action}</div>
+        </div>
+      ) : (
+        overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} className="mt-1" />
       )}
     </div>
+  )
+}
+
+function Toggle({ open, onToggle, className }: { open: boolean; onToggle: () => void; className?: string }) {
+  return (
+    // `-ml-1.5`: the small button's own 6px inset, so its words start where the content's do.
+    <Button variant="muted" size="small" className={cn('-ml-1.5', className)} aria-expanded={open} onClick={onToggle}>
+      {open ? 'Show less' : 'Show more'}
+    </Button>
   )
 }
