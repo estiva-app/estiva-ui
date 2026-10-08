@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.62.0 — 2026-10-08
+
+### Changed
+
+- **`MembersDialog`: Leave sits on your own row, in red.** Your row always
+  comes first, with a small red Leave at its end. A non-member has no row of
+  their own: Join is a row on top, like "Add members" (Katerina, 8 October:
+  the Leave row on top looked like an invite, the same as Add members, and
+  your name in the list before you joined looked like you were in).
+  **`self` now takes `id`**, the viewer's row in `members`: apps pass it.
+  Everywhere the dialog is used, it looks like this now: Peek's and Ship's
+  Members.
+
 ## 0.61.0 — 2026-10-08
 
 ### Added
