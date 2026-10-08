@@ -7,7 +7,17 @@
  * as the eslint ones are. The rest of the package it draws with — `Popover`,
  * `Toolbar`, `MenuItem`, `SuggestionMenu` — is the main entry's own, not a copy.
  */
-export { KeptSelection, SelectionToolbar, normalizeHref, type MarkId, type SelectionToolbarProps } from './SelectionToolbar'
+export { KeptSelection, SelectionToolbar, keepSelection, releaseSelection, normalizeHref, type MarkId, type SelectionAction, type SelectionToolbarProps } from './SelectionToolbar'
+export {
+  CommentHighlights,
+  setCommentAnchors,
+  commentRange,
+  commentElement,
+  quoteOfSelection,
+  type CommentAnchor,
+  type CommentHighlightsOptions,
+  type SelectionQuote,
+} from './CommentHighlights'
 export { PastedImages, pastedImages, pastedImageName, type PastedImagesOptions, type ClipboardSource } from './PastedImages'
 export { CodeBlockColours } from './CodeBlockColours'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'

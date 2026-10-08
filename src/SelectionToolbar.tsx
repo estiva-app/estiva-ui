@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Editor } from '@tiptap/react'
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
@@ -7,7 +7,7 @@ import { IconBold, IconCode, IconItalic, IconLink, IconUnderline } from '@tabler
 import { Form } from './Form'
 import { Popover } from './Popover'
 import { TextInput } from './TextInput'
-import { Toolbar, ToolbarButton } from './Toolbar'
+import { Toolbar, ToolbarButton, ToolbarSeparator } from './Toolbar'
 import { shortcutLabel } from './shortcuts'
 
 /**
@@ -221,9 +221,26 @@ export interface SelectionToolbarProps {
   marks?: readonly MarkId[]
   /** The Link button and its address field. Needs a link mark in the editor and `KeptSelection`. Default off. */
   link?: boolean
+  /**
+   * The app's own buttons after the marks, past a separator: "Comment". Each
+   * runs with the selection still in place, and the strip closes after it.
+   */
+  actions?: readonly SelectionAction[]
 }
 
-export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false }: SelectionToolbarProps) {
+/** One of the app's buttons in the strip. */
+export interface SelectionAction {
+  /** Says what it does: the tooltip and the button's name. */
+  label: string
+  /** A 16px icon. */
+  icon: ReactNode
+  /** The keys that do the same, shown in the tooltip ("Mod-Shift-M"). */
+  keys?: string
+  /** What it does, with the selection as it is. */
+  run: (editor: Editor) => void
+}
+
+export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false, actions = [] }: SelectionToolbarProps) {
   /** The selection's top edge and horizontal centre; the face decides the rest. */
   const [anchor, setAnchor] = useState<{ top: number; centre: number } | null>(null)
   const [mode, setMode] = useState<Mode>('marks')
@@ -480,6 +497,23 @@ export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline
               <IconLink size={16} stroke={1.5} />
             </ToolbarButton>
           )}
+          {actions.length > 0 && <ToolbarSeparator />}
+          {actions.map((action) => (
+            <ToolbarButton
+              key={action.label}
+              aria-label={action.label}
+              tooltip={action.label}
+              tooltipShortcut={action.keys ? shortcutLabel(action.keys) : undefined}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                // Closing first: it lets go of a kept selection, which the action may want to keep.
+                hide()
+                action.run(editor)
+              }}
+            >
+              {action.icon}
+            </ToolbarButton>
+          ))}
         </Toolbar>
       )}
     </Popover>
