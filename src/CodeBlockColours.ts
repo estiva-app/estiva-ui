@@ -10,10 +10,10 @@ import { lowlight } from './codeColours'
   (Katerina, 9 October: never guess).
 */
 const namedOnly = {
-  highlight: (language: string, value: string) => lowlight.highlight(language, value),
+  highlight: (language: string, value: string) => lowlight().highlight(language, value),
   highlightAuto: (value: string) => ({ type: 'root' as const, children: [{ type: 'text' as const, value }], data: { language: undefined, relevance: 0 } }),
-  listLanguages: () => lowlight.listLanguages(),
-  registered: (language: string) => lowlight.registered(language),
+  listLanguages: () => lowlight().listLanguages(),
+  registered: (language: string) => lowlight().registered(language),
 }
 
 /**

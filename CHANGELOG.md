@@ -14,6 +14,13 @@
   Now it stays one colour in both, as on GitHub (Katerina, 9 October: never
   guess). Name the language by typing ```` ```ts ```` then Enter.
 
+### Fixed
+
+- **An app that draws no formatted text no longer carries highlight.js.** The
+  code colourer was made when the package loaded, which every bundler keeps:
+  an app importing only `Link` was 55 KB gzipped. It is now made the first
+  time code is coloured, and that app is 3 KB.
+
 ### Removed
 
 - **The `text-code` token** (`--text-code`, `text-text-code`), added in 0.64.0
