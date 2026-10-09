@@ -11,8 +11,16 @@ import { common, createLowlight } from 'lowlight'
  *
  * `common` is highlight.js's 37 everyday languages. A language outside them, or
  * none, leaves the code in one colour.
+ *
+ * Made the first time code is coloured, not when the package loads: a call at
+ * the top of the file is kept by every app's bundler, so an app that never draws
+ * code carried highlight.js too (measured: an app importing only `Link` was
+ * 55 KB gzipped).
  */
-export const lowlight = createLowlight(common)
+let instance: ReturnType<typeof createLowlight> | undefined
+export function lowlight() {
+  return (instance ??= createLowlight(common))
+}
 
 interface HastNode {
   type: string
@@ -28,6 +36,6 @@ function draw(node: HastNode, key: number): ReactNode {
 
 /** The code, its words wrapped in highlight.js's classes; the text as it is when the language is unknown. */
 export function codeColours(text: string, language?: string): ReactNode {
-  if (!language || !lowlight.registered(language)) return text
-  return (lowlight.highlight(language, text).children as HastNode[]).map(draw)
+  if (!language || !lowlight().registered(language)) return text
+  return (lowlight().highlight(language, text).children as HastNode[]).map(draw)
 }

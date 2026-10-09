@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.64.0",
+    "packageVersion": "0.65.0",
     "exports": 140,
     "typeExports": 145,
     "files": null
@@ -5415,7 +5415,7 @@
       "looks": [
         "[&_:is(ul,ol)]:pl-5 [&_li>p]:m-0 [&_li]:break-words [&_li]:marker:text-text-secondary [&_ol]:list-decimal [&_ul]:list-disc",
         "[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5",
-        "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:text-text-code [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary",
+        "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:border [&_:not(pre)>code]:border-border-default [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary",
         "[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:px-3 [&_pre]:py-2.5 [&_pre]:font-mono [&_pre]:text-[0.85em] [&_pre]:leading-relaxed [&_pre]:text-text-primary",
         "[&_:is(.hljs-keyword,.hljs-doctag,.hljs-type,.hljs-template-tag,.hljs-template-variable)]:text-syntax-keyword [&_.hljs-title]:text-syntax-function [&_:is(.hljs-number,.hljs-literal,.hljs-attr,.hljs-attribute,.hljs-meta,.hljs-variable,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id)]:text-syntax-constant [&_:is(.hljs-string,.hljs-regexp)]:text-syntax-string [&_:is(.hljs-built_in,.hljs-symbol)]:text-syntax-variable [&_.hljs-comment]:text-syntax-comment [&_:is(.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo)]:text-syntax-tag",
         "[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary",

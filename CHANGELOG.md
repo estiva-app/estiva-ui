@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.65.0 — 2026-10-09
+
+### Changed
+
+- **Code in a sentence is the code fill with a thin border, in the heading
+  colour**, no longer amber (Katerina, 9 October: the amber was too much;
+  option B of the research page). The box now shows in Leaf too, where the
+  fill alone was 1.06 : 1 against the page.
+- **`CodeBlockColours` colours a block only by the language it names.** The
+  editor library guessed a language for a block that names none, so a block
+  made from the `/` menu was coloured while written and plain once read.
+  Now it stays one colour in both, as on GitHub (Katerina, 9 October: never
+  guess). Name the language by typing ```` ```ts ```` then Enter.
+
+### Fixed
+
+- **An app that draws no formatted text no longer carries highlight.js.** The
+  code colourer was made when the package loaded, which every bundler keeps:
+  an app importing only `Link` was 55 KB gzipped. It is now made the first
+  time code is coloured, and that app is 3 KB.
+
+### Removed
+
+- **The `text-code` token** (`--text-code`, `text-text-code`), added in 0.64.0
+  for the amber. Nothing in Peek, Ship or Leaf used it.
+
 ## 0.64.0 — 2026-10-09
 
 The look of formatted text, after a research page and Katerina's answers of

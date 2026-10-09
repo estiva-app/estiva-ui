@@ -19,7 +19,7 @@ are the ones RichText reads it in, so writing looks the same as reading.
 
 - Drawing text that is already written → **RichText**, which colours its code
   blocks itself.
-- Code in a sentence → the code mark. It is amber and takes no other colours.
+- Code in a sentence → the code mark. It takes no colours.
 
 ## How
 
@@ -38,8 +38,9 @@ useEditor({
   class list; without it the words are named but drawn in one colour.
 - The block keeps the name `codeBlock` and its `language`, so text written
   before it was added reads the same.
-- It colours highlight.js's 37 everyday languages. A block in any other
-  language, or in none, stays one colour.
+- It colours highlight.js's 37 everyday languages, only by the language the
+  block names (```` ```ts ```` then Enter). A block in any other language, or
+  in none, stays one colour: it never guesses, so it looks the same once read.
 - The app installs `@tiptap/extension-code-block-lowlight`, as it installs the
   other Tiptap parts.
 

@@ -155,7 +155,6 @@ export default {
         'bg-tooltip-key': 'var(--bg-tooltip-key)',
         'bg-field':     'var(--bg-field)',
         'bg-code':      'var(--bg-code)',
-        'text-code':    'var(--text-code)',
         'syntax-keyword': 'var(--syntax-keyword)',
         'syntax-function': 'var(--syntax-function)',
         'syntax-constant': 'var(--syntax-constant)',
