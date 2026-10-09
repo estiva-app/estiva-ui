@@ -95,9 +95,9 @@ const RICH_TEXT_CLASSES = {
   /* The line in the muted text grey, not the border grey: a border grey was 1.3 : 1 in Leaf (Katerina, 9 October). */
   // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
   quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5',
-  /* Code in a sentence is amber, its own colour (Katerina, 9 October: option I). */
+  /* Code in a sentence: the code fill and a thin border, in the heading colour (Katerina, 9 October: option B; the amber of 0.64.0 was too much). */
   // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it, so it scales with a heading and with `small`; a named size is fixed
-  code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:text-text-code [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary',
+  code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:border [&_:not(pre)>code]:border-border-default [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary',
   /* 12px either side, 10px above and below, looser lines than the text (Katerina, 9 October; 8px all round before). */
   // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it; the code inside the block is the block's own size, not 0.85 of it again
   codeBlock: '[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:px-3 [&_pre]:py-2.5 [&_pre]:font-mono [&_pre]:text-[0.85em] [&_pre]:leading-relaxed [&_pre]:text-text-primary',
