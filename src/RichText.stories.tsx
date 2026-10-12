@@ -84,6 +84,33 @@ export const WithTheAppsOwnParts: Story = {
   },
 }
 
+/** Items indented under the one above, two levels deep, in both lists: each level is the type of the list it sits in. */
+export const IndentedItems: Story = {
+  args: {
+    blocks: [
+      {
+        type: 'bulletList',
+        children: [
+          { type: 'listItem', inline: [t('Item one')] },
+          { type: 'listItem', indent: 1, inline: [t('Item one, under it')] },
+          { type: 'listItem', indent: 2, inline: [t('A level further in')] },
+          { type: 'listItem', indent: 1, inline: [t('Back one level')] },
+          { type: 'listItem', inline: [t('Item two')] },
+        ],
+      },
+      {
+        type: 'orderedList',
+        children: [
+          { type: 'listItem', inline: [t('The first step')] },
+          { type: 'listItem', indent: 1, inline: [t('Each level counts from one')] },
+          { type: 'listItem', indent: 1, inline: [t('Then two')] },
+          { type: 'listItem', inline: [t('The second step')] },
+        ],
+      },
+    ],
+  },
+}
+
 /** A block this part has no design for, from a later version: its words are drawn, never dropped. */
 export const UnknownBlock: Story = {
   args: {
