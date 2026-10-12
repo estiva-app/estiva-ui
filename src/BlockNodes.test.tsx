@@ -559,4 +559,17 @@ describe('Tab on a list item — MAN-13', () => {
     press('Enter')
     expect(JSON.stringify(editor.getJSON())).not.toContain('stray')
   })
+
+  it('never lets an inner list keep a real block\'s id: the block keeps it', () => {
+    const nested = structuredClone(LIST)
+    const [first, second] = nested.content[0].content
+    ;(first.content as unknown[]).push({ type: 'bulletList', attrs: { blockId: 'i1' }, content: [second] })
+    nested.content[0].content = [first]
+    editor = new Editor({ extensions: EXTENSIONS, content: nested })
+    editor.commands.setTextSelection(END_OF_AFTER)
+    press('Enter')
+    const item = (editor.getJSON() as Json).content![0].content![0]
+    expect(item.attrs?.blockId).toBe('i1')
+    expect(item.content![1].attrs?.blockId ?? null).toBeNull()
+  })
 })

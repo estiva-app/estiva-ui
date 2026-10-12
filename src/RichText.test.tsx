@@ -169,4 +169,9 @@ describe('an indented list item — MAN-13', () => {
     expect([...outer.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a'])
     expect(outer.querySelector(':scope > li > ul > li')?.getAttribute('data-block-id')).toBe('b')
   })
+
+  it('draws an item with an indent that is not a whole number above 0 at the left', () => {
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [item('a', 'one'), { ...item('b', 'two'), indent: -1 }, { ...item('c', 'three'), indent: Number.NaN }]}]} />)
+    expect([...container.querySelector('ul')!.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a', 'b', 'c'])
+  })
 })

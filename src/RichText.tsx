@@ -251,7 +251,8 @@ function nestItems(items: readonly RichTextBlock[]): NestedItem[] {
   // The last item seen at each depth.
   const path: NestedItem[] = []
   items.forEach((item, key) => {
-    const depth = Math.min(item.indent ?? 0, path.length)
+    const asked = Number.isInteger(item.indent) && item.indent! > 0 ? item.indent! : 0
+    const depth = Math.min(asked, path.length)
     path.length = depth
     const node: NestedItem = { item, key, below: [] }
     ;(depth === 0 ? top : path[depth - 1].below).push(node)

@@ -72,9 +72,12 @@ interface Claim {
 /** Every block that claims an id, by id, in document order. */
 function claimsIn(doc: ProseMirrorNode): Map<string, Claim[]> {
   const claims = new Map<string, Claim[]>()
-  doc.descendants((node, pos) => {
+  doc.descendants((node, pos, parent) => {
     const fixed = node.type.name === 'unknownBlock'
     if (!fixed && !BLOCK_TYPE_SET.has(node.type.name)) return
+    // A list inside a list item is no block (MAN-13): an id it arrived with is
+    // cleared, never a claim that could take a real block's.
+    if (parent?.type.name === 'listItem' && LISTS.has(node.type.name)) return
     const id = node.attrs.blockId
     if (typeof id !== 'string' || id === '') return
     const copies = claims.get(id)
