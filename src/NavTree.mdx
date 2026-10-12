@@ -54,7 +54,10 @@ rows to any depth.
   skeleton under it once open, and `onOpenChange` says when to read them;
   `childrenMessage` is the line under it. `onIntent` on a group says the
   pointer rests on it or the keyboard reached it: read it then, so opening
-  it draws rows.
+  it draws rows. A `NavTreeSection` opened while its read is in flight takes
+  `pending`: its arrow turns and it opens once the rows are in, in one move,
+  instead of a skeleton the rows then replace; keep `loading` for a read
+  that turns out slow.
 
 <Canvas of={NavTreeStories.ReadAsItOpens} />
 

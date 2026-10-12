@@ -20,6 +20,13 @@ toggle, and the rows under it, sliding shut and open.
   reloads: this browser remembers, under that key. The app prefixes the
   key (`app.sidebar.starred`).
 - `open` + `onOpenChange` when the app owns the state.
+- `pending` when the rows are read as it opens and usually arrive quickly:
+  the title turns open at once (and says `aria-busy`), the panel stays shut
+  until `pending` is false, then opens once with every row. A skeleton that
+  the rows replace would move everything below it twice. Only for rows not
+  yet drawn: on a section already showing its rows, `pending` shuts them
+  until it is false. The tests pin the state (open, busy, rows hidden); the
+  single slide is Chrome's to show, measured in Peek (OPT-11).
 - `actions` for add, sort, filter beside the title — SectionHeader's,
   revealed while the row is hovered or keyboard-focused.
 - `look="row"` when the section is a row among rows — a folder in a

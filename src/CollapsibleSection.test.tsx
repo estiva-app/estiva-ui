@@ -81,6 +81,36 @@ describe('CollapsibleSection', () => {
   })
 })
 
+/** Opened before its rows are in (0.65.1, OPT-11): the title says open, the panel waits. */
+describe('CollapsibleSection, pending', () => {
+  it('the title says open and busy while the rows stay shut, then they open', () => {
+    const { rerender } = render(<CollapsibleSection title="Section" open pending>{rows}</CollapsibleSection>)
+    expect(title().getAttribute('aria-expanded')).toBe('true')
+    expect(title().getAttribute('aria-busy')).toBe('true')
+    expect(screen.getByText('Item one').closest('[hidden]')).not.toBeNull()
+    rerender(<CollapsibleSection title="Section" open>{rows}</CollapsibleSection>)
+    expect(title().getAttribute('aria-expanded')).toBe('true')
+    expect(title().getAttribute('aria-busy')).toBeNull()
+    expect(screen.getByText('Item one').closest('[hidden]')).toBeNull()
+  })
+
+  it('a click while pending closes it', async () => {
+    const onOpenChange = vi.fn()
+    render(<CollapsibleSection title="Section" open pending onOpenChange={onOpenChange}>{rows}</CollapsibleSection>)
+    await userEvent.click(title())
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  it('a closed section is not busy, and a click opens it', async () => {
+    const onOpenChange = vi.fn()
+    render(<CollapsibleSection title="Section" open={false} pending onOpenChange={onOpenChange}>{rows}</CollapsibleSection>)
+    expect(title().getAttribute('aria-expanded')).toBe('false')
+    expect(title().getAttribute('aria-busy')).toBeNull()
+    await userEvent.click(title())
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+  })
+})
+
 /** What it hands its header (0.56.0): the folder's ⋮, the ⋮'s name, and the icon before the title. */
 describe('CollapsibleSection, its header', () => {
   it('passes menu and menuLabel on: the ⋮ is named by menuLabel and opens the menu', async () => {

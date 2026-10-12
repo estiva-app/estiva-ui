@@ -30,6 +30,15 @@ export interface CollapsibleSectionProps {
   /** The caller owns the state. */
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  /**
+   * Opened, and its rows are not in yet: the title says open — the arrow
+   * turned, `aria-expanded`, `aria-busy` — and the panel stays shut until
+   * this is false, then slides open once, rows and all. A skeleton the rows
+   * then replace moves everything below twice (Peek's Folders, OPT-11). A
+   * click while pending closes it, as on an open section. Not for a re-read:
+   * on a section already showing its rows it shuts them until it is false.
+   */
+  pending?: boolean
   /** Remember open or closed in this browser, under this key. The app prefixes it. */
   storageKey?: string
   /** 16px, before the title; the arrow takes its place on hover — `SectionHeader`'s. */
@@ -85,7 +94,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, storageKey, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -93,9 +102,12 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
     writeStored(storageKey, next)
     onOpenChange?.(next)
   }
+  // Pending, Base UI holds the panel shut and so would open it on a click: the click is the title's, and the title says open.
+  // Only a click: find-in-page reaching into the shut panel asks to open it, and it is open.
+  const shown = open && !pending
   return (
-    <Collapsible.Root open={open} onOpenChange={setOpen} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron icon={icon} isExpanded={open} trailing={trailing} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger />} />
+    <Collapsible.Root open={shown} onOpenChange={(next, details) => setOpen(pending && details.reason === 'trigger-press' ? !open : next)} className={cn('flex flex-col', className)}>
+      <SectionHeader title={title} chevron icon={icon} isExpanded={open} trailing={trailing} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger aria-expanded={open} aria-busy={pending && open ? true : undefined} />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame
