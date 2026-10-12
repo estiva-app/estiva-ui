@@ -10,16 +10,8 @@
   for a list inside a list item and walks into it for its items. `BlockId`
   names an item there that arrives without an id, as it does in the outer list,
   and clears an id such a list arrives with. Before, the save dropped the
-  indented item and its text.
-
-### Added
-
-- **`RichText` draws an indented list item inside the one above**, from the
-  new `RichTextBlock.indent` (protocol's `RenderBlock.indent`). The list it
-  sits in has no `data-block-id` and the type of the list around it; an item is
-  never drawn more than one level below the one before. Same classes as before:
-  it looks as ProseMirror already drew it while typing. No caller changes;
-  without `indent` nothing differs.
+  indented item and its text. Nothing on screen changes: the editor already
+  drew the item indented; now the save keeps it.
 
 ## 0.65.1 — 2026-10-12
 
