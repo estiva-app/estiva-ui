@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.65.2 — 2026-10-12
+
+### Fixed
+
+- **An item indented with Tab keeps its id, and the list Tab puts it in gets
+  none** (MAN-13, with `@estiva-app/protocol` 0.29.0). §13.3 now keeps a list
+  flat and marks an item's depth (`attrs.indent`), so the save writes no block
+  for a list inside a list item and walks into it for its items. `BlockId`
+  names an item there that arrives without an id, as it does in the outer list,
+  and clears an id such a list arrives with. Before, the save dropped the
+  indented item and its text.
+
+### Added
+
+- **`RichText` draws an indented list item inside the one above**, from the
+  new `RichTextBlock.indent` (protocol's `RenderBlock.indent`). The list it
+  sits in has no `data-block-id` and the type of the list around it; an item is
+  never drawn more than one level below the one before. Same classes as before:
+  it looks as ProseMirror already drew it while typing. No caller changes;
+  without `indent` nothing differs.
+
 ## 0.65.1 — 2026-10-12
 
 ### Added

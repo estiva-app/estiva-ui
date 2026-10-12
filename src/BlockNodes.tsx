@@ -151,6 +151,22 @@ const BLOCK_CONTAINERS = new Set(['bulletList', 'orderedList', 'table', 'tableRo
 /** The wrappers the save flattens: their paragraphs become inline runs of theirs. */
 const FLATTENED = new Set(['listItem', 'blockquote'])
 
+/**
+ * The lists Tab puts inside a list item (MAN-13). §13.3 keeps a list flat and
+ * marks an item's depth, so the save walks into such a list for its items and
+ * writes no block for the list itself: its items get ids, it gets none.
+ */
+const LISTS = new Set(['bulletList', 'orderedList'])
+
+/** The lists inside a list item, with where each starts. */
+function innerLists(item: ProseMirrorNode, pos: number): { pos: number; node: ProseMirrorNode }[] {
+  const out: { pos: number; node: ProseMirrorNode }[] = []
+  item.forEach((child, offset) => {
+    if (LISTS.has(child.type.name)) out.push({ pos: pos + 1 + offset, node: child })
+  })
+  return out
+}
+
 const idOf = (node: ProseMirrorNode): string | undefined => {
   const id = node.attrs.blockId
   return typeof id === 'string' && id !== '' ? id : undefined
@@ -163,6 +179,9 @@ function addressedBlocks(doc: ProseMirrorNode): { pos: number; node: ProseMirror
     if (!BLOCK_TYPE_SET.has(node.type.name)) return
     out.push({ pos, node })
     if (BLOCK_CONTAINERS.has(node.type.name)) node.forEach((child, offset) => visit(child, pos + 1 + offset))
+    if (node.type.name === 'listItem') {
+      for (const list of innerLists(node, pos)) list.node.forEach((child, offset) => visit(child, list.pos + 1 + offset))
+    }
   }
   doc.forEach((node, offset) => visit(node, offset))
   return out
@@ -175,13 +194,17 @@ function unnamedBlocks(doc: ProseMirrorNode): number[] {
     .map((b) => b.pos)
 }
 
-/** Where a paragraph inside a list item or a quote claims an id — which the save drops. */
+/**
+ * Where a paragraph inside a list item or a quote claims an id, or a list
+ * inside a list item does — both of which the save drops.
+ */
 function hiddenIds(doc: ProseMirrorNode): number[] {
   const out: number[] = []
   doc.descendants((node, pos) => {
     if (!FLATTENED.has(node.type.name)) return
     node.forEach((child, offset) => {
-      if (child.isTextblock && idOf(child) !== undefined) out.push(pos + 1 + offset)
+      const inner = child.isTextblock || (node.type.name === 'listItem' && LISTS.has(child.type.name))
+      if (inner && idOf(child) !== undefined) out.push(pos + 1 + offset)
     })
   })
   return out
