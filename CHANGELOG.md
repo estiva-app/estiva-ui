@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.65.2 — 2026-10-12
+
+### Fixed
+
+- **An item indented with Tab keeps its id, and the list Tab puts it in gets
+  none** (MAN-13, with `@estiva-app/protocol` 0.29.0). §13.3 now keeps a list
+  flat and marks an item's depth (`attrs.indent`), so the save writes no block
+  for a list inside a list item and walks into it for its items. `BlockId`
+  names an item there that arrives without an id, as it does in the outer list,
+  and clears an id such a list arrives with. Before, the save dropped the
+  indented item and its text. Nothing on screen changes: the editor already
+  drew the item indented; now the save keeps it.
+
 ## 0.65.1 — 2026-10-12
 
 ### Added

@@ -477,3 +477,99 @@ describe('what it draws', () => {
     expect(container.querySelector('h1')?.getAttribute('data-block-id')).toBe('h1')
   })
 })
+
+describe('Tab on a list item — MAN-13', () => {
+  /** A key as a person presses it: through the editor's own key handling, not a command. */
+  const press = (key: string, shiftKey = false) =>
+    editor!.view.someProp('handleKeyDown', (f) => f(editor!.view, new KeyboardEvent('keydown', { key, shiftKey })))
+  const LIST = {
+    type: 'doc',
+    content: [
+      {
+        type: 'bulletList',
+        attrs: { blockId: 'l1' },
+        content: [
+          { type: 'listItem', attrs: { blockId: 'i1' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'intro' }] }] },
+          { type: 'listItem', attrs: { blockId: 'i2' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'after' }] }] },
+        ],
+      },
+    ],
+  }
+  /** The end of "after": 1 opens the list, 2 the first item, 3 its paragraph, then "intro", two closes, two opens. */
+  const END_OF_AFTER = 1 + 1 + 1 + 5 + 2 + 2 + 5
+
+  it('puts the item in a list inside the one above, keeping its id, and gives that list none', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: LIST })
+    editor.commands.setTextSelection(END_OF_AFTER)
+    expect(press('Tab')).toBe(true)
+    const list = (editor.getJSON() as Json).content![0]
+    expect(list.content!.map((n) => n.attrs?.blockId)).toEqual(['i1'])
+    const inner = list.content![0].content![1]
+    expect(inner.type).toBe('bulletList')
+    expect(inner.attrs?.blockId ?? null).toBeNull()
+    expect(inner.content![0].attrs?.blockId).toBe('i2')
+    expect(JSON.stringify(inner)).toContain('after')
+  })
+
+  it('names an item made by Enter inside the inner list, so a save does not re-mint it each time', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: LIST })
+    editor.commands.setTextSelection(END_OF_AFTER)
+    press('Tab')
+    press('Enter')
+    editor.commands.insertContent('third')
+    const inner = (editor.getJSON() as Json).content![0].content![0].content![1]
+    const ids = inner.content!.map((n) => n.attrs?.blockId)
+    expect(ids[0]).toBe('i2')
+    expect(typeof ids[1]).toBe('string')
+    expect(ids[1]).not.toBe('i2')
+    expect(inner.attrs?.blockId ?? null).toBeNull()
+  })
+
+  it('names an item in an inner list that arrives without an id, as it does one in the outer list', async () => {
+    const nested = structuredClone(LIST)
+    const [first, second] = nested.content[0].content
+    ;(first.content as unknown[]).push({ type: 'bulletList', content: [{ ...second, attrs: {} }] })
+    nested.content[0].content = [first]
+    editor = new Editor({ extensions: EXTENSIONS, content: nested })
+    // The editor's `create` comes a tick after it mounts.
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const inner = (editor.getJSON() as Json).content![0].content![0].content![1]
+    expect(typeof inner.content![0].attrs?.blockId).toBe('string')
+    expect(inner.attrs?.blockId ?? null).toBeNull()
+  })
+
+  it('brings it back out with Shift+Tab, id and text kept', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: LIST })
+    editor.commands.setTextSelection(END_OF_AFTER)
+    press('Tab')
+    press('Tab', true)
+    const list = (editor.getJSON() as Json).content![0]
+    expect(list.content!.map((n) => n.attrs?.blockId)).toEqual(['i1', 'i2'])
+    expect(list.content![0].content).toHaveLength(1)
+  })
+
+  it('clears an id an inner list arrives with, since the save writes no block for it', () => {
+    const nested = structuredClone(LIST)
+    const [first, second] = nested.content[0].content
+    ;(first.content as unknown[]).push({ type: 'bulletList', attrs: { blockId: 'stray' }, content: [second] })
+    nested.content[0].content = [first]
+    editor = new Editor({ extensions: EXTENSIONS, content: nested })
+    // Any change that brings in a block runs the check; Enter at the end of "after" is one.
+    editor.commands.setTextSelection(END_OF_AFTER)
+    press('Enter')
+    expect(JSON.stringify(editor.getJSON())).not.toContain('stray')
+  })
+
+  it('never lets an inner list keep a real block\'s id: the block keeps it', () => {
+    const nested = structuredClone(LIST)
+    const [first, second] = nested.content[0].content
+    ;(first.content as unknown[]).push({ type: 'bulletList', attrs: { blockId: 'i1' }, content: [second] })
+    nested.content[0].content = [first]
+    editor = new Editor({ extensions: EXTENSIONS, content: nested })
+    editor.commands.setTextSelection(END_OF_AFTER)
+    press('Enter')
+    const item = (editor.getJSON() as Json).content![0].content![0]
+    expect(item.attrs?.blockId).toBe('i1')
+    expect(item.content![1].attrs?.blockId ?? null).toBeNull()
+  })
+})
