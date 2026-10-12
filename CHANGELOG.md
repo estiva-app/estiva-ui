@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.65.1 — 2026-10-12
+
+### Added
+
+- **`CollapsibleSection` and `NavTreeSection` take `pending`**: opened while
+  their rows are still being read, the title turns open at once (and says
+  `aria-busy`) and the panel stays shut until `pending` is false, then
+  slides open once with every row. A click while pending closes it. For
+  Peek's Folders (OPT-11, Katerina, 7 October: "just a few items appear and
+  in a second, the whole list fully shows up, making the tree jumping"): the
+  skeleton the rows replaced moved everything below a Folder twice. No
+  caller changes; without `pending` nothing differs.
+
 ## 0.65.0 — 2026-10-09
 
 ### Changed

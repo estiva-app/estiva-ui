@@ -121,6 +121,16 @@ describe('NavTree drawn by the app', () => {
     expect(screen.getByText('Item a')).not.toBeNull()
     expect(screen.getByText('Nothing in this yet.')).not.toBeNull()
   })
+
+  it('a pending NavTreeSection says open and busy, its rows shut until it is not (OPT-11)', () => {
+    const { rerender } = render(<NavTreeSection title="Group a" open pending><a href="#a">Item a</a></NavTreeSection>)
+    const heading = screen.getByRole('button', { name: 'Group a' })
+    expect(heading.getAttribute('aria-expanded')).toBe('true')
+    expect(heading.getAttribute('aria-busy')).toBe('true')
+    expect(screen.getByText('Item a').closest('[hidden]')).not.toBeNull()
+    rerender(<NavTreeSection title="Group a" open><a href="#a">Item a</a></NavTreeSection>)
+    expect(screen.getByText('Item a').closest('[hidden]')).toBeNull()
+  })
 })
 
 describe('NavTree marks its groups', () => {

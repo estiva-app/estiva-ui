@@ -186,6 +186,12 @@ export interface NavTreeSectionProps {
   onIntent?: () => void
   /** Its rows are being read: a skeleton in their place. */
   loading?: boolean
+  /**
+   * Opened, and its rows are being read: the arrow turns and the group stays
+   * shut until they are in, then opens once — `CollapsibleSection`'s. For a
+   * read that is usually quick; a slow one is `loading`'s skeleton.
+   */
+  pending?: boolean
   /** Remember it open or closed in this browser, under this key. */
   storageKey?: string
   /** The rows: `NavItem`s. */
@@ -199,7 +205,7 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, pending, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
@@ -225,6 +231,7 @@ export function NavTreeSection({ id, title, message, loading = false, trailing, 
         defaultOpen={defaultOpen}
         open={open}
         onOpenChange={onOpenChange}
+        pending={pending}
         storageKey={storageKey}
         trailing={trailing}
         actions={actions}

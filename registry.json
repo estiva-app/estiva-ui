@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.65.0",
+    "packageVersion": "0.65.1",
     "exports": 140,
     "typeExports": 145,
     "files": null
@@ -1247,6 +1247,12 @@
           "takes": "a handler",
           "required": false,
           "note": null
+        },
+        {
+          "name": "pending",
+          "takes": "true/false",
+          "required": false,
+          "note": "Opened, and its rows are not in yet: the title says open — the arrow turned, `aria-expanded`, `aria-busy` — and the panel stays shut until this is false, then slides open once, rows and all."
         },
         {
           "name": "storageKey",
@@ -4377,6 +4383,12 @@
           "takes": "true/false",
           "required": false,
           "note": "Its rows are being read: a skeleton in their place."
+        },
+        {
+          "name": "pending",
+          "takes": "true/false",
+          "required": false,
+          "note": "Opened, and its rows are being read: the arrow turns and the group stays shut until they are in, then opens once — `CollapsibleSection`'s."
         },
         {
           "name": "storageKey",
