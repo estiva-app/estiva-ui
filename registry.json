@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.66.0",
-    "exports": 144,
-    "typeExports": 145,
+    "packageVersion": "0.67.0",
+    "exports": 149,
+    "typeExports": 146,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,44 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "appendTableColumn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A column after the last one: the ➕ right of the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "appendTableRow",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A row after the last one: the ➕ under the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
     {
       "name": "applyFormat",
       "repo": "estiva-ui",
@@ -1964,6 +2002,44 @@
       "looks": []
     },
     {
+      "name": "deleteTableColumn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "The same for a column: the last one deletes the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "deleteTableRow",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "The table's last row, or the whole table when it is its only one: a table holds at least one row (prosemirror-tables refuses to delete it).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "DialogShell",
       "repo": "estiva-ui",
       "kind": "component",
@@ -2291,6 +2367,47 @@
       "docPage": "src/EditorBlockHandle.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "EditorTableControls",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A table's own controls in a Tiptap editor: point at a cell for a handle on its row and on its column, and a ➕ bar under the table and right of it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The editor, with TableKit (`@tiptap/extension-table`) in its extensions."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The `EditorContent`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": "src/EditorTableControls.mdx",
+      "app": null,
+      "looks": [
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg shadow-none -translate-x-1/2 -translate-y-1/2",
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg shadow-none"
+      ]
     },
     {
       "name": "EmptyState",
