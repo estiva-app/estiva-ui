@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.65.3 — 2026-10-13
+
+### Added
+
+- **`RichText` draws an indented list item inside the one above** (MAN-13),
+  from the new `RichTextBlock.indent` (protocol 0.29.0's `RenderBlock.indent`).
+  The list it sits in has no `data-block-id` and the type of the list around
+  it; an item is never drawn more than one level below the one before nor
+  deeper than 8 levels (§13.3, found in review), and an
+  `indent` that is not a whole number above 0 draws at the left. Same classes
+  as before, so it looks as the editor already draws it while typing. Story:
+  *Indented Items*. No caller changes; without `indent` nothing differs.
+
 ## 0.65.2 — 2026-10-12
 
 ### Fixed
