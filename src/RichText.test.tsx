@@ -170,6 +170,13 @@ describe('an indented list item — MAN-13', () => {
     expect(outer.querySelector(':scope > li > ul > li')?.getAttribute('data-block-id')).toBe('b')
   })
 
+  it('never nests deeper than 8 levels (SPEC §13.3)', () => {
+    const deep = Array.from({ length: 20 }, (_, i) => item(`d${i}`, `level ${i}`, i))
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: deep }]} />)
+    expect(container.querySelectorAll('ul').length).toBe(9)
+    expect(container.querySelector('[data-block-id="d19"]')!.parentElement).toBe(container.querySelector('[data-block-id="d8"]')!.parentElement)
+  })
+
   it('draws an item with an indent that is not a whole number above 0 at the left', () => {
     const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [item('a', 'one'), { ...item('b', 'two'), indent: -1 }, { ...item('c', 'three'), indent: Number.NaN }]}]} />)
     expect([...container.querySelector('ul')!.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a', 'b', 'c'])

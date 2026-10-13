@@ -245,6 +245,8 @@ interface NestedItem {
   below: NestedItem[]
 }
 
+const MAX_DEPTH = 8
+
 /** A list's flat items, each under the last item one level up — never more than one level below the item before. */
 function nestItems(items: readonly RichTextBlock[]): NestedItem[] {
   const top: NestedItem[] = []
@@ -252,7 +254,8 @@ function nestItems(items: readonly RichTextBlock[]): NestedItem[] {
   const path: NestedItem[] = []
   items.forEach((item, key) => {
     const asked = Number.isInteger(item.indent) && item.indent! > 0 ? item.indent! : 0
-    const depth = Math.min(asked, path.length)
+    // SPEC §13.3: never deeper than 8, so a hostile list cannot nest thousands deep.
+    const depth = Math.min(asked, path.length, MAX_DEPTH)
     path.length = depth
     const node: NestedItem = { item, key, below: [] }
     ;(depth === 0 ? top : path[depth - 1].below).push(node)
