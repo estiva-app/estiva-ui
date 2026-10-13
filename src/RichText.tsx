@@ -188,7 +188,8 @@ const CALLOUT_TONES: ReadonlySet<string> = new Set(['note', 'tip', 'important', 
 
 /** The tone a callout is drawn in: its own, or `note` for one this part does not know (§13.3). */
 export function calloutLook(tone: string): string {
-  return CALLOUT_TONES.has(tone) ? tone : 'note'
+  const named = tone.toLowerCase()
+  return CALLOUT_TONES.has(named) ? named : 'note'
 }
 
 function Runs({ runs, draw }: { runs?: readonly RichTextRun[]; draw: Draw }) {
