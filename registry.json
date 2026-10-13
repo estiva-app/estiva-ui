@@ -2026,7 +2026,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/EditorTableControls.tsx",
-      "purpose": "The table's last row, or the whole table when it is its only one: a table holds at least one row (prosemirror-tables refuses to delete it).",
+      "purpose": "The cell's row, or the whole table when it is its only one: a table holds at least one row (prosemirror-tables refuses to delete it).",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],

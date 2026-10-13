@@ -9,10 +9,14 @@
   as it is). `EditorTableControls` (`@estiva-app/ui/editor`) wraps an editor's
   `EditorContent`, inside an `EditorBlockHandle` where there is one. Point at a
   cell: a handle on its row's left edge opens Insert above, Insert below,
-  Delete row and Delete table; one on its column's top edge, Insert left,
-  Insert right, Delete column and Delete table. From the last row a ➕ bar
-  under the table adds a row; from the last column one right of it adds a
-  column. Deleting a table's only row or column deletes the table.
+  Delete and Delete table; one on its column's top edge, Insert left, Insert
+  right, Delete and Delete table. From the last row a ➕ bar under the table
+  adds a row; from the last column one right of it adds a column. Deleting a
+  table's only row or column deletes the table. A header row offers nothing
+  above it, and deleting it makes the next row the header, so the table still
+  reads as one in `RichText` and in the agent's description text.
+  - The controls go whenever the document changes, someone else's edit loaded
+    without an `update` included, and are measured again on every move.
   - Built on TableKit's own commands (`@tiptap/pm/tables`); Tiptap's own table
     handles are a paid component, so the controls are the package's.
     `appendTableRow`, `appendTableColumn`, `deleteTableRow` and

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import type { Editor } from '@tiptap/core'
 import { TextSelection, type Command } from '@tiptap/pm/state'
-import { addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, deleteColumn, deleteRow, deleteTable } from '@tiptap/pm/tables'
+import { addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, deleteColumn, deleteRow, deleteTable, toggleHeader } from '@tiptap/pm/tables'
 import { IconColumnInsertLeft, IconColumnInsertRight, IconGripHorizontal, IconGripVertical, IconPlus, IconRowInsertBottom, IconRowInsertTop, IconTrash } from '@tabler/icons-react'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
@@ -49,10 +49,22 @@ function inCell(editor: Editor, cell: HTMLTableCellElement, command: Command): b
   return done
 }
 
-/** The table's last row, or the whole table when it is its only one: a table holds at least one row (prosemirror-tables refuses to delete it). */
+/** A row of header cells only: the table's header row. */
+function isHeaderRow(row: HTMLTableRowElement): boolean {
+  return row.cells.length > 0 && Array.from(row.cells).every((c) => c.tagName === 'TH')
+}
+
+/**
+ * The cell's row, or the whole table when it is its only one: a table holds at
+ * least one row (prosemirror-tables refuses to delete it). Deleting the header
+ * row makes the next row the header, so the table still opens with one.
+ */
 export function deleteTableRow(editor: Editor, cell: HTMLTableCellElement): boolean {
+  const row = cell.closest('tr')
   const table = cell.closest('table')
-  return inCell(editor, cell, table && table.rows.length > 1 ? deleteRow : deleteTable)
+  if (!row || !table || table.rows.length <= 1) return inCell(editor, cell, deleteTable)
+  const header = isHeaderRow(row)
+  return inCell(editor, cell, header ? (state, dispatch, view) => deleteRow(state, dispatch) && (!view || toggleHeader('row')(view.state, view.dispatch)) : deleteRow)
 }
 
 /** The same for a column: the last one deletes the table. */
@@ -116,8 +128,8 @@ const HANDLE_BOX = cn(FLOATING_SURFACE_CLASSES, 'shadow-none')
  */
 export function EditorTableControls({ editor, children, className }: EditorTableControlsProps) {
   const frame = useRef<HTMLDivElement>(null)
-  const [hovered, setHovered] = useState<Hovered | null>(null)
-  const [placed, setPlaced] = useState<Placed | null>(null)
+  // The cell pointed at and where its controls go, as one: the boxes mean nothing without their elements.
+  const [hovered, setHovered] = useState<(Hovered & Placed) | null>(null)
   // A menu that is up keeps its row and column, wherever the pointer goes.
   const [menu, setMenu] = useState<'row' | 'column' | null>(null)
   const editable = !!editor && editor.isEditable
@@ -134,27 +146,31 @@ export function EditorTableControls({ editor, children, className }: EditorTable
         setHovered(null)
         return
       }
-      if (hovered?.cell === cell) return
-      const next = { table, row, cell }
-      setHovered(next)
-      setPlaced(place(frame.current, next))
+      // Measured on every move, the same cell too: a panel resized or a cell's text wrapping moves the edges under a still pointer.
+      const next = { table, row, cell, ...place(frame.current, { table, row, cell }) }
+      setHovered((was) => (was && was.cell === cell && JSON.stringify([was.tableBox, was.rowBox, was.columnBox]) === JSON.stringify([next.tableBox, next.rowBox, next.columnBox]) ? was : next))
     },
-    [editor, hovered],
+    [editor],
   )
 
-  // A row added or deleted moves everything under the controls: they go until the pointer moves again.
+  /*
+    Any change to the document moves everything under the controls, so they go
+    until the pointer moves again: a row added or deleted here, and someone
+    else's edit loaded into the field — which an app does without an `update`
+    (`emitUpdate: false`), and which redraws the cells the controls point at.
+  */
   useEffect(() => {
     if (!editor) return
-    const changed = () => {
-      if (!menu) setHovered(null)
+    const changed = ({ transaction }: { transaction: { docChanged: boolean } }) => {
+      if (transaction.docChanged && !menu) setHovered(null)
     }
-    editor.on('update', changed)
+    editor.on('transaction', changed)
     return () => {
-      editor.off('update', changed)
+      editor.off('transaction', changed)
     }
   }, [editor, menu])
 
-  const shown = editable && hovered && placed ? { ...hovered, ...placed } : null
+  const shown = editable ? hovered : null
   const run = (act: () => boolean) => () => {
     if (editor) act()
     setMenu(null)
@@ -186,10 +202,11 @@ export function EditorTableControls({ editor, children, className }: EditorTable
                 </IconButton>
               }
             >
-              <MenuItem label="Insert above" leading={<IconRowInsertTop {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addRowBefore))} />
+              {/* Nothing goes above a header row: it is the table's first row, and a header anywhere else is no header (RichText, the agent's text). */}
+              {!isHeaderRow(shown.row) && <MenuItem label="Insert above" leading={<IconRowInsertTop {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addRowBefore))} />}
               <MenuItem label="Insert below" leading={<IconRowInsertBottom {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addRowAfter))} />
               <MenuSeparator />
-              <MenuItem label="Delete row" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => deleteTableRow(editor, shown.cell))} />
+              <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => deleteTableRow(editor, shown.cell))} />
               <MenuItem label="Delete table" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => inCell(editor, shown.cell, deleteTable))} />
             </Menu>
           </div>
@@ -207,7 +224,7 @@ export function EditorTableControls({ editor, children, className }: EditorTable
               <MenuItem label="Insert left" leading={<IconColumnInsertLeft {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addColumnBefore))} />
               <MenuItem label="Insert right" leading={<IconColumnInsertRight {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addColumnAfter))} />
               <MenuSeparator />
-              <MenuItem label="Delete column" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => deleteTableColumn(editor, shown.cell))} />
+              <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => deleteTableColumn(editor, shown.cell))} />
               <MenuItem label="Delete table" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={run(() => inCell(editor, shown.cell, deleteTable))} />
             </Menu>
           </div>
