@@ -361,7 +361,7 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
     }
     case 'blockquote':
       return (
-        <blockquote data-block-id={block.id} data-tone={block.tone} data-callout={block.tone ? calloutLook(block.tone) : undefined}>
+        <blockquote data-block-id={block.id} data-tone={block.tone} data-callout={typeof block.tone === 'string' ? calloutLook(block.tone) : undefined}>
           {runs}
         </blockquote>
       )

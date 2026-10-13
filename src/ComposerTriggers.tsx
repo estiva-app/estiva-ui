@@ -526,6 +526,8 @@ export function applyFormat(editor: Editor, id: FormatId, code: CodeFormat = 'in
     case 'checklist': {
       // In a list, that item becomes one; elsewhere, the line becomes a list of one.
       if (!editor.isActive('listItem') && !run('toggleBulletList')) return false
+      // An item already a checklist item keeps its tick.
+      if (typeof editor.getAttributes('listItem').checked === 'boolean') return true
       return editor.chain().updateAttributes('listItem', { checked: false }).run()
     }
     case 'note':

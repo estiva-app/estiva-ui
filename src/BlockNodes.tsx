@@ -596,7 +596,12 @@ function listItemView(editor: Editor, node: ProseMirrorNode, view: EditorView, g
   const props = (): CheckboxProps => ({ checked, onChange: view.editable ? tick : undefined, 'aria-label': words })
   const renderer = new ReactRenderer<unknown, CheckboxProps>(Checkbox, { editor, props: props(), as: 'span' })
   box.appendChild(renderer.element)
+  // What the box last drew: an update that changes neither leaves it alone, so typing does not draw every box again.
+  let drawn = ''
   const sync = () => {
+    const now = `${view.editable}:${words}`
+    if (now === drawn) return
+    drawn = now
     renderer.updateProps(props())
     for (const [name, value] of Object.entries({ role: 'checkbox', 'aria-checked': String(checked), 'aria-readonly': 'true', 'aria-label': words })) {
       if (view.editable) box.removeAttribute(name)
@@ -670,6 +675,8 @@ export const Checklist = Extension.create({
         handler: ({ state, range, match, chain }) => {
           const checked = match[1].toLowerCase() === 'x'
           const inList = itemAtCaret(state) !== null
+          // Without a bullet list to make, the typed text stays as it was typed.
+          if (!inList && !(chain() as unknown as Record<string, unknown>).toggleBulletList) return null
           const deleted = chain().deleteRange(range)
           const listed = inList ? deleted : named(deleted, 'toggleBulletList')
           listed.updateAttributes('listItem', { checked }).run()
@@ -683,7 +690,9 @@ export const Checklist = Extension.create({
         const { state } = this.editor
         const item = itemAtCaret(state)
         const { $from, empty } = state.selection
-        if (!item || !empty || typeof item.node.attrs.checked !== 'boolean') return false
+        if (!item || typeof item.node.attrs.checked !== 'boolean') return false
+        // Over a selection: the selection goes and the next item is unticked, as for a caret in the text.
+        if (!empty) return this.editor.chain().deleteSelection().splitListItem('listItem', { checked: false }).run()
         // An empty item: the list item's own Enter, which leaves the list.
         if ($from.parent.content.size === 0) return false
         if ($from.parentOffset > 0) return this.editor.commands.splitListItem('listItem', { checked: false })

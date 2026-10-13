@@ -189,6 +189,11 @@ describe('RichText', () => {
       ['danger', 'note'],
     ])
   })
+
+  it('draws an empty tone as a note, as the editor does (review of #170)', () => {
+    const { container } = render(<RichText blocks={[{ type: 'blockquote', tone: '', inline: [t('empty')] }]} />)
+    expect(container.querySelector('blockquote')!.getAttribute('data-callout')).toBe('note')
+  })
 })
 
 describe('an indented list item — MAN-13', () => {

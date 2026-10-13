@@ -608,6 +608,13 @@ describe('a checklist item and a callout — RIC-19', () => {
     expect(items()).toEqual([['ship', true], ['', false], ['plain', null]])
   })
 
+  it('starts the next item unticked on Enter over a selection, the selection gone (review of #170)', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    editor.commands.setTextSelection({ from: 4, to: 5 })
+    expect(press('Enter')).toBe(true)
+    expect(items()).toEqual([['s', true], ['ip', false], ['plain', null]])
+  })
+
   it('moves the text down with its tick on Enter at the start of an item', () => {
     editor = new Editor({ extensions: WITH, content: CHECKLIST })
     editor.commands.setTextSelection(3)
@@ -653,6 +660,21 @@ describe('a checklist item and a callout — RIC-19', () => {
     const [list, quote] = (editor.getJSON() as Json).content!
     expect(list.content![0].attrs?.checked).toBe(false)
     expect(quote.attrs?.tone).toBe('note')
+  })
+
+  it('keeps a tick when `/` Checklist is picked on a ticked item (review of #170)', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    editor.commands.setTextSelection(4)
+    expect(applyFormat(editor, 'checklist')).toBe(true)
+    expect(items()[0]).toEqual(['ship', true])
+  })
+
+  it('leaves `[] ` as typed in an editor with no bullet list (review of #170)', () => {
+    editor = new Editor({ extensions: [StarterKit.configure({ bulletList: false }), BlockId, Checklist], content: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '[]' }] }] } })
+    editor.commands.setTextSelection(3)
+    const tr = () => editor!.state.tr.insertText(' ', 3, 3)
+    expect(editor.view.someProp('handleTextInput', (f) => f(editor!.view, 3, 3, ' ', tr))).toBeFalsy()
+    expect(editor.getText()).toBe('[]')
   })
 
   it('ticks with one click on the box, and says the change was a tick', async () => {
