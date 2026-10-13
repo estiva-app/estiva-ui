@@ -52,7 +52,7 @@ export {
 } from './InlineChip'
 export { Lightbox, type LightboxProps } from './Lightbox'
 export { Link, type LinkProps, type LinkVariant } from './Link'
-export { RichText, richTextClassName, type RichTextProps, type RichTextBlock, type RichTextRun, type RichTextSize } from './RichText'
+export { RichText, richTextClassName, calloutLook, type RichTextProps, type RichTextBlock, type RichTextRun, type RichTextSize } from './RichText'
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { KindIcon, thingKindOf, type KindIconProps, type ThingKind } from './KindIcon'

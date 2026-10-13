@@ -146,6 +146,54 @@ describe('RichText', () => {
     }
     expect(richTextClassName('default', 'outline-none')).toContain('outline-none')
   })
+
+  const CHECKLIST: RichTextBlock[] = [
+    {
+      type: 'bulletList',
+      id: 'l1',
+      children: [
+        { type: 'listItem', id: 'i1', checked: true, inline: [{ text: 'ship', marks: [] }] },
+        { type: 'listItem', id: 'i2', checked: false, inline: [{ text: 'verify', marks: [] }] },
+        { type: 'listItem', id: 'i3', inline: [{ text: 'plain', marks: [] }] },
+      ],
+    },
+    { type: 'blockquote', id: 'q1', tone: 'warning', inline: [{ text: 'careful', marks: [] }] },
+    { type: 'blockquote', id: 'q2', tone: 'danger', inline: [{ text: 'unknown', marks: [] }] },
+  ]
+
+  it('draws a checklist item with its box, and a plain item without one (RIC-19)', () => {
+    const { container } = render(<RichText blocks={CHECKLIST} />)
+    expect([...container.querySelectorAll('li')].map((li) => li.getAttribute('data-checked'))).toEqual(['true', 'false', null])
+    // Without onTick the box is a picture: nothing to tab to or click, but a screen reader still hears done or not, by the item's words.
+    const boxes = screen.getAllByRole('checkbox')
+    expect(boxes.map((b) => [b.getAttribute('aria-label'), b.getAttribute('aria-checked'), b.getAttribute('aria-readonly'), b.tabIndex])).toEqual([
+      ['ship', 'true', 'true', -1],
+      ['verify', 'false', 'true', -1],
+    ])
+  })
+
+  it('ticks an item with one click when the app may change the text, each box named by its item', () => {
+    const onTick = vi.fn()
+    render(<RichText blocks={CHECKLIST} onTick={onTick} />)
+    const boxes = [screen.getByRole('checkbox', { name: 'ship' }), screen.getByRole('checkbox', { name: 'verify' })]
+    expect(boxes.map((b) => b.getAttribute('aria-checked'))).toEqual(['true', 'false'])
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2)
+    fireEvent.click(boxes[1])
+    expect(onTick).toHaveBeenCalledWith('i2', true)
+  })
+
+  it('draws a callout in its tone, and one it does not know as a note', () => {
+    const { container } = render(<RichText blocks={CHECKLIST} />)
+    expect([...container.querySelectorAll('blockquote')].map((q) => [q.getAttribute('data-tone'), q.getAttribute('data-callout')])).toEqual([
+      ['warning', 'warning'],
+      ['danger', 'note'],
+    ])
+  })
+
+  it('draws an empty tone as a note, as the editor does (review of #170)', () => {
+    const { container } = render(<RichText blocks={[{ type: 'blockquote', tone: '', inline: [t('empty')] }]} />)
+    expect(container.querySelector('blockquote')!.getAttribute('data-callout')).toBe('note')
+  })
 })
 
 describe('an indented list item — MAN-13', () => {
@@ -180,5 +228,13 @@ describe('an indented list item — MAN-13', () => {
   it('draws an item with an indent that is not a whole number above 0 at the left', () => {
     const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [item('a', 'one'), { ...item('b', 'two'), indent: -1 }, { ...item('c', 'three'), indent: Number.NaN }]}]} />)
     expect([...container.querySelector('ul')!.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a', 'b', 'c'])
+  })
+
+  it('draws an item indented under a checklist item inside its words, after them (RIC-19)', () => {
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [{ ...item('a', 'done'), checked: true }, item('b', 'under it', 1)] }]} />)
+    const sub = container.querySelector('[data-block-id="b"]')!
+    expect(sub.closest('li[data-checked]')?.getAttribute('data-block-id')).toBe('a')
+    expect(sub.parentElement!.parentElement!.matches('li[data-checked="true"] > div')).toBe(true)
+    expect(sub.hasAttribute('data-checked')).toBe(false)
   })
 })

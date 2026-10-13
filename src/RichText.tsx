@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react'
+import { Checkbox } from './Checkbox'
 import { cn } from './cn'
 import { Link } from './Link'
 import { codeColours } from './codeColours'
@@ -51,6 +52,10 @@ export interface RichTextBlock {
   start?: number
   /** How far a list item is indented under the items above it. A list's items stay flat; this draws them nested. */
   indent?: number
+  /** A checklist item's tick: `true` or `false`, absent on a plain item. */
+  checked?: boolean
+  /** A callout's tone (`note`, `tip`, `important`, `warning`, `caution`), absent on a plain quote. */
+  tone?: string
   attrs?: Record<string, unknown>
   inline?: readonly RichTextRun[]
   children?: readonly RichTextBlock[]
@@ -79,6 +84,12 @@ export interface RichTextProps {
    * `undefined` to leave it to the part, which draws its words.
    */
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  /**
+   * Ticks or unticks a checklist item, by its block id: its box is then a
+   * control, one click where the text is read. Without it the box is a picture
+   * of the state — for someone who may not change the text.
+   */
+  onTick?: (blockId: string, checked: boolean) => void
 }
 
 /**
@@ -97,6 +108,13 @@ const RICH_TEXT_CLASSES = {
   /* The line in the muted text grey, not the border grey: a border grey was 1.3 : 1 in Leaf (Katerina, 9 October). */
   // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
   quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5',
+  /*
+    A checklist item: the box where the bullet was, in the list's gutter, and the words where they were (Katerina, review of #170). The item stays a list item, so a numbered list still counts it; the box sits beside the row and adds nothing to its height, the same in the editor and here.
+    A ticked item's words grey and struck through, its links and code too (Katerina); the lists under it are not.
+  */
+  checklist: '[&_li[data-checked]]:relative [&_li[data-checked]]:list-none [&_[data-checklist-box]]:absolute [&_[data-checklist-box]]:-left-5 [&_[data-checklist-box]]:top-0.5 [&_[data-checklist-box]]:flex [&_li[data-checked=true]>div>p]:text-text-muted [&_li[data-checked=true]>div>p]:line-through [&_li[data-checked=true]>div>p_a]:text-text-muted [&_li[data-checked=true]>div>p_a]:decoration-text-muted [&_li[data-checked=true]>div>p_code]:border-transparent [&_li[data-checked=true]>div>p_code]:bg-transparent [&_li[data-checked=true]>div>p_code]:text-text-muted',
+  /* A callout: the quote's line in its tone's colour, on its tone's wash (RIC-19, to Katerina's review). `data-callout` is the tone as drawn — an unknown one is `note`. */
+  callout: '[&_blockquote[data-callout]]:rounded-sm [&_blockquote[data-callout]]:py-2 [&_blockquote[data-callout]]:pr-3 [&_blockquote[data-callout=note]]:border-info-default [&_blockquote[data-callout=note]]:bg-info-muted [&_blockquote[data-callout=tip]]:border-success-default [&_blockquote[data-callout=tip]]:bg-success-muted [&_blockquote[data-callout=important]]:border-accent-primary [&_blockquote[data-callout=important]]:bg-accent-muted [&_blockquote[data-callout=warning]]:border-warning-default [&_blockquote[data-callout=warning]]:bg-warning-muted [&_blockquote[data-callout=caution]]:border-error-default [&_blockquote[data-callout=caution]]:bg-error-muted',
   /* Code in a sentence: the code fill and a thin border, in the heading colour (Katerina, 9 October: option B; the amber of 0.64.0 was too much). */
   // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it, so it scales with a heading and with `small`; a named size is fixed
   code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:border [&_:not(pre)>code]:border-border-default [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary',
@@ -121,8 +139,8 @@ const RICH_TEXT_CLASSES = {
  * being written looks the same as what is read. Put it on the editor's root.
  */
 export function richTextClassName(size: RichTextSize = 'default', className?: string) {
-  const { base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks } = RICH_TEXT_CLASSES
-  return cn(base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks, RICH_TEXT_CLASSES[size], className)
+  const { base, headings, lists, quote, checklist, callout, code, codeBlock, syntax, divider, table, marks } = RICH_TEXT_CLASSES
+  return cn(base, headings, lists, quote, checklist, callout, code, codeBlock, syntax, divider, table, marks, RICH_TEXT_CLASSES[size], className)
 }
 
 /**
@@ -167,6 +185,16 @@ interface Draw {
   renderText: (text: string) => ReactNode
   renderReference: (reference: string, run: RichTextRun) => ReactNode
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  onTick?: (blockId: string, checked: boolean) => void
+}
+
+/** SPEC §13.3's callout tones — GitHub's alert kinds. */
+const CALLOUT_TONES: ReadonlySet<string> = new Set(['note', 'tip', 'important', 'warning', 'caution'])
+
+/** The tone a callout is drawn in: its own, or `note` for one this part does not know (§13.3). */
+export function calloutLook(tone: string): string {
+  const named = tone.toLowerCase()
+  return CALLOUT_TONES.has(named) ? named : 'note'
 }
 
 function Runs({ runs, draw }: { runs?: readonly RichTextRun[]; draw: Draw }) {
@@ -239,6 +267,43 @@ function Table({ block, draw }: { block: RichTextBlock; draw: Draw }) {
   )
 }
 
+/** An item's words, for its box's name: a box says which item it ticks (Katerina, review of #170). */
+const wordsOf = (item: RichTextBlock) => (item.inline ?? []).map((run) => run.text).join('').trim()
+
+/**
+ * One list item. A checklist item takes the editor's shape (`Checklist`): the
+ * box, then the words in a `div`, and `below` — the items indented under it —
+ * inside that `div` after them, as the editor draws them.
+ */
+function ListItem({ item, draw, below }: { item: RichTextBlock; draw: Draw; below?: ReactNode }) {
+  if (typeof item.checked !== 'boolean') {
+    return (
+      <li data-block-id={item.id}>
+        <Runs runs={item.inline} draw={draw} />
+        {below}
+      </li>
+    )
+  }
+  const { onTick } = draw
+  const id = item.id
+  const name = wordsOf(item) || 'Item'
+  const control = onTick && id ? (next: boolean) => onTick(id, next) : undefined
+  return (
+    <li data-block-id={id} data-checked={String(item.checked)}>
+      {/* Without `onTick` the box is a picture, so the box around it says done or not: a strike-through is not read out. */}
+      <span data-checklist-box="" {...(control ? {} : { role: 'checkbox', 'aria-checked': item.checked, 'aria-readonly': true, 'aria-label': name })}>
+        <Checkbox checked={item.checked} onChange={control} aria-label={name} />
+      </span>
+      <div>
+        <p>
+          <Runs runs={item.inline} draw={draw} />
+        </p>
+        {below}
+      </div>
+    </li>
+  )
+}
+
 interface NestedItem {
   item: RichTextBlock
   key: number
@@ -281,11 +346,13 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
       const ordered = block.type === 'orderedList'
       const items = (nodes: readonly NestedItem[]): ReactNode[] =>
         nodes.map(({ item, key, below }) => (
-          <li key={item.id ?? key} data-block-id={item.id}>
-            <Runs runs={item.inline} draw={draw} />
-            {/* The list an indented item sits in is drawn, not stored: it has no id, and the type of the list around it. */}
-            {below.length > 0 && (ordered ? <ol>{items(below)}</ol> : <ul>{items(below)}</ul>)}
-          </li>
+          <ListItem
+            key={item.id ?? key}
+            item={item}
+            draw={draw}
+            // The list an indented item sits in is drawn, not stored: it has no id, and the type of the list around it.
+            below={below.length > 0 && (ordered ? <ol>{items(below)}</ol> : <ul>{items(below)}</ul>)}
+          />
         ))
       const top = items(nestItems(block.children ?? []))
       return ordered
@@ -293,7 +360,11 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
         : <ul data-block-id={block.id}>{top}</ul>
     }
     case 'blockquote':
-      return <blockquote data-block-id={block.id}>{runs}</blockquote>
+      return (
+        <blockquote data-block-id={block.id} data-tone={block.tone} data-callout={typeof block.tone === 'string' ? calloutLook(block.tone) : undefined}>
+          {runs}
+        </blockquote>
+      )
     case 'codeBlock':
       // Literal: no marks, no links, no chips. A long line wraps; nothing scrolls sideways.
       // In a language highlight.js knows, each word takes its colour; in any other, the text as it is.
@@ -329,9 +400,10 @@ export function RichText({
   renderText = (text) => text,
   renderReference = (_reference, run) => run.text,
   renderBlock,
+  onTick,
 }: RichTextProps) {
   if (blocks.length === 0) return null
-  const draw: Draw = { renderText, renderReference, renderBlock }
+  const draw: Draw = { renderText, renderReference, renderBlock, onTick }
   return (
     <div data-rich-text className={richTextClassName(size)}>
       {blocks.map((block, i) => <Block key={block.id ?? i} block={block} draw={draw} />)}

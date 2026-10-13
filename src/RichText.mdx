@@ -58,6 +58,14 @@ import { InlineChip, RichText } from '@estiva-app/ui'
   sideways.
 - Each block carries its `id` as `data-block-id`, for an app that points at
   one block.
+- A list item with `checked` is a checklist item, drawn with a box where its
+  bullet or number was; a ticked one's words, links and code are grey and struck
+  through. It still counts in a numbered list. Give `onTick` where the reader
+  may change the text and the box ticks with one click, handing you the block
+  id and the new state to save; without it the box is a picture, and says done
+  or not to a screen reader. Each box is named by its item's words. A quote with
+  a `tone` is a callout, on its tone's wash; a tone it does not know is drawn as
+  `note` (`calloutLook`).
 - **An editor wears the same look.** Put `richTextClassName()` (or
   `richTextClassName('small')`) on the editor's root, so what is being written
   looks exactly like what is read. It styles the elements inside the box,
@@ -69,6 +77,10 @@ import { richTextClassName } from '@estiva-app/ui'
 
 const editorAttributes = { class: richTextClassName('default', 'outline-none') }
 ```
+
+<Canvas of={RichTextStories.ChecklistAndCallouts} />
+
+<Canvas of={RichTextStories.NumberedAndNested} />
 
 ## What it owns
 

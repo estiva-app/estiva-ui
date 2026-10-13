@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.66.0 — 2026-10-13
+
+### Added
+
+- **A checklist and a callout, in the editor and where the text is read**
+  (RIC-19, with `@estiva-app/protocol` 0.30.0, SPEC §13.3). A checklist item is
+  a list item with `checked`; a callout is a quote with a `tone`, one of
+  GitHub's alert kinds (`note`, `tip`, `important`, `warning`, `caution`).
+  - `Checklist` (`@estiva-app/ui/editor`): the box before the item, the
+    package's `Checkbox`, ticks with one click; `[ ] `, `[] ` or `[x] ` at the
+    start of a line makes one; Enter starts the next item unticked; Backspace
+    at the start takes the box away. `isChecklistTick(transaction)` says a
+    change was a tick, for an app that saves on blur — a click on the box does
+    not focus the editor.
+  - `Callout` (`@estiva-app/ui/editor`): keeps `tone` and draws it as
+    `RichText` does.
+  - `formatSection('block')` offers Checklist, Note and Warning after the other
+    formats (Miky, 2026-10-13: Note and Warning in the menu). A message's `/`
+    (`'inline'`) does not: its text has no spelling for either.
+  - `RichText` draws `checked` and `tone` (the protocol's `RenderBlock` carries
+    both) and takes `onTick(blockId, checked)`: with it the box is a control,
+    without it a picture. `calloutLook(tone)` is the tone a callout is drawn in.
+  - The look is to Katerina's review: the box where the bullet was, a ticked
+    item muted and struck through, a callout's line in its tone's colour on its
+    wash.
+
 ## 0.65.3 — 2026-10-13
 
 ### Added

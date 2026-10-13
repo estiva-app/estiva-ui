@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { RichText, type RichTextBlock, type RichTextRun } from './RichText'
@@ -135,6 +136,55 @@ export const CodeInALanguage: Story = {
               '}',
             ].join('\n'),
           ),
+        ],
+      },
+    ],
+  },
+}
+
+const task = (text: string, checked?: boolean): RichTextBlock => ({ type: 'listItem', checked, inline: [t(text)] })
+const callout = (tone: string, text: string): RichTextBlock => ({ type: 'blockquote', tone, inline: [t(text)] })
+
+/** A checklist, among a plain list's items, and each callout tone after a plain quote (RIC-19). The boxes tick: `onTick` is given. */
+export const ChecklistAndCallouts: Story = {
+  render: (args) => {
+    const [ticked, setTicked] = useState<Record<string, boolean>>({ c1: true })
+    const list = ['c1', 'c2', 'c3'].map((id, i) => ({ ...task(['Item one', 'Item two', 'Item three'][i], ticked[id] ?? false), id }))
+    return (
+      <RichText
+        {...args}
+        onTick={(id, checked) => setTicked((was) => ({ ...was, [id]: checked }))}
+        blocks={[
+          { type: 'bulletList', children: [...list, task('A plain item keeps its bullet')] },
+          { type: 'blockquote', inline: [t('A plain quote.')] },
+          callout('note', 'Note, the default callout. A tone this part does not know is drawn as this one.'),
+          callout('tip', 'Tip.'),
+          callout('important', 'Important.'),
+          callout('warning', 'Warning.'),
+          callout('caution', 'Caution.'),
+        ]}
+      />
+    )
+  },
+}
+
+const ticked = (text: string, checked: boolean | undefined, indent = 0): RichTextBlock => ({ ...task(text, checked), ...(indent ? { indent } : {}) })
+
+/**
+ * A numbered list counts its checklist items: the plain item after two of them
+ * is 3. A sub-item sits under a ticked item, not struck through (Katerina,
+ * review of #170), inside the ticked item's words as the editor draws it.
+ */
+export const NumberedAndNested: Story = {
+  args: {
+    blocks: [
+      { type: 'orderedList', children: [ticked('Item one', true), ticked('Item two', false), ticked('Item three, a plain item', undefined)] },
+      {
+        type: 'bulletList',
+        children: [
+          ticked('Item one', true),
+          ticked('A sub-item under it', false, 1),
+          { type: 'listItem', checked: true, inline: [t('A ticked item with '), t('[a link](https://example.com)'), t(' and '), t('code', 'code')] },
         ],
       },
     ],
