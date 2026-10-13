@@ -28,7 +28,10 @@ The box a message, a reply or a comment is written in: the text, the selection s
 ## How
 
 ```tsx
+import { useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
 import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, KeptSelection } from '@estiva-app/ui/editor'
+
 
 const editor = useEditor({
   extensions: [StarterKit, KeptSelection, ComposeKeys /* and the app's own */],

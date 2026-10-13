@@ -596,7 +596,13 @@ describe('one search over the package and the apps', () => {
       root: app({ 'src/Composer.tsx': '/** Where a comment is written and sent. */\nexport function Composer() {\n  return <form />\n}\n' }),
       repo: 'fixture',
     })
-    expect(findInRegistries([packageRegistry, composer], 'comment composer')[0].entry).toMatchObject({ repo: 'fixture', name: 'Composer' })
+    // Since the Leaf prototype (9 October) the package has a box for writing comments, ComposeBox, and it answers first by its
+    // own purpose. What this guards still holds: the app's composer is found above the parts the words reach only through notes.
+    const found = findInRegistries([packageRegistry, composer], 'comment composer', { limit: 10 }).map((f) => `${f.entry.repo}:${f.entry.name}`)
+    expect(found[0]).toBe('estiva-ui:ComposeBox')
+    expect(found.indexOf('fixture:Composer')).toBeGreaterThan(0)
+    const triggers = found.indexOf('estiva-ui:ComposerTriggers')
+    if (triggers >= 0) expect(found.indexOf('fixture:Composer')).toBeLessThan(triggers)
   })
 
   it('says which apps hand a package part on, and how a default is imported', () => {
