@@ -304,6 +304,31 @@ function ListItem({ item, draw, below }: { item: RichTextBlock; draw: Draw; belo
   )
 }
 
+interface NestedItem {
+  item: RichTextBlock
+  key: number
+  below: NestedItem[]
+}
+
+const MAX_DEPTH = 8
+
+/** A list's flat items, each under the last item one level up — never more than one level below the item before. */
+function nestItems(items: readonly RichTextBlock[]): NestedItem[] {
+  const top: NestedItem[] = []
+  // The last item seen at each depth.
+  const path: NestedItem[] = []
+  items.forEach((item, key) => {
+    const asked = Number.isInteger(item.indent) && item.indent! > 0 ? item.indent! : 0
+    // SPEC §13.3: never deeper than 8, so a hostile list cannot nest thousands deep.
+    const depth = Math.min(asked, path.length, MAX_DEPTH)
+    path.length = depth
+    const node: NestedItem = { item, key, below: [] }
+    ;(depth === 0 ? top : path[depth - 1].below).push(node)
+    path.push(node)
+  })
+  return top
+}
+
 function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode {
   const own = draw.renderBlock?.(block)
   if (own !== undefined) return own
@@ -318,10 +343,21 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
       return <p data-block-id={block.id}>{runs}</p>
     case 'bulletList':
     case 'orderedList': {
-      const items = (block.children ?? []).map((item, i) => <ListItem key={item.id ?? i} item={item} draw={draw} />)
-      return block.type === 'bulletList'
-        ? <ul data-block-id={block.id}>{items}</ul>
-        : <ol data-block-id={block.id} start={block.start}>{items}</ol>
+      const ordered = block.type === 'orderedList'
+      const items = (nodes: readonly NestedItem[]): ReactNode[] =>
+        nodes.map(({ item, key, below }) => (
+          <ListItem
+            key={item.id ?? key}
+            item={item}
+            draw={draw}
+            // The list an indented item sits in is drawn, not stored: it has no id, and the type of the list around it.
+            below={below.length > 0 && (ordered ? <ol>{items(below)}</ol> : <ul>{items(below)}</ul>)}
+          />
+        ))
+      const top = items(nestItems(block.children ?? []))
+      return ordered
+        ? <ol data-block-id={block.id} start={block.start}>{top}</ol>
+        : <ul data-block-id={block.id}>{top}</ul>
     }
     case 'blockquote':
       return (

@@ -190,3 +190,46 @@ describe('RichText', () => {
     ])
   })
 })
+
+describe('an indented list item — MAN-13', () => {
+  const item = (id: string, text: string, indent?: number): RichTextBlock => ({ type: 'listItem', id, inline: [t(text)], ...(indent ? { indent } : {}) })
+
+  it('draws an item inside the one above, in a list of the same type with no id', () => {
+    const { container } = render(
+      <RichText blocks={[{ type: 'orderedList', id: 'l1', children: [item('i1', 'intro'), item('i2', 'after', 1), item('i3', 'deeper', 2), item('i4', 'back')] }]} />,
+    )
+    const outer = container.querySelector('ol[data-block-id="l1"]')!
+    expect([...outer.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['i1', 'i4'])
+    const inner = outer.querySelector(':scope > li > ol')!
+    expect(inner.hasAttribute('data-block-id')).toBe(false)
+    expect(inner.querySelector(':scope > li')?.getAttribute('data-block-id')).toBe('i2')
+    expect(inner.querySelector(':scope > li > ol > li')?.textContent).toBe('deeper')
+  })
+
+  it('never draws an item more than one level below the one before it', () => {
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [item('a', 'first', 2), item('b', 'next', 3)] }]} />)
+    const outer = container.querySelector('ul')!
+    expect([...outer.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a'])
+    expect(outer.querySelector(':scope > li > ul > li')?.getAttribute('data-block-id')).toBe('b')
+  })
+
+  it('never nests deeper than 8 levels (SPEC §13.3)', () => {
+    const deep = Array.from({ length: 20 }, (_, i) => item(`d${i}`, `level ${i}`, i))
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: deep }]} />)
+    expect(container.querySelectorAll('ul').length).toBe(9)
+    expect(container.querySelector('[data-block-id="d19"]')!.parentElement).toBe(container.querySelector('[data-block-id="d8"]')!.parentElement)
+  })
+
+  it('draws an item with an indent that is not a whole number above 0 at the left', () => {
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [item('a', 'one'), { ...item('b', 'two'), indent: -1 }, { ...item('c', 'three'), indent: Number.NaN }]}]} />)
+    expect([...container.querySelector('ul')!.children].map((li) => li.getAttribute('data-block-id'))).toEqual(['a', 'b', 'c'])
+  })
+
+  it('draws an item indented under a checklist item inside its words, after them (RIC-19)', () => {
+    const { container } = render(<RichText blocks={[{ type: 'bulletList', children: [{ ...item('a', 'done'), checked: true }, item('b', 'under it', 1)] }]} />)
+    const sub = container.querySelector('[data-block-id="b"]')!
+    expect(sub.closest('li[data-checked]')?.getAttribute('data-block-id')).toBe('a')
+    expect(sub.parentElement!.parentElement!.matches('li[data-checked="true"] > div')).toBe(true)
+    expect(sub.hasAttribute('data-checked')).toBe(false)
+  })
+})

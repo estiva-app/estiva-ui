@@ -85,6 +85,33 @@ export const WithTheAppsOwnParts: Story = {
   },
 }
 
+/** Items indented under the one above, two levels deep, in both lists: each level is the type of the list it sits in. */
+export const IndentedItems: Story = {
+  args: {
+    blocks: [
+      {
+        type: 'bulletList',
+        children: [
+          { type: 'listItem', inline: [t('Item one')] },
+          { type: 'listItem', indent: 1, inline: [t('Item one, under it')] },
+          { type: 'listItem', indent: 2, inline: [t('A level further in')] },
+          { type: 'listItem', indent: 1, inline: [t('Back one level')] },
+          { type: 'listItem', inline: [t('Item two')] },
+        ],
+      },
+      {
+        type: 'orderedList',
+        children: [
+          { type: 'listItem', inline: [t('The first step')] },
+          { type: 'listItem', indent: 1, inline: [t('Each level counts from one')] },
+          { type: 'listItem', indent: 1, inline: [t('Then two')] },
+          { type: 'listItem', inline: [t('The second step')] },
+        ],
+      },
+    ],
+  },
+}
+
 /** A block this part has no design for, from a later version: its words are drawn, never dropped. */
 export const UnknownBlock: Story = {
   args: {
@@ -146,7 +173,7 @@ const ticked = (text: string, checked: boolean | undefined, indent = 0): RichTex
 /**
  * A numbered list counts its checklist items: the plain item after two of them
  * is 3. A sub-item sits under a ticked item, not struck through (Katerina,
- * review of #170) — drawn nested once RichText nests indented items (#169).
+ * review of #170), inside the ticked item's words as the editor draws it.
  */
 export const NumberedAndNested: Story = {
   args: {
