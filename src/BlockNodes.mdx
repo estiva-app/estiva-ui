@@ -89,10 +89,12 @@ const editor = useEditor({
   `[x] ` a ticked one; `/`'s Checklist does too, in a block editor
   (`formatSection('block')`). A change that is a tick says so
   (`isChecklistTick`): save it at once, as no blur follows a click on the box.
-  Without `Checklist`, a save drops the tick and keeps the item.
+  The box is named by its item's words, and ticks only while the editor is
+  editable — `setEditable` is followed, not read once. Without `Checklist`, a
+  save drops the tick and keeps the item, and `/` does not offer Checklist.
 - `Callout` is a quote with a `tone` (§13.3), drawn on its tone's wash as
-  `RichText` draws it. `/` offers Note and Warning in a block editor; the other
-  tones are read and kept as written.
+  `RichText` draws it. `/` offers Note and Warning in a block editor that has
+  it; the other tones are read and kept as written.
 
 <Canvas of={BlockNodesStories.WithoutViews} />
 

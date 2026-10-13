@@ -27,6 +27,7 @@ import {
   type SlashSection,
 } from './ComposerTriggers'
 import { isSuggestionActive, isSuggestionOpen } from './suggestionPopup'
+import { Callout, Checklist } from './BlockNodes'
 
 const KEY = 'b'.repeat(64)
 const PEOPLE: MentionPerson[] = [
@@ -547,5 +548,27 @@ describe('/', () => {
     const hint = (section: ReturnType<typeof formatSection>) => section.commands.find((c) => c.key === 'format-code')!.row.shortcut
     expect(hint(formatSection('block'))).toBe('```')
     expect(hint(formatSection())).toBe('`')
+  })
+})
+
+describe('/ in a block editor — RIC-19', () => {
+  function BlockComposer({ blocks }: { blocks: boolean }) {
+    const made = useEditor({
+      extensions: [StarterKit, ...(blocks ? [Checklist, Callout] : []), SlashCommands.configure({ sections: [formatSection('block')] })],
+    })
+    editor = made
+    return <EditorContent editor={made} />
+  }
+
+  it('offers Checklist, Note and Warning where the editor has Checklist and Callout', async () => {
+    render(<BlockComposer blocks />)
+    await type('/')
+    expect(options()?.slice(-3)).toEqual(['Checklist[]', 'Note', 'Warning'])
+  })
+
+  it('offers none of them where it has not: they would make a plain bullet and a plain quote (Katerina, review of #170)', async () => {
+    render(<BlockComposer blocks={false} />)
+    await type('/')
+    expect(options()).toEqual(['Text', 'Heading#', 'Subheading##', 'Quote>', 'Code```', 'Bulleted list-', 'Numbered list1.'])
   })
 })

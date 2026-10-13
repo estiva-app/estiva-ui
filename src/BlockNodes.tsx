@@ -568,13 +568,18 @@ const sameAttrs = (a: ProseMirrorNode, b: ProseMirrorNode) =>
  * is the package's `Checkbox`, as `RichText` draws it, and the item's own
  * text and inner lists follow it in a `div`. Any change to the item's
  * attributes draws it again, which is what a tick is.
+ *
+ * The box is named by the item's words, and follows them as they are typed.
+ * Whether it ticks follows the editor's `editable`, read again on every
+ * update — `setEditable` sends one — not only when the item was drawn
+ * (Katerina, review of #170). Not editable, it is a picture, and the box around
+ * it says done or not to a screen reader, as `RichText`'s does.
  */
 function listItemView(editor: Editor, node: ProseMirrorNode, view: EditorView, getPos: () => number | undefined): NodeView {
   const toDOM = node.type.spec.toDOM
   const { dom, contentDOM } = toDOM ? DOMSerializer.renderSpec(document, toDOM(node)) : { dom: document.createElement('li'), contentDOM: undefined }
-  const update = (next: ProseMirrorNode) => next.type === node.type && sameAttrs(next, node)
   const checked = node.attrs.checked
-  if (typeof checked !== 'boolean') return { dom, contentDOM: contentDOM ?? dom, update }
+  if (typeof checked !== 'boolean') return { dom, contentDOM: contentDOM ?? dom, update: (next) => next.type === node.type && sameAttrs(next, node) }
 
   const li = dom as HTMLElement
   const box = document.createElement('span')
@@ -587,19 +592,34 @@ function listItemView(editor: Editor, node: ProseMirrorNode, view: EditorView, g
     if (pos === undefined || !view.editable) return
     view.dispatch(view.state.tr.setNodeAttribute(pos, 'checked', next).setMeta(TICK, true))
   }
-  const renderer = new ReactRenderer<unknown, CheckboxProps>(Checkbox, {
-    editor,
-    props: { checked, onChange: view.editable ? tick : undefined, 'aria-label': 'Done' },
-    as: 'span',
-  })
+  let words = node.firstChild?.textContent.trim() || 'Item'
+  const props = (): CheckboxProps => ({ checked, onChange: view.editable ? tick : undefined, 'aria-label': words })
+  const renderer = new ReactRenderer<unknown, CheckboxProps>(Checkbox, { editor, props: props(), as: 'span' })
   box.appendChild(renderer.element)
+  const sync = () => {
+    renderer.updateProps(props())
+    for (const [name, value] of Object.entries({ role: 'checkbox', 'aria-checked': String(checked), 'aria-readonly': 'true', 'aria-label': words })) {
+      if (view.editable) box.removeAttribute(name)
+      else box.setAttribute(name, value)
+    }
+  }
+  sync()
+  editor.on('update', sync)
   return {
     dom: li,
     contentDOM: body,
-    update,
+    update: (next) => {
+      if (next.type !== node.type || !sameAttrs(next, node)) return false
+      words = next.firstChild?.textContent.trim() || 'Item'
+      sync()
+      return true
+    },
     stopEvent: (event) => box.contains(event.target as globalThis.Node),
     ignoreMutation: (mutation) => box.contains(mutation.target),
-    destroy: () => renderer.destroy(),
+    destroy: () => {
+      editor.off('update', sync)
+      renderer.destroy()
+    },
   }
 }
 

@@ -164,15 +164,20 @@ describe('RichText', () => {
   it('draws a checklist item with its box, and a plain item without one (RIC-19)', () => {
     const { container } = render(<RichText blocks={CHECKLIST} />)
     expect([...container.querySelectorAll('li')].map((li) => li.getAttribute('data-checked'))).toEqual(['true', 'false', null])
-    // Without onTick the box is a picture: nothing to tab to or click.
-    expect(screen.queryAllByRole('checkbox')).toHaveLength(0)
+    // Without onTick the box is a picture: nothing to tab to or click, but a screen reader still hears done or not, by the item's words.
+    const boxes = screen.getAllByRole('checkbox')
+    expect(boxes.map((b) => [b.getAttribute('aria-label'), b.getAttribute('aria-checked'), b.getAttribute('aria-readonly'), b.tabIndex])).toEqual([
+      ['ship', 'true', 'true', -1],
+      ['verify', 'false', 'true', -1],
+    ])
   })
 
-  it('ticks an item with one click when the app may change the text', () => {
+  it('ticks an item with one click when the app may change the text, each box named by its item', () => {
     const onTick = vi.fn()
     render(<RichText blocks={CHECKLIST} onTick={onTick} />)
-    const boxes = screen.getAllByRole('checkbox', { name: 'Done' })
+    const boxes = [screen.getByRole('checkbox', { name: 'ship' }), screen.getByRole('checkbox', { name: 'verify' })]
     expect(boxes.map((b) => b.getAttribute('aria-checked'))).toEqual(['true', 'false'])
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2)
     fireEvent.click(boxes[1])
     expect(onTick).toHaveBeenCalledWith('i2', true)
   })

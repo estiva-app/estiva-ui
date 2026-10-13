@@ -2700,7 +2700,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
-      "purpose": "The Format section every app's `/` opens with; a block editor's also offers a checklist and the callouts.",
+      "purpose": "The Format section every app's `/` opens with.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],

@@ -433,7 +433,16 @@ export interface SlashCommand {
   keywords?: readonly string[]
   /** Runs once the `/query` that summoned the list has been removed. */
   run: (editor: Editor) => void
+  /**
+   * The extensions (by name) the row needs: an editor without one of them is
+   * not offered the row, so no row makes something the editor cannot hold.
+   */
+  needs?: readonly string[]
 }
+
+/** Whether an editor has every extension a row needs. */
+const offers = (editor: Editor, command: SlashCommand) =>
+  !command.needs || command.needs.every((name) => editor.extensionManager.extensions.some((extension) => extension.name === name))
 
 export interface SlashSection {
   label: string
@@ -536,7 +545,18 @@ const KEYWORDS: Partial<Record<FormatId, string[]>> = {
   warning: ['callout'],
 }
 
-/** The Format section every app's `/` opens with; a block editor's also offers a checklist and the callouts. */
+/** The extension a row's block needs: without it the row would make a plain bullet or a plain quote (Katerina, review of #170). */
+const NEEDS: Partial<Record<FormatId, string[]>> = {
+  checklist: ['checklist'],
+  note: ['callout'],
+  warning: ['callout'],
+}
+
+/**
+ * The Format section every app's `/` opens with. A block editor's also offers
+ * a checklist and the callouts — only where the editor has the `Checklist` and
+ * `Callout` extensions (`SlashCommand.needs`).
+ */
 export function formatSection(code: CodeFormat = 'inline'): SlashSection {
   return {
     label: 'Format',
@@ -544,6 +564,7 @@ export function formatSection(code: CodeFormat = 'inline'): SlashSection {
       key: `format-${format.id}`,
       row: { label: format.label, shortcut: (code === 'block' && format.blockTrigger) || format.trigger },
       keywords: [format.id, ...(KEYWORDS[format.id] ?? [])],
+      ...(NEEDS[format.id] ? { needs: NEEDS[format.id] } : {}),
       run: (editor) => {
         applyFormat(editor, format.id, code)
       },
@@ -595,7 +616,10 @@ export const SlashCommands = Extension.create<SlashCommandsOptions>({
         char: '/',
         startOfLine: false,
         pluginKey: new PluginKey('slashCommands'),
-        items: ({ query }) => filterSlashSections(sections, query).flatMap((section, at) => section.commands.map((command) => ({ ...command, section: at }))),
+        items: ({ query, editor }) =>
+          filterSlashSections(sections, query).flatMap((section, at) =>
+            section.commands.filter((command) => offers(editor, command)).map((command) => ({ ...command, section: at })),
+          ),
         command: ({ editor, range, props }) => {
           editor.chain().focus().deleteRange(range).run()
           props.run(editor)

@@ -50,6 +50,8 @@ export interface RichTextBlock {
   language?: string
   /** A numbered list's first number. */
   start?: number
+  /** How far a list item is indented under the items above it. A list's items stay flat; this draws them nested. */
+  indent?: number
   /** A checklist item's tick: `true` or `false`, absent on a plain item. */
   checked?: boolean
   /** A callout's tone (`note`, `tip`, `important`, `warning`, `caution`), absent on a plain quote. */
@@ -106,8 +108,11 @@ const RICH_TEXT_CLASSES = {
   /* The line in the muted text grey, not the border grey: a border grey was 1.3 : 1 in Leaf (Katerina, 9 October). */
   // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
   quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5',
-  /* A checklist item: the box where the bullet was, the words where they were; a ticked item's words muted and struck through (RIC-19, to Katerina's review). Its inner lists are not struck. */
-  checklist: '[&_li[data-checked]]:-ml-5 [&_li[data-checked]]:flex [&_li[data-checked]]:list-none [&_li[data-checked]]:gap-1 [&_[data-checklist-box]]:flex [&_[data-checklist-box]]:pt-0.5 [&_li[data-checked]>div]:min-w-0 [&_li[data-checked]>div]:flex-1 [&_li[data-checked=true]>div>p]:text-text-muted [&_li[data-checked=true]>div>p]:line-through',
+  /*
+    A checklist item: the box where the bullet was, in the list's gutter, and the words where they were (Katerina, review of #170). The item stays a list item, so a numbered list still counts it; the box sits beside the row and adds nothing to its height, the same in the editor and here.
+    A ticked item's words grey and struck through, its links and code too (Katerina); the lists under it are not.
+  */
+  checklist: '[&_li[data-checked]]:relative [&_li[data-checked]]:list-none [&_[data-checklist-box]]:absolute [&_[data-checklist-box]]:-left-5 [&_[data-checklist-box]]:top-0.5 [&_[data-checklist-box]]:flex [&_li[data-checked=true]>div>p]:text-text-muted [&_li[data-checked=true]>div>p]:line-through [&_li[data-checked=true]>div>p_a]:text-text-muted [&_li[data-checked=true]>div>p_a]:decoration-text-muted [&_li[data-checked=true]>div>p_code]:border-transparent [&_li[data-checked=true]>div>p_code]:bg-transparent [&_li[data-checked=true]>div>p_code]:text-text-muted',
   /* A callout: the quote's line in its tone's colour, on its tone's wash (RIC-19, to Katerina's review). `data-callout` is the tone as drawn — an unknown one is `note`. */
   callout: '[&_blockquote[data-callout]]:rounded-sm [&_blockquote[data-callout]]:py-2 [&_blockquote[data-callout]]:pr-3 [&_blockquote[data-callout=note]]:border-info-default [&_blockquote[data-callout=note]]:bg-info-muted [&_blockquote[data-callout=tip]]:border-success-default [&_blockquote[data-callout=tip]]:bg-success-muted [&_blockquote[data-callout=important]]:border-accent-primary [&_blockquote[data-callout=important]]:bg-accent-muted [&_blockquote[data-callout=warning]]:border-warning-default [&_blockquote[data-callout=warning]]:bg-warning-muted [&_blockquote[data-callout=caution]]:border-error-default [&_blockquote[data-callout=caution]]:bg-error-muted',
   /* Code in a sentence: the code fill and a thin border, in the heading colour (Katerina, 9 October: option B; the amber of 0.64.0 was too much). */
@@ -262,6 +267,43 @@ function Table({ block, draw }: { block: RichTextBlock; draw: Draw }) {
   )
 }
 
+/** An item's words, for its box's name: a box says which item it ticks (Katerina, review of #170). */
+const wordsOf = (item: RichTextBlock) => (item.inline ?? []).map((run) => run.text).join('').trim()
+
+/**
+ * One list item. A checklist item takes the editor's shape (`Checklist`): the
+ * box, then the words in a `div`, and `below` — the items indented under it —
+ * inside that `div` after them, as the editor draws them.
+ */
+function ListItem({ item, draw, below }: { item: RichTextBlock; draw: Draw; below?: ReactNode }) {
+  if (typeof item.checked !== 'boolean') {
+    return (
+      <li data-block-id={item.id}>
+        <Runs runs={item.inline} draw={draw} />
+        {below}
+      </li>
+    )
+  }
+  const { onTick } = draw
+  const id = item.id
+  const name = wordsOf(item) || 'Item'
+  const control = onTick && id ? (next: boolean) => onTick(id, next) : undefined
+  return (
+    <li data-block-id={id} data-checked={String(item.checked)}>
+      {/* Without `onTick` the box is a picture, so the box around it says done or not: a strike-through is not read out. */}
+      <span data-checklist-box="" {...(control ? {} : { role: 'checkbox', 'aria-checked': item.checked, 'aria-readonly': true, 'aria-label': name })}>
+        <Checkbox checked={item.checked} onChange={control} aria-label={name} />
+      </span>
+      <div>
+        <p>
+          <Runs runs={item.inline} draw={draw} />
+        </p>
+        {below}
+      </div>
+    </li>
+  )
+}
+
 function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode {
   const own = draw.renderBlock?.(block)
   if (own !== undefined) return own
@@ -276,30 +318,7 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
       return <p data-block-id={block.id}>{runs}</p>
     case 'bulletList':
     case 'orderedList': {
-      const items = (block.children ?? []).map((item, i) => {
-        if (typeof item.checked !== 'boolean') {
-          return (
-            <li key={item.id ?? i} data-block-id={item.id}>
-              <Runs runs={item.inline} draw={draw} />
-            </li>
-          )
-        }
-        // The editor's shape (`Checklist`): the box, then the words in a `div`.
-        const { onTick } = draw
-        const id = item.id
-        return (
-          <li key={id ?? i} data-block-id={id} data-checked={String(item.checked)}>
-            <span data-checklist-box="">
-              <Checkbox checked={item.checked} onChange={onTick && id ? (next) => onTick(id, next) : undefined} aria-label="Done" />
-            </span>
-            <div>
-              <p>
-                <Runs runs={item.inline} draw={draw} />
-              </p>
-            </div>
-          </li>
-        )
-      })
+      const items = (block.children ?? []).map((item, i) => <ListItem key={item.id ?? i} item={item} draw={draw} />)
       return block.type === 'bulletList'
         ? <ul data-block-id={block.id}>{items}</ul>
         : <ol data-block-id={block.id} start={block.start}>{items}</ol>

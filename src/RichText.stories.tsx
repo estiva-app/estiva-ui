@@ -140,3 +140,26 @@ export const ChecklistAndCallouts: Story = {
     )
   },
 }
+
+const ticked = (text: string, checked: boolean | undefined, indent = 0): RichTextBlock => ({ ...task(text, checked), ...(indent ? { indent } : {}) })
+
+/**
+ * A numbered list counts its checklist items: the plain item after two of them
+ * is 3. A sub-item sits under a ticked item, not struck through (Katerina,
+ * review of #170) — drawn nested once RichText nests indented items (#169).
+ */
+export const NumberedAndNested: Story = {
+  args: {
+    blocks: [
+      { type: 'orderedList', children: [ticked('Item one', true), ticked('Item two', false), ticked('Item three, a plain item', undefined)] },
+      {
+        type: 'bulletList',
+        children: [
+          ticked('Item one', true),
+          ticked('A sub-item under it', false, 1),
+          { type: 'listItem', checked: true, inline: [t('A ticked item with '), t('[a link](https://example.com)'), t(' and '), t('code', 'code')] },
+        ],
+      },
+    ],
+  },
+}

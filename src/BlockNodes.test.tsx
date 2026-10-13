@@ -8,7 +8,7 @@
  * reads — so each test is a load, an edit or none, and a read back.
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { act, render, screen, cleanup, waitFor } from '@testing-library/react'
 import { Editor } from '@tiptap/core'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -663,11 +663,30 @@ describe('a checklist item and a callout — RIC-19', () => {
       return <EditorContent editor={e} />
     }
     render(<Checklisted />)
-    const boxes = await screen.findAllByRole('checkbox', { name: 'Done' })
+    // Named by its item's words (Katerina, review of #170).
+    const boxes = await screen.findAllByRole('checkbox', { name: 'ship' })
     expect(boxes).toHaveLength(1)
     expect(boxes[0].getAttribute('aria-checked')).toBe('true')
     boxes[0].click()
     expect(items()[0]).toEqual(['ship', false])
     expect(ticked).toBe(true)
+  })
+
+  it('follows the editor going read-only and back, not only how it was when drawn', async () => {
+    function Checklisted() {
+      const e = useEditor({ extensions: WITH, content: CHECKLIST })
+      editor = e ?? undefined
+      return <EditorContent editor={e} />
+    }
+    const { container } = render(<Checklisted />)
+    await screen.findByRole('checkbox', { name: 'ship' })
+    const box = () => container.querySelector('[data-checklist-box]')!
+    act(() => editor!.setEditable(false))
+    // A picture now: the box around it says done, and nothing ticks.
+    expect([box().getAttribute('role'), box().getAttribute('aria-checked'), box().getAttribute('aria-readonly')]).toEqual(['checkbox', 'true', 'true'])
+    await waitFor(() => expect(box().querySelector('[role=checkbox]')).toBeNull())
+    act(() => editor!.setEditable(true))
+    expect(box().getAttribute('role')).toBeNull()
+    expect(await screen.findByRole('checkbox', { name: 'ship' })).toBeTruthy()
   })
 })
