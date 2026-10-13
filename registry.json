@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.65.2",
-    "exports": 140,
+    "packageVersion": "0.66.0",
+    "exports": 144,
     "typeExports": 145,
     "files": null
   },
@@ -735,6 +735,44 @@
       ]
     },
     {
+      "name": "Callout",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/BlockNodes.tsx",
+      "purpose": "A callout — SPEC §13.3's `tone` on a quote (RIC-19): a quote drawn to stand out, in one of GitHub's alert kinds (`note`, `tip`, `important`, `warning`, `caution`).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-blocknodes--docs",
+      "storyId": "primitives-blocknodes--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "calloutLook",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/RichText.tsx",
+      "purpose": "The tone a callout is drawn in: its own, or `note` for one this part does not know (§13.3).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-richtext--docs",
+      "storyId": "components-richtext--every-block",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "CaptionedReference",
       "repo": "estiva-ui",
       "kind": "component",
@@ -966,6 +1004,25 @@
         "rounded-lg transition-colors cursor-pointer hover:bg-bg-hover",
         "rounded-lg transition-colors bg-bg-selected cursor-pointer hover:bg-bg-hover"
       ]
+    },
+    {
+      "name": "Checklist",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/BlockNodes.tsx",
+      "purpose": "A checklist item — SPEC §13.3's `checked` on a list item (RIC-19): `true` ticked, `false` not, absent a plain item.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-blocknodes--docs",
+      "storyId": "primitives-blocknodes--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Chip",
@@ -2643,7 +2700,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
-      "purpose": "The Format section every app's `/` opens with.",
+      "purpose": "The Format section every app's `/` opens with; a block editor's also offers a checklist and the callouts.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
@@ -3140,6 +3197,25 @@
       "migrationStage": null,
       "docsId": null,
       "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "isChecklistTick",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/BlockNodes.tsx",
+      "purpose": "Whether a change is a click on a checklist item's box.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-blocknodes--docs",
+      "storyId": "primitives-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5406,6 +5482,12 @@
           "takes": "a handler",
           "required": false,
           "note": "Draws a block this part has no design for (an attachment, a widget)."
+        },
+        {
+          "name": "onTick",
+          "takes": "a handler",
+          "required": false,
+          "note": "Ticks or unticks a checklist item, by its block id: its box is then a control, one click where the text is read."
         }
       ],
       "variants": [

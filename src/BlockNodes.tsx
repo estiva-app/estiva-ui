@@ -1,9 +1,12 @@
 import type { ComponentType } from 'react'
-import { Extension, Node } from '@tiptap/core'
-import type { Node as ProseMirrorNode, Slice } from '@tiptap/pm/model'
-import { Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
+import { Extension, InputRule, Node, type Editor } from '@tiptap/core'
+import { DOMSerializer, type Node as ProseMirrorNode, type Slice } from '@tiptap/pm/model'
+import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state'
 import { Mapping, ReplaceAroundStep } from '@tiptap/pm/transform'
-import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
+import type { EditorView, NodeView } from '@tiptap/pm/view'
+import { NodeViewWrapper, ReactNodeViewRenderer, ReactRenderer, type ReactNodeViewProps } from '@tiptap/react'
+import { Checkbox, type CheckboxProps } from './Checkbox'
+import { calloutLook } from './RichText'
 
 /*
  * The four nodes an editor of a block document needs that a stock schema does
@@ -527,5 +530,196 @@ export const AttachmentNode = Node.create<AttachmentNodeOptions>({
         <View attrs={node.attrs} />
       </NodeViewWrapper>
     ))
+  },
+})
+
+const TICK = 'checklistTick'
+
+/**
+ * Whether a change is a click on a checklist item's box. The click does not
+ * focus the editor, so no blur follows it: an editor that saves on blur saves
+ * a tick straight away instead (RIC-19, Miky 2026-10-13: one click ticks).
+ */
+export function isChecklistTick(transaction: Transaction): boolean {
+  return transaction.getMeta(TICK) === true
+}
+
+/** A list or quote command by name: StarterKit's declare them, and this package builds without StarterKit. */
+type Chain = ReturnType<Editor['chain']>
+function named(chain: Chain, command: string, ...args: unknown[]): Chain {
+  const own = (chain as unknown as Record<string, ((...a: unknown[]) => Chain) | undefined>)[command]
+  return own ? own(...args) : chain
+}
+
+/** The list item the caret's paragraph is the first line of, if it is. */
+function itemAtCaret(state: EditorState): { node: ProseMirrorNode; pos: number } | null {
+  const { $from } = state.selection
+  if ($from.depth < 2) return null
+  const item = $from.node(-1)
+  if (item.type.name !== 'listItem' || $from.index(-1) !== 0) return null
+  return { node: item, pos: $from.before(-1) }
+}
+
+const sameAttrs = (a: ProseMirrorNode, b: ProseMirrorNode) =>
+  Object.keys({ ...a.attrs, ...b.attrs }).every((key) => a.attrs[key] === b.attrs[key])
+
+/**
+ * A list item, drawn with a box before it when it is a checklist item. The box
+ * is the package's `Checkbox`, as `RichText` draws it, and the item's own
+ * text and inner lists follow it in a `div`. Any change to the item's
+ * attributes draws it again, which is what a tick is.
+ */
+function listItemView(editor: Editor, node: ProseMirrorNode, view: EditorView, getPos: () => number | undefined): NodeView {
+  const toDOM = node.type.spec.toDOM
+  const { dom, contentDOM } = toDOM ? DOMSerializer.renderSpec(document, toDOM(node)) : { dom: document.createElement('li'), contentDOM: undefined }
+  const update = (next: ProseMirrorNode) => next.type === node.type && sameAttrs(next, node)
+  const checked = node.attrs.checked
+  if (typeof checked !== 'boolean') return { dom, contentDOM: contentDOM ?? dom, update }
+
+  const li = dom as HTMLElement
+  const box = document.createElement('span')
+  box.contentEditable = 'false'
+  box.setAttribute('data-checklist-box', '')
+  const body = document.createElement('div')
+  li.replaceChildren(box, body)
+  const tick = (next: boolean) => {
+    const pos = getPos()
+    if (pos === undefined || !view.editable) return
+    view.dispatch(view.state.tr.setNodeAttribute(pos, 'checked', next).setMeta(TICK, true))
+  }
+  const renderer = new ReactRenderer<unknown, CheckboxProps>(Checkbox, {
+    editor,
+    props: { checked, onChange: view.editable ? tick : undefined, 'aria-label': 'Done' },
+    as: 'span',
+  })
+  box.appendChild(renderer.element)
+  return {
+    dom: li,
+    contentDOM: body,
+    update,
+    stopEvent: (event) => box.contains(event.target as globalThis.Node),
+    ignoreMutation: (mutation) => box.contains(mutation.target),
+    destroy: () => renderer.destroy(),
+  }
+}
+
+/**
+ * A checklist item — SPEC §13.3's `checked` on a list item (RIC-19): `true`
+ * ticked, `false` not, absent a plain item. Add it beside `BlockId`.
+ *
+ * - **The box ticks with one click**, where the description is read, and the
+ *   change says so (`isChecklistTick`), so the app saves it at once.
+ * - **`[ ] ` or `[] ` at the start of a line** makes it, `[x] ` ticked; in a
+ *   list it turns that item into one.
+ * - **Enter** starts the next item unticked: a new item never takes the tick
+ *   of the one it was split from. At the start of an item, the text moves down
+ *   with its tick and the empty item above is unticked. On an empty item Enter
+ *   leaves the list, as in any list.
+ * - **Backspace** at the start of a checklist item takes its box away first;
+ *   the next one joins it to the item above, as in any list.
+ *
+ * An editor without it drops `checked` on save and keeps the item and its text.
+ */
+export const Checklist = Extension.create({
+  name: 'checklist',
+  // Before the list item's own Enter and Backspace.
+  priority: 101,
+  addGlobalAttributes() {
+    return [
+      {
+        types: ['listItem'],
+        attributes: {
+          checked: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: (element: HTMLElement) => {
+              const value = element.getAttribute('data-checked')
+              return value === 'true' ? true : value === 'false' ? false : null
+            },
+            renderHTML: (attributes: Record<string, unknown>) =>
+              typeof attributes.checked === 'boolean' ? { 'data-checked': String(attributes.checked) } : {},
+          },
+        },
+      },
+    ]
+  },
+  addInputRules() {
+    return [
+      new InputRule({
+        find: /^\[([ xX]?)\]\s$/,
+        handler: ({ state, range, match, chain }) => {
+          const checked = match[1].toLowerCase() === 'x'
+          const inList = itemAtCaret(state) !== null
+          const deleted = chain().deleteRange(range)
+          const listed = inList ? deleted : named(deleted, 'toggleBulletList')
+          listed.updateAttributes('listItem', { checked }).run()
+        },
+      }),
+    ]
+  },
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        const { state } = this.editor
+        const item = itemAtCaret(state)
+        const { $from, empty } = state.selection
+        if (!item || !empty || typeof item.node.attrs.checked !== 'boolean') return false
+        // An empty item: the list item's own Enter, which leaves the list.
+        if ($from.parent.content.size === 0) return false
+        if ($from.parentOffset > 0) return this.editor.commands.splitListItem('listItem', { checked: false })
+        return this.editor
+          .chain()
+          .splitListItem('listItem', { checked: item.node.attrs.checked })
+          .command(({ tr }) => {
+            tr.setNodeAttribute(tr.mapping.map(item.pos), 'checked', false)
+            return true
+          })
+          .run()
+      },
+      Backspace: () => {
+        const { state } = this.editor
+        const item = itemAtCaret(state)
+        const { $from, empty } = state.selection
+        if (!item || !empty || $from.parentOffset > 0 || typeof item.node.attrs.checked !== 'boolean') return false
+        this.editor.view.dispatch(state.tr.setNodeAttribute(item.pos, 'checked', null))
+        return true
+      },
+    }
+  },
+  addProseMirrorPlugins() {
+    const editor = this.editor
+    return [
+      new Plugin({
+        key: new PluginKey('checklist'),
+        props: { nodeViews: { listItem: (node, view, getPos) => listItemView(editor, node, view, getPos) } },
+      }),
+    ]
+  },
+})
+
+/**
+ * A callout — SPEC §13.3's `tone` on a quote (RIC-19): a quote drawn to stand
+ * out, in one of GitHub's alert kinds (`note`, `tip`, `important`, `warning`,
+ * `caution`). Its look is `RichText`'s, by `data-tone`; a tone it does not
+ * know looks like `note`, and the editor keeps it as written. Add it beside
+ * `BlockId`.
+ */
+export const Callout = Extension.create({
+  name: 'callout',
+  addGlobalAttributes() {
+    return [
+      {
+        types: ['blockquote'],
+        attributes: {
+          tone: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute('data-tone'),
+            // As `RichText` draws it: the tone as written, and the look it is drawn in.
+            renderHTML: (attributes: Record<string, unknown>) =>
+              typeof attributes.tone === 'string' ? { 'data-tone': attributes.tone, 'data-callout': calloutLook(attributes.tone) } : {},
+          },
+        },
+      },
+    ]
   },
 })

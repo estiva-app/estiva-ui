@@ -6,7 +6,8 @@ import * as BlockNodesStories from './BlockNodes.stories'
 # BlockNodes
 
 The Tiptap nodes an editor of a block document needs beside StarterKit: an id
-on every block, a block it cannot edit kept whole, a reference, and a file.
+on every block, a block it cannot edit kept whole, a reference, a file, a
+checklist item and a callout.
 
 <Canvas of={BlockNodesStories.Default} />
 
@@ -34,8 +35,11 @@ import StarterKit from '@tiptap/starter-kit'
 import {
   AttachmentNode,
   BlockId,
+  Callout,
+  Checklist,
   ReferenceNode,
   UnknownBlock,
+  isChecklistTick,
   type AttachmentViewProps,
   type ReferenceViewProps,
 } from '@estiva-app/ui/editor'
@@ -50,11 +54,17 @@ const editor = useEditor({
   extensions: [
     StarterKit,
     BlockId,
+    Checklist,
+    Callout,
     UnknownBlock,
     ReferenceNode.configure({ view: Reference }),
     AttachmentNode.configure({ view: File }),
   ],
   content: opened,
+  // A tick is a click, so no blur follows it: save it now.
+  onUpdate: ({ transaction }) => {
+    if (isChecklistTick(transaction)) console.log('save now')
+  },
 })
 
 <EditorContent editor={editor} />
@@ -74,9 +84,28 @@ const editor = useEditor({
 - `UnknownBlock` draws a block the editor has no design for as its text, in a
   box. It cannot be changed here, only moved or deleted, and it is saved back
   exactly as it arrived.
+- `Checklist` is a list item with `checked` (§13.3): a box before it that
+  ticks with one click. `[ ] ` or `[] ` at the start of a line makes one,
+  `[x] ` a ticked one; `/`'s Checklist does too, in a block editor
+  (`formatSection('block')`). A change that is a tick says so
+  (`isChecklistTick`): save it at once, as no blur follows a click on the box.
+  Without `Checklist`, a save drops the tick and keeps the item.
+- `Callout` is a quote with a `tone` (§13.3), drawn on its tone's wash as
+  `RichText` draws it. `/` offers Note and Warning in a block editor; the other
+  tones are read and kept as written.
 
 <Canvas of={BlockNodesStories.WithoutViews} />
+
+<Canvas of={BlockNodesStories.ChecklistAndCallouts} />
 
 ## What it owns
 
 Nothing. It only draws. Clicks and keys are yours.
+
+## Keys
+
+| Key | In a checklist item |
+| --- | --- |
+| Enter | Starts the next item, unticked. At the start of the item, its text moves down with its tick. On an empty item, leaves the list. |
+| Backspace | At the start of the item, takes its box away; again, joins it to the item above. |
+| Space after `[ ]`, `[]` or `[x]` | At the start of a line, makes a checklist item (ticked for `[x]`). |

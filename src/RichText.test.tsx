@@ -146,4 +146,42 @@ describe('RichText', () => {
     }
     expect(richTextClassName('default', 'outline-none')).toContain('outline-none')
   })
+
+  const CHECKLIST: RichTextBlock[] = [
+    {
+      type: 'bulletList',
+      id: 'l1',
+      children: [
+        { type: 'listItem', id: 'i1', checked: true, inline: [{ text: 'ship', marks: [] }] },
+        { type: 'listItem', id: 'i2', checked: false, inline: [{ text: 'verify', marks: [] }] },
+        { type: 'listItem', id: 'i3', inline: [{ text: 'plain', marks: [] }] },
+      ],
+    },
+    { type: 'blockquote', id: 'q1', tone: 'warning', inline: [{ text: 'careful', marks: [] }] },
+    { type: 'blockquote', id: 'q2', tone: 'danger', inline: [{ text: 'unknown', marks: [] }] },
+  ]
+
+  it('draws a checklist item with its box, and a plain item without one (RIC-19)', () => {
+    const { container } = render(<RichText blocks={CHECKLIST} />)
+    expect([...container.querySelectorAll('li')].map((li) => li.getAttribute('data-checked'))).toEqual(['true', 'false', null])
+    // Without onTick the box is a picture: nothing to tab to or click.
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0)
+  })
+
+  it('ticks an item with one click when the app may change the text', () => {
+    const onTick = vi.fn()
+    render(<RichText blocks={CHECKLIST} onTick={onTick} />)
+    const boxes = screen.getAllByRole('checkbox', { name: 'Done' })
+    expect(boxes.map((b) => b.getAttribute('aria-checked'))).toEqual(['true', 'false'])
+    fireEvent.click(boxes[1])
+    expect(onTick).toHaveBeenCalledWith('i2', true)
+  })
+
+  it('draws a callout in its tone, and one it does not know as a note', () => {
+    const { container } = render(<RichText blocks={CHECKLIST} />)
+    expect([...container.querySelectorAll('blockquote')].map((q) => [q.getAttribute('data-tone'), q.getAttribute('data-callout')])).toEqual([
+      ['warning', 'warning'],
+      ['danger', 'note'],
+    ])
+  })
 })

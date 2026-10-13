@@ -43,6 +43,9 @@ export {
 } from './ComposerTriggers'
 export {
   BlockId,
+  Checklist,
+  Callout,
+  isChecklistTick,
   UnknownBlock,
   ReferenceNode,
   AttachmentNode,

@@ -440,7 +440,7 @@ export interface SlashSection {
   commands: readonly SlashCommand[]
 }
 
-export type FormatId = 'paragraph' | 'heading' | 'subheading' | 'quote' | 'bulletList' | 'orderedList' | 'code'
+export type FormatId = 'paragraph' | 'heading' | 'subheading' | 'quote' | 'bulletList' | 'orderedList' | 'code' | 'checklist' | 'note' | 'warning'
 
 export interface FormatDef {
   id: FormatId
@@ -464,6 +464,19 @@ export const FORMATS: readonly FormatDef[] = [
   { id: 'code', label: 'Code', trigger: '`', blockTrigger: '```' },
   { id: 'bulletList', label: 'Bulleted list', trigger: '-' },
   { id: 'orderedList', label: 'Numbered list', trigger: '1.' },
+]
+
+/**
+ * What only a document holds — a checklist item and a callout (RIC-19) — so
+ * only a block editor's `/` offers them (`formatSection('block')`): a
+ * message's text has no spelling for either. They need the `Checklist` and
+ * `Callout` extensions. Note and Warning are the two callouts offered (Miky,
+ * 2026-10-13); the other tones are read and kept, not offered.
+ */
+const DOCUMENT_FORMATS: readonly FormatDef[] = [
+  { id: 'checklist', label: 'Checklist', trigger: '[]' },
+  { id: 'note', label: 'Note' },
+  { id: 'warning', label: 'Warning' },
 ]
 
 /** Code as a mark inside the line, or as a block of its own. */
@@ -501,19 +514,36 @@ export function applyFormat(editor: Editor, id: FormatId, code: CodeFormat = 'in
       return run('toggleOrderedList')
     case 'code':
       return run(code === 'block' ? 'toggleCodeBlock' : 'toggleCode')
+    case 'checklist': {
+      // In a list, that item becomes one; elsewhere, the line becomes a list of one.
+      if (!editor.isActive('listItem') && !run('toggleBulletList')) return false
+      return editor.chain().updateAttributes('listItem', { checked: false }).run()
+    }
+    case 'note':
+    case 'warning': {
+      if (!editor.isActive('blockquote') && !run('toggleBlockquote')) return false
+      return editor.chain().updateAttributes('blockquote', { tone: id }).run()
+    }
     default:
       return false
   }
 }
 
-/** The Format section every app's `/` opens with. */
+/** Words a row is also found by, beyond its id. */
+const KEYWORDS: Partial<Record<FormatId, string[]>> = {
+  checklist: ['todo', 'task'],
+  note: ['callout'],
+  warning: ['callout'],
+}
+
+/** The Format section every app's `/` opens with; a block editor's also offers a checklist and the callouts. */
 export function formatSection(code: CodeFormat = 'inline'): SlashSection {
   return {
     label: 'Format',
-    commands: FORMATS.map((format) => ({
+    commands: (code === 'block' ? [...FORMATS, ...DOCUMENT_FORMATS] : FORMATS).map((format) => ({
       key: `format-${format.id}`,
       row: { label: format.label, shortcut: (code === 'block' && format.blockTrigger) || format.trigger },
-      keywords: [format.id],
+      keywords: [format.id, ...(KEYWORDS[format.id] ?? [])],
       run: (editor) => {
         applyFormat(editor, format.id, code)
       },

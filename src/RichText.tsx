@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react'
+import { Checkbox } from './Checkbox'
 import { cn } from './cn'
 import { Link } from './Link'
 import { codeColours } from './codeColours'
@@ -49,6 +50,10 @@ export interface RichTextBlock {
   language?: string
   /** A numbered list's first number. */
   start?: number
+  /** A checklist item's tick: `true` or `false`, absent on a plain item. */
+  checked?: boolean
+  /** A callout's tone (`note`, `tip`, `important`, `warning`, `caution`), absent on a plain quote. */
+  tone?: string
   attrs?: Record<string, unknown>
   inline?: readonly RichTextRun[]
   children?: readonly RichTextBlock[]
@@ -77,6 +82,12 @@ export interface RichTextProps {
    * `undefined` to leave it to the part, which draws its words.
    */
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  /**
+   * Ticks or unticks a checklist item, by its block id: its box is then a
+   * control, one click where the text is read. Without it the box is a picture
+   * of the state — for someone who may not change the text.
+   */
+  onTick?: (blockId: string, checked: boolean) => void
 }
 
 /**
@@ -95,6 +106,10 @@ const RICH_TEXT_CLASSES = {
   /* The line in the muted text grey, not the border grey: a border grey was 1.3 : 1 in Leaf (Katerina, 9 October). */
   // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: the quote line is Peek's, 3px, between the ramp's 2 and 4
   quote: '[&_blockquote>p]:m-0 [&_blockquote]:border-l-[3px] [&_blockquote]:border-text-muted [&_blockquote]:pl-2.5',
+  /* A checklist item: the box where the bullet was, the words where they were; a ticked item's words muted and struck through (RIC-19, to Katerina's review). Its inner lists are not struck. */
+  checklist: '[&_li[data-checked]]:-ml-5 [&_li[data-checked]]:flex [&_li[data-checked]]:list-none [&_li[data-checked]]:gap-1 [&_[data-checklist-box]]:flex [&_[data-checklist-box]]:pt-0.5 [&_li[data-checked]>div]:min-w-0 [&_li[data-checked]>div]:flex-1 [&_li[data-checked=true]>div>p]:text-text-muted [&_li[data-checked=true]>div>p]:line-through',
+  /* A callout: the quote's line in its tone's colour, on its tone's wash (RIC-19, to Katerina's review). `data-callout` is the tone as drawn — an unknown one is `note`. */
+  callout: '[&_blockquote[data-callout]]:rounded-sm [&_blockquote[data-callout]]:py-2 [&_blockquote[data-callout]]:pr-3 [&_blockquote[data-callout=note]]:border-info-default [&_blockquote[data-callout=note]]:bg-info-muted [&_blockquote[data-callout=tip]]:border-success-default [&_blockquote[data-callout=tip]]:bg-success-muted [&_blockquote[data-callout=important]]:border-accent-primary [&_blockquote[data-callout=important]]:bg-accent-muted [&_blockquote[data-callout=warning]]:border-warning-default [&_blockquote[data-callout=warning]]:bg-warning-muted [&_blockquote[data-callout=caution]]:border-error-default [&_blockquote[data-callout=caution]]:bg-error-muted',
   /* Code in a sentence: the code fill and a thin border, in the heading colour (Katerina, 9 October: option B; the amber of 0.64.0 was too much). */
   // eslint-disable-next-line token-values/no-restricted-classes -- @estiva-escape: code is 0.85 of the text around it, so it scales with a heading and with `small`; a named size is fixed
   code: '[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:border [&_:not(pre)>code]:border-border-default [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary',
@@ -119,8 +134,8 @@ const RICH_TEXT_CLASSES = {
  * being written looks the same as what is read. Put it on the editor's root.
  */
 export function richTextClassName(size: RichTextSize = 'default', className?: string) {
-  const { base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks } = RICH_TEXT_CLASSES
-  return cn(base, headings, lists, quote, code, codeBlock, syntax, divider, table, marks, RICH_TEXT_CLASSES[size], className)
+  const { base, headings, lists, quote, checklist, callout, code, codeBlock, syntax, divider, table, marks } = RICH_TEXT_CLASSES
+  return cn(base, headings, lists, quote, checklist, callout, code, codeBlock, syntax, divider, table, marks, RICH_TEXT_CLASSES[size], className)
 }
 
 /**
@@ -165,6 +180,15 @@ interface Draw {
   renderText: (text: string) => ReactNode
   renderReference: (reference: string, run: RichTextRun) => ReactNode
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  onTick?: (blockId: string, checked: boolean) => void
+}
+
+/** SPEC §13.3's callout tones — GitHub's alert kinds. */
+const CALLOUT_TONES: ReadonlySet<string> = new Set(['note', 'tip', 'important', 'warning', 'caution'])
+
+/** The tone a callout is drawn in: its own, or `note` for one this part does not know (§13.3). */
+export function calloutLook(tone: string): string {
+  return CALLOUT_TONES.has(tone) ? tone : 'note'
 }
 
 function Runs({ runs, draw }: { runs?: readonly RichTextRun[]; draw: Draw }) {
@@ -251,17 +275,40 @@ function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode
       return <p data-block-id={block.id}>{runs}</p>
     case 'bulletList':
     case 'orderedList': {
-      const items = (block.children ?? []).map((item, i) => (
-        <li key={item.id ?? i} data-block-id={item.id}>
-          <Runs runs={item.inline} draw={draw} />
-        </li>
-      ))
+      const items = (block.children ?? []).map((item, i) => {
+        if (typeof item.checked !== 'boolean') {
+          return (
+            <li key={item.id ?? i} data-block-id={item.id}>
+              <Runs runs={item.inline} draw={draw} />
+            </li>
+          )
+        }
+        // The editor's shape (`Checklist`): the box, then the words in a `div`.
+        const { onTick } = draw
+        const id = item.id
+        return (
+          <li key={id ?? i} data-block-id={id} data-checked={String(item.checked)}>
+            <span data-checklist-box="">
+              <Checkbox checked={item.checked} onChange={onTick && id ? (next) => onTick(id, next) : undefined} aria-label="Done" />
+            </span>
+            <div>
+              <p>
+                <Runs runs={item.inline} draw={draw} />
+              </p>
+            </div>
+          </li>
+        )
+      })
       return block.type === 'bulletList'
         ? <ul data-block-id={block.id}>{items}</ul>
         : <ol data-block-id={block.id} start={block.start}>{items}</ol>
     }
     case 'blockquote':
-      return <blockquote data-block-id={block.id}>{runs}</blockquote>
+      return (
+        <blockquote data-block-id={block.id} data-tone={block.tone} data-callout={block.tone ? calloutLook(block.tone) : undefined}>
+          {runs}
+        </blockquote>
+      )
     case 'codeBlock':
       // Literal: no marks, no links, no chips. A long line wraps; nothing scrolls sideways.
       // In a language highlight.js knows, each word takes its colour; in any other, the text as it is.
@@ -297,9 +344,10 @@ export function RichText({
   renderText = (text) => text,
   renderReference = (_reference, run) => run.text,
   renderBlock,
+  onTick,
 }: RichTextProps) {
   if (blocks.length === 0) return null
-  const draw: Draw = { renderText, renderReference, renderBlock }
+  const draw: Draw = { renderText, renderReference, renderBlock, onTick }
   return (
     <div data-rich-text className={richTextClassName(size)}>
       {blocks.map((block, i) => <Block key={block.id ?? i} block={block} draw={draw} />)}

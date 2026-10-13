@@ -12,7 +12,8 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { Editor } from '@tiptap/core'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { AttachmentNode, BlockId, ReferenceNode, UnknownBlock, type ReferenceViewProps } from './BlockNodes'
+import { AttachmentNode, BlockId, Callout, Checklist, ReferenceNode, UnknownBlock, isChecklistTick, type ReferenceViewProps } from './BlockNodes'
+import { applyFormat } from './ComposerTriggers'
 
 const EXTENSIONS = [StarterKit, BlockId, UnknownBlock, ReferenceNode, AttachmentNode]
 
@@ -571,5 +572,102 @@ describe('Tab on a list item — MAN-13', () => {
     const item = (editor.getJSON() as Json).content![0].content![0]
     expect(item.attrs?.blockId).toBe('i1')
     expect(item.content![1].attrs?.blockId ?? null).toBeNull()
+  })
+})
+
+describe('a checklist item and a callout — RIC-19', () => {
+  const WITH = [StarterKit, BlockId, Checklist, Callout]
+  const press = (key: string) => editor!.view.someProp('handleKeyDown', (f) => f(editor!.view, new KeyboardEvent('keydown', { key })))
+  const item = (id: string, text: string, checked?: boolean) => ({
+    type: 'listItem',
+    attrs: { blockId: id, ...(checked === undefined ? {} : { checked }) },
+    content: [{ type: 'paragraph', content: text ? [{ type: 'text', text }] : [] }],
+  })
+  const CHECKLIST = {
+    type: 'doc',
+    content: [
+      { type: 'bulletList', attrs: { blockId: 'l1' }, content: [item('i1', 'ship', true), item('i2', 'plain')] },
+      { type: 'blockquote', attrs: { blockId: 'q1', tone: 'warning' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'careful' }] }] },
+    ],
+  }
+  const items = () => ((editor!.getJSON() as Json).content![0].content ?? []).map((n) => [JSON.stringify(n.content).match(/"text":"([^"]*)"/)?.[1] ?? '', n.attrs?.checked ?? null])
+  /** The end of "ship": 1 opens the list, 1 the item, 1 its paragraph. */
+  const END_OF_SHIP = 3 + 4
+
+  it('keeps a tick and a tone through a load and a read, and a plain item plain', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    expect(items()).toEqual([['ship', true], ['plain', null]])
+    expect((editor.getJSON() as Json).content![1].attrs?.tone).toBe('warning')
+    expect(editor.getHTML()).toContain('data-callout="warning"')
+  })
+
+  it('starts the next item unticked on Enter, never with the tick it was split from', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    editor.commands.setTextSelection(END_OF_SHIP)
+    expect(press('Enter')).toBe(true)
+    expect(items()).toEqual([['ship', true], ['', false], ['plain', null]])
+  })
+
+  it('moves the text down with its tick on Enter at the start of an item', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    editor.commands.setTextSelection(3)
+    expect(press('Enter')).toBe(true)
+    expect(items()).toEqual([['', false], ['ship', true], ['plain', null]])
+  })
+
+  it('takes the box away first on Backspace at the start of an item', () => {
+    editor = new Editor({ extensions: WITH, content: CHECKLIST })
+    editor.commands.setTextSelection(3)
+    expect(press('Backspace')).toBe(true)
+    expect(items()).toEqual([['ship', null], ['plain', null]])
+  })
+
+  /** A space typed after `text`, as a key reaches the input rules. */
+  const typeSpaceAfter = (doc: object, at: number) => {
+    editor = new Editor({ extensions: WITH, content: doc })
+    editor.commands.setTextSelection(at)
+    const tr = () => editor!.state.tr.insertText(' ', at, at)
+    return editor.view.someProp('handleTextInput', (f) => f(editor!.view, at, at, ' ', tr))
+  }
+
+  it('makes a checklist item from [ ] at the start of a line', () => {
+    expect(typeSpaceAfter({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: '[ ]' }] }] }, 4)).toBe(true)
+    const list = (editor!.getJSON() as Json).content![0]
+    expect(list.type).toBe('bulletList')
+    expect(list.content![0].attrs?.checked).toBe(false)
+    expect(editor!.getText().trim()).toBe('')
+  })
+
+  it('turns a list item into a ticked one from [x]', () => {
+    const doc = { type: 'doc', content: [{ type: 'bulletList', content: [item('i1', '[x]')] }] }
+    expect(typeSpaceAfter(doc, 6)).toBe(true)
+    expect(items()).toEqual([['', true]])
+  })
+
+  it('makes a checklist and a callout from `/`', () => {
+    editor = new Editor({ extensions: WITH, content: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'todo' }] }, { type: 'paragraph', content: [{ type: 'text', text: 'heads up' }] }] } })
+    editor.commands.setTextSelection(2)
+    expect(applyFormat(editor, 'checklist')).toBe(true)
+    editor.commands.setTextSelection(editor.state.doc.content.size - 2)
+    expect(applyFormat(editor, 'note')).toBe(true)
+    const [list, quote] = (editor.getJSON() as Json).content!
+    expect(list.content![0].attrs?.checked).toBe(false)
+    expect(quote.attrs?.tone).toBe('note')
+  })
+
+  it('ticks with one click on the box, and says the change was a tick', async () => {
+    let ticked = false
+    function Checklisted() {
+      const e = useEditor({ extensions: WITH, content: CHECKLIST, onUpdate: ({ transaction }) => { ticked ||= isChecklistTick(transaction) } })
+      editor = e ?? undefined
+      return <EditorContent editor={e} />
+    }
+    render(<Checklisted />)
+    const boxes = await screen.findAllByRole('checkbox', { name: 'Done' })
+    expect(boxes).toHaveLength(1)
+    expect(boxes[0].getAttribute('aria-checked')).toBe('true')
+    boxes[0].click()
+    expect(items()[0]).toEqual(['ship', false])
+    expect(ticked).toBe(true)
   })
 })
