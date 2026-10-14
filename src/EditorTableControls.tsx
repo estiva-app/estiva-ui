@@ -198,7 +198,7 @@ export function EditorTableControls({ editor, children, className }: EditorTable
               onOpenChange={(open) => setMenu(open ? 'row' : null)}
               trigger={
                 <IconButton aria-label="Row menu" tooltip="Row" className="h-6 w-4 p-0">
-                  <IconGripVertical size={14} stroke={1.5} />
+                  <IconGripVertical size={16} stroke={1.5} />
                 </IconButton>
               }
             >
@@ -217,7 +217,7 @@ export function EditorTableControls({ editor, children, className }: EditorTable
               onOpenChange={(open) => setMenu(open ? 'column' : null)}
               trigger={
                 <IconButton aria-label="Column menu" tooltip="Column" className="h-4 w-6 p-0">
-                  <IconGripHorizontal size={14} stroke={1.5} />
+                  <IconGripHorizontal size={16} stroke={1.5} />
                 </IconButton>
               }
             >
@@ -235,14 +235,14 @@ export function EditorTableControls({ editor, children, className }: EditorTable
             lie over the top of the next block for nothing.
           */}
           {shown.row === shown.table.rows[shown.table.rows.length - 1] && (
-            <div data-table-control className={cn(HANDLE_BOX, 'absolute flex h-3')} style={{ left: shown.tableBox.left, top: shown.tableBox.top + shown.tableBox.height, width: shown.tableBox.width }}>
+            <div data-table-control className={cn(HANDLE_BOX, 'absolute flex h-4')} style={{ left: shown.tableBox.left, top: shown.tableBox.top + shown.tableBox.height, width: shown.tableBox.width }}>
               <IconButton aria-label="Add row" tooltip="Add row" className="h-full w-full p-0" onMouseDown={keepFocus} onClick={run(() => appendTableRow(editor, shown.table))}>
                 <IconPlus size={12} stroke={1.5} />
               </IconButton>
             </div>
           )}
           {shown.cell === shown.row.cells[shown.row.cells.length - 1] && (
-            <div data-table-control className={cn(HANDLE_BOX, 'absolute flex w-3')} style={{ left: shown.tableBox.left + shown.tableBox.width, top: shown.tableBox.top, height: shown.tableBox.height }}>
+            <div data-table-control className={cn(HANDLE_BOX, 'absolute flex w-4')} style={{ left: shown.tableBox.left + shown.tableBox.width, top: shown.tableBox.top, height: shown.tableBox.height }}>
               <IconButton aria-label="Add column" tooltip="Add column" className="h-full w-full p-0" onMouseDown={keepFocus} onClick={run(() => appendTableColumn(editor, shown.table))}>
                 <IconPlus size={12} stroke={1.5} />
               </IconButton>

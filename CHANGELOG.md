@@ -30,7 +30,16 @@
   - `@tiptap/extension-table` 3.31.3 joins the dev dependencies, for the tests
     and the story; the component itself needs only `@tiptap/pm`, already a
     peer.
-  - The look is to Katerina's review.
+  - The look is to Katerina's review (14 October): the handles' grip is the
+    block handle's, at its 16px; the ➕ bars are 16px, so they are easier to
+    hit.
+
+### Changed
+
+- **A table has 16px above and below it**, as a divider has (Katerina, 14
+  October; the 8px between blocks before). The row ➕ under a table sits in
+  that room instead of over the next line, and the column handle clears the
+  line above. In `RichText` and in an editor that wears `richTextClassName`.
 
 ## 0.66.0 — 2026-10-13
 
