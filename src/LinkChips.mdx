@@ -48,7 +48,8 @@ LinkChips.configure({
   is asked about and becomes its chip at once, with the caret at its end, so
   **ReferenceMenu** can open its menu.
 - A URL in code or in a code block stays text, and so does a link on words.
-- Each URL is asked about once, and one editor asks about at most `limit`
+- Each URL is asked about once while the document holds it, and one editor
+  asks about at most `limit` of the URLs it holds unanswered at a time
   (24 by default), the first ones: an answer can cost the app a query.
 - A pasted URL's chip is its own undo step: undo gives the URL back, and a
   second undo takes the paste away. A typed URL's chip is not a step: undo

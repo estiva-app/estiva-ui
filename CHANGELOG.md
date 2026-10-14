@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.69.1 — 2026-10-14
+
+### Fixed
+
+- **`LinkChips`' `limit` counts the URLs the document holds unanswered**, not
+  every URL the editor was ever asked about (OPT-19 review). A message box
+  lives across many messages: after about 24 links sent, of any site, a pasted
+  app link stayed text until a reload. A document pasted full of links still
+  asks about only its first `limit`.
+
 ## 0.69.0 — 2026-10-14
 
 ### Changed
