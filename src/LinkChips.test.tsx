@@ -175,4 +175,47 @@ describe('LinkChips', () => {
     await tick()
     expect(ed.getText()).toBe(`${URL_} `)
   })
+
+  it('makes a pasted URL its chip as its own undo step: undo gives the URL back, then takes the paste away', async () => {
+    const ed = make(para({ type: 'text', text: 'See ' }), new Map([[URL_, V]]))
+    await tick()
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, ed.state.doc.content.size - 1)))
+    ed.view.pasteText(URL_, new Event('paste') as ClipboardEvent)
+    expect(inline(ed).map((n) => n.type)).toEqual(['text', 'reference'])
+    ed.commands.undo()
+    expect(inline(ed)).toEqual([{ type: 'text', text: `See ${URL_}` }])
+    ed.commands.undo()
+    expect(inline(ed)).toEqual([{ type: 'text', text: 'See ' }])
+  })
+
+  it('makes a pasted URL answered later its own undo step too', async () => {
+    const known = new Map<string, string>()
+    const ed = make(para({ type: 'text', text: 'See ' }), known)
+    await tick()
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, ed.state.doc.content.size - 1)))
+    ed.view.pasteText(URL_, new Event('paste') as ClipboardEvent)
+    expect(inline(ed)).toEqual([{ type: 'text', text: `See ${URL_}` }])
+    known.set(URL_, V)
+    refreshLinkChips(ed)
+    expect(inline(ed)[1].type).toBe('reference')
+    ed.commands.undo()
+    expect(inline(ed)).toEqual([{ type: 'text', text: `See ${URL_}` }])
+  })
+
+  it('turns a link whose text is its own URL into its chip, and leaves a link on words', async () => {
+    editor = new Editor({
+      // A composer's link mark: an autolink, or its paste rule, links a bare URL to itself.
+      extensions: [StarterKit.configure({ link: { autolink: false, openOnClick: false } }), BlockId, ReferenceNode, LinkChips.configure({ referenceOf: (url) => (url === URL_ ? V : undefined), ask: null })],
+      content: para(
+        { type: 'text', text: URL_, marks: [{ type: 'link', attrs: { href: URL_ } }, { type: 'bold' }] },
+        { type: 'text', text: ' and ' },
+        { type: 'text', text: 'the words', marks: [{ type: 'link', attrs: { href: URL_ } }] },
+      ),
+    })
+    await tick()
+    const [chip, , words] = inline(editor)
+    expect(chip.type).toBe('reference')
+    expect(chip.attrs).toMatchObject({ uri: V, href: URL_, marks: ['bold'] })
+    expect(words).toMatchObject({ type: 'text', text: 'the words' })
+  })
 })

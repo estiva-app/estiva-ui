@@ -21,10 +21,10 @@ recognise, or has not answered for yet, stays text.
 
 - A document that is only read → **RichText**, whose text already says which
   runs are chips.
-- An editor with a link mark (a composer's Link button) → its links are the
-  author's words, not chips. Turn the link mark off in a document editor
-  (`StarterKit.configure({ link: false })`), or URLs are linked before this
-  sees them.
+- A link on words (a composer's Link button, a URL pasted over selected
+  words) → it stays the author's link, not a chip. A link whose text is its
+  own URL (an autolink, a link mark's paste rule) is that URL, and becomes
+  its chip.
 
 ## How
 
@@ -47,10 +47,12 @@ LinkChips.configure({
   never turns into a chip while it is being typed. A pasted URL is whole: it
   is asked about and becomes its chip at once, with the caret at its end, so
   **ReferenceMenu** can open its menu.
-- A URL in code, in a code block, or under a link mark stays text.
+- A URL in code or in a code block stays text, and so does a link on words.
 - Each URL is asked about once, and one editor asks about at most `limit`
   (24 by default), the first ones: an answer can cost the app a query.
-- Making a chip is not an undo step: undo takes back what was typed.
+- A pasted URL's chip is its own undo step: undo gives the URL back, and a
+  second undo takes the paste away. A typed URL's chip is not a step: undo
+  takes back what was typed.
 
 ## What it owns
 

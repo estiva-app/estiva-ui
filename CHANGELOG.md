@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.69.0 — 2026-10-14
+
+### Changed
+
+- **`LinkChips` in a message box** (OPT-19, Widgets: Ship's comment box and
+  Peek's message box turn a pasted app link into its chip, as a description
+  does; Miky, 14 October).
+  - A pasted URL's chip is its own undo step: Ctrl+Z gives the URL back, a
+    second takes the paste away — as Peek's own pasted link did. Before, the
+    chip was no step, so Ctrl+Z took the whole paste. A typed URL's chip is
+    still no step.
+  - A link mark whose text is its own URL — a composer's autolink, or its
+    link mark's paste rule — is that URL and becomes its chip, its other marks
+    kept and the link mark left behind. A link on words stays a link. Before,
+    every text under a link mark stayed text, so an editor with a link mark
+    never made a chip.
+  - Callers: Ship `src/components/editing/LiveDescription.tsx`, Peek
+    `src/components/ui/BlockDocumentField.tsx` — neither has a link mark, so
+    only the undo step changes for them.
+
 ## 0.68.0 — 2026-10-14
 
 ### Added
