@@ -168,21 +168,51 @@ export function useReferenceCards(editor: Editor | null): ReferenceCardSlot[] {
   return slots
 }
 
-/** The chip the person has selected, with what it names and its card — or null. */
+/**
+ * The chip the person has selected, with what it names and its card — or null.
+ *
+ * Selected as a node (a click, where a click on the chip does not follow its
+ * link), or inside a selected range that holds that one chip and nothing but
+ * spaces besides (Shift+arrow over it, or a drag across it): an app whose chip
+ * is a link has no other way to select it.
+ */
 export function referenceAtSelection(state: EditorState): { pos: number; uri: string; layout: ReferenceCardLayout } | null {
   const { selection } = state
-  if (!(selection instanceof NodeSelection) || selection.node.type.name !== 'reference') return null
-  return { pos: selection.from, uri: String(selection.node.attrs.uri ?? ''), layout: layoutOf(selection.node.attrs.embed) ?? 'none' }
+  let found: { pos: number; node: PmNode } | null = null
+  if (selection instanceof NodeSelection) {
+    if (selection.node.type.name === 'reference') found = { pos: selection.from, node: selection.node }
+  } else if (!selection.empty) {
+    let only = true
+    state.doc.nodesBetween(selection.from, selection.to, (node, pos) => {
+      if (node.type.name === 'reference') {
+        if (found) only = false
+        found = { pos, node }
+        return false
+      }
+      if (node.isText) {
+        const from = Math.max(selection.from, pos) - pos
+        const to = Math.min(selection.to, pos + node.nodeSize) - pos
+        if ((node.text ?? '').slice(from, to).trim() !== '') only = false
+      }
+      return true
+    })
+    if (!only) found = null
+  }
+  if (!found) return null
+  const { pos, node } = found as { pos: number; node: PmNode }
+  return { pos, uri: String(node.attrs.uri ?? ''), layout: layoutOf(node.attrs.embed) ?? 'none' }
 }
 
-/** Sets the card of the selected chip. `none` removes it. The chip stays selected. */
+/** Sets the card of the selected chip. `none` removes it. The selection stays as it was. */
 export function setReferenceCard(editor: Editor, layout: ReferenceCardLayout): boolean {
   const at = referenceAtSelection(editor.state)
   if (!at) return false
   const node = editor.state.doc.nodeAt(at.pos)
   if (!node) return false
+  const wasNode = editor.state.selection instanceof NodeSelection
+  // Same size, so a range maps onto itself; a node selection is made again, since the node is replaced.
   const tr = editor.state.tr.setNodeMarkup(at.pos, undefined, { ...node.attrs, embed: layout === 'none' ? null : layout })
-  tr.setSelection(NodeSelection.create(tr.doc, at.pos))
+  if (wasNode) tr.setSelection(NodeSelection.create(tr.doc, at.pos))
   editor.view.dispatch(tr)
   return true
 }

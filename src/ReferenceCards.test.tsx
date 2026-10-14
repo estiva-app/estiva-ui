@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { createPortal } from 'react-dom'
 import { Editor } from '@tiptap/core'
-import { NodeSelection } from '@tiptap/pm/state'
+import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { BlockId, ReferenceNode } from './BlockNodes'
 import { ReferenceCards, referenceAtSelection, referenceCardPlacements, setReferenceCard, useReferenceCards } from './ReferenceCards'
@@ -87,6 +87,30 @@ describe('choosing a card', () => {
     setReferenceCard(editor, 'none')
     expect(json(editor).content?.[1].content?.[0].attrs?.embed).toBeNull()
     expect(referenceCardPlacements(editor.state.doc).map((p) => p.key)).toEqual(['b:p1', 'b:i1'])
+  })
+
+  it('finds the one chip in a selected range of spaces and that chip, and keeps the range', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
+    // The second paragraph is the chip alone: select across all of it, as Shift+arrow does.
+    let start = -1
+    editor.state.doc.forEach((node, offset, index) => {
+      if (index === 1) start = offset + 1
+    })
+    editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, start, start + 1)))
+    expect(referenceAtSelection(editor.state)).toMatchObject({ uri: W, layout: 'none' })
+    setReferenceCard(editor, 'compact')
+    expect(editor.state.selection.from).toBe(start)
+    expect(editor.state.selection.to).toBe(start + 1)
+    expect(referenceAtSelection(editor.state)).toMatchObject({ uri: W, layout: 'compact' })
+  })
+
+  it('offers nothing for a range with words in it, or with two chips', () => {
+    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
+    // "Blocked by " and the chip after it.
+    editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1, 13)))
+    expect(referenceAtSelection(editor.state)).toBeNull()
+    editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 1, editor.state.doc.content.size - 1)))
+    expect(referenceAtSelection(editor.state)).toBeNull()
   })
 
   it('offers nothing when no chip is selected', () => {
