@@ -33,6 +33,11 @@
   - The look is to Katerina's review (14 October): the handles' grip is the
     block handle's, at its 16px; the ➕ bars are 16px, so they are easier to
     hit.
+- **`NavItem` takes one button of its own beside the ⋮** (#173, Katerina, 14
+  October). `action` is `{ icon, tooltip, onClick }`, the shape of a
+  `SectionHeader`'s actions: one thing done often enough to stay in sight,
+  such as taking the row off a list. It shows in the count's place, and
+  before the ⋮ when the row has a menu too. One, never a row of them.
 
 ### Changed
 
