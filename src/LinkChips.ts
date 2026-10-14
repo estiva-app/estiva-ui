@@ -183,9 +183,11 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
           init: () => ({ options, pasted: [] }),
           apply: (tr, value, before, after) => {
             if (!tr.docChanged) return value
+            // A paste edited inside is being typed again: forgotten, so each keystroke in it is not an ask (security review).
             const pasted = value.pasted
-              .map((range) => ({ from: tr.mapping.map(range.from, 1), to: tr.mapping.map(range.to, -1) }))
-              .filter((range) => range.from < range.to)
+              .map((range) => ({ from: tr.mapping.map(range.from, 1), to: tr.mapping.map(range.to, -1), size: range.to - range.from }))
+              .filter((range) => range.from < range.to && range.to - range.from === range.size)
+              .map(({ from, to }) => ({ from, to }))
             if (tr.getMeta('uiEvent') === 'paste') {
               const from = tr.mapping.map(before.selection.from, -1)
               if (from < after.selection.to) pasted.push({ from, to: after.selection.to })

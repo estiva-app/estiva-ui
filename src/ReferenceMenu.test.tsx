@@ -107,6 +107,22 @@ describe('ReferenceMenu', () => {
     expect(isReferenceMenuOpen(ed2.state)).toBe(false)
   })
 
+  it('forgets a paste edited inside: each keystroke in it is not an ask', async () => {
+    const answers: (() => void)[] = []
+    const ed = make(para({ type: 'text', text: 'See ' }), new Map(), answers)
+    await tick()
+    toEnd(ed)
+    paste(ed, URL_)
+    expect(answers).toHaveLength(1)
+    // A character fixed in the middle of the pasted URL, the caret left there.
+    const at = 5 + URL_.length - 3
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, at)))
+    for (const ch of 'xyz') ed.view.dispatch(ed.state.tr.insertText(ch))
+    toEnd(ed)
+    for (const ch of 'abc') ed.view.dispatch(ed.state.tr.insertText(ch))
+    expect(answers).toHaveLength(1)
+  })
+
   it('opens on a chip picked from a list, which puts a space after it', async () => {
     const ed = make(para({ type: 'text', text: 'See ' }), new Map())
     toEnd(ed)
