@@ -19,6 +19,7 @@
  * still at its end — where `ReferenceMenu` opens its menu.
  */
 import { Extension, type Editor } from '@tiptap/core'
+import { closeHistory } from '@tiptap/pm/history'
 import type { Node as PmNode } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type EditorState, type Selection, type Transaction } from '@tiptap/pm/state'
 
@@ -111,9 +112,14 @@ export function findLinkChips(doc: PmNode, selection: Selection | null, referenc
       return false
     }
     if (!node.isText || !node.text) return true
-    // A URL in code is literal, and one already linked on purpose is the link's.
-    if (node.marks.some((m) => m.type.spec.code || m.type.name === 'code' || m.type.name === 'link')) return false
-    for (const run of urlRuns(node.text)) {
+    // A URL in code is literal.
+    if (node.marks.some((m) => m.type.spec.code || m.type.name === 'code')) return false
+    // A link on words is the link's. A link whose text is its own URL — an editor's autolink, or its paste rule — is
+    // that URL, as a document reads one (protocol's `inlineToEditor`): its chip, with the link mark left behind.
+    const link = node.marks.find((m) => m.type.name === 'link')
+    if (link && !(link.attrs.href === node.text && /^https?:\/\//.test(node.text))) return false
+    const runs = link ? [{ url: node.text, from: 0, to: node.text.length, end: node.text.length }] : urlRuns(node.text)
+    for (const run of runs) {
       const from = pos + run.from
       const to = pos + run.to
       // Being typed or selected: the caret inside it or at its end (`https://a.` is still being typed), or a
@@ -123,7 +129,7 @@ export function findLinkChips(doc: PmNode, selection: Selection | null, referenc
       const typing = selection && selection.to > from && selection.from <= pos + run.end
       if (typing && !(selection.empty && wasPasted)) continue
       const uri = referenceOf?.(run.url)
-      if (uri) found.chips.push({ from, to, url: run.url, uri, marks: node.marks.map((m) => m.type.name), pasted: wasPasted })
+      if (uri) found.chips.push({ from, to, url: run.url, uri, marks: node.marks.filter((m) => m !== link).map((m) => m.type.name), pasted: wasPasted })
       else open.add(run.url)
     }
     return false
@@ -145,9 +151,12 @@ function apply(state: EditorState, found: Found): Transaction | null {
   for (const chip of [...found.chips].reverse()) {
     tr.replaceWith(chip.from, chip.to, type.create({ uri: chip.uri, href: chip.url, marks: chip.marks }))
   }
-  // Not a step of the person's: undo takes back what they typed, not the chip it became.
   // Whether a pasted URL became its chip: `ReferenceMenu` opens on that one, never on a URL typed by hand.
-  return tr.setMeta('addToHistory', false).setMeta(CHIPS_MADE, { pasted: found.chips.some((chip) => chip.pasted) })
+  const pasted = found.chips.some((chip) => chip.pasted)
+  tr.setMeta(CHIPS_MADE, { pasted })
+  // A pasted URL's chip is its own undo step, so Ctrl+Z gives the URL back rather than taking the paste away (OPT-19,
+  // as Peek's pasted link did). Any other chip is not a step of the person's: undo takes back what they typed.
+  return pasted ? closeHistory(tr) : tr.setMeta('addToHistory', false)
 }
 
 /**
