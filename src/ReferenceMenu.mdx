@@ -51,7 +51,11 @@ const editor = useEditor({
   the chip keeps no card.
 - **Open** does what a click on the chip does when reading: the app's chip gets
   the click. A chip with nothing to click opens its URL in a new tab.
-- A chip whose URL names nothing yet offers Open only.
+- Open is offered only when there is something to open: the chip's own link
+  or button, or its URL. A chip whose URL names nothing yet offers Open only;
+  one with neither has no menu, and a click goes on to it.
+- The menu closes when the editor loses focus, so a card is never chosen after
+  the editor has saved on leaving.
 - Choosing a card is an undo step; the menu closes.
 
 ## What it owns
@@ -67,4 +71,5 @@ Nothing. Its box is the Popover; it holds which chip the menu is open on, and it
 | Enter | Chooses the highlighted row; with none, the editor's own Enter |
 | Escape | Closes the menu |
 
-The panel takes no focus, so it is reached only through these keys.
+The panel takes no focus, so it is reached only through these keys. A key with
+Shift, Ctrl, Alt or Cmd stays the editor's: Shift+↓ extends the selection.

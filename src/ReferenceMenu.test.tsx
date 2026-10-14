@@ -107,6 +107,54 @@ describe('ReferenceMenu', () => {
     expect(isReferenceMenuOpen(ed2.state)).toBe(false)
   })
 
+  it('stays open while a URL elsewhere becomes its chip, and closes when the editor loses focus', async () => {
+    const answers: (() => void)[] = []
+    const other = 'https://app.example/i/two'
+    const doc = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', attrs: { blockId: 'p1' }, content: [{ type: 'text', text: 'See ' }, { type: 'reference', attrs: { uri: V } }] },
+        { type: 'paragraph', attrs: { blockId: 'p2' }, content: [{ type: 'text', text: other }] },
+      ],
+    }
+    const ed = make(doc, new Map(), answers)
+    await tick()
+    expect(referenceMenuClick(ed, 5)).toBe(true)
+    answers[0]()
+    await tick()
+    expect((ed.getJSON() as Json).content?.[1].content?.[0].type).toBe('reference')
+    expect(isReferenceMenuOpen(ed.state)).toBe(true)
+    ed.view.dom.dispatchEvent(new FocusEvent('blur'))
+    expect(isReferenceMenuOpen(ed.state)).toBe(false)
+  })
+
+  it('opens on a chip pasted right before an identical one', () => {
+    const ed = make(para({ type: 'text', text: 'a ' }, { type: 'reference', attrs: { uri: V } }), new Map())
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, 3)))
+    ed.view.dispatch(ed.state.tr.insert(3, ed.schema.nodes.reference.create({ uri: V })).setMeta('uiEvent', 'paste'))
+    expect(ed.state.selection.from).toBe(4)
+    expect(isReferenceMenuOpen(ed.state)).toBe(true)
+  })
+
+  it('leaves a key with a modifier to the editor', async () => {
+    const ed = make(para({ type: 'text', text: 'See ' }), new Map([[URL_, V]]))
+    await tick()
+    toEnd(ed)
+    paste(ed, URL_)
+    const shifted = new KeyboardEvent('keydown', { key: 'ArrowDown', shiftKey: true, bubbles: true, cancelable: true })
+    ed.view.dom.dispatchEvent(shifted)
+    expect(shifted.defaultPrevented).toBe(false)
+  })
+
+  it('offers no Open for a chip with nothing to open', () => {
+    // No view: the chip draws no control of its own, and it has no URL.
+    const ed = make(para({ type: 'text', text: 'See ' }, { type: 'reference', attrs: { uri: V } }), new Map())
+    render(<ReferenceMenuView editor={ed} />)
+    act(() => void referenceMenuClick(ed, 5))
+    expect(screen.queryByRole('menuitem', { name: 'Open' })).toBeNull()
+    expect(screen.getByRole('menuitemradio', { name: 'Compact' })).toBeDefined()
+  })
+
   it('forgets a paste edited inside: each keystroke in it is not an ask', async () => {
     const answers: (() => void)[] = []
     const ed = make(para({ type: 'text', text: 'See ' }), new Map(), answers)

@@ -37,7 +37,7 @@ import { setReferenceCardAt, type ReferenceCardLayout } from './ReferenceCards'
 interface MenuState {
   /** The chip's position. */
   pos: number
-  /** The highlighted row, or -1 for none. Row 0 is Open; rows 1–3 the cards. */
+  /** The highlighted row of `rowsOf`, or -1 for none. */
   active: number
 }
 
@@ -49,9 +49,28 @@ const LAYOUTS: { layout: ReferenceCardLayout; label: string }[] = [
   { layout: 'detailed', label: 'Detailed' },
 ]
 
-/** A chip whose URL names nothing yet has no card to choose: Open only. */
-function rowsOf(state: EditorState, pos: number): number {
-  return state.doc.nodeAt(pos)?.attrs.uri ? 1 + LAYOUTS.length : 1
+/** A row: Open, or a card. */
+type Row = 'open' | ReferenceCardLayout
+
+/** The chip's own control to click, or null. */
+function chipTarget(view: EditorView, pos: number): HTMLElement | null {
+  const dom = view.nodeDOM(pos)
+  return dom instanceof HTMLElement ? dom.querySelector<HTMLElement>('a[href], button') : null
+}
+
+/** An http(s) URL chip's URL, or ''. */
+function webHref(view: EditorView, pos: number): string {
+  const href = view.state.doc.nodeAt(pos)?.attrs.href
+  return typeof href === 'string' && /^https?:\/\//i.test(href) ? href : ''
+}
+
+/**
+ * The menu's rows: Open when there is something to open — the chip's own
+ * control, or its URL — and the cards when the chip names something.
+ */
+function rowsOf(view: EditorView, pos: number): Row[] {
+  const open: Row[] = chipTarget(view, pos) || webHref(view, pos) ? ['open'] : []
+  return view.state.doc.nodeAt(pos)?.attrs.uri ? [...open, ...LAYOUTS.map((card) => card.layout)] : open
 }
 
 /** A chip node, or null. */
@@ -83,9 +102,11 @@ function justPlaced(tr: Transaction, state: EditorState): number | null {
   }
   if (!before || before.type.name !== 'reference' || !before.attrs.uri) return null
   const pos = at - before.nodeSize
-  const was = tr.before.nodeAt(tr.mapping.invert().map(pos))
-  // The same chip as before the step — a key pressed after it, a card set on it — is not new.
-  if (was && was.type.name === 'reference' && was.attrs.uri === before.attrs.uri) return null
+  const old = tr.mapping.invert().map(pos)
+  const was = tr.before.nodeAt(old)
+  // The same chip as before the step — a key pressed after it, a card set on it — is not new. One put in just before
+  // an identical chip pushes that chip along, so it no longer maps onto `pos` (code review).
+  if (was && was.type.name === 'reference' && was.attrs.uri === before.attrs.uri && tr.mapping.map(old, 1) === pos) return null
   return pos
 }
 
@@ -98,9 +119,7 @@ let passing = false
 
 /** Opens what the chip at `pos` names, as a click on it does when reading. */
 function openChip(view: EditorView, pos: number): void {
-  const dom = view.nodeDOM(pos)
-  const node = view.state.doc.nodeAt(pos)
-  const target = dom instanceof HTMLElement ? dom.querySelector<HTMLElement>('a[href], button') : null
+  const target = chipTarget(view, pos)
   if (target) {
     passing = true
     try {
@@ -110,18 +129,15 @@ function openChip(view: EditorView, pos: number): void {
     }
     return
   }
-  const href = typeof node?.attrs.href === 'string' ? node.attrs.href : ''
-  if (/^https?:\/\//i.test(href)) window.open(href, '_blank', 'noopener,noreferrer')
+  const href = webHref(view, pos)
+  if (href) window.open(href, '_blank', 'noopener,noreferrer')
 }
 
-/** Runs row `row` of the menu open on the chip at `pos`, and closes it. */
-function choose(editor: Editor, pos: number, row: number): void {
+/** Runs `row` of the menu open on the chip at `pos`, and closes it. */
+function choose(editor: Editor, pos: number, row: Row | undefined): void {
   dispatchMenu(editor.view, null)
-  if (row === 0) openChip(editor.view, pos)
-  else {
-    const card = LAYOUTS[row - 1]
-    if (card) setReferenceCardAt(editor, pos, card.layout)
-  }
+  if (row === 'open') openChip(editor.view, pos)
+  else if (row) setReferenceCardAt(editor, pos, row)
 }
 
 /** Whether the menu is open, for an editor's own Escape: while it is, Escape closes it rather than leaving. */
@@ -136,7 +152,8 @@ export function isReferenceMenuOpen(state: EditorState): boolean {
  */
 export function referenceMenuClick(editor: Editor, pos: number): boolean {
   if (passing || editor.isDestroyed || !editor.isEditable || key.getState(editor.state) === undefined) return false
-  if (!chipAt(editor.state, pos)) return false
+  // A chip with nothing to open and no card to choose has no menu: the click goes on to it.
+  if (!chipAt(editor.state, pos) || rowsOf(editor.view, pos).length === 0) return false
   editor.view.dispatch(caretAfter(editor.state, pos).setMeta(key, { pos, active: -1 }))
   return true
 }
@@ -170,38 +187,50 @@ export const ReferenceMenu = Extension.create({
             if (!value) return null
             const pos = tr.mapping.map(value.pos)
             if (!chipAt(after, pos)) return null
-            // What another plugin appends — an id, a trailing line — is not the person typing on.
-            if (tr.docChanged && !tr.getMeta('appendedTransaction')) return null
+            // What another plugin appends — an id, a trailing line — is not the person typing on, and nor is a URL
+            // elsewhere becoming its chip when its answer comes back (code review).
+            if (tr.docChanged && !tr.getMeta('appendedTransaction') && tr.getMeta(CHIPS_MADE) === undefined) return null
             const onChip = after.selection instanceof NodeSelection && after.selection.from === pos
             if (tr.selectionSet && !after.selection.eq(before.selection) && !onChip) return null
             return pos === value.pos ? value : { ...value, pos }
           },
         },
         props: {
+          handleDOMEvents: {
+            // Focus gone, the keys no longer reach the menu, and a card chosen now would miss the save on leaving (code review).
+            blur: (view) => {
+              if (key.getState(view.state)) dispatchMenu(view, null)
+              return false
+            },
+          },
           handleKeyDown: (view, event) => {
+            // With a modifier, a key is the editor's: Shift+↓ extends the selection, Mod+Enter is not a pick.
+            if (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey) return false
             const open = key.getState(view.state)
             if (!open) {
               // Enter on a selected chip: the menu, from the keyboard, its first row highlighted.
               const { selection } = view.state
               if (event.key !== 'Enter' || !view.editable || !(selection instanceof NodeSelection) || selection.node.type.name !== 'reference') return false
+              if (rowsOf(view, selection.from).length === 0) return false
               view.dispatch(caretAfter(view.state, selection.from).setMeta(key, { pos: selection.from, active: 0 }))
               return true
             }
-            const rows = rowsOf(view.state, open.pos)
+            const rows = rowsOf(view, open.pos)
             if (event.key === 'Escape') {
               dispatchMenu(view, null)
               return true
             }
+            if (rows.length === 0) return false
             if (event.key === 'ArrowDown') {
-              dispatchMenu(view, { ...open, active: (open.active + 1) % rows })
+              dispatchMenu(view, { ...open, active: (open.active + 1) % rows.length })
               return true
             }
             if (event.key === 'ArrowUp') {
-              dispatchMenu(view, { ...open, active: open.active <= 0 ? rows - 1 : open.active - 1 })
+              dispatchMenu(view, { ...open, active: open.active <= 0 ? rows.length - 1 : open.active - 1 })
               return true
             }
             if (event.key === 'Enter' && open.active >= 0) {
-              choose(editor, open.pos, open.active)
+              choose(editor, open.pos, rows[open.active])
               return true
             }
             return false
@@ -249,9 +278,12 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
     return () => panel.removeEventListener('mousedown', keep)
   }, [])
 
-  const dom = shown && editor && !editor.isDestroyed ? editor.view.nodeDOM(shown.pos) : null
+  const live = shown && editor && !editor.isDestroyed ? editor : null
+  const dom = live && shown ? live.view.nodeDOM(shown.pos) : null
   const anchor = dom instanceof HTMLElement ? dom : null
-  const run = (row: number) => {
+  const rows = live && shown ? rowsOf(live.view, shown.pos) : []
+  const opens = rows[0] === 'open'
+  const run = (row: Row) => {
     if (editor && shown) choose(editor, shown.pos, row)
   }
 
@@ -259,7 +291,7 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
     // finalFocus={false}: focus never left the text.
     <Popover
       anchor={anchor}
-      open={!!shown && !!anchor}
+      open={!!shown && !!anchor && rows.length > 0}
       onOpenChange={(next) => {
         if (!next && editor && !editor.isDestroyed && key.getState(editor.state)) dispatchMenu(editor.view, null)
       }}
@@ -270,19 +302,22 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
     >
       {shown && (
         <div ref={keepFocus} role="menu" aria-label="Link" className="flex flex-col gap-0.5">
-          <MenuItem
-            role="menuitem"
-            tabIndex={-1}
-            label="Open"
-            selected={shown.active === 0}
-            onMouseDown={(event) => {
-              event.preventDefault()
-              run(0)
-            }}
-          />
+          {/* Only when there is something to open: the chip's own control, or its URL (code review). */}
+          {opens && (
+            <MenuItem
+              role="menuitem"
+              tabIndex={-1}
+              label="Open"
+              selected={shown.active === 0}
+              onMouseDown={(event) => {
+                event.preventDefault()
+                run('open')
+              }}
+            />
+          )}
           {shown.named && (
             <>
-              <MenuSeparator />
+              {opens && <MenuSeparator />}
               <div role="group" aria-label="Card">
                 <MenuSection label="Card">
                   {LAYOUTS.map(({ layout, label }, i) => (
@@ -292,11 +327,11 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
                       aria-checked={shown.layout === layout}
                       tabIndex={-1}
                       label={label}
-                      selected={shown.active === i + 1}
+                      selected={shown.active === i + (opens ? 1 : 0)}
                       trailing={shown.layout === layout ? <IconCheck size={16} aria-hidden /> : undefined}
                       onMouseDown={(event) => {
                         event.preventDefault()
-                        run(i + 1)
+                        run(layout)
                       }}
                     />
                   ))}
