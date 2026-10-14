@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.69.2 — 2026-10-14
+
+### Fixed
+
+- **`AttachmentCard`'s loading picture is the size of the picture it becomes**
+  (OPT-10, Widgets: a conversation stays still while its cards load). It drew
+  a 112px box, and the ready card is that box plus the name row, so every
+  picture grew 34px as it arrived and pushed the messages under it. It now
+  draws the ready card's shell — the picture's area pulsing, the name under
+  it — and is replaced without anything moving.
+
 ## 0.69.1 — 2026-10-14
 
 ### Fixed

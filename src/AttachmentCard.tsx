@@ -429,9 +429,15 @@ export function AttachmentCard({
     return (
       // `role="status"`: a plain box may not carry a name (axe, aria-prohibited-attr), and a
       // status says what it is doing — loading — to a reader that cannot see the pulse.
+      // The ready picture's shell — its 112px area and the name row under it — so nothing below moves as it
+      // arrives (Peek OPT-10: a loading box 34px shorter than the card it became pushed the conversation).
       // @estiva-escape(no-restyled-part): the loading pulse is AttachmentCard's own state; Card has no loading state (UIG-9, Katerina 17 September)
-      <Card role="status" fill="inset" aria-busy="true" aria-label={`Loading ${name}`} className={cn('w-[180px] h-28 animate-pulse', className)} {...props}>
-        {null}
+      <Card role="status" fill="inset" aria-busy="true" aria-label={`Loading ${name}`} clip className={cn('flex flex-col w-[180px] animate-pulse', className)} {...props}>
+        <div className="w-full h-28" />
+        <div className="flex items-center gap-1 pl-2 pr-1 py-1 min-w-0">
+          <Truncating text={name} className="flex-1 text-caption text-text-primary truncate" wrapperClassName="flex-1" />
+          {downloadControl}
+        </div>
       </Card>
     )
   }
