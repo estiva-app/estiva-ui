@@ -132,7 +132,8 @@ const RICH_TEXT_CLASSES = {
   syntax: '[&_:is(.hljs-keyword,.hljs-doctag,.hljs-type,.hljs-template-tag,.hljs-template-variable)]:text-syntax-keyword [&_.hljs-title]:text-syntax-function [&_:is(.hljs-number,.hljs-literal,.hljs-attr,.hljs-attribute,.hljs-meta,.hljs-variable,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id)]:text-syntax-constant [&_:is(.hljs-string,.hljs-regexp)]:text-syntax-string [&_:is(.hljs-built_in,.hljs-symbol)]:text-syntax-variable [&_.hljs-comment]:text-syntax-comment [&_:is(.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo)]:text-syntax-tag',
   /* A divider splits the text in two: 16px either side (Katerina, 9 October; 4 before). */
   divider: '[&_hr]:my-2 [&_hr]:border-border-default',
-  table: '[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary',
+  /* A table 16px above and below, as a divider (Katerina, 14 October; 8 before): the editor's row ➕ sits in that room, not over the next line. */
+  table: '[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary',
   /* Bold in the heading colour, not only heavier. An underlined word draws a faint line, so it does not read as a link (Katerina, 9 October). */
   marks: '[&_em]:italic [&_strong]:font-semibold [&_strong]:text-text-primary [&_u]:underline [&_u]:decoration-text-muted [&_u]:underline-offset-2',
   /* Lines 1.5 apart (Katerina, 9 October; 1.4 before). */

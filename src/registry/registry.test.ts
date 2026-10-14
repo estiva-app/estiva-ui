@@ -48,20 +48,20 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 152 names over 78 files: 111 components, 39 helpers and 2 hooks (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October)', () => {
+  it('counts 157 names over 79 files: 112 components, 43 helpers and 2 hooks (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     // The `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 111, helper: 39, hook: 2 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(78)
+    expect(kinds).toEqual({ component: 112, helper: 43, hook: 2 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(79)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(74)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(78)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(75)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(82)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -299,7 +299,7 @@ describe('the ids point at something', () => {
 describe('a second parser agrees', async () => {
   const docgen = await import('react-docgen').catch(() => null)
 
-  it.skipIf(!docgen)('finds the same props on all 79 components', async () => {
+  it.skipIf(!docgen)('finds the same props on all 80 components', async () => {
     if (!docgen) return
     const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
     const byName = new Map(registry.entries.map((one) => [one.name, one]))

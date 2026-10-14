@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.67.0",
-    "exports": 152,
-    "typeExports": 149,
+    "packageVersion": "0.68.0",
+    "exports": 157,
+    "typeExports": 150,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,44 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "appendTableColumn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A column after the last one: the ➕ right of the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "appendTableRow",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A row after the last one: the ➕ under the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
     {
       "name": "applyFormat",
       "repo": "estiva-ui",
@@ -1964,6 +2002,44 @@
       "looks": []
     },
     {
+      "name": "deleteTableColumn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "The same for a column: the last one deletes the table.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "deleteTableRow",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "The cell's row, or the whole table when it is its only one: a table holds at least one row (prosemirror-tables refuses to delete it).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "DialogShell",
       "repo": "estiva-ui",
       "kind": "component",
@@ -2291,6 +2367,47 @@
       "docPage": "src/EditorBlockHandle.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "EditorTableControls",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "A table's own controls in a Tiptap editor: point at a cell for a handle on its row and on its column, and a ➕ bar under the table and right of it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The editor, with TableKit (`@tiptap/extension-table`) in its extensions."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The `EditorContent`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": "src/EditorTableControls.mdx",
+      "app": null,
+      "looks": [
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg shadow-none -translate-x-1/2 -translate-y-1/2",
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg shadow-none"
+      ]
     },
     {
       "name": "EmptyState",
@@ -4279,6 +4396,12 @@
           "note": "The ⋮'s accessible name and tooltip. Default \"More options for {label}\"."
         },
         {
+          "name": "action",
+          "takes": "SectionAction",
+          "required": false,
+          "note": "One button beside the ⋮, shown with it: any 16px icon, its tooltip and its handler — a `SectionHeader` action's shape."
+        },
+        {
           "name": "hint",
           "takes": "anything",
           "required": false,
@@ -5632,7 +5755,7 @@
         "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-bg-code [&_:not(pre)>code]:px-1 [&_:not(pre)>code]:py-0.5 [&_:not(pre)>code]:border [&_:not(pre)>code]:border-border-default [&_code]:font-mono [&_code]:text-[0.85em] [&_code]:text-text-primary",
         "[&_pre>code]:text-[1em] [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:rounded-md [&_pre]:bg-bg-code [&_pre]:px-3 [&_pre]:py-2.5 [&_pre]:font-mono [&_pre]:text-[0.85em] [&_pre]:leading-relaxed [&_pre]:text-text-primary",
         "[&_:is(.hljs-keyword,.hljs-doctag,.hljs-type,.hljs-template-tag,.hljs-template-variable)]:text-syntax-keyword [&_.hljs-title]:text-syntax-function [&_:is(.hljs-number,.hljs-literal,.hljs-attr,.hljs-attribute,.hljs-meta,.hljs-variable,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id)]:text-syntax-constant [&_:is(.hljs-string,.hljs-regexp)]:text-syntax-string [&_:is(.hljs-built_in,.hljs-symbol)]:text-syntax-variable [&_.hljs-comment]:text-syntax-comment [&_:is(.hljs-name,.hljs-quote,.hljs-selector-tag,.hljs-selector-pseudo)]:text-syntax-tag",
-        "[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary",
+        "[&_:is(th,td)>p]:m-0 [&_:is(th,td)]:border [&_:is(th,td)]:border-border-default [&_:is(th,td)]:px-2 [&_:is(th,td)]:py-1 [&_:is(th,td)]:text-left [&_:is(th,td)]:align-top [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:bg-bg-code [&_th]:font-medium [&_th]:text-text-primary",
         "[&_em]:italic [&_strong]:font-semibold [&_strong]:text-text-primary [&_u]:underline [&_u]:decoration-text-muted [&_u]:underline-offset-2",
         "text-body-2 leading-normal [&>:is(h2,h3)]:text-body-2 [&>:is(h2,h3)]:font-semibold [&>h1]:text-h4",
         "text-caption leading-snug [&>:is(h1,h2,h3)]:mb-0.5 [&>:is(h1,h2,h3)]:mt-1.5 [&>:is(h1,h2,h3)+:is(h1,h2,h3)]:mt-1 [&>:is(h1,h2,h3):last-child]:mb-0 [&>:is(h2,h3)]:text-caption [&>:is(h2,h3)]:font-semibold [&>h1]:text-body-2 [&>h1]:font-semibold"

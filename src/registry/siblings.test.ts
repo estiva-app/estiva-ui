@@ -26,7 +26,7 @@ function appAt(folder: string, name: string, deps: Record<string, string> = UI, 
   put(`${folder}/src/${part}.tsx`, `/** The ${part.toLowerCase()} of ${name}. */\nexport function ${part}() {\n  return <i />\n}\n`)
 }
 // A repository is a folder with `.git`: a directory, or a worktree's file.
-appAt('alpha', 'alpha-app', UI, 'Tabletop')
+appAt('alpha', 'alpha-app', UI, 'Sundial')
 put('alpha/.git/HEAD', 'ref: refs/heads/main\n')
 put('beta/package.json', JSON.stringify({ name: 'beta' }))
 put('beta/.git/HEAD', 'ref: refs/heads/main\n')
@@ -75,7 +75,7 @@ describe.skipIf(!existsSync(cli))('estiva-ui find, with nothing else typed', () 
   })
 
   it('answers the same from the folder that holds them', () => {
-    expect(find(workspace, 'tabletop')).toMatch(/^Tabletop {2}· .* · {2}alpha/m)
+    expect(find(workspace, 'sundial')).toMatch(/^Sundial {2}· .* · {2}alpha/m)
     expect(find(workspace, 'zzqqx')).toContain('Nothing in estiva-ui, alpha, beta matches')
   })
 

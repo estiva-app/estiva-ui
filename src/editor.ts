@@ -12,6 +12,7 @@ export { PastedImages, pastedImages, pastedImageName, type PastedImagesOptions, 
 export { CodeBlockColours } from './CodeBlockColours'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
 export { EditorBlockHandle, blockDropCursor, deleteBlock, moveBlock, duplicateBlock, startBlockDrag, type EditorBlockHandleProps, type BlockTurnInto } from './EditorBlockHandle'
+export { EditorTableControls, appendTableRow, appendTableColumn, deleteTableRow, deleteTableColumn, type EditorTableControlsProps } from './EditorTableControls'
 export {
   PersonMention,
   UrgentPersonMention,
