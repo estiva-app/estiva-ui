@@ -141,3 +141,39 @@ describe('NavItem unread', () => {
     expect(menu?.className).toContain('right-1')
   })
 })
+
+describe('NavItem with a button of its own', () => {
+  const remove = (onClick = () => {}) => ({ icon: <svg />, tooltip: 'Remove from list', onClick })
+
+  it('draws the button beside the link, named for its row, and a click runs it, not the link', async () => {
+    const onClick = vi.fn()
+    const onLink = vi.fn()
+    render(<NavItem href="#" label="Item one" action={remove(onClick)} onClick={onLink} />)
+    const button = screen.getByRole('button', { name: 'Remove from list: Item one' })
+    expect(button.closest('a')).toBeNull()
+    await userEvent.click(button)
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(onLink).not.toHaveBeenCalled()
+  })
+
+  it('shows with the row, as the ⋮ does: in its place at right-1, always on a screen with no hover', () => {
+    render(<NavItem href="#" label="Item one" action={remove()} />)
+    const box = screen.getByRole('button', { name: 'Remove from list: Item one' }).closest('[data-nav-menu]')!
+    expect(box.className.split(' ')).toEqual(expect.arrayContaining(['right-1', 'opacity-0', 'group-hover/nav:opacity-100', '[@media(hover:none)]:opacity-100']))
+  })
+
+  it('with a menu too, sits before the ⋮, and the row keeps room for both while they show', () => {
+    const { container } = render(<NavItem href="#" label="Item one" action={remove()} menu={<span>Action</span>} />)
+    const buttons = [...container.querySelectorAll('[data-nav-menu] button')].map((b) => b.getAttribute('aria-label'))
+    expect(buttons).toEqual(['Remove from list: Item one', 'More options for Item one'])
+    const kept = [...container.querySelectorAll('a > [aria-hidden="true"]')].map((s) => s.className.split(' '))
+    expect(kept).toHaveLength(2)
+    expect(kept[0]).toContain('w-5')
+    expect(kept[1]).toContain('w-6')
+  })
+
+  it('lands on the dot, which steps aside for it', () => {
+    const { container } = render(<NavItem href="#" label="Item one" unread action={remove()} />)
+    expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('group-hover/nav:opacity-0')
+  })
+})

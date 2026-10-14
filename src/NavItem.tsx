@@ -6,6 +6,7 @@ import { cn } from './cn'
 import { COLLAPSIBLE_PANEL_CLASSES, COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
+import type { SectionAction } from './SectionHeader'
 import { UnreadDot } from './UnreadDot'
 import { WithTooltip } from './Tooltip'
 
@@ -32,6 +33,13 @@ import { WithTooltip } from './Tooltip'
  * row with rows under it is as wide as one without. The arrow is beside the
  * link, like the ⋮. The rows slide as `CollapsibleSection`'s do, indented
  * past the icon so their icons start under this row's label.
+ *
+ * `action` is one button of its own beside the ⋮ — any icon, with its tooltip
+ * (Katerina, 14 October: Peek's Open work keeps its ✕ "Remove from list" in
+ * sight, not inside a menu). The same shape as a `SectionHeader`'s actions,
+ * and drawn the same way: an `IconButton` that shows with the ⋮, in the
+ * count's place, before the ⋮ when there is one. One, never a row of them: a
+ * second thing to do goes in the menu.
  *
  * `hint` is shown only while the row is pointed at or focused, left of the
  * count — a neutral `Chip`, typically. It takes its own room while it shows,
@@ -60,6 +68,8 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   menu?: ReactNode
   /** The ⋮'s accessible name and tooltip. Default "More options for {label}". */
   menuLabel?: string
+  /** One button beside the ⋮, shown with it: any 16px icon, its tooltip and its handler — a `SectionHeader` action's shape. With a menu too, it sits before the ⋮. */
+  action?: SectionAction
   /** Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically. */
   hint?: ReactNode
   /** Something new here: brighter words, the label in medium, and the `UnreadDot` at the right. Say so in the row's own words for assistive tech too. */
@@ -85,6 +95,7 @@ export function NavItem({
   icon,
   menu,
   menuLabel,
+  action,
   hint,
   unread = false,
   urgent = false,
@@ -107,7 +118,8 @@ export function NavItem({
   }
   // The row draws beside it — the ⋮, the arrow — so the pointer can leave the
   // link for them while the row still reads as the one it is on.
-  const besides = menu != null || hasRows
+  const buttons = (menu != null ? 1 : 0) + (action ? 1 : 0)
+  const besides = buttons > 0 || hasRows
   // What sits at the right at rest, after the count: the dot, or the badge.
   const mark = unread ? (urgent ? <UrgentMark /> : <UnreadDot />) : null
   // Under the ⋮ while it shows: the count and the mark step aside for it.
@@ -117,7 +129,7 @@ export function NavItem({
   // hidden (Katerina, 5 October).
   // A screen with no hover shows the ⋮ always (below), so what it lands on
   // steps aside always: the row reads as it does under a pointer.
-  const stepsAside = menu != null && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0 [@media(hover:none)]:opacity-0'
+  const stepsAside = buttons > 0 && 'transition-opacity group-hover/nav:opacity-0 group-has-[:focus-visible]/nav:opacity-0 group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:opacity-0 [@media(hover:none)]:opacity-0'
 
   const row = (
     <a
@@ -134,7 +146,7 @@ export function NavItem({
         // look while the ⋮ is pointed at and while its menu is open. The same
         // for the arrow.
         besides && !active && 'group-hover/nav:bg-bg-hover group-hover/nav:text-text-primary',
-        menu != null && !active && 'group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:bg-bg-hover group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:text-text-primary',
+        buttons > 0 && !active && 'group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:bg-bg-hover group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:text-text-primary',
         className,
       )}
       {...props}
@@ -155,6 +167,11 @@ export function NavItem({
       {hint != null && (
         // Takes room only while it shows, so the label gives way to it.
         <span className="hidden shrink-0 items-center group-hover/nav:flex group-has-[:focus-visible]/nav:flex">{hint}</span>
+      )}
+      {buttons > 1 && (
+        // Two buttons: the second one's room (24px and the 4px between them, the
+        // row's 8px gap making up the rest), kept only while they show.
+        <span aria-hidden="true" className="hidden w-5 shrink-0 group-hover/nav:block group-has-[:focus-visible]/nav:block group-has-[[data-nav-menu]_[aria-expanded=true]]/nav:block [@media(hover:none)]:block" />
       )}
       {count ? (
         <WithTooltip label={countLabel ?? `${count} open`}>
@@ -179,7 +196,7 @@ export function NavItem({
         // of the ⋮ (8px from the edge to the 16px box), one column with a
         // folder heading's dot and ⋮ (Katerina, 5 October).
         <span className={cn('-mr-1 flex shrink-0', stepsAside)}>{mark}</span>
-      ) : menu != null && !count ? (
+      ) : buttons > 0 && !count ? (
         // Nothing at the right, but a menu: no room is kept at rest, so the
         // label has the row's whole width; while the ⋮ shows, its 24px slot
         // is kept, so a long label ends before it instead of running under it.
@@ -210,7 +227,7 @@ export function NavItem({
           </IconButton>
         </div>
       )}
-      {menu != null && (
+      {buttons > 0 && (
         // `right-1`: the 24px button's 16px icon ends 8px from the row's
         // edge, where a count ends (px-2) — and where a SectionHeader's
         // actions and ⋮ end, so a folder's ⋮ and its rows' ⋮ are one column
@@ -219,17 +236,24 @@ export function NavItem({
         // right of the slot's centre.
         // On a screen with no hover it always shows: nothing there can point
         // at the row, and the menu has no other way in.
-        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center', 'opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100')}>
-          <Menu
-            align="right"
-            trigger={
-              <IconButton tooltip="More options" aria-label={name}>
-                <IconDotsVertical size={16} stroke={1.5} />
-              </IconButton>
-            }
-          >
-            {menu}
-          </Menu>
+        <div data-nav-menu className={cn('absolute inset-y-0 right-1 flex items-center gap-1', 'opacity-0 transition-opacity group-hover/nav:opacity-100 group-has-[:focus-visible]/nav:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100')}>
+          {action && (
+            <IconButton tooltip={action.tooltip} aria-label={`${action.tooltip}: ${label}`} onClick={action.onClick}>
+              {action.icon}
+            </IconButton>
+          )}
+          {menu != null && (
+            <Menu
+              align="right"
+              trigger={
+                <IconButton tooltip="More options" aria-label={name}>
+                  <IconDotsVertical size={16} stroke={1.5} />
+                </IconButton>
+              }
+            >
+              {menu}
+            </Menu>
+          )}
         </div>
       )}
     </div>
