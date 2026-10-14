@@ -57,7 +57,9 @@
     A chip pasted, picked from a list, or a pasted URL becoming its chip opens
     it by itself; any edit or caret move closes it, so typing on leaves no
     card. Enter on a selected chip opens it from the keyboard; ↓/↑ move, Enter
-    chooses, Escape closes. `isReferenceMenuOpen(state)` lets an editor's own
+    chooses, Escape closes; a key with a modifier stays the editor's. The menu
+    closes when the editor loses focus. Open is offered only when the chip has
+    a control of its own or a URL. `isReferenceMenuOpen(state)` lets an editor's own
     Escape step aside; `referenceMenuClick` is the node view's half.
   - `setReferenceCardAt(editor, pos, layout)` sets the card of the chip at a
     position, for a menu open on a chip that is not selected.
