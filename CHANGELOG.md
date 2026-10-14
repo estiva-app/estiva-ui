@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.67.0 — 2026-10-13
+
+### Added
+
+- **A table's rows and columns, added and deleted from the table itself**
+  (RIC-21; Miky, 2026-10-13: Notion's shape, a Delete table item, Enter left
+  as it is). `EditorTableControls` (`@estiva-app/ui/editor`) wraps an editor's
+  `EditorContent`, inside an `EditorBlockHandle` where there is one. Point at a
+  cell: a handle on its row's left edge opens Insert above, Insert below,
+  Delete and Delete table; one on its column's top edge, Insert left, Insert
+  right, Delete and Delete table. From the last row a ➕ bar under the table
+  adds a row; from the last column one right of it adds a column. Deleting a
+  table's only row or column deletes the table. A header row offers nothing
+  above it, and deleting it makes the next row the header, so the table still
+  reads as one in `RichText` and in the agent's description text.
+  - The controls go whenever the document changes, someone else's edit loaded
+    without an `update` included, and are measured again on every move.
+  - Built on TableKit's own commands (`@tiptap/pm/tables`); Tiptap's own table
+    handles are a paid component, so the controls are the package's.
+    `appendTableRow`, `appendTableColumn`, `deleteTableRow` and
+    `deleteTableColumn` are the actions, for a caller that offers them
+    elsewhere.
+  - A ➕ press keeps the focus in the editor, so a field that saves when you
+    leave it does not save half-way; a handle's menu takes the focus, as every
+    menu does.
+  - Nothing is drawn while the editor is not editable, and nothing on a touch
+    screen yet (no hover there).
+  - `@tiptap/extension-table` 3.31.3 joins the dev dependencies, for the tests
+    and the story; the component itself needs only `@tiptap/pm`, already a
+    peer.
+  - The look is to Katerina's review (14 October): the handles' grip is the
+    block handle's, at its 16px; the ➕ bars are 16px, so they are easier to
+    hit.
+- **`NavItem` takes one button of its own beside the ⋮** (#173, Katerina, 14
+  October). `action` is `{ icon, tooltip, onClick }`, the shape of a
+  `SectionHeader`'s actions: one thing done often enough to stay in sight,
+  such as taking the row off a list. It shows in the count's place, and
+  before the ⋮ when the row has a menu too. One, never a row of them.
+
+### Changed
+
+- **A table has 16px above and below it**, as a divider has (Katerina, 14
+  October; the 8px between blocks before). The row ➕ under a table sits in
+  that room instead of over the next line, and the column handle clears the
+  line above. In `RichText` and in an editor that wears `richTextClassName`.
+
 ## 0.66.0 — 2026-10-13
 
 ### Added

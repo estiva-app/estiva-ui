@@ -1,0 +1,78 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as EditorTableControlsStories from './EditorTableControls.stories'
+
+<Meta of={EditorTableControlsStories} />
+
+# EditorTableControls
+
+A table's own controls in a Tiptap editor: point at a cell for a handle on its
+row and on its column, and a ➕ bar under the table and right of it.
+
+<Canvas of={EditorTableControlsStories.Default} />
+
+## When
+
+- **An editor whose documents hold tables** — with TableKit
+  (`@tiptap/extension-table`) in its extensions. Point at a cell: the row's
+  handle sits on the table's left edge, the column's on its top edge; each
+  opens Insert (above and below, or left and right), Delete, and Delete
+  table. A header row offers nothing above it, and deleting it makes the next
+  row the header, so a table always opens with its header. From the last row, a ➕ under the table adds a row after it; from the
+  last column, a ➕ right of the table adds a column after it.
+- **Not editable**: nothing is drawn.
+
+## When not
+
+- Moving, duplicating or deleting the table as one block → **EditorBlockHandle**,
+  whose handle stays the table's, in the gutter. Wrap this inside it.
+- A table being read, with no editor → **RichText** draws it; there is nothing
+  to change.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { TableKit } from '@tiptap/extension-table'
+import { BlockId, EditorBlockHandle, EditorTableControls } from '@estiva-app/ui/editor'
+
+const editor = useEditor({ extensions: [StarterKit, TableKit.configure({ table: { resizable: false } }), BlockId] })
+
+<EditorBlockHandle editor={editor}>
+  <EditorTableControls editor={editor}>
+    <EditorContent editor={editor} />
+  </EditorTableControls>
+</EditorBlockHandle>
+```
+
+- **Every control leaves the editor focused**, in the cell it acted on, as the
+  block menu does. An editor that saves when the person leaves it saves these
+  the same way.
+- A table cannot be left with no row or no column: **deleting its only row, or
+  its only column, deletes the table**.
+- The column ➕ hangs 16px right of the table; give the editor that room, as
+  the block handle has its 28px on the left. The row ➕ lies 16px over the top
+  of the block under the table, only while the pointer is on the last row.
+- `appendTableRow`, `appendTableColumn`, `deleteTableRow` and
+  `deleteTableColumn` are the controls' own actions, for a caller that offers
+  them elsewhere (a shortcut, a test).
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Runs TableKit's own commands with the caret in the cell pointed at | a selection before `addRowAfter` | |
+| Gives new rows and cells fresh ids, the old ones keeping theirs (`BlockId` decides) | an id for a new cell | |
+| Turns a delete that would leave the table empty into a delete of the table | a check of the table's size | |
+
+## Keys
+
+| Input | What happens |
+|---|---|
+| Tab, in the last cell | adds a row and moves into it — TableKit's own |
+| Tab / Shift+Tab, in a cell | to the next / previous cell — TableKit's own |
+
+The handles and the ➕ bars are for the pointer: there is no hover on a touch
+screen, and nothing here draws them there yet.
