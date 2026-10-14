@@ -197,10 +197,10 @@ describe('ReferenceMenuView', () => {
     const chip = await screen.findByRole('link', { name: 'Item' })
     fireEvent.click(chip)
     expect(followed).not.toHaveBeenCalled()
-    await screen.findByRole('menu', { name: 'Reference' })
+    await screen.findByRole('menu', { name: 'Link' })
     fireEvent.mouseDown(screen.getByRole('menuitem', { name: 'Open' }))
     expect(followed).toHaveBeenCalledWith(V)
-    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Reference' })).toBeNull())
+    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Link' })).toBeNull())
   })
 
   it('shows the chip\'s card checked, and choosing one sets it and closes', async () => {
@@ -210,7 +210,7 @@ describe('ReferenceMenuView', () => {
     expect(none.getAttribute('aria-checked')).toBe('true')
     fireEvent.mouseDown(screen.getByRole('menuitemradio', { name: 'Detailed' }))
     expect(chipOf(editor!)?.attrs?.embed).toBe('detailed')
-    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Reference' })).toBeNull())
+    await waitFor(() => expect(screen.queryByRole('menu', { name: 'Link' })).toBeNull())
   })
 
   it('lets a click follow the chip when the editor is not editable', async () => {
@@ -220,6 +220,6 @@ describe('ReferenceMenuView', () => {
     act(() => editor!.setEditable(false))
     fireEvent.click(chip)
     expect(followed).toHaveBeenCalledWith(V)
-    expect(screen.queryByRole('menu', { name: 'Reference' })).toBeNull()
+    expect(screen.queryByRole('menu', { name: 'Link' })).toBeNull()
   })
 })
