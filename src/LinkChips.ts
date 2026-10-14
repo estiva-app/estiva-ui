@@ -215,6 +215,10 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
           const look = (state: EditorState) => {
             if (!options.ask) return
             const { open } = findLinkChips(state.doc, state.selection, options.referenceOf, key.getState(state)?.pasted)
+            // The limit counts the URLs the document still holds unanswered: a message box lives across many messages,
+            // and one that counted every URL it was ever asked would stop making chips after a day's links (OPT-19).
+            const waiting = new Set(open)
+            for (const url of asked) if (!waiting.has(url)) asked.delete(url)
             const fresh = open.filter((url) => !asked.has(url)).slice(0, Math.max(0, options.limit - asked.size))
             if (!fresh.length) return
             for (const url of fresh) asked.add(url)

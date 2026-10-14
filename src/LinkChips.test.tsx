@@ -83,6 +83,23 @@ describe('LinkChips', () => {
     expect(asked).toEqual([['https://a.example/1', 'https://a.example/2']])
   })
 
+  it('counts its limit over the URLs the document holds: a message box keeps asking after the last message is sent', async () => {
+    const asked: string[][] = []
+    editor = new Editor({
+      extensions: [
+        StarterKit.configure({ link: false }),
+        BlockId,
+        ReferenceNode,
+        LinkChips.configure({ referenceOf: () => undefined, ask: (urls) => void asked.push(urls), limit: 2 }),
+      ],
+      content: para({ type: 'text', text: 'https://a.example/1 https://a.example/2 ' }),
+    })
+    await tick()
+    // Sent: the box is emptied, and the next message's links are asked about.
+    editor.commands.setContent(para({ type: 'text', text: 'https://a.example/3 ' }))
+    expect(asked).toEqual([['https://a.example/1', 'https://a.example/2'], ['https://a.example/3']])
+  })
+
   it('turns the URL into its chip once the answer comes back', async () => {
     const known = new Map<string, string>()
     const ed = make(para({ type: 'text', text: `See ${URL_} now` }), known)
