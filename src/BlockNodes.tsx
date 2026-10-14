@@ -384,6 +384,12 @@ export interface ReferenceNodeOptions {
  * nobody edits half a `naddr`. Selecting it selects the whole reference, which
  * is also how deleting one works. `marks` carries the run's other marks, so a
  * bold reference comes back bold.
+ *
+ * `embed` is the card its writer chose to draw after its block — `compact`,
+ * `detailed`, or null for none (SPEC §13.3, "A reference's card") — and `extra`
+ * every key of the mark this version does not know. Both are declared so that
+ * ProseMirror keeps them: an undeclared attribute is dropped when the node is
+ * made, and the card with it. `ReferenceCards` draws the cards.
  */
 export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   name: 'reference',
@@ -399,6 +405,8 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
     return {
       uri: { default: '' },
       marks: { default: [] as string[] },
+      embed: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-embed') },
+      extra: { default: null as Record<string, unknown> | null, parseHTML: () => null },
     }
   },
   parseHTML() {
@@ -406,7 +414,9 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   },
   renderHTML({ node }) {
     // A copy to the clipboard as HTML, and the whole drawing when no view is given.
-    return ['span', { 'data-reference': String(node.attrs.uri) }, String(node.attrs.uri)]
+    // The card goes along, so a paste keeps it.
+    const embed = typeof node.attrs.embed === 'string' ? { 'data-embed': node.attrs.embed } : {}
+    return ['span', { 'data-reference': String(node.attrs.uri), ...embed }, String(node.attrs.uri)]
   },
   addNodeView() {
     const View = this.options.view

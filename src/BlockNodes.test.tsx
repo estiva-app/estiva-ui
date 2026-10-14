@@ -79,7 +79,8 @@ describe('what the editor hands back', () => {
   it('keeps a reference an atom, with its uri and the marks it carries', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
     const reference = (editor.getJSON() as Json).content?.[1].content?.[1]
-    expect(reference).toEqual({ type: 'reference', attrs: { uri: 'nostr:naddr1example', marks: ['bold'] } })
+    // No card chosen, and no key a later version added (SPEC §13.3).
+    expect(reference).toEqual({ type: 'reference', attrs: { uri: 'nostr:naddr1example', marks: ['bold'], embed: null, extra: null } })
   })
 
   it('keeps every imeta field on a file, which ProseMirror drops when undeclared', () => {

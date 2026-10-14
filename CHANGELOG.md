@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.67.0 — 2026-10-14
+
+### Added
+
+- **A chip's card in a document** (Widgets, with `@estiva-app/protocol`
+  0.33.0, SPEC §13.3 "A reference's card"). A chip can ask for a compact or
+  detailed card after its line; the choice is the chip's own.
+  - `ReferenceNode` (`@estiva-app/ui/editor`) declares `embed` (`compact`,
+    `detailed`, or null) and `extra` (the mark's keys this version does not
+    know), so ProseMirror keeps both. Take this release with protocol 0.33.0:
+    an older `ReferenceNode` drops a chosen card when the document is saved.
+  - `ReferenceCards` (`@estiva-app/ui/editor`) places an empty, non-editable
+    slot after each line whose chips ask for a card, keyed by block id, and
+    `useReferenceCards(editor)` hands the app the slots to portal its cards
+    into. It draws no card itself.
+  - `referenceAtSelection(state)` and `setReferenceCard(editor, layout)` read
+    and set the selected chip's card; `referenceCardPlacements(doc)` lists the
+    slots.
+  - `SelectionToolbar` takes `children`: the app's own `ToolbarButton`s after
+    the marks, for what is selected.
+  - Nothing draws differently until an app passes a card: no look of the
+    package's changes.
+
 ## 0.66.0 — 2026-10-13
 
 ### Added

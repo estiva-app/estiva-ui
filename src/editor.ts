@@ -54,3 +54,13 @@ export {
   type AttachmentNodeOptions,
   type AttachmentViewProps,
 } from './BlockNodes'
+export {
+  ReferenceCards,
+  useReferenceCards,
+  referenceAtSelection,
+  referenceCardPlacements,
+  setReferenceCard,
+  type ReferenceCard,
+  type ReferenceCardLayout,
+  type ReferenceCardSlot,
+} from './ReferenceCards'

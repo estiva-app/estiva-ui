@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Editor } from '@tiptap/react'
 import { Extension } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
@@ -221,9 +221,16 @@ export interface SelectionToolbarProps {
   marks?: readonly MarkId[]
   /** The Link button and its address field. Needs a link mark in the editor and `KeptSelection`. Default off. */
   link?: boolean
+  /**
+   * More of the strip, after the marks: the app's own `ToolbarButton`s for what
+   * is selected — a chip's card, say. Each keeps the selection by preventing
+   * its press's default, as the marks do. Nothing is added when it renders
+   * nothing.
+   */
+  children?: ReactNode
 }
 
-export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false }: SelectionToolbarProps) {
+export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false, children }: SelectionToolbarProps) {
   /** The selection's top edge and horizontal centre; the face decides the rest. */
   const [anchor, setAnchor] = useState<{ top: number; centre: number } | null>(null)
   const [mode, setMode] = useState<Mode>('marks')
@@ -480,6 +487,7 @@ export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline
               <IconLink size={16} stroke={1.5} />
             </ToolbarButton>
           )}
+          {children}
         </Toolbar>
       )}
     </Popover>
