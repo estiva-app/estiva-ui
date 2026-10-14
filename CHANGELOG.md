@@ -20,6 +20,9 @@
     slots.
   - `SelectionToolbar` takes `children`: the app's own `ToolbarButton`s after
     the marks, for what is selected.
+  - `RichText` takes `renderAfter(block)`: drawn after a paragraph, a heading
+    or a quote, and inside a list item or a table cell after its words — where
+    a document that is only read draws a chip's card.
   - Nothing draws differently until an app passes a card: no look of the
     package's changes.
 

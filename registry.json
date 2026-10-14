@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.66.0",
+    "packageVersion": "0.67.0",
     "exports": 149,
     "typeExports": 148,
     "files": null
@@ -5539,6 +5539,12 @@
           "takes": "a handler",
           "required": false,
           "note": "Draws a block this part has no design for (an attachment, a widget)."
+        },
+        {
+          "name": "renderAfter",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws something after a line of text: after a paragraph, a heading or a quote, and inside a list item or a table cell after its words — where a document's chip asks for its card (SPEC §13.3)."
         },
         {
           "name": "onTick",
