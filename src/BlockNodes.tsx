@@ -364,9 +364,10 @@ export const BlockId = Extension.create({
   },
 })
 
-/** What a reference's view is handed: the `nostr:` URI it stands for. */
+/** What a reference's view is handed: the `nostr:` URI it stands for, and the URL a URL chip was written as. */
 export interface ReferenceViewProps {
   uri: string
+  href?: string
 }
 
 export interface ReferenceNodeOptions {
@@ -390,6 +391,10 @@ export interface ReferenceNodeOptions {
  * every key of the mark this version does not know. Both are declared so that
  * ProseMirror keeps them: an undeclared attribute is dropped when the node is
  * made, and the card with it. `ReferenceCards` draws the cards.
+ *
+ * `href` makes it a **URL chip**: an app URL that reads as the chip of what it
+ * names, and is that URL on the wire (§13.3). `uri` is what it names, filled in
+ * by `LinkChips` once the app has resolved it; until then it draws as the URL.
  */
 export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   name: 'reference',
@@ -407,6 +412,7 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
       marks: { default: [] as string[] },
       embed: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-embed') },
       extra: { default: null as Record<string, unknown> | null, parseHTML: () => null },
+      href: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-href') },
     }
   },
   parseHTML() {
@@ -414,18 +420,27 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   },
   renderHTML({ node }) {
     // A copy to the clipboard as HTML, and the whole drawing when no view is given.
-    // The card goes along, so a paste keeps it.
+    // The card goes along, so a paste keeps it; a URL chip copies as its URL.
     const embed = typeof node.attrs.embed === 'string' ? { 'data-embed': node.attrs.embed } : {}
-    return ['span', { 'data-reference': String(node.attrs.uri), ...embed }, String(node.attrs.uri)]
+    const href = typeof node.attrs.href === 'string' && node.attrs.href ? { 'data-href': node.attrs.href } : {}
+    return ['span', { 'data-reference': String(node.attrs.uri), ...embed, ...href }, String(node.attrs.href || node.attrs.uri)]
+  },
+  renderText({ node }) {
+    return String(node.attrs.href || node.attrs.uri)
   },
   addNodeView() {
     const View = this.options.view
     if (!View) return null
-    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => (
-      <NodeViewWrapper as="span" className="inline">
-        <View uri={String(node.attrs.uri ?? '')} />
-      </NodeViewWrapper>
-    ))
+    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => {
+      const uri = String(node.attrs.uri ?? '')
+      const href = typeof node.attrs.href === 'string' && node.attrs.href ? node.attrs.href : undefined
+      return (
+        <NodeViewWrapper as="span" className="inline">
+          {/* A URL chip not resolved yet reads as the URL it was written as. */}
+          {uri ? <View uri={uri} {...(href ? { href } : {})} /> : <span>{href}</span>}
+        </NodeViewWrapper>
+      )
+    })
   },
 })
 

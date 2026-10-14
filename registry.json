@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.67.0",
-    "exports": 149,
-    "typeExports": 148,
+    "exports": 152,
+    "typeExports": 149,
     "files": null
   },
   "storybook": {
@@ -2613,6 +2613,25 @@
       "looks": []
     },
     {
+      "name": "findLinkChips",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "What to change in a document, and what to ask.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Form",
       "repo": "estiva-ui",
       "kind": "component",
@@ -3549,6 +3568,25 @@
         "underline underline-offset-2 hover:text-text-primary truncate",
         "underline underline-offset-2 hover:text-text-primary truncate after:rounded-md focus-visible:outline-none"
       ]
+    },
+    {
+      "name": "LinkChips",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "A URL in a document that the app recognises reads as a chip of what it points at, and stays that URL when the document is saved.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": "src/LinkChips.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ListColumn",
@@ -5497,6 +5535,25 @@
       "migrationStage": null,
       "docsId": "primitives-composertriggers--docs",
       "storyId": "primitives-composertriggers--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "refreshLinkChips",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "Look at the document again — after the app learned what more URLs name some other way.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []

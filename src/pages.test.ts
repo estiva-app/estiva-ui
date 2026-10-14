@@ -42,6 +42,7 @@ const HOLDS_ONLY: Record<string, string> = {
   AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.',
   PastedImages: 'Nothing. It draws nothing; it hands a pasted picture to the app, named.',
   CodeBlockColours: 'Nothing. It names each word of a code block; the RichText class list colours them.',
+  LinkChips: 'Nothing. It draws nothing; it turns the URLs the app recognises into chips.',
 }
 
 const dir = new URL('.', import.meta.url)

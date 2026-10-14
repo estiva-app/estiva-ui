@@ -63,7 +63,8 @@ export function referenceCardPlacements(doc: PmNode): Placement[] {
     node.forEach((child) => {
       if (child.type.name !== 'reference') return
       const layout = layoutOf(child.attrs.embed)
-      if (layout) cards.push({ uri: String(child.attrs.uri ?? ''), layout })
+      // A URL chip whose URL is not resolved yet (`LinkChips`) has nothing to draw a card of, yet.
+      if (layout && child.attrs.uri) cards.push({ uri: String(child.attrs.uri), layout })
     })
     if (cards.length) {
       // The textblock's own id, or its list item's or cell's: the nearest one.
@@ -200,6 +201,8 @@ export function referenceAtSelection(state: EditorState): { pos: number; uri: st
   }
   if (!found) return null
   const { pos, node } = found as { pos: number; node: PmNode }
+  // A URL chip that names nothing yet has no card to choose.
+  if (!node.attrs.uri) return null
   return { pos, uri: String(node.attrs.uri ?? ''), layout: layoutOf(node.attrs.embed) ?? 'none' }
 }
 

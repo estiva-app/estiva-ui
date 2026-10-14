@@ -25,6 +25,20 @@
     a document that is only read draws a chip's card.
   - Nothing draws differently until an app passes a card: no look of the
     package's changes.
+- **A URL in a document reads as its chip** (Widgets; Miky, 14 October: a URL
+  is the one way a person addresses a file). It stays the URL when saved.
+  - `ReferenceNode` declares `href`: set, the chip is a URL chip, written back
+    as its URL by protocol 0.33.0's translation. Its view is handed `href` too,
+    and while `uri` is empty (not resolved yet) the node draws the URL as text.
+    It copies as plain text as its URL.
+  - `LinkChips` (`@estiva-app/ui/editor`) turns each URL the app recognises
+    (`referenceOf`) into a URL chip, asks the app about the rest (`ask`) and
+    looks again when that settles. The URL being typed, a URL in code and one
+    under a link mark stay text; making a chip is not an undo step.
+    `findLinkChips` and `refreshLinkChips` are the two halves for an app that
+    learns answers some other way.
+  - `ReferenceCards` and `referenceAtSelection` skip a URL chip that names
+    nothing yet: there is no card to place or choose.
 
 ## 0.66.0 — 2026-10-13
 
