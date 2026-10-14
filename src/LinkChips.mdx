@@ -44,7 +44,9 @@ LinkChips.configure({
 - A chip read from a document before its URL is answered draws as the URL, and
   offers no card choice until it is answered.
 - The URL the caret is in, or at the end of, stays text: a half-typed address
-  never turns into a chip while it is being typed.
+  never turns into a chip while it is being typed. A pasted URL is whole: it
+  is asked about and becomes its chip at once, with the caret at its end, so
+  **ReferenceMenu** can open its menu.
 - A URL in code, in a code block, or under a link mark stays text.
 - Each URL is asked about once, and one editor asks about at most `limit`
   (24 by default), the first ones: an answer can cost the app a query.

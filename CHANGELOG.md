@@ -47,6 +47,24 @@
     learns answers some other way.
   - `ReferenceCards` and `referenceAtSelection` skip a URL chip that names
     nothing yet: there is no card to place or choose.
+- **A chip's menu while writing** (Widgets; Miky, 14 October: a click on a
+  chip offers Open and its card, and a chip just put in offers it by itself).
+  - `ReferenceMenu` (`@estiva-app/ui/editor`) holds which chip the menu is
+    open on, and `ReferenceMenuView` draws it under that chip, on the package
+    `Popover`, taking no focus: Open, then Card — None, Compact, Detailed,
+    the chip's own checked. While the editor is editable a click on a chip
+    opens it instead of following the chip; Open hands the click to the chip.
+    A chip pasted, picked from a list, or a pasted URL becoming its chip opens
+    it by itself; any edit or caret move closes it, so typing on leaves no
+    card. Enter on a selected chip opens it from the keyboard; ↓/↑ move, Enter
+    chooses, Escape closes. `isReferenceMenuOpen(state)` lets an editor's own
+    Escape step aside; `referenceMenuClick` is the node view's half.
+  - `setReferenceCardAt(editor, pos, layout)` sets the card of the chip at a
+    position, for a menu open on a chip that is not selected.
+  - `LinkChips` makes a pasted URL its chip at once, the caret still at its
+    end, and asks about it at once: a pasted URL is not being typed.
+  - Nothing changes in an editor that leaves `ReferenceMenu` out: a click on a
+    chip follows it, as before.
 
 ## 0.67.0 — 2026-10-13
 

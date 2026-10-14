@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.68.0",
-    "exports": 157,
-    "typeExports": 150,
+    "exports": 162,
+    "typeExports": 152,
     "files": null
   },
   "storybook": {
@@ -3357,6 +3357,25 @@
       "looks": []
     },
     {
+      "name": "isReferenceMenuOpen",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceMenu.tsx",
+      "purpose": "Whether the menu is open, for an editor's own Escape: while it is, Escape closes it rather than leaving.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencemenu--docs",
+      "storyId": "primitives-referencemenu--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "isSuggestionActive",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -5625,6 +5644,91 @@
       "looks": []
     },
     {
+      "name": "ReferenceMenu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceMenu.tsx",
+      "purpose": "What a chip in a document offers whoever is writing it: Open, and its Card — none, compact or detailed.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencemenu--docs",
+      "storyId": "primitives-referencemenu--in-an-editor",
+      "docPage": "src/ReferenceMenu.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "referenceMenuClick",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceMenu.tsx",
+      "purpose": "A click on the chip at `pos`, from its node view: while editing, with the menu installed, it opens the menu, and the caller stops the click there.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencemenu--docs",
+      "storyId": "primitives-referencemenu--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ReferenceMenuView",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceMenu.tsx",
+      "purpose": "The menu `ReferenceMenu` holds, hung under its chip.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencemenu--docs",
+      "storyId": "primitives-referencemenu--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "ReferenceNode",
       "repo": "estiva-ui",
       "kind": "component",
@@ -6320,6 +6424,25 @@
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ReferenceCards.ts",
       "purpose": "Sets the card of the selected chip. `none` removes it.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "setReferenceCardAt",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "Sets the card of the chip at `pos` — one that names something.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],

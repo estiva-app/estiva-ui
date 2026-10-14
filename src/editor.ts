@@ -61,8 +61,10 @@ export {
   referenceAtSelection,
   referenceCardPlacements,
   setReferenceCard,
+  setReferenceCardAt,
   type ReferenceCard,
   type ReferenceCardLayout,
   type ReferenceCardSlot,
 } from './ReferenceCards'
-export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions } from './LinkChips'
+export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions, type PastedRange } from './LinkChips'
+export { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen, referenceMenuClick, type ReferenceMenuViewProps } from './ReferenceMenu'
