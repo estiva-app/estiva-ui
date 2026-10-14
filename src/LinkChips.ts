@@ -29,6 +29,12 @@ export interface LinkChipsOptions {
   referenceOf: ((url: string) => string | undefined) | null
   /** Look up what these URLs name. When it settles, the document is looked at again. */
   ask: ((urls: string[]) => Promise<unknown> | void) | null
+  /**
+   * How many URLs one editor asks about in its life, the first ones; the rest
+   * stay text. An app's answer can cost a relay query, and a document pasted
+   * full of links must not spend the writer's quota. Default 24.
+   */
+  limit: number
 }
 
 const key = new PluginKey<LinkChipsOptions>('linkChips')
@@ -134,7 +140,7 @@ export function refreshLinkChips(editor: Editor): void {
 export const LinkChips = Extension.create<LinkChipsOptions>({
   name: 'linkChips',
   addOptions() {
-    return { referenceOf: null, ask: null }
+    return { referenceOf: null, ask: null, limit: 24 }
   },
   addProseMirrorPlugins() {
     const options = this.options
@@ -149,15 +155,19 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
           return apply(state, findLinkChips(state.doc, state.selection, options.referenceOf))
         },
         view: (view) => {
-          let asked = ''
+          // Each URL is asked once; one whose ask failed is forgotten, so a later look asks again.
+          const asked = new Set<string>()
           const look = (doc: PmNode) => {
+            if (!options.ask) return
             const { open } = findLinkChips(doc, null, options.referenceOf)
-            const next = open.join('\n')
-            if (!open.length || next === asked || !options.ask) return
-            asked = next
-            void Promise.resolve(options.ask(open)).then(
+            const fresh = open.filter((url) => !asked.has(url)).slice(0, Math.max(0, options.limit - asked.size))
+            if (!fresh.length) return
+            for (const url of fresh) asked.add(url)
+            void Promise.resolve(options.ask(fresh)).then(
               () => refreshLinkChips(editor),
-              () => undefined,
+              () => {
+                for (const url of fresh) asked.delete(url)
+              },
             )
           }
           look(view.state.doc)

@@ -34,7 +34,8 @@
   - `LinkChips` (`@estiva-app/ui/editor`) turns each URL the app recognises
     (`referenceOf`) into a URL chip, asks the app about the rest (`ask`) and
     looks again when that settles. The URL being typed, a URL in code and one
-    under a link mark stay text; making a chip is not an undo step.
+    under a link mark stay text; making a chip is not an undo step. It asks
+    about each URL once and at most `limit` (24) in an editor's life.
     `findLinkChips` and `refreshLinkChips` are the two halves for an app that
     learns answers some other way.
   - `ReferenceCards` and `referenceAtSelection` skip a URL chip that names

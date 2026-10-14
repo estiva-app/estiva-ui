@@ -17,7 +17,7 @@ const V = 'nostr:naddr1example'
 
 type Json = { type: string; text?: string; attrs?: Record<string, unknown>; content?: Json[] }
 const inline = (ed: Editor) => (ed.getJSON() as Json).content?.[0].content ?? []
-const para = (...content: unknown[]) => ({ type: 'doc', content: [{ type: 'paragraph', attrs: { blockId: 'p1' }, content }] })
+const para = (...content: unknown[]): Record<string, unknown> => ({ type: 'doc', content: [{ type: 'paragraph', attrs: { blockId: 'p1' }, content }] })
 
 let editor: Editor | undefined
 afterEach(() => {
@@ -65,6 +65,22 @@ describe('LinkChips', () => {
     await tick()
     expect(inline(ed)).toHaveLength(1)
     expect(asked[0]).toEqual([URL_, 'https://else.example/x'])
+  })
+
+  it('asks about each URL once, and no more than its limit', async () => {
+    const asked: string[][] = []
+    editor = new Editor({
+      extensions: [
+        StarterKit.configure({ link: false }),
+        BlockId,
+        ReferenceNode,
+        LinkChips.configure({ referenceOf: () => undefined, ask: (urls) => void asked.push(urls), limit: 2 }),
+      ],
+      content: para({ type: 'text', text: 'https://a.example/1 https://a.example/2 https://a.example/3' }),
+    })
+    await tick()
+    editor.commands.insertContentAt(1, 'x ')
+    expect(asked).toEqual([['https://a.example/1', 'https://a.example/2']])
   })
 
   it('turns the URL into its chip once the answer comes back', async () => {
