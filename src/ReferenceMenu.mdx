@@ -1,0 +1,70 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as ReferenceMenuStories from './ReferenceMenu.stories'
+
+<Meta of={ReferenceMenuStories} />
+
+# ReferenceMenu
+
+What a chip in a document offers whoever is writing it: **Open**, and its
+**Card** — none, compact or detailed. The card draws after the chip's line.
+
+<Canvas of={ReferenceMenuStories.InAnEditor} />
+
+## When
+
+- **An editor of a document whose chips can ask for a card**: pair it with
+  **ReferenceNode**, which draws the chip, and **ReferenceCards**, which places
+  the card. With **LinkChips**, a pasted URL that becomes its chip opens the
+  menu too.
+
+## When not
+
+- A document that is only read → **RichText**: a click on a chip follows it.
+- An editor whose chips take no card → leave it out, and a click on a chip
+  follows it as when reading.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import { ReferenceCards, ReferenceMenu, ReferenceMenuView, ReferenceNode, isReferenceMenuOpen } from '@estiva-app/ui/editor'
+
+const editor = useEditor({
+  extensions: [/* … */ ReferenceNode.configure({ view: Chip }), ReferenceCards, ReferenceMenu],
+  editorProps: {
+    handleKeyDown: (view, event) => {
+      // While the menu is open, Escape is its own: it closes the menu.
+      if (event.key === 'Escape' && isReferenceMenuOpen(view.state)) return false
+      // …
+    },
+  },
+})
+
+<EditorContent editor={editor} />
+<ReferenceMenuView editor={editor} />
+```
+
+- **A click on a chip while editing** opens the menu under it, instead of
+  following the chip. Not editing, the click follows it.
+- **A chip just put in** — pasted, picked with `[`, or a pasted URL becoming its
+  chip — opens the menu by itself. It takes no focus: typing on closes it, and
+  the chip keeps no card.
+- **Open** does what a click on the chip does when reading: the app's chip gets
+  the click. A chip with nothing to click opens its URL in a new tab.
+- A chip whose URL names nothing yet offers Open only.
+- Choosing a card is an undo step; the menu closes.
+
+## What it owns
+
+Nothing. Its box is the Popover; it holds which chip the menu is open on, and its keys.
+
+## Keys
+
+| Key | Does |
+| --- | --- |
+| Enter, on a selected chip | Opens the menu, its first row highlighted |
+| ↓ / ↑ | Moves through the rows; nothing is highlighted until then |
+| Enter | Chooses the highlighted row; with none, the editor's own Enter |
+| Escape | Closes the menu |
+
+The panel takes no focus, so it is reached only through these keys.

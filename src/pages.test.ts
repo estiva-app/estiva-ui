@@ -43,6 +43,8 @@ const HOLDS_ONLY: Record<string, string> = {
   PastedImages: 'Nothing. It draws nothing; it hands a pasted picture to the app, named.',
   CodeBlockColours: 'Nothing. It names each word of a code block; the RichText class list colours them.',
   LinkChips: 'Nothing. It draws nothing; it turns the URLs the app recognises into chips.',
+  // Its box is the Popover's, which owns what a box does; it holds which chip the menu is on.
+  ReferenceMenu: 'Nothing. Its box is the Popover; it holds which chip the menu is open on, and its keys.',
 }
 
 const dir = new URL('.', import.meta.url)

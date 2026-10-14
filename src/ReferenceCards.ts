@@ -209,13 +209,17 @@ export function referenceAtSelection(state: EditorState): { pos: number; uri: st
 /** Sets the card of the selected chip. `none` removes it. The selection stays as it was. */
 export function setReferenceCard(editor: Editor, layout: ReferenceCardLayout): boolean {
   const at = referenceAtSelection(editor.state)
-  if (!at) return false
-  const node = editor.state.doc.nodeAt(at.pos)
-  if (!node) return false
-  const wasNode = editor.state.selection instanceof NodeSelection
+  return at ? setReferenceCardAt(editor, at.pos, layout) : false
+}
+
+/** Sets the card of the chip at `pos` — one that names something. `none` removes it. The selection stays as it was. */
+export function setReferenceCardAt(editor: Editor, pos: number, layout: ReferenceCardLayout): boolean {
+  const node = editor.state.doc.nodeAt(pos)
+  if (!node || node.type.name !== 'reference' || !node.attrs.uri) return false
+  const wasNode = editor.state.selection instanceof NodeSelection && editor.state.selection.from === pos
   // Same size, so a range maps onto itself; a node selection is made again, since the node is replaced.
-  const tr = editor.state.tr.setNodeMarkup(at.pos, undefined, { ...node.attrs, embed: layout === 'none' ? null : layout })
-  if (wasNode) tr.setSelection(NodeSelection.create(tr.doc, at.pos))
+  const tr = editor.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, embed: layout === 'none' ? null : layout })
+  if (wasNode) tr.setSelection(NodeSelection.create(tr.doc, pos))
   editor.view.dispatch(tr)
   return true
 }
