@@ -47,16 +47,17 @@ const key = new PluginKey<LinkChipsOptions>('linkChips')
 const LINK_OR_URL = /(\[[^[\]\n]+\]\((?:https?:\/\/|mailto:)[^\s)]+\))|(https?:\/\/[^\s<>"'`]+)/g
 const TRAILING = new Set(['.', ',', ';', ':', '!', '?', ')', ']'])
 
-function urlRuns(text: string): { url: string; from: number; to: number }[] {
+/** Each URL and where it sits; `end` is where its run ends before trailing punctuation is trimmed, which typing may yet continue. */
+function urlRuns(text: string): { url: string; from: number; to: number; end: number }[] {
   if (!text.includes('://')) return []
-  const out: { url: string; from: number; to: number }[] = []
+  const out: { url: string; from: number; to: number; end: number }[] = []
   for (const m of text.matchAll(LINK_OR_URL)) {
     if (m[1]) continue
     const start = m.index
     if (text.slice(Math.max(0, start - 2), start) === '](' || text[start - 1] === '[') continue
     let end = m[0].length
     while (end > 0 && TRAILING.has(m[0][end - 1])) end--
-    out.push({ url: m[0].slice(0, end), from: start, to: start + end })
+    out.push({ url: m[0].slice(0, end), from: start, to: start + end, end: start + m[0].length })
   }
   return out
 }
@@ -92,7 +93,9 @@ export function findLinkChips(doc: PmNode, selection: Selection | null, referenc
     for (const run of urlRuns(node.text)) {
       const from = pos + run.from
       const to = pos + run.to
-      if (selection?.empty && selection.from >= from && selection.from <= to) continue
+      // Being typed or selected: the caret inside it or at its end (`https://a.` is still being typed), or a
+      // selection over any of it. A caret before it is not.
+      if (selection && selection.to > from && selection.from <= pos + run.end) continue
       const uri = referenceOf?.(run.url)
       if (uri) found.chips.push({ from, to, url: run.url, uri, marks: node.marks.map((m) => m.type.name) })
       else open.add(run.url)
@@ -157,20 +160,26 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
         view: (view) => {
           // Each URL is asked once; one whose ask failed is forgotten, so a later look asks again.
           const asked = new Set<string>()
-          const look = (doc: PmNode) => {
+          // The URL being typed is not asked about: each prefix of it would spend one of `limit`, and a query.
+          const look = (state: EditorState) => {
             if (!options.ask) return
-            const { open } = findLinkChips(doc, null, options.referenceOf)
+            const { open } = findLinkChips(state.doc, state.selection, options.referenceOf)
             const fresh = open.filter((url) => !asked.has(url)).slice(0, Math.max(0, options.limit - asked.size))
             if (!fresh.length) return
             for (const url of fresh) asked.add(url)
-            void Promise.resolve(options.ask(fresh)).then(
-              () => refreshLinkChips(editor),
-              () => {
-                for (const url of fresh) asked.delete(url)
-              },
-            )
+            const forget = () => {
+              for (const url of fresh) asked.delete(url)
+            }
+            let answer: Promise<unknown> | void
+            try {
+              answer = options.ask(fresh)
+            } catch {
+              forget()
+              return
+            }
+            void Promise.resolve(answer).then(() => refreshLinkChips(editor), forget)
           }
-          look(view.state.doc)
+          look(view.state)
           // Once the view is up, so a dispatch lands: what the app already knows turns into chips on open.
           queueMicrotask(() => {
             try {
@@ -181,7 +190,8 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
           })
           return {
             update: (next, prev) => {
-              if (next.state.doc !== prev.doc) look(next.state.doc)
+              // A caret leaving a URL finishes it, so a move is looked at as an edit is.
+              if (next.state.doc !== prev.doc || !next.state.selection.eq(prev.selection)) look(next.state)
             },
           }
         },

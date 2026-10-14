@@ -364,6 +364,9 @@ export const BlockId = Extension.create({
   },
 })
 
+/** An http(s) URL, or null. */
+const webUrl = (raw: string | null): string | null => (raw && /^https?:\/\/\S+$/i.test(raw) ? raw : null)
+
 /** What a reference's view is handed: the `nostr:` URI it stands for, and the URL a URL chip was written as. */
 export interface ReferenceViewProps {
   uri: string
@@ -410,11 +413,12 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
     return {
       // A pasted URL chip keeps only its URL: what it names is the editor's to resolve (`LinkChips`), never
       // the clipboard's, which could show one object while saving another URL (security review).
-      uri: { default: '', parseHTML: (element: HTMLElement) => (element.getAttribute('data-href') ? '' : (element.getAttribute('data-reference') ?? '')) },
+      uri: { default: '', parseHTML: (element: HTMLElement) => (webUrl(element.getAttribute('data-href')) ? '' : (element.getAttribute('data-reference') ?? '')) },
       marks: { default: [] as string[] },
       embed: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-embed') },
       extra: { default: null as Record<string, unknown> | null, parseHTML: () => null },
-      href: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-href') },
+      // An http(s) URL only: `LinkChips` makes no other, and a pasted `javascript:` must not reach a saved link.
+      href: { default: null as string | null, parseHTML: (element: HTMLElement) => webUrl(element.getAttribute('data-href')) },
     }
   },
   parseHTML() {

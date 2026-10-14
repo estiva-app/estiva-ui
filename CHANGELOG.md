@@ -38,7 +38,11 @@
     (`referenceOf`) into a URL chip, asks the app about the rest (`ask`) and
     looks again when that settles. The URL being typed, a URL in code and one
     under a link mark stay text; making a chip is not an undo step. It asks
-    about each URL once and at most `limit` (24) in an editor's life.
+    about each URL once and at most `limit` (24) in an editor's life, and
+    never about the URL being typed or selected (a caret in it or at its end,
+    trailing dot included, or a selection over it), so typing a URL spends one
+    ask, not one per keystroke. A `ask` that throws is forgotten and retried.
+  - `ReferenceNode` takes a pasted `data-href` only when it is http(s).
     `findLinkChips` and `refreshLinkChips` are the two halves for an app that
     learns answers some other way.
   - `ReferenceCards` and `referenceAtSelection` skip a URL chip that names

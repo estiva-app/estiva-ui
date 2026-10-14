@@ -141,6 +141,35 @@ describe('LinkChips', () => {
     expect(referenceCardPlacements(ed.state.doc)).toEqual([])
   })
 
+  it('drops a pasted URL chip whose href is not http(s)', async () => {
+    const ed = make(para({ type: 'text', text: 'x' }), new Map())
+    await tick()
+    ed.commands.insertContent('<p><span data-reference="nostr:naddr1x" data-href="javascript:alert(1)">x</span></p>')
+    const chip = (ed.getJSON() as Json).content?.flatMap((b) => b.content ?? []).find((n) => n.type === 'reference')
+    expect(chip?.attrs?.href).toBeNull()
+  })
+
+  it('asks nothing while a URL is typed one character at a time, then the whole URL once', async () => {
+    const asked: string[][] = []
+    const ed = make(para({ type: 'text', text: 'See ' }), new Map(), asked)
+    await tick()
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, ed.state.doc.content.size - 1)))
+    for (const ch of URL_) ed.view.dispatch(ed.state.tr.insertText(ch))
+    expect(asked).toEqual([])
+    ed.view.dispatch(ed.state.tr.insertText(' '))
+    expect(asked).toEqual([[URL_]])
+  })
+
+  it('turns a URL with the caret before it, but not one under a selection', async () => {
+    const ed = make(para({ type: 'text', text: `${URL_} end` }), new Map([[URL_, V]]))
+    await tick()
+    // The editor opens with the caret at the URL's start: it is not being typed.
+    expect(inline(ed)[0].type).toBe('reference')
+    ed.commands.setContent(para({ type: 'text', text: `see ${URL_}` }))
+    ed.view.dispatch(ed.state.tr.setSelection(TextSelection.create(ed.state.doc, 10, 14)))
+    expect(inline(ed)).toHaveLength(1)
+  })
+
   it('copies a URL chip as its URL', async () => {
     const ed = make(para({ type: 'text', text: `${URL_} ` }), new Map([[URL_, V]]))
     await tick()
