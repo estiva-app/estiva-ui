@@ -31,7 +31,7 @@ export interface LinkChipsOptions {
   ask: ((urls: string[]) => Promise<unknown> | void) | null
 }
 
-const key = new PluginKey('linkChips')
+const key = new PluginKey<LinkChipsOptions>('linkChips')
 
 /**
  * A link on words in marker text (skipped), or a bare URL — the grammar of
@@ -111,13 +111,20 @@ function apply(state: EditorState, found: Found): Transaction | null {
     tr.replaceWith(chip.from, chip.to, type.create({ uri: chip.uri, href: chip.url, marks: chip.marks }))
   }
   // Not a step of the person's: undo takes back what they typed, not the chip it became.
-  return tr.setMeta('addToHistory', false).setMeta(key, true)
+  return tr.setMeta('addToHistory', false)
 }
 
-/** Look at the document again — after the app learned what more URLs name some other way. */
+/**
+ * Look at the document again — after the app learned what more URLs name some
+ * other way. Dispatches only when there is a chip to make: an empty
+ * transaction would wake every other plugin (a trailing paragraph appears).
+ */
 export function refreshLinkChips(editor: Editor): void {
   if (editor.isDestroyed) return
-  editor.view.dispatch(editor.state.tr.setMeta(key, 'refresh').setMeta('addToHistory', false))
+  const options = key.getState(editor.state)
+  if (!options) return
+  const tr = apply(editor.state, findLinkChips(editor.state.doc, editor.state.selection, options.referenceOf))
+  if (tr) editor.view.dispatch(tr)
 }
 
 /**
@@ -133,10 +140,12 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
     const options = this.options
     const editor = this.editor
     return [
-      new Plugin({
+      new Plugin<LinkChipsOptions>({
         key,
+        // The options, where `refreshLinkChips` can read them from the state alone.
+        state: { init: () => options, apply: (_tr, value) => value },
         appendTransaction: (trs, _old, state) => {
-          if (!trs.some((tr) => tr.docChanged || tr.selectionSet || tr.getMeta(key) === 'refresh')) return null
+          if (!trs.some((tr) => tr.docChanged || tr.selectionSet)) return null
           return apply(state, findLinkChips(state.doc, state.selection, options.referenceOf))
         },
         view: (view) => {

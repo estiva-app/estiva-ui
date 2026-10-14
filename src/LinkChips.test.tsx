@@ -100,6 +100,15 @@ describe('LinkChips', () => {
     expect(referenceCardPlacements(ed.state.doc)[0].cards).toEqual([{ uri: V, layout: 'compact' }])
   })
 
+  it('dispatches nothing on open when there is no chip to make, so no other plugin wakes', async () => {
+    const ed = make(para({ type: 'text', text: 'Words, no address.' }), new Map([[URL_, V]]))
+    let transactions = 0
+    ed.on('transaction', () => void transactions++)
+    await tick()
+    refreshLinkChips(ed)
+    expect(transactions).toBe(0)
+  })
+
   it('leaves a URL in code alone', async () => {
     const ed = make(para({ type: 'text', text: URL_, marks: [{ type: 'code' }] }), new Map([[URL_, V]]))
     await tick()
