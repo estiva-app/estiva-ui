@@ -408,7 +408,9 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   },
   addAttributes() {
     return {
-      uri: { default: '' },
+      // A pasted URL chip keeps only its URL: what it names is the editor's to resolve (`LinkChips`), never
+      // the clipboard's, which could show one object while saving another URL (security review).
+      uri: { default: '', parseHTML: (element: HTMLElement) => (element.getAttribute('data-href') ? '' : (element.getAttribute('data-reference') ?? '')) },
       marks: { default: [] as string[] },
       embed: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-embed') },
       extra: { default: null as Record<string, unknown> | null, parseHTML: () => null },

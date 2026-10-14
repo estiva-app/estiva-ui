@@ -131,6 +131,16 @@ describe('LinkChips', () => {
     expect(inline(ed)[0].type).toBe('text')
   })
 
+  it('takes a pasted URL chip\'s URL and resolves it itself, never the clipboard\'s reference', async () => {
+    const known = new Map<string, string>()
+    const ed = make(para({ type: 'text', text: 'x' }), known)
+    await tick()
+    ed.commands.insertContent(`<p><span data-reference="nostr:naddr1hostile" data-href="${URL_}" data-embed="detailed">${URL_}</span></p>`)
+    const chip = (ed.getJSON() as Json).content?.flatMap((b) => b.content ?? []).find((n) => n.type === 'reference')
+    expect(chip?.attrs).toMatchObject({ uri: '', href: URL_ })
+    expect(referenceCardPlacements(ed.state.doc)).toEqual([])
+  })
+
   it('copies a URL chip as its URL', async () => {
     const ed = make(para({ type: 'text', text: `${URL_} ` }), new Map([[URL_, V]]))
     await tick()

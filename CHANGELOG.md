@@ -30,7 +30,10 @@
   - `ReferenceNode` declares `href`: set, the chip is a URL chip, written back
     as its URL by protocol 0.33.0's translation. Its view is handed `href` too,
     and while `uri` is empty (not resolved yet) the node draws the URL as text.
-    It copies as plain text as its URL.
+    It copies as plain text as its URL. Pasted as HTML, a URL chip keeps only
+    its URL (`data-href`) and `LinkChips` resolves what it names, so a
+    clipboard cannot show one object while the text saves another URL; a
+    plain chip now takes its `uri` from `data-reference`.
   - `LinkChips` (`@estiva-app/ui/editor`) turns each URL the app recognises
     (`referenceOf`) into a URL chip, asks the app about the rest (`ask`) and
     looks again when that settles. The URL being typed, a URL in code and one
