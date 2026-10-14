@@ -19,6 +19,23 @@ const row = (typeName: string, ...texts: string[]): RichTextBlock => ({ type: 'u
 const draw = (blocks: RichTextBlock[], props = {}) => render(<RichText blocks={blocks} {...props} />).container
 
 describe('RichText', () => {
+  it('draws renderAfter after a line of words, inside a list item, and nowhere it returns nothing', () => {
+    const after = (block: RichTextBlock) => (block.id === 'skip' ? null : <aside data-after={block.id} />)
+    const c = draw(
+      [
+        { type: 'paragraph', id: 'p1', inline: [t('One')] },
+        { type: 'paragraph', id: 'skip', inline: [t('Two')] },
+        { type: 'bulletList', id: 'l1', children: [{ type: 'listItem', id: 'i1', inline: [t('Item')] }] },
+        { type: 'heading', id: 'h1', level: 2, inline: [t('Head')] },
+      ],
+      { renderAfter: after },
+    )
+    expect([...c.querySelectorAll('[data-after]')].map((e) => e.getAttribute('data-after'))).toEqual(['p1', 'i1', 'h1'])
+    // After its paragraph, not inside it; inside its item, not after the list.
+    expect(c.querySelector('p[data-block-id="p1"] + aside[data-after="p1"]')).not.toBeNull()
+    expect(c.querySelector('li[data-block-id="i1"] > aside[data-after="i1"]')).not.toBeNull()
+  })
+
   it('draws each block as its element', () => {
     const c = draw([
       { type: 'heading', level: 1, inline: [t('One')] },

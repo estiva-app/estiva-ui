@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.68.0 — 2026-10-14
+
+### Added
+
+- **A chip's card in a document** (Widgets, with `@estiva-app/protocol`
+  0.33.0, SPEC §13.3 "A reference's card"). A chip can ask for a compact or
+  detailed card after its line; the choice is the chip's own.
+  - `ReferenceNode` (`@estiva-app/ui/editor`) declares `embed` (`compact`,
+    `detailed`, or null) and `extra` (the mark's keys this version does not
+    know), so ProseMirror keeps both. Take this release with protocol 0.33.0:
+    an older `ReferenceNode` drops a chosen card when the document is saved.
+  - `ReferenceCards` (`@estiva-app/ui/editor`) places an empty, non-editable
+    slot after each line whose chips ask for a card, keyed by block id, and
+    `useReferenceCards(editor)` hands the app the slots to portal its cards
+    into. It draws no card itself.
+  - `referenceAtSelection(state)` and `setReferenceCard(editor, layout)` read
+    and set the selected chip's card; `referenceCardPlacements(doc)` lists the
+    slots.
+  - `SelectionToolbar` takes `children`: the app's own `ToolbarButton`s after
+    the marks, for what is selected.
+  - `RichText` takes `renderAfter(block)`: drawn after a paragraph, a heading
+    or a quote, and inside a list item or a table cell after its words — where
+    a document that is only read draws a chip's card.
+  - Nothing draws differently until an app passes a card: no look of the
+    package's changes.
+- **A URL in a document reads as its chip** (Widgets; Miky, 14 October: a URL
+  is the one way a person addresses a file). It stays the URL when saved.
+  - `ReferenceNode` declares `href`: set, the chip is a URL chip, written back
+    as its URL by protocol 0.33.0's translation. Its view is handed `href` too,
+    and while `uri` is empty (not resolved yet) the node draws the URL as text.
+    It copies as plain text as its URL. Pasted as HTML, a URL chip keeps only
+    its URL (`data-href`) and `LinkChips` resolves what it names, so a
+    clipboard cannot show one object while the text saves another URL; a
+    plain chip now takes its `uri` from `data-reference`.
+  - `LinkChips` (`@estiva-app/ui/editor`) turns each URL the app recognises
+    (`referenceOf`) into a URL chip, asks the app about the rest (`ask`) and
+    looks again when that settles. The URL being typed, a URL in code and one
+    under a link mark stay text; making a chip is not an undo step. It asks
+    about each URL once and at most `limit` (24) in an editor's life, and
+    never about the URL being typed or selected (a caret in it or at its end,
+    trailing dot included, or a selection over it), so typing a URL spends one
+    ask, not one per keystroke. A `ask` that throws is forgotten and retried.
+  - `ReferenceNode` takes a pasted `data-href` only when it is http(s).
+    `findLinkChips` and `refreshLinkChips` are the two halves for an app that
+    learns answers some other way.
+  - `ReferenceCards` and `referenceAtSelection` skip a URL chip that names
+    nothing yet: there is no card to place or choose.
+
 ## 0.67.0 — 2026-10-13
 
 ### Added

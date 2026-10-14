@@ -1,0 +1,55 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as LinkChipsStories from './LinkChips.stories'
+
+<Meta of={LinkChipsStories} />
+
+# LinkChips
+
+A URL in a document that the app recognises reads as a chip of what it points
+at, and stays that URL when the document is saved. A URL the app does not
+recognise, or has not answered for yet, stays text.
+
+<Canvas of={LinkChipsStories.InAnEditor} />
+
+## When
+
+- **An editor of a document whose URLs can name things**: pair it with
+  **ReferenceNode**, which draws the chip, and **ReferenceCards**, which places
+  the card a chip can ask for.
+
+## When not
+
+- A document that is only read → **RichText**, whose text already says which
+  runs are chips.
+- An editor with a link mark (a composer's Link button) → its links are the
+  author's words, not chips. Turn the link mark off in a document editor
+  (`StarterKit.configure({ link: false })`), or URLs are linked before this
+  sees them.
+
+## How
+
+```tsx
+import { LinkChips, ReferenceCards, ReferenceNode } from '@estiva-app/ui/editor'
+
+LinkChips.configure({
+  // What the app has resolved so far: the reference a URL names, or undefined.
+  referenceOf: (url) => known(url),
+  // Look up the rest. When it settles, the document is looked at again.
+  ask: (urls) => lookUp(urls),
+})
+```
+
+- A chip made from a URL is a `reference` node with `href` set to the URL;
+  `uri` is what it names. A document saves it as the URL.
+- A chip read from a document before its URL is answered draws as the URL, and
+  offers no card choice until it is answered.
+- The URL the caret is in, or at the end of, stays text: a half-typed address
+  never turns into a chip while it is being typed.
+- A URL in code, in a code block, or under a link mark stays text.
+- Each URL is asked about once, and one editor asks about at most `limit`
+  (24 by default), the first ones: an answer can cost the app a query.
+- Making a chip is not an undo step: undo takes back what was typed.
+
+## What it owns
+
+Nothing. It draws nothing; it turns the URLs the app recognises into chips.

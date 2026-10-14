@@ -364,9 +364,13 @@ export const BlockId = Extension.create({
   },
 })
 
-/** What a reference's view is handed: the `nostr:` URI it stands for. */
+/** An http(s) URL, or null. */
+const webUrl = (raw: string | null): string | null => (raw && /^https?:\/\/\S+$/i.test(raw) ? raw : null)
+
+/** What a reference's view is handed: the `nostr:` URI it stands for, and the URL a URL chip was written as. */
 export interface ReferenceViewProps {
   uri: string
+  href?: string
 }
 
 export interface ReferenceNodeOptions {
@@ -384,6 +388,16 @@ export interface ReferenceNodeOptions {
  * nobody edits half a `naddr`. Selecting it selects the whole reference, which
  * is also how deleting one works. `marks` carries the run's other marks, so a
  * bold reference comes back bold.
+ *
+ * `embed` is the card its writer chose to draw after its block — `compact`,
+ * `detailed`, or null for none (SPEC §13.3, "A reference's card") — and `extra`
+ * every key of the mark this version does not know. Both are declared so that
+ * ProseMirror keeps them: an undeclared attribute is dropped when the node is
+ * made, and the card with it. `ReferenceCards` draws the cards.
+ *
+ * `href` makes it a **URL chip**: an app URL that reads as the chip of what it
+ * names, and is that URL on the wire (§13.3). `uri` is what it names, filled in
+ * by `LinkChips` once the app has resolved it; until then it draws as the URL.
  */
 export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   name: 'reference',
@@ -397,8 +411,14 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   },
   addAttributes() {
     return {
-      uri: { default: '' },
+      // A pasted URL chip keeps only its URL: what it names is the editor's to resolve (`LinkChips`), never
+      // the clipboard's, which could show one object while saving another URL (security review).
+      uri: { default: '', parseHTML: (element: HTMLElement) => (webUrl(element.getAttribute('data-href')) ? '' : (element.getAttribute('data-reference') ?? '')) },
       marks: { default: [] as string[] },
+      embed: { default: null as string | null, parseHTML: (element: HTMLElement) => element.getAttribute('data-embed') },
+      extra: { default: null as Record<string, unknown> | null, parseHTML: () => null },
+      // An http(s) URL only: `LinkChips` makes no other, and a pasted `javascript:` must not reach a saved link.
+      href: { default: null as string | null, parseHTML: (element: HTMLElement) => webUrl(element.getAttribute('data-href')) },
     }
   },
   parseHTML() {
@@ -406,16 +426,27 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   },
   renderHTML({ node }) {
     // A copy to the clipboard as HTML, and the whole drawing when no view is given.
-    return ['span', { 'data-reference': String(node.attrs.uri) }, String(node.attrs.uri)]
+    // The card goes along, so a paste keeps it; a URL chip copies as its URL.
+    const embed = typeof node.attrs.embed === 'string' ? { 'data-embed': node.attrs.embed } : {}
+    const href = typeof node.attrs.href === 'string' && node.attrs.href ? { 'data-href': node.attrs.href } : {}
+    return ['span', { 'data-reference': String(node.attrs.uri), ...embed, ...href }, String(node.attrs.href || node.attrs.uri)]
+  },
+  renderText({ node }) {
+    return String(node.attrs.href || node.attrs.uri)
   },
   addNodeView() {
     const View = this.options.view
     if (!View) return null
-    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => (
-      <NodeViewWrapper as="span" className="inline">
-        <View uri={String(node.attrs.uri ?? '')} />
-      </NodeViewWrapper>
-    ))
+    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => {
+      const uri = String(node.attrs.uri ?? '')
+      const href = typeof node.attrs.href === 'string' && node.attrs.href ? node.attrs.href : undefined
+      return (
+        <NodeViewWrapper as="span" className="inline">
+          {/* A URL chip not resolved yet reads as the URL it was written as. */}
+          {uri ? <View uri={uri} {...(href ? { href } : {})} /> : <span>{href}</span>}
+        </NodeViewWrapper>
+      )
+    })
   },
 })
 

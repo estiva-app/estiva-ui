@@ -55,3 +55,14 @@ export {
   type AttachmentNodeOptions,
   type AttachmentViewProps,
 } from './BlockNodes'
+export {
+  ReferenceCards,
+  useReferenceCards,
+  referenceAtSelection,
+  referenceCardPlacements,
+  setReferenceCard,
+  type ReferenceCard,
+  type ReferenceCardLayout,
+  type ReferenceCardSlot,
+} from './ReferenceCards'
+export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions } from './LinkChips'

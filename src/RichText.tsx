@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactNode } from 'react'
+import { Fragment, type MouseEvent, type ReactNode } from 'react'
 import { Checkbox } from './Checkbox'
 import { cn } from './cn'
 import { Link } from './Link'
@@ -84,6 +84,13 @@ export interface RichTextProps {
    * `undefined` to leave it to the part, which draws its words.
    */
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  /**
+   * Draws something after a line of text: after a paragraph, a heading or a
+   * quote, and inside a list item or a table cell after its words — where a
+   * document's chip asks for its card (SPEC §13.3). Asked of every such line;
+   * return nothing for most.
+   */
+  renderAfter?: (block: RichTextBlock) => ReactNode
   /**
    * Ticks or unticks a checklist item, by its block id: its box is then a
    * control, one click where the text is read. Without it the box is a picture
@@ -186,6 +193,7 @@ interface Draw {
   renderText: (text: string) => ReactNode
   renderReference: (reference: string, run: RichTextRun) => ReactNode
   renderBlock?: (block: RichTextBlock) => ReactNode | undefined
+  renderAfter?: (block: RichTextBlock) => ReactNode
   onTick?: (blockId: string, checked: boolean) => void
 }
 
@@ -245,8 +253,14 @@ function Table({ block, draw }: { block: RichTextBlock; draw: Draw }) {
           colSpan={colspan && colspan > 1 ? colspan : undefined}
           rowSpan={rowspan && rowspan > 1 ? rowspan : undefined}
         >
-          {(cell.children ?? []).map((child, j) => <Runs key={j} runs={child.inline} draw={draw} />)}
+          {(cell.children ?? []).map((child, j) => (
+            <Fragment key={j}>
+              <Runs runs={child.inline} draw={draw} />
+              {draw.renderAfter?.(child)}
+            </Fragment>
+          ))}
           <Runs runs={cell.inline} draw={draw} />
+          {draw.renderAfter?.(cell)}
         </Cell>
       )
     })
@@ -281,6 +295,7 @@ function ListItem({ item, draw, below }: { item: RichTextBlock; draw: Draw; belo
     return (
       <li data-block-id={item.id}>
         <Runs runs={item.inline} draw={draw} />
+        {draw.renderAfter?.(item)}
         {below}
       </li>
     )
@@ -299,6 +314,7 @@ function ListItem({ item, draw, below }: { item: RichTextBlock; draw: Draw; belo
         <p>
           <Runs runs={item.inline} draw={draw} />
         </p>
+        {draw.renderAfter?.(item)}
         {below}
       </div>
     </li>
@@ -333,6 +349,20 @@ function nestItems(items: readonly RichTextBlock[]): NestedItem[] {
 function Block({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode {
   const own = draw.renderBlock?.(block)
   if (own !== undefined) return own
+  const drawn = Drawn({ block, draw })
+  // After a line of its own words; a list and a table ask each item and cell.
+  const lineOfWords = block.type === 'paragraph' || block.type === 'heading' || block.type === 'blockquote'
+  const after = lineOfWords ? draw.renderAfter?.(block) : undefined
+  if (after === undefined || after === null || after === false) return drawn
+  return (
+    <>
+      {drawn}
+      {after}
+    </>
+  )
+}
+
+function Drawn({ block, draw }: { block: RichTextBlock; draw: Draw }): ReactNode {
   const runs = <Runs runs={block.inline} draw={draw} />
   switch (block.type) {
     case 'heading': {
@@ -401,10 +431,11 @@ export function RichText({
   renderText = (text) => text,
   renderReference = (_reference, run) => run.text,
   renderBlock,
+  renderAfter,
   onTick,
 }: RichTextProps) {
   if (blocks.length === 0) return null
-  const draw: Draw = { renderText, renderReference, renderBlock, onTick }
+  const draw: Draw = { renderText, renderReference, renderBlock, renderAfter, onTick }
   return (
     <div data-rich-text className={richTextClassName(size)}>
       {blocks.map((block, i) => <Block key={block.id ?? i} block={block} draw={draw} />)}

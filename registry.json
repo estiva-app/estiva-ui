@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.67.0",
-    "exports": 149,
-    "typeExports": 146,
+    "packageVersion": "0.68.0",
+    "exports": 157,
+    "typeExports": 150,
     "files": null
   },
   "storybook": {
@@ -2730,6 +2730,25 @@
       "looks": []
     },
     {
+      "name": "findLinkChips",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "What to change in a document, and what to ask.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Form",
       "repo": "estiva-ui",
       "kind": "component",
@@ -3666,6 +3685,25 @@
         "underline underline-offset-2 hover:text-text-primary truncate",
         "underline underline-offset-2 hover:text-text-primary truncate after:rounded-md focus-visible:outline-none"
       ]
+    },
+    {
+      "name": "LinkChips",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "A URL in a document that the app recognises reads as a chip of what it points at, and stays that URL when the document is saved.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": "src/LinkChips.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ListColumn",
@@ -5486,6 +5524,63 @@
       "looks": []
     },
     {
+      "name": "referenceAtSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "The chip the person has selected, with what it names and its card — or null.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "referenceCardPlacements",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "Every line that asks for a card, in document order.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ReferenceCards",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "A chip in a document can ask for a card after its line: compact, detailed or none.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
+      "docPage": "src/ReferenceCards.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "referenceMenu",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -5568,6 +5663,25 @@
       "looks": []
     },
     {
+      "name": "refreshLinkChips",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkChips.ts",
+      "purpose": "Look at the document again — after the app learned what more URLs name some other way.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkchips--docs",
+      "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "RichText",
       "repo": "estiva-ui",
       "kind": "component",
@@ -5605,6 +5719,12 @@
           "takes": "a handler",
           "required": false,
           "note": "Draws a block this part has no design for (an attachment, a widget)."
+        },
+        {
+          "name": "renderAfter",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws something after a line of text: after a paragraph, a heading or a quote, and inside a list item or a table cell after its words — where a document's chip asks for its card (SPEC §13.3)."
         },
         {
           "name": "onTick",
@@ -6154,6 +6274,12 @@
           "takes": "true/false",
           "required": false,
           "note": "The Link button and its address field. Needs a link mark in the editor and `KeptSelection`."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "More of the strip, after the marks: the app's own `ToolbarButton`s for what is selected — a chip's card, say."
         }
       ],
       "variants": [],
@@ -6184,6 +6310,25 @@
       "docsId": "primitives-selectiontoolbar--docs",
       "storyId": "primitives-selectiontoolbar--default",
       "docPage": "src/SelectionToolbar.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "setReferenceCard",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "Sets the card of the selected chip. `none` removes it.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -7604,6 +7749,25 @@
       "migrationStage": null,
       "docsId": "primitives-composertriggers--docs",
       "storyId": "primitives-composertriggers--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useReferenceCards",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ReferenceCards.ts",
+      "purpose": "The slots to draw cards into, kept current as the document changes.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-referencecards--docs",
+      "storyId": "primitives-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
