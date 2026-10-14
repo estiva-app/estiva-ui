@@ -25,7 +25,7 @@
 import { useCallback } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
 import { useEditorState } from '@tiptap/react'
-import { NodeSelection, Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state'
+import { NodeSelection, Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state'
 import { ReplaceStep } from '@tiptap/pm/transform'
 import type { EditorView } from '@tiptap/pm/view'
 import { IconCheck } from '@tabler/icons-react'
@@ -137,9 +137,17 @@ export function isReferenceMenuOpen(state: EditorState): boolean {
 export function referenceMenuClick(editor: Editor, pos: number): boolean {
   if (passing || editor.isDestroyed || !editor.isEditable || key.getState(editor.state) === undefined) return false
   if (!chipAt(editor.state, pos)) return false
-  const tr = editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, pos)).setMeta(key, { pos, active: -1 })
-  editor.view.dispatch(tr)
+  editor.view.dispatch(caretAfter(editor.state, pos).setMeta(key, { pos, active: -1 }))
   return true
+}
+
+/**
+ * The caret right after the chip, as a paste leaves it: a selected chip would
+ * bring up the selection toolbar beside the menu, and typing would replace it.
+ */
+function caretAfter(state: EditorState, pos: number): Transaction {
+  const node = state.doc.nodeAt(pos)
+  return state.tr.setSelection(TextSelection.create(state.doc, pos + (node?.nodeSize ?? 1)))
 }
 
 /** Which chip the menu is open on: see the module comment. */
@@ -176,7 +184,7 @@ export const ReferenceMenu = Extension.create({
               // Enter on a selected chip: the menu, from the keyboard, its first row highlighted.
               const { selection } = view.state
               if (event.key !== 'Enter' || !view.editable || !(selection instanceof NodeSelection) || selection.node.type.name !== 'reference') return false
-              dispatchMenu(view, { pos: selection.from, active: 0 })
+              view.dispatch(caretAfter(view.state, selection.from).setMeta(key, { pos: selection.from, active: 0 }))
               return true
             }
             const rows = rowsOf(view.state, open.pos)

@@ -162,6 +162,8 @@ describe('ReferenceMenu', () => {
     ed.setEditable(true)
     expect(referenceMenuClick(ed, 5)).toBe(true)
     expect(isReferenceMenuOpen(ed.state)).toBe(true)
+    // The caret right after the chip, not the chip selected: no selection toolbar beside the menu, and typing does not replace it.
+    expect(ed.state.selection.empty && ed.state.selection.from).toBe(6)
   })
 })
 
