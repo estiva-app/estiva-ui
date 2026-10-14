@@ -4241,6 +4241,12 @@
           "note": "The ⋮'s accessible name and tooltip. Default \"More options for {label}\"."
         },
         {
+          "name": "action",
+          "takes": "SectionAction",
+          "required": false,
+          "note": "One button beside the ⋮, shown with it: any 16px icon, its tooltip and its handler — a `SectionHeader` action's shape."
+        },
+        {
           "name": "hint",
           "takes": "anything",
           "required": false,

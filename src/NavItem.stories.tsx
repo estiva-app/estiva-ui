@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconSquareRounded } from '@tabler/icons-react'
+import { IconSquareRounded, IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
@@ -108,4 +108,26 @@ export const UnreadUrgent: Story = {
 /** Unread, with a menu: point at it and the ⋮ lands on the dot. */
 export const UnreadWithMenu: Story = {
   args: { icon: placeholder, unread: true, menu: MENU },
+}
+
+const REMOVE = { icon: <IconX size={16} stroke={1.5} />, tooltip: 'Remove from list', onClick: () => {} }
+
+/** One button of its own, in sight rather than in a menu: point at the row and it takes the count's place, as the ⋮ does. */
+export const WithAction: Story = {
+  args: { icon: placeholder, action: REMOVE },
+}
+
+/** The button and the ⋮ together: the button sits before it, and a long label stops short of both. */
+export const WithActionAndMenu: Story = {
+  args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, action: REMOVE, menu: MENU },
+}
+
+/** A hint and a button: point at it and the chip shows, then the button — a row whose state is a word (here, archived) and which can be taken off the list. */
+export const WithActionAndHint: Story = {
+  args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, action: REMOVE, hint: <Chip type="neutral" label="Archived" /> },
+}
+
+/** Unread, with a button: point at it and the button lands on the dot. */
+export const UnreadWithAction: Story = {
+  args: { icon: placeholder, unread: true, action: REMOVE },
 }
