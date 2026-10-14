@@ -14,7 +14,9 @@
  * document is looked at again.
  *
  * The URL being typed stays text while the caret is in it or at its end, so a
- * half-typed address never turns into a chip under the person's fingers.
+ * half-typed address never turns into a chip under the person's fingers. A
+ * pasted URL is whole, so it is asked about and made a chip at once, the caret
+ * still at its end — where `ReferenceMenu` opens its menu.
  */
 import { Extension, type Editor } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
@@ -37,7 +39,19 @@ export interface LinkChipsOptions {
   limit: number
 }
 
-const key = new PluginKey<LinkChipsOptions>('linkChips')
+interface LinkChipsState {
+  options: LinkChipsOptions
+  /** The last few pastes, mapped through every edit since. */
+  pasted: PastedRange[]
+}
+
+const key = new PluginKey<LinkChipsState>('linkChips')
+
+/** The meta on the transaction that made chips: `{ pasted }`. */
+export const CHIPS_MADE = 'linkChipsMade'
+
+/** How many pastes are remembered; one is what the person just did. */
+const PASTES_KEPT = 8
 
 /**
  * A link on words in marker text (skipped), or a bare URL — the grammar of
@@ -64,15 +78,24 @@ function urlRuns(text: string): { url: string; from: number; to: number; end: nu
 
 interface Found {
   /** Text URLs that name something: made chips. */
-  chips: { from: number; to: number; url: string; uri: string; marks: string[] }[]
+  chips: { from: number; to: number; url: string; uri: string; marks: string[]; pasted: boolean }[]
   /** URL chips whose URL is answered now: given their reference. */
   fills: { pos: number; uri: string }[]
   /** Every URL still waiting for an answer, or naming nothing. */
   open: string[]
 }
 
-/** What to change in a document, and what to ask. `selection` null treats no URL as being typed. */
-export function findLinkChips(doc: PmNode, selection: Selection | null, referenceOf: LinkChipsOptions['referenceOf']): Found {
+/** Where something was pasted: a URL wholly inside one was not typed, so the caret at its end does not hold it as text. */
+export interface PastedRange {
+  from: number
+  to: number
+}
+
+/**
+ * What to change in a document, and what to ask. `selection` null treats no
+ * URL as being typed; a URL inside one of `pasted` is never being typed.
+ */
+export function findLinkChips(doc: PmNode, selection: Selection | null, referenceOf: LinkChipsOptions['referenceOf'], pasted: readonly PastedRange[] = []): Found {
   const found: Found = { chips: [], fills: [], open: [] }
   const open = new Set<string>()
   doc.descendants((node, pos) => {
@@ -95,9 +118,12 @@ export function findLinkChips(doc: PmNode, selection: Selection | null, referenc
       const to = pos + run.to
       // Being typed or selected: the caret inside it or at its end (`https://a.` is still being typed), or a
       // selection over any of it. A caret before it is not.
-      if (selection && selection.to > from && selection.from <= pos + run.end) continue
+      // A pasted URL is whole: it becomes its chip with the caret still at its end, so its menu can open at once.
+      const wasPasted = pasted.some((range) => range.from <= from && pos + run.end <= range.to)
+      const typing = selection && selection.to > from && selection.from <= pos + run.end
+      if (typing && !(selection.empty && wasPasted)) continue
       const uri = referenceOf?.(run.url)
-      if (uri) found.chips.push({ from, to, url: run.url, uri, marks: node.marks.map((m) => m.type.name) })
+      if (uri) found.chips.push({ from, to, url: run.url, uri, marks: node.marks.map((m) => m.type.name), pasted: wasPasted })
       else open.add(run.url)
     }
     return false
@@ -120,7 +146,8 @@ function apply(state: EditorState, found: Found): Transaction | null {
     tr.replaceWith(chip.from, chip.to, type.create({ uri: chip.uri, href: chip.url, marks: chip.marks }))
   }
   // Not a step of the person's: undo takes back what they typed, not the chip it became.
-  return tr.setMeta('addToHistory', false)
+  // Whether a pasted URL became its chip: `ReferenceMenu` opens on that one, never on a URL typed by hand.
+  return tr.setMeta('addToHistory', false).setMeta(CHIPS_MADE, { pasted: found.chips.some((chip) => chip.pasted) })
 }
 
 /**
@@ -130,9 +157,9 @@ function apply(state: EditorState, found: Found): Transaction | null {
  */
 export function refreshLinkChips(editor: Editor): void {
   if (editor.isDestroyed) return
-  const options = key.getState(editor.state)
-  if (!options) return
-  const tr = apply(editor.state, findLinkChips(editor.state.doc, editor.state.selection, options.referenceOf))
+  const chips = key.getState(editor.state)
+  if (!chips) return
+  const tr = apply(editor.state, findLinkChips(editor.state.doc, editor.state.selection, chips.options.referenceOf, chips.pasted))
   if (tr) editor.view.dispatch(tr)
 }
 
@@ -149,13 +176,28 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
     const options = this.options
     const editor = this.editor
     return [
-      new Plugin<LinkChipsOptions>({
+      new Plugin<LinkChipsState>({
         key,
-        // The options, where `refreshLinkChips` can read them from the state alone.
-        state: { init: () => options, apply: (_tr, value) => value },
+        // The options, where `refreshLinkChips` can read them from the state alone, and where the last pastes landed.
+        state: {
+          init: () => ({ options, pasted: [] }),
+          apply: (tr, value, before, after) => {
+            if (!tr.docChanged) return value
+            // A paste edited inside is being typed again: forgotten, so each keystroke in it is not an ask (security review).
+            const pasted = value.pasted
+              .map((range) => ({ from: tr.mapping.map(range.from, 1), to: tr.mapping.map(range.to, -1), size: range.to - range.from }))
+              .filter((range) => range.from < range.to && range.to - range.from === range.size)
+              .map(({ from, to }) => ({ from, to }))
+            if (tr.getMeta('uiEvent') === 'paste') {
+              const from = tr.mapping.map(before.selection.from, -1)
+              if (from < after.selection.to) pasted.push({ from, to: after.selection.to })
+            }
+            return { options, pasted: pasted.slice(-PASTES_KEPT) }
+          },
+        },
         appendTransaction: (trs, _old, state) => {
           if (!trs.some((tr) => tr.docChanged || tr.selectionSet)) return null
-          return apply(state, findLinkChips(state.doc, state.selection, options.referenceOf))
+          return apply(state, findLinkChips(state.doc, state.selection, options.referenceOf, key.getState(state)?.pasted))
         },
         view: (view) => {
           // Each URL is asked once; one whose ask failed is forgotten, so a later look asks again.
@@ -163,7 +205,7 @@ export const LinkChips = Extension.create<LinkChipsOptions>({
           // The URL being typed is not asked about: each prefix of it would spend one of `limit`, and a query.
           const look = (state: EditorState) => {
             if (!options.ask) return
-            const { open } = findLinkChips(state.doc, state.selection, options.referenceOf)
+            const { open } = findLinkChips(state.doc, state.selection, options.referenceOf, key.getState(state)?.pasted)
             const fresh = open.filter((url) => !asked.has(url)).slice(0, Math.max(0, options.limit - asked.size))
             if (!fresh.length) return
             for (const url of fresh) asked.add(url)

@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, MouseEvent } from 'react'
 import { Extension, InputRule, Node, type Editor } from '@tiptap/core'
 import { DOMSerializer, type Node as ProseMirrorNode, type Slice } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state'
@@ -7,6 +7,7 @@ import type { EditorView, NodeView } from '@tiptap/pm/view'
 import { NodeViewWrapper, ReactNodeViewRenderer, ReactRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Checkbox, type CheckboxProps } from './Checkbox'
 import { calloutLook } from './RichText'
+import { referenceMenuClick } from './ReferenceMenu'
 
 /*
  * The four nodes an editor of a block document needs that a stock schema does
@@ -437,11 +438,21 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   addNodeView() {
     const View = this.options.view
     if (!View) return null
-    return ReactNodeViewRenderer(({ node }: ReactNodeViewProps) => {
+    return ReactNodeViewRenderer(({ node, editor, getPos }: ReactNodeViewProps) => {
       const uri = String(node.attrs.uri ?? '')
       const href = typeof node.attrs.href === 'string' && node.attrs.href ? node.attrs.href : undefined
       return (
-        <NodeViewWrapper as="span" className="inline">
+        <NodeViewWrapper
+          as="span"
+          className="inline"
+          // While editing, a click opens the chip's menu (`ReferenceMenu`) rather than following the chip.
+          onClickCapture={(event: MouseEvent) => {
+            const pos = getPos()
+            if (typeof pos !== 'number' || !referenceMenuClick(editor, pos)) return
+            event.preventDefault()
+            event.stopPropagation()
+          }}
+        >
           {/* A URL chip not resolved yet reads as the URL it was written as. */}
           {uri ? <View uri={uri} {...(href ? { href } : {})} /> : <span>{href}</span>}
         </NodeViewWrapper>
