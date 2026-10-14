@@ -265,11 +265,11 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
       }}
       side="bottom"
       align="left"
-      ariaLabel="Reference"
+      ariaLabel="Link"
       finalFocus={false}
     >
       {shown && (
-        <div ref={keepFocus} role="menu" aria-label="Reference" className="flex flex-col gap-0.5">
+        <div ref={keepFocus} role="menu" aria-label="Link" className="flex flex-col gap-0.5">
           <MenuItem
             role="menuitem"
             tabIndex={-1}
