@@ -1,0 +1,59 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as PastedMarkdownStories from './PastedMarkdown.stories'
+
+<Meta of={PastedMarkdownStories} />
+
+# PastedMarkdown
+
+Markdown pasted into an editor as plain text lands as what it spells: a
+heading, a list, a checklist, a quote or callout, a table. A README's source or
+an answer copied from a chat arrives formatted, not full of `#` and `|`.
+
+<Canvas of={PastedMarkdownStories.InAnEditor} />
+
+## When
+
+- **An editor that saves a block document**: a page, a description. Give it
+  the protocol's reader, so a paste reads text the way everything else that
+  writes a block document does.
+
+## When not
+
+No alternative: a message box or a comment box leaves it out and pastes text
+as typed, because a message's text has no table.
+
+- A pasted picture → `PastedImages`.
+- A pasted URL that names something in the app → `LinkChips`.
+
+## How
+
+```tsx
+import StarterKit from '@tiptap/starter-kit'
+import { TableKit } from '@tiptap/extension-table'
+import { PastedMarkdown } from '@estiva-app/ui/editor'
+
+useEditor({
+  extensions: [
+    StarterKit,
+    TableKit,
+    PastedMarkdown.configure({
+      // Both from @estiva-app/protocol, which this package does not depend on.
+      read: (text) => toEditorDocument(descriptionTextToBlockDocument(text)),
+    }),
+  ],
+})
+```
+
+- **Only plain text is read.** A paste that carries HTML, a copy from a web
+  page, keeps the browser's own structure.
+- **Text that spells only paragraphs pastes exactly as before**, into the line
+  the caret is on.
+- **Ctrl/Cmd+Shift+V keeps the text as typed**, and so does a paste into code.
+- A table pasted inside a table cell stays text, and so does any block the
+  editor cannot hold (a table, in an editor without `TableKit`).
+- How text is read is the app's reader. When it lands, and when it stays
+  text, is this part's.
+
+## What it owns
+
+Nothing. It draws nothing; it hands pasted text to the app's reader and puts back what that reads.

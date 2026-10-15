@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.70.0 — 2026-10-15
+
+### Added
+
+- **`PastedMarkdown`**, from `@estiva-app/ui/editor` (LEAF-10, Leaf 1: a
+  markdown table pasted into a page becomes a real table; Miky, 15 October:
+  every block the text spells, in Leaf pages and Ship descriptions). Markdown
+  pasted as plain text lands as the headings, lists, checklists, quotes and
+  tables it spells, read by the reader the app passes — the protocol's
+  `descriptionTextToBlockDocument`, so a paste reads text as the agent's write
+  does. A paste with HTML, a Shift paste, a paste into code, text that spells
+  only paragraphs, and a table pasted into a table cell all paste as before.
+  Nothing changes for an editor that does not add it.
+
 ## 0.69.2 — 2026-10-14
 
 ### Fixed
