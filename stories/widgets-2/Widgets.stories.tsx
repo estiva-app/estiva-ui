@@ -285,7 +285,7 @@ export const Project: Story = {
   render: () => (
     <Sheet>
       <Header title="Project">
-        Proposed: progress as a small ring with &quot;3/8&quot; beside it, status and lead as pickers, the comment count, and each issue led by its status icon, with its key and assignee.
+        Proposed: progress as a small ring with &quot;3/8&quot; beside it, status and lead as pickers, the comment count, and each issue led by its status icon, with its key and assignee. Each issue&apos;s row opens that issue.
       </Header>
       {proposedRow(PROJECT)}
       {todayRows(PROJECT)}
@@ -297,7 +297,7 @@ export const Topic: Story = {
   render: () => (
     <Sheet>
       <Header title="Topic">
-        Proposed: compact shows how many conversations, when the last one moved, and who is in it, with the unread dot when you have something unread there. Detailed adds the latest conversation, labelled &quot;Latest conversation&quot;, because it follows the topic and changes after the link was sent.
+        Proposed: compact shows when the last conversation moved, how many there are with the same icon as every file&apos;s comments, and who is in it, with the unread dot when you have something unread there. Detailed adds the latest conversation, labelled &quot;Latest conversation&quot;, because it follows the topic and changes after the link was sent.
       </Header>
       {proposedRow(TOPIC)}
       {todayRows(TOPIC)}
@@ -321,7 +321,7 @@ export const Page: Story = {
   render: () => (
     <Sheet>
       <Header title="Page">
-        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file). Compact shows when it was last edited and who wrote it; detailed adds its Folder, its summary, its authors named, and its comment count.
+        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file). Compact shows when it was last edited and who wrote it; detailed adds its Folder, its summary, its authors&apos; faces (no names, which would not fit once several people wrote it), and its comment count.
       </Header>
       {proposedRow(PAGE)}
       {todayRows(PAGE)}

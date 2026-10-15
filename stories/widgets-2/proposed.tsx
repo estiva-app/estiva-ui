@@ -108,27 +108,26 @@ function Unread() {
 }
 
 /** The comment count, the words brighter and a dot after it when the reader has unread there. */
-function Comments({ count, unread = false }: { count: number; unread?: boolean }) {
+function Comments({ count, unread = false, noun = 'comments' }: { count: number; unread?: boolean; noun?: string }) {
   return (
     <span className={cn('inline-flex shrink-0 items-center gap-1 text-caption tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
       <IconMessage2 size={14} stroke={1.5} aria-hidden />
       {count}
-      <span className="sr-only">comments</span>
+      <span className="sr-only">{noun}</span>
       {unread && <Unread />}
     </span>
   )
 }
 
-/** A topic's count of conversations, with the same dot. */
-function Conversations({ thing, last = false }: { thing: Thing; last?: boolean }) {
+/**
+ * A topic's conversations: the same icon and count as every other file's
+ * comments (Miky, third round), after when the last one moved.
+ */
+function Conversations({ thing }: { thing: Thing }) {
   return (
-    <span className={cn('inline-flex shrink-0 items-center gap-1 text-caption tabular-nums', thing.unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
-      {thing.conversations} conversations
-      {thing.unread && <Unread />}
-      <span className="font-normal text-text-secondary">
-        · {last && 'last '}
-        {thing.updated}
-      </span>
+    <span className="inline-flex shrink-0 items-center gap-2">
+      <span className="text-caption text-text-secondary">{thing.updated}</span>
+      <Comments count={thing.conversations ?? 0} unread={thing.unread} noun="conversations" />
     </span>
   )
 }
@@ -259,12 +258,11 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
   const body = (
     <>
       <div className="flex min-h-[19.6px] items-center gap-2">
-        <ThingIcon kind={thing.kind} />
-        <span className="contents text-body-2-strong text-text-primary">
-          <Link href={HREF} variant="quiet" truncate className="min-w-0 flex-1">
-            {thing.title}
-          </Link>
-        </span>
+        {/* The icon opens the file too, so the target is larger than the words (Miky, third round). */}
+        <Link href={HREF} variant="quiet" className="flex min-w-0 flex-1 items-center gap-2 text-body-2-strong text-text-primary">
+          <ThingIcon kind={thing.kind} />
+          <span className="truncate">{thing.title}</span>
+        </Link>
         {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} />}
         {thing.members && <AvatarGroup members={people(thing.members)} size={16} />}
       </div>
@@ -274,11 +272,16 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
       {thing.children && (
         <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
           {thing.children.map((child) => (
-            <div key={child.key} className="flex h-8 items-center gap-2 px-2">
+            <div key={child.key} className="relative flex h-8 items-center gap-2 px-2 hover:bg-bg-active">
               {/* The status is the row's icon: a list of issues needs no issue icon on every row (Miky, second round). */}
               <StatusMark status={child.status} />
               <Key>{child.key}</Key>
-              <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{child.title}</span>
+              {/* Each issue opens on its own; the link covers its row (Miky, third round). */}
+              <span className="contents text-body-2 text-text-primary">
+                <Link href={HREF} variant="quiet" cover truncate className="min-w-0 flex-1">
+                  {child.title}
+                </Link>
+              </span>
               {child.assignee ? <Avatar name={child.assignee} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
             </div>
           ))}
@@ -300,12 +303,21 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
       )}
       <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
         {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} />}
-        {thing.kind === 'topic' && <Conversations thing={thing} last />}
+        {thing.kind === 'topic' && (
+          <span className="flex items-center gap-2">
+            <span className="text-caption text-text-secondary">Updated {thing.updated}</span>
+          </span>
+        )}
+        {/* Faces only, as every other widget: names would not fit once several people wrote it (Miky, third round). */}
         {thing.authors && (
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <AvatarGroup members={people(thing.authors)} size={16} />
-            <span className="truncate">{thing.authors.join(', ')}</span>
-            <span className="shrink-0 text-text-muted">· {thing.updated}</span>
+            <span className="shrink-0">{thing.updated}</span>
+          </span>
+        )}
+        {thing.kind === 'topic' && (
+          <span className="ml-auto flex">
+            <Comments count={thing.conversations ?? 0} unread={thing.unread} noun="conversations" />
           </span>
         )}
         {thing.comments !== undefined && (
@@ -493,15 +505,11 @@ export function PartCard({ kind, heading, partKey, children, state = 'ready', no
   if (state === 'unavailable') return <CardUnavailable kind={kind} noun={`A part of this ${noun.toLowerCase()}`} app={app} />
   return (
     <Card fill="inset" className="flex flex-col gap-2 p-3">
-      <div className="flex items-center gap-2">
+      <Link href={HREF} variant="quiet" className="flex min-w-0 items-center gap-2 text-body-2-strong text-text-primary">
         <ThingIcon kind={kind} />
         {partKey && <Key>{partKey}</Key>}
-        <span className="contents text-body-2-strong text-text-primary">
-          <Link href={HREF} variant="quiet" truncate className="min-w-0 flex-1">
-            {heading}
-          </Link>
-        </span>
-      </div>
+        <span className="truncate">{heading}</span>
+      </Link>
       <div className="border-l-2 border-border-default pl-3">{children}</div>
     </Card>
   )
