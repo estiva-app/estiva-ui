@@ -91,7 +91,7 @@ export function ProgressRing({ done, total, size = 28 }: { done: number; total: 
     return (
       <span className="relative inline-flex size-7 shrink-0 items-center justify-center" title={label}>
         {ring}
-        <span className="absolute text-[9px] font-medium tabular-nums text-text-secondary" aria-hidden>
+        <span className="absolute text-menu font-medium tabular-nums text-text-secondary" aria-hidden>
           {done}/{total}
         </span>
         <span className="sr-only">{label}</span>
