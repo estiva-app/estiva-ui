@@ -301,7 +301,7 @@ export function DetailedCard({ thing, bare = false, readOnly = bare }: { thing: 
       {(thing.key || thing.subtitle) && <p className="-mt-1 pl-6 text-caption text-text-secondary">{[thing.key, thing.subtitle].filter(Boolean).join(' · ')}</p>}
       {thing.summary && <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.summary}</p>}
       {thing.children && (
-        <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
+        <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong">
           {thing.children.map((child) => (
             <div key={child.key} className="relative flex h-8 items-center gap-2 px-2 hover:bg-bg-active">
               {/* The status is the row's icon: a list of issues needs no issue icon on every row (Miky, second round). */}
@@ -325,7 +325,7 @@ export function DetailedCard({ thing, bare = false, readOnly = bare }: { thing: 
             The label names the whole box, so it sits above it, not inside (Miky, fourth round).
           */}
           <span className="text-caption text-text-muted">Latest conversation</span>
-          <div className="flex gap-2 rounded-md border border-border-subtle p-2">
+          <div className="flex gap-2 rounded-md border border-border-subtle p-2 leaf:border-border-strong">
             <Avatar name={thing.latest.author} size={16} />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 text-caption">
@@ -337,7 +337,7 @@ export function DetailedCard({ thing, bare = false, readOnly = bare }: { thing: 
           </div>
         </div>
       )}
-      <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
+      <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2 leaf:border-border-strong">
         {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} readOnly={readOnly} />}
         {thing.kind === 'topic' && (
           <span className="flex items-center gap-2">
@@ -472,7 +472,7 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
         </div>
       )}
       {rows > 0 && (
-        <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
+        <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong">
           {Array.from({ length: rows }, (_, i) => (
             <div key={i} className="flex h-8 items-center px-2">
               <Bar className="h-3 w-1/3" />
@@ -485,7 +485,7 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
           <div className="flex h-[14.4px] items-center">
             <Bar className="h-2.5 w-28" />
           </div>
-          <div className="flex h-[71.6px] flex-col justify-center gap-2 rounded-md border border-border-subtle p-2">
+          <div className="flex h-[71.6px] flex-col justify-center gap-2 rounded-md border border-border-subtle p-2 leaf:border-border-strong">
             <Bar className="h-2.5 w-24" />
             <Bar className="h-3 w-full" />
             <Bar className="h-3 w-3/5" />
@@ -493,7 +493,7 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
         </div>
       )}
       {footer !== 'none' && (
-        <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
+        <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2 leaf:border-border-strong">
           {footer === 'pickers' ? (
             <>
               <Bar className="h-6 w-24 rounded-md" />

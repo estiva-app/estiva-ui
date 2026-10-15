@@ -166,6 +166,12 @@ export interface PlacedMessageProps {
    * these: no card was added to it, and each still draws as a row under it.
    */
   oldCompact?: Thing[]
+  /**
+   * The file whose page this message is read on, as under "Mentioned in": it
+   * gets no card, since you are already on it; its chip and row still draw
+   * (Miky, 15 Oct, WID-3).
+   */
+  here?: Thing
   className?: string
 }
 
@@ -174,8 +180,9 @@ export interface PlacedMessageProps {
  * under the message draws no row in it (a chip in a sentence still draws), so
  * a message that is only one link shows its card alone.
  */
-export function PlacedMessage({ lines, removed = false, onRemove, removeOnHover, oldCompact, className }: PlacedMessageProps) {
-  const file = removed || oldCompact ? undefined : cardFileOf(lines)
+export function PlacedMessage({ lines, removed = false, onRemove, removeOnHover, oldCompact, here, className }: PlacedMessageProps) {
+  const one = removed || oldCompact ? undefined : cardFileOf(lines)
+  const file = one === here ? undefined : one
   const shown = file ? lines.filter((line) => line !== file) : lines
   return (
     <div className={cn('flex flex-col gap-2', className)}>
