@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Widgets 2/Read me" />
+
+# Widgets 2: every widget
+
+A prototype, on the `concept/widgets-2` branch only. It draws every kind of file a link can point to as a **chip**, a **compact** card and a **detailed** card, **loading**, and **not available**. Each kind's story puts the proposed drawing first, then how Peek, Ship and Leaf draw it today, redrawn class for class from each app's `main` (15 Oct).
+
+Nothing here is wired to anything, and none of it ships from this branch. Once Miky and Katerina approve it, the project *Widgets 2: build* is shaped from these stories, and the three apps switch to one kit.
+
+## How to read it
+
+- **Every widget → Overview** is the proposed kit on one sheet. Start there.
+- Each kind has its own story: Issue, Project, Topic, Message, Page, Part of a description, Attachment, and A file you can't read.
+- The theme in the toolbar themes the whole sheet: `signal` is Peek's, `ship` is Ship's, `leaf` is Leaf's.
+
+## What the proposal changes
+
+| Today | Proposed |
+| --- | --- |
+| Three chips: Peek shows the status in coloured words, Ship as an icon and words, Leaf not at all | One chip: the kind's icon, the title cut at 24 characters, the status as its shape only |
+| An issue's compact card keeps the status and assignee pickers in Peek, and differs from detailed by 8px in Ship | Compact is one 36px line with no actions, for every kind. The pickers live only in detailed |
+| Loading: an empty box held at a fixed height in Peek, one 64px bar in Ship, one 48px bar in Leaf | The card it becomes, drawn in bars, at that card's exact height |
+| Not available: "— not available." in Peek, "You may not have access…" in Ship, nothing in Leaf | One line everywhere: "Issue — not available.", with "Open in Ship ↗" |
+| A Leaf page draws as another app's file | A page has its own icon |
+
+Following the decisions of 15 Oct: where detailed has nothing to add, it is not offered (a topic, a file that is not a picture); a Folder has no card; a deleted file and one you can't read both say "not available.".
+
+## For Miky and Katerina
+
+- **Still open: is a linked message a quote or a card?** The Message story draws both. Choosing the quote needs a protocol brief first, because neither `embed` nor the manifest's `widget` can name a quote today.
+- **Katerina's look pass:** the loading picture, "not available.", the chip, and whether an issue's compact and detailed now read as two different things.
+- Where a widget appears (in a message, in the message box and the comment box, in a description, under "Mentioned in", and the chip menu) is the next prototype, *Prototype every place a widget appears*.
