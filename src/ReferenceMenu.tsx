@@ -21,6 +21,8 @@
  * Two parts: the extension `ReferenceMenu` holds which chip the menu is open
  * on, and `ReferenceMenuView` draws it beside `EditorContent`. Pair them with
  * `ReferenceNode` and `ReferenceCards`.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/clicking-a-chip-while-editing-opens-a-menu.md
  */
 import { useCallback } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
