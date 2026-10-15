@@ -31,6 +31,7 @@ import { MenuPanel } from '../../src/Menu'
 import { PreviewCard } from '../../src/PreviewCard'
 import { Select } from '../../src/Select'
 import { SkeletonBar } from '../../src/Skeleton'
+import { UnreadDot } from '../../src/UnreadDot'
 import type { Status, StatusColour, Thing } from './fixtures'
 
 const HREF = '#'
@@ -73,45 +74,61 @@ function Key({ children }: { children: ReactNode }) {
 }
 
 /**
- * Progress as a ring (Miky: "like circle 3/8 inside"). At 28px the count sits
- * inside it; smaller, the count sits beside it.
+ * Progress as a small ring with the count beside it as a label (Miky, 15 Oct,
+ * second round: the ring with the count inside was too big).
  */
-export function ProgressRing({ done, total, size = 28 }: { done: number; total: number; size?: 16 | 28 }) {
-  const stroke = size === 28 ? 2.5 : 2
+export function ProgressRing({ done, total }: { done: number; total: number }) {
+  const size = 16
+  const stroke = 2
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
-  const ring = (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90" aria-hidden>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border-default" />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${(c * done) / total} ${c}`} className="stroke-success-default" />
-    </svg>
-  )
-  const label = `${done} of ${total} done`
-  if (size === 28) {
-    return (
-      <span className="relative inline-flex size-7 shrink-0 items-center justify-center" title={label}>
-        {ring}
-        <span className="absolute text-menu font-medium tabular-nums text-text-secondary" aria-hidden>
-          {done}/{total}
-        </span>
-        <span className="sr-only">{label}</span>
-      </span>
-    )
-  }
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary" title={label}>
-      {ring}
+    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary" title={`${done} of ${total} done`}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90" aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border-default" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${(c * done) / total} ${c}`} className="stroke-success-default" />
+      </svg>
       {done}/{total}
     </span>
   )
 }
 
-function Comments({ count }: { count: number }) {
+/**
+ * The package's unread dot, after a count: the reader has something unread in
+ * this conversation. Only a member has unread (SPEC §11.8), so a reader who
+ * is not one sees the count alone.
+ */
+function Unread() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary">
+    <span className="inline-flex" title="Unread">
+      <UnreadDot className="h-auto w-auto" />
+      <span className="sr-only">unread</span>
+    </span>
+  )
+}
+
+/** The comment count, the words brighter and a dot after it when the reader has unread there. */
+function Comments({ count, unread = false }: { count: number; unread?: boolean }) {
+  return (
+    <span className={cn('inline-flex shrink-0 items-center gap-1 text-caption tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
       <IconMessage2 size={14} stroke={1.5} aria-hidden />
       {count}
       <span className="sr-only">comments</span>
+      {unread && <Unread />}
+    </span>
+  )
+}
+
+/** A topic's count of conversations, with the same dot. */
+function Conversations({ thing, last = false }: { thing: Thing; last?: boolean }) {
+  return (
+    <span className={cn('inline-flex shrink-0 items-center gap-1 text-caption tabular-nums', thing.unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+      {thing.conversations} conversations
+      {thing.unread && <Unread />}
+      <span className="font-normal text-text-secondary">
+        · {last && 'last '}
+        {thing.updated}
+      </span>
     </span>
   )
 }
@@ -207,15 +224,13 @@ export function CompactCard({ thing, preview = false }: { thing: Thing; preview?
           </span>
         </>
       )}
-      {thing.kind === 'topic' && (
-        <span className="shrink-0 text-caption tabular-nums text-text-secondary">
-          {thing.conversations} conversations · {thing.updated}
-        </span>
-      )}
+      {thing.kind === 'topic' && <Conversations thing={thing} />}
       {thing.kind === 'page' && <span className="shrink-0 text-caption text-text-secondary">{thing.updated}</span>}
       {thing.kind === 'message' && <span className="shrink-0 text-caption text-text-muted">{thing.updated}</span>}
+      {/* Compact keeps to one line: the comment count shows only when there is something unread in it. */}
+      {thing.unread && thing.comments !== undefined && <Comments count={thing.comments} unread />}
       {thing.status && thing.kind === 'issue' && <StatusMark status={thing.status} />}
-      {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} size={16} />}
+      {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} />}
       {thing.assignee && <Avatar name={thing.assignee} size={16} />}
       {thing.members && <AvatarGroup members={people(thing.members)} size={16} />}
       {thing.authors && <AvatarGroup members={people(thing.authors)} size={16} />}
@@ -245,7 +260,6 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
     <>
       <div className="flex min-h-[19.6px] items-center gap-2">
         <ThingIcon kind={thing.kind} />
-        {thing.key && <Key>{thing.key}</Key>}
         <span className="contents text-body-2-strong text-text-primary">
           <Link href={HREF} variant="quiet" truncate className="min-w-0 flex-1">
             {thing.title}
@@ -254,16 +268,17 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
         {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} />}
         {thing.members && <AvatarGroup members={people(thing.members)} size={16} />}
       </div>
-      {thing.subtitle && <p className="-mt-1 pl-6 text-caption text-text-secondary">{thing.subtitle}</p>}
+      {/* The key sits with the project under the title: "ABC-2 · Group one" (Miky, second round). */}
+      {(thing.key || thing.subtitle) && <p className="-mt-1 pl-6 text-caption text-text-secondary">{[thing.key, thing.subtitle].filter(Boolean).join(' · ')}</p>}
       {thing.summary && <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.summary}</p>}
       {thing.children && (
         <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
           {thing.children.map((child) => (
             <div key={child.key} className="flex h-8 items-center gap-2 px-2">
-              <ThingIcon kind="issue" />
+              {/* The status is the row's icon: a list of issues needs no issue icon on every row (Miky, second round). */}
+              <StatusMark status={child.status} />
               <Key>{child.key}</Key>
               <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{child.title}</span>
-              <StatusMark status={child.status} />
               {child.assignee ? <Avatar name={child.assignee} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
             </div>
           ))}
@@ -273,7 +288,9 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
         <div className="flex gap-2 rounded-md border border-border-subtle p-2">
           <Avatar name={thing.latest.author} size={16} />
           <div className="min-w-0 flex-1">
+            {/* "Latest" in words: the card follows the topic, so it is not the conversation the link was sent about. */}
             <div className="flex items-baseline gap-2 text-caption">
+              <span className="text-text-muted">Latest conversation</span>
               <span className="text-text-primary">{thing.latest.author}</span>
               <span className="text-text-muted">{thing.latest.at}</span>
             </div>
@@ -283,11 +300,7 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
       )}
       <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
         {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} />}
-        {thing.kind === 'topic' && (
-          <span className="text-caption tabular-nums text-text-secondary">
-            {thing.conversations} conversations · last {thing.updated}
-          </span>
-        )}
+        {thing.kind === 'topic' && <Conversations thing={thing} last />}
         {thing.authors && (
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <AvatarGroup members={people(thing.authors)} size={16} />
@@ -296,8 +309,8 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
           </span>
         )}
         {thing.comments !== undefined && (
-          <span className="ml-auto">
-            <Comments count={thing.comments} />
+          <span className="ml-auto flex">
+            <Comments count={thing.comments} unread={thing.unread} />
           </span>
         )}
       </div>
@@ -331,27 +344,9 @@ export function HoverPreviewOpen({ thing }: { thing: Thing }) {
 }
 
 /**
- * A linked message, detailed, option A: a quote. No frame; a rule on the
- * left, the face, the author, and the time, which is the link to it.
+ * A linked message, detailed: a card, the frame every other detailed card has
+ * (Miky, 15 Oct: "card it is", over a quote). The time is the link.
  */
-export function MessageQuote({ thing }: { thing: Thing }) {
-  return (
-    <div className="flex gap-2 border-l-2 border-border-strong py-1 pl-3">
-      <Avatar name={thing.author} size={24} />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2 text-caption">
-          <span className="text-body-2-strong text-text-primary">{thing.author}</span>
-          <Link href={HREF} variant="quiet" className="text-text-muted">
-            {thing.updated}
-          </Link>
-        </div>
-        <p className="line-clamp-4 text-body-2 text-text-primary">{thing.body}</p>
-      </div>
-    </div>
-  )
-}
-
-/** A linked message, detailed, option B: a card, the frame every other detailed card has. The time is the link. */
 export function MessageCard({ thing }: { thing: Thing }) {
   return (
     <Card fill="inset" className="flex flex-col gap-2 p-3">
@@ -382,7 +377,7 @@ export interface LoadingShape {
 /** The shape a thing's detailed card takes, for its placeholder. */
 export function loadingShapeOf(thing: Thing): LoadingShape {
   return {
-    subtitle: !!thing.subtitle,
+    subtitle: !!(thing.subtitle || thing.key),
     summary: !!thing.summary,
     rows: thing.children?.length ?? 0,
     preview: !!thing.latest,
@@ -413,10 +408,10 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
   const { subtitle = false, summary = true, rows = 0, preview = false, ring = false, footer = 'line' } = shape
   return (
     <Card fill="inset" aria-hidden data-card="loading" className="flex flex-col gap-2 p-3 animate-skeleton-in">
-      <div className={cn('flex items-center gap-2', ring ? 'h-7' : 'h-[19.6px]')}>
+      <div className="flex h-[19.6px] items-center gap-2">
         <ThingIcon kind={kind} />
         <Bar className="h-3.5 w-1/2" />
-        {ring && <Bar className="ml-auto size-7 rounded-full" />}
+        {ring && <Bar className="ml-auto size-4 rounded-full" />}
       </div>
       {subtitle && (
         <div className="-mt-1 flex h-[14.4px] items-center pl-6">

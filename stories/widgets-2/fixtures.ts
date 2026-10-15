@@ -40,6 +40,11 @@ export interface Thing {
   /** Everyone who wrote a page. */
   authors?: string[]
   comments?: number
+  /**
+   * The reader has something unread in its conversation: they are a member
+   * and it moved since they last read it (SPEC §11.8, membership-replaces-following).
+   */
+  unread?: boolean
   /** A project's issues, drawn as rows inside its detailed card. */
   children?: { title: string; key: string; status: Status; assignee?: string }[]
   /** A project's progress line. */
@@ -74,6 +79,7 @@ export const ISSUE: Thing = {
   status: DOING,
   assignee: 'Person One',
   comments: 4,
+  unread: true,
 }
 
 export const PROJECT: Thing = {
@@ -101,6 +107,7 @@ export const TOPIC: Thing = {
   app: 'Peek',
   title: 'Place one',
   conversations: 12,
+  unread: true,
   members: ['Person One', 'Person Two', 'Person Three'],
   updated: '2h ago',
   latest: { author: 'Person Three', body: 'The latest conversation in the topic, as its first message reads. It may run to a second line before it is cut short.', at: '2h ago' },
@@ -126,6 +133,7 @@ export const PAGE: Thing = {
   summary: SUMMARY,
   author: 'Person One',
   authors: ['Person One', 'Person Two'],
+  comments: 2,
   updated: 'Edited yesterday',
 }
 

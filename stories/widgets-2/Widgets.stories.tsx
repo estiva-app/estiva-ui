@@ -12,7 +12,6 @@ import {
   HoverPreviewOpen,
   loadingShapeOf,
   MessageCard,
-  MessageQuote,
   PartCard,
   ReferenceChip,
 } from './proposed'
@@ -274,7 +273,7 @@ export const Issue: Story = {
   render: () => (
     <Sheet>
       <Header title="Issue">
-        Proposed: the key before the title everywhere. Compact is one line with no actions. Detailed shows the summary, and its status and assignee only as the pickers that change them, with the comment count beside them.
+        Proposed: the key before the title in the chip and compact; in detailed it moves under the title with the project, &quot;ABC-2 · Group one&quot;. Compact is one line with no actions, and shows the comment count only when you have something unread there. Detailed shows the summary, its status and assignee only as the pickers that change them, and the comment count with the unread dot.
       </Header>
       {proposedRow(ISSUE)}
       {todayRows(ISSUE)}
@@ -286,7 +285,7 @@ export const Project: Story = {
   render: () => (
     <Sheet>
       <Header title="Project">
-        Proposed: progress as a ring (3/8 inside it on the detailed card), status and lead as pickers, the comment count, and each issue with its key, status and assignee.
+        Proposed: progress as a small ring with &quot;3/8&quot; beside it, status and lead as pickers, the comment count, and each issue led by its status icon, with its key and assignee.
       </Header>
       {proposedRow(PROJECT)}
       {todayRows(PROJECT)}
@@ -298,7 +297,7 @@ export const Topic: Story = {
   render: () => (
     <Sheet>
       <Header title="Topic">
-        Proposed: compact shows how many conversations, when the last one moved, and who is in it. Detailed adds the latest conversation as it reads now, so it changes after the link was sent.
+        Proposed: compact shows how many conversations, when the last one moved, and who is in it, with the unread dot when you have something unread there. Detailed adds the latest conversation, labelled &quot;Latest conversation&quot;, because it follows the topic and changes after the link was sent.
       </Header>
       {proposedRow(TOPIC)}
       {todayRows(TOPIC)}
@@ -310,10 +309,9 @@ export const Message: Story = {
   render: () => (
     <Sheet>
       <Header title="Message">
-        &quot;Person Two&quot; is the person who wrote the message, so it is drawn with their face. Still open, for Miky and Katerina: does a linked message draw as a quote (Ship today) or as a card (Peek today)? Choosing the quote needs a protocol brief before the build: neither `embed` nor the manifest&apos;s `widget` can name it today.
+        &quot;Person Two&quot; is the person who wrote the message, so it is drawn with their face. A linked message is a card, not a quote (Miky, 15 Oct), so it needs nothing new on the wire.
       </Header>
-      {proposedRow(MESSAGE, { detailed: <Labelled label="A — quote"><MessageQuote thing={MESSAGE} /></Labelled>, note: 'Detailed: two options' })}
-      <Row label="" cells={[<span key="a" />, <span key="b" />, <Labelled key="c" label="B — card"><MessageCard thing={MESSAGE} /></Labelled>, <span key="d" />, <span key="e" />]} />
+      {proposedRow(MESSAGE, { detailed: <MessageCard thing={MESSAGE} /> })}
       {todayRows(MESSAGE)}
     </Sheet>
   ),
@@ -323,7 +321,7 @@ export const Page: Story = {
   render: () => (
     <Sheet>
       <Header title="Page">
-        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file). Compact shows when it was last edited and who wrote it; detailed adds its Folder and its summary, with its authors named.
+        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file). Compact shows when it was last edited and who wrote it; detailed adds its Folder, its summary, its authors named, and its comment count.
       </Header>
       {proposedRow(PAGE)}
       {todayRows(PAGE)}

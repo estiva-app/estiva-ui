@@ -35,10 +35,19 @@ Nothing here is wired to anything, and none of it ships from this branch. Once M
 - **Message:** drawn with its author's face; no noun, no "Go to message" (the time is the link).
 - **Page:** its authors and its last edit.
 
+### Third iteration, from Miky's second round (15 Oct)
+
+- **Unread:** a comment count (or a topic's conversation count) gets the package's unread dot when you have something unread there. Only a member has unread (SPEC §11.8), so anyone else sees the count alone. Compact shows the comment count only when there is something unread in it.
+- **Issue, detailed:** the key moves under the title with the project: "ABC-2 · Group one".
+- **Project:** a small ring with "3/8" beside it; each issue is led by its status icon instead of the issue icon.
+- **Page:** its comment count.
+- **Topic, detailed:** the preview says "Latest conversation", because it follows the topic.
+- **Message:** the card, chosen over the quote.
+
 Following the decisions of 15 Oct: where detailed has nothing to add, it is not offered (a file that is not a picture); a Folder has no card; a deleted file and one you can't read both say "not available.".
 
 ## For Miky and Katerina
 
-- **Still open: is a linked message a quote or a card?** The Message story draws both. Choosing the quote needs a protocol brief first, because neither `embed` nor the manifest's `widget` can name a quote today.
+- **A linked message is a card** (Miky, 15 Oct), so it needs nothing new on the wire.
 - **Katerina's look pass:** the loading picture, "not available.", the chip, and whether an issue's compact and detailed now read as two different things.
 - Where a widget appears (in a message, in the message box and the comment box, in a description, under "Mentioned in", and the chip menu) is the next prototype, *Prototype every place a widget appears*.
