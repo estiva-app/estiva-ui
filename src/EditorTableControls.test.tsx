@@ -13,7 +13,7 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { TableKit } from '@tiptap/extension-table'
 import { BlockId } from './BlockNodes'
-import { EditorTableControls, appendTableColumn, appendTableRow, deleteTableColumn, deleteTableRow } from './EditorTableControls'
+import { EditorTableControls, appendTableColumn, appendTableRow, deleteTableColumn, deleteTableRow, toggleTableHeaderRow } from './EditorTableControls'
 
 type Json = { type: string; attrs?: Record<string, unknown>; content?: Json[]; text?: string }
 
@@ -230,10 +230,48 @@ describe('EditorTableControls', () => {
     const user = await mount(e)
     await act(async () => user.hover(screen.getByText('B')))
     await press(user, screen.getByRole('button', { name: 'Row menu' }))
-    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Insert below', 'Delete', 'Delete table'])
+    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Header row', 'Insert below', 'Delete', 'Delete table'])
     await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
     await frame()
     expect(shape(e)).toEqual(['#a1|#b1|#c1', 'a2|b2|c2'])
+  })
+
+  it('the first row’s menu turns the header row off and on; off, the first row is an ordinary row', async () => {
+    const e = editor()
+    const user = await mount(e)
+    await act(async () => user.hover(screen.getByText('B')))
+    await press(user, screen.getByRole('button', { name: 'Row menu' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Header row' }))
+    await frame()
+    expect(shape(e)).toEqual(['A|B|C', 'a1|b1|c1', 'a2|b2|c2'])
+
+    // Off: the first row takes a row above it, and deleting it promotes nothing.
+    await act(async () => user.hover(screen.getByText('B')))
+    await press(user, screen.getByRole('button', { name: 'Row menu' }))
+    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Header row', 'Insert above', 'Insert below', 'Delete', 'Delete table'])
+    await user.click(screen.getByRole('menuitem', { name: 'Header row' }))
+    await frame()
+    expect(shape(e)).toEqual(['#A|#B|#C', 'a1|b1|c1', 'a2|b2|c2'])
+
+    await act(async () => user.hover(screen.getByText('B')))
+    await press(user, screen.getByRole('button', { name: 'Row menu' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Header row' }))
+    await frame()
+    await act(async () => user.hover(screen.getByText('B')))
+    await press(user, screen.getByRole('button', { name: 'Row menu' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
+    await frame()
+    expect(shape(e)).toEqual(['a1|b1|c1', 'a2|b2|c2'])
+  })
+
+  it('switches the header row from any cell of the table, and only on the first row’s menu', async () => {
+    const e = editor()
+    const user = await mount(e)
+    await act(async () => user.hover(screen.getByText('b2')))
+    await press(user, screen.getByRole('button', { name: 'Row menu' }))
+    expect(screen.queryByRole('menuitem', { name: 'Header row' })).toBeNull()
+    expect(toggleTableHeaderRow(e, cellOf('b2'))).toBe(true)
+    expect(shape(e)).toEqual(['A|B|C', 'a1|b1|c1', 'a2|b2|c2'])
   })
 
   it('takes the controls away when the document changes without an update — someone else’s edit loaded', async () => {

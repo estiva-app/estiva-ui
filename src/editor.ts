@@ -27,7 +27,7 @@ export {
   type ListKind,
   type QuoteKind,
 } from './EditorBlockHandle'
-export { EditorTableControls, appendTableRow, appendTableColumn, deleteTableRow, deleteTableColumn, type EditorTableControlsProps } from './EditorTableControls'
+export { EditorTableControls, appendTableRow, appendTableColumn, deleteTableRow, deleteTableColumn, toggleTableHeaderRow, type EditorTableControlsProps } from './EditorTableControls'
 export {
   PersonMention,
   UrgentPersonMention,
