@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.71.0 — 2026-10-15
+
+### Changed
+
+- **`EditorBlockHandle`'s Turn into is the same in every app, and a list and a
+  quote get one** (LEAF-11, Leaf 1; Miky at its kickoff, 15 October: one set
+  of rows for Ship and Leaf; a list offers Bulleted list, Numbered list,
+  Checklist and Text, a quote Quote, Note, Warning and Text). `turnInto`
+  defaults to the new `turnIntoRows`, which gives a block of text the `/`
+  menu's formats, code as a block, plus Checklist, Note and Warning where the
+  editor has `Checklist` and `Callout`. A list or a quote turns whole and keeps
+  its id and every item's, so the comments anchored to it stay: Checklist
+  keeps the ticks there are, Bulleted and Numbered drop them, Text makes each
+  item a paragraph under the item's id. Not Tiptap's `toggleList`, which gives
+  the list a fresh id and joins it into a list of that type beside it.
+  `turnListInto` and `turnQuoteInto` are those rows' actions.
+- Breaking, for a caller that passes no `turnInto`: it now gets
+  `turnIntoRows`; pass `[]` for none. A list of rows still applies to a block
+  of text only. `BlockTurnInto.run` is handed the block's position as a second
+  argument. Callers: Ship's `src/components/editing/LiveDescription.tsx` (its
+  own `TURN_INTO` from `slashMenu.tsx`) and Leaf's
+  `src/document/LiveDocument.tsx` (its own `TURN_INTO`) pass their rows and
+  are unchanged until they drop them for the default; Peek has no
+  `EditorBlockHandle`.
+
 ## 0.70.0 — 2026-10-15
 
 ### Added

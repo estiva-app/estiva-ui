@@ -12,7 +12,21 @@ export { PastedImages, pastedImages, pastedImageName, type PastedImagesOptions, 
 export { PastedMarkdown, type PastedMarkdownOptions } from './PastedMarkdown'
 export { CodeBlockColours } from './CodeBlockColours'
 export { suggestionPopup, isSuggestionActive, isSuggestionOpen, type SuggestionPopupOptions } from './suggestionPopup'
-export { EditorBlockHandle, blockDropCursor, deleteBlock, moveBlock, duplicateBlock, startBlockDrag, type EditorBlockHandleProps, type BlockTurnInto } from './EditorBlockHandle'
+export {
+  EditorBlockHandle,
+  blockDropCursor,
+  deleteBlock,
+  moveBlock,
+  duplicateBlock,
+  startBlockDrag,
+  turnIntoRows,
+  turnListInto,
+  turnQuoteInto,
+  type EditorBlockHandleProps,
+  type BlockTurnInto,
+  type ListKind,
+  type QuoteKind,
+} from './EditorBlockHandle'
 export { EditorTableControls, appendTableRow, appendTableColumn, deleteTableRow, deleteTableColumn, type EditorTableControlsProps } from './EditorTableControls'
 export {
   PersonMention,

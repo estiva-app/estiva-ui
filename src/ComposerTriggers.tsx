@@ -484,7 +484,7 @@ export const FORMATS: readonly FormatDef[] = [
  * `Callout` extensions. Note and Warning are the two callouts offered (Miky,
  * 2026-10-13); the other tones are read and kept, not offered.
  */
-const DOCUMENT_FORMATS: readonly FormatDef[] = [
+export const DOCUMENT_FORMATS: readonly FormatDef[] = [
   { id: 'checklist', label: 'Checklist', trigger: '[]' },
   { id: 'note', label: 'Note' },
   { id: 'warning', label: 'Warning' },
