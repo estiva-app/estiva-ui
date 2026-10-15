@@ -152,6 +152,17 @@ function proposedRow(thing: Thing, opts: { detailed?: ReactNode | false; note?: 
   )
 }
 
+/** The detailed card for a reader who may not change the file: the pickers become words (Miky, 15 Oct). */
+function readOnlyRow(thing: Thing) {
+  return (
+    <Row
+      label="Proposed, read only"
+      note="For a reader who may not change it, and in the hover preview."
+      cells={[<span key="c" />, <None key="k">Compact has no actions to lose.</None>, <DetailedCard key="d" thing={thing} readOnly />, <span key="l" />, <span key="n" />]}
+    />
+  )
+}
+
 function todayRows(thing: Thing, opts: { shipDetailed?: ReactNode; peekDetailed?: ReactNode } = {}) {
   return (
     <>
@@ -276,6 +287,7 @@ export const Issue: Story = {
         Proposed: the key before the title in the chip and compact; in detailed it moves under the title with the project, &quot;ABC-2 · Group one&quot;. Compact is one line with no actions, and shows the comment count only when you have something unread there. Detailed shows the summary, its status and assignee only as the pickers that change them, and the comment count with the unread dot.
       </Header>
       {proposedRow(ISSUE)}
+      {readOnlyRow(ISSUE)}
       {todayRows(ISSUE)}
     </Sheet>
   ),
@@ -288,6 +300,7 @@ export const Project: Story = {
         Proposed: progress as a small ring with &quot;3/8&quot; beside it, status and lead as pickers, the comment count, and each issue led by its status icon, with its key and assignee. Each issue&apos;s row opens that issue.
       </Header>
       {proposedRow(PROJECT)}
+      {readOnlyRow(PROJECT)}
       {todayRows(PROJECT)}
     </Sheet>
   ),

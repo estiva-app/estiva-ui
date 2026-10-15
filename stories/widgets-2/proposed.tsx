@@ -142,9 +142,28 @@ function Conversations({ thing }: { thing: Thing }) {
 
 const people = (names: string[] = []) => names.map((name) => ({ name }))
 
-/** The kind's own pickers, the only place its status and owner show in detailed. */
-function Pickers({ thing }: { thing: Thing }) {
+/**
+ * The kind's own pickers, the only place its status and owner show in detailed.
+ * Read only, for a reader who may not change the file and in the hover preview
+ * (Miky, 15 Oct: no actions on hover), they are the same two values as words,
+ * in the same place.
+ */
+function Pickers({ thing, readOnly = false }: { thing: Thing; readOnly?: boolean }) {
   if (!thing.status) return null
+  if (readOnly) {
+    return (
+      <span className="flex h-6 min-w-0 items-center gap-3 text-caption text-text-secondary">
+        <span className="inline-flex shrink-0 items-center gap-1">
+          <StatusIcon status={thing.status} />
+          {thing.status.label}
+        </span>
+        <span className="inline-flex min-w-0 items-center gap-1">
+          <Avatar name={thing.assignee} size={16} />
+          <span className="truncate">{thing.assignee ?? 'Unassigned'}</span>
+        </span>
+      </span>
+    )
+  }
   return (
     <>
       <Select size="small" className="w-auto" value="s" onChange={noop} ariaLabel="Status" options={[{ value: 's', label: thing.status.label, leading: <StatusIcon status={thing.status} /> }]} />
@@ -262,7 +281,7 @@ export function CompactCard({ thing, preview = false }: { thing: Thing; preview?
  * `bare` drops the card's frame, for the hover preview, which draws the
  * package's one elevated box around it.
  */
-export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boolean }) {
+export function DetailedCard({ thing, bare = false, readOnly = bare }: { thing: Thing; bare?: boolean; readOnly?: boolean }) {
   const body = (
     <>
       <div className="flex min-h-[19.6px] items-center gap-2">
@@ -315,7 +334,7 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
         </div>
       )}
       <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
-        {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} />}
+        {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} readOnly={readOnly} />}
         {thing.kind === 'topic' && (
           <span className="flex items-center gap-2">
             <span className="text-caption text-text-secondary">Updated {thing.updated}</span>
