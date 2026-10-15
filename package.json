@@ -1,6 +1,6 @@
 {
   "name": "@estiva-app/ui",
-  "version": "0.71.0",
+  "version": "0.72.0-widgets2.0",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
   "license": "MIT",
@@ -28,6 +28,10 @@
     "./editor": {
       "types": "./dist/editor.d.ts",
       "default": "./dist/editor.js"
+    },
+    "./widgets-2": {
+      "types": "./dist/widgets-2.d.ts",
+      "default": "./dist/widgets-2.js"
     },
     "./gates": {
       "types": "./dist/gates/index.d.ts",

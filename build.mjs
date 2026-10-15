@@ -92,6 +92,32 @@ await build({
 }
 
 /**
+ * The Widgets 2 prototype, `@estiva-app/ui/widgets-2` (WID-3), on
+ * `concept/widgets-2` only. Like the editor corner, it takes every part it
+ * draws with from the main entry, so an app holds one `Avatar`, one `Card`.
+ */
+await build({
+  entryPoints: ['src/widgets-2.ts'],
+  outfile: 'dist/widgets-2.js',
+  bundle: true,
+  format: 'esm',
+  platform: 'browser',
+  target: 'es2022',
+  jsx: 'automatic',
+  sourcemap: true,
+  external: ['react', 'react-dom', 'react/jsx-runtime', '@tabler/icons-react', '@estiva-app/ui'],
+  plugins: [
+    {
+      name: 'main-entry-is-external',
+      setup(on) {
+        on.onResolve({ filter: /^\.\.\// }, () => ({ path: '@estiva-app/ui', external: true }))
+      },
+    },
+  ],
+  logLevel: 'warning',
+})
+
+/**
  * The lint plugin, `@estiva-app/ui/eslint` (UIG-3): its own bundle, for Node,
  * so nothing of it reaches the components' browser bundle. At run time it
  * imports Node's own `module` and, since `no-copied-look` (UIG-25),

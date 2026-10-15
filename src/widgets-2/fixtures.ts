@@ -3,7 +3,7 @@
  * draws. Words are placeholders (stories-and-pages.md); the kinds are named,
  * because telling them apart is what the prototype is for.
  */
-import type { ThingKind } from '../../src/KindIcon'
+import type { ThingKind } from '../KindIcon'
 
 /** The colours a status draws in, as the apps' manifests name them. */
 export type StatusColour = 'neutral' | 'blue' | 'green' | 'muted'

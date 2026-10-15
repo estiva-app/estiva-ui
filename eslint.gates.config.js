@@ -17,4 +17,7 @@ import { gateConfig } from './dist/gates/index.js'
  * Every `.tsx` under `src`, stories included, tests not. The rules are the built
  * ones in `dist/`, the very files published, so `npm run lint:rules` builds first.
  */
-export default gateConfig({ audience: 'package' })
+// On `concept/widgets-2` only: the Widgets 2 prototype sits in `src/` so the apps
+// can place it (WID-3), and its proposed looks are what Katerina's pass judges.
+// The build project brings each part in through these rules.
+export default [{ ignores: ['src/widgets-2/**'] }, ...gateConfig({ audience: 'package' })]

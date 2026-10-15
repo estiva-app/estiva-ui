@@ -1,9 +1,13 @@
 /**
  * Widgets 2 prototype: the proposed shared kit, one drawing of each widget for
- * Peek, Ship and Leaf alike. Written as the package would export it, so the
- * build project can move it into `src/` once Miky and Katerina approve it: no
- * app name and no product noun in a name or a prop. The kind's icon, the key
- * and every field arrive as data from the app's manifest.
+ * Peek, Ship and Leaf alike. Written as the package would export it: no app
+ * name and no product noun in a name or a prop. The kind's icon, the key and
+ * every field arrive as data from the app's manifest.
+ *
+ * In `src/` on `concept/widgets-2` only, so the apps' own Storybooks can place
+ * it (WID-3): `@estiva-app/ui/widgets-2`, an unlisted entry published only as a
+ * `concept` prerelease. The build project shapes the real exports from it once
+ * Miky and Katerina approve it.
  *
  * Second iteration, from Miky's notes on WID-2 (15 Oct):
  * - no noun in a card's corner and no "Open in …": the icon says what it is,
@@ -20,18 +24,18 @@
  */
 import { IconCircle, IconCircleCheck, IconCircleDashed, IconCircleHalf2, IconCircleX, IconFileText, IconMessage2, IconPaperclip } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
-import { Avatar } from '../../src/Avatar'
-import { AvatarGroup } from '../../src/AvatarGroup'
-import { Card } from '../../src/Card'
-import { cn } from '../../src/cn'
-import { InlineChip } from '../../src/InlineChip'
-import { KindIcon } from '../../src/KindIcon'
-import { Link } from '../../src/Link'
-import { MenuPanel } from '../../src/Menu'
-import { PreviewCard } from '../../src/PreviewCard'
-import { Select } from '../../src/Select'
-import { SkeletonBar } from '../../src/Skeleton'
-import { UnreadDot } from '../../src/UnreadDot'
+import { Avatar } from '../Avatar'
+import { AvatarGroup } from '../AvatarGroup'
+import { Card } from '../Card'
+import { cn } from '../cn'
+import { InlineChip } from '../InlineChip'
+import { KindIcon } from '../KindIcon'
+import { Link } from '../Link'
+import { MenuPanel } from '../Menu'
+import { PreviewCard } from '../PreviewCard'
+import { Select } from '../Select'
+import { SkeletonBar } from '../Skeleton'
+import { UnreadDot } from '../UnreadDot'
 import type { Status, StatusColour, Thing } from './fixtures'
 
 const HREF = '#'

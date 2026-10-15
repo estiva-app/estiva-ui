@@ -20,7 +20,7 @@ import { Person } from '../../src/Person'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Select } from '../../src/Select'
 import { SkeletonBar } from '../../src/Skeleton'
-import { PART, PICTURE, type Status, type StatusColour, type Thing } from './fixtures'
+import { PART, PICTURE, type Status, type StatusColour, type Thing } from '../../src/widgets-2/fixtures'
 
 const HREF = '#'
 const noop = () => {}

@@ -51,5 +51,7 @@ export default defineConfig([
   // The UI Guardrails' inward rules (UIG-5), so an editor shows them where the
   // element is typed. `npm run lint:rules` runs these alone, and that is the CI
   // gate. They come from `dist/`, which `prelint` builds.
-  gateLint({ audience: 'package' }),
+  // On `concept/widgets-2` only: the prototype's proposed looks are what
+  // Katerina's pass judges (WID-3); the token rules above still hold for it.
+  (({ ignores = [], ...gate }) => ({ ...gate, ignores: [...ignores, 'src/widgets-2/**'] }))(gateLint({ audience: 'package' })),
 ])

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import type { ReactNode } from 'react'
 import { AttachmentCard } from '../../src/AttachmentCard'
-import { ATTACHMENT, ATTACHMENT_FILE, ISSUE, MESSAGE, PAGE, PART, PICTURE, PROJECT, TOPIC, UNREADABLE, type Thing } from './fixtures'
+import { ATTACHMENT, ATTACHMENT_FILE, ISSUE, MESSAGE, PAGE, PART, PICTURE, PROJECT, TOPIC, UNREADABLE, type Thing } from '../../src/widgets-2/fixtures'
 import {
   AttachmentChip,
   CardLoading,
@@ -14,7 +14,7 @@ import {
   MessageCard,
   PartCard,
   ReferenceChip,
-} from './proposed'
+} from '../../src/widgets-2/proposed'
 import {
   LeafCard,
   LeafChip,

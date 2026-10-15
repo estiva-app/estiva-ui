@@ -413,7 +413,8 @@ describe('gates:status', () => {
     expect(out).toContain('✅  UIG-2')
     expect(out).toContain('⬜  UIG-9')
     const json = JSON.parse(await runStatus({ root: dir, json: true }))
-    expect(json.engine).toMatch(/^@estiva-app\/ui@\d+\.\d+\.\d+$/)
+    // A prerelease (`0.72.0-widgets2.0`, published on `concept`) is a version too.
+    expect(json.engine).toMatch(/^@estiva-app\/ui@\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/)
   })
 
   it('finds the checks file beside the app, and still reads the repo from its top (Ship, UIG-32)', async () => {
