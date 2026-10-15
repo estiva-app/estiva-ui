@@ -143,9 +143,12 @@ export function CardUnder({ thing, onRemove, removeOnHover = false, className }:
         <CardOf thing={thing} />
       </div>
       {onRemove && (
-        <IconButton aria-label="Remove card" tooltip="Remove card" onClick={onRemove} className={cn('shrink-0', removeOnHover && 'opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100')}>
-          <IconX size={16} />
-        </IconButton>
+        // At the card's top corner, not its middle: a tall card's ✕ halfway down reads as belonging to nothing.
+        <div className="flex shrink-0 self-start pt-2">
+          <IconButton aria-label="Remove card" tooltip="Remove card" onClick={onRemove} className={cn(removeOnHover && 'opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100')}>
+            <IconX size={16} />
+          </IconButton>
+        </div>
       )}
     </div>
   )
@@ -158,17 +161,29 @@ export interface PlacedMessageProps {
   /** Draws the ✕; without it the card shows with none, as to anyone but the author. */
   onRemove?: () => void
   removeOnHover?: boolean
+  /**
+   * An old message, sent before Widgets 2 with a `compact` tag for each of
+   * these: no card was added to it, and each still draws as a row under it.
+   */
+  oldCompact?: Thing[]
   className?: string
 }
 
-/** A message's text, and under it the one file's card. A message that is only one link shows its card instead of the row. */
-export function PlacedMessage({ lines, removed = false, onRemove, removeOnHover, className }: PlacedMessageProps) {
-  const file = removed ? undefined : cardFileOf(lines)
-  const cardOnly = !!file && isOnlyOneLink(lines)
+/**
+ * A message's text, and under it the one file's card. A file with its card
+ * under the message draws no row in it (a chip in a sentence still draws), so
+ * a message that is only one link shows its card alone.
+ */
+export function PlacedMessage({ lines, removed = false, onRemove, removeOnHover, oldCompact, className }: PlacedMessageProps) {
+  const file = removed || oldCompact ? undefined : cardFileOf(lines)
+  const shown = file ? lines.filter((line) => line !== file) : lines
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      {!cardOnly && <PlacedLines lines={lines} />}
+      {shown.length > 0 && <PlacedLines lines={shown} />}
       {file && <CardUnder thing={file} onRemove={onRemove} removeOnHover={removeOnHover} className="max-w-[480px]" />}
+      {oldCompact?.map((thing, i) => (
+        <CompactCard key={i} thing={thing} preview />
+      ))}
     </div>
   )
 }
@@ -285,7 +300,7 @@ export function LinkPicker({ files, query = '' }: { files: Thing[]; query?: stri
       <div role="listbox" aria-label="Link to a file" className="flex flex-col gap-0.5">
         <MenuSection label={query ? `Files matching “${query}”` : 'Recent files'}>
           {files.map((thing, i) => (
-            <MenuItem key={i} role="option" label={thing.kind === 'message' ? `${thing.author}: ${thing.body}` : thing.title} leading={<ThingIcon kind={thing.kind} />} hint={thing.key} selected={i === 0} />
+            <MenuItem key={i} role="option" label={thing.kind === 'message' ? `${thing.author}: ${thing.body}` : thing.title} leading={<ThingIcon kind={thing.kind} />} hint={thing.key && <span className="text-caption text-text-secondary">{thing.key}</span>} selected={i === 0} />
           ))}
         </MenuSection>
       </div>
