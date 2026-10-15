@@ -1,0 +1,43 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Short summary/Read me" />
+
+# Short summary: every place
+
+A prototype, on the `concept/short-summary` branch only (project *A short summary on every file*, milestone 1). Every file (an issue, a project, a topic, a page) can carry a summary of one or two sentences, about 240 characters, beside its title. It is the file's one-line identity wherever it appears. These stories draw every place it is written or shown, in each app's look today, redrawn class for class from each app's `main` (15 Oct), with the summary added.
+
+Nothing here is wired to anything, and none of it ships from this branch. Once Miky approves it and Katerina has done her look pass, the build tickets for Ship, Peek, Leaf and the picker match these stories.
+
+## How to read it
+
+Each story is one group of places: the columns are states, the rows are the apps. The theme in the toolbar themes the whole sheet: `signal` is Peek's, `ship` is Ship's, `leaf` is Leaf's.
+
+- **On its own page:** under the title, all of it. Filled, long, empty for someone who can edit ("Add a summary"), empty for someone who can't (nothing), loading, and a save the relay refused.
+- **In Peek's Details:** where a topic's summary is written, beside Rename.
+- **In the New dialogs:** Ship's New issue and New project, Peek's Start a topic, Leaf's New document.
+- **In Ship's lists:** the issue list, board, table and project cards.
+- **On Peek's Desk and Leaf's Recent.**
+- **On the cards that draw today:** Ship's Related and Folder rows, Peek's file card, Leaf's reference card, and Widgets 2's detailed card for comparison.
+- **Past 240 characters** and **In the picker and search**: the two open calls, each option side by side.
+
+## The rules every drawing follows
+
+| | |
+| --- | --- |
+| Where it sits | Its own line under the title. Never the description cut short. |
+| How much shows | A row, a picker row and a search row: one line. A card and a board card: two. The file's own page: all of it. |
+| No summary | The line is left out, and the row keeps today's height. Only the file's own page offers "Add a summary", and only to someone who can edit it. |
+| Loading | It arrives with the title, so each place keeps its own skeleton with one more bar. Never a second wait. |
+| A refused save | The old summary comes back for everyone, and your text stays in the field with the reason (record *a-refused-action-is-undone-and-your-text-comes-back*). |
+| Not here | Chips, sidebars, Peek's tree and Activity stay title-only. |
+
+## For Miky
+
+1. **Past about 240 characters** (story *Past 240 characters*): A, a count appears and nothing is refused (recommended, so a longer summary from another app or from Claude is never cut); or B, the field stops at 240.
+2. **Rows with a caption** (story *In the picker and search*): in the `[` picker, Peek's search and any one-line row with a caption, A, an issue keeps its project, after the title, with the summary as the second line (recommended); or B, the summary replaces the project.
+3. **Peek's own page:** Peek writes summaries in Details, so its "Add a summary" opens Details rather than a field on the page.
+4. **Someone who can't edit, in Details:** sees the summary as text, like the name, and no section when there is none.
+
+## For Katerina's look pass
+
+The summary's size and colour under each title (`text-body-1` secondary on a page, caption in rows), the two-line rows in Ship's list and Peek's Desk, the quiet "Add a summary", and the Summary section in Details.
