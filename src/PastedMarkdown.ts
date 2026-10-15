@@ -49,13 +49,15 @@ export const PastedMarkdown = Extension.create<PastedMarkdownOptions>({
           // Reached only for a text paste outside code; `plain` is the Shift paste.
           clipboardTextParser: (text, $context, plain, view) => {
             if (plain) return undefined as unknown as Slice
-            const blocks = options.read(text.replace(/\r\n?/g, '\n'))?.content ?? []
-            if (blocks.every((block) => block.type === 'paragraph')) return undefined as unknown as Slice
-            if (inTableCell($context) && hasTable(blocks)) return undefined as unknown as Slice
             try {
+              const blocks = options.read(text.replace(/\r\n?/g, '\n'))?.content ?? []
+              // Paragraphs only: the editor's own paste keeps each line a paragraph, and its paste rules make `**bold**` bold.
+              if (blocks.every((block) => block.type === 'paragraph')) return undefined as unknown as Slice
+              if (inTableCell($context) && hasTable(blocks)) return undefined as unknown as Slice
               return Slice.maxOpen(view.state.schema.nodeFromJSON({ type: 'doc', content: blocks }).content)
             } catch {
-              // A block this editor's schema does not hold (a table without TableKit): paste the text.
+              // A reader that throws, or a block this editor's schema does not
+              // hold (a table without TableKit): paste the text.
               return undefined as unknown as Slice
             }
           },

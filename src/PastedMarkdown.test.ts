@@ -26,8 +26,12 @@ const READ: Record<string, JSONContent[]> = {
   [`Before\n\n${TABLE_TEXT}\n\nAfter`]: [paragraph('Before'), TABLE, paragraph('After')],
   '# Plan\n\n- one': [{ type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Plan' }] }, { type: 'bulletList', content: [{ type: 'listItem', content: [paragraph('one')] }] }],
   world: [paragraph('world')],
+  'A **bold** word': [{ type: 'paragraph', content: [{ type: 'text', text: 'A ' }, { type: 'text', text: 'bold', marks: [{ type: 'bold' }] }, { type: 'text', text: ' word' }] }],
 }
-const read = vi.fn((text: string) => (READ[text] ? { type: 'doc', content: READ[text] } : undefined))
+const read = vi.fn((text: string) => {
+  if (text === 'reader breaks') throw new RangeError('Maximum call stack size exceeded')
+  return READ[text] ? { type: 'doc', content: READ[text] } : undefined
+})
 
 let editor: Editor | undefined
 afterEach(() => {
@@ -84,6 +88,19 @@ describe('PastedMarkdown', () => {
     ed.commands.focus('end')
     paste(ed, 'world')
     expect(ed.getJSON().content).toEqual([paragraph('Hello world')])
+  })
+
+  it('pastes a paragraph whose text spells bold with the word bold, not with the asterisks', () => {
+    const ed = make({ type: 'doc', content: [{ type: 'paragraph' }] })
+    paste(ed, 'A **bold** word')
+    expect(textOf(ed)).toBe('A bold word')
+    expect(ed.getJSON().content?.[0].content?.[1]).toEqual({ type: 'text', text: 'bold', marks: [{ type: 'bold' }] })
+  })
+
+  it('pastes the text as typed when the reader throws, so the paste is never lost', () => {
+    const ed = make({ type: 'doc', content: [{ type: 'paragraph' }] })
+    paste(ed, 'reader breaks')
+    expect(textOf(ed)).toBe('reader breaks')
   })
 
   it('leaves a paste that carries HTML to the HTML, without reading the text', () => {

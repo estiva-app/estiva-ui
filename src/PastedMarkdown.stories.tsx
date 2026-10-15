@@ -3,13 +3,15 @@ import type { JSONContent } from '@tiptap/core'
 import { TableKit } from '@tiptap/extension-table'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { Button } from './Button'
 import { Card } from './Card'
 import { PastedMarkdown } from './PastedMarkdown'
 import { richTextClassName } from './RichText'
 
 /**
- * Copy the lines below the box as plain text and paste them in: they land as a
- * table. Paste them with Ctrl/Cmd+Shift+V: they stay text.
+ * "Copy as plain text" puts the lines below the box on the clipboard as plain
+ * text; paste them in and they land as a table. Paste them with
+ * Ctrl/Cmd+Shift+V: they stay text.
  */
 const meta = {
   title: 'Primitives/PastedMarkdown',
@@ -47,6 +49,12 @@ function Box() {
         <EditorContent editor={editor} />
       </Card>
       <pre className="text-caption text-text-secondary">{SAMPLE}</pre>
+      <div className="flex items-center gap-2">
+        <Button variant="outlined" size="small" onClick={() => void navigator.clipboard.writeText(SAMPLE)}>
+          Copy as plain text
+        </Button>
+        <span className="text-caption text-text-secondary">then paste in the box. Selecting the lines above copies them with HTML, which pastes as before.</span>
+      </div>
     </div>
   )
 }
