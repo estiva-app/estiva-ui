@@ -22,18 +22,34 @@ export interface Thing {
   /** The app it opens in. */
   app: string
   title: string
+  /** Its key, the way people say it: an issue's "WID-2". */
+  key?: string
   /** The line under the title: the project an issue is in, a page's Folder. */
   subtitle?: string
-  /** The opening of its description, a page's text, a message's words. */
+  /** The opening of its description, a page's text, a message's words: what the apps draw today. */
   body?: string
+  /**
+   * A short summary of the file, one or two sentences (Miky, 15 Oct: detailed
+   * shows the summary, not the opening of the long description). No file
+   * carries one yet; it is its own project.
+   */
+  summary?: string
   status?: Status
   assignee?: string
   author?: string
+  /** Everyone who wrote a page. */
+  authors?: string[]
   comments?: number
   /** A project's issues, drawn as rows inside its detailed card. */
-  children?: { title: string; status: Status }[]
+  children?: { title: string; key: string; status: Status; assignee?: string }[]
   /** A project's progress line. */
   progress?: string
+  /** A project's progress as numbers, for the ring. */
+  done?: { done: number; total: number }
+  /** A topic: how many conversations, who is in it, and its latest one. */
+  conversations?: number
+  members?: string[]
+  latest?: { author: string; body: string; at: string }
   updated?: string
 }
 
@@ -44,13 +60,17 @@ const DONE: Status = { label: 'Done', colour: 'green' }
 const PARAGRAPH =
   'A description long enough to need more than one line, so the card has to choose how much of it to show and where to cut it short. The rest is there when you open it.'
 
+const SUMMARY = 'A one-sentence summary of what this is for.'
+
 export const ISSUE: Thing = {
   kind: 'issue',
   noun: 'Issue',
   app: 'Ship',
   title: 'Item one, with a title long enough to be cut short',
+  key: 'ABC-2',
   subtitle: 'Group one',
   body: PARAGRAPH,
+  summary: SUMMARY,
   status: DOING,
   assignee: 'Person One',
   comments: 4,
@@ -62,13 +82,16 @@ export const PROJECT: Thing = {
   app: 'Ship',
   title: 'Group one',
   body: PARAGRAPH,
+  summary: SUMMARY,
   status: DOING,
   assignee: 'Person Two',
   progress: '3 of 8 done',
+  done: { done: 3, total: 8 },
+  comments: 6,
   children: [
-    { title: 'Item one', status: DONE },
-    { title: 'Item two', status: DOING },
-    { title: 'Item three', status: TODO },
+    { title: 'Item one', key: 'ABC-1', status: DONE, assignee: 'Person One' },
+    { title: 'Item two', key: 'ABC-2', status: DOING, assignee: 'Person Two' },
+    { title: 'Item three', key: 'ABC-3', status: TODO },
   ],
 }
 
@@ -77,6 +100,10 @@ export const TOPIC: Thing = {
   noun: 'Topic',
   app: 'Peek',
   title: 'Place one',
+  conversations: 12,
+  members: ['Person One', 'Person Two', 'Person Three'],
+  updated: '2h ago',
+  latest: { author: 'Person Three', body: 'The latest conversation in the topic, as its first message reads. It may run to a second line before it is cut short.', at: '2h ago' },
 }
 
 export const MESSAGE: Thing = {
@@ -96,7 +123,9 @@ export const PAGE: Thing = {
   title: 'Page one',
   subtitle: 'Folder one',
   body: PARAGRAPH,
+  summary: SUMMARY,
   author: 'Person One',
+  authors: ['Person One', 'Person Two'],
   updated: 'Edited yesterday',
 }
 

@@ -2,28 +2,33 @@
  * Widgets 2 prototype: the proposed shared kit, one drawing of each widget for
  * Peek, Ship and Leaf alike. Written as the package would export it, so the
  * build project can move it into `src/` once Miky and Katerina approve it: no
- * app name and no product noun in a name or a prop. The kind's noun, the app's
- * name and every field arrive as data from the app's manifest.
+ * app name and no product noun in a name or a prop. The kind's icon, the key
+ * and every field arrive as data from the app's manifest.
  *
- * What it settles, against today's three copies (today.tsx):
- * - compact is one line, always: icon, title, status, a face, the noun. No
- *   actions, so it can never grow into the detailed card (Katerina's Later
- *   line: an issue's compact and detailed look alike);
- * - detailed adds what compact cannot hold: the line under the title, the
- *   opening of the body, the meta line, and the actions;
- * - loading is the card it becomes, at its height, so nothing jumps;
- * - "not available." is one line in one place, in every app.
+ * Second iteration, from Miky's notes on WID-2 (15 Oct):
+ * - no noun in a card's corner and no "Open in …": the icon says what it is,
+ *   and the title is the link;
+ * - an issue shows its key; the only status and assignee are the actionable ones;
+ * - detailed shows the file's short summary, not the opening of its description;
+ * - hovering a chip or a compact card shows the detailed card;
+ * - a project shows its progress as a ring, its status and lead as actions,
+ *   its comments, and each issue's assignee;
+ * - a topic shows its conversations, its last update and its members, and
+ *   detailed adds the latest conversation;
+ * - a message is drawn with its author's face; a page with its authors and
+ *   its last edit.
  */
-import { IconCircle, IconCircleCheck, IconCircleDashed, IconCircleHalf2, IconCircleX, IconExternalLink, IconFileText, IconMessage2, IconPaperclip } from '@tabler/icons-react'
+import { IconCircle, IconCircleCheck, IconCircleDashed, IconCircleHalf2, IconCircleX, IconFileText, IconMessage2, IconPaperclip } from '@tabler/icons-react'
 import type { ReactNode } from 'react'
 import { Avatar } from '../../src/Avatar'
-import { Button } from '../../src/Button'
+import { AvatarGroup } from '../../src/AvatarGroup'
 import { Card } from '../../src/Card'
 import { cn } from '../../src/cn'
 import { InlineChip } from '../../src/InlineChip'
 import { KindIcon } from '../../src/KindIcon'
 import { Link } from '../../src/Link'
-import { Person } from '../../src/Person'
+import { MenuPanel } from '../../src/Menu'
+import { PreviewCard } from '../../src/PreviewCard'
 import { Select } from '../../src/Select'
 import { SkeletonBar } from '../../src/Skeleton'
 import type { Status, StatusColour, Thing } from './fixtures'
@@ -40,12 +45,12 @@ const STATUS_ICON: Record<StatusColour, { Icon: typeof IconCircle; tone: string 
   muted: { Icon: IconCircleX, tone: 'text-text-muted' },
 }
 
-/** A status as its shape: Ship's icons, which read without colour. Words only where there is room. */
-export function StatusMark({ status, words = false }: { status: Status; words?: boolean }) {
+/** A status as its shape: Ship's icons, which read without colour. */
+export function StatusMark({ status }: { status: Status }) {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-caption text-text-secondary" title={words ? undefined : status.label}>
+    <span className="inline-flex shrink-0 items-center" title={status.label}>
       <StatusIcon status={status} />
-      {words ? status.label : <span className="sr-only">{status.label}</span>}
+      <span className="sr-only">{status.label}</span>
     </span>
   )
 }
@@ -62,60 +67,129 @@ export function ThingIcon({ kind, size = 16, tone = 'secondary' }: { kind: Thing
   return <KindIcon kind={kind} size={size} tone={tone} />
 }
 
-/** The noun in a card's corner: the quietest words on it. */
-function Noun({ children }: { children: ReactNode }) {
-  return <span className="shrink-0 text-caption text-text-muted">{children}</span>
+/** A key, the way people say it ("ABC-2"): before the title, quieter than it. */
+function Key({ children }: { children: ReactNode }) {
+  return <span className="shrink-0 text-caption tabular-nums text-text-muted">{children}</span>
+}
+
+/**
+ * Progress as a ring (Miky: "like circle 3/8 inside"). At 28px the count sits
+ * inside it; smaller, the count sits beside it.
+ */
+export function ProgressRing({ done, total, size = 28 }: { done: number; total: number; size?: 16 | 28 }) {
+  const stroke = size === 28 ? 2.5 : 2
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const ring = (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90" aria-hidden>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border-default" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${(c * done) / total} ${c}`} className="stroke-success-default" />
+    </svg>
+  )
+  const label = `${done} of ${total} done`
+  if (size === 28) {
+    return (
+      <span className="relative inline-flex size-7 shrink-0 items-center justify-center" title={label}>
+        {ring}
+        <span className="absolute text-[9px] font-medium tabular-nums text-text-secondary" aria-hidden>
+          {done}/{total}
+        </span>
+        <span className="sr-only">{label}</span>
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary" title={label}>
+      {ring}
+      {done}/{total}
+    </span>
+  )
+}
+
+function Comments({ count }: { count: number }) {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary">
+      <IconMessage2 size={14} stroke={1.5} aria-hidden />
+      {count}
+      <span className="sr-only">comments</span>
+    </span>
+  )
+}
+
+const people = (names: string[] = []) => names.map((name) => ({ name }))
+
+/** The kind's own pickers, the only place its status and owner show in detailed. */
+function Pickers({ thing }: { thing: Thing }) {
+  if (!thing.status) return null
+  return (
+    <>
+      <Select size="small" className="w-auto" value="s" onChange={noop} ariaLabel="Status" options={[{ value: 's', label: thing.status.label, leading: <StatusIcon status={thing.status} /> }]} />
+      <Select
+        size="small"
+        className="w-auto"
+        value="a"
+        onChange={noop}
+        ariaLabel={thing.kind === 'project' ? 'Lead' : 'Assignee'}
+        options={[{ value: 'a', label: thing.assignee ?? 'Unassigned', leading: <Avatar name={thing.assignee} size={16} /> }]}
+      />
+    </>
+  )
 }
 
 /* ----------------------------------------------------------------- chip */
 
 export interface ReferenceChipProps {
-  kind: Thing['kind']
-  title: string
-  status?: Status
+  thing: Thing
   state?: 'ready' | 'loading' | 'unavailable'
-  /** The noun, for the unavailable chip: "Issue, not available". */
-  noun?: string
+  /** Hovering the chip shows the detailed card. */
+  preview?: boolean
+}
+
+/** What leads a chip and a compact card: the author's face for a message, the kind's icon otherwise. */
+function Lead({ thing, chip = false }: { thing: Thing; chip?: boolean }) {
+  if (thing.kind === 'message') return <Avatar name={thing.author} size={16} />
+  return <ThingIcon kind={thing.kind} size={chip ? 14 : 16} tone={chip ? 'inherit' : 'secondary'} />
 }
 
 /**
- * A link in running text. One chip for every app: the kind's icon, the title
- * cut at 24ch, the status as its shape only, so a chip stays a word long.
- * Loading keeps the icon (the kind is known from the address) and pulses
- * where the title will be; not available says so in the chip itself.
+ * A link in running text: the icon (or the author's face), the key, the
+ * title cut at 24ch, the status as its shape. Loading keeps the icon (the
+ * kind is known from the address); not available says so in words.
  */
-export function ReferenceChip({ kind, title, status, state = 'ready', noun }: ReferenceChipProps) {
+export function ReferenceChip({ thing, state = 'ready', preview = false }: ReferenceChipProps) {
   if (state === 'loading') {
     return (
-      <InlineChip icon={<ThingIcon kind={kind} size={14} tone="inherit" />}>
+      <InlineChip icon={<ThingIcon kind={thing.kind} size={14} tone="inherit" />}>
         <SkeletonBar className="h-2.5 w-16" />
       </InlineChip>
     )
   }
   if (state === 'unavailable') {
     return (
-      <InlineChip icon={<ThingIcon kind={kind} size={14} tone="inherit" />} className="text-text-muted">
-        {noun}, not available
+      <InlineChip icon={<ThingIcon kind={thing.kind} size={14} tone="inherit" />} className="text-text-muted">
+        {thing.noun}, not available
       </InlineChip>
     )
   }
-  return (
-    <InlineChip icon={<ThingIcon kind={kind} size={14} tone="inherit" />} href={HREF} className="max-w-[24ch]">
-      <span className="truncate">{title}</span>
-      {status && <StatusMark status={status} />}
+  const chip = (
+    <InlineChip icon={<Lead thing={thing} chip />} href={HREF} className="max-w-[28ch]">
+      {thing.key && <Key>{thing.key}</Key>}
+      <span className="truncate">{thing.kind === 'message' ? `${thing.author}: ${thing.body}` : thing.title}</span>
+      {thing.status && <StatusMark status={thing.status} />}
     </InlineChip>
   )
+  return preview ? <HoverPreview thing={thing}>{chip}</HoverPreview> : chip
 }
 
 /* ---------------------------------------------------------------- cards */
 
 export type CardLayout = 'compact' | 'detailed'
 
-/** Compact: one 36px line. Every kind, every app. */
-export function CompactCard({ thing }: { thing: Thing }) {
-  return (
+/** Compact: one 36px line. Every kind, every app. Hovering it shows the detailed card. */
+export function CompactCard({ thing, preview = false }: { thing: Thing; preview?: boolean }) {
+  const card = (
     <Card fill="inset" hover="hairline" className="relative flex h-9 items-center gap-2 px-3">
-      <ThingIcon kind={thing.kind} />
+      <Lead thing={thing} />
       {thing.kind === 'message' ? (
         <span className="flex min-w-0 flex-1 items-baseline gap-2 text-body-2">
           <span className="shrink-0 text-body-2-strong text-text-primary">{thing.author}</span>
@@ -124,91 +198,141 @@ export function CompactCard({ thing }: { thing: Thing }) {
           </Link>
         </span>
       ) : (
-        <span className="contents text-body-2-strong text-text-primary">
-          <Link href={HREF} variant="quiet" cover truncate className="min-w-0 flex-1">
-            {thing.title}
-          </Link>
+        <>
+          {thing.key && <Key>{thing.key}</Key>}
+          <span className="contents text-body-2-strong text-text-primary">
+            <Link href={HREF} variant="quiet" cover truncate className="min-w-0 flex-1">
+              {thing.title}
+            </Link>
+          </span>
+        </>
+      )}
+      {thing.kind === 'topic' && (
+        <span className="shrink-0 text-caption tabular-nums text-text-secondary">
+          {thing.conversations} conversations · {thing.updated}
         </span>
       )}
-      {thing.status && <StatusMark status={thing.status} />}
-      {thing.progress && <span className="shrink-0 text-caption tabular-nums text-text-secondary">{thing.progress}</span>}
+      {thing.kind === 'page' && <span className="shrink-0 text-caption text-text-secondary">{thing.updated}</span>}
+      {thing.kind === 'message' && <span className="shrink-0 text-caption text-text-muted">{thing.updated}</span>}
+      {thing.status && thing.kind === 'issue' && <StatusMark status={thing.status} />}
+      {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} size={16} />}
       {thing.assignee && <Avatar name={thing.assignee} size={16} />}
-      <Noun>{thing.noun}</Noun>
+      {thing.members && <AvatarGroup members={people(thing.members)} size={16} />}
+      {thing.authors && <AvatarGroup members={people(thing.authors)} size={16} />}
     </Card>
+  )
+  return preview ? (
+    <HoverPreview thing={thing} block>
+      {card}
+    </HoverPreview>
+  ) : (
+    card
   )
 }
 
 /**
- * Detailed: what compact cannot hold. A header that matches compact's line,
- * the line under the title, the opening of the body (three lines), a meta
- * line, then the kind's own extras (a project's issues, an issue's actions)
- * and the way out to the app it lives in.
+ * Detailed: what compact cannot hold. The header is compact's line (icon, key,
+ * title as the link; a project's ring or a topic's members in the corner),
+ * then the summary, the kind's own extras (a project's issues, a topic's
+ * latest conversation), and a footer: the pickers and the comments for an
+ * issue or a project, who and when for a page and a topic.
+ *
+ * `bare` drops the card's frame, for the hover preview, which draws the
+ * package's one elevated box around it.
  */
-export function DetailedCard({ thing, actions = false }: { thing: Thing; actions?: boolean }) {
-  return (
-    <Card fill="inset" data-card="detailed" className="flex flex-col gap-2 p-3">
-      <div className="flex items-center gap-2">
+export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boolean }) {
+  const body = (
+    <>
+      <div className="flex min-h-[19.6px] items-center gap-2">
         <ThingIcon kind={thing.kind} />
+        {thing.key && <Key>{thing.key}</Key>}
         <span className="contents text-body-2-strong text-text-primary">
           <Link href={HREF} variant="quiet" truncate className="min-w-0 flex-1">
             {thing.title}
           </Link>
         </span>
-        <Noun>{thing.noun}</Noun>
+        {thing.done && <ProgressRing done={thing.done.done} total={thing.done.total} />}
+        {thing.members && <AvatarGroup members={people(thing.members)} size={16} />}
       </div>
       {thing.subtitle && <p className="-mt-1 pl-6 text-caption text-text-secondary">{thing.subtitle}</p>}
-      {thing.body && <p className="line-clamp-3 text-body-2 text-text-secondary">{thing.body}</p>}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-text-secondary">
-        {thing.status && <StatusMark status={thing.status} words />}
-        {thing.assignee && <Person name={thing.assignee} size={16} />}
-        {thing.author && thing.kind !== 'message' && <Person name={thing.author} size={16} />}
-        {thing.progress && <span className="tabular-nums">{thing.progress}</span>}
-        {thing.comments !== undefined && (
-          <span className="inline-flex items-center gap-1 tabular-nums">
-            <IconMessage2 size={14} stroke={1.5} aria-hidden />
-            {thing.comments}
-          </span>
-        )}
-        {thing.updated && <span>{thing.updated}</span>}
-      </div>
+      {thing.summary && <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.summary}</p>}
       {thing.children && (
         <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
           {thing.children.map((child) => (
-            <div key={child.title} className="flex h-8 items-center gap-2 px-2">
+            <div key={child.key} className="flex h-8 items-center gap-2 px-2">
               <ThingIcon kind="issue" />
+              <Key>{child.key}</Key>
               <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{child.title}</span>
               <StatusMark status={child.status} />
+              {child.assignee ? <Avatar name={child.assignee} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
             </div>
           ))}
         </div>
       )}
-      <div className="flex items-center gap-2 border-t border-border-subtle pt-2">
-        {actions && thing.status && (
-          <>
-            <Select size="small" className="w-auto" value="s" onChange={noop} ariaLabel="Status" options={[{ value: 's', label: thing.status.label, leading: <StatusIcon status={thing.status} /> }]} />
-            <Select
-              size="small"
-              className="w-auto"
-              value="a"
-              onChange={noop}
-              ariaLabel="Assignee"
-              options={[{ value: 'a', label: thing.assignee ?? 'Unassigned', leading: <Avatar name={thing.assignee} size={16} /> }]}
-            />
-          </>
+      {thing.latest && (
+        <div className="flex gap-2 rounded-md border border-border-subtle p-2">
+          <Avatar name={thing.latest.author} size={16} />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2 text-caption">
+              <span className="text-text-primary">{thing.latest.author}</span>
+              <span className="text-text-muted">{thing.latest.at}</span>
+            </div>
+            <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.latest.body}</p>
+          </div>
+        </div>
+      )}
+      <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
+        {(thing.kind === 'issue' || thing.kind === 'project') && <Pickers thing={thing} />}
+        {thing.kind === 'topic' && (
+          <span className="text-caption tabular-nums text-text-secondary">
+            {thing.conversations} conversations · last {thing.updated}
+          </span>
         )}
-        <span className="ml-auto shrink-0 text-caption">
-          <Link href={HREF} variant="quiet" external className="text-text-secondary">
-            Open in {thing.app} ↗
-          </Link>
-        </span>
+        {thing.authors && (
+          <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
+            <AvatarGroup members={people(thing.authors)} size={16} />
+            <span className="truncate">{thing.authors.join(', ')}</span>
+            <span className="shrink-0 text-text-muted">· {thing.updated}</span>
+          </span>
+        )}
+        {thing.comments !== undefined && (
+          <span className="ml-auto">
+            <Comments count={thing.comments} />
+          </span>
+        )}
       </div>
+    </>
+  )
+  if (bare) return <div className="flex flex-col gap-2 p-3">{body}</div>
+  return (
+    <Card fill="inset" data-card="detailed" className="flex flex-col gap-2 p-3">
+      {body}
     </Card>
+  )
+}
+
+/** The detailed card, on hover over a chip or a compact card: the package's preview card. */
+export function HoverPreview({ thing, block = false, children }: { thing: Thing; block?: boolean; children: ReactNode }) {
+  // A compact card fills its column; PreviewCard's own trigger is inline and would shrink it to its words.
+  return (
+    <PreviewCard side="bottom" content={<DetailedCard thing={thing} bare />} wrapperClassName={block ? 'grid w-full min-w-0 grid-cols-[minmax(0,1fr)]' : 'max-w-full'}>
+      {children}
+    </PreviewCard>
+  )
+}
+
+/** The hover preview drawn open, for a still picture of it: the same box PreviewCard draws. */
+export function HoverPreviewOpen({ thing }: { thing: Thing }) {
+  return (
+    <MenuPanel className="w-[360px] p-0">
+      <DetailedCard thing={thing} bare />
+    </MenuPanel>
   )
 }
 
 /**
  * A linked message, detailed, option A: a quote. No frame; a rule on the
- * left, the face, the author and when, then the words.
+ * left, the face, the author, and the time, which is the link to it.
  */
 export function MessageQuote({ thing }: { thing: Thing }) {
   return (
@@ -217,12 +341,9 @@ export function MessageQuote({ thing }: { thing: Thing }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2 text-caption">
           <span className="text-body-2-strong text-text-primary">{thing.author}</span>
-          <span className="text-text-muted">{thing.updated}</span>
-          <span className="ml-auto">
-            <Link href={HREF} variant="quiet" className="text-text-muted">
-              Go to message
-            </Link>
-          </span>
+          <Link href={HREF} variant="quiet" className="text-text-muted">
+            {thing.updated}
+          </Link>
         </div>
         <p className="line-clamp-4 text-body-2 text-text-primary">{thing.body}</p>
       </div>
@@ -230,36 +351,54 @@ export function MessageQuote({ thing }: { thing: Thing }) {
   )
 }
 
-/** A linked message, detailed, option B: a card, the same frame as every other detailed card. */
+/** A linked message, detailed, option B: a card, the frame every other detailed card has. The time is the link. */
 export function MessageCard({ thing }: { thing: Thing }) {
   return (
     <Card fill="inset" className="flex flex-col gap-2 p-3">
       <div className="flex items-center gap-2">
         <Avatar name={thing.author} size={24} />
         <span className="text-body-2-strong text-text-primary">{thing.author}</span>
-        <span className="text-caption text-text-muted">{thing.updated}</span>
-        <span className="ml-auto">
-          <Noun>{thing.noun}</Noun>
-        </span>
+        <Link href={HREF} variant="quiet" className="text-caption text-text-muted">
+          {thing.updated}
+        </Link>
       </div>
       <p className="line-clamp-4 text-body-2 text-text-primary">{thing.body}</p>
-      <div className="flex border-t border-border-subtle pt-2">
-        <span className="ml-auto text-caption">
-          <Link href={HREF} variant="quiet" className="text-text-secondary">
-            Go to message
-          </Link>
-        </span>
-      </div>
     </Card>
   )
 }
 
 /* ------------------------------------------------- loading, not available */
 
+/** What a kind's detailed card will hold, known before it loads (the kind is in the address). */
+export interface LoadingShape {
+  subtitle?: boolean
+  summary?: boolean
+  rows?: number
+  preview?: boolean
+  ring?: boolean
+  footer?: 'pickers' | 'people' | 'line' | 'none'
+}
+
+/** The shape a thing's detailed card takes, for its placeholder. */
+export function loadingShapeOf(thing: Thing): LoadingShape {
+  return {
+    subtitle: !!thing.subtitle,
+    summary: !!thing.summary,
+    rows: thing.children?.length ?? 0,
+    preview: !!thing.latest,
+    ring: !!thing.done,
+    footer: thing.kind === 'issue' || thing.kind === 'project' ? 'pickers' : thing.authors ? 'people' : 'line',
+  }
+}
+
+/** A bar that shows on an inset card: the package's bar is the inset colour, and vanishes on one. */
+function Bar({ className }: { className?: string }) {
+  return <SkeletonBar className={cn('bg-bg-active', className)} />
+}
+
 /**
  * Loading: the card it will become, drawn in bars, at the card's own height,
- * so the conversation does not jump when it arrives. The icon is real: the
- * kind is known from the address before anything loads.
+ * so the conversation does not jump when it arrives.
  */
 export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind']; layout: CardLayout; shape?: LoadingShape }) {
   if (layout === 'compact') {
@@ -267,36 +406,28 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
       <Card fill="inset" aria-hidden data-card="loading" className="flex h-9 items-center gap-2 px-3 animate-skeleton-in">
         <ThingIcon kind={kind} />
         <Bar className="h-3 w-2/5" />
-        <Bar className="ml-auto h-3 w-10" />
+        <Bar className="ml-auto size-4 rounded-full" />
       </Card>
     )
   }
-  const { subtitle = false, lines = 3, rows = 0, actions = false } = shape
+  const { subtitle = false, summary = true, rows = 0, preview = false, ring = false, footer = 'line' } = shape
   return (
     <Card fill="inset" aria-hidden data-card="loading" className="flex flex-col gap-2 p-3 animate-skeleton-in">
-      <div className="flex h-[19.6px] items-center gap-2">
+      <div className={cn('flex items-center gap-2', ring ? 'h-7' : 'h-[19.6px]')}>
         <ThingIcon kind={kind} />
         <Bar className="h-3.5 w-1/2" />
-        <Bar className="ml-auto h-3 w-10" />
+        {ring && <Bar className="ml-auto size-7 rounded-full" />}
       </div>
       {subtitle && (
         <div className="-mt-1 flex h-[14.4px] items-center pl-6">
           <Bar className="h-2.5 w-20" />
         </div>
       )}
-      {lines > 0 && (
-        <div className="flex flex-col">
-          {Array.from({ length: lines }, (_, i) => (
-            <div key={i} className="flex h-[19.6px] items-center">
-              <Bar className={cn('h-3', i === lines - 1 ? 'w-3/5' : 'w-full')} />
-            </div>
-          ))}
+      {summary && (
+        <div className="flex h-[19.6px] items-center">
+          <Bar className="h-3 w-4/5" />
         </div>
       )}
-      <div className="flex h-4 items-center gap-3">
-        <Bar className="h-3 w-16" />
-        <Bar className="h-3 w-24" />
-      </div>
       {rows > 0 && (
         <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
           {Array.from({ length: rows }, (_, i) => (
@@ -306,41 +437,39 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
           ))}
         </div>
       )}
-      <div className="flex min-h-[calc(14.4px+0.5rem+1px)] items-center gap-2 border-t border-border-subtle pt-2">
-        {actions && (
-          <>
-            <Bar className="h-6 w-24 rounded-md" />
-            <Bar className="h-6 w-28 rounded-md" />
-          </>
-        )}
-        <Bar className="ml-auto h-3 w-20" />
-      </div>
+      {preview && (
+        <div className="flex h-[71.6px] flex-col justify-center gap-2 rounded-md border border-border-subtle p-2">
+          <Bar className="h-2.5 w-24" />
+          <Bar className="h-3 w-full" />
+          <Bar className="h-3 w-3/5" />
+        </div>
+      )}
+      {footer !== 'none' && (
+        <div className="flex min-h-6 items-center gap-2 border-t border-border-subtle pt-2">
+          {footer === 'pickers' ? (
+            <>
+              <Bar className="h-6 w-24 rounded-md" />
+              <Bar className="h-6 w-28 rounded-md" />
+            </>
+          ) : footer === 'people' ? (
+            <>
+              <Bar className="size-4 rounded-full" />
+              <Bar className="h-3 w-40" />
+            </>
+          ) : (
+            <Bar className="h-3 w-40" />
+          )}
+        </div>
+      )}
     </Card>
   )
 }
 
-/** What a kind's detailed card will hold, known before it loads (the kind is in the address). */
-export interface LoadingShape {
-  subtitle?: boolean
-  lines?: number
-  rows?: number
-  actions?: boolean
-}
-
-/** The shape a thing's detailed card takes, for its placeholder. */
-export function loadingShapeOf(thing: Thing, actions = false): LoadingShape {
-  return { subtitle: !!thing.subtitle, lines: thing.body ? 3 : 0, rows: thing.children?.length ?? 0, actions: actions && !!thing.status }
-}
-
-/** A bar that shows on an inset card: the package's bar is the inset colour, and vanishes on one. */
-function Bar({ className }: { className?: string }) {
-  return <SkeletonBar className={cn('bg-bg-active', className)} />
-}
-
 /**
  * Not available: one line, at compact's height, whichever layout was chosen.
- * Deleted and unreadable read the same (Widgets 2, Not in scope). The way out
- * stays, because the app it lives in may still open it for you.
+ * Deleted and unreadable read the same (Widgets 2, Not in scope). Here the
+ * way out stays: there is no title to click, and the app it lives in may
+ * still open it for you.
  */
 export function CardUnavailable({ kind, noun, app }: { kind: Thing['kind']; noun: string; app: string }) {
   return (
@@ -361,37 +490,32 @@ export function CardUnavailable({ kind, noun, app }: { kind: Thing['kind']; noun
 /**
  * A block of a description, shared live (a part). No compact or detailed:
  * a pasted block link inserts the part itself (the-author-chooses-a-links-card,
- * Accepted). Proposed: the same header line as a detailed card, so a part and
- * a card read as one family, and the way out in the same corner.
+ * Accepted). The same header as a detailed card: the key and the title of
+ * the file it is part of, as the link.
  */
-export function PartCard({ kind, heading, noun, app, children, state = 'ready' }: { kind: Thing['kind']; heading: string; noun: string; app: string; children?: ReactNode; state?: 'ready' | 'loading' | 'unavailable' }) {
-  if (state === 'loading') return <CardLoading kind={kind} layout="detailed" shape={{ lines: 4 }} />
+export function PartCard({ kind, heading, partKey, children, state = 'ready', noun, app }: { kind: Thing['kind']; heading: string; partKey?: string; children?: ReactNode; state?: 'ready' | 'loading' | 'unavailable'; noun: string; app: string }) {
+  if (state === 'loading') return <CardLoading kind={kind} layout="detailed" shape={{ summary: true, rows: 0, footer: 'none' }} />
   if (state === 'unavailable') return <CardUnavailable kind={kind} noun={`A part of this ${noun.toLowerCase()}`} app={app} />
   return (
     <Card fill="inset" className="flex flex-col gap-2 p-3">
       <div className="flex items-center gap-2">
         <ThingIcon kind={kind} />
+        {partKey && <Key>{partKey}</Key>}
         <span className="contents text-body-2-strong text-text-primary">
           <Link href={HREF} variant="quiet" truncate className="min-w-0 flex-1">
             {heading}
           </Link>
         </span>
-        <Noun>Part of the {noun.toLowerCase()}</Noun>
       </div>
       <div className="border-l-2 border-border-default pl-3">{children}</div>
-      <div className="flex border-t border-border-subtle pt-2">
-        <Button size="small" className="ml-auto" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />}>
-          Open in {app}
-        </Button>
-      </div>
     </Card>
   )
 }
 
 /**
  * A comment's anchor: the part it is about, quoted above the comment.
- * Proposed: unchanged from today (the two apps already agree), with the
- * deleted line in the same muted voice as "not available.".
+ * Unchanged from today (the two apps already agree), with the deleted line in
+ * the same muted voice as "not available.".
  */
 export function CommentAnchor({ text }: { text?: string }) {
   if (text === undefined) return <div className="border-l-2 border-border-default pl-2 text-caption text-text-muted">The part this is about was deleted.</div>

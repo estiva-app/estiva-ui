@@ -9,6 +9,7 @@ import {
   CommentAnchor,
   CompactCard,
   DetailedCard,
+  HoverPreviewOpen,
   loadingShapeOf,
   MessageCard,
   MessageQuote,
@@ -110,22 +111,22 @@ function Labelled({ label, children }: { label: string; children: ReactNode }) {
 
 /* ------------------------------------------------------------- rows */
 
-function proposedRow(thing: Thing, opts: { detailed?: ReactNode | false; actions?: boolean; note?: string } = {}) {
+function proposedRow(thing: Thing, opts: { detailed?: ReactNode | false; note?: string } = {}) {
   const detailedOffered = opts.detailed !== false
   return (
     <Row
       label="Proposed"
-      note={opts.note}
+      note={opts.note ?? 'Hover the chip or the compact card for the detailed card.'}
       cells={[
         <Sentence key="c">
-          <ReferenceChip kind={thing.kind} title={thing.kind === 'message' ? `${thing.author}: ${thing.body}` : thing.title} status={thing.status} />
+          <ReferenceChip thing={thing} preview />
         </Sentence>,
-        <CompactCard key="k" thing={thing} />,
-        detailedOffered ? (opts.detailed ?? <DetailedCard thing={thing} actions={opts.actions} />) : <None key="d">Not offered: detailed would add nothing compact does not show (Decided 15 Oct).</None>,
+        <CompactCard key="k" thing={thing} preview />,
+        detailedOffered ? (opts.detailed ?? <DetailedCard thing={thing} />) : <None key="d">Not offered: detailed would add nothing compact does not show (Decided 15 Oct).</None>,
         <>
           <Labelled label="Chip">
             <Sentence>
-              <ReferenceChip kind={thing.kind} title="" state="loading" />
+              <ReferenceChip thing={thing} state="loading" />
             </Sentence>
           </Labelled>
           <Labelled label="Compact">
@@ -133,14 +134,14 @@ function proposedRow(thing: Thing, opts: { detailed?: ReactNode | false; actions
           </Labelled>
           {detailedOffered && (
             <Labelled label="Detailed">
-              <CardLoading kind={thing.kind} layout="detailed" shape={loadingShapeOf(thing, opts.actions)} />
+              <CardLoading kind={thing.kind} layout="detailed" shape={loadingShapeOf(thing)} />
             </Labelled>
           )}
         </>,
         <>
           <Labelled label="Chip">
             <Sentence>
-              <ReferenceChip kind={thing.kind} title="" state="unavailable" noun={thing.noun} />
+              <ReferenceChip thing={thing} state="unavailable" />
             </Sentence>
           </Labelled>
           <Labelled label="Compact and detailed">
@@ -229,20 +230,42 @@ export const Overview: Story = {
   render: () => (
     <Sheet>
       <Header title="Every widget, proposed">
-        One drawing per kind for Peek, Ship and Leaf alike. Compact is always one line; detailed adds the body, the meta line and the way out; loading is the card it becomes; not available is one line everywhere.
+        One drawing per kind for Peek, Ship and Leaf alike. No noun and no &quot;Open in …&quot;: the icon says what it is, the title is the link. Compact is one line; detailed adds the short summary and what the kind owns, with its actions; hovering a chip or a compact card shows the detailed card. Loading is the card it becomes; not available is one line everywhere.
       </Header>
       {[
-        { thing: ISSUE, label: 'Issue', actions: true },
+        { thing: ISSUE, label: 'Issue' },
         { thing: PROJECT, label: 'Project' },
-        { thing: TOPIC, label: 'Topic', detailed: false as const },
-        { thing: MESSAGE, label: 'Message', detailed: <MessageQuote thing={MESSAGE} /> },
+        { thing: TOPIC, label: 'Topic' },
+        { thing: MESSAGE, label: 'Message', detailed: <MessageCard thing={MESSAGE} /> },
         { thing: PAGE, label: 'Page' },
-      ].map(({ thing, label, actions, detailed }) => (
+      ].map(({ thing, label, detailed }) => (
         <div key={label}>
           <h3 className="mt-4 text-h5">{label}</h3>
-          {proposedRow(thing, { actions, detailed })}
+          {proposedRow(thing, { detailed })}
         </div>
       ))}
+    </Sheet>
+  ),
+}
+
+/** The detailed card on hover, drawn open; the canvases above open it on a real hover. */
+export const Hover: Story = {
+  name: 'On hover',
+  render: () => (
+    <Sheet>
+      <h2 className="text-h4">On hover</h2>
+      <p className="mt-1 max-w-[880px] text-body-2 text-text-secondary">
+        Hovering a chip or a compact card shows its detailed card in the package&apos;s preview box (Miky, 15 Oct). Drawn open here; hover them in the other stories to see it for real.
+      </p>
+      <div className="mt-6 grid grid-cols-[repeat(4,380px)] gap-6">
+        {[ISSUE, PROJECT, TOPIC, PAGE].map((thing) => (
+          <div key={thing.title} className="flex flex-col gap-2">
+            <span className="text-caption text-text-muted">{thing.noun}</span>
+            <CompactCard thing={thing} />
+            <HoverPreviewOpen thing={thing} />
+          </div>
+        ))}
+      </div>
     </Sheet>
   ),
 }
@@ -251,9 +274,9 @@ export const Issue: Story = {
   render: () => (
     <Sheet>
       <Header title="Issue">
-        Today Peek&apos;s compact row keeps the status and assignee pickers, so it is nearly as tall as its card; Ship&apos;s row and card differ by 8px of padding. Proposed: compact is one line with no actions, and the pickers live only in detailed.
+        Proposed: the key before the title everywhere. Compact is one line with no actions. Detailed shows the summary, and its status and assignee only as the pickers that change them, with the comment count beside them.
       </Header>
-      {proposedRow(ISSUE, { actions: true })}
+      {proposedRow(ISSUE)}
       {todayRows(ISSUE)}
     </Sheet>
   ),
@@ -262,7 +285,9 @@ export const Issue: Story = {
 export const Project: Story = {
   render: () => (
     <Sheet>
-      <Header title="Project">Proposed: compact carries the progress; detailed adds the description and its first issues, as Ship&apos;s card does today.</Header>
+      <Header title="Project">
+        Proposed: progress as a ring (3/8 inside it on the detailed card), status and lead as pickers, the comment count, and each issue with its key, status and assignee.
+      </Header>
       {proposedRow(PROJECT)}
       {todayRows(PROJECT)}
     </Sheet>
@@ -273,9 +298,9 @@ export const Topic: Story = {
   render: () => (
     <Sheet>
       <Header title="Topic">
-        A topic has only a name to show today, so detailed would draw compact again: proposed as compact only. A topic summary for detailed is its own project (Widgets 2, Not in scope).
+        Proposed: compact shows how many conversations, when the last one moved, and who is in it. Detailed adds the latest conversation as it reads now, so it changes after the link was sent.
       </Header>
-      {proposedRow(TOPIC, { detailed: false })}
+      {proposedRow(TOPIC)}
       {todayRows(TOPIC)}
     </Sheet>
   ),
@@ -285,7 +310,7 @@ export const Message: Story = {
   render: () => (
     <Sheet>
       <Header title="Message">
-        Still open, for Miky and Katerina: does a linked message draw as a quote (Ship today) or as a card (Peek today)? Both are drawn as the proposed detailed layout. A quote is a layout neither `embed` nor the manifest&apos;s `widget` can name today, so choosing it needs a protocol brief before the build.
+        &quot;Person Two&quot; is the person who wrote the message, so it is drawn with their face. Still open, for Miky and Katerina: does a linked message draw as a quote (Ship today) or as a card (Peek today)? Choosing the quote needs a protocol brief before the build: neither `embed` nor the manifest&apos;s `widget` can name it today.
       </Header>
       {proposedRow(MESSAGE, { detailed: <Labelled label="A — quote"><MessageQuote thing={MESSAGE} /></Labelled>, note: 'Detailed: two options' })}
       <Row label="" cells={[<span key="a" />, <span key="b" />, <Labelled key="c" label="B — card"><MessageCard thing={MESSAGE} /></Labelled>, <span key="d" />, <span key="e" />]} />
@@ -298,7 +323,7 @@ export const Page: Story = {
   render: () => (
     <Sheet>
       <Header title="Page">
-        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file), and detailed shows the opening of its text, its Folder and who edited it last.
+        Proposed: a page gets its own icon (today every app draws it as another app&apos;s file). Compact shows when it was last edited and who wrote it; detailed adds its Folder and its summary, with its authors named.
       </Header>
       {proposedRow(PAGE)}
       {todayRows(PAGE)}
@@ -318,10 +343,10 @@ export const PartOfADescription: Story = {
         label="Proposed"
         cells={[
           <Sentence key="c">
-            <ReferenceChip kind="issue" title={`${PART.heading} · ${PART.blocks[0]}`} />
+            <ReferenceChip thing={{ ...ISSUE, title: `${PART.heading} · ${PART.blocks[0]}`, status: undefined }} />
           </Sentence>,
           <None key="k">The part, next column.</None>,
-          <PartCard key="p" kind="issue" heading={PART.heading} noun={PART.noun} app={PART.app}>
+          <PartCard key="p" kind="issue" partKey={ISSUE.key} heading={PART.heading} noun={PART.noun} app={PART.app}>
             <PartBlocks />
           </PartCard>,
           <PartCard key="l" kind="issue" heading="" noun={PART.noun} app={PART.app} state="loading" />,
@@ -430,7 +455,7 @@ export const NotReadable: Story = {
         label="Proposed"
         cells={[
           <Sentence key="c">
-            <ReferenceChip kind={UNREADABLE.kind} title="" state="unavailable" noun={UNREADABLE.noun} />
+            <ReferenceChip thing={{ ...ISSUE, noun: UNREADABLE.noun }} state="unavailable" />
           </Sentence>,
           <CardUnavailable key="k" kind={UNREADABLE.kind} noun={UNREADABLE.noun} app={UNREADABLE.app} />,
           <None key="d">Same as compact: there is nothing more to show.</None>,
