@@ -28,24 +28,29 @@ for Turn into, Duplicate and Delete, then the app's rows.
 ```tsx
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { BlockId, EditorBlockHandle, type BlockTurnInto } from '@estiva-app/ui/editor'
+import { BlockId, Callout, Checklist, EditorBlockHandle } from '@estiva-app/ui/editor'
 import { MenuItem, type HandleBlock } from '@estiva-app/ui'
 
-const turnInto: BlockTurnInto[] = [
-  { label: 'Text', run: (editor) => editor.chain().setParagraph().run(), active: (node) => node.type.name === 'paragraph' },
-  { label: 'Heading', run: (editor) => editor.chain().setHeading({ level: 1 }).run() },
-]
 const rows = (block: HandleBlock) => <MenuItem label="Copy link" onClick={() => navigator.clipboard.writeText(`#${block.id}`)} />
 
-const editor = useEditor({ extensions: [StarterKit, BlockId] })
+const editor = useEditor({ extensions: [StarterKit, BlockId, Checklist, Callout] })
 
-<EditorBlockHandle editor={editor} turnInto={turnInto} actions={rows}>
+<EditorBlockHandle editor={editor} actions={rows}>
   <EditorContent editor={editor} />
 </EditorBlockHandle>
 ```
 
-- `turnInto`'s `run` gets the editor with the caret already in the block, and
-  is offered only for a block of text: a paragraph, a heading, code.
+- **Turn into is the same in every app** (`turnIntoRows`): a block of text gets the `/` menu's formats, code as a block, and
+  Checklist, Note and Warning; a list gets Bulleted list, Numbered list,
+  Checklist and Text; a quote gets Quote, Note, Warning and Text. Checklist
+  and the callouts appear only where the editor has `Checklist` and `Callout`.
+- **A list or a quote turns whole**, and keeps its id and every item's, so a
+  comment anchored to it stays: Checklist keeps the ticks there are, Bulleted
+  and Numbered drop them, Text makes each item a paragraph under the item's
+  id. `turnListInto` and `turnQuoteInto` are those rows' actions.
+- `turnInto` takes other rows: a function of the block, or a list offered for
+  a block of text only, its `run` getting the editor with the caret already in
+  the block. `[]` offers none.
 - **Every row leaves the editor focused**, as a drop does: Turn into in the
   block, Duplicate in the copy, Delete where the block was. An editor that
   saves when the person leaves it saves these the same way.

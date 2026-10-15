@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.70.0",
-    "exports": 163,
-    "typeExports": 153,
+    "packageVersion": "0.71.0",
+    "exports": 166,
+    "typeExports": 155,
     "files": null
   },
   "storybook": {
@@ -2335,9 +2335,9 @@
         },
         {
           "name": "turnInto",
-          "takes": "readonly BlockTurnInto[]",
+          "takes": "a handler",
           "required": false,
-          "note": "Turn into's rows. Offered for a block of text — a paragraph, a heading, code."
+          "note": "Turn into's rows for a block. By default `turnIntoRows`, the same in every app: a block of text, a list and a quote each get theirs."
         },
         {
           "name": "actions",
@@ -7785,6 +7785,63 @@
         "cursor-pointer bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors",
         "truncate text-left text-input-value text-text-muted"
       ]
+    },
+    {
+      "name": "turnIntoRows",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "The block menu's Turn into for one block, the same in every app (Miky, LEAF-11's kickoff, 15 October):",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "turnListInto",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "Turns the whole list at `pos`, every item, the nested ones too.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "turnQuoteInto",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorBlockHandle.tsx",
+      "purpose": "Turns the quote at `pos`: a plain quote, a Note or Warning callout (the tone changes, the id stays), or its text, whose first paragraph takes the quote's id, as lifting it out does (MAN-12).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editorblockhandle--docs",
+      "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "typeTrigger",

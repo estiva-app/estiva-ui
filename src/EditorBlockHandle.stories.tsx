@@ -3,8 +3,8 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { IconLink, IconMessage } from '@tabler/icons-react'
 import type { HandleBlock } from './BlockHandle'
-import { BlockId } from './BlockNodes'
-import { EditorBlockHandle, blockDropCursor, type BlockTurnInto } from './EditorBlockHandle'
+import { BlockId, Callout, Checklist } from './BlockNodes'
+import { EditorBlockHandle, blockDropCursor } from './EditorBlockHandle'
 import { MenuItem } from './Menu'
 import { richTextClassName } from './RichText'
 
@@ -35,16 +35,10 @@ const DOCUMENT = {
         { type: 'listItem', attrs: { blockId: 'b6' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Item two' }] }] },
       ],
     },
+    { type: 'blockquote', attrs: { blockId: 'b8' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'A quote. Turn it into a Note or a Warning.' }] }] },
     { type: 'paragraph', attrs: { blockId: 'b7' }, content: [{ type: 'text', text: 'The last paragraph.' }] },
   ],
 }
-
-const TURN_INTO: BlockTurnInto[] = [
-  { label: 'Text', run: (editor) => editor.chain().setParagraph().run(), active: (node) => node.type.name === 'paragraph' },
-  { label: 'Heading', run: (editor) => editor.chain().setHeading({ level: 1 }).run(), active: (node) => node.type.name === 'heading' && node.attrs.level === 1 },
-  { label: 'Subheading', run: (editor) => editor.chain().setHeading({ level: 2 }).run(), active: (node) => node.type.name === 'heading' && node.attrs.level === 2 },
-  { label: 'Code', run: (editor) => editor.chain().setCodeBlock().run(), active: (node) => node.type.name === 'codeBlock' },
-]
 
 /** The rows an app adds: here they only say which block they were pressed on. */
 function rows(block: HandleBlock) {
@@ -58,13 +52,13 @@ function rows(block: HandleBlock) {
 
 function Editing({ editable }: { editable: boolean }) {
   const editor = useEditor({
-    extensions: [StarterKit.configure({ dropcursor: blockDropCursor }), BlockId],
+    extensions: [StarterKit.configure({ dropcursor: blockDropCursor }), BlockId, Checklist, Callout],
     content: DOCUMENT,
     editable,
     editorProps: { attributes: { class: richTextClassName('default', 'outline-none'), 'aria-label': 'Text' } },
   })
   return (
-    <EditorBlockHandle editor={editor} turnInto={TURN_INTO} actions={rows} className="ml-8 max-w-[560px]">
+    <EditorBlockHandle editor={editor} actions={rows} className="ml-8 max-w-[560px]">
       <EditorContent editor={editor} />
     </EditorBlockHandle>
   )
