@@ -56,6 +56,8 @@ export interface Thing {
   members?: string[]
   latest?: { author: string; body: string; at: string }
   updated?: string
+  /** Where it is placed (WID-3): still loading, or not available to this reader. Ready when absent. */
+  state?: 'loading' | 'unavailable'
 }
 
 const TODO: Status = { label: 'Todo', colour: 'neutral' }

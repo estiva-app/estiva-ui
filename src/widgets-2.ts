@@ -8,3 +8,4 @@
  */
 export * from './widgets-2/proposed'
 export * from './widgets-2/fixtures'
+export * from './widgets-2/places'
