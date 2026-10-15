@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNo
 import type { Editor } from '@tiptap/core'
 import { TextSelection, type Command } from '@tiptap/pm/state'
 import { addColumnAfter, addColumnBefore, addRowAfter, addRowBefore, deleteColumn, deleteRow, deleteTable, toggleHeader } from '@tiptap/pm/tables'
-import { IconColumnInsertLeft, IconColumnInsertRight, IconGripHorizontal, IconGripVertical, IconPlus, IconRowInsertBottom, IconRowInsertTop, IconTrash } from '@tabler/icons-react'
+import { IconCheck, IconColumnInsertLeft, IconColumnInsertRight, IconGripHorizontal, IconGripVertical, IconPlus, IconRowInsertBottom, IconRowInsertTop, IconTableRow, IconTrash } from '@tabler/icons-react'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
 import { FLOATING_SURFACE_CLASSES } from './looks'
@@ -67,6 +67,15 @@ export function deleteTableRow(editor: Editor, cell: HTMLTableCellElement): bool
   return inCell(editor, cell, header ? (state, dispatch, view) => deleteRow(state, dispatch) && (!view || toggleHeader('row')(view.state, view.dispatch)) : deleteRow)
 }
 
+/**
+ * The table's first row becomes its header row, or an ordinary row again:
+ * whichever cell of the table `cell` is. A table with no header row has no
+ * text spelling, so the agent keeps it as written (SPEC §13.3, "No spelling").
+ */
+export function toggleTableHeaderRow(editor: Editor, cell: HTMLTableCellElement): boolean {
+  return inCell(editor, cell, toggleHeader('row'))
+}
+
 /** The same for a column: the last one deletes the table. */
 export function deleteTableColumn(editor: Editor, cell: HTMLTableCellElement): boolean {
   const row = cell.closest('tr')
@@ -114,7 +123,9 @@ const HANDLE_BOX = cn(FLOATING_SURFACE_CLASSES, 'shadow-none')
 /**
  * A table's own controls in an editor, as in Notion: point at a cell and a
  * handle sits on its row's left edge and on its column's top edge; press one
- * for Insert above and below (left and right), Delete, and Delete table. On
+ * for Insert above and below (left and right), Delete, and Delete table. The
+ * first row's menu also turns the header row on and off (Header row, ticked
+ * while it is on); with it off, the first row is an ordinary row. On
  * the last row a ➕ bar under the table adds a row, and on the last column one
  * right of it adds a column. Tab in
  * the last cell adds a row too — that is TableKit's own.
@@ -202,6 +213,18 @@ export function EditorTableControls({ editor, children, className }: EditorTable
                 </IconButton>
               }
             >
+              {/* The header row is switched where it lives: on the first row's menu, ticked while that row is the header. */}
+              {shown.row.rowIndex === 0 && (
+                <>
+                  <MenuItem
+                    label="Header row"
+                    leading={<IconTableRow {...ICON} />}
+                    trailing={isHeaderRow(shown.row) ? <IconCheck {...ICON} aria-hidden /> : undefined}
+                    onClick={run(() => toggleTableHeaderRow(editor, shown.cell))}
+                  />
+                  <MenuSeparator />
+                </>
+              )}
               {/* Nothing goes above a header row: it is the table's first row, and a header anywhere else is no header (RichText, the agent's text). */}
               {!isHeaderRow(shown.row) && <MenuItem label="Insert above" leading={<IconRowInsertTop {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addRowBefore))} />}
               <MenuItem label="Insert below" leading={<IconRowInsertBottom {...ICON} />} onClick={run(() => inCell(editor, shown.cell, addRowAfter))} />

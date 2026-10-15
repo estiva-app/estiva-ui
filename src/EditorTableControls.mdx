@@ -10,14 +10,19 @@ row and on its column, and a ➕ bar under the table and right of it.
 
 <Canvas of={EditorTableControlsStories.Default} />
 
+<Canvas of={EditorTableControlsStories.NoHeaderRow} />
+
 ## When
 
 - **An editor whose documents hold tables** — with TableKit
   (`@tiptap/extension-table`) in its extensions. Point at a cell: the row's
   handle sits on the table's left edge, the column's on its top edge; each
   opens Insert (above and below, or left and right), Delete, and Delete
-  table. A header row offers nothing above it, and deleting it makes the next
-  row the header, so a table always opens with its header. From the last row, a ➕ under the table adds a row after it; from the
+  table. The first row's menu opens with Header row, ticked while the first
+  row is the table's header; choosing it turns the header row off (the first
+  row becomes an ordinary row) or on again. A header row offers nothing above
+  it, and deleting it makes the next row the header. With the header off, the
+  first row takes Insert above and deleting it promotes nothing. From the last row, a ➕ under the table adds a row after it; from the
   last column, a ➕ right of the table adds a column after it.
 - **Not editable**: nothing is drawn.
 
