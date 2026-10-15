@@ -17,6 +17,8 @@
  * half-typed address never turns into a chip under the person's fingers. A
  * pasted URL is whole, so it is asked about and made a chip at once, the caret
  * still at its end — where `ReferenceMenu` opens its menu.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-link-is-stored-as-the-url-a-person-wrote.md
  */
 import { Extension, type Editor } from '@tiptap/core'
 import { closeHistory } from '@tiptap/pm/history'

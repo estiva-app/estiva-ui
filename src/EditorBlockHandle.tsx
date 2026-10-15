@@ -4,13 +4,19 @@ import type { Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { EditorView } from '@tiptap/pm/view'
 import { IconCopy, IconTrash } from '@tabler/icons-react'
 import { BlockHandle, blockAtY, type BlockHandleEditing, type HandleBlock } from './BlockHandle'
+import { Selection } from '@tiptap/pm/state'
 import { MenuItem, MenuSub } from './Menu'
+import { DOCUMENT_FORMATS, FORMATS, applyFormat, type FormatId } from './ComposerTriggers'
 
 /** A row of the block menu's Turn into: what the block becomes. */
 export interface BlockTurnInto {
   label: string
-  /** Turns the block the caret is in. The handle puts the caret there first. */
-  run: (editor: Editor) => void
+  /**
+   * Turns the block. The handle puts the caret in a block of text first, so a
+   * row for one can act at the caret; `pos` is where the block starts, for a
+   * list or a quote, whose row acts on the whole block.
+   */
+  run: (editor: Editor, pos: number) => void
   /** Whether the block already is this — drawn as the selected row. */
   active?: (node: ProseMirrorNode) => boolean
 }
@@ -18,8 +24,12 @@ export interface BlockTurnInto {
 export interface EditorBlockHandleProps {
   /** The editor. Not editable, or not there yet, and the handle reads: the caller's rows only. */
   editor: Editor | null
-  /** Turn into's rows. Offered for a block of text — a paragraph, a heading, code. */
-  turnInto?: readonly BlockTurnInto[]
+  /**
+   * Turn into's rows for a block. By default `turnIntoRows`, the same in every
+   * app: a block of text, a list and a quote each get theirs. A list of rows
+   * instead is offered for a block of text only; `[]` offers none.
+   */
+  turnInto?: readonly BlockTurnInto[] | ((node: ProseMirrorNode, editor: Editor) => readonly BlockTurnInto[])
   /** The caller's own rows, after the editing ones. */
   actions?: (block: HandleBlock) => ReactNode
   /** The `EditorContent`. */
@@ -116,7 +126,7 @@ const NOTHING_YET: BlockHandleEditing = { find: () => null, rows: () => null, st
  * `BlockHandle` in an editor: drag the handle to move the block, and the menu
  * gains Turn into, Duplicate and Delete before the caller's rows.
  */
-export function EditorBlockHandle({ editor, turnInto = [], actions, children, className }: EditorBlockHandleProps) {
+export function EditorBlockHandle({ editor, turnInto = turnIntoRows, actions, children, className }: EditorBlockHandleProps) {
   const editing = useMemo<BlockHandleEditing>(() => {
     // Before the editor exists there is no block to find — not the editor's whole element read as one.
     if (!editor) return NOTHING_YET
@@ -130,19 +140,20 @@ export function EditorBlockHandle({ editor, turnInto = [], actions, children, cl
         if (!editor.isEditable) return null
         const node = pos === undefined ? null : editor.state.doc.nodeAt(pos)
         if (pos === undefined || !node) return null
+        const turnRows = typeof turnInto === 'function' ? turnInto(node, editor) : node.isTextblock ? turnInto : []
         return (
           <>
-            {node.isTextblock && turnInto.length > 0 && (
+            {turnRows.length > 0 && (
               <MenuSub label="Turn into">
-                {turnInto.map((row) => (
+                {turnRows.map((row) => (
                   <MenuItem
                     key={row.label}
                     label={row.label}
                     selected={row.active?.(node) ?? false}
                     onClick={() => {
-                      // Inside the block's text, so the row's command turns this block and no other.
-                      editor.chain().focus().setTextSelection(pos + 1).run()
-                      row.run(editor)
+                      // Inside a block of text, so a row's command at the caret turns this block and no other.
+                      if (node.isTextblock) editor.chain().focus().setTextSelection(pos + 1).run()
+                      row.run(editor, pos)
                     }}
                   />
                 ))}
@@ -178,4 +189,164 @@ export function EditorBlockHandle({ editor, turnInto = [], actions, children, cl
       {children}
     </BlockHandle>
   )
+}
+
+const LISTS = ['bulletList', 'orderedList']
+const isList = (node: ProseMirrorNode) => LISTS.includes(node.type.name)
+
+/** Every item of a list, the ones nested under an item too — the editor nests what §13.3 keeps flat (MAN-13). */
+function listItems(list: ProseMirrorNode, at: number): { node: ProseMirrorNode; pos: number }[] {
+  const out: { node: ProseMirrorNode; pos: number }[] = []
+  list.descendants((node, pos) => {
+    if (node.type.name === 'listItem') out.push({ node, pos: at + 1 + pos })
+  })
+  return out
+}
+
+const isChecklistItem = ({ node }: { node: ProseMirrorNode }) => typeof node.attrs.checked === 'boolean'
+/** Whether every item of the list is a checklist item. */
+const isChecklist = (list: ProseMirrorNode) => listItems(list, 0).every(isChecklistItem)
+/** A list of that type with no checklist item in it — a list partly ticked is neither, so no row reads as "nothing changes". */
+const isPlainList = (list: ProseMirrorNode, type: string) => list.type.name === type && !listItems(list, 0).some(isChecklistItem)
+
+const hasExtension = (editor: Editor, name: string) => editor.extensionManager.extensions.some((e) => e.name === name)
+
+/** The caret back in the block, the editor still focused — as Duplicate and Delete leave it, so a save on leaving saves this too. */
+function caretInto(editor: Editor, pos: number) {
+  const { state } = editor
+  editor.view.dispatch(state.tr.setSelection(Selection.near(state.doc.resolve(Math.min(pos + 1, state.doc.content.size)))))
+  editor.commands.focus()
+}
+
+export type ListKind = 'bulletList' | 'orderedList' | 'checklist' | 'text'
+
+/**
+ * Turns the whole list at `pos`, every item, the nested ones too.
+ *
+ * - **Bulleted, Numbered:** the list's own type changes and its attributes
+ *   stay, so it keeps its id; every item's tick goes. Not Tiptap's
+ *   `toggleList`, which makes the list anew — a fresh id, detaching every
+ *   comment anchored to it — and then joins it into a list of that type next
+ *   to it.
+ * - **Checklist:** every item a checklist item, the list's type as it was; an
+ *   item already one keeps its tick.
+ *
+ * The kind it already is changes nothing — no edit, no undo step.
+ * - **Text:** each item becomes a paragraph that takes the item's id, as
+ *   lifting an item out does (MAN-12). The list's own id goes with the list.
+ *
+ * `false` when there is no list at `pos`.
+ */
+export function turnListInto(editor: Editor, pos: number, kind: ListKind): boolean {
+  const { state } = editor
+  const list = state.doc.nodeAt(pos)
+  if (!list || !isList(list)) return false
+  const tr = state.tr
+  if (kind === 'text') {
+    const blocks: ProseMirrorNode[] = []
+    for (const { node: item } of listItems(list, pos)) {
+      item.forEach((child, _offset, index) => {
+        // Its nested list's items are in `listItems` already.
+        if (isList(child)) return
+        // The item's first block takes its id; any other gets one of its own from `BlockId`.
+        blocks.push(child.type.create({ ...child.attrs, blockId: index === 0 ? item.attrs.blockId : null }, child.content, child.marks))
+      })
+    }
+    tr.replaceWith(pos, pos + list.nodeSize, blocks)
+  } else {
+    // A checklist stays the list type it is: §13.3 ticks items of either.
+    const type = kind === 'checklist' ? list.type : state.schema.nodes[kind]
+    // The list and the lists nested in it, one type throughout: §13.3's indented items are their list's type.
+    if (list.type !== type) tr.setNodeMarkup(pos, type, list.attrs)
+    list.descendants((node, at) => {
+      if (isList(node) && node.type !== type) tr.setNodeMarkup(pos + 1 + at, type, node.attrs)
+    })
+    for (const { node, pos: at } of listItems(list, pos)) {
+      const checked = kind === 'checklist' ? (typeof node.attrs.checked === 'boolean' ? node.attrs.checked : false) : null
+      if (node.attrs.checked !== checked) tr.setNodeAttribute(at, 'checked', checked)
+    }
+  }
+  // The row it already is changes nothing: no edit to save, no step to undo.
+  if (tr.docChanged) editor.view.dispatch(tr.scrollIntoView())
+  caretInto(editor, pos)
+  return true
+}
+
+export type QuoteKind = 'quote' | 'note' | 'warning' | 'text'
+
+/**
+ * Turns the quote at `pos`: a plain quote, a Note or Warning callout (the
+ * tone changes, the id stays), or its text, whose first paragraph takes the
+ * quote's id, as lifting it out does (MAN-12). `false` when there is no quote
+ * at `pos`.
+ */
+export function turnQuoteInto(editor: Editor, pos: number, kind: QuoteKind): boolean {
+  const { state } = editor
+  const quote = state.doc.nodeAt(pos)
+  if (!quote || quote.type.name !== 'blockquote') return false
+  const tr = state.tr
+  if (kind === 'text') {
+    const blocks: ProseMirrorNode[] = []
+    quote.forEach((child) => blocks.push(blocks.length === 0 ? child.type.create({ ...child.attrs, blockId: quote.attrs.blockId }, child.content, child.marks) : child))
+    tr.replaceWith(pos, pos + quote.nodeSize, blocks)
+  } else {
+    const tone = kind === 'quote' ? null : kind
+    if ((quote.attrs.tone ?? null) !== tone) tr.setNodeAttribute(pos, 'tone', tone)
+  }
+  if (tr.docChanged) editor.view.dispatch(tr.scrollIntoView())
+  caretInto(editor, pos)
+  return true
+}
+
+function isFormat(node: ProseMirrorNode, id: FormatId): boolean {
+  if (id === 'paragraph') return node.type.name === 'paragraph'
+  if (id === 'heading') return node.type.name === 'heading' && node.attrs.level === 1
+  if (id === 'subheading') return node.type.name === 'heading' && node.attrs.level === 2
+  if (id === 'code') return node.type.name === 'codeBlock'
+  return false
+}
+
+/**
+ * The block menu's Turn into for one block, the same in every app (Miky,
+ * LEAF-11's kickoff, 15 October):
+ *
+ * - **A block of text** — a paragraph, a heading, code: the `/` menu's Format
+ *   rows, code as a block, and Checklist, Note and Warning where the editor
+ *   has `Checklist` and `Callout`.
+ * - **A list:** Bulleted list, Numbered list, Checklist (with `Checklist`), Text.
+ * - **A quote:** Quote, Note, Warning (with `Callout`), Text.
+ *
+ * Anything else — a table, an attachment — none. Each keeps the block's text
+ * and its id, and so the comments anchored to it.
+ */
+export function turnIntoRows(node: ProseMirrorNode, editor: Editor): readonly BlockTurnInto[] {
+  const checklist = hasExtension(editor, 'checklist')
+  const callout = hasExtension(editor, 'callout')
+  if (node.isTextblock) {
+    const document = DOCUMENT_FORMATS.filter((f) => (f.id === 'checklist' ? checklist : callout))
+    return [...FORMATS, ...document].map((format) => ({
+      label: format.label,
+      run: (e) => void applyFormat(e, format.id, 'block'),
+      active: (n) => isFormat(n, format.id),
+    }))
+  }
+  if (isList(node)) {
+    const rows: BlockTurnInto[] = [
+      { label: 'Bulleted list', run: (e, pos) => void turnListInto(e, pos, 'bulletList'), active: (n) => isPlainList(n, 'bulletList') },
+      { label: 'Numbered list', run: (e, pos) => void turnListInto(e, pos, 'orderedList'), active: (n) => isPlainList(n, 'orderedList') },
+    ]
+    if (checklist) rows.push({ label: 'Checklist', run: (e, pos) => void turnListInto(e, pos, 'checklist'), active: isChecklist })
+    rows.push({ label: 'Text', run: (e, pos) => void turnListInto(e, pos, 'text') })
+    return rows
+  }
+  if (node.type.name === 'blockquote') {
+    const rows: BlockTurnInto[] = [{ label: 'Quote', run: (e, pos) => void turnQuoteInto(e, pos, 'quote'), active: (n) => !n.attrs.tone }]
+    if (callout) {
+      rows.push({ label: 'Note', run: (e, pos) => void turnQuoteInto(e, pos, 'note'), active: (n) => n.attrs.tone === 'note' })
+      rows.push({ label: 'Warning', run: (e, pos) => void turnQuoteInto(e, pos, 'warning'), active: (n) => n.attrs.tone === 'warning' })
+    }
+    rows.push({ label: 'Text', run: (e, pos) => void turnQuoteInto(e, pos, 'text') })
+    return rows
+  }
+  return []
 }

@@ -48,20 +48,20 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 163 names over 81 files: 115 components, 46 helpers and 2 hooks (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October)', () => {
+  it('counts 166 names over 81 files: 115 components, 49 helpers and 2 hooks (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October; turnIntoRows, turnListInto and turnQuoteInto, the block menu’s Turn into for a list and a quote (LEAF-11), on 15 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     // The `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 115, helper: 46, hook: 2 })
+    expect(kinds).toEqual({ component: 115, helper: 49, hook: 2 })
     expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(81)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
     expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(77)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(86)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(89)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {

@@ -178,7 +178,7 @@ describe('BlockHandle', () => {
     // jsdom lays nothing out: every block's top is 0, so the pointer is on the last.
     await act(async () => user.hover(screen.getByText('two')))
     await press(user, screen.getByRole('button', { name: 'Block menu' }))
-    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Duplicate', 'Delete'])
+    expect(screen.getAllByRole('menuitem').map((r) => r.textContent)).toEqual(['Turn into', 'Duplicate', 'Delete'])
     await user.click(screen.getByRole('menuitem', { name: 'Delete' }))
     // The editor takes the focus back a frame later and measures the caret then: wait for it, so it is part of the test.
     await act(() => new Promise<void>((done) => requestAnimationFrame(() => done())))
