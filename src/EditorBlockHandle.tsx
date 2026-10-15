@@ -203,8 +203,11 @@ function listItems(list: ProseMirrorNode, at: number): { node: ProseMirrorNode; 
   return out
 }
 
+const isChecklistItem = ({ node }: { node: ProseMirrorNode }) => typeof node.attrs.checked === 'boolean'
 /** Whether every item of the list is a checklist item. */
-const isChecklist = (list: ProseMirrorNode) => listItems(list, 0).every(({ node }) => typeof node.attrs.checked === 'boolean')
+const isChecklist = (list: ProseMirrorNode) => listItems(list, 0).every(isChecklistItem)
+/** A list of that type with no checklist item in it — a list partly ticked is neither, so no row reads as "nothing changes". */
+const isPlainList = (list: ProseMirrorNode, type: string) => list.type.name === type && !listItems(list, 0).some(isChecklistItem)
 
 const hasExtension = (editor: Editor, name: string) => editor.extensionManager.extensions.some((e) => e.name === name)
 
@@ -225,8 +228,10 @@ export type ListKind = 'bulletList' | 'orderedList' | 'checklist' | 'text'
  *   `toggleList`, which makes the list anew — a fresh id, detaching every
  *   comment anchored to it — and then joins it into a list of that type next
  *   to it.
- * - **Checklist:** a bulleted list whose every item is a checklist item; an
+ * - **Checklist:** every item a checklist item, the list's type as it was; an
  *   item already one keeps its tick.
+ *
+ * The kind it already is changes nothing — no edit, no undo step.
  * - **Text:** each item becomes a paragraph that takes the item's id, as
  *   lifting an item out does (MAN-12). The list's own id goes with the list.
  *
@@ -249,18 +254,20 @@ export function turnListInto(editor: Editor, pos: number, kind: ListKind): boole
     }
     tr.replaceWith(pos, pos + list.nodeSize, blocks)
   } else {
-    const type = state.schema.nodes[kind === 'orderedList' ? 'orderedList' : 'bulletList']
+    // A checklist stays the list type it is: §13.3 ticks items of either.
+    const type = kind === 'checklist' ? list.type : state.schema.nodes[kind]
     // The list and the lists nested in it, one type throughout: §13.3's indented items are their list's type.
-    tr.setNodeMarkup(pos, type, list.attrs)
+    if (list.type !== type) tr.setNodeMarkup(pos, type, list.attrs)
     list.descendants((node, at) => {
-      if (isList(node)) tr.setNodeMarkup(pos + 1 + at, type, node.attrs)
+      if (isList(node) && node.type !== type) tr.setNodeMarkup(pos + 1 + at, type, node.attrs)
     })
     for (const { node, pos: at } of listItems(list, pos)) {
       const checked = kind === 'checklist' ? (typeof node.attrs.checked === 'boolean' ? node.attrs.checked : false) : null
       if (node.attrs.checked !== checked) tr.setNodeAttribute(at, 'checked', checked)
     }
   }
-  editor.view.dispatch(tr.scrollIntoView())
+  // The row it already is changes nothing: no edit to save, no step to undo.
+  if (tr.docChanged) editor.view.dispatch(tr.scrollIntoView())
   caretInto(editor, pos)
   return true
 }
@@ -283,9 +290,10 @@ export function turnQuoteInto(editor: Editor, pos: number, kind: QuoteKind): boo
     quote.forEach((child) => blocks.push(blocks.length === 0 ? child.type.create({ ...child.attrs, blockId: quote.attrs.blockId }, child.content, child.marks) : child))
     tr.replaceWith(pos, pos + quote.nodeSize, blocks)
   } else {
-    tr.setNodeAttribute(pos, 'tone', kind === 'quote' ? null : kind)
+    const tone = kind === 'quote' ? null : kind
+    if ((quote.attrs.tone ?? null) !== tone) tr.setNodeAttribute(pos, 'tone', tone)
   }
-  editor.view.dispatch(tr.scrollIntoView())
+  if (tr.docChanged) editor.view.dispatch(tr.scrollIntoView())
   caretInto(editor, pos)
   return true
 }
@@ -324,8 +332,8 @@ export function turnIntoRows(node: ProseMirrorNode, editor: Editor): readonly Bl
   }
   if (isList(node)) {
     const rows: BlockTurnInto[] = [
-      { label: 'Bulleted list', run: (e, pos) => void turnListInto(e, pos, 'bulletList'), active: (n) => n.type.name === 'bulletList' && !(checklist && isChecklist(n)) },
-      { label: 'Numbered list', run: (e, pos) => void turnListInto(e, pos, 'orderedList'), active: (n) => n.type.name === 'orderedList' && !(checklist && isChecklist(n)) },
+      { label: 'Bulleted list', run: (e, pos) => void turnListInto(e, pos, 'bulletList'), active: (n) => isPlainList(n, 'bulletList') },
+      { label: 'Numbered list', run: (e, pos) => void turnListInto(e, pos, 'orderedList'), active: (n) => isPlainList(n, 'orderedList') },
     ]
     if (checklist) rows.push({ label: 'Checklist', run: (e, pos) => void turnListInto(e, pos, 'checklist'), active: isChecklist })
     rows.push({ label: 'Text', run: (e, pos) => void turnListInto(e, pos, 'text') })

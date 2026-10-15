@@ -91,6 +91,24 @@ describe('turnListInto', () => {
     expect(texts(e)).toEqual(['paragraph p0 before', 'paragraph i1 milk', 'paragraph i2 eggs', 'paragraph i3 brown'])
   })
 
+  it('a numbered list into a checklist stays numbered', () => {
+    const e = editor([{ type: 'orderedList', attrs: { blockId: 'l1' }, content: [item('i1', 'a')] }])
+    turnListInto(e, 0, 'checklist')
+    expect(blocks(e)[0].type).toBe('orderedList')
+    expect(items(blocks(e)[0])).toEqual(['i1 a false'])
+  })
+
+  it('the kind a list or a quote already is makes no edit', () => {
+    // A paragraph last, or StarterKit adds one on the first change and that is an edit.
+    const e = editor([{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [item('i1', 'a')] }, quote('q1', 'b', 'note'), para('p9', 'end')])
+    let updates = 0
+    e.on('update', () => updates++)
+    turnListInto(e, 0, 'bulletList')
+    turnQuoteInto(e, posOf(e, 'q1'), 'note')
+    expect(updates).toBe(0)
+    expect(e.can().undo()).toBe(false)
+  })
+
   it('does nothing where there is no list', () => {
     const e = editor([para('p0', 'before')])
     expect(turnListInto(e, 0, 'checklist')).toBe(false)
@@ -134,6 +152,11 @@ describe('turnIntoRows', () => {
   it('selects Checklist, not Bulleted list, on a list of checklist items', () => {
     const e = editor([{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [item('i1', 'a', { checked: false })] }])
     expect(selected(e, 'l1')).toEqual(['Checklist'])
+  })
+
+  it('selects no row on a list only partly of checklist items, since every row changes it', () => {
+    const e = editor([{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [item('i1', 'a', { checked: true }), item('i2', 'b')] }])
+    expect(selected(e, 'l1')).toEqual([])
   })
 
   it('offers no checklist or callout where the editor cannot hold one', () => {
