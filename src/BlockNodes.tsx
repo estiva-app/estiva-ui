@@ -474,6 +474,8 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
  * Not editable, deliberately: an affordance that lets a person change
  * something they cannot see is worse than one that says the content is there
  * and belongs to another surface.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/the-block-editor-kit-lives-in-protocol-and-ui.md
  */
 export const UnknownBlock = Node.create({
   name: 'unknownBlock',
