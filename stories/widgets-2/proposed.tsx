@@ -296,16 +296,21 @@ export function DetailedCard({ thing, bare = false }: { thing: Thing; bare?: boo
         </div>
       )}
       {thing.latest && (
-        <div className="flex gap-2 rounded-md border border-border-subtle p-2">
-          <Avatar name={thing.latest.author} size={16} />
-          <div className="min-w-0 flex-1">
-            {/* "Latest" in words: the card follows the topic, so it is not the conversation the link was sent about. */}
-            <div className="flex items-baseline gap-2 text-caption">
-              <span className="text-text-muted">Latest conversation</span>
-              <span className="text-text-primary">{thing.latest.author}</span>
-              <span className="text-text-muted">{thing.latest.at}</span>
+        <div className="flex flex-col gap-1">
+          {/*
+            "Latest" in words: the card follows the topic, so it is not the conversation the link was sent about.
+            The label names the whole box, so it sits above it, not inside (Miky, fourth round).
+          */}
+          <span className="text-caption text-text-muted">Latest conversation</span>
+          <div className="flex gap-2 rounded-md border border-border-subtle p-2">
+            <Avatar name={thing.latest.author} size={16} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2 text-caption">
+                <span className="text-text-primary">{thing.latest.author}</span>
+                <span className="text-text-muted">{thing.latest.at}</span>
+              </div>
+              <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.latest.body}</p>
             </div>
-            <p className="line-clamp-2 text-body-2 text-text-secondary">{thing.latest.body}</p>
           </div>
         </div>
       )}
@@ -453,10 +458,15 @@ export function CardLoading({ kind, layout, shape = {} }: { kind: Thing['kind'];
         </div>
       )}
       {preview && (
-        <div className="flex h-[71.6px] flex-col justify-center gap-2 rounded-md border border-border-subtle p-2">
-          <Bar className="h-2.5 w-24" />
-          <Bar className="h-3 w-full" />
-          <Bar className="h-3 w-3/5" />
+        <div className="flex flex-col gap-1">
+          <div className="flex h-[14.4px] items-center">
+            <Bar className="h-2.5 w-28" />
+          </div>
+          <div className="flex h-[71.6px] flex-col justify-center gap-2 rounded-md border border-border-subtle p-2">
+            <Bar className="h-2.5 w-24" />
+            <Bar className="h-3 w-full" />
+            <Bar className="h-3 w-3/5" />
+          </div>
         </div>
       )}
       {footer !== 'none' && (
