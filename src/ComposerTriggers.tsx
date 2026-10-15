@@ -21,6 +21,8 @@ import { suggestionPopup, type SuggestionPopupOptions } from './suggestionPopup'
  * `messageReference`, `urgentTagsFor`), so a client without React writes the
  * same bytes. A chip here carries what that needs: a person's `pubkey`, a
  * reference's `uri`.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/composer-triggers-are-one-shared-kit.md
  */
 
 // ─── @ and !@ ───
