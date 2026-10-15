@@ -164,12 +164,11 @@ export function LeafFilePage({ thing, state, viewer, editing }: PageProps) {
 }
 
 /**
- * Peek's topic page: the Panel's one-line title bar has no room, so the
- * summary opens the body. Peek writes a summary in Details (Miky, 15 Oct), so
- * "Add a summary" here opens Details rather than a field on the page.
+ * Peek's topic page, as it is today: no summary line and no "Add a summary".
+ * A topic's summary is read and written only in Details (Miky, 15 Oct); Desk,
+ * search, the picker and cards in Peek still show it.
  */
-export function PeekFilePage({ thing, state, viewer }: Omit<PageProps, 'editing'>) {
-  const summary = summaryOf(state)
+export function PeekFilePage({ thing }: { thing: Thing }) {
   return (
     <Panel
       title={
@@ -184,14 +183,7 @@ export function PeekFilePage({ thing, state, viewer }: Omit<PageProps, 'editing'
       }
       bodyClassName="flex flex-col gap-3 p-4"
     >
-      {state === 'loading' && <SkeletonBar className="h-3.5 w-2/3" />}
-      {summary && <p className="text-body-2 text-text-secondary">{summary}</p>}
-      {state === 'empty' && viewer === 'editor' && (
-        <button type="button" className="self-start text-body-2 text-text-muted hover:text-text-secondary">
-          Add a summary
-        </button>
-      )}
-      <div className={cn('flex items-center gap-2 text-caption text-text-muted', (state !== 'empty' || viewer === 'editor') && 'border-t border-border-subtle pt-3')}>
+      <div className="flex items-center gap-2 text-caption text-text-muted">
         <Avatar name="Person One" size={24} />
         The topic’s conversations start here.
       </div>

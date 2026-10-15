@@ -109,7 +109,7 @@ export const OnItsOwnPage: Story = {
   render: () => (
     <Sheet
       title="On the file’s own page"
-      note="Under the title, all of it. Someone who can edit clicks it to change it; empty, they see a quiet “Add a summary”, and someone who can’t edit sees nothing. Peek writes it in Details (next story), so its “Add a summary” opens Details."
+      note="Under the title, all of it. Someone who can edit clicks it to change it; empty, they see a quiet “Add a summary”, and someone who can’t edit sees nothing. A Peek topic’s page shows none: its summary is read and written in Details (next story; Miky, 15 Oct)."
     >
       <Heads labels={PAGE_COLUMNS.map((c) => c.label)} />
       <Row
@@ -138,12 +138,12 @@ export const OnItsOwnPage: Story = {
       />
       <Row
         label="Peek · topic"
-        note="Written in Details; a refused save shows there."
-        cells={PAGE_COLUMNS.slice(0, 5).map((c, i) => (
-          <Frame key={i}>
-            <PeekFilePage thing={TOPIC} state={c.state} viewer={c.viewer} />
-          </Frame>
-        ))}
+        note="No summary on the page, in any state: it lives in Details (Miky, 15 Oct)."
+        cells={[
+          <Frame key="p">
+            <PeekFilePage thing={TOPIC} />
+          </Frame>,
+        ]}
       />
     </Sheet>
   ),
@@ -195,7 +195,7 @@ export const PastTwoHundredForty: Story = {
       title="Open call 1 · past about 240 characters"
       note="A (recommended): a count appears past 240 and nothing is refused, so a summary from another app or from Claude that runs longer is never cut. B: the field takes no more than 240. Either way every list and card cuts it at one or two lines."
     >
-      <Heads labels={['A · a counter, nothing refused (recommended)', 'B · stops at 240']} width={502} />
+      <Heads labels={['A · a counter, nothing refused (chosen, Miky 15 Oct)', 'B · stops at 240 (not chosen)']} width={502} />
       <Row
         label="Under the title"
         width={502}
@@ -310,7 +310,7 @@ export const InThePickerAndSearch: Story = {
       title="Open call 2 · the [ picker and Peek’s search"
       note="An issue’s second line is its project today. A (recommended): the project stays, after the title, and the summary is the second line. B: the summary replaces the project. Without a summary both keep today’s row. The same rule holds for any row with a caption."
     >
-      <Heads labels={['A · project stays, summary second (recommended)', 'B · summary replaces project']} width={480} />
+      <Heads labels={['A · project stays, summary second (chosen, Miky 15 Oct)', 'B · summary replaces project (not chosen)']} width={480} />
       <Row label="[ picker" note="Peek, Ship and Leaf draw the same row." width={480} cells={[<Picker key="a" option="caption" />, <Picker key="b" option="summary" />]} />
       <Row label="Peek · search" width={480} cells={[<Search key="a" option="caption" />, <Search key="b" option="summary" />]} />
     </Sheet>
