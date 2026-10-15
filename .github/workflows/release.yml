@@ -46,4 +46,14 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npm publish
+      # A prerelease (`v0.72.0-widgets2.0`, tagged on a `concept/*` branch so the
+      # apps' Storybooks can draw a prototype) goes on the `concept` dist-tag:
+      # npm refuses to make one `latest`, and an app's `npm install` must never
+      # pick it up.
+      - name: Publish
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-*) npm publish --tag concept ;;
+            *) npm publish ;;
+          esac
