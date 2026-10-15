@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.69.2",
-    "exports": 162,
-    "typeExports": 152,
+    "packageVersion": "0.70.0",
+    "exports": 163,
+    "typeExports": 153,
     "files": null
   },
   "storybook": {
@@ -4816,6 +4816,25 @@
       "docsId": "primitives-pastedimages--docs",
       "storyId": "primitives-pastedimages--in-an-editor",
       "docPage": "src/PastedImages.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "PastedMarkdown",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/PastedMarkdown.ts",
+      "purpose": "Markdown pasted into an editor as plain text lands as what it spells: a heading, a list, a checklist, a quote or callout, a table.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-pastedmarkdown--docs",
+      "storyId": "primitives-pastedmarkdown--in-an-editor",
+      "docPage": "src/PastedMarkdown.mdx",
       "app": null,
       "looks": []
     },

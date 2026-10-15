@@ -41,6 +41,7 @@ const NOTHING = 'Nothing. It only draws. Clicks and keys are yours.'
 const HOLDS_ONLY: Record<string, string> = {
   AppProvider: 'Nothing. It draws nothing; it holds two answers for the parts below it.',
   PastedImages: 'Nothing. It draws nothing; it hands a pasted picture to the app, named.',
+  PastedMarkdown: 'Nothing. It draws nothing; it hands pasted text to the app\'s reader and puts back what that reads.',
   CodeBlockColours: 'Nothing. It names each word of a code block; the RichText class list colours them.',
   LinkChips: 'Nothing. It draws nothing; it turns the URLs the app recognises into chips.',
   // Its box is the Popover's, which owns what a box does; it holds which chip the menu is on.

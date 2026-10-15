@@ -98,6 +98,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A link — in text, on a title, beside a note, or a whole box | **Link** — `text`, `quiet`, `underlined`, `plain`; `external` for a new tab |
 | A document or an image attached to something, posted or waiting to be sent | **AttachmentCard** — the file decides the shape; `pending` in a composer |
 | A picture pasted into an editor, attached rather than pasted | **PastedImages** — from `@estiva-app/ui/editor`; the app hands it its upload |
+| Markdown pasted as plain text, landing as the headings, lists and tables it spells | **PastedMarkdown** — from `@estiva-app/ui/editor`, in an editor that saves a block document; the app hands it the protocol's reader |
 | A card a chip in a document asks for, drawn after its line | **ReferenceCards** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app draws its card into each slot |
 | A URL in a document that reads as the chip of what it points at | **LinkChips** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app says what each URL names |
 | Open a chip in a document, or choose its card, while writing | **ReferenceMenu** — from `@estiva-app/ui/editor`, beside `ReferenceCards`; a click on the chip, or putting one in, opens it |
