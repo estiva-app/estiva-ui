@@ -93,29 +93,37 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
   )
 }
 
-/**
- * The package's unread dot, after a count: the reader has something unread in
- * this conversation. Only a member has unread (SPEC §11.8), so a reader who
- * is not one sees the count alone.
- */
-function Unread() {
-  return (
-    <span className="inline-flex" title="Unread">
-      <UnreadDot className="h-auto w-auto" />
-      <span className="sr-only">unread</span>
-    </span>
-  )
-}
+/*
+  The unread dot after a count is the package's UnreadDot: the reader has
+  something unread in this conversation. Only a member has unread (SPEC §11.8),
+  so a reader who is not one sees the count alone.
+*/
 
-/** The comment count, the words brighter and a dot after it when the reader has unread there. */
+/** Where the count leads: the file's conversation, at the first unread when there is one. */
+const CONVERSATION_HREF = '#conversation'
+
+/**
+ * The comment count, the words brighter and a dot after it when the reader
+ * has unread there. It is a link to the conversation (Miky, fourth round:
+ * "especially needed when you have unread messages"), and it sits above a
+ * compact card's covering link, so the card opens the file and the count
+ * opens its conversation.
+ */
 function Comments({ count, unread = false, noun = 'comments' }: { count: number; unread?: boolean; noun?: string }) {
   return (
-    <span className={cn('inline-flex shrink-0 items-center gap-1 text-caption tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+    <Link
+      href={CONVERSATION_HREF}
+      variant="plain"
+      className={cn(
+        'relative z-10 -mx-1 inline-flex shrink-0 items-center gap-1 rounded-sm px-1 text-caption tabular-nums hover:bg-bg-active',
+        unread ? 'font-medium text-text-primary' : 'text-text-secondary',
+      )}
+    >
       <IconMessage2 size={14} stroke={1.5} aria-hidden />
       {count}
-      <span className="sr-only">{noun}</span>
-      {unread && <Unread />}
-    </span>
+      <span className="sr-only">{unread ? `${noun}, unread — open the conversation` : `${noun} — open the conversation`}</span>
+      {unread && <UnreadDot className="h-auto w-auto" />}
+    </Link>
   )
 }
 
