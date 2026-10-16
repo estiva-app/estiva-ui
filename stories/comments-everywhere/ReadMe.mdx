@@ -1,0 +1,73 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Comments everywhere/Read me" />
+
+# Comments everywhere: one comment box and one reaction row
+
+A prototype, on the `concept/comments-everywhere` branch only (project *Comments work the same in Peek, Ship and Leaf*, issue *The shared comment box and reaction row, as stories in all three places with every state*). It draws the one box and the one row that every app will write and react with (record *every-app-writes-and-reacts-with-one-shared-box*, Accepted 16 Oct), in the four places they will sit:
+
+- **Leaf column** — Leaf's comments column beside the page, 384px.
+- **Ship issue** — a Ship issue's conversation under Activity.
+- **Peek thread** — a Peek thread's replies. Peek moves onto the box in stage 2; it is drawn now so the box fits Peek before it is built.
+- **Ship project chat** — the same box writing a chat, with no issue above it.
+
+The box and the row are the same code in all four. The cards around them are each app's own, copied from its `origin/main` on 16 October. Nothing is wired to a relay, and none of it ships from this branch. **Miky judges the preview, and Katerina checks the new look and the reactions on a Leaf comment card**; the build matches the approved stories.
+
+## How to read it
+
+**Pick each place's theme in the toolbar**: `leaf` for the Leaf column, `ship` for a Ship issue and a Ship chat, `signal` for a Peek thread. A story cannot choose it for you here.
+
+Each place has the same stories, one per state. Every story is live: write, open a list, send, react, edit and delete your own comment (Sam Porter is you). A send is answered after a moment; **write "refuse" anywhere in a comment to see a refusal**.
+
+| Story | What it shows |
+| --- | --- |
+| Empty | Nothing written. |
+| Typing, with a draft kept | Words half written. Leave and come back: in Leaf, open the other card; in Ship, close the replies and open them again. The words are still there. |
+| Replying to a comment | The box under the comment you reply to. |
+| @ open, !@ open, [ open, / open | Each list, opened after the words. `/` lists the shared Format section, then the app's own Insert rows. |
+| Sending | Ship and Leaf hold the words, shut, until the relay answers. Peek shows the reply at once. |
+| Refused, with the text back | The relay said no: the words are back in the box, and a line says why. |
+| Editing, with chips | Your own comment, opened in the same box: the mention and the reference stay chips. |
+| A file uploading, A file failed | A file in the box: Send waits for it; a failed one says why and can be removed. |
+| Read-only (two looks) | The box cannot write here: a line in its place, or the box greyed with the reason inside. |
+| No reactions | No row at all; React is with the comment's other actions. |
+| A reaction from many people | The pills, yours lit, and who reacted on hover. |
+| Narrow (Leaf only) | Leaf's column has one width, 384px; this squeezes it to 320px, chips in the cards and a file uploading in the box. |
+
+## What an app supplies
+
+The box does everything else: the editor with `@`, `!@`, `[` and `/`, the keys, drafts, files, the edit mode, sending and a refused send.
+
+1. **Its people** — who `@` and `!@` offer (`MentionPerson[]`).
+2. **Its `[` sections** — what `[` lists, already in the app's order. Every app lists Messages, then Files, today.
+3. **Its `/` Insert rows** — after the shared Format section. Ship and Leaf: File, Mention, Urgent, Reference (Leaf takes Ship's list, Miky 16 Oct). Peek: Mention, Urgent, Reference, Resolve and its five highlights. An edit drops File and Urgent.
+4. **A send** — given the body and the files, it answers whether the relay accepted it. It also says whether the app shows a send before the answer (Peek) or holds it (Ship, Leaf).
+
+Also: where `/` → Code goes (inside the line in Peek, a block in Ship and Leaf), a draft key per thread or chat, the placeholder, and whether files can be attached.
+
+## Keys
+
+| Key | What it does |
+| --- | --- |
+| Enter | Sends; saves an edit. With a list open, picks the row. |
+| Ctrl/Cmd+Enter | Sends, as Enter does. |
+| Shift+Enter | A new line; in a list, a new item. |
+| Escape | Cancels an edit. With a list open, closes the list first. |
+
+## For Miky: where Peek and Ship differ today
+
+Each is drawn one way in the stories. The box will do one of them in every app, so these are yours to pick before it is built.
+
+1. **Read-only.** Peek hides the box and shows a line (an archived file); Ship keeps the box, greyed, with the reason inside (signed out). Both looks are a story in every place.
+2. **An archived file.** Peek takes no comments on an archived file; Ship keeps an archived issue's comments open (SHI-36). The Ship stories show "signed out" for that reason.
+3. **Sending.** Peek shows the reply at once; Ship and Leaf hold the words until the relay answers. Making Ship and Leaf show it at once belongs to *Ship and Leaf get the same speed*; the box does both.
+4. **A refused send** says why in a line under the box, in every place. Peek says it in a toast today.
+5. **Editing** shows the keys on its left ("Esc to cancel · Enter to save"). Ship says "Publishes an edit; the original event stays on the relay." there today; Peek says nothing.
+
+## For Katerina: the look, each drawn one way here
+
+1. **Reactions on a Leaf card**: the row under the comment's text, indented with it; no row when nobody reacted.
+2. **React** sits with the comment's actions on hover (in Leaf and Peek), and always visible in Ship, as Ship's actions are today.
+3. **The reply box** in a Leaf card is the full box, with the paperclip; Ship's reply box today is one short line.
+4. **Read-only as a line**: an inset card with a lock and the reason.
+5. **Emoji** may draw as empty boxes in a browser without an emoji font; they are the five every app offers.
