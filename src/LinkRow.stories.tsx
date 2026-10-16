@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { GROUP, ITEM, ITEM_UNREAD, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
-import { LinkRow } from './LinkRow'
+import { LinkRow, LinkUnavailable } from './LinkRow'
 
 const meta = {
   title: 'Components/LinkRow',
@@ -37,3 +37,13 @@ export const Loading: Story = { args: { link: LOADING } }
 
 /** Deleted, or not this reader's to see: one line, and where it may still open. */
 export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
+
+/** The not-available line on its own, as a card or a part draws it too; without `openIn`, no way out. */
+export const NotAvailableLine: Story = {
+  render: () => (
+    <div className="flex flex-col gap-2">
+      <LinkUnavailable kind="issue" noun="Item" openIn={{ app: 'App one', href: '#elsewhere' }} />
+      <LinkUnavailable kind="page" noun="Page" />
+    </div>
+  ),
+}

@@ -32,4 +32,4 @@ export const Default: Story = {
 export const Loading: Story = { args: { state: 'loading', kind: 'issue' } }
 
 /** The part, or what it is part of, is gone or not this reader's to see. */
-export const NotAvailable: Story = { args: { state: 'unavailable', kind: 'issue', noun: 'Item' } }
+export const NotAvailable: Story = { args: { state: 'unavailable', kind: 'issue', noun: 'Item', openIn: { app: 'App one', href: '#elsewhere' } } }
