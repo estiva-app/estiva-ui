@@ -10,7 +10,7 @@ import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES } from './ComposeBox'
 import { KeptSelection } from './SelectionToolbar'
 
 /**
- * The box a message, a reply or a comment is written in — Peek's. Type, select
+ * The box a message, a reply or a comment is written in. Type, select
  * words for the strip, Enter to send, Shift+Enter for a new line.
  */
 const meta = {

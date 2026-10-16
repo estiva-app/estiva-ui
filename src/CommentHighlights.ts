@@ -178,8 +178,11 @@ function placeOf(doc: ProseMirrorNode, anchor: CommentAnchor, places = placesIn(
   if (first === -1 || last === -1 || last < first) return reworded
   const a = textOf(run[first])
   const b = first === last ? a : textOf(run[last])
-  const before = (text: string, i: number) => !quote.prefix || text.slice(Math.max(0, i - quote.prefix.length), i) === quote.prefix
-  const after = (text: string, i: number) => !quote.suffix || text.slice(i, i + quote.suffix.length) === quote.suffix
+  // Context longer than a writer ever sends is a stranger's, and ignored, as the protocol's `resolveCommentAnchor` does.
+  const prefix = quote.prefix && quote.prefix.length <= QUOTE_CONTEXT_LENGTH ? quote.prefix : undefined
+  const suffix = quote.suffix && quote.suffix.length <= QUOTE_CONTEXT_LENGTH ? quote.suffix : undefined
+  const before = (text: string, i: number) => !prefix || text.slice(Math.max(0, i - prefix.length), i) === prefix
+  const after = (text: string, i: number) => !suffix || text.slice(i, i + suffix.length) === suffix
 
   if (quote.end === undefined) {
     const at = find(a.text, quote.start, 0, (i) => before(a.text, i) && after(a.text, i + quote.start.length))
@@ -254,7 +257,7 @@ export const CommentHighlights = Extension.create<CommentHighlightsOptions>({
             let hit: { id: string; size: number } | null = null
             for (const anchor of anchors) {
               const place = placeOf(view.state.doc, anchor, places)
-              if (place.state !== 'resolved' || pos < place.from || pos > place.to) continue
+              if (place.state !== 'resolved' || pos < place.from || pos >= place.to) continue
               const size = place.to - place.from
               if (!hit || size < hit.size) hit = { id: anchor.id, size }
             }
@@ -343,15 +346,21 @@ export function anchorOfSelection(editor: Editor): SelectionAnchor | null {
   if (selection.empty) return null
   const { $from, $to } = selection
   const places = placesIn(doc)
+  // The block with an id at or around `depth`: the lines of a quote or a list
+  // item are paragraphs with no id of their own, and belong to it.
+  const around = (depth: number): Place | undefined => {
+    for (let d = depth; d > 0; d--) {
+      const id = $from.node(d).attrs.blockId
+      if (typeof id === 'string' && id && places.has(id)) return places.get(id)
+    }
+    return undefined
+  }
   // The blocks the selection runs across: children of the deepest node holding
-  // both ends, or — both ends in one textblock — the block with an id around it.
+  // both ends, or — both ends in one textblock, or in blocks with no ids — the
+  // block with an id around them.
   let run: Place[]
   if ($from.parent === $to.parent && $from.parent.isTextblock) {
-    let found: Place | undefined
-    for (let depth = $from.depth; depth > 0 && !found; depth--) {
-      const id = $from.node(depth).attrs.blockId
-      if (typeof id === 'string' && id) found = places.get(id)
-    }
+    const found = around($from.depth)
     if (!found) return null
     run = [found]
   } else {
@@ -362,7 +371,12 @@ export function anchorOfSelection(editor: Editor): SelectionAnchor | null {
     for (let i = low; i <= high; i++) {
       const id = $from.node(depth).child(i).attrs.blockId
       const place = typeof id === 'string' ? places.get(id) : undefined
-      if (!place) return null
+      if (!place) {
+        const found = around(depth)
+        if (!found) return null
+        run = [found]
+        break
+      }
       run.push(place)
     }
   }
@@ -370,10 +384,13 @@ export function anchorOfSelection(editor: Editor): SelectionAnchor | null {
   let lastText = run.length === 1 ? firstText : textOf(run[run.length - 1])
   let start = offsetIn(firstText, selection.from)
   let end = offsetIn(lastText, selection.to)
-  // A block the selection only touches at its edge holds none of it: it is not in the run.
+  // A block the selection only touches at its edge holds none of it: it is not
+  // in the run. The same rule as the protocol's `selectionAnchorTags`.
   if (run.length > 1 && start >= firstText.text.length) ((run = run.slice(1)), (firstText = textOf(run[0])), (start = 0))
   if (run.length > 1 && end <= 0) ((run = run.slice(0, -1)), (lastText = textOf(run[run.length - 1])), (end = lastText.text.length))
   if (run.length === 1) lastText = firstText
+  // Between two blocks, with no character selected: nothing to comment on.
+  if (run.length === 1 && firstText.text && start >= end) return null
   const blocks = run.map((p) => p.node.attrs.blockId as string)
   if (start === 0 && end >= lastText.text.length) return { blocks }
 

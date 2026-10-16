@@ -59,16 +59,13 @@ export const ComposeKeys = Extension.create<Record<string, never>, ComposeKeysSt
   },
 })
 
-/** Nothing written: no text, nothing but empty paragraphs and headings, no chip. */
+/** Nothing written: no text, no chip and no picture — empty lines, lists or quotes only. */
 function isEmptyDoc(editor: Editor): boolean {
   const doc = editor.state.doc
   if (doc.textContent.length > 0) return false
   let empty = true
-  doc.forEach((node) => {
-    if (node.type.name !== 'paragraph' && node.type.name !== 'heading') empty = false
-  })
   doc.descendants((node) => {
-    if (node.isAtom && !node.isBlock) empty = false
+    if (node.isAtom && node.type.name !== 'hardBreak') empty = false
   })
   return empty
 }
