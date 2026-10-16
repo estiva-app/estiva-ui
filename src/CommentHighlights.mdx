@@ -5,19 +5,20 @@ import * as CommentHighlightsStories from './CommentHighlights.stories'
 
 # CommentHighlights
 
-Comments drawn on the words they are about, in an editor of a block document: every commented run in a light fill, the open one underlined.
+Comments drawn where they are in an editor of a block document: on a few words, on a passage across blocks, or on whole blocks, in a light fill, the open one underlined.
 
-*Prototype (Leaf, 9 October), not reviewed.*
+*Prototype (Leaf, 9 October; a run, whole blocks and changed words added 16 October), not reviewed.*
 
 <Canvas of={CommentHighlightsStories.Default} />
 
 ## When
 
-- **Comments on a few words of a block document.** SPEC §13.6 anchors a comment to one block; the words travel with it as a quote and are found again inside that block when the document is drawn.
+- **A comment on words or blocks of a block document.** SPEC §13.6 anchors a comment to a run of blocks; the words where its selection starts and ends travel with it as a quote and are found again in the run's first and last blocks when the document is drawn.
 - `setCommentAnchors(editor, anchors, active)` draws them; `active` is the one being read.
-- The editor's `commentSelect` event says which highlight was clicked.
-- `commentRange` returning `null` is §13.6's **detached**: the words were changed or deleted. Say so; never show it as a comment on the whole document.
-- `quoteOfSelection` is what a comment on the selection carries: its block and its words.
+- The editor's `commentSelect` event says which highlight was clicked. Where two overlap, the narrower one is.
+- `commentPlace` says where a comment is now: `resolved` (drawn, on its words or on its whole blocks), `reworded` (its blocks are there, its words are not: nothing is drawn) or `detached` (its blocks are gone). A reworded comment's words are shown as what its writer quoted, never as what the page says; neither state is ever shown as a comment on the whole document.
+- `commentElement` is what its card stands beside: the highlight, or the first block of a reworded comment.
+- `anchorOfSelection` is what a comment on the selection carries: the selected blocks, and their words unless whole blocks are selected. `quoteText` puts a quote in one line.
 
 <Canvas of={CommentHighlightsStories.NoneOpen} />
 
@@ -25,7 +26,7 @@ Comments drawn on the words they are about, in an editor of a block document: ev
 
 - Showing a selection while a field has the focus → **SelectionToolbar**'s kept selection.
 
-No alternative: a comment on the whole document has no words to draw. Say where it belongs in words.
+No alternative: a comment on the whole document has no place to draw. Say where it belongs in words.
 
 ## How
 
@@ -37,6 +38,7 @@ import { BlockId, CommentHighlights, setCommentAnchors } from '@estiva-app/ui/ed
 
 const editor = useEditor({ extensions: [StarterKit, BlockId, CommentHighlights] })
 
+// threads: [{ id, blocks: ['b2', 'b3'], quote: { start: 'first words', end: 'last words' } }, …]
 useEffect(() => {
   if (!editor) return
   setCommentAnchors(editor, threads, openId)
@@ -47,13 +49,15 @@ useEffect(() => {
 ```
 
 - **Nothing is written into the document.** The highlight is a decoration: a save never carries it.
-- `BlockId` must be in the editor: the anchors find their block by its id.
-- The quote is matched exactly, within its block. Two equal runs in one block: the first is drawn.
+- `BlockId` must be in the editor: the anchors find their blocks by their ids.
+- Words are matched exactly, never trimmed or guessed. Words that repeat in their block are told apart by the few characters around them; without those, the first is drawn.
+- `commentPlace` reads the document as it is: call it again after an edit.
 
 ## What it owns
 
 | It does | So you never write |
 |---|---|
-| Finds the words again in their block, after every edit | position arithmetic |
-| Draws them, and the open one underlined | a mark in the document |
+| Finds the run and its words again, after every edit | position arithmetic |
+| Draws words inline and whole blocks whole, the open one underlined | a mark in the document |
+| Tells drawn, reworded and detached apart | a "not found" guess |
 | Says which highlight was clicked | a click handler on the text |

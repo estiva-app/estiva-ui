@@ -12,12 +12,15 @@ export { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, type ComposeBoxProps }
 export {
   CommentHighlights,
   setCommentAnchors,
-  commentRange,
+  commentPlace,
   commentElement,
-  quoteOfSelection,
+  anchorOfSelection,
+  quoteText,
   type CommentAnchor,
   type CommentHighlightsOptions,
-  type SelectionQuote,
+  type CommentPlace,
+  type CommentQuote,
+  type SelectionAnchor,
 } from './CommentHighlights'
 export { PastedImages, pastedImages, pastedImageName, type PastedImagesOptions, type ClipboardSource } from './PastedImages'
 export { PastedMarkdown, type PastedMarkdownOptions } from './PastedMarkdown'

@@ -156,7 +156,7 @@ const preview: Preview = {
     a11y: { test: typeof __ESTIVA_DRAW_ONLY__ !== 'undefined' && __ESTIVA_DRAW_ONLY__ ? 'off' : 'error' },
     docs: { theme: themes.dark, container: ThemedDocsContainer },
     options: {
-      storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Primitives', 'Inputs', 'Components', 'Feedback', 'Overlays', 'Navigation', 'Frame', 'Layout'] },
+      storySort: { order: ['Docs', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'Text comments', ['Read me', 'Page'], 'Primitives', 'Inputs', 'Components', 'Feedback', 'Overlays', 'Navigation', 'Frame', 'Layout'] },
     },
   },
   decorators: [withTheme],
