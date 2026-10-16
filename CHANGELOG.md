@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.72.0 — 2026-10-16
+
+### Added
+
+- **`ComposeBox`, the box a message, a reply or a comment is written in**
+  (LEAF-4, Leaf 1; from Katerina's Leaf prototype, `proto/text-comments`,
+  9–13 October). Peek's box and its keys, with what only Peek knows left in
+  Peek: the app makes the editor, adds `ComposeKeys` and puts
+  `COMPOSE_EDITOR_CLASSES` on it; this draws the box and sends. From
+  `@estiva-app/ui/editor`.
+- **`SelectionToolbar` takes `actions`**: the app's own buttons after the
+  marks and `children`, past a separator (Leaf's Comment). Each runs with the
+  selection in place. `keepSelection` and `releaseSelection` are exported.
+- **`CommentHighlights`** draws comments where they are in a block document:
+  on words, on a passage across blocks, or on whole blocks (LEAF-7's shape,
+  SPEC §13.6). `commentPlace` says whether a comment's words are still there,
+  reworded, or detached; `commentElement(editor, anchor)` finds it on the
+  page; `anchorOfSelection` gives a selection's anchor in protocol 0.37's
+  shape; `quoteText` the words quoted.
+- `CaptionedReference`'s chip shows its whole caption on hover, in the
+  package's tooltip.
+
+Additive: no caller changes. Miky decided on 16 October to release Katerina's
+prototype as drawn while she is out; she reviews it when she is back.
+
 ## 0.71.0 — 2026-10-15
 
 ### Changed

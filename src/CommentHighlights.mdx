@@ -1,0 +1,61 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as CommentHighlightsStories from './CommentHighlights.stories'
+
+<Meta of={CommentHighlightsStories} />
+
+# CommentHighlights
+
+Comments drawn where they are in an editor of a block document: on a few words, on a passage across blocks, or on whole blocks, in a light fill, the open one underlined.
+
+<Canvas of={CommentHighlightsStories.Default} />
+
+## When
+
+- **A comment on words or blocks of a block document.** SPEC §13.6 anchors a comment to a run of blocks; the words where its selection starts and ends travel with it as a quote and are found again in the run's first and last blocks when the document is drawn.
+- `setCommentAnchors(editor, anchors, active)` draws them; `active` is the one being read.
+- The editor's `commentSelect` event says which highlight was clicked. Where two overlap, the narrower one is.
+- `commentPlace` says where a comment is now: `resolved` (drawn, on its words or on its whole blocks), `reworded` (its blocks are there, its words are not: nothing is drawn) or `detached` (its blocks are gone). A reworded comment's words are shown as what its writer quoted, never as what the page says; neither state is ever shown as a comment on the whole document.
+- `commentElement` is what its card stands beside: the highlight, or the first block of a reworded comment.
+- `anchorOfSelection` is what a comment on the selection carries: the selected blocks, and their words unless whole blocks are selected. `quoteText` puts a quote in one line.
+
+<Canvas of={CommentHighlightsStories.NoneOpen} />
+
+## When not
+
+- Showing a selection while a field has the focus → **SelectionToolbar**'s kept selection.
+
+No alternative: a comment on the whole document has no place to draw. Say where it belongs in words.
+
+## How
+
+```tsx
+import { useEffect } from 'react'
+import { useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { BlockId, CommentHighlights, setCommentAnchors } from '@estiva-app/ui/editor'
+
+const editor = useEditor({ extensions: [StarterKit, BlockId, CommentHighlights] })
+
+// threads: [{ id, blocks: ['b2', 'b3'], quote: { start: 'first words', end: 'last words' } }, …]
+useEffect(() => {
+  if (!editor) return
+  setCommentAnchors(editor, threads, openId)
+  const select = ({ id }: { id: string }) => open(id)
+  editor.on('commentSelect', select)
+  return () => { editor.off('commentSelect', select) }
+}, [editor, threads, openId])
+```
+
+- **Nothing is written into the document.** The highlight is a decoration: a save never carries it.
+- `BlockId` must be in the editor: the anchors find their blocks by their ids.
+- Words are matched exactly, never trimmed or guessed. Words that repeat in their block are told apart by the few characters around them; without those, the first is drawn.
+- `commentPlace` reads the document as it is: call it again after an edit.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Finds the run and its words again, after every edit | position arithmetic |
+| Draws words inline and whole blocks whole, the open one underlined | a mark in the document |
+| Tells drawn, reworded and detached apart | a "not found" guess |
+| Says which highlight was clicked | a click handler on the text |
