@@ -34,6 +34,8 @@ import { Popover } from './Popover'
 export interface SuggestionMenuRow {
   label: string
   description?: string
+  /** After the label, muted — `MenuItem`'s. */
+  aside?: string
   leading?: ReactNode
   /** What you would type — drawn as keys at the right, e.g. `#` for a heading. */
   shortcut?: string
@@ -158,7 +160,7 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
   const drawRow = (item: T) => {
     const index = items.indexOf(item)
     const selected = index === highlight
-    const { label, description, leading, shortcut, hint, size } = row(item)
+    const { label, description, aside, leading, shortcut, hint, size } = row(item)
     return (
       // A row of a list the editor drives from its caret: focus stays in the text, so the row is no Tab stop.
       <MenuItem
@@ -171,6 +173,7 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
         size={size}
         label={label}
         description={description}
+        aside={aside}
         leading={leading}
         shortcut={shortcut}
         hint={hint}

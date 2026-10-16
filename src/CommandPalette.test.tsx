@@ -94,6 +94,12 @@ describe('CommandPaletteSearch — rows', () => {
     expect(groups.map((g) => g.firstElementChild?.textContent)).toEqual(['First', 'Second'])
   })
 
+  it('draws a row’s aside after its label, on the label’s line, above the second line (SUM-7)', () => {
+    render(<Search groups={[{ label: 'Recent', rows: [row('Ship launch', { aside: 'SHI-12 · Ship 1', description: 'What we show on Friday' })] }]} />)
+    const option = screen.getByRole('option')
+    expect(within(option).getByText('What we show on Friday').previousElementSibling?.textContent).toBe('Ship launchSHI-12 · Ship 1')
+  })
+
   it('puts 2px between its rows and under each heading, as a menu does', () => {
     render(<Search groups={[{ label: 'Group', rows: [row('One'), row('Two')] }]} />)
     const [first] = screen.getAllByRole('option')
