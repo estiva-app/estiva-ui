@@ -106,25 +106,62 @@ function placesIn(doc: ProseMirrorNode): Map<string, Place> {
 
 /**
  * A block's text, and the document position where each of its characters
- * starts and ends. A chip counts as its `nostr:` text, as on the wire.
+ * starts and ends. It is the text the protocol's `inlineTextOf` reads from the
+ * same block on the wire, or a quote written here would not be found there: a
+ * chip counts as the text it is on the wire (a URL chip its URL, any other its
+ * `nostr:` reference), a line break as `\n`, and the blocks inside a block (a
+ * quote's lines, a list's items, a table's cells) are joined with `\n`. A list
+ * item is its own text: the list inside it is flat on the wire, its items
+ * following it in the list.
  */
 function textOf(block: Place): { text: string; starts: number[]; ends: number[] } {
   let text = ''
   const starts: number[] = []
   const ends: number[] = []
-  block.node.descendants((node, offset) => {
-    const at = block.pos + 1 + offset
-    if (node.isText && node.text) {
-      for (let i = 0; i < node.text.length; i++) (starts.push(at + i), ends.push(at + i + 1))
-      text += node.text
-    } else if (node.isInline && node.isLeaf) {
-      const wire = typeof node.attrs.uri === 'string' ? node.attrs.uri : ''
-      for (let i = 0; i < wire.length; i++) (starts.push(at), ends.push(at + node.nodeSize))
-      text += wire
+  const add = (chars: string, start: number, end: number) => {
+    for (let i = 0; i < chars.length; i++) (starts.push(start), ends.push(end))
+    text += chars
+  }
+  const walk = (node: ProseMirrorNode, pos: number) => {
+    if (node.isTextblock) {
+      node.forEach((child, offset) => {
+        const at = pos + 1 + offset
+        if (child.isText && child.text) {
+          for (let i = 0; i < child.text.length; i++) (starts.push(at + i), ends.push(at + i + 1))
+          text += child.text
+        } else if (child.type.name === 'hardBreak') add('\n', at, at + child.nodeSize)
+        else if (child.isInline && child.isLeaf) add(String(child.attrs.href || child.attrs.uri || ''), at, at + child.nodeSize)
+      })
+      return
     }
-    return true
-  })
+    // A list item's paragraphs are one run on the wire, with nothing between them.
+    if (node.type.name === 'listItem') {
+      node.forEach((child, offset) => void (LISTS.has(child.type.name) || walk(child, pos + 1 + offset)))
+      return
+    }
+    const children = LISTS.has(node.type.name) ? itemsOf(node, pos) : childrenOf(node, pos)
+    children.forEach(({ node: child, pos: at }, index) => {
+      // Between two blocks: the boundary, where neither one's text is.
+      if (index > 0) add('\n', at, at)
+      walk(child, at)
+    })
+  }
+  walk(block.node, block.pos)
   return { text, starts, ends }
+}
+
+/** The lists whose nested items the wire holds flat, after the item they are in. */
+const LISTS = new Set(['bulletList', 'orderedList'])
+
+function childrenOf(node: ProseMirrorNode, pos: number): { node: ProseMirrorNode; pos: number }[] {
+  const out: { node: ProseMirrorNode; pos: number }[] = []
+  node.forEach((child, offset) => void out.push({ node: child, pos: pos + 1 + offset }))
+  return out
+}
+
+/** A list's items as the wire lists them: each one, then the items of a list inside it. */
+function itemsOf(list: ProseMirrorNode, pos: number): { node: ProseMirrorNode; pos: number }[] {
+  return childrenOf(list, pos).flatMap((item) => [item, ...childrenOf(item.node, item.pos).flatMap((c) => (LISTS.has(c.node.type.name) ? itemsOf(c.node, c.pos) : []))])
 }
 
 /** Where `words` sits in `text` at or after `from`: the occurrence whose context matches, else the first. */
@@ -391,6 +428,8 @@ export function anchorOfSelection(editor: Editor): SelectionAnchor | null {
   if (run.length === 1) lastText = firstText
   // Between two blocks, with no character selected: nothing to comment on.
   if (run.length === 1 && firstText.text && start >= end) return null
+  // Only a line break, or the edge between two lines of one block: no word to comment on either.
+  if (run.length === 1 && firstText.text && !firstText.text.slice(start, end).replace(/\n/g, '')) return null
   const blocks = run.map((p) => p.node.attrs.blockId as string)
   if (start === 0 && end >= lastText.text.length) return { blocks }
 
