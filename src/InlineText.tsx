@@ -98,14 +98,22 @@ export function InlineText({ value, placeholder, label, onCommit, onText, onEnte
   const [empty, setEmpty] = useState(!value)
   // Read at key time: the editor's handlers are built once, and a prop they
   // closed over would be the first render's.
-  const latest = useRef({ onEnter, onText, onCommit, clearable })
-  latest.current = { onEnter, onText, onCommit, clearable }
+  const latest = useRef({ onEnter, onText, onCommit, clearable, value })
+  latest.current = { onEnter, onText, onCommit, clearable, value }
+  // The text being saved right now: Enter moves on, and the leave that follows
+  // must not send the same save a second time while the first is in flight.
+  const pending = useRef<string | null>(null)
 
   const save = useCallback(async (text: string) => {
     const next = oneLine(text)
-    if (next === saved.current) return
+    if (next === saved.current || next === pending.current) return
     if (!next && !latest.current.clearable) return
-    if (await latest.current.onCommit(next)) saved.current = next
+    pending.current = next
+    try {
+      if (await latest.current.onCommit(next)) saved.current = next
+    } finally {
+      if (pending.current === next) pending.current = null
+    }
   }, [])
 
   const editor = useEditor({
@@ -154,6 +162,15 @@ export function InlineText({ value, placeholder, label, onCommit, onText, onEnte
       if (e.isEmpty && saved.current && !latest.current.clearable) {
         e.commands.setContent(doc(saved.current), { emitUpdate: false })
         setEmpty(false)
+        return
+      }
+      // Left unchanged while someone else changed it: their text comes in now,
+      // as it would have had you not been in it.
+      const { value: current } = latest.current
+      if (oneLine(e.getText()) === saved.current && current !== saved.current && pending.current === null) {
+        e.commands.setContent(doc(current), { emitUpdate: false })
+        saved.current = current
+        setEmpty(!current)
         return
       }
       void save(e.getText())

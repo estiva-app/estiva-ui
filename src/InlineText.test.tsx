@@ -168,6 +168,27 @@ describe('InlineText: a refused save, and a change from elsewhere', () => {
     expect(field().textContent).toBe('Item one two')
   })
 
+  it('Enter and the leave that follows it save once while the save is still in flight', async () => {
+    let answer: (saved: boolean) => void = () => {}
+    const onCommit = vi.fn(() => new Promise<boolean>((resolve) => (answer = resolve)))
+    draw({ onCommit, onEnter: () => field().blur() })
+    await enter()
+    await type(' two')
+    await userEvent.keyboard('{Enter}')
+    await act(async () => answer(true))
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
+  it('a change from elsewhere made while you are in it, and you change nothing, is loaded when you leave', async () => {
+    const { rerender, onCommit } = draw()
+    await enter()
+    rerender({ value: 'Item three' })
+    expect(field().textContent).toBe('Item one')
+    await act(async () => field().blur())
+    expect(field().textContent).toBe('Item three')
+    expect(onCommit).not.toHaveBeenCalled()
+  })
+
   it('a change from elsewhere is loaded while you are not in it', async () => {
     const { rerender } = draw()
     rerender({ value: 'Item three' })
