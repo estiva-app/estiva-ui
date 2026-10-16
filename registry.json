@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.73.0",
+    "packageVersion": "0.74.0",
     "exports": 178,
     "typeExports": 164,
     "files": null
@@ -4394,6 +4394,12 @@
           "takes": "text",
           "required": false,
           "note": "A second line under the label — a role, an address — 12px, secondary, truncating."
+        },
+        {
+          "name": "aside",
+          "takes": "text",
+          "required": false,
+          "note": "After the label, on its line — 12px, muted, never cut: where a file sits (an issue's ref and project) when its second line is its summary (SUM-7)."
         },
         {
           "name": "leading",

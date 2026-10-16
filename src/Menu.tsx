@@ -350,6 +350,12 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   size?: 'default' | 'tall'
   /** A second line under the label — a role, an address — 12px, secondary, truncating. */
   description?: string
+  /**
+   * After the label, on its line — 12px, muted, never cut: where a file sits
+   * (an issue's ref and project) when its second line is its summary (SUM-7).
+   * The label truncates before it does.
+   */
+  aside?: string
   /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face. */
   leading?: ReactNode
   /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
@@ -425,7 +431,7 @@ export function menuItemClassName({ size, selected, className }: { size: 'defaul
 /** Everything inside the row — written once, for the same reason. Shared
  *  inside the package like `menuItemClassName`: `CommandPalette` draws it
  *  inside Base UI's `Autocomplete.Item`. Not exported from the index. */
-export function MenuItemBody({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
+export function MenuItemBody({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
   const edge =
     trailing ??
     (shortcut ? (
@@ -441,9 +447,16 @@ export function MenuItemBody({ label, children, size = 'default', description, l
           colour. Ship's copy said `text-sm`, which was never the ramp. */}
       {children ?? (
         <span className={cn('flex min-w-0 flex-1 flex-col', size === 'tall' && 'gap-[2px]')}>
-          <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>
-            {label}
-          </span>
+          {aside ? (
+            <span className="flex min-w-0 items-baseline gap-2">
+              <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>{label}</span>
+              <span className="shrink-0 text-caption text-text-muted">{aside}</span>
+            </span>
+          ) : (
+            <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>
+              {label}
+            </span>
+          )}
           {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
         </span>
       )}
@@ -469,12 +482,13 @@ export function MenuItemBody({ label, children, size = 'default', description, l
   )
 }
 
-export function MenuItem({ label, children, size = 'default', description, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+export function MenuItem({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
   const body = (
     <MenuItemBody
       label={label}
       size={size}
       description={description}
+      aside={aside}
       leading={leading}
       trailing={trailing}
       hint={hint}

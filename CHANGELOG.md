@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.74.0 — 2026-10-16
+
+### Added
+
+- **A row's summary line** (SUM-7, "A short summary on every file"; the
+  approved story `concept/short-summary`, *In the picker and search*, option
+  A, Miky 2026-10-15). `CaptionedItem.summary` is a line of plain text about
+  the thing: when set, `[` draws it as the row's second line, and the row's
+  `description` (where it sits, an issue's ref and project) moves up after the
+  label, muted. Without one the row is as before. The chip does not wear it,
+  and the query is not matched against it.
+- **`MenuItem` / `MenuItemBody` `aside`**, and the same on
+  `SuggestionMenuRow` and `CommandPaletteRow`: muted text after the label, on
+  its line, never cut; the label truncates first. The launcher's file rows use
+  it for an issue's project when the second line is the summary.
+
+Nothing renamed or removed; no caller changes.
+
 ## 0.73.0 — 2026-10-16
 
 ### Added

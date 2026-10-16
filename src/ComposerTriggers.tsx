@@ -233,6 +233,13 @@ export interface CaptionedItem {
   /** The row's second line, e.g. where the thing sits. The chip does not wear it. */
   description?: string
   /**
+   * What the thing is about, in a line of plain text — a file's summary. When
+   * set, it is the row's second line and `description` moves up after the
+   * label, muted; absent, the row is as before. The chip does not wear it, and
+   * the query is not matched against it.
+   */
+  summary?: string
+  /**
    * This row's own 16px icon, in place of the list's `icon`: what the thing is,
    * when the list holds several kinds — a topic, a project, a message
    * (Katerina, 7 October). Absent, the list's icon.
@@ -363,7 +370,13 @@ export function referenceMenu({ ariaLabel, sectionLabel, icon, iconFor }: Refere
       return groups
     },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: item.icon ?? iconFor?.(item.uri) ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
+    row: (item) => ({
+      leading: item.icon ?? iconFor?.(item.uri) ?? icon,
+      label: captionOf(item.label, item.snippet),
+      // A summary is the second line, and where the thing sits moves up beside the label (SUM-7's story).
+      ...(item.summary ? { description: item.summary, aside: item.description } : { description: item.description }),
+      hint: <EnterHint />,
+    }),
   }
 }
 

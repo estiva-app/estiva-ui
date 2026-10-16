@@ -196,8 +196,10 @@ export interface CommandPaletteRow {
   /** Unique in the level. The footer follows the lit row by it. */
   id: string
   label: string
-  /** The second line — where it is, who said it, when. */
+  /** The second line — where it is, who said it, when; a file's summary. */
   description?: string
+  /** After the label, muted: where a file sits (an issue's ref and project) when its second line is its summary. */
+  aside?: string
   /** A 16px icon, drawn on the row's 32px tile. */
   icon?: ReactNode
   /** Instead of `icon`: something with a look of its own — a face, a status mark — in the same 32px space, with no tile. */
@@ -414,6 +416,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
                       size="tall"
                       label={row.label}
                       description={row.description}
+                      aside={row.aside}
                       leading={<RowLeading row={row} />}
                       submenu={!!row.onGoIn}
                       hint={row.onGoIn ? <Kbd>Tab</Kbd> : <EnterHint />}
