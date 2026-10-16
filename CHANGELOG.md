@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.73.0 — 2026-10-16
+
+### Added
+
+- **`InlineText`, a page's title or the line under it, edited where it
+  stands** (SUM-4; Miky, 16 October: editing a summary "feels like a
+  document, not a form"). Ship's title editor (Katerina's findings E1 and E2,
+  29 September), moved here so Ship, Peek and Leaf edit a header the same
+  way: no box and nothing moving, the size and colour of a `title` or a
+  `summary` the same at rest and while written, Enter saves and moves on,
+  Escape and leaving save, pasted lines become one line, and a refused save
+  keeps the text. From `@estiva-app/ui/editor`, on the Tiptap peers it
+  already had.
+
+Additive: no caller changes. Katerina is out; Miky judges it on the preview,
+and she reviews it when she is back.
+
 ## 0.72.0 — 2026-10-16
 
 ### Added
