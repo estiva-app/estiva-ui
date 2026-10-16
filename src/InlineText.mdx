@@ -1,0 +1,64 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as InlineTextStories from './InlineText.stories'
+
+<Meta of={InlineTextStories} />
+
+# InlineText
+
+A page's title, or the line under it, edited where it stands, as in a document: the text is the editor, with no box and nothing moving.
+
+<Canvas of={InlineTextStories.Default} />
+
+## When
+
+- **`variant="title"`**: a page's heading. Left empty, the saved one comes back.
+- **`variant="summary"`** with **`clearable`**: the quieter line under it. Left empty, it is saved as nothing.
+- `readOnly` for someone who cannot change it, or until the app can save: the same text in the same place.
+
+<Canvas of={InlineTextStories.Empty} />
+<Canvas of={InlineTextStories.Refused} />
+
+## When not
+
+- A field in a form, a dialog or a settings row → **TextInput** or **Textarea**, in a **Form**.
+- Text you click to open as a field, in a list or a sidebar → **EditableText**.
+- Several paragraphs, lists or links → the app's block editor, with **EditorBlockHandle** and **SelectionToolbar**.
+
+## How
+
+```tsx
+import { InlineText, type InlineTextHandle } from '@estiva-app/ui/editor'
+
+const summary = useRef<InlineTextHandle>(null)
+
+<InlineText variant="title" label="Title" placeholder="Untitled" value={title} onCommit={rename} onEnter={() => summary.current?.focus()} />
+<InlineText ref={summary} variant="summary" clearable label="Summary" placeholder="Add a summary" value={line} onCommit={summarize} onText={setCount} />
+```
+
+- **`onCommit` resolves `true` when saved.** `false` keeps your text where it is; say why under it (a `FieldLine` with `tone="error"`). A change made elsewhere is not loaded over unsaved text.
+- **`onText`** gives the text as it is written, and `null` on leaving: for a count under it.
+- **`onEnter`** says where the caret goes after Enter: the next line down. `ref.focus('start' | 'end')` puts it there.
+- `label` is required: it is the editor's accessible name.
+- Base UI has no part for an editable line of a document; the editor is Tiptap, the same kind of surface as the block editor below it.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write |
+|---|---|
+| The size and colour of a title or a summary, the same at rest and while written | a class for the text, or for a field state |
+| Line breaks and pasted lines become one line of plain text | a paste handler or a clean-up before saving |
+| An unchanged or (for a title) empty value is not a write | a compare before saving |
+| Your text stays after a refused save, and a change from elsewhere waits | a draft kept beside it |
+| The placeholder while it is empty | an empty check |
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| Enter | Saves, and calls `onEnter` |
+| Escape | Stops editing and saves what was typed |
+| Ctrl+Z / Ctrl+Shift+Z | Undo / redo |
+
+<Controls />

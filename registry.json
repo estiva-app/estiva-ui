@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.72.0",
-    "exports": 177,
-    "typeExports": 162,
+    "packageVersion": "0.73.0",
+    "exports": 178,
+    "typeExports": 164,
     "files": null
   },
   "storybook": {
@@ -3442,6 +3442,100 @@
       "docsId": "components-inlinechip--docs",
       "storyId": "components-inlinechip--neutral",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "InlineText",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/InlineText.tsx",
+      "purpose": "A page's title, or the line under it, edited where it stands, as in a document: the text is the editor, with no box and nothing moving.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": "The saved text. A new value is loaded when you are not in the field and hold nothing unsaved."
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": true,
+          "note": "What it is for, muted, while it is empty: \"Untitled\", \"Add a summary\"."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The accessible name: \"Title\", \"Summary\"."
+        },
+        {
+          "name": "onCommit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Save it: resolve `true` when saved; `false` keeps your text in place."
+        },
+        {
+          "name": "onText",
+          "takes": "a handler",
+          "required": false,
+          "note": "The text as it is being written, on focus and every change; `null` when you leave."
+        },
+        {
+          "name": "onEnter",
+          "takes": "a handler",
+          "required": false,
+          "note": "Enter, after the save has started: where the caret goes next."
+        },
+        {
+          "name": "variant",
+          "takes": "title | summary",
+          "required": false,
+          "note": "`title`: the page's heading. `summary`: the line under it, quieter."
+        },
+        {
+          "name": "clearable",
+          "takes": "true/false",
+          "required": false,
+          "note": "Empty is a value (a summary). Otherwise leaving it empty brings the saved one back (a title)."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Text only, the same size and place: nobody can change it, or the editor is not ready."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        },
+        {
+          "name": "ref",
+          "takes": "Ref<InlineTextHandle>",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "title",
+            "summary"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-inlinetext--docs",
+      "storyId": "primitives-inlinetext--default",
+      "docPage": "src/InlineText.mdx",
       "app": null,
       "looks": []
     },

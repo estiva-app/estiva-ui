@@ -72,6 +72,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | Bold, italic and the like over selected text in an editor | **SelectionToolbar**, from `@estiva-app/ui/editor` — it follows the selection by itself |
 | A composer's `@`, `!@`, `[` and `/` — mention a person, reference something, format or insert | **ComposerTriggers** — `PersonMention`, `UrgentPersonMention`, `CaptionedReference`, `ReferenceTrigger` and `SlashCommands` from `@estiva-app/ui/editor`; the app passes its people, its items and its own `/` rows |
 | An editor that saves a block document and must keep its block ids | **BlockNodes** — `BlockId`, `UnknownBlock`, `ReferenceNode` and `AttachmentNode` from `@estiva-app/ui/editor`, beside StarterKit and TableKit |
+| A page's title or the line under it, edited where it stands, as in a document | **InlineText**, from `@estiva-app/ui/editor` — no box; Enter saves and moves on |
 | The box a message, a reply or a comment is written in and sent | **ComposeBox**, from `@estiva-app/ui/editor` — the app brings its editor and adds `ComposeKeys` |
 | Comments on words, a passage or whole blocks of a document, drawn where they are | **CommentHighlights**, from `@estiva-app/ui/editor` — a run of blocks and the words quoted; says which was clicked and which moved or are gone |
 | Move, turn, duplicate or delete one block of a document being edited | **EditorBlockHandle**, from `@estiva-app/ui/editor`, with your rows after its own |
