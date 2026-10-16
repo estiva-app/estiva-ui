@@ -132,6 +132,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Checkbox: ['row'],
   Chip: ['type'],
   KindIcon: ['tone'],
+  LinkedIcon: ['tone'],
   CollapsibleSection: ['look'],
   Divider: ['tone', 'orientation'],
   EmptyState: ['scope'],

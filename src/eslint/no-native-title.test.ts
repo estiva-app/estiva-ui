@@ -60,8 +60,9 @@ tester.run('no-native-title', noNativeTitle, {
 
 describe('PARTS_WITH_A_TITLE', () => {
   it('is every part the catalogue says takes a title of its own, and no other', () => {
-    const registry = JSON.parse(readFileSync(new URL('../../registry.json', import.meta.url), 'utf8')) as { entries: { name: string; props?: { name: string }[] | null }[] }
-    const declared = registry.entries.filter((entry) => entry.props?.some((prop) => prop.name === 'title')).map((entry) => entry.name).sort()
+    const registry = JSON.parse(readFileSync(new URL('../../registry.json', import.meta.url), 'utf8')) as { entries: { name: string; kind: string; props?: { name: string }[] | null }[] }
+    // A part is a component: a helper whose argument has a `title` field (`loadingShapeOf`) is not drawn with one.
+    const declared = registry.entries.filter((entry) => entry.kind === 'component' && entry.props?.some((prop) => prop.name === 'title')).map((entry) => entry.name).sort()
     expect([...PARTS_WITH_A_TITLE].sort()).toEqual(declared)
   })
 })

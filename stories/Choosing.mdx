@@ -106,6 +106,13 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A URL in a document that reads as the chip of what it points at | **LinkChips** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app says what each URL names |
 | Open a chip in a document, or choose its card, while writing | **ReferenceMenu** — from `@estiva-app/ui/editor`, beside `ReferenceCards`; a click on the chip, or putting one in, opens it |
 | A code block in an editor, coloured by its language as you type | **CodeBlockColours** — from `@estiva-app/ui/editor`, in place of the starter kit's code block |
+| A link to something an app looked up, in a sentence | **LinkChip** — hover shows its card; loading and "not available" drawn for you. **LinkChips** (editor) turns a URL in a document into one |
+| A link alone on its line | **LinkRow** — one 36px line for every kind; **LinkUnavailable** when it cannot be read |
+| A link's card: what a row cannot hold, with the pickers the reader may use | **LinkCard** — `onChange` on a picker only for a reader who may change it; **LinkCardLoading** at its height |
+| The one card under a piece of text, with the ✕ that removes it | **CardUnder** — `revealOnHover` once it is sent |
+| A link's card on hover, read only | **LinkPreview** — LinkChip and LinkRow already wrap themselves in it |
+| A part of something longer, shared live | **PartCard** — the app draws the blocks |
+| A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |
 | A person or a thing named inside a sentence | **InlineChip** — one line high, level with the words; `href` makes it a link |
 | What kind of thing a name stands for — a topic, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; `thingKindOf` turns an event kind into one |
 | Formatted text: headings, lists, a quote, code, a table, links | **RichText** — pass the parsed tree; `small` inside a card |

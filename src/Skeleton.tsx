@@ -10,10 +10,14 @@ import { cn } from './cn'
  * A list reveals after 150ms (`animate-skeleton-in`, in the preset) so a
  * fast load never flashes a skeleton — Peek's rule.
  */
+const SKELETON_SHAPE = { bar: 'rounded-sm', round: 'rounded-full', control: 'rounded-md' } as const
+
 /** One pulsing bar at the inset colour: the piece every placeholder here is
- *  built from. It draws nothing of its own — give it a width and a height. */
-export function SkeletonBar({ className, style }: { className?: string; style?: CSSProperties }) {
-  return <div className={cn('bg-bg-inset rounded-sm animate-pulse', className)} style={style} />
+ *  built from. It draws nothing of its own — give it a width and a height.
+ *  `on="inset"` on an inset card, where the inset colour would vanish;
+ *  `shape` for a line of words, a face or a ring, or a control. */
+export function SkeletonBar({ className, style, on = 'surface', shape = 'bar' }: { className?: string; style?: CSSProperties; on?: 'surface' | 'inset'; shape?: keyof typeof SKELETON_SHAPE }) {
+  return <div className={cn('animate-pulse', SKELETON_SHAPE[shape], on === 'inset' ? 'bg-bg-active' : 'bg-bg-inset', className)} style={style} />
 }
 
 const ROW_BAR_WIDTHS = [150, 100, 170, 120, 90, 140, 110, 160]

@@ -1,0 +1,53 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CardUnderStories from './CardUnder.stories'
+
+<Meta of={CardUnderStories} />
+
+# CardUnder
+
+The one card added under a piece of text, and the ✕ that removes it.
+
+<Canvas of={CardUnderStories.WhileWriting} />
+
+## When
+
+- **while writing** — under the box: the ✕ always shows.
+- **after sending** — `revealOnHover`: the ✕ shows when the pointer is over the card or the ✕ has focus, and always on a screen that cannot hover, so a tap reaches it.
+- **no ✕** — no `onRemove`: to anyone but who wrote it.
+
+<Canvas of={CardUnderStories.AfterSending} />
+
+## When not
+
+- A link alone on its line, with no card chosen → **LinkRow**.
+- A part of something longer: it has no ✕ → **PartCard**.
+
+## How
+
+```tsx
+import { CardUnder } from '@estiva-app/ui'
+
+<CardUnder link={link} onRemove={isAuthor ? removeCard : undefined} revealOnHover={sent} />
+```
+
+- **Which link gets the card is the app's**, by the rule every app reads by (`defaultCardOf` in `@estiva-app/protocol`). This draws the one it is given.
+- `onRemove` is the app's: before sending it drops the card from what will be sent; after, it sends the edit that removes it.
+- It is at most 480px wide.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Places the ✕ at the card's top corner | a remove button of your own |
+| Reveals the ✕ on hover and focus, and always shows it on touch | a hover or touch check |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Reaches the ✕, and shows it when it was waiting for hover |
+| Enter, Space | Removes the card |
+
+## Props
+
+<Controls of={CardUnderStories.NoRemove} />

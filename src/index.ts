@@ -84,6 +84,31 @@ export { ShowMore, type ShowMoreProps } from './ShowMore'
 export { ReactionPicker, type ReactionOption, type ReactionPickerProps } from './ReactionPicker'
 export { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator, type ToolbarProps, type ToolbarButtonProps, type ToolbarInputProps, type ToolbarLinkProps } from './Toolbar'
 export { PreviewCard, type PreviewCardProps } from './PreviewCard'
+// How a link draws, wherever it sits: one kit for every app (Widgets 2).
+export {
+  chosenOf,
+  loadingShapeOf,
+  unavailableMemory,
+  type Linked,
+  type LinkedChild,
+  type LinkedConversation,
+  type LinkedKind,
+  type LinkedPerson,
+  type LinkedPicker,
+  type LinkedStatus,
+  type LinkState,
+  type LoadingShape,
+  type PickerOption,
+  type StatusColour,
+  type UnavailableMemory,
+} from './linked'
+export { CommentCount, LinkedIcon, LinkKey, LinkPickers, ProgressRing, StatusMark, type LinkPickersProps } from './LinkParts'
+export { LinkChip, type LinkChipProps } from './LinkChip'
+export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps } from './LinkRow'
+export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
+export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
+export { CardUnder, type CardUnderProps } from './CardUnder'
+export { PartCard, type PartCardProps } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'
 export { RailItem, type RailItemProps } from './RailItem'
