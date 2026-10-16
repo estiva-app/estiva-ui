@@ -7,7 +7,7 @@ import { IconBold, IconCode, IconItalic, IconLink, IconUnderline } from '@tabler
 import { Form } from './Form'
 import { Popover } from './Popover'
 import { TextInput } from './TextInput'
-import { Toolbar, ToolbarButton } from './Toolbar'
+import { Toolbar, ToolbarButton, ToolbarSeparator } from './Toolbar'
 import { shortcutLabel } from './shortcuts'
 
 /**
@@ -228,9 +228,27 @@ export interface SelectionToolbarProps {
    * nothing.
    */
   children?: ReactNode
+  /**
+   * PROTOTYPE (Leaf, 9 October): the app's own buttons after the marks, past a
+   * separator: "Comment". Each runs with the selection still in place, and the
+   * strip closes after it.
+   */
+  actions?: readonly SelectionAction[]
 }
 
-export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false, children }: SelectionToolbarProps) {
+/** One of the app's buttons in the strip. */
+export interface SelectionAction {
+  /** Says what it does: the tooltip and the button's name. */
+  label: string
+  /** A 16px icon. */
+  icon: ReactNode
+  /** The keys that do the same, shown in the tooltip ("Mod-Shift-M"). */
+  keys?: string
+  /** What it does, with the selection as it is. */
+  run: (editor: Editor) => void
+}
+
+export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline'], link = false, children, actions = [] }: SelectionToolbarProps) {
   /** The selection's top edge and horizontal centre; the face decides the rest. */
   const [anchor, setAnchor] = useState<{ top: number; centre: number } | null>(null)
   const [mode, setMode] = useState<Mode>('marks')
@@ -488,6 +506,23 @@ export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline
             </ToolbarButton>
           )}
           {children}
+          {actions.length > 0 && <ToolbarSeparator />}
+          {actions.map((action) => (
+            <ToolbarButton
+              key={action.label}
+              aria-label={action.label}
+              tooltip={action.label}
+              tooltipShortcut={action.keys ? shortcutLabel(action.keys) : undefined}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                // Closing first: it lets go of a kept selection, which the action may want to keep.
+                hide()
+                action.run(editor)
+              }}
+            >
+              {action.icon}
+            </ToolbarButton>
+          ))}
         </Toolbar>
       )}
     </Popover>

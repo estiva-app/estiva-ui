@@ -67,3 +67,11 @@ export const MENU_TRIGGER_CLASSES = 'cursor-pointer rounded-md transition-colors
  * prefers-reduced-motion. CollapsibleSection's rows, and the rows under a NavItem.
  */
 export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none data-[starting-style]:h-0 data-[ending-style]:h-0'
+
+/**
+ * The box a message or a comment is written in: Peek's writing box (its
+ * `looks.ts`, Katerina 24 September), moved with ComposeBox. Inset, a hairline,
+ * 12px in, 16px between the text and the row under it; the focus ring in Signal.
+ */
+export const WRITING_BOX_CLASSES =
+  'relative bg-bg-inset border border-border-default rounded-lg p-3 flex flex-col gap-4 signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring'

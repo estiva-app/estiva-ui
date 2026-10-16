@@ -1,0 +1,60 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ComposeBoxStories from './ComposeBox.stories'
+
+<Meta of={ComposeBoxStories} />
+
+# ComposeBox
+
+The box a message, a reply or a comment is written in: the text, the selection strip over it, what is attached, the tools and Send.
+
+*Prototype (Leaf, 9 October), not reviewed: Peek's `ComposeBox`, with what only Peek knows left in Peek.*
+
+<Canvas of={ComposeBoxStories.Default} />
+
+## When
+
+- **Writing something that is sent**: a message, a reply, a comment. Enter sends, Shift+Enter is a new line.
+- `tools` for what acts on the draft — attach, highlight — as `ToolbarButton`s; they are one strip.
+- `attachments` for what is attached, as pending `AttachmentCard`s, under the text.
+- `marked` for the bar Peek draws down the text's left while it holds an urgent mention or a highlight.
+
+<Canvas of={ComposeBoxStories.Reply} />
+
+## When not
+
+- Editing a document in place → the editor itself, with **EditorBlockHandle** and **SelectionToolbar**. Nothing is sent.
+- One line of plain text in a form → **TextInput** or **Textarea**, in a **Form**.
+
+## How
+
+```tsx
+import { useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, KeptSelection } from '@estiva-app/ui/editor'
+
+
+const editor = useEditor({
+  extensions: [StarterKit, KeptSelection, ComposeKeys /* and the app's own */],
+  editorProps: { attributes: { class: COMPOSE_EDITOR_CLASSES } },
+})
+
+<ComposeBox editor={editor} onSend={(ed) => send(ed.getJSON())} placeholder={<span>Reply…</span>} />
+```
+
+- **The app makes the editor.** Its extensions — mentions, references, `/` — are the app's; add `ComposeKeys`, and `COMPOSE_EDITOR_CLASSES` on the editor.
+- **`onSend` gets the editor** and writes what it holds in the app's own format. The box empties after it, unless it returns `false`.
+- `ready` when something can be sent with no words (a file is ready); `holding` while sending must wait (a file is uploading).
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write |
+|---|---|
+| Enter sends, unless a `/`, `@` or `[` list is open | a keydown handler |
+| Shift+Enter: a new line, a new list item, out of an empty item or quote line | list and quote commands |
+| Send presses on the way down, so the caret stays in the text | `preventDefault` on the button |
+| The placeholder while nothing is written | an empty check |
+| The selection strip over selected words | `SelectionToolbar` beside it |
+
+<Controls />

@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.71.0",
-    "exports": 166,
-    "typeExports": 155,
+    "exports": 177,
+    "typeExports": 162,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,25 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "anchorOfSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "The anchor a comment on the selection carries, as §13.6 writes it: the selected blocks, and the selected words in one block or the words where it starts and ends across several.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
     {
       "name": "appendTableColumn",
       "repo": "estiva-ui",
@@ -1833,6 +1852,186 @@
       "looks": []
     },
     {
+      "name": "commentElement",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "What a comment's card stands beside: its drawn highlight, or — its words gone — its first block.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommentHighlights",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Comments drawn where they are in an editor of a block document: on a few words, on a passage across blocks, or on whole blocks, in a light fill, the open one underlined.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": "src/CommentHighlights.mdx",
+      "app": null,
+      "looks": [
+        "cursor-pointer rounded-sm bg-warning-muted underline decoration-warning-default decoration-2 underline-offset-4"
+      ]
+    },
+    {
+      "name": "commentPlace",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Where a comment is now: on its words or blocks, beside its blocks with its words gone, or detached.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "COMPOSE_EDITOR_CLASSES",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "The editor's own classes inside the box: Peek's, rich text with no outline.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ComposeBox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "The box a message, a reply or a comment is written in: the text, the selection strip over it, what is attached, the tools and Send.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The app's editor, with `ComposeKeys` in its extensions and `COMPOSE_EDITOR_CLASSES` on it."
+        },
+        {
+          "name": "onSend",
+          "takes": "a handler",
+          "required": true,
+          "note": "Send what is written. The box empties afterwards — unless this returns `false`: nothing was sent, and the words stay."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": true,
+          "note": "Said in the empty box: words, and a `Kbd` where a key helps (\"type / for commands\")."
+        },
+        {
+          "name": "tools",
+          "takes": "anything",
+          "required": false,
+          "note": "The tools under the text, left: `ToolbarButton`s (attach, highlight)."
+        },
+        {
+          "name": "attachments",
+          "takes": "anything",
+          "required": false,
+          "note": "What is attached, under the text: `AttachmentCard pending`s."
+        },
+        {
+          "name": "ready",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something to send even with no words — a file ready."
+        },
+        {
+          "name": "holding",
+          "takes": "true/false",
+          "required": false,
+          "note": "Sending waits — a file still uploading."
+        },
+        {
+          "name": "marked",
+          "takes": "true/false",
+          "required": false,
+          "note": "The bar down the text's left: an urgent mention or a highlight, as Peek draws it."
+        },
+        {
+          "name": "selection",
+          "takes": "Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>",
+          "required": false,
+          "note": "The selection strip's buttons: its marks, Link, and the app's own (`actions`)."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
+      "docPage": "src/ComposeBox.mdx",
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
+        "select-none font-mono text-menu font-normal tracking-wider text-text-muted"
+      ]
+    },
+    {
+      "name": "ComposeKeys",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "Enter sends; Shift+Enter is a new line — in a list a new item (or out of the list, on an empty one), in a quote a new line (or out of it, on an empty one).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "ConfirmDialog",
       "repo": "estiva-ui",
       "kind": "component",
@@ -3464,6 +3663,25 @@
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
         "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
+    },
+    {
+      "name": "keepSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "Draw the selection as it is now, until `releaseSelection`.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "KeptSelection",
@@ -5360,6 +5578,50 @@
       ]
     },
     {
+      "name": "quoteText",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "A quote in one line, as a card says it: its start and end words around an ellipsis.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "start",
+          "takes": "text",
+          "required": true,
+          "note": "The selection's words in one block, or its first words when it runs across blocks."
+        },
+        {
+          "name": "end",
+          "takes": "text",
+          "required": false,
+          "note": "Its last words, in the run's last block."
+        },
+        {
+          "name": "prefix",
+          "takes": "text",
+          "required": false,
+          "note": "A few characters before `start`, only when the words repeat in their block."
+        },
+        {
+          "name": "suffix",
+          "takes": "text",
+          "required": false,
+          "note": "A few characters after the end, only when the words repeat in their block."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Rail",
       "repo": "estiva-ui",
       "kind": "component",
@@ -5800,6 +6062,25 @@
       "migrationStage": null,
       "docsId": "primitives-linkchips--docs",
       "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "releaseSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "Stop drawing it. Nothing kept, nothing dispatched.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6403,6 +6684,12 @@
           "takes": "anything",
           "required": false,
           "note": "More of the strip, after the marks: the app's own `ToolbarButton`s for what is selected — a chip's card, say."
+        },
+        {
+          "name": "actions",
+          "takes": "readonly SelectionAction[]",
+          "required": false,
+          "note": "PROTOTYPE (Leaf, 9 October): the app's own buttons after the marks, past a separator: \"Comment\"."
         }
       ],
       "variants": [],
@@ -6433,6 +6720,25 @@
       "docsId": "primitives-selectiontoolbar--docs",
       "storyId": "primitives-selectiontoolbar--default",
       "docPage": "src/SelectionToolbar.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "setCommentAnchors",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Draw these comments, `active` the one being read.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
       "app": null,
       "looks": []
     },
