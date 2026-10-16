@@ -191,6 +191,8 @@ export function unavailableMemory(storageKey: string, limit = 300): UnavailableM
   return {
     has: (id) => list().has(id),
     note: (id, available) => {
+      // Re-read before writing: another memory on this key, or another tab's sign-out, may have changed it since.
+      held = undefined
       const current = list()
       if (available !== current.has(id)) return
       const next = new Set(current)

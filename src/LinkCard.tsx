@@ -29,8 +29,7 @@ export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps
   if (link.state === 'loading') return <LinkCardLoading kind={link.kind} shape={link.shape} />
   if (link.state === 'unavailable') return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} />
   const { linked } = link
-  if (linked.kind === 'message' && linked.author) return <SaidCard linked={linked} />
-  const body = <CardBody linked={linked} readOnly={readOnly} />
+  const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly} />
   if (bare) return <div className="flex flex-col gap-2 p-3">{body}</div>
   return (
     <Card fill="inset" className="flex flex-col gap-2 p-3">
@@ -111,10 +110,10 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
 }
 
 /** Words a person wrote, linked: their face, their name, the time as the link, and the words. */
-function SaidCard({ linked }: { linked: Linked }) {
+function SaidBody({ linked }: { linked: Linked }) {
   const author = linked.author!
   return (
-    <Card fill="inset" className="flex flex-col gap-2 p-3">
+    <>
       <div className="flex items-center gap-2">
         <Avatar name={author.name} src={author.picture} size={24} />
         <span className="text-body-2-strong text-text-primary">{author.name}</span>
@@ -125,7 +124,7 @@ function SaidCard({ linked }: { linked: Linked }) {
         </span>
       </div>
       <p className="line-clamp-4 text-body-2 text-text-primary">{linked.body ?? linked.title}</p>
-    </Card>
+    </>
   )
 }
 
@@ -149,7 +148,7 @@ export interface LinkCardLoadingProps {
 export function LinkCardLoading({ kind, shape }: LinkCardLoadingProps) {
   const { subtitle = false, summary = true, rows = 0, latest = false, ring = false, footer = 'line' } = shape ?? KIND_SHAPE[kind]
   return (
-    <span className="block animate-skeleton-in" aria-busy>
+    <div className="animate-skeleton-in" aria-busy>
       <Card fill="inset" aria-hidden className="flex flex-col gap-2 p-3">
         <div className="flex h-[19.6px] items-center gap-2">
           <LinkedIcon kind={kind} />
@@ -205,6 +204,6 @@ export function LinkCardLoading({ kind, shape }: LinkCardLoadingProps) {
           </div>
         )}
       </Card>
-    </span>
+    </div>
   )
 }

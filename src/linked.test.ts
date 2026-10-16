@@ -24,6 +24,16 @@ describe('unavailableMemory', () => {
     expect(unavailableMemory('test.unavailable').has('a')).toBe(false)
   })
 
+  it('keeps what another memory on the same key wrote since it was read', () => {
+    const one = unavailableMemory('test.unavailable')
+    const two = unavailableMemory('test.unavailable')
+    expect(two.has('a')).toBe(false)
+    one.note('a', false)
+    two.note('b', false)
+    const next = unavailableMemory('test.unavailable')
+    expect([next.has('a'), next.has('b')]).toEqual([true, true])
+  })
+
   it('keeps each app’s memory apart', () => {
     unavailableMemory('one.unavailable').note('a', false)
     expect(unavailableMemory('two.unavailable').has('a')).toBe(false)

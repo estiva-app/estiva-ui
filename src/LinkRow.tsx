@@ -50,13 +50,13 @@ export interface LinkRowProps {
 export function LinkRow({ link, preview = true }: LinkRowProps) {
   if (link.state === 'loading') {
     return (
-      <span className="block animate-skeleton-in" aria-busy>
+      <div className="animate-skeleton-in" aria-busy>
         <Card fill="inset" aria-hidden className="flex h-9 items-center gap-2 px-3">
           <LinkedIcon kind={link.kind} />
           <SkeletonBar on="inset" className="h-3 w-2/5" />
           <SkeletonBar on="inset" shape="round" className="ml-auto size-4" />
         </Card>
-      </span>
+      </div>
     )
   }
   if (link.state === 'unavailable') return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} />
