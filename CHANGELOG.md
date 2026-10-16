@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.74.1 — 2026-10-16
+
+### Fixed
+
+- **`CommentHighlights` reads a block's text as the protocol does** (LEAF-7,
+  the code review of estiva-app/leaf#30). A line break inside a paragraph
+  now counts as `\n`, and the blocks inside a block (a quote's lines, a list
+  item's paragraphs) are joined with `\n`, the text `inlineTextOf` gives on
+  the wire. Before, both counted as nothing, so a comment on words across two
+  lines of a quote carried a quote Peek and the protocol never found, and
+  they drew it as reworded from the first second. `anchorOfSelection` writes
+  `line\ntwo` where it wrote `linetwo`, and `commentPlace` finds it.
+
+Nothing renamed or removed; no caller changes.
+
 ## 0.74.0 — 2026-10-16
 
 ### Added

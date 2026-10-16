@@ -106,24 +106,38 @@ function placesIn(doc: ProseMirrorNode): Map<string, Place> {
 
 /**
  * A block's text, and the document position where each of its characters
- * starts and ends. A chip counts as its `nostr:` text, as on the wire.
+ * starts and ends. It is the text the protocol's `inlineTextOf` reads from the
+ * same block on the wire, or a quote written here would not be found there: a
+ * chip counts as its `nostr:` text, a line break as `\n`, and the blocks inside
+ * a block (a quote's lines, a list's items) are joined with `\n`.
  */
 function textOf(block: Place): { text: string; starts: number[]; ends: number[] } {
   let text = ''
   const starts: number[] = []
   const ends: number[] = []
-  block.node.descendants((node, offset) => {
-    const at = block.pos + 1 + offset
-    if (node.isText && node.text) {
-      for (let i = 0; i < node.text.length; i++) (starts.push(at + i), ends.push(at + i + 1))
-      text += node.text
-    } else if (node.isInline && node.isLeaf) {
-      const wire = typeof node.attrs.uri === 'string' ? node.attrs.uri : ''
-      for (let i = 0; i < wire.length; i++) (starts.push(at), ends.push(at + node.nodeSize))
-      text += wire
+  const add = (chars: string, start: number, end: number) => {
+    for (let i = 0; i < chars.length; i++) (starts.push(start), ends.push(end))
+    text += chars
+  }
+  const walk = (node: ProseMirrorNode, pos: number) => {
+    if (node.isTextblock) {
+      node.forEach((child, offset) => {
+        const at = pos + 1 + offset
+        if (child.isText && child.text) {
+          for (let i = 0; i < child.text.length; i++) (starts.push(at + i), ends.push(at + i + 1))
+          text += child.text
+        } else if (child.type.name === 'hardBreak') add('\n', at, at + child.nodeSize)
+        else if (child.isInline && child.isLeaf) add(typeof child.attrs.uri === 'string' ? child.attrs.uri : '', at, at + child.nodeSize)
+      })
+      return
     }
-    return true
-  })
+    node.forEach((child, offset, index) => {
+      // Between two blocks: the boundary, where neither one's text is.
+      if (index > 0) add('\n', pos + 1 + offset, pos + 1 + offset)
+      walk(child, pos + 1 + offset)
+    })
+  }
+  walk(block.node, block.pos)
   return { text, starts, ends }
 }
 
