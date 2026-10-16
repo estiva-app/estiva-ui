@@ -5,9 +5,8 @@ import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
 /**
- * Comments on a selection, drawn where they are — PROTOTYPE (Leaf, 9 October;
- * a run, whole blocks and changed words added for LEAF-7, 16 October), not
- * reviewed.
+ * Comments on a selection, drawn where they are, from Katerina's Leaf prototype
+ * (9 October), with a run, whole blocks and changed words added for LEAF-7.
  *
  * A comment's place is the one SPEC §13.6 gives it: a run of blocks, and the
  * words where the selection starts and where it ends as a quote. Words inside

@@ -229,9 +229,8 @@ export interface SelectionToolbarProps {
    */
   children?: ReactNode
   /**
-   * PROTOTYPE (Leaf, 9 October): the app's own buttons after the marks, past a
-   * separator: "Comment". Each runs with the selection still in place, and the
-   * strip closes after it.
+   * The app's own buttons after the marks, past a separator: "Comment". Each
+   * runs with the selection still in place, and the strip closes after it.
    */
   actions?: readonly SelectionAction[]
 }

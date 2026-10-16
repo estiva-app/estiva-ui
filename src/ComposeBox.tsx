@@ -11,8 +11,8 @@ import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar
 import { isSuggestionActive } from './suggestionPopup'
 
 /**
- * The box a message, a reply or a comment is written in — PROTOTYPE (Leaf,
- * 9 October), not reviewed. Peek's `ComposeBox`, its look and its keys, with
+ * The box a message, a reply or a comment is written in, from Katerina's Leaf
+ * prototype (9 October). Peek's `ComposeBox`, its look and its keys, with
  * what only Peek knows left in Peek: drafts, uploads, highlights, its text
  * format. The app makes the editor (its extensions are its own) and adds
  * `ComposeKeys`; this draws the box around it and sends.

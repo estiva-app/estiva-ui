@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.71.0",
+    "packageVersion": "0.72.0",
     "exports": 177,
     "typeExports": 162,
     "files": null
@@ -6689,7 +6689,7 @@
           "name": "actions",
           "takes": "readonly SelectionAction[]",
           "required": false,
-          "note": "PROTOTYPE (Leaf, 9 October): the app's own buttons after the marks, past a separator: \"Comment\"."
+          "note": "The app's own buttons after the marks, past a separator: \"Comment\"."
         }
       ],
       "variants": [],
