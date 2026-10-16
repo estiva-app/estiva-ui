@@ -51,14 +51,14 @@ export const Loading: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
       {[ITEM, GROUP, PLACE, PAGE].map((linked) => (
-        <div key={linked.id} className="grid grid-cols-2 gap-2">
+        // Each at a card's full width, as under a message: a narrower column wraps the summary.
+        <div key={linked.id} className="grid w-[968px] grid-cols-[480px_480px] items-start gap-2">
           <LinkCardLoading kind={linked.kind} shape={loadingShapeOf(linked)} />
           <LinkCard link={ready(linked)} />
         </div>
       ))}
     </div>
   ),
-  decorators: [(Story) => <div className="max-w-[960px]">{Story()}</div>],
 }
 
 /** Nothing remembered of it: the kind's usual card. */
