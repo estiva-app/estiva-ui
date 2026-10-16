@@ -11,7 +11,11 @@
   the wire. Before, both counted as nothing, so a comment on words across two
   lines of a quote carried a quote Peek and the protocol never found, and
   they drew it as reworded from the first second. `anchorOfSelection` writes
-  `line\ntwo` where it wrote `linetwo`, and `commentPlace` finds it.
+  `line\ntwo` where it wrote `linetwo`, and `commentPlace` finds it. A URL
+  chip counts as its URL (it counted as nothing), and a list item as its own
+  words, the items of a list inside it following it, as the wire holds them.
+  A selection of only a line break anchors nothing, as the edge between two
+  blocks already did.
 
 Nothing renamed or removed; no caller changes.
 

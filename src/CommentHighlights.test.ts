@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
-import { BlockId } from './BlockNodes'
+import { BlockId, ReferenceNode } from './BlockNodes'
 import { CommentHighlights, anchorOfSelection, commentPlace } from './CommentHighlights'
 
 let editor: Editor | undefined
@@ -71,6 +71,40 @@ describe('anchorOfSelection', () => {
     // "A line" at 1–7, the break at 7, "broken here" at 8–19.
     e.commands.setTextSelection({ from: 3, to: 14 })
     expect(anchorOfSelection(e)).toEqual({ blocks: ['p1'], quote: { start: 'line\nbroken' } })
+  })
+
+  it('anchors nothing when only the edge between two lines of a quote, or a line break, is selected', () => {
+    const e = open([
+      { type: 'blockquote', attrs: { blockId: 'q1' }, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'one line' }] }, { type: 'paragraph', content: [{ type: 'text', text: 'two line' }] }] },
+      { type: 'paragraph', attrs: { blockId: 'p1' }, content: [{ type: 'text', text: 'A line' }, { type: 'hardBreak' }, { type: 'text', text: 'broken here' }] },
+    ])
+    // The quote's first line ends at 10, its second starts at 12; the paragraph opens at 22, its break at 29.
+    e.commands.setTextSelection({ from: 10, to: 12 })
+    expect(anchorOfSelection(e)).toBeNull()
+    e.commands.setTextSelection({ from: 29, to: 30 })
+    expect(anchorOfSelection(e)).toBeNull()
+  })
+
+  it('quotes a list item as its own words, its nested items as the items after it', () => {
+    const item = (blockId: string, text: string, nested?: object) => ({
+      type: 'listItem',
+      attrs: { blockId },
+      content: [{ type: 'paragraph', content: [{ type: 'text', text }] }, ...(nested ? [nested] : [])],
+    })
+    const e = open([{ type: 'bulletList', attrs: { blockId: 'l1' }, content: [item('a', 'alpha', { type: 'bulletList', content: [item('b', 'beta')] }), item('c', 'gamma')] }])
+    // "alpha" at 3–8; the nested list's item "beta" at 12–16.
+    e.commands.setTextSelection({ from: 3, to: 8 })
+    expect(anchorOfSelection(e)).toEqual({ blocks: ['a'] })
+    // The list's text on the wire is "alpha\nbeta\ngamma": the nested item sits between its parent and the next.
+    expect(commentPlace(e, { id: 'c', blocks: ['l1'], quote: { start: 'alpha\nbeta' } })).toEqual({ state: 'resolved', from: 3, to: 16, words: true })
+  })
+
+  it('quotes a URL chip as its URL, as on the wire', () => {
+    const content = [
+      { type: 'paragraph', attrs: { blockId: 'p1' }, content: [{ type: 'text', text: 'see ' }, { type: 'reference', attrs: { uri: '', href: 'https://ship.estiva.app/x' } }, { type: 'text', text: ' ok' }] },
+    ]
+    const e = (editor = new Editor({ extensions: [StarterKit, BlockId, ReferenceNode, CommentHighlights], content: { type: 'doc', content } }))
+    expect(commentPlace(e, { id: 'c', blocks: ['p1'], quote: { start: 'see https://ship' } })).toMatchObject({ state: 'resolved', from: 1 })
   })
 
   it('keeps the words around a quote only when the quoted words repeat', () => {
