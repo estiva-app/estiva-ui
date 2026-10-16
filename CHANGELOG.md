@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.75.0 — 2026-10-16
+
+### Added
+
+- **The link widgets, one kit for every app** (*Widgets 2: build 1 —
+  messages*, "The approved widgets become the ui kit's real components";
+  the prototype Miky approved on 15 Oct, `concept/widgets-2` 5a3207b, tag
+  `v0.72.0-widgets2.2`). Peek and Ship each draw links with their own copy
+  today; they switch to these in their own issues.
+  - `LinkChip` (in a sentence), `LinkRow` (alone on its line),
+    `LinkCard` (the card; a person's words drawn as theirs), `CardUnder`
+    (the one card under a piece of text, with its ✕), `PartCard` (a part of
+    something longer), `LinkPreview` (the card on hover, read only, and
+    none on a screen that cannot hover; `useCanHover`), and their parts in
+    `LinkParts`: `LinkPickers`, `CommentCount`, `StatusMark`,
+    `ProgressRing`, `LinkedIcon`, `LinkKey`.
+  - Each takes a `LinkState`: `loading` (drawn at the row's or the card's
+    own height, `LinkCardLoading`, from `loadingShapeOf` or the kind's usual
+    card), `unavailable` (`LinkUnavailable`, "Item — not available.") or
+    `ready` with a `Linked`, the view-model the app builds from its lookup,
+    hrefs included. A picker with no `onChange` reads as words: the reader
+    may not change it.
+  - `CardUnder`'s ✕ always shows under a box being written in; with
+    `revealOnHover`, under text already sent, it shows on hover or focus,
+    and always on a screen that cannot hover (Miky, 16 Oct, kickoff).
+  - `unavailableMemory(key)`: what the device found it could not show,
+    remembered across reloads (Peek's `lib/unavailableCards.ts`, moved here).
+- `InlineChip` tone `muted`, and `SkeletonBar` `on="inset"` and `shape`
+  (`bar`, `round`, `control`), so the kit places them without restyling.
+
+The unlisted prototype entry `@estiva-app/ui/widgets-2` stays on
+`concept/widgets-2` only. Nothing renamed or removed; no caller changes.
+
 ## 0.74.1 — 2026-10-16
 
 ### Fixed

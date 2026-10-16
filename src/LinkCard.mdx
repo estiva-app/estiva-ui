@@ -1,0 +1,58 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LinkCardStories from './LinkCard.stories'
+
+<Meta of={LinkCardStories} />
+
+# LinkCard
+
+A link's card: what a row cannot hold, and the changes the reader may make from it.
+
+<Canvas of={LinkCardStories.Default} />
+
+## When
+
+- **ready** — the title as the link (the icon opens it too), the key and what it is in, its summary, the items inside it, its newest conversation, and a footer: the pickers and the conversation count, or who wrote it and when. No summary, the title alone.
+- **read only** — a picker the app passed no `onChange` for reads as words in the same place: the reader may not change it. `readOnly` makes every value words, as the hover preview does.
+- **words a person wrote** — their face, their name, the time as the link, and the words.
+- **loading** — the card it will become in bars, at its own height: `shape` from `loadingShapeOf(linked)` the last time it drew, or the kind's usual card. **LinkCardLoading**, from this file.
+- **unavailable** — one line, as **LinkRow** draws it.
+
+<Canvas of={LinkCardStories.ReadOnly} />
+<Canvas of={LinkCardStories.Loading} />
+
+## When not
+
+- A link alone on its line, where the card was not chosen → **LinkRow**.
+- The one card under a piece of text, with its ✕ → **CardUnder**, which draws this.
+- A part of something longer → **PartCard**.
+
+## How
+
+```tsx
+import { LinkCard } from '@estiva-app/ui'
+
+const linked = {
+  ...fromLookup,
+  status: { value: statusKey, options: statuses, onChange: mayChange ? setStatus : undefined },
+  owner: { value: ownerKey, options: people, onChange: mayChange ? setOwner : undefined },
+  ownerLabel: 'Owner',
+}
+<LinkCard link={{ state: 'ready', linked }} />
+```
+
+- **Whether the reader may change it is the app's.** Pass `onChange` only to a reader who may; anyone else sees words.
+- The picker offers only the options it is given: to let the reader set nobody as the owner, include an option for it.
+- `linked.latest` is drawn whenever it is given: pass it only to a reader who may read it.
+- `linked.conversation.unread` only for a member of it.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Draws the pickers, or the same values as words | a read-only variant of your own |
+| Holds its own height while it loads | a placeholder height of your own |
+| Opens each item inside it on its own | a row click handler |
+
+## Props
+
+<Controls of={LinkCardStories.ReadOnly} />

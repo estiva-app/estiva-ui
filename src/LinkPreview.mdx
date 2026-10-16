@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LinkPreviewStories from './LinkPreview.stories'
+
+<Meta of={LinkPreviewStories} />
+
+# LinkPreview
+
+A link's card on hover over its chip or its row, read only, in the package's one elevated box.
+
+<Canvas of={LinkPreviewStories.OnHover} />
+
+## When
+
+- **on hover** — **LinkChip** and **LinkRow** wrap themselves in it; an app wraps its own trigger only when it draws a link some other way.
+- **open** — `LinkPreviewOpen`, the same box drawn open, for a still picture.
+- **on a screen that cannot hover** — nothing: the trigger alone, and a tap opens the link. `useCanHover()` says which.
+
+<Canvas of={LinkPreviewStories.Open} />
+
+## When not
+
+- A card that stays → **LinkCard**, or **CardUnder** under a piece of text.
+- A preview of something that is not a link → **PreviewCard**.
+
+## How
+
+```tsx
+import { LinkPreview } from '@estiva-app/ui'
+
+<LinkPreview linked={linked} block>
+  {yourRow}
+</LinkPreview>
+```
+
+- `block` for a trigger that fills its column; a chip is inline.
+- Nothing in it can be changed: the values are words.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Waits before it opens, and closes when the pointer leaves | a hover timer |
+| Draws no preview on a screen that cannot hover | a `matchMedia` check |
+
+## Props
+
+<Controls of={LinkPreviewStories.OnHover} />

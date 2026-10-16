@@ -1,0 +1,43 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PartCardStories from './PartCard.stories'
+
+<Meta of={PartCardStories} />
+
+# PartCard
+
+A part of something longer, shared live: its blocks as they are now, under the header of what it is part of.
+
+<Canvas of={PartCardStories.Default} />
+
+## When
+
+- **ready** — the icon, the key and the title of what it is part of, as the link, and the blocks the app draws as `children`.
+- **loading** — at a card's height.
+- **unavailable** — one line: "A part of this item — not available.".
+
+## When not
+
+- A link to the whole thing → **LinkCard** or **CardUnder**.
+
+## How
+
+```tsx
+import { PartCard } from '@estiva-app/ui'
+
+<PartCard state="ready" kind={kind} heading={title} partKey={key} href={hrefAtThePart}>
+  {blocksDrawnByTheApp}
+</PartCard>
+```
+
+- The blocks are the app's to draw, with its own renderer.
+- There is no ✕: to send without the part, the writer deletes the link.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Marks the blocks as quoted from elsewhere | a border of your own |
+
+## Props
+
+<Controls of={PartCardStories.Default} />

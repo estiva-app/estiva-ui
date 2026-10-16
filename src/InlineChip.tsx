@@ -45,6 +45,8 @@ export const INLINE_CHIP_TONE_CLASSES = {
    * copy of this chip still has the 16.8px box).
    */
   quiet: 'h-[19.6px] bg-bg-active text-text-muted font-mono text-caption',
+  /** A file this reader cannot open — deleted, or not theirs to see: said in words, quieter than a link. */
+  muted: 'bg-bg-active text-text-muted',
 } as const
 
 export type InlineChipTone = keyof typeof INLINE_CHIP_TONE_CLASSES

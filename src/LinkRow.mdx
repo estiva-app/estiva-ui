@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LinkRowStories from './LinkRow.stories'
+
+<Meta of={LinkRowStories} />
+
+# LinkRow
+
+A link alone on its line: one 36px row for every kind, with what it has in its corner.
+
+<Canvas of={LinkRowStories.EachKind} />
+
+## When
+
+- **ready** — the icon, the key, the title as the link, and in the corner its status, ring, owner, members or authors, and when it changed. Hovering it shows its card; a tap opens it.
+- **unread** — with something unread in its conversation the count shows, with its dot. A row otherwise keeps to one line and leaves the count to the card, except where conversations are what it holds.
+- **loading** — the row in bars, at the row's height.
+- **unavailable** — one line, "Item — not available.", with where it may still open (`openIn`). This is also what a card draws when it is not available: **LinkUnavailable**, from this file.
+
+<Canvas of={LinkRowStories.NotAvailable} />
+
+## When not
+
+- A link in a sentence → **LinkChip**.
+- The one card under a piece of text → **CardUnder**.
+
+## How
+
+```tsx
+import { LinkRow } from '@estiva-app/ui'
+
+<LinkRow link={{ state: 'ready', linked }} />
+```
+
+- The whole row opens `linked.href`; the conversation count opens `linked.conversation.href` on its own.
+- `linked.conversation.unread` is the app's to say, and only for a member of it.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Covers the row with its link, with the count above it | a click handler on the row |
+| Shows the card on hover, and none on a screen that cannot hover | a hover card of your own |
+| Holds the row's height while it loads and when it is not available | a placeholder height of your own |
+
+## Props
+
+<Controls of={LinkRowStories.Default} />
