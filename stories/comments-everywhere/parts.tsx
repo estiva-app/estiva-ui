@@ -23,8 +23,8 @@ export type BoxState =
   | 'editing'
   | 'uploading'
   | 'uploadFailed'
-  | 'closedNotice'
-  | 'closedGreyed'
+  | 'archived'
+  | 'signedOut'
   | 'noReactions'
   | 'manyReactions'
 
@@ -248,12 +248,21 @@ function OwnMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => voi
   )
 }
 
-/** The line a closed box says, per place. */
-export const CLOSED_REASON: Record<'leaf' | 'shipIssue' | 'peek' | 'shipChat', ReactNode> = {
-  leaf: 'This document is archived, so it takes no new comments.',
-  shipIssue: 'Sign in to comment or react.',
-  peek: 'Archived by Ana Duarte · 14 Oct. Unarchive it to comment.',
-  shipChat: 'Sign in to write here.',
+/** A place a box sits in. */
+export type Place = 'leaf' | 'shipIssue' | 'peek' | 'shipChat'
+
+/**
+ * The line in place of a closed box, per place. An archived file takes no
+ * comments in any app, a Ship issue included (Miky, 17 Oct).
+ */
+export const CLOSED_REASON: Record<Place, Record<'archived' | 'signedOut', ReactNode>> = {
+  leaf: { archived: 'Archived by Ana Duarte · 14 Oct. It takes no new comments.', signedOut: 'Sign in to comment.' },
+  shipIssue: { archived: 'Archived by Ana Duarte · 14 Oct. It takes no new comments.', signedOut: 'Sign in to comment.' },
+  peek: { archived: 'Archived by Ana Duarte · 14 Oct. It takes no new replies.', signedOut: 'Sign in to reply.' },
+  shipChat: { archived: 'Archived by Ana Duarte · 14 Oct. It takes no new messages.', signedOut: 'Sign in to write here.' },
 }
+
+/** The closed box's line for a state, or nothing when the box is open. */
+export const closedFor = (place: Place, state: BoxState) => (state === 'archived' || state === 'signedOut' ? { reason: CLOSED_REASON[place][state] } : undefined)
 
 export { WITH_CHIPS }

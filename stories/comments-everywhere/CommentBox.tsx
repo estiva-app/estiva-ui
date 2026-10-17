@@ -95,8 +95,8 @@ export interface CommentBoxProps extends CommentBoxSupply {
   }
   /** Offer the paperclip. */
   attach?: boolean
-  /** The box cannot write here: why, and how it shows. */
-  closed?: { reason: ReactNode; look: 'notice' | 'greyed' }
+  /** The box cannot write here (an archived file, signed out): a line saying why takes its place, in every app (Miky, 17 Oct). */
+  closed?: { reason: ReactNode }
   start?: BoxStart
   autoFocus?: boolean
   /** Called with what was sent once it went out (before the answer, when `showsAtOnce`). */
@@ -369,8 +369,8 @@ export function CommentBox({
     </ToolbarButton>
   ) : undefined
 
-  // Closed, as Peek does it: no box, a line in its place.
-  if (closed?.look === 'notice') {
+  // Closed: no box, a line in its place.
+  if (closed) {
     return (
       <Card fill="inset" className={cn('flex items-start gap-3 px-4 py-3', className)}>
         <IconLock size={16} stroke={1.5} className="mt-0.5 shrink-0 text-text-muted" aria-hidden />
@@ -409,13 +409,13 @@ export function CommentBox({
       <ComposeBox
         editor={editor}
         onSend={go}
-        placeholder={closed ? <span>{closed.reason}</span> : placeholder}
+        placeholder={placeholder}
         tools={paperclip}
         attachments={fileCards}
         ready={ready}
-        holding={uploading || sending || !!closed}
+        holding={uploading || sending}
         selection={{ link: true }}
-        className={cn(closed && 'opacity-60', sending && '[&_[data-composer-editor]]:text-text-muted')}
+        className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
       {sending && <FieldLine>Sending…</FieldLine>}
       {uploading && !sending && <FieldLine>Uploading… Send waits for the file.</FieldLine>}

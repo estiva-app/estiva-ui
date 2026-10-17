@@ -14,7 +14,7 @@ import { Person } from '../../src/Person'
 import { Body, CommentBox, type CommentBoxSupply } from './CommentBox'
 import { ME, NAME, OTHER_THREAD, type Comment } from './fixtures'
 import { ReactionRow, toggled } from './ReactionRow'
-import { CLOSED_REASON, CommentActions, boxStartFor, supplyFor, threadFor, useComments, type BoxState } from './parts'
+import { CommentActions, boxStartFor, closedFor, supplyFor, threadFor, useComments, type BoxState } from './parts'
 
 /**
  * The four places the shared box and row are drawn: Leaf's comments column, a
@@ -29,8 +29,7 @@ export interface PlaceProps {
 
 type Comments = ReturnType<typeof useComments>
 
-const isClosed = (state: BoxState) => state === 'closedNotice' || state === 'closedGreyed'
-const closedLook = (state: BoxState) => (state === 'closedNotice' ? 'notice' : 'greyed') as 'notice' | 'greyed'
+const isClosed = (state: BoxState) => state === 'archived' || state === 'signedOut'
 
 /** A sent comment's files, as the card shows them. */
 function Files({ comment, className }: { comment: Comment; className?: string }) {
@@ -185,7 +184,7 @@ export function LeafColumn({ state, width = 384 }: PlaceProps & { width?: number
                 placeholder="Comment on these words…"
                 draftKey="leaf-new"
                 start={footStart}
-                closed={closed ? { reason: CLOSED_REASON.leaf, look: closedLook(state) } : undefined}
+                closed={closedFor('leaf', state)}
                 onSent={c.add}
                 onRefused={c.dropLast}
               />
@@ -250,7 +249,7 @@ function ShipConversation({ state, where }: PlaceProps & { where: 'shipIssue' | 
   const [first, ...replies] = c.comments
   const topStart = onTop ? start : undefined
   const replyStart = topStart ? undefined : start
-  const closedProp = closed ? { reason: CLOSED_REASON[where], look: closedLook(state) } : undefined
+  const closedProp = closedFor(where, state)
 
   return (
     <div className="flex flex-col gap-3">
@@ -285,14 +284,13 @@ function ShipConversation({ state, where }: PlaceProps & { where: 'shipIssue' | 
                     <ShipMessage key={comment.id} comment={comment} c={c} supply={supply} closed={closed} />
                   ))}
                 </div>
-                {!(closed && closedLook(state) === 'notice') && (
+                {!closed && (
                   <CommentBox
                     {...supply}
                     attach
                     placeholder="Reply…"
                     draftKey={`${where}-reply`}
                     start={replyStart}
-                    closed={closedProp}
                     autoFocus={state === 'replying'}
                     onSent={c.add}
                     className="ml-2.5"
@@ -404,7 +402,7 @@ export function PeekThread({ state }: PlaceProps) {
               placeholder="Reply…"
               draftKey="peek-thread"
               start={start}
-              closed={closed ? { reason: CLOSED_REASON.peek, look: closedLook(state) } : undefined}
+              closed={closedFor('peek', state)}
               autoFocus={state === 'replying'}
               onSent={c.add}
               onRefused={c.dropLast}
