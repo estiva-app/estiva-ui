@@ -10,8 +10,14 @@
   with its look unchanged: the app's `logo`, one `message`, at most one primary
   `action`, and `busy` for the logo alone, pulsing after 150ms. The words stay
   the caller's (the apps pass `@estiva-app/identity`'s), so the package takes
-  no dependency on identity. Peek moves onto it in its own PR; Ship and Leaf in
-  their own issues. No app takes it in this release.
+  no dependency on identity. A busy screen is a busy status named `busyLabel`
+  ("Loading" by default) and the line is a polite status, so a screen reader
+  hears both; `action.disabled` holds the button while what it started runs.
+  Peek moves onto it in its own PR; Ship and Leaf in their own issues. No app
+  takes it in this release.
+- **`ButtonAction`**, the `{ label, onClick }` a part draws as its own Button:
+  `EmptyState`'s `action` is now typed by it (the same shape, so no caller
+  changes), and `EntryShell`'s adds `disabled`.
 
 ## 0.76.0 — 2026-10-17
 

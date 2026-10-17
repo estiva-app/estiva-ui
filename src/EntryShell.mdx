@@ -8,52 +8,55 @@ import * as EntryShellStories from './EntryShell.stories'
 What an app shows while nobody is signed in to it: its logo, one line saying
 why, and at most one button.
 
-<Canvas of={EntryShellStories.NoSession} />
-
-It is the same canvas in every state, a logo and at most one affordance,
-because the thing it must never look like is a separate sign-in page for an
-identity the person already holds.
+<Canvas of={EntryShellStories.MessageWithAction} />
 
 ## When
 
 - **`busy`**: entry is still being decided. The logo alone, pulsing, revealed
   after 150ms, so an entry that resolves at once flashes nothing.
 - **A `message` and an `action`**: entry stopped and one thing would get the
-  person in, such as continuing with a passkey or trying again.
+  person in.
 - **A `message` alone**: entry stopped and nothing the person can do would
-  help. No button, because a button that cannot work is worse than none.
+  help, so there is no button.
+- **An `action` alone**: the button with no line over it.
+- **`action.disabled`**: the button held while what it started is still
+  running, so a second tap starts nothing.
 
-<Canvas of={EntryShellStories.TokenRejected} />
+<Canvas of={EntryShellStories.Busy} />
+
+<Canvas of={EntryShellStories.MessageOnly} />
 
 ## When not
 
-- As a page inside the app's frame. It stands in *for* the whole app, around
-  it, while entry is decided; inside the frame, nothing to show is an
-  **EmptyState**.
-- With anything beyond the logo. The one-line, one-button canvas is what the
-  part exists to keep.
+- Inside the app's frame. It stands in *for* the whole app while entry is
+  decided; a page or a section with nothing to show inside the frame is an
+  [**EmptyState**](?path=/docs/feedback-emptystate--docs).
 
 ## How
 
 ```tsx
 import { EntryShell } from '@estiva-app/ui'
 
-<EntryShell logo={appLogo} busy />
+<EntryShell logo={appLogo} busy busyLabel="Opening" />
 
 <EntryShell
   logo={appLogo}
-  message={copyForWhy}
-  action={canRecover ? { label: continueLabel, onClick: startPasskey } : undefined}
+  message={why}
+  action={canRecover ? { label: continueLabel, onClick: start, disabled: starting } : undefined}
 />
 ```
 
-- **The words are the caller's.** A shared part has none of its own for why
-  entry stopped; the apps pass the identity package's, so every app says the
-  same thing.
-- **`action.onClick` runs from the tap itself.** A passkey prompt needs the
-  person's gesture, so start it there, not behind anything asynchronous.
-- **The logo is drawn as given.** Hand it at the size the app draws its mark
-  at; the shell does not resize it.
+- **The words are the caller's**: the line, the button's label and
+  `busyLabel`.
+- **`action.onClick` runs from the tap itself.** Start anything that needs the
+  person's gesture there, not behind anything asynchronous, and pass
+  `disabled` while it runs.
+- **The logo is drawn as given**, at the size the app draws its mark. While
+  `busy`, the pulse goes on that element itself, so it must take a
+  `className`.
+- **What a screen reader hears**: while `busy`, a busy status named
+  `busyLabel` ("Loading" when you pass none); afterwards the line is a polite
+  status, read when it appears.
 
 ## What it owns
 
@@ -61,4 +64,4 @@ Nothing. It only draws. Clicks and keys are yours.
 
 ## Props
 
-<Controls of={EntryShellStories.NoSession} />
+<Controls of={EntryShellStories.MessageWithAction} />

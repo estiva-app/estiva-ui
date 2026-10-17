@@ -6,7 +6,7 @@
     "package": "@estiva-app/ui",
     "packageVersion": "0.77.0",
     "exports": 203,
-    "typeExports": 196,
+    "typeExports": 197,
     "files": null
   },
   "storybook": {
@@ -2959,7 +2959,7 @@
         },
         {
           "name": "action",
-          "takes": "a handler",
+          "takes": "ButtonAction",
           "required": false,
           "note": "The one thing to do about it — \"New topic\", \"Try again\" — drawn 16px under the line as the package's Button, outlined (Katerina, 2026-09-18)."
         },
@@ -3038,16 +3038,22 @@
           "note": "Entry is still being decided: the logo alone, pulsing, revealed after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
         },
         {
+          "name": "busyLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears while `busy`; nothing is drawn for it."
+        },
+        {
           "name": "message",
           "takes": "anything",
           "required": false,
-          "note": "The one line saying why nobody is signed in."
+          "note": "The one line saying why nobody is signed in, announced politely when it appears."
         },
         {
           "name": "action",
-          "takes": "a handler",
+          "takes": "ButtonAction & { disabled?: boolean }",
           "required": false,
-          "note": "The one thing to do about it — \"Continue\", \"Try again\" — drawn under the line as the package's primary Button."
+          "note": "The one thing to do about it, drawn under the line (or alone, with no `message`) as the package's primary Button."
         },
         {
           "name": "className",
@@ -3061,7 +3067,7 @@
       "status": "stable",
       "migrationStage": null,
       "docsId": "frame-entryshell--docs",
-      "storyId": "frame-entryshell--no-session",
+      "storyId": "frame-entryshell--message-with-action",
       "docPage": "src/EntryShell.mdx",
       "app": null,
       "looks": []
