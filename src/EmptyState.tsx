@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { IconMessage2 } from '@tabler/icons-react'
-import { Button } from './Button'
+import { Button, type ButtonAction } from './Button'
 import { cn } from './cn'
 
 /**
@@ -34,7 +34,7 @@ export interface EmptyStateProps {
    * the line as the package's Button, outlined (Katerina, 2026-09-18). A `page`
    * only: a section's empty line is one line among others, not a stage.
    */
-  action?: { label: string; onClick: () => void }
+  action?: ButtonAction
   className?: string
 }
 

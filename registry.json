@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.76.0",
-    "exports": 202,
-    "typeExports": 195,
+    "packageVersion": "0.77.0",
+    "exports": 203,
+    "typeExports": 197,
     "files": null
   },
   "storybook": {
@@ -2959,7 +2959,7 @@
         },
         {
           "name": "action",
-          "takes": "a handler",
+          "takes": "ButtonAction",
           "required": false,
           "note": "The one thing to do about it — \"New topic\", \"Try again\" — drawn 16px under the line as the package's Button, outlined (Katerina, 2026-09-18)."
         },
@@ -3015,6 +3015,62 @@
       "looks": [
         "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
+    },
+    {
+      "name": "EntryShell",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EntryShell.tsx",
+      "purpose": "What an app shows while nobody is signed in to it: its logo, one line saying why, and at most one button.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "logo",
+          "takes": "anything",
+          "required": true,
+          "note": "The app's own mark, drawn at the top in every state, as given: the app sizes it."
+        },
+        {
+          "name": "busy",
+          "takes": "true/false",
+          "required": false,
+          "note": "Entry is still being decided: the logo alone, faded in after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
+        },
+        {
+          "name": "busyLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears while `busy`; nothing is drawn for it."
+        },
+        {
+          "name": "message",
+          "takes": "anything",
+          "required": false,
+          "note": "The one line saying why nobody is signed in, announced politely when it appears."
+        },
+        {
+          "name": "action",
+          "takes": "ButtonAction & { disabled?: boolean }",
+          "required": false,
+          "note": "The one thing to do about it, drawn under the line (or alone, with no `message`) as the package's primary Button."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-entryshell--docs",
+      "storyId": "frame-entryshell--message-with-action",
+      "docPage": "src/EntryShell.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ErrorBoundary",

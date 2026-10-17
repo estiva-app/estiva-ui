@@ -148,6 +148,7 @@ the **floating** TopBar goes with the **Rail** and the content card.
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
 | The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
 | Where pictures come from, and how to change page without a reload, said once | **AppProvider**, around the whole app |
+| What shows while nobody is signed in: the logo, one line, at most one button | **EntryShell** — in place of the whole app; `busy` while entry is decided |
 | The list beside the thing that is open | **ListColumn** — 290px, its name in a **ContainerHeader**, the list under it scrolling |
 | A panel of a page that is not a list — details, a thread, what is open — with a body that must never be cut off | **Panel** — a header, a body that scrolls whenever it is taller, and a `footer` that stays put |
 
