@@ -1,0 +1,83 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CommentBoxStories from './CommentBox.stories'
+
+<Meta of={CommentBoxStories} />
+
+# CommentBox
+
+The one box every app writes a comment, a reply and a line of a conversation in: `@`, `!@`, `[` and `/`, the keys, drafts, files, editing, sending and a refused send. The app supplies its people, its `[` sections, its `/` Insert rows and a send.
+
+<Canvas of={CommentBoxStories.Empty} />
+
+## When
+
+- **Writing anything that is sent**, in every app: a comment, a reply, a line in a conversation. The same box writes all of them.
+- `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
+- `edit` to change something already sent: the same box with Cancel and Save, and only its keys on the left.
+- `upload` to offer files: the paperclip, `/` → File, a pasted picture and a dropped file.
+- `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
+
+<Canvas of={CommentBoxStories.Refused} />
+
+## When not
+
+- Writing a document in place → the editor itself, with **EditorBlockHandle** and **SelectionToolbar**. Nothing is sent.
+- A box with nothing of this — no lists, no drafts, no files → **ComposeBox**, with the app's own editor. CommentBox is built on it.
+- One line of plain text in a form → **TextInput** or **Textarea**.
+
+## How
+
+```tsx
+import { CommentBox, commentBoxRows } from '@estiva-app/ui/editor'
+
+// composerDraft, createDraftStore, draftKeys and composerText: @estiva-app/conversation, which this package does not depend on.
+const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(rootId), labels)
+
+<CommentBox
+  key={rootId}
+  label="Reply"
+  placeholder="Reply…"
+  people={people}
+  references={sectionsFor}
+  insert={[commentBoxRows.file, commentBoxRows.mention, commentBoxRows.urgent, commentBoxRows.reference]}
+  code="block"
+  draft={draft}
+  upload={uploadOne}
+  send={async (body, files) => {
+    const { text, urgent } = composerText(body)
+    return publish(text, urgent, files) // { accepted: true } or { accepted: false, reason }
+  }}
+/>
+```
+
+- **It speaks the editor's document.** What a document writes as a message, and the document an edit or a draft opens with, are `@estiva-app/conversation`'s: `composerText`, `composerDocument`, `composerDraft`. Never write marker text here.
+- **`send` answers.** Resolve `{ accepted: false, reason }` and the words come back with "Not sent: *reason*". A thrown send is a refusal too.
+- **`label` is required**: the editor's accessible name.
+- **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops File and Urgent itself; with no `upload` there is no File.
+- **Give the box a `key` per destination.** The editor, the rows and `code` are made once, as the box opens; a new thread is a new box.
+- A send shown at once and refused after its box went away writes the words into its draft instead.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write |
+|---|---|
+| `@`, `!@`, `[` and `/`, with their lists and chips | the triggers and their extensions |
+| Enter and Ctrl/Cmd+Enter send; Escape cancels an edit | key handlers |
+| Holding the words until the answer, or showing the send at once | a sending state |
+| A refusal: the words back, and a line under the box | a toast, or putting text back |
+| The draft, written as you type and forgotten once sent | an update listener |
+| Files: picking, pasting, dropping, uploading, failing; Send waits | a file list |
+| The read-only line | a disabled box |
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| Enter | Sends; saves an edit. With a list open, picks the row. |
+| Ctrl/Cmd+Enter | Sends, as Enter does. |
+| Shift+Enter | A new line; in a list, a new item. |
+| Escape | Cancels an edit. With a list open, closes the list first. |
+
+<Controls />

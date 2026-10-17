@@ -9,6 +9,17 @@
  */
 export { KeptSelection, SelectionToolbar, keepSelection, releaseSelection, normalizeHref, type MarkId, type SelectionAction, type SelectionToolbarProps } from './SelectionToolbar'
 export { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, type ComposeBoxProps } from './ComposeBox'
+export {
+  CommentBox,
+  commentBoxRows,
+  type CommentBoxProps,
+  type CommentBoxDraft,
+  type CommentBoxEdit,
+  type BoxFile,
+  type BoxFileState,
+  type SendAnswer,
+  type UploadAnswer,
+} from './CommentBox'
 export { InlineText, type InlineTextProps, type InlineTextHandle } from './InlineText'
 export {
   CommentHighlights,

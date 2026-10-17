@@ -59,13 +59,14 @@ export const ComposeKeys = Extension.create<Record<string, never>, ComposeKeysSt
   },
 })
 
-/** Nothing written: no text, no chip and no picture — empty lines, lists or quotes only. */
+/** Nothing written: no text, no chip and no picture — empty lines, spaces, lists or quotes only. */
 function isEmptyDoc(editor: Editor): boolean {
   const doc = editor.state.doc
-  if (doc.textContent.length > 0) return false
+  if (doc.textContent.trim().length > 0) return false
   let empty = true
   doc.descendants((node) => {
-    if (node.isAtom && node.type.name !== 'hardBreak') empty = false
+    // A text node is a leaf, so an atom too: only spaces are left of it here.
+    if (node.isAtom && !node.isText && node.type.name !== 'hardBreak') empty = false
   })
   return empty
 }
