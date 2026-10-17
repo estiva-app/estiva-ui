@@ -25,7 +25,7 @@ export const MessageWithAction: Story = {
   args: { message: 'One line saying why the app cannot open yet.', action: { label: 'Continue', onClick: () => {} } },
 }
 
-/** The logo alone, pulsing, revealed after 150ms. */
+/** The logo alone, faded in after 150ms. */
 export const Busy: Story = {
   args: { busy: true },
 }

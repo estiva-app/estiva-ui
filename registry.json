@@ -3035,7 +3035,7 @@
           "name": "busy",
           "takes": "true/false",
           "required": false,
-          "note": "Entry is still being decided: the logo alone, pulsing, revealed after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
+          "note": "Entry is still being decided: the logo alone, faded in after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
         },
         {
           "name": "busyLabel",

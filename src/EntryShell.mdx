@@ -12,8 +12,10 @@ why, and at most one button.
 
 ## When
 
-- **`busy`**: entry is still being decided. The logo alone, pulsing, revealed
-  after 150ms, so an entry that resolves at once flashes nothing.
+- **`busy`**: entry is still being decided. The logo alone, faded in after
+  150ms, so an entry that resolves at once flashes nothing. It carries the
+  pulse class too, as Peek's did; the reveal overrides it here, and an app
+  that themes the pulse draws its own instead.
 - **A `message` and an `action`**: entry stopped and one thing would get the
   person in.
 - **A `message` alone**: entry stopped and nothing the person can do would

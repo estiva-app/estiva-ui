@@ -18,10 +18,12 @@ export interface EntryShellProps {
    */
   logo: ReactElement<{ className?: string }>
   /**
-   * Entry is still being decided: the logo alone, pulsing, revealed after
-   * 150ms (as a Skeleton is), so an entry that resolves at once flashes
-   * nothing. The message and the action are not drawn. Assistive technology
-   * hears a busy status named `busyLabel`.
+   * Entry is still being decided: the logo alone, faded in after 150ms (as a
+   * Skeleton is), so an entry that resolves at once flashes nothing. The
+   * message and the action are not drawn. Assistive technology hears a busy
+   * status named `busyLabel`. The logo carries the pulse class too, as Peek's
+   * did; the reveal overrides it here, and an app that themes the pulse (Peek's
+   * Signal shimmer) draws its own instead.
    */
   busy?: boolean
   /** What a screen reader hears while `busy`; nothing is drawn for it. */
