@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.75.0",
-    "exports": 197,
-    "typeExports": 185,
+    "packageVersion": "0.76.0",
+    "exports": 202,
+    "typeExports": 195,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,65 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "AddReactionButton",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "The add button: `ReactionPicker` opens over it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "options",
+          "takes": "readonly ReactionOption[]",
+          "required": true,
+          "note": "The emoji offered, each named."
+        },
+        {
+          "name": "onPick",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
     {
       "name": "anchorOfSelection",
       "repo": "estiva-ui",
@@ -1906,6 +1965,174 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommentBox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentBox.tsx",
+      "purpose": "The one box every app writes a comment, a reply and a line of a conversation in: `@`, `!@`, `[` and `/`, the keys, drafts, files, editing, sending and a refused send.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "people",
+          "takes": "readonly MentionPerson[]",
+          "required": true,
+          "note": "Who `@` and `!@` offer."
+        },
+        {
+          "name": "references",
+          "takes": "a handler",
+          "required": false,
+          "note": "What `[` lists for what was typed, already in the app's order."
+        },
+        {
+          "name": "referencesChanged",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called with a listener while `[` is open; call it when `references` would answer differently (a search landed)."
+        },
+        {
+          "name": "referenceIcon",
+          "takes": "a handler",
+          "required": false,
+          "note": "A `[` row's and chip's 16px icon from what it points at; absent, a neutral square."
+        },
+        {
+          "name": "insert",
+          "takes": "readonly SlashCommand[]",
+          "required": false,
+          "note": "The app's own `/` Insert rows, after the shared Format section: {@link commentBoxRows} and its own."
+        },
+        {
+          "name": "code",
+          "takes": "CodeFormat",
+          "required": false,
+          "note": "`/` → Code: a mark inside the line, or a block."
+        },
+        {
+          "name": "send",
+          "takes": "a handler",
+          "required": true,
+          "note": "Send what is written, with the files that are ready; resolves with the relay's answer."
+        },
+        {
+          "name": "showsAtOnce",
+          "takes": "true/false",
+          "required": false,
+          "note": "The app shows a send before the relay answers: the box empties at once, and a refusal puts the words back."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The editor's accessible name: what the box is for."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": true,
+          "note": "Said in the empty box."
+        },
+        {
+          "name": "draft",
+          "takes": "CommentBoxDraft",
+          "required": false,
+          "note": "Keeps what is written when the box goes away."
+        },
+        {
+          "name": "edit",
+          "takes": "CommentBoxEdit",
+          "required": false,
+          "note": "Editing something already sent."
+        },
+        {
+          "name": "upload",
+          "takes": "a handler",
+          "required": false,
+          "note": "Offers the paperclip, `/` → File, a pasted picture and a dropped file: uploads one, and answers."
+        },
+        {
+          "name": "accept",
+          "takes": "text",
+          "required": false,
+          "note": "The file picker's `accept`."
+        },
+        {
+          "name": "closed",
+          "takes": "{ reason: ReactNode }",
+          "required": false,
+          "note": "The box cannot write here (an archived file, signed out): a line saying why takes its place."
+        },
+        {
+          "name": "referenceView",
+          "takes": "ComponentType<ReferenceViewProps>",
+          "required": false,
+          "note": "How a `nostr:` reference the box holds is drawn — the app's own chip."
+        },
+        {
+          "name": "extensions",
+          "takes": "readonly AnyExtension[]",
+          "required": false,
+          "note": "The app's own extra editor extensions: link chips, highlights."
+        },
+        {
+          "name": "autoFocus",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onSent",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called with what was sent once it went out: at once when `showsAtOnce`, else on the answer."
+        },
+        {
+          "name": "onRefused",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called when a send shown at once was refused, so the app takes it back."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commentbox--docs",
+      "storyId": "primitives-commentbox--empty",
+      "docPage": "src/CommentBox.mdx",
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors [&_.ProseMirror]:text-text-muted"
+      ]
+    },
+    {
+      "name": "commentBoxRows",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentBox.tsx",
+      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops File and Urgent itself.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commentbox--docs",
+      "storyId": "primitives-commentbox--empty",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6617,6 +6844,62 @@
       "looks": []
     },
     {
+      "name": "ReactionRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "The one row of reactions under a comment or a line, in every app: Reaction pills in the order first chosen, yours lit, who reacted on hover, and the add button with ReactionPicker.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "reactions",
+          "takes": "readonly ReactionCount[]",
+          "required": true,
+          "note": "Each emoji and who chose it, in the order first chosen."
+        },
+        {
+          "name": "options",
+          "takes": "readonly ReactionOption[]",
+          "required": true,
+          "note": "The emoji offered, each named; also what a pill's name is read from."
+        },
+        {
+          "name": "nameOf",
+          "takes": "a handler",
+          "required": true,
+          "note": "A reactor's name, as \"who reacted\" says it."
+        },
+        {
+          "name": "viewer",
+          "takes": "text",
+          "required": false,
+          "note": "Who is looking: their pills are lit, and \"who reacted\" says \"you\"."
+        },
+        {
+          "name": "onToggle",
+          "takes": "a handler",
+          "required": false,
+          "note": "Your reaction on or off. Absent, the row only shows (read-only, signed out)."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
+      "docPage": "src/ReactionRow.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "referenceAtSelection",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -9169,6 +9452,38 @@
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "whoReacted",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "\"Person one, Person two and you reacted with Makes sense\".",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "emoji",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "by",
+          "takes": "readonly string[]",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
       "docPage": null,
       "app": null,
       "looks": []

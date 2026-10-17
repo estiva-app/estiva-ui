@@ -1,0 +1,50 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ReactionRowStories from './ReactionRow.stories'
+
+<Meta of={ReactionRowStories} />
+
+# ReactionRow
+
+The one row of reactions under a comment or a line, in every app: **Reaction** pills in the order first chosen, yours lit, who reacted on hover, and the add button with **ReactionPicker**.
+
+<Canvas of={ReactionRowStories.Default} />
+
+## When
+
+- **Under anything people react to**, in every app.
+- `onToggle` absent where nobody can react (read-only, signed out): the pills show, disabled, and there is no add button.
+- **AddReactionButton** alone where nobody has reacted yet: the row draws nothing, and the button sits with the other actions.
+
+<Canvas of={ReactionRowStories.ManyPeople} />
+
+## When not
+
+- Choosing an emoji anywhere else → **ReactionPicker**, the row of choices on its own.
+- One count on its own → **Reaction**.
+
+## How
+
+```tsx
+import { ReactionRow, AddReactionButton } from '@estiva-app/ui'
+
+// groupReactions and REACTION_EMOJI: @estiva-app/conversation, which this package does not depend on.
+const options = REACTION_EMOJI.map(({ emoji, name }) => ({ emoji, label: name }))
+const reactions = groupReactions(decorations.byId[id].reactions, me)[id] ?? []
+
+<ReactionRow reactions={reactions} options={options} nameOf={nameOf} viewer={me} onToggle={(emoji) => toggle(id, emoji)} />
+```
+
+- **The counts are the app's to read**, by SPEC §6.6, through `@estiva-app/conversation`: `decorationsOf` and `groupReactions`. The row draws what it is given.
+- **`onToggle` is yours on or off**: the app writes the reaction, or its retraction.
+- `nameOf` names each reactor for "who reacted"; past eight names the rest are counted.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| No row when nobody reacted | an empty check |
+| "Person one, Person two and you reacted with Makes sense" on hover | the sentence |
+| The picker over the add button, closing on a pick | a popover |
+| Disabled pills and no add button without `onToggle` | a read-only branch |
+
+<Controls />

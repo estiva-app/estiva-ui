@@ -67,13 +67,15 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A hint on hover or on keyboard focus | **Tooltip** / **WithTooltip** — one `TooltipProvider` at the app root shares the delay |
 | A strip of controls that act on one thing | **Toolbar** — one Tab stop for the row, arrow keys along it |
 | Reactions to choose from | **ReactionPicker** — the row; **Reaction** is the pill it produces |
+| The reactions under something people react to, and adding one | **ReactionRow** — the pills, who reacted, and the picker; **AddReactionButton** alone while nobody has reacted |
 | One window to find something and act on it, opened by a shortcut | **CommandPalette** — rows, forms and written answers, one level at a time |
 | A list that opens as you type in an editor — `/` for commands, `@` for people | **SuggestionMenu** — the editor keeps the caret and hands it the arrow keys; `suggestionPopup` from `@estiva-app/ui/editor` wires it to a Tiptap plugin |
 | Bold, italic and the like over selected text in an editor | **SelectionToolbar**, from `@estiva-app/ui/editor` — it follows the selection by itself |
 | A composer's `@`, `!@`, `[` and `/` — mention a person, reference something, format or insert | **ComposerTriggers** — `PersonMention`, `UrgentPersonMention`, `CaptionedReference`, `ReferenceTrigger` and `SlashCommands` from `@estiva-app/ui/editor`; the app passes its people, its items and its own `/` rows |
 | An editor that saves a block document and must keep its block ids | **BlockNodes** — `BlockId`, `UnknownBlock`, `ReferenceNode` and `AttachmentNode` from `@estiva-app/ui/editor`, beside StarterKit and TableKit |
 | A page's title or the line under it, edited where it stands, as in a document | **InlineText**, from `@estiva-app/ui/editor` — no box; Enter saves and moves on |
-| The box a message, a reply or a comment is written in and sent | **ComposeBox**, from `@estiva-app/ui/editor` — the app brings its editor and adds `ComposeKeys` |
+| A comment, a reply or a line written and sent, in any app | **CommentBox**, from `@estiva-app/ui/editor` — triggers, keys, drafts, files, editing and a refused send; the app supplies its people, its `[` sections, its `/` rows and a send |
+| The box alone, around an editor the app makes itself | **ComposeBox**, from `@estiva-app/ui/editor` — the app brings its editor and adds `ComposeKeys` |
 | Comments on words, a passage or whole blocks of a document, drawn where they are | **CommentHighlights**, from `@estiva-app/ui/editor` — a run of blocks and the words quoted; says which was clicked and which moved or are gone |
 | Move, turn, duplicate or delete one block of a document being edited | **EditorBlockHandle**, from `@estiva-app/ui/editor`, with your rows after its own |
 | Add or delete a table's rows and columns in a document being edited | **EditorTableControls**, from `@estiva-app/ui/editor`, inside the EditorBlockHandle |

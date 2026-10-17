@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.76.0 — 2026-10-17
+
+### Added
+
+- **One comment box and one reaction row for every app** (*Comments work the
+  same in Peek, Ship and Leaf*, "The shared comment box and reaction row in
+  estiva-ui"; the prototype Miky approved on 17 Oct, `concept/comments-everywhere`
+  534fe73; record *every-app-writes-and-reacts-with-one-shared-box*). Leaf and
+  Ship move onto them in their own issues, Peek in stage 2; no app takes them
+  in this release.
+  - `CommentBox`, in `@estiva-app/ui/editor`: `ComposeBox` with `@`, `!@`, `[`
+    and `/`, Enter and Ctrl/Cmd+Enter to send, Escape to cancel an edit,
+    drafts, files (paperclip, `/` → File, a pasted picture, a dropped file),
+    the edit mode, a send held until the relay answers or shown at once
+    (`showsAtOnce`), a refused send putting the words back with a line under
+    the box, and a line in its place when nothing can be written (`closed`).
+    It speaks the editor's document; `@estiva-app/conversation` 0.13.0's
+    `composerText`, `composerDocument` and `composerDraft` turn it into the
+    message and back. `commentBoxRows` are the kit's `/` Insert rows: File,
+    Mention, Urgent, Reference.
+  - `ReactionRow`, `AddReactionButton` and `whoReacted`, in `@estiva-app/ui`:
+    the `Reaction` pills in the order first chosen, yours lit, who reacted on
+    hover, and the picker. No row when nobody reacted. The counts are the
+    app's, from `@estiva-app/conversation`'s `groupReactions`.
+- `@tiptap/starter-kit` is an optional peer dependency, as the other Tiptap
+  packages are: `CommentBox` makes its editor with it. Peek, Ship and Leaf all
+  have it.
+
+### Fixed
+
+- `ComposeBox` sent a box holding only spaces, and drew no placeholder over
+  one: a text node counted as a chip in its emptiness check. Only Leaf uses
+  it today.
+
 ## 0.75.0 — 2026-10-16
 
 ### Added
