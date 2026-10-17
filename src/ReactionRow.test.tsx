@@ -57,6 +57,10 @@ describe('who reacted', () => {
     expect(whoReacted({ emoji: '🦆', by: ['me'] }, nameOf, OPTIONS, 'me')).toBe('You reacted with 🦆')
   })
 
+  it('says nothing when nobody holds the emoji', () => {
+    expect(whoReacted({ emoji: '👍', by: [] }, nameOf, OPTIONS, 'me')).toBe('')
+  })
+
   it('counts the names past eight', () => {
     const many = Array.from({ length: 11 }, (_, i) => `p${i}`)
     expect(whoReacted({ emoji: '👍', by: many }, () => 'P', OPTIONS)).toBe('P, P, P, P, P, P, P, P and 3 more reacted with Makes sense')

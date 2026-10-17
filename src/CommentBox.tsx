@@ -8,7 +8,7 @@ import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
 import { Card } from './Card'
 import { cn } from './cn'
-import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES } from './ComposeBox'
+import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, isEmptyDoc as isEmpty } from './ComposeBox'
 import {
   CaptionedReference,
   PersonMention,
@@ -21,6 +21,7 @@ import {
   type MentionPerson,
   type ReferenceSection,
   type SlashCommand,
+  type SlashSection,
 } from './ComposerTriggers'
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
@@ -28,7 +29,7 @@ import { Kbd } from './Kbd'
 import { WRITING_BOX_CLASSES } from './looks'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
-import { isSuggestionActive } from './suggestionPopup'
+import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
 
 /**
@@ -158,23 +159,14 @@ const BoxKeys = Extension.create<{ onEscape: () => boolean }>({
   addKeyboardShortcuts() {
     return {
       'Mod-Enter': ({ editor }) => (editor.storage as unknown as { composeKeys?: { send: (() => boolean) | null } }).composeKeys?.send?.() ?? false,
-      Escape: () => (isSuggestionActive() ? false : this.options.onEscape()),
+      // Open now, with no grace: the first Escape closes a list, the next is a deliberate cancel (suggestionPopup).
+      Escape: () => (isSuggestionOpen() ? false : this.options.onEscape()),
     }
   },
 })
 
 const SQUARE = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 const SMALL_SQUARE = <IconSquareRounded size={14} stroke={1.5} />
-
-/** Nothing written: no text and no chip. */
-const isEmpty = (editor: Editor) => {
-  if (editor.state.doc.textContent.trim().length > 0) return false
-  let empty = true
-  editor.state.doc.descendants((node) => {
-    if (node.isAtom && !node.isText && node.type.name !== 'hardBreak') empty = false
-  })
-  return empty
-}
 
 let fileCount = 0
 
@@ -207,8 +199,8 @@ export function CommentBox({
   const picker = useRef<HTMLInputElement>(null)
   const root = useRef<HTMLDivElement>(null)
   // The latest props, for the editor's callbacks, which are made once.
-  const latest = useRef({ edit, people, references, upload, draft })
-  latest.current = { edit, people, references, upload, draft }
+  const latest = useRef({ edit, people, references, referencesChanged, referenceIcon, upload, draft })
+  latest.current = { edit, people, references, referencesChanged, referenceIcon, upload, draft }
   const save = useRef<() => boolean>(() => false)
 
   const attachFiles = useCallback((picked: File[]): boolean => {
@@ -231,6 +223,11 @@ export function CommentBox({
 
   // An edit cannot add a file or make a mention urgent, as in every app before the box; no upload, no File.
   const rows = insert.filter((c) => !((edit || !upload) && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
+  // `/` reads its sections each time it opens, from this one array: refilled every render, so a row that
+  // comes or goes with `upload`, `insert` or `code` after the box opened is offered as it is now.
+  const sections = useRef<SlashSection[]>([]).current
+  sections.splice(0, sections.length, formatSection(code), ...(rows.length > 0 ? [{ label: 'Insert', commands: rows }] : []))
+  const iconFor = useCallback((uri: string | null) => latest.current.referenceIcon?.(uri), [])
 
   const editor = useEditor({
     extensions: [
@@ -246,18 +243,24 @@ export function CommentBox({
         },
       }),
       PersonMention.configure({ people: () => latest.current.people }),
-      UrgentPersonMention.configure({ people: () => latest.current.people }),
-      CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor: referenceIcon }),
+      // An edit makes nobody urgent (CON-24): `!@` opens no list there, as `/` offers no Urgent.
+      UrgentPersonMention.extend({
+        addOptions() {
+          const parent = this.parent!()
+          return { ...parent, suggestion: { ...parent.suggestion, allow: () => !latest.current.edit } }
+        },
+      }).configure({ people: () => latest.current.people }),
+      CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor }),
       ReferenceTrigger.configure({
         items: () => [],
         sections: (query) => latest.current.references?.(query) ?? [],
-        subscribe: referencesChanged,
+        subscribe: (listener) => latest.current.referencesChanged?.(listener) ?? (() => {}),
         ariaLabel: 'References',
         sectionLabel: 'References',
         icon: SQUARE,
-        iconFor: referenceIcon,
+        iconFor,
       }),
-      SlashCommands.configure({ sections: [formatSection(code), ...(rows.length > 0 ? [{ label: 'Insert', commands: rows }] : [])] }),
+      SlashCommands.configure({ sections }),
       ReferenceNode.configure({ view: referenceView ?? null }),
       PastedImages.configure({ onImages: attachFiles }),
       ...extensions,
@@ -310,7 +313,7 @@ export function CommentBox({
       const body = ed.getJSON()
       const sent = files.filter((f) => f.state === 'ready')
       setRefused(null)
-      const answered = (answer: Promise<SendAnswer>) => answer.catch((): SendAnswer => ({ accepted: false, reason: 'it could not be sent' }))
+      const answered = (answer: Promise<SendAnswer>) => answer.catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
       if (showsAtOnce) {
         // Shown at once: the box empties now (ComposeBox clears it); a refusal puts the words back above anything written since.
         setFiles((all) => all.filter((f) => f.state !== 'ready'))
@@ -356,7 +359,7 @@ export function CommentBox({
     setSending(true)
     void edit
       .onSave(editor.getJSON(), files)
-      .catch((): SendAnswer => ({ accepted: false, reason: 'it could not be saved' }))
+      .catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
       .then((answer) => {
         setSending(false)
         if (!answer.accepted) setRefused(answer.reason)
@@ -404,7 +407,7 @@ export function CommentBox({
 
   const refusedLine = refused && (
     <FieldLine tone="error">
-      Not {edit ? 'saved' : 'sent'}: {refused}. Your text is back in the box.
+      {edit ? `Not saved: ${refused}. Your changes are still in the box.` : `Not sent: ${refused}. Your text is back in the box.`}
     </FieldLine>
   )
 

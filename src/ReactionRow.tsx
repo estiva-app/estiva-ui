@@ -34,6 +34,7 @@ const meaningOf = (options: readonly ReactionOption[], emoji: string) => options
 
 /** "Person one, Person two and you reacted with Makes sense". */
 export function whoReacted(reaction: ReactionCount, nameOf: (id: string) => string, options: readonly ReactionOption[], viewer?: string): string {
+  if (reaction.by.length === 0) return ''
   const others = reaction.by.filter((id) => id !== viewer).map(nameOf)
   const you = viewer !== undefined && reaction.by.includes(viewer)
   const named = others.slice(0, you ? NAMED - 1 : NAMED)

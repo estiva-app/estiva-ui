@@ -50,7 +50,7 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 />
 ```
 
-- **It speaks the editor's document.** What a document writes as a message, and the document an edit or a draft opens with, are `@estiva-app/conversation`'s: `composerText`, `composerDocument`, `composerDraft`. Never write marker text here.
+- **It speaks the editor's document.** The text a document sends, and the document an edit or a draft opens with, are `@estiva-app/conversation`'s: `composerText`, `composerDocument`, `composerDraft`. Never write marker text here.
 - **`send` answers.** Resolve `{ accepted: false, reason }` and the words come back with "Not sent: *reason*". A thrown send is a refusal too.
 - **`label` is required**: the editor's accessible name.
 - **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops File and Urgent itself; with no `upload` there is no File.

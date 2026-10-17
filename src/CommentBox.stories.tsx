@@ -32,7 +32,7 @@ const PEOPLE: MentionPerson[] = ['one', 'two', 'three', 'four'].map((n, i) => ({
 
 const ITEMS: CaptionedItem[] = ['one', 'two', 'three'].map((n, i) => ({
   id: String(i + 5).repeat(64),
-  label: 'Person one',
+  label: 'Label',
   snippet: `Item ${n}`,
   uri: `nostr:nevent1item${n}`,
 }))
@@ -85,7 +85,7 @@ const WITH_CHIPS: JSONContent = {
         { type: 'text', text: 'Agreed with ' },
         { type: 'mention', attrs: { id: 'two', label: 'Person two', pubkey: '2'.repeat(64) } },
         { type: 'text', text: ', as in ' },
-        { type: 'captionedReference', attrs: { id: ITEMS[0].id, label: 'Person one', snippet: 'Item one', uri: ITEMS[0].uri } },
+        { type: 'captionedReference', attrs: { id: ITEMS[0].id, label: 'Label', snippet: 'Item one', uri: ITEMS[0].uri } },
       ],
     },
   ],
@@ -176,6 +176,20 @@ export const ShownAtOnce: Story = { render: () => <Live showsAtOnce /> }
 /** Editing something sent: the chips stay chips; only the keys on the left. */
 export const Editing: Story = {
   render: () => <Live edit={{ body: WITH_CHIPS, onCancel: () => {}, onSave: answering }} />,
+}
+
+/** A save the relay refused: "Saving…" while it waits, then a line under the box; the changes stay. */
+export const EditingRefused: Story = {
+  render: () => (
+    <Live
+      edit={{
+        body: WITH_CHIPS,
+        onCancel: () => {},
+        onSave: () => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason: 'rate-limited, try again in a minute' }), 900)),
+      }}
+    />
+  ),
+  play: typeInto('{Enter}'),
 }
 
 /** A file uploading: Send waits for it. */

@@ -148,11 +148,31 @@ describe('editing', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
+  it('!@ opens no urgent list in an edit, and @ still does', async () => {
+    render(<Box edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    await type(' !@')
+    expect(screen.queryByRole('listbox', { name: 'Urgent mention' })).toBeNull()
+    await type(' @')
+    expect(screen.getByRole('listbox', { name: 'People' })).toBeTruthy()
+    await press('Escape')
+  })
+
+  it('Escape right after closing a list cancels the edit', async () => {
+    const onCancel = vi.fn()
+    render(<Box edit={{ body, onSave: async () => ({ accepted: true }), onCancel }} />)
+    await type(' @')
+    expect(screen.getByRole('listbox')).toBeTruthy()
+    await press('Escape')
+    expect(onCancel).not.toHaveBeenCalled()
+    await press('Escape')
+    expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
   it('a refused save keeps the words and says it was not saved', async () => {
     render(<Box edit={{ body, onSave: async () => ({ accepted: false, reason: 'gone' }), onCancel: () => {} }} />)
     await press('Enter')
     await settle()
-    expect(screen.getByText('Not saved: gone. Your text is back in the box.')).toBeTruthy()
+    expect(screen.getByText('Not saved: gone. Your changes are still in the box.')).toBeTruthy()
     expect(editorOf().getText()).toBe('Said before')
   })
 
@@ -214,6 +234,15 @@ describe('files', () => {
     await settle()
     expect(screen.getByText('too large')).toBeTruthy()
     expect(screen.queryByText('Uploading… Send waits for the file.')).toBeNull()
+  })
+
+  it('an upload that arrives after the box opened offers File in /', async () => {
+    const { rerender } = render(<Box />)
+    rerender(<Box upload={async () => ({ accepted: true, value: 1 })} />)
+    await type('/')
+    const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
+    expect(rows.some((r) => r.startsWith('File'))).toBe(true)
+    await press('Escape')
   })
 
   it('no upload: no paperclip and no File row', async () => {

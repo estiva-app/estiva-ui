@@ -60,7 +60,7 @@ export const ComposeKeys = Extension.create<Record<string, never>, ComposeKeysSt
 })
 
 /** Nothing written: no text, no chip and no picture — empty lines, spaces, lists or quotes only. */
-function isEmptyDoc(editor: Editor): boolean {
+export function isEmptyDoc(editor: Editor): boolean {
   const doc = editor.state.doc
   if (doc.textContent.trim().length > 0) return false
   let empty = true
