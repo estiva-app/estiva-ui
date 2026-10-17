@@ -1,0 +1,64 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as EntryShellStories from './EntryShell.stories'
+
+<Meta of={EntryShellStories} />
+
+# EntryShell
+
+What an app shows while nobody is signed in to it: its logo, one line saying
+why, and at most one button.
+
+<Canvas of={EntryShellStories.NoSession} />
+
+It is the same canvas in every state, a logo and at most one affordance,
+because the thing it must never look like is a separate sign-in page for an
+identity the person already holds.
+
+## When
+
+- **`busy`**: entry is still being decided. The logo alone, pulsing, revealed
+  after 150ms, so an entry that resolves at once flashes nothing.
+- **A `message` and an `action`**: entry stopped and one thing would get the
+  person in, such as continuing with a passkey or trying again.
+- **A `message` alone**: entry stopped and nothing the person can do would
+  help. No button, because a button that cannot work is worse than none.
+
+<Canvas of={EntryShellStories.TokenRejected} />
+
+## When not
+
+- As a page inside the app's frame. It stands in *for* the whole app, around
+  it, while entry is decided; inside the frame, nothing to show is an
+  **EmptyState**.
+- With anything beyond the logo. The one-line, one-button canvas is what the
+  part exists to keep.
+
+## How
+
+```tsx
+import { EntryShell } from '@estiva-app/ui'
+
+<EntryShell logo={appLogo} busy />
+
+<EntryShell
+  logo={appLogo}
+  message={copyForWhy}
+  action={canRecover ? { label: continueLabel, onClick: startPasskey } : undefined}
+/>
+```
+
+- **The words are the caller's.** A shared part has none of its own for why
+  entry stopped; the apps pass the identity package's, so every app says the
+  same thing.
+- **`action.onClick` runs from the tap itself.** A passkey prompt needs the
+  person's gesture, so start it there, not behind anything asynchronous.
+- **The logo is drawn as given.** Hand it at the size the app draws its mark
+  at; the shell does not resize it.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls of={EntryShellStories.NoSession} />

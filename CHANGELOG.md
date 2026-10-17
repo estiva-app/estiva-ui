@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.77.0 — 2026-10-17
+
+### Added
+
+- **`EntryShell`, what an app shows while nobody is signed in** (AUT-3, *Coming
+  back to an app renews your sign-in in place*: Ship and Leaf are to draw the
+  same screen as Peek). Peek's `AuthShell` (PEEK-116) moved into the package
+  with its look unchanged: the app's `logo`, one `message`, at most one primary
+  `action`, and `busy` for the logo alone, pulsing after 150ms. The words stay
+  the caller's (the apps pass `@estiva-app/identity`'s), so the package takes
+  no dependency on identity. Peek moves onto it in its own PR; Ship and Leaf in
+  their own issues. No app takes it in this release.
+
 ## 0.76.0 — 2026-10-17
 
 ### Added

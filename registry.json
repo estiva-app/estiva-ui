@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.76.0",
-    "exports": 202,
-    "typeExports": 195,
+    "packageVersion": "0.77.0",
+    "exports": 203,
+    "typeExports": 196,
     "files": null
   },
   "storybook": {
@@ -3015,6 +3015,56 @@
       "looks": [
         "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
+    },
+    {
+      "name": "EntryShell",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EntryShell.tsx",
+      "purpose": "What an app shows while nobody is signed in to it: its logo, one line saying why, and at most one button.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "logo",
+          "takes": "anything",
+          "required": true,
+          "note": "The app's own mark, drawn at the top in every state, as given: the app sizes it."
+        },
+        {
+          "name": "busy",
+          "takes": "true/false",
+          "required": false,
+          "note": "Entry is still being decided: the logo alone, pulsing, revealed after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
+        },
+        {
+          "name": "message",
+          "takes": "anything",
+          "required": false,
+          "note": "The one line saying why nobody is signed in."
+        },
+        {
+          "name": "action",
+          "takes": "a handler",
+          "required": false,
+          "note": "The one thing to do about it — \"Continue\", \"Try again\" — drawn under the line as the package's primary Button."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-entryshell--docs",
+      "storyId": "frame-entryshell--no-session",
+      "docPage": "src/EntryShell.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ErrorBoundary",

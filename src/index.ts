@@ -11,6 +11,7 @@
  */
 export { AppProvider, type AppProviderProps } from './AppProvider'
 export { AppShell, type AppShellProps } from './AppShell'
+export { EntryShell, type EntryShellProps } from './EntryShell'
 export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } from './AttachmentCard'
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { AvatarGroup, type AvatarGroupMember, type AvatarGroupProps } from './AvatarGroup'
