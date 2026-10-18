@@ -5612,6 +5612,12 @@
           "note": "Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically."
         },
         {
+          "name": "tooltip",
+          "takes": "text",
+          "required": false,
+          "note": "A sentence about the item, in the package's tooltip while the label is pointed at; the row stays one line."
+        },
+        {
           "name": "unread",
           "takes": "true/false",
           "required": false,

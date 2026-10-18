@@ -122,6 +122,11 @@ export const WithActionAndMenu: Story = {
   args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, action: REMOVE, menu: MENU },
 }
 
+/** A sentence about the item: point at the label and it shows in the tooltip. The row stays one line. */
+export const LabelTooltip: Story = {
+  args: { icon: placeholder, action: REMOVE, tooltip: 'One sentence saying what this item is about, shown while its label is pointed at.' },
+}
+
 /** A hint and a button: point at it and the chip shows, then the button — a row whose state is a word (here, archived) and which can be taken off the list. */
 export const WithActionAndHint: Story = {
   args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, action: REMOVE, hint: <Chip type="neutral" label="Archived" /> },
