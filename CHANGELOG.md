@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.78.0 — 2026-10-18
+
+### Added
+
+- **`NavItem`'s `tooltip`: a sentence about the item while its label is
+  pointed at** (Peek #515 moves Desk's rows onto `NavItem`; SUM-9 shows a
+  file's summary there on hover, which Peek's own `PersonRow` drew with
+  `WithTooltip` on the name; Katerina, 18 Oct: "add it to NavItem"). The
+  package's `WithTooltip` on the label alone, so the ⋮ and the `action` keep
+  their own tooltips; the row stays one 32px line. Absent or blank, no
+  tooltip. Nothing is renamed, so no caller changes; Peek takes it in #515.
+
 ## 0.77.0 — 2026-10-17
 
 ### Added

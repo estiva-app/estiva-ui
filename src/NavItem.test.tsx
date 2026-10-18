@@ -6,7 +6,7 @@
  * The reveal on hover and the slide are Chrome's to show.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NavItem } from './NavItem'
 
@@ -175,5 +175,44 @@ describe('NavItem with a button of its own', () => {
   it('lands on the dot, which steps aside for it', () => {
     const { container } = render(<NavItem href="#" label="Item one" unread action={remove()} />)
     expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('group-hover/nav:opacity-0')
+  })
+})
+
+describe('NavItem with a tooltip', () => {
+  it('shows it while the label is pointed at, and none when it is absent or blank', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <NavItem href="#" label="Item one" tooltip="A sentence about item one." />
+        <NavItem href="#" label="Item two" tooltip="  " />
+        <NavItem href="#" label="Item three" />
+      </>,
+    )
+    // The blank and absent ones first, so a tooltip still closing cannot answer for them.
+    for (const label of ['Item two', 'Item three']) {
+      await user.hover(screen.getByText(label))
+      await new Promise((r) => setTimeout(r, 400))
+      expect(screen.queryByRole('tooltip')).toBeNull()
+      await user.unhover(screen.getByText(label))
+    }
+    await user.hover(screen.getByText('Item one'))
+    expect((await screen.findByRole('tooltip')).textContent).toBe('A sentence about item one.')
+    await user.unhover(screen.getByText('Item one'))
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
+  })
+
+  it('keeps the row one line, and the label inside the link', () => {
+    render(<NavItem href="#" label="Item one" tooltip="A sentence about item one." />)
+    const link = screen.getByRole('link', { name: 'Item one' })
+    expect(link.contains(screen.getByText('Item one'))).toBe(true)
+    expect(link.className.split(' ')).toContain('h-8')
+    expect(screen.getByText('Item one').className.split(' ')).toContain('truncate')
+  })
+
+  it('leaves the action its own tooltip: pointing at it shows the action’s, not the label’s', async () => {
+    const user = userEvent.setup()
+    render(<NavItem href="#" label="Item one" tooltip="A sentence about item one." action={{ icon: <span>x</span>, tooltip: 'Remove from list', onClick: () => {} }} />)
+    await user.hover(screen.getByRole('button', { name: 'Remove from list: Item one' }))
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Remove from list')
   })
 })

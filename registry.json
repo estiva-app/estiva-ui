@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.77.0",
+    "packageVersion": "0.78.0",
     "exports": 203,
     "typeExports": 197,
     "files": null
@@ -5610,6 +5610,12 @@
           "takes": "anything",
           "required": false,
           "note": "Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically."
+        },
+        {
+          "name": "tooltip",
+          "takes": "text",
+          "required": false,
+          "note": "A sentence about the item, in the package's tooltip while the label is pointed at; the row stays one line."
         },
         {
           "name": "unread",

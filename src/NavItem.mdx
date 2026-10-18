@@ -51,6 +51,14 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.WithHintLongLabel} />
 
+- A sentence about the item, for whoever points at it, is `tooltip`: it
+  shows in the package's tooltip while the **label** is pointed at, and the
+  row stays one line. The ⋮ and the `action` keep their own tooltips. Absent
+  or blank, there is none. A screen with no hover never shows it, so it can
+  carry nothing the row needs.
+
+<Canvas of={NavItemStories.LabelTooltip} />
+
 - Something new on the row is `unread`: its words and icon brighten, the
   label is set in medium, and the **UnreadDot** sits at the right.
   `urgent` with it draws the warning badge in the dot's place. Say "unread"
