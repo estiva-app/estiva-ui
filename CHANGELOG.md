@@ -8,7 +8,7 @@
   (COMM-6, Leaf; Miky, 19 October, on the issue). In `CommentBox`, a file in
   the `failed` state now holds Send and Enter as one still uploading does, and
   a line under the box says "Remove the file that did not upload to send."
-  Before, the card said why it failed, but Send went out without it. An edit
+  ("the files" when more than one failed). Before, the card said why it failed, but Send went out without it. An edit
   adds no file, so it is unchanged. No prop changes; Leaf
   (`src/comments/CommentsColumn.tsx`) is the only caller and takes it in
   leaf#41.

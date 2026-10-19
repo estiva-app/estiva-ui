@@ -307,7 +307,7 @@ export function CommentBox({
 
   const uploading = files.some((f) => f.state === 'uploading')
   // A file that did not upload holds Send until its ✕ takes it off, so it is never sent without it unnoticed.
-  const failed = files.some((f) => f.state === 'failed')
+  const failed = files.filter((f) => f.state === 'failed').length
   const ready = files.some((f) => f.state === 'ready')
 
   const go = useCallback(
@@ -460,14 +460,16 @@ export function CommentBox({
         }
         attachments={fileCards}
         ready={ready}
-        holding={uploading || failed || sending}
+        holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
       {sending && <FieldLine>Sending…</FieldLine>}
       {uploading && !sending && <FieldLine>Uploading… Send waits for the file.</FieldLine>}
-      {failed && !uploading && !sending && <FieldLine>Remove the file that did not upload to send.</FieldLine>}
+      {failed > 0 && !uploading && !sending && (
+        <FieldLine>{failed === 1 ? 'Remove the file that did not upload to send.' : 'Remove the files that did not upload to send.'}</FieldLine>
+      )}
       {refusedLine}
     </div>
   )
