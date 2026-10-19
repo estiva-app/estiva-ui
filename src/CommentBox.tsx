@@ -356,7 +356,7 @@ export function CommentBox({
   )
 
   save.current = () => {
-    if (!editor || !edit || sending || uploading || failed) return true
+    if (!editor || !edit || sending || uploading) return true
     setRefused(null)
     setSending(true)
     void edit
@@ -427,15 +427,13 @@ export function CommentBox({
               <Button variant="outlined" size="small" onClick={edit.onCancel}>
                 Cancel
               </Button>
-              <Button variant="primary" size="small" disabled={uploading || failed || sending} onClick={() => save.current()}>
+              <Button variant="primary" size="small" disabled={uploading || sending} onClick={() => save.current()}>
                 Save
               </Button>
             </div>
           </div>
         </div>
-        {sending && <FieldLine>Saving…</FieldLine>}
-        {failed && !sending && <FieldLine>Remove the file that did not upload to save.</FieldLine>}
-        {refusedLine}
+        {sending && <FieldLine>Saving…</FieldLine>}        {refusedLine}
       </div>
     )
   }

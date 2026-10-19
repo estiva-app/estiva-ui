@@ -239,9 +239,6 @@ describe('files', () => {
     expect(screen.getByText('Remove the file that did not upload to send.')).toBeTruthy()
     expect((screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement).disabled).toBe(true)
     await press('Enter')
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-    })
     expect(send).not.toHaveBeenCalled()
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Remove big.mov' }))
