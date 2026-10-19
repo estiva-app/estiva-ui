@@ -8,6 +8,7 @@ import { act } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { Editor } from '@tiptap/core'
+import { Fragment, Slice } from '@tiptap/pm/model'
 import type { JSONContent } from '@tiptap/react'
 import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { MentionPerson } from './ComposerTriggers'
@@ -397,8 +398,9 @@ describe('a URL pasted over words', () => {
     await act(async () => {
       const editor = editorOf()
       if (from !== null) editor.commands.setTextSelection({ from, to })
-      const event = { clipboardData: { getData: () => text }, preventDefault: () => {} } as unknown as ClipboardEvent
-      editor.view.someProp('handlePaste', (handle) => handle(editor.view, event, editor.state.selection.content()))
+      const event = { clipboardData: { getData: (type: string) => (type === 'text/plain' ? text : '') }, preventDefault: () => {} } as unknown as ClipboardEvent
+      const slice = new Slice(Fragment.from(editor.state.schema.text(text)), 0, 0)
+      editor.view.someProp('handlePaste', (handle) => handle(editor.view, event, slice))
     })
   }
   const runs = () =>
