@@ -1,0 +1,51 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as LinkChipStories from './LinkChip.stories'
+
+<Meta of={LinkChipStories} />
+
+# LinkChip
+
+A link in a sentence: its icon, its key, its title cut short, and its status as a shape.
+
+<Canvas of={LinkChipStories.InASentence} />
+
+## When
+
+- **ready** — a link the app has looked up. Hovering it shows its card (**LinkPreview**); a tap or a click opens it.
+- **loading** — still being looked up: the icon, which the address already says, and a bar.
+- **unavailable** — deleted, or not the reader's to see. Both say "Item, not available" in the app's word for it.
+- `preview={false}` — no card on hover, where a card would cover what the reader is choosing from.
+
+<Canvas of={LinkChipStories.EachKind} />
+
+## When not
+
+- A link alone on its line → **LinkRow**.
+- The one card under a piece of text → **CardUnder**.
+- A person, a place or a label with no lookup behind it → **InlineChip**.
+
+## How
+
+```tsx
+import { LinkChip, type LinkState } from '@estiva-app/ui'
+
+// The app looks the link up and hands in where that stands.
+const link: LinkState = found ? { state: 'ready', linked: found } : gone ? { state: 'unavailable', kind: 'issue', noun: 'Item' } : { state: 'loading', kind: 'issue' }
+<LinkChip link={link} />
+```
+
+- **The app looks it up; the chip draws.** `linked` (`Linked`, from `@estiva-app/ui`) carries the words, the `href`, the status and the owner as the app's lookup found them. The chip fetches nothing.
+- `linked.href` opens it. An address in this app goes through `AppProvider`'s `navigate`, so the page does not reload.
+- Words a person wrote (`kind: 'message'` with an `author`) lead with their face and read "Name: words".
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Shows the card on hover, and none on a screen that cannot hover | a hover card of your own, a touch check |
+| Cuts a long title short | a truncation of your own |
+| Says "not available" in words, quieter than a link | a missing-reference chip of your own |
+
+## Props
+
+<Controls of={LinkChipStories.InASentence} />

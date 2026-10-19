@@ -32,6 +32,12 @@ import { TooltipTrigger } from './Tooltip'
 export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive' | 'resolve'
 export type ButtonSize = 'default' | 'small'
 
+/** One labelled action a part draws as its own Button: EmptyState's `action`, EntryShell's. */
+export interface ButtonAction {
+  label: string
+  onClick: () => void
+}
+
 /**
  * `ComponentPropsWithRef`, not `ButtonHTMLAttributes`, so a `ref` reaches the
  * element. React 19 passes `ref` to a function component as an ordinary prop,

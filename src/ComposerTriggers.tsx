@@ -7,6 +7,7 @@ import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from 
 import { Avatar } from './Avatar'
 import { EnterHint } from './Menu'
 import { inlineChipClassName } from './InlineChip'
+import { WithTooltip } from './Tooltip'
 import type { SuggestionMenuRow } from './SuggestionMenu'
 import { suggestionPopup, type SuggestionPopupOptions } from './suggestionPopup'
 
@@ -232,6 +233,13 @@ export interface CaptionedItem {
   /** The row's second line, e.g. where the thing sits. The chip does not wear it. */
   description?: string
   /**
+   * What the thing is about, in a line of plain text — a file's summary. When
+   * set, it is the row's second line and `description` moves up after the
+   * label, muted; absent, the row is as before. The chip does not wear it, and
+   * the query is not matched against it.
+   */
+  summary?: string
+  /**
    * This row's own 16px icon, in place of the list's `icon`: what the thing is,
    * when the list holds several kinds — a topic, a project, a message
    * (Katerina, 7 October). Absent, the list's icon.
@@ -308,9 +316,14 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
     const { icon, iconFor } = this.options
     return ReactNodeViewRenderer(
       ({ node }: ReactNodeViewProps) => (
-        <NodeViewWrapper as="span" className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
-          <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{iconFor?.(node.attrs.uri ?? null) ?? icon}</span>
-          <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
+        // The caption is cut at 24ch, so the whole of it is on hover, in the package's tooltip (UIG-14) — as Peek's sent chip has it.
+        <NodeViewWrapper as="span">
+          <WithTooltip inline label={captionOf(node.attrs.label, node.attrs.snippet)}>
+            <span className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
+              <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{iconFor?.(node.attrs.uri ?? null) ?? icon}</span>
+              <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
+            </span>
+          </WithTooltip>
         </NodeViewWrapper>
       ),
       { as: 'span' },
@@ -357,7 +370,13 @@ export function referenceMenu({ ariaLabel, sectionLabel, icon, iconFor }: Refere
       return groups
     },
     itemKey: (item) => `reference-${item.id}`,
-    row: (item) => ({ leading: item.icon ?? iconFor?.(item.uri) ?? icon, label: captionOf(item.label, item.snippet), description: item.description, hint: <EnterHint /> }),
+    row: (item) => ({
+      leading: item.icon ?? iconFor?.(item.uri) ?? icon,
+      label: captionOf(item.label, item.snippet),
+      // A summary is the second line, and where the thing sits moves up beside the label (SUM-7's story).
+      ...(item.summary ? { description: item.summary, aside: item.description } : { description: item.description }),
+      hint: <EnterHint />,
+    }),
   }
 }
 

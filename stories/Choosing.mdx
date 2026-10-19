@@ -67,11 +67,16 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A hint on hover or on keyboard focus | **Tooltip** / **WithTooltip** — one `TooltipProvider` at the app root shares the delay |
 | A strip of controls that act on one thing | **Toolbar** — one Tab stop for the row, arrow keys along it |
 | Reactions to choose from | **ReactionPicker** — the row; **Reaction** is the pill it produces |
+| The reactions under something people react to, and adding one | **ReactionRow** — the pills, who reacted, and the picker; **AddReactionButton** alone while nobody has reacted |
 | One window to find something and act on it, opened by a shortcut | **CommandPalette** — rows, forms and written answers, one level at a time |
 | A list that opens as you type in an editor — `/` for commands, `@` for people | **SuggestionMenu** — the editor keeps the caret and hands it the arrow keys; `suggestionPopup` from `@estiva-app/ui/editor` wires it to a Tiptap plugin |
 | Bold, italic and the like over selected text in an editor | **SelectionToolbar**, from `@estiva-app/ui/editor` — it follows the selection by itself |
 | A composer's `@`, `!@`, `[` and `/` — mention a person, reference something, format or insert | **ComposerTriggers** — `PersonMention`, `UrgentPersonMention`, `CaptionedReference`, `ReferenceTrigger` and `SlashCommands` from `@estiva-app/ui/editor`; the app passes its people, its items and its own `/` rows |
 | An editor that saves a block document and must keep its block ids | **BlockNodes** — `BlockId`, `UnknownBlock`, `ReferenceNode` and `AttachmentNode` from `@estiva-app/ui/editor`, beside StarterKit and TableKit |
+| A page's title or the line under it, edited where it stands, as in a document | **InlineText**, from `@estiva-app/ui/editor` — no box; Enter saves and moves on |
+| A comment, a reply or a line written and sent, in any app | **CommentBox**, from `@estiva-app/ui/editor` — triggers, keys, drafts, files, editing and a refused send; the app supplies its people, its `[` sections, its `/` rows and a send |
+| The box alone, around an editor the app makes itself | **ComposeBox**, from `@estiva-app/ui/editor` — the app brings its editor and adds `ComposeKeys` |
+| Comments on words, a passage or whole blocks of a document, drawn where they are | **CommentHighlights**, from `@estiva-app/ui/editor` — a run of blocks and the words quoted; says which was clicked and which moved or are gone |
 | Move, turn, duplicate or delete one block of a document being edited | **EditorBlockHandle**, from `@estiva-app/ui/editor`, with your rows after its own |
 | Add or delete a table's rows and columns in a document being edited | **EditorTableControls**, from `@estiva-app/ui/editor`, inside the EditorBlockHandle |
 | Offer a link or a comment on one block of a document being read | **BlockHandle** — your rows only, and no Tiptap loaded |
@@ -103,6 +108,13 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A URL in a document that reads as the chip of what it points at | **LinkChips** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app says what each URL names |
 | Open a chip in a document, or choose its card, while writing | **ReferenceMenu** — from `@estiva-app/ui/editor`, beside `ReferenceCards`; a click on the chip, or putting one in, opens it |
 | A code block in an editor, coloured by its language as you type | **CodeBlockColours** — from `@estiva-app/ui/editor`, in place of the starter kit's code block |
+| A link to something an app looked up, in a sentence | **LinkChip** — hover shows its card; loading and "not available" drawn for you. **LinkChips** (editor) turns a URL in a document into one |
+| A link alone on its line | **LinkRow** — one 36px line for every kind; **LinkUnavailable** when it cannot be read |
+| A link's card: what a row cannot hold, with the pickers the reader may use | **LinkCard** — `onChange` on a picker only for a reader who may change it; **LinkCardLoading** at its height |
+| The one card under a piece of text, with the ✕ that removes it | **CardUnder** — `revealOnHover` once it is sent |
+| A link's card on hover, read only | **LinkPreview** — LinkChip and LinkRow already wrap themselves in it |
+| A part of something longer, shared live | **PartCard** — the app draws the blocks |
+| A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |
 | A person or a thing named inside a sentence | **InlineChip** — one line high, level with the words; `href` makes it a link |
 | What kind of thing a name stands for — a topic, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; `thingKindOf` turns an event kind into one |
 | Formatted text: headings, lists, a quote, code, a table, links | **RichText** — pass the parsed tree; `small` inside a card |
@@ -136,6 +148,7 @@ the **floating** TopBar goes with the **Rail** and the content card.
 | A 64px icon strip | **Rail**, filled with **RailItem** tiles |
 | The menu button and the logo | the TopBar's `menu` and `logo` slots — collapsing stays yours |
 | Where pictures come from, and how to change page without a reload, said once | **AppProvider**, around the whole app |
+| What shows while nobody is signed in: the logo, one line, at most one button | **EntryShell** — in place of the whole app; `busy` while entry is decided |
 | The list beside the thing that is open | **ListColumn** — 290px, its name in a **ContainerHeader**, the list under it scrolling |
 | A panel of a page that is not a list — details, a thread, what is open — with a body that must never be cut off | **Panel** — a header, a body that scrolls whenever it is taller, and a `footer` that stays put |
 

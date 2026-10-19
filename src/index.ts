@@ -18,7 +18,7 @@ export { MembersPill, type MembersPillProps } from './MembersPill'
 export { MembersDialog, type MembersDialogCandidate, type MembersDialogMember, type MembersDialogProps, type MembersDialogSelfAction } from './MembersDialog'
 export { Banner, type BannerProps, type BannerTone } from './Banner'
 export { BlockHandle, blockAtY, type BlockHandleProps, type BlockHandleEditing, type HandleBlock } from './BlockHandle'
-export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'
+export { Button, type ButtonAction, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button'
 export { Card, type CardAttention, type CardFill, type CardHover, type CardProps } from './Card'
 export { Checkbox, type CheckboxProps } from './Checkbox'
 export { Chip, type ChipProps, type ChipType } from './Chip'
@@ -69,6 +69,7 @@ export { DialogShell, type DialogShellProps } from './DialogShell'
 export { Divider, type DividerProps } from './Divider'
 export { EditableText, type EditableTextProps } from './EditableText'
 export { EmptyState, type EmptyStateProps } from './EmptyState'
+export { EntryShell, type EntryShellProps } from './EntryShell'
 export { ErrorBoundary, type ErrorBoundaryProps } from './ErrorBoundary'
 export { ProgressBar, type ProgressBarProps, type ProgressBarVariant } from './ProgressBar'
 export { SkeletonBar, SkeletonList, SkeletonRow } from './Skeleton'
@@ -84,6 +85,31 @@ export { ShowMore, type ShowMoreProps } from './ShowMore'
 export { ReactionPicker, type ReactionOption, type ReactionPickerProps } from './ReactionPicker'
 export { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator, type ToolbarProps, type ToolbarButtonProps, type ToolbarInputProps, type ToolbarLinkProps } from './Toolbar'
 export { PreviewCard, type PreviewCardProps } from './PreviewCard'
+// How a link draws, wherever it sits: one kit for every app (Widgets 2).
+export {
+  chosenOf,
+  loadingShapeOf,
+  unavailableMemory,
+  type Linked,
+  type LinkedChild,
+  type LinkedConversation,
+  type LinkedKind,
+  type LinkedPerson,
+  type LinkedPicker,
+  type LinkedStatus,
+  type LinkState,
+  type LoadingShape,
+  type PickerOption,
+  type StatusColour,
+  type UnavailableMemory,
+} from './linked'
+export { CommentCount, LinkedIcon, LinkKey, LinkPickers, ProgressRing, StatusMark, type LinkPickersProps } from './LinkParts'
+export { LinkChip, type LinkChipProps } from './LinkChip'
+export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps } from './LinkRow'
+export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
+export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
+export { CardUnder, type CardUnderProps } from './CardUnder'
+export { PartCard, type PartCardProps } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'
 export { RailItem, type RailItemProps } from './RailItem'
@@ -92,6 +118,7 @@ export { TopBar, type TopBarProps } from './TopBar'
 export { PersonTrigger, type PersonTriggerProps } from './PersonTrigger'
 export { Property, type PropertyProps } from './Property'
 export { Reaction, type ReactionProps } from './Reaction'
+export { ReactionRow, AddReactionButton, whoReacted, type ReactionRowProps, type AddReactionButtonProps, type ReactionCount } from './ReactionRow'
 export { SearchInput, type SearchInputProps } from './SearchInput'
 export { SectionHeader, type SectionAction, type SectionHeaderProps } from './SectionHeader'
 export { ContainerHeader, type ContainerHeaderProps } from './ContainerHeader'

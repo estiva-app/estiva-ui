@@ -176,6 +176,27 @@ describe('[', () => {
     expect(icons).toEqual(['kind-a', 'own', 'list'])
   })
 
+  it('draws a summary as the second line, with where the thing sits beside the label; without one, the row is as before (SUM-7)', async () => {
+    const rows = [
+      { id: 's', label: 'Ship launch', snippet: '', uri: 'nostr:s', description: 'SHI-12 · Ship 1', summary: 'What we show on Friday' },
+      { id: 'n', label: 'Old plan', snippet: '', uri: 'nostr:n', description: 'SHI-3 · Ship 1' },
+    ]
+    function Summarised() {
+      const made = useEditor({
+        extensions: [StarterKit, Chip, ReferenceTrigger.configure({ items: () => rows, nodeName: 'messageMention', ariaLabel: 'Things', sectionLabel: 'Things' })],
+      })
+      editor = made
+      return <EditorContent editor={made} />
+    }
+    render(<Summarised />)
+    await type('[')
+    const [withSummary, without] = within(screen.getByRole('listbox')).getAllByRole('option')
+    // The line above a row's second line, as a person reads it.
+    const lineAbove = (row: HTMLElement, second: string) => within(row).getByText(second).previousElementSibling?.textContent
+    expect(lineAbove(withSummary, 'What we show on Friday')).toBe('Ship launchSHI-12 · Ship 1')
+    expect(lineAbove(without, 'SHI-3 · Ship 1')).toBe('Old plan')
+  })
+
   it('draws the app’s sections in order, skips an empty one, and redraws the open list when told', async () => {
     const listeners = new Set<() => void>()
     let late: CaptionedItem[] = []

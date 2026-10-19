@@ -26,7 +26,7 @@ import { SCHEMA_VERSION, validateRegistry, type Registry, type RegistryEntry } f
 const root = process.cwd()
 const registry = buildRegistry({ root })
 /** Editor extensions: named like components by the catalogue, and not React components. */
-const EDITOR_EXTENSIONS = ['KeptSelection', 'BlockId', 'UnknownBlock', 'ReferenceNode', 'AttachmentNode', 'PersonMention', 'UrgentPersonMention', 'CaptionedReference', 'ReferenceTrigger', 'SlashCommands', 'PastedImages', 'PastedMarkdown', 'CodeBlockColours', 'Checklist', 'Callout', 'ReferenceCards', 'LinkChips', 'ReferenceMenu']
+const EDITOR_EXTENSIONS = ['KeptSelection', 'BlockId', 'UnknownBlock', 'ReferenceNode', 'AttachmentNode', 'PersonMention', 'UrgentPersonMention', 'CaptionedReference', 'ReferenceTrigger', 'SlashCommands', 'PastedImages', 'PastedMarkdown', 'CodeBlockColours', 'Checklist', 'Callout', 'ReferenceCards', 'LinkChips', 'ReferenceMenu', 'CommentHighlights', 'ComposeKeys']
 const entry = (name: string): RegistryEntry => {
   const found = registry.entries.find((candidate) => candidate.name === name)
   if (!found) throw new Error(`no entry for ${name}`)
@@ -48,20 +48,20 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 167 names over 81 files: 115 components, 50 helpers and 2 hooks (NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October; turnIntoRows, turnListInto and turnQuoteInto, the block menu’s Turn into for a list and a quote (LEAF-11), on 15 October; toggleTableHeaderRow, a table’s header row on and off (LEAF-12), on 15 October)', () => {
+  it('counts 204 names over 95 files: 138 components, 63 helpers and 3 hooks (toggleTableHeaderRow, a table’s header row on and off (LEAF-12), on 19 October;EntryShell, the screen while nobody is signed in, moved from Peek (AUT-3), on 17 October; CommentBox with commentBoxRows, and ReactionRow with AddReactionButton and whoReacted, the shared comment box and reaction row (COMM-2), on 17 October; the link widgets — LinkChip, LinkRow, LinkCard, CardUnder, PartCard, LinkPreview and their parts, with useCanHover, chosenOf, loadingShapeOf and unavailableMemory — from the Widgets 2 prototype, on 16 October; InlineText, a title or the line under it edited where it stands (SUM-4), on 16 October; ComposeBox with ComposeKeys and its classes, CommentHighlights with its five helpers, and keepSelection and releaseSelection, from the Leaf prototype (LEAF-4), on 16 October;NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October; turnIntoRows, turnListInto and turnQuoteInto, the block menu’s Turn into for a list and a quote (LEAF-11), on 15 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     // The `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 115, helper: 50, hook: 2 })
-    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(81)
+    expect(kinds).toEqual({ component: 138, helper: 63, hook: 3 })
+    expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(95)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
-    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(77)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(90)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(89)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(115)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -262,8 +262,8 @@ describe('the ids point at something', () => {
 
   it('gives every component a page and a story, and only a helper none', () => {
     const without = registry.entries.filter((one) => one.docsId === null || one.storyId === null)
-    // The helpers in a file with no page: cn, the shortcut names, and the editor's suggestion wiring (documented on SuggestionMenu's page).
-    expect(without.map((one) => one.name).sort()).toEqual(['cn', 'isApplePlatform', 'isSuggestionActive', 'isSuggestionOpen', 'shortcutLabel', 'suggestionPopup'])
+    // The helpers in a file with no page: cn, the shortcut names, the editor's suggestion wiring (documented on SuggestionMenu's page), and the link widgets' data helpers (documented on LinkCard's and LinkChip's pages).
+    expect(without.map((one) => one.name).sort()).toEqual(['chosenOf', 'cn', 'isApplePlatform', 'isSuggestionActive', 'isSuggestionOpen', 'loadingShapeOf', 'shortcutLabel', 'suggestionPopup', 'unavailableMemory'])
     expect(without.every((one) => one.kind !== 'component')).toBe(true)
   })
 
@@ -299,7 +299,7 @@ describe('the ids point at something', () => {
 describe('a second parser agrees', async () => {
   const docgen = await import('react-docgen').catch(() => null)
 
-  it.skipIf(!docgen)('finds the same props on all 80 components', async () => {
+  it.skipIf(!docgen)('finds the same props on all 86 components', async () => {
     if (!docgen) return
     const resolver = new docgen.builtinResolvers.FindExportedDefinitionsResolver({ limit: 0 })
     const byName = new Map(registry.entries.map((one) => [one.name, one]))

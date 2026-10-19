@@ -1,11 +1,12 @@
 # Changelog
 
-## 0.72.0 — 2026-10-15
+## 0.79.0 — 2026-10-19
 
 ### Added
 
 - **A table's header row turns off and on** (LEAF-12, Leaf 1; Miky, closing
-  Rich text and blocks on 14 October). `EditorTableControls`' first-row menu
+  Rich text and blocks on 14 October; Katerina approved the place on 18
+  October). `EditorTableControls`' first-row menu
   opens with Header row, ticked while the first row is the header; choosing it
   makes the first row ordinary cells, or header cells again
   (prosemirror-tables' `toggleHeader('row')`). With the header off, the first
@@ -14,6 +15,183 @@
   no text spelling (SPEC §13.3), so the agent keeps it as written (Miky, at
   LEAF-12's kickoff). Ship, Leaf and Peek get it with the bump; nothing else
   changes for a caller.
+
+## 0.78.0 — 2026-10-18
+
+### Added
+
+- **`NavItem`'s `tooltip`: a sentence about the item while its label is
+  pointed at** (Peek #515 moves Desk's rows onto `NavItem`; SUM-9 shows a
+  file's summary there on hover, which Peek's own `PersonRow` drew with
+  `WithTooltip` on the name; Katerina, 18 Oct: "add it to NavItem"). The
+  package's `WithTooltip` on the label alone, so the ⋮ and the `action` keep
+  their own tooltips; the row stays one 32px line. Absent or blank, no
+  tooltip. Nothing is renamed, so no caller changes; Peek takes it in #515.
+
+## 0.77.0 — 2026-10-17
+
+### Added
+
+- **`EntryShell`, what an app shows while nobody is signed in** (AUT-3, *Coming
+  back to an app renews your sign-in in place*: Ship and Leaf are to draw the
+  same screen as Peek). Peek's `AuthShell` (PEEK-116) moved into the package
+  with its look unchanged: the app's `logo`, one `message`, at most one primary
+  `action`, and `busy` for the logo alone, faded in after 150ms. The words stay
+  the caller's (the apps pass `@estiva-app/identity`'s), so the package takes
+  no dependency on identity. A busy screen is a busy status named `busyLabel`
+  ("Loading" by default) and the line is a polite status, so a screen reader
+  hears both; `action.disabled` holds the button while what it started runs.
+  Peek moves onto it in its own PR; Ship and Leaf in their own issues. No app
+  takes it in this release.
+- **`ButtonAction`**, the `{ label, onClick }` a part draws as its own Button:
+  `EmptyState`'s `action` is now typed by it (the same shape, so no caller
+  changes), and `EntryShell`'s adds `disabled`.
+
+## 0.76.0 — 2026-10-17
+
+### Added
+
+- **One comment box and one reaction row for every app** (*Comments work the
+  same in Peek, Ship and Leaf*, "The shared comment box and reaction row in
+  estiva-ui"; the prototype Miky approved on 17 Oct, `concept/comments-everywhere`
+  534fe73; record *every-app-writes-and-reacts-with-one-shared-box*). Leaf and
+  Ship move onto them in their own issues, Peek in stage 2; no app takes them
+  in this release.
+  - `CommentBox`, in `@estiva-app/ui/editor`: `ComposeBox` with `@`, `!@`, `[`
+    and `/`, Enter and Ctrl/Cmd+Enter to send, Escape to cancel an edit,
+    drafts, files (paperclip, `/` → File, a pasted picture, a dropped file),
+    the edit mode, a send held until the relay answers or shown at once
+    (`showsAtOnce`), a refused send putting the words back with a line under
+    the box, and a line in its place when nothing can be written (`closed`).
+    It speaks the editor's document; `@estiva-app/conversation` 0.13.0's
+    `composerText`, `composerDocument` and `composerDraft` turn it into the
+    message and back. `commentBoxRows` are the kit's `/` Insert rows: File,
+    Mention, Urgent, Reference.
+  - `ReactionRow`, `AddReactionButton` and `whoReacted`, in `@estiva-app/ui`:
+    the `Reaction` pills in the order first chosen, yours lit, who reacted on
+    hover, and the picker. No row when nobody reacted. The counts are the
+    app's, from `@estiva-app/conversation`'s `groupReactions`.
+- `@tiptap/starter-kit` is an optional peer dependency, as the other Tiptap
+  packages are: `CommentBox` makes its editor with it. Peek, Ship and Leaf all
+  have it.
+
+### Fixed
+
+- `ComposeBox` sent a box holding only spaces, and drew no placeholder over
+  one: a text node counted as a chip in its emptiness check. Only Leaf uses
+  it today.
+
+## 0.75.0 — 2026-10-16
+
+### Added
+
+- **The link widgets, one kit for every app** (*Widgets 2: build 1 —
+  messages*, "The approved widgets become the ui kit's real components";
+  the prototype Miky approved on 15 Oct, `concept/widgets-2` 5a3207b, tag
+  `v0.72.0-widgets2.2`). Peek and Ship each draw links with their own copy
+  today; they switch to these in their own issues.
+  - `LinkChip` (in a sentence), `LinkRow` (alone on its line),
+    `LinkCard` (the card; a person's words drawn as theirs), `CardUnder`
+    (the one card under a piece of text, with its ✕), `PartCard` (a part of
+    something longer), `LinkPreview` (the card on hover, read only, and
+    none on a screen that cannot hover; `useCanHover`), and their parts in
+    `LinkParts`: `LinkPickers`, `CommentCount`, `StatusMark`,
+    `ProgressRing`, `LinkedIcon`, `LinkKey`.
+  - Each takes a `LinkState`: `loading` (drawn at the row's or the card's
+    own height, `LinkCardLoading`, from `loadingShapeOf` or the kind's usual
+    card), `unavailable` (`LinkUnavailable`, "Item — not available.") or
+    `ready` with a `Linked`, the view-model the app builds from its lookup,
+    hrefs included. A picker with no `onChange` reads as words: the reader
+    may not change it.
+  - `CardUnder`'s ✕ always shows under a box being written in; with
+    `revealOnHover`, under text already sent, it shows on hover or focus,
+    and always on a screen that cannot hover (Miky, 16 Oct, kickoff).
+  - `unavailableMemory(key)`: what the device found it could not show,
+    remembered across reloads (Peek's `lib/unavailableCards.ts`, moved here).
+- `InlineChip` tone `muted`, and `SkeletonBar` `on="inset"` and `shape`
+  (`bar`, `round`, `control`), so the kit places them without restyling.
+
+The unlisted prototype entry `@estiva-app/ui/widgets-2` stays on
+`concept/widgets-2` only. Nothing renamed or removed; no caller changes.
+
+## 0.74.1 — 2026-10-16
+
+### Fixed
+
+- **`CommentHighlights` reads a block's text as the protocol does** (LEAF-7,
+  the code review of estiva-app/leaf#30). A line break inside a paragraph
+  now counts as `\n`, and the blocks inside a block (a quote's lines, a list
+  item's paragraphs) are joined with `\n`, the text `inlineTextOf` gives on
+  the wire. Before, both counted as nothing, so a comment on words across two
+  lines of a quote carried a quote Peek and the protocol never found, and
+  they drew it as reworded from the first second. `anchorOfSelection` writes
+  `line\ntwo` where it wrote `linetwo`, and `commentPlace` finds it. A URL
+  chip counts as its URL (it counted as nothing), and a list item as its own
+  words, the items of a list inside it following it, as the wire holds them.
+  A selection of only a line break anchors nothing, as the edge between two
+  blocks already did.
+
+Nothing renamed or removed; no caller changes.
+
+## 0.74.0 — 2026-10-16
+
+### Added
+
+- **A row's summary line** (SUM-7, "A short summary on every file"; the
+  approved story `concept/short-summary`, *In the picker and search*, option
+  A, Miky 2026-10-15). `CaptionedItem.summary` is a line of plain text about
+  the thing: when set, `[` draws it as the row's second line, and the row's
+  `description` (where it sits, an issue's ref and project) moves up after the
+  label, muted. Without one the row is as before. The chip does not wear it,
+  and the query is not matched against it.
+- **`MenuItem` / `MenuItemBody` `aside`**, and the same on
+  `SuggestionMenuRow` and `CommandPaletteRow`: muted text after the label, on
+  its line, never cut; the label truncates first. The launcher's file rows use
+  it for an issue's project when the second line is the summary.
+
+Nothing renamed or removed; no caller changes.
+
+## 0.73.0 — 2026-10-16
+
+### Added
+
+- **`InlineText`, a page's title or the line under it, edited where it
+  stands** (SUM-4; Miky, 16 October: editing a summary "feels like a
+  document, not a form"). Ship's title editor (Katerina's findings E1 and E2,
+  29 September), moved here so Ship, Peek and Leaf edit a header the same
+  way: no box and nothing moving, the size and colour of a `title` or a
+  `summary` the same at rest and while written, Enter saves and moves on,
+  Escape and leaving save, pasted lines become one line, and a refused save
+  keeps the text. From `@estiva-app/ui/editor`, on the Tiptap peers it
+  already had.
+
+Additive: no caller changes. Katerina is out; Miky judges it on the preview,
+and she reviews it when she is back.
+
+## 0.72.0 — 2026-10-16
+
+### Added
+
+- **`ComposeBox`, the box a message, a reply or a comment is written in**
+  (LEAF-4, Leaf 1; from Katerina's Leaf prototype, `proto/text-comments`,
+  9–13 October). Peek's box and its keys, with what only Peek knows left in
+  Peek: the app makes the editor, adds `ComposeKeys` and puts
+  `COMPOSE_EDITOR_CLASSES` on it; this draws the box and sends. From
+  `@estiva-app/ui/editor`.
+- **`SelectionToolbar` takes `actions`**: the app's own buttons after the
+  marks and `children`, past a separator (Leaf's Comment). Each runs with the
+  selection in place. `keepSelection` and `releaseSelection` are exported.
+- **`CommentHighlights`** draws comments where they are in a block document:
+  on words, on a passage across blocks, or on whole blocks (LEAF-7's shape,
+  SPEC §13.6). `commentPlace` says whether a comment's words are still there,
+  reworded, or detached; `commentElement(editor, anchor)` finds it on the
+  page; `anchorOfSelection` gives a selection's anchor in protocol 0.37's
+  shape; `quoteText` the words quoted.
+- `CaptionedReference`'s chip shows its whole caption on hover, in the
+  package's tooltip.
+
+Additive: no caller changes. Miky decided on 16 October to release Katerina's
+prototype as drawn while she is out; she reviews it when she is back.
 
 ## 0.71.0 — 2026-10-15
 

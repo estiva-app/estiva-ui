@@ -72,6 +72,8 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   action?: SectionAction
   /** Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically. */
   hint?: ReactNode
+  /** A sentence about the item, in the package's tooltip while the label is pointed at; the row stays one line. Absent or blank, no tooltip. */
+  tooltip?: string
   /** Something new here: brighter words, the label in medium, and the `UnreadDot` at the right. Say so in the row's own words for assistive tech too. */
   unread?: boolean
   /** With `unread`: the warning badge in the dot's place. */
@@ -97,6 +99,7 @@ export function NavItem({
   menuLabel,
   action,
   hint,
+  tooltip,
   unread = false,
   urgent = false,
   children,
@@ -163,7 +166,15 @@ export function NavItem({
           {icon}
         </span>
       )}
-      <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
+      {tooltip?.trim() ? (
+        // On the label alone, not the row: the ⋮ and the action keep their
+        // own tooltips, and the two never stand up at once.
+        <WithTooltip label={tooltip} inline wrapperClassName="flex min-w-0 flex-1">
+          <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
+        </WithTooltip>
+      ) : (
+        <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
+      )}
       {hint != null && (
         // Takes room only while it shows, so the label gives way to it.
         <span className="hidden shrink-0 items-center group-hover/nav:flex group-has-[:focus-visible]/nav:flex">{hint}</span>

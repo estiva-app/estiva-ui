@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.72.0",
-    "exports": 167,
-    "typeExports": 155,
+    "packageVersion": "0.79.0",
+    "exports": 204,
+    "typeExports": 197,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,84 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "AddReactionButton",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "The add button: `ReactionPicker` opens over it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "options",
+          "takes": "readonly ReactionOption[]",
+          "required": true,
+          "note": "The emoji offered, each named."
+        },
+        {
+          "name": "onPick",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "anchorOfSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "The anchor a comment on the selection carries, as §13.6 writes it: the selected blocks, and the selected words in one block or the words where it starts and ends across several.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
     {
       "name": "appendTableColumn",
       "repo": "estiva-ui",
@@ -954,6 +1032,46 @@
       ]
     },
     {
+      "name": "CardUnder",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CardUnder.tsx",
+      "purpose": "The one card added under a piece of text, and the ✕ that removes it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "link",
+          "takes": "LinkState",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onRemove",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws the ✕. Without it the card shows with none, as it does to anyone but the author."
+        },
+        {
+          "name": "revealOnHover",
+          "takes": "true/false",
+          "required": false,
+          "note": "The ✕ waits for hover or focus: under text already sent."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-cardunder--docs",
+      "storyId": "components-cardunder--while-writing",
+      "docPage": "src/CardUnder.mdx",
+      "app": null,
+      "looks": [
+        "opacity-0 transition-opacity focus-within:opacity-100 [@media(hover:none)]:opacity-100"
+      ]
+    },
+    {
       "name": "Checkbox",
       "repo": "estiva-ui",
       "kind": "component",
@@ -1271,6 +1389,25 @@
         "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
         "text-body-2 border-none bg-transparent text-text-primary placeholder:text-text-muted outline-none"
       ]
+    },
+    {
+      "name": "chosenOf",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "A picker's chosen option, or none.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "cn",
@@ -1828,6 +1965,390 @@
       "migrationStage": null,
       "docsId": "overlays-commandpalette--docs",
       "storyId": "overlays-commandpalette--first-level",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommentBox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentBox.tsx",
+      "purpose": "The one box every app writes a comment, a reply and a line of a conversation in: `@`, `!@`, `[` and `/`, the keys, drafts, files, editing, sending and a refused send.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "people",
+          "takes": "readonly MentionPerson[]",
+          "required": true,
+          "note": "Who `@` and `!@` offer."
+        },
+        {
+          "name": "references",
+          "takes": "a handler",
+          "required": false,
+          "note": "What `[` lists for what was typed, already in the app's order."
+        },
+        {
+          "name": "referencesChanged",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called with a listener while `[` is open; call it when `references` would answer differently (a search landed)."
+        },
+        {
+          "name": "referenceIcon",
+          "takes": "a handler",
+          "required": false,
+          "note": "A `[` row's and chip's 16px icon from what it points at; absent, a neutral square."
+        },
+        {
+          "name": "insert",
+          "takes": "readonly SlashCommand[]",
+          "required": false,
+          "note": "The app's own `/` Insert rows, after the shared Format section: {@link commentBoxRows} and its own."
+        },
+        {
+          "name": "code",
+          "takes": "CodeFormat",
+          "required": false,
+          "note": "`/` → Code: a mark inside the line, or a block."
+        },
+        {
+          "name": "send",
+          "takes": "a handler",
+          "required": true,
+          "note": "Send what is written, with the files that are ready; resolves with the relay's answer."
+        },
+        {
+          "name": "showsAtOnce",
+          "takes": "true/false",
+          "required": false,
+          "note": "The app shows a send before the relay answers: the box empties at once, and a refusal puts the words back."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The editor's accessible name: what the box is for."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": true,
+          "note": "Said in the empty box."
+        },
+        {
+          "name": "draft",
+          "takes": "CommentBoxDraft",
+          "required": false,
+          "note": "Keeps what is written when the box goes away."
+        },
+        {
+          "name": "edit",
+          "takes": "CommentBoxEdit",
+          "required": false,
+          "note": "Editing something already sent."
+        },
+        {
+          "name": "upload",
+          "takes": "a handler",
+          "required": false,
+          "note": "Offers the paperclip, `/` → File, a pasted picture and a dropped file: uploads one, and answers."
+        },
+        {
+          "name": "accept",
+          "takes": "text",
+          "required": false,
+          "note": "The file picker's `accept`."
+        },
+        {
+          "name": "closed",
+          "takes": "{ reason: ReactNode }",
+          "required": false,
+          "note": "The box cannot write here (an archived file, signed out): a line saying why takes its place."
+        },
+        {
+          "name": "referenceView",
+          "takes": "ComponentType<ReferenceViewProps>",
+          "required": false,
+          "note": "How a `nostr:` reference the box holds is drawn — the app's own chip."
+        },
+        {
+          "name": "extensions",
+          "takes": "readonly AnyExtension[]",
+          "required": false,
+          "note": "The app's own extra editor extensions: link chips, highlights."
+        },
+        {
+          "name": "autoFocus",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onSent",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called with what was sent once it went out: at once when `showsAtOnce`, else on the answer."
+        },
+        {
+          "name": "onRefused",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called when a send shown at once was refused, so the app takes it back."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commentbox--docs",
+      "storyId": "primitives-commentbox--empty",
+      "docPage": "src/CommentBox.mdx",
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors [&_.ProseMirror]:text-text-muted"
+      ]
+    },
+    {
+      "name": "commentBoxRows",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentBox.tsx",
+      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops File and Urgent itself.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commentbox--docs",
+      "storyId": "primitives-commentbox--empty",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommentCount",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "The count of what was said, a link to where it is read.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "conversation",
+          "takes": "LinkedConversation",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": [
+        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active font-medium text-text-primary",
+        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active text-text-secondary",
+        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active"
+      ]
+    },
+    {
+      "name": "commentElement",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "What a comment's card stands beside: its drawn highlight, or — its words gone — its first block.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "CommentHighlights",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Comments drawn where they are in an editor of a block document: on a few words, on a passage across blocks, or on whole blocks, in a light fill, the open one underlined.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": "src/CommentHighlights.mdx",
+      "app": null,
+      "looks": [
+        "cursor-pointer rounded-sm bg-warning-muted underline decoration-warning-default decoration-2 underline-offset-4"
+      ]
+    },
+    {
+      "name": "commentPlace",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Where a comment is now: on its words or blocks, beside its blocks with its words gone, or detached.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "COMPOSE_EDITOR_CLASSES",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "The editor's own classes inside the box: Peek's, rich text with no outline.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ComposeBox",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "The box a message, a reply or a comment is written in: the text, the selection strip over it, what is attached, the tools and Send.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "editor",
+          "takes": "Editor | null",
+          "required": true,
+          "note": "The app's editor, with `ComposeKeys` in its extensions and `COMPOSE_EDITOR_CLASSES` on it."
+        },
+        {
+          "name": "onSend",
+          "takes": "a handler",
+          "required": true,
+          "note": "Send what is written. The box empties afterwards — unless this returns `false`: nothing was sent, and the words stay."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": true,
+          "note": "Said in the empty box: words, and a `Kbd` where a key helps (\"type / for commands\")."
+        },
+        {
+          "name": "tools",
+          "takes": "anything",
+          "required": false,
+          "note": "The tools under the text, left: `ToolbarButton`s (attach, highlight)."
+        },
+        {
+          "name": "attachments",
+          "takes": "anything",
+          "required": false,
+          "note": "What is attached, under the text: `AttachmentCard pending`s."
+        },
+        {
+          "name": "ready",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something to send even with no words — a file ready."
+        },
+        {
+          "name": "holding",
+          "takes": "true/false",
+          "required": false,
+          "note": "Sending waits — a file still uploading."
+        },
+        {
+          "name": "marked",
+          "takes": "true/false",
+          "required": false,
+          "note": "The bar down the text's left: an urgent mention or a highlight, as Peek draws it."
+        },
+        {
+          "name": "selection",
+          "takes": "Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>",
+          "required": false,
+          "note": "The selection strip's buttons: its marks, Link, and the app's own (`actions`)."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
+      "docPage": "src/ComposeBox.mdx",
+      "app": null,
+      "looks": [
+        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
+        "select-none font-mono text-menu font-normal tracking-wider text-text-muted"
+      ]
+    },
+    {
+      "name": "ComposeKeys",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposeBox.tsx",
+      "purpose": "Enter sends; Shift+Enter is a new line — in a list a new item (or out of the list, on an empty one), in a quote a new line (or out of it, on an empty one).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composebox--docs",
+      "storyId": "primitives-composebox--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2438,7 +2959,7 @@
         },
         {
           "name": "action",
-          "takes": "a handler",
+          "takes": "ButtonAction",
           "required": false,
           "note": "The one thing to do about it — \"New topic\", \"Try again\" — drawn 16px under the line as the package's Button, outlined (Katerina, 2026-09-18)."
         },
@@ -2494,6 +3015,62 @@
       "looks": [
         "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
+    },
+    {
+      "name": "EntryShell",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EntryShell.tsx",
+      "purpose": "What an app shows while nobody is signed in to it: its logo, one line saying why, and at most one button.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "logo",
+          "takes": "anything",
+          "required": true,
+          "note": "The app's own mark, drawn at the top in every state, as given: the app sizes it."
+        },
+        {
+          "name": "busy",
+          "takes": "true/false",
+          "required": false,
+          "note": "Entry is still being decided: the logo alone, faded in after 150ms (as a Skeleton is), so an entry that resolves at once flashes nothing."
+        },
+        {
+          "name": "busyLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears while `busy`; nothing is drawn for it."
+        },
+        {
+          "name": "message",
+          "takes": "anything",
+          "required": false,
+          "note": "The one line saying why nobody is signed in, announced politely when it appears."
+        },
+        {
+          "name": "action",
+          "takes": "ButtonAction & { disabled?: boolean }",
+          "required": false,
+          "note": "The one thing to do about it, drawn under the line (or alone, with no `message`) as the package's primary Button."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "frame-entryshell--docs",
+      "storyId": "frame-entryshell--message-with-action",
+      "docPage": "src/EntryShell.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ErrorBoundary",
@@ -3247,6 +3824,100 @@
       "looks": []
     },
     {
+      "name": "InlineText",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/InlineText.tsx",
+      "purpose": "A page's title, or the line under it, edited where it stands, as in a document: the text is the editor, with no box and nothing moving.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": "The saved text. A new value is loaded when you are not in the field and hold nothing unsaved."
+        },
+        {
+          "name": "placeholder",
+          "takes": "text",
+          "required": true,
+          "note": "What it is for, muted, while it is empty: \"Untitled\", \"Add a summary\"."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The accessible name: \"Title\", \"Summary\"."
+        },
+        {
+          "name": "onCommit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Save it: resolve `true` when saved; `false` keeps your text in place."
+        },
+        {
+          "name": "onText",
+          "takes": "a handler",
+          "required": false,
+          "note": "The text as it is being written, on focus and every change; `null` when you leave."
+        },
+        {
+          "name": "onEnter",
+          "takes": "a handler",
+          "required": false,
+          "note": "Enter, after the save has started: where the caret goes next."
+        },
+        {
+          "name": "variant",
+          "takes": "title | summary",
+          "required": false,
+          "note": "`title`: the page's heading. `summary`: the line under it, quieter."
+        },
+        {
+          "name": "clearable",
+          "takes": "true/false",
+          "required": false,
+          "note": "Empty is a value (a summary). Otherwise leaving it empty brings the saved one back (a title)."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Text only, the same size and place: nobody can change it, or the editor is not ready."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        },
+        {
+          "name": "ref",
+          "takes": "Ref<InlineTextHandle>",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "variant",
+          "values": [
+            "title",
+            "summary"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-inlinetext--docs",
+      "storyId": "primitives-inlinetext--default",
+      "docPage": "src/InlineText.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "InputChip",
       "repo": "estiva-ui",
       "kind": "component",
@@ -3464,6 +4135,25 @@
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
         "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
+    },
+    {
+      "name": "keepSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "Draw the selection as it is now, until `releaseSelection`.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "KeptSelection",
@@ -3706,6 +4396,111 @@
       ]
     },
     {
+      "name": "LinkCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkCard.tsx",
+      "purpose": "A link's card: what a row cannot hold, and the changes the reader may make from it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "link",
+          "takes": "LinkState",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "The values read as words, never pickers: the hover preview."
+        },
+        {
+          "name": "bare",
+          "takes": "true/false",
+          "required": false,
+          "note": "No frame of its own: inside a box that draws one, as the hover preview's."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkcard--docs",
+      "storyId": "components-linkcard--default",
+      "docPage": "src/LinkCard.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkCardLoading",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkCard.tsx",
+      "purpose": "The card it will become, drawn in bars at the card's own height.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "kind",
+          "takes": "LinkedKind",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "shape",
+          "takes": "LoadingShape",
+          "required": false,
+          "note": "What the card will hold (`loadingShapeOf` from the last time it drew); the kind's usual card otherwise."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkcard--docs",
+      "storyId": "components-linkcard--default",
+      "docPage": null,
+      "app": null,
+      "looks": [
+        "divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong",
+        "rounded-md border border-border-subtle leaf:border-border-strong"
+      ]
+    },
+    {
+      "name": "LinkChip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkChip.tsx",
+      "purpose": "A link in a sentence: its icon, its key, its title cut short, and its status as a shape.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "link",
+          "takes": "LinkState",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "preview",
+          "takes": "true/false",
+          "required": false,
+          "note": "Hovering shows its card. Off where a card would cover what the reader is choosing from."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkchip--docs",
+      "storyId": "components-linkchip--in-a-sentence",
+      "docPage": "src/LinkChip.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "LinkChips",
       "repo": "estiva-ui",
       "kind": "component",
@@ -3721,6 +4516,256 @@
       "docsId": "primitives-linkchips--docs",
       "storyId": "primitives-linkchips--in-an-editor",
       "docPage": "src/LinkChips.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkedIcon",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "The icon for what a link stands for. A page of text has its own.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "kind",
+          "takes": "LinkedKind",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "size",
+          "takes": "14 | 16",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "secondary | inherit",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "secondary",
+            "inherit"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkKey",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "A key, the way people say it (\"ABC-2\"): before the title, quieter than it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "children",
+          "takes": "text",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkPickers",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "A status and an owner, where the reader can change them from the card.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "status",
+          "takes": "LinkedPicker",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "owner",
+          "takes": "LinkedPicker",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "ownerLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The owner's word: \"Assignee\", \"Lead\"."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Draws the values as words even where they could be changed: the hover preview."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkPreview",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkPreview.tsx",
+      "purpose": "A link's card on hover over its chip or its row, read only, in the package's one elevated box.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "linked",
+          "takes": "Linked",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "block",
+          "takes": "true/false",
+          "required": false,
+          "note": "The trigger fills its column, as a row does; a chip is inline."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkpreview--docs",
+      "storyId": "components-linkpreview--on-hover",
+      "docPage": "src/LinkPreview.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkPreviewOpen",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkPreview.tsx",
+      "purpose": "The preview drawn open, for a still picture of it: the same box PreviewCard draws.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "linked",
+          "takes": "Linked",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkpreview--docs",
+      "storyId": "components-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkRow.tsx",
+      "purpose": "A link alone on its line: one 36px row for every kind, with what it has in its corner.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "link",
+          "takes": "LinkState",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "preview",
+          "takes": "true/false",
+          "required": false,
+          "note": "Hovering shows its card."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkrow--docs",
+      "storyId": "components-linkrow--default",
+      "docPage": "src/LinkRow.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkUnavailable",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkRow.tsx",
+      "purpose": "Not available: deleted, or not this reader's to see, which read the same.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "kind",
+          "takes": "LinkedKind",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": true,
+          "note": "What it is, in a word: \"Item\". Drawn as \"Item — not available.\"."
+        },
+        {
+          "name": "openIn",
+          "takes": "{ app: string; href: string }",
+          "required": false,
+          "note": "Where it may still open, for someone who can: its app and address."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkrow--docs",
+      "storyId": "components-linkrow--default",
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -3789,6 +4834,140 @@
       "docsId": "layout-listcolumn--docs",
       "storyId": "layout-listcolumn--default",
       "docPage": "src/ListColumn.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "loadingShapeOf",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "The shape `linked`'s card takes, for its placeholder the next time it loads.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "id",
+          "takes": "text",
+          "required": true,
+          "note": "Its address. Two `Linked` with the same `id` are the same thing (identity by value, not by object)."
+        },
+        {
+          "name": "kind",
+          "takes": "LinkedKind",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": "Opens it. An address in this app goes through `AppProvider`'s `navigate`."
+        },
+        {
+          "name": "key",
+          "takes": "text",
+          "required": false,
+          "note": "What the reader calls it, quietly before the title: \"ABC-2\"."
+        },
+        {
+          "name": "subtitle",
+          "takes": "text",
+          "required": false,
+          "note": "The line under a card's title: what it is in."
+        },
+        {
+          "name": "summary",
+          "takes": "text",
+          "required": false,
+          "note": "Its short summary, a sentence or two. Without one a card shows the title alone."
+        },
+        {
+          "name": "status",
+          "takes": "LinkedPicker",
+          "required": false,
+          "note": "Its status: each option carries its `colour`."
+        },
+        {
+          "name": "owner",
+          "takes": "LinkedPicker",
+          "required": false,
+          "note": "Who owns it, by the word the app uses (`ownerLabel`: \"Assignee\", \"Lead\")."
+        },
+        {
+          "name": "ownerLabel",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "conversation",
+          "takes": "LinkedConversation & { noun?: string }",
+          "required": false,
+          "note": "What was said about it. `noun` names it for a screen reader: \"comments\" by default."
+        },
+        {
+          "name": "children",
+          "takes": "LinkedChild[]",
+          "required": false,
+          "note": "Items inside it, drawn as rows in its card."
+        },
+        {
+          "name": "done",
+          "takes": "{ done: number; total: number }",
+          "required": false,
+          "note": "How far along it is, drawn as a ring."
+        },
+        {
+          "name": "members",
+          "takes": "LinkedPerson[]",
+          "required": false,
+          "note": "Who is in it, as faces."
+        },
+        {
+          "name": "authors",
+          "takes": "LinkedPerson[]",
+          "required": false,
+          "note": "Who wrote it, as faces."
+        },
+        {
+          "name": "updated",
+          "takes": "text",
+          "required": false,
+          "note": "When it last changed, in the app's words: \"2h ago\"."
+        },
+        {
+          "name": "latest",
+          "takes": "{ author: LinkedPerson; body: string; at: string }",
+          "required": false,
+          "note": "The newest thing said in it, drawn only when the reader may read it."
+        },
+        {
+          "name": "body",
+          "takes": "text",
+          "required": false,
+          "note": "Words a person wrote, linked as themselves: drawn with `author`'s face, not an icon."
+        },
+        {
+          "name": "author",
+          "takes": "LinkedPerson",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -4082,6 +5261,12 @@
           "takes": "text",
           "required": false,
           "note": "A second line under the label — a role, an address — 12px, secondary, truncating."
+        },
+        {
+          "name": "aside",
+          "takes": "text",
+          "required": false,
+          "note": "After the label, on its line — 12px, muted, never cut: where a file sits (an issue's ref and project) when its second line is its summary (SUM-7)."
         },
         {
           "name": "leading",
@@ -4427,6 +5612,12 @@
           "note": "Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically."
         },
         {
+          "name": "tooltip",
+          "takes": "text",
+          "required": false,
+          "note": "A sentence about the item, in the package's tooltip while the label is pointed at; the row stays one line."
+        },
+        {
           "name": "unread",
           "takes": "true/false",
           "required": false,
@@ -4759,6 +5950,83 @@
       "docsId": "layout-panel--docs",
       "storyId": "layout-panel--default",
       "docPage": "src/Panel.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "PartCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PartCard.tsx",
+      "purpose": "A part of something longer, shared live: its blocks as they are now, under the header of what it is part of.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "state",
+          "takes": "ready | loading | unavailable",
+          "required": false,
+          "note": "Where its lookup stands. Default `ready`."
+        },
+        {
+          "name": "kind",
+          "takes": "LinkedKind",
+          "required": true,
+          "note": "What it is part of, by its icon."
+        },
+        {
+          "name": "heading",
+          "takes": "text",
+          "required": false,
+          "note": "The title of what it is part of."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Opens what it is part of, at the part."
+        },
+        {
+          "name": "partKey",
+          "takes": "text",
+          "required": false,
+          "note": "The key of what it is part of: \"ABC-2\"."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What it is part of, in a word, for \"A part of this item — not available.\"."
+        },
+        {
+          "name": "openIn",
+          "takes": "{ app: string; href: string }",
+          "required": false,
+          "note": "Where it may still open, for someone who can, when it is not available."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "The part's blocks, drawn by the app."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "state",
+          "values": [
+            "ready",
+            "loading",
+            "unavailable"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-partcard--docs",
+      "storyId": "components-partcard--default",
+      "docPage": "src/PartCard.mdx",
       "app": null,
       "looks": []
     },
@@ -5306,6 +6574,38 @@
       ]
     },
     {
+      "name": "ProgressRing",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "Progress as a small ring, with the count beside it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "done",
+          "takes": "number",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "total",
+          "takes": "number",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Property",
       "repo": "estiva-ui",
       "kind": "component",
@@ -5358,6 +6658,50 @@
       "looks": [
         "text-menu uppercase tracking-widest text-text-secondary"
       ]
+    },
+    {
+      "name": "quoteText",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "A quote in one line, as a card says it: its start and end words around an ellipsis.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "start",
+          "takes": "text",
+          "required": true,
+          "note": "The selection's words in one block, or its first words when it runs across blocks."
+        },
+        {
+          "name": "end",
+          "takes": "text",
+          "required": false,
+          "note": "Its last words, in the run's last block."
+        },
+        {
+          "name": "prefix",
+          "takes": "text",
+          "required": false,
+          "note": "A few characters before `start`, only when the words repeat in their block."
+        },
+        {
+          "name": "suffix",
+          "takes": "text",
+          "required": false,
+          "note": "A few characters after the end, only when the words repeat in their block."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Rail",
@@ -5558,6 +6902,62 @@
       "docsId": "components-reactionpicker--docs",
       "storyId": "components-reactionpicker--default",
       "docPage": "src/ReactionPicker.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ReactionRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "The one row of reactions under a comment or a line, in every app: Reaction pills in the order first chosen, yours lit, who reacted on hover, and the add button with ReactionPicker.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "reactions",
+          "takes": "readonly ReactionCount[]",
+          "required": true,
+          "note": "Each emoji and who chose it, in the order first chosen."
+        },
+        {
+          "name": "options",
+          "takes": "readonly ReactionOption[]",
+          "required": true,
+          "note": "The emoji offered, each named; also what a pill's name is read from."
+        },
+        {
+          "name": "nameOf",
+          "takes": "a handler",
+          "required": true,
+          "note": "A reactor's name, as \"who reacted\" says it."
+        },
+        {
+          "name": "viewer",
+          "takes": "text",
+          "required": false,
+          "note": "Who is looking: their pills are lit, and \"who reacted\" says \"you\"."
+        },
+        {
+          "name": "onToggle",
+          "takes": "a handler",
+          "required": false,
+          "note": "Your reaction on or off. Absent, the row only shows (read-only, signed out)."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
+      "docPage": "src/ReactionRow.mdx",
       "app": null,
       "looks": []
     },
@@ -5800,6 +7200,25 @@
       "migrationStage": null,
       "docsId": "primitives-linkchips--docs",
       "storyId": "primitives-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "releaseSelection",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/SelectionToolbar.tsx",
+      "purpose": "Stop drawing it. Nothing kept, nothing dispatched.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-selectiontoolbar--docs",
+      "storyId": "primitives-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6403,6 +7822,12 @@
           "takes": "anything",
           "required": false,
           "note": "More of the strip, after the marks: the app's own `ToolbarButton`s for what is selected — a chip's card, say."
+        },
+        {
+          "name": "actions",
+          "takes": "readonly SelectionAction[]",
+          "required": false,
+          "note": "The app's own buttons after the marks, past a separator: \"Comment\"."
         }
       ],
       "variants": [],
@@ -6433,6 +7858,25 @@
       "docsId": "primitives-selectiontoolbar--docs",
       "storyId": "primitives-selectiontoolbar--default",
       "docPage": "src/SelectionToolbar.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "setCommentAnchors",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentHighlights.ts",
+      "purpose": "Draw these comments, `active` the one being read.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commenthighlights--docs",
+      "storyId": "primitives-commenthighlights--default",
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -6612,9 +8056,29 @@
           "takes": "CSSProperties",
           "required": false,
           "note": null
+        },
+        {
+          "name": "on",
+          "takes": "surface | inset",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "shape",
+          "takes": "keyof typeof SKELETON_SHAPE",
+          "required": false,
+          "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "on",
+          "values": [
+            "surface",
+            "inset"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -6716,6 +8180,32 @@
       "migrationStage": null,
       "docsId": "primitives-editorblockhandle--docs",
       "storyId": "primitives-editorblockhandle--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "StatusMark",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkParts.tsx",
+      "purpose": "A status as its shape, which reads without colour; its words on hover and to a screen reader.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "status",
+          "takes": "LinkedStatus",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkparts--docs",
+      "storyId": "components-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7882,6 +9372,25 @@
       "looks": []
     },
     {
+      "name": "unavailableMemory",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "The device's memory of links it could not show, under the app's own `storageKey`, keeping the newest `limit`.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "UnknownBlock",
       "repo": "estiva-ui",
       "kind": "component",
@@ -7972,6 +9481,25 @@
       "looks": []
     },
     {
+      "name": "useCanHover",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/LinkPreview.tsx",
+      "purpose": "Whether this screen can hover. Without `matchMedia` (a test, a server) it is taken to.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "components-linkpreview--docs",
+      "storyId": "components-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "useReferenceCards",
       "repo": "estiva-ui",
       "kind": "hook",
@@ -8005,6 +9533,38 @@
       "migrationStage": null,
       "docsId": "feedback-toast--docs",
       "storyId": "feedback-toast--neutral",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "whoReacted",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionRow.tsx",
+      "purpose": "\"Person one, Person two and you reacted with Makes sense\".",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "emoji",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "by",
+          "takes": "readonly string[]",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-reactionrow--docs",
+      "storyId": "primitives-reactionrow--default",
       "docPage": null,
       "app": null,
       "looks": []
