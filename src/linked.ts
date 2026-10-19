@@ -6,7 +6,7 @@
  * widgets look nothing up, and keep nothing but what a reader does to them.
  *
  * The shape follows the prototype Miky approved (Widgets 2, 15 Oct; why:
- * https://github.com/estiva-app/estiva-docs/blob/main/decisions/where-a-link-sits-and-which-file-gets-the-card.md).
+ * https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-link-on-words-counts-toward-the-card.md).
  */
 import type { ThingKind } from './KindIcon'
 
