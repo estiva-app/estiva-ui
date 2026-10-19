@@ -393,11 +393,13 @@ describe('a URL pasted over words', () => {
   const doc = (...content: JSONContent[]): JSONContent => ({ type: 'doc', content: [{ type: 'paragraph', content }] })
   const editing = (body: JSONContent) => ({ body, onSave: async (): Promise<SendAnswer> => ({ accepted: true }), onCancel: () => {} })
 
-  /** Selects `from`–`to` (1 is the paragraph's start; none keeps the selection) and pastes `text`. */
-  async function pasteOver(from: number | null, to: number, text: string) {
+  /** Selects `from`–`to` (1 is the paragraph's start; 'all' selects everything) and pastes `text`, in one act so the box's
+   * opening focus (a frame later) cannot collapse the selection in between. */
+  async function pasteOver(from: number | 'all', to: number, text: string) {
     await act(async () => {
       const editor = editorOf()
-      if (from !== null) editor.commands.setTextSelection({ from, to })
+      if (from === 'all') editor.commands.selectAll()
+      else editor.commands.setTextSelection({ from, to })
       const event = { clipboardData: { getData: (type: string) => (type === 'text/plain' ? text : '') }, preventDefault: () => {} } as unknown as ClipboardEvent
       const slice = new Slice(Fragment.from(editor.state.schema.text(text)), 0, 0)
       editor.view.someProp('handlePaste', (handle) => handle(editor.view, event, slice))
@@ -421,10 +423,7 @@ describe('a URL pasted over words', () => {
 
   it('select-all over one line links all its words, without the full stop copied after the URL', async () => {
     render(<Box edit={editing(doc({ type: 'text', text: 'the plan' }))} />)
-    await act(async () => {
-      editorOf().commands.selectAll()
-    })
-    await pasteOver(null, 0, `${URL_}.`)
+    await pasteOver('all', 0, `${URL_}.`)
     expect(runs()).toEqual([`link:the plan>${URL_}`])
   })
 

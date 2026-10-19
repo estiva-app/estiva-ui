@@ -539,24 +539,17 @@ export function CommentBox({
       </>
     ) : undefined
 
-  // Under the box: the card with its ✕, then the live parts (none in an edit, which carries none).
+  // Under the box, outside its border: the card with its ✕, then the live parts (none in an edit, which carries none).
   const card = reading?.card && !removed.has(reading.card.value) ? reading.card : undefined
   const parts = edit ? [] : (reading?.parts ?? [])
   const underBox =
     card || parts.length > 0 ? (
-      <div data-box-under className="flex basis-full flex-col gap-2">
+      <div data-box-under className="mt-1 flex flex-col gap-2">
         {card && <CardUnder onRemove={() => setRemoved((was) => new Set([...was, card.value]))}>{card.view}</CardUnder>}
         {parts.map((part) => (
           <Fragment key={part.key}>{part.view}</Fragment>
         ))}
       </div>
-    ) : undefined
-  const attached =
-    fileCards || underBox ? (
-      <>
-        {fileCards}
-        {underBox}
-      </>
     ) : undefined
 
   const refusedLine = refused && (
@@ -570,7 +563,7 @@ export function CommentBox({
       <div className={cn('flex flex-col gap-1', className)}>
         <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
           <EditorContent editor={editor} />
-          {attached && <div className="flex flex-wrap gap-2">{attached}</div>}
+          {fileCards && <div className="flex flex-wrap gap-2">{fileCards}</div>}
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 text-caption text-text-muted">
               <Kbd>Esc</Kbd> to cancel · <Kbd>Enter</Kbd> to save
@@ -585,7 +578,9 @@ export function CommentBox({
             </div>
           </div>
         </div>
-        {sending && <FieldLine>Saving…</FieldLine>}        {refusedLine}
+        {underBox}
+        {sending && <FieldLine>Saving…</FieldLine>}
+        {refusedLine}
       </div>
     )
   }
@@ -610,12 +605,13 @@ export function CommentBox({
             </ToolbarButton>
           ) : undefined
         }
-        attachments={attached}
+        attachments={fileCards}
         ready={ready}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
+      {underBox}
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
       {sending && <FieldLine>Sending…</FieldLine>}
       {uploading && !sending && <FieldLine>Uploading… Send waits for the file.</FieldLine>}

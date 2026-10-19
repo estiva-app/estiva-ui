@@ -244,18 +244,19 @@ export const CardUnderTheBox: Story = { render: () => <Live under={under} />, pl
 /** A link to a block: its live part under the box, and no card. */
 export const PartUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
 
-/** Editing: the card an edit would add, and no part, since an edit carries none. */
+/** Editing: a link the edit adds shows the card Save will add. A part never shows here, since an edit carries none. */
 export const EditingWithACard: Story = {
   render: () => (
     <Live
       under={under}
       edit={{
-        body: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: `As in ${ITEM_URL} and ${PART_URL}` }] }] },
+        body: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'As in' }] }] },
         onCancel: () => {},
         onSave: answering,
       }}
     />
   ),
+  play: typeInto(`{End} ${ITEM_URL} `),
 }
 
 /** The narrowest column it sits in, 320px, with a file uploading. */
