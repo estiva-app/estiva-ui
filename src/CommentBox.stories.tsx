@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { Button } from './Button'
 import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { CaptionedItem, MentionPerson, ReferenceSection } from './ComposerTriggers'
@@ -256,7 +256,12 @@ export const EditingWithACard: Story = {
       }}
     />
   ),
-  play: typeInto(`{End} ${ITEM_URL} `),
+  // The edit box puts the caret at the end as it opens; a click would move it.
+  play: async ({ canvasElement }) => {
+    const box = within(canvasElement).getByRole('textbox', { name: 'Write' })
+    await waitFor(() => expect(box.ownerDocument.activeElement).toBe(box))
+    await userEvent.keyboard(` ${ITEM_URL} `)
+  },
 }
 
 /** The narrowest column it sits in, 320px, with a file uploading. */
