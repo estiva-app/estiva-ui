@@ -8,8 +8,9 @@ import { act } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { Editor } from '@tiptap/core'
+import { Fragment, Slice } from '@tiptap/pm/model'
 import type { JSONContent } from '@tiptap/react'
-import { CommentBox, commentBoxRows, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
+import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { MentionPerson } from './ComposerTriggers'
 
 const PEOPLE: MentionPerson[] = [{ id: 'one', name: 'Person one', pubkey: 'b'.repeat(64) }]
@@ -275,5 +276,172 @@ describe('read-only', () => {
     expect(screen.getByText('Archived. It takes no new comments.')).toBeTruthy()
     expect(document.querySelector('.ProseMirror')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+  })
+})
+
+describe('under the box: the one card, with ✕, and the live parts', () => {
+  const ISSUE = 'https://app.example/item/one'
+  const BLOCK = 'https://app.example/page/two#block'
+  /** The app's read, by what the text names: one item gets the card; a block link is a part and leaves no card. */
+  const reader = (known = () => true): BoxUnder => ({
+    read: (body) => {
+      const text = textOf(body)
+      const item = known() && text.includes(ISSUE)
+      const part = text.includes(BLOCK)
+      return {
+        card: item && !part ? { value: 'item-one', view: <span>Card of item one</span> } : undefined,
+        parts: part ? [{ key: 'page-two', view: <span>Live part of page two</span> }] : [],
+        names: [...(item ? ['item-one'] : []), ...(part ? ['page-two'] : [])],
+      }
+    },
+  })
+  const removeCard = () => act(async () => fireEvent.click(screen.getByRole('button', { name: 'Remove card' })))
+
+  it('a draft naming one item shows its card under the box, and it is sent with the words', async () => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} under={reader()} />)
+    expect(screen.queryByText('Card of item one')).toBeNull()
+    await type(`see ${ISSUE}`)
+    expect(screen.getByText('Card of item one')).toBeTruthy()
+    await press('Enter')
+    await settle()
+    expect(send.mock.calls[0][2]).toEqual({ card: 'item-one' })
+    expect(screen.queryByText('Card of item one')).toBeNull()
+  })
+
+  it('✕ takes the card off, and the message is sent with none', async () => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} under={reader()} />)
+    await type(`see ${ISSUE}`)
+    await removeCard()
+    expect(screen.queryByText('Card of item one')).toBeNull()
+    await press('Enter')
+    await settle()
+    expect(send.mock.calls[0][2]).toEqual({})
+  })
+
+  it('a link taken out and put back gets its card again', async () => {
+    render(<Box under={reader()} />)
+    await type(`see ${ISSUE}`)
+    await removeCard()
+    await act(async () => {
+      editorOf().commands.setContent('see')
+    })
+    await type(` ${ISSUE}`)
+    expect(screen.getByText('Card of item one')).toBeTruthy()
+  })
+
+  it('a card the app learns of later shows when the app says its answers changed', async () => {
+    let known = false
+    let listener = () => {}
+    const under: BoxUnder = {
+      ...reader(() => known),
+      changed: (l) => {
+        listener = l
+        return () => {}
+      },
+    }
+    render(<Box under={under} />)
+    await type(`see ${ISSUE}`)
+    expect(screen.queryByText('Card of item one')).toBeNull()
+    known = true
+    await act(async () => listener())
+    expect(screen.getByText('Card of item one')).toBeTruthy()
+  })
+
+  it('a refused send shown at once puts the words back without the card ✕ took off', async () => {
+    const answer = later<SendAnswer>()
+    const send = vi.fn<CommentBoxProps['send']>(() => answer.promise)
+    render(<Box send={send} under={reader()} showsAtOnce />)
+    await type(`see ${ISSUE}`)
+    await removeCard()
+    await press('Enter')
+    expect(send.mock.calls[0][2]).toEqual({})
+    await act(async () => answer.answer({ accepted: false, reason: 'the relay is busy' }))
+    await settle()
+    expect(editorOf().getText()).toBe(`see ${ISSUE}`)
+    expect(screen.queryByText('Card of item one')).toBeNull()
+  })
+
+  it('a block link shows its live part under the box and no card', async () => {
+    render(<Box under={reader()} />)
+    await type(`see ${ISSUE} and ${BLOCK}`)
+    expect(screen.getByText('Live part of page two')).toBeTruthy()
+    expect(screen.queryByText('Card of item one')).toBeNull()
+  })
+
+  it('the edit box shows the card it would add and no part, and Save carries the card', async () => {
+    const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
+    const under: BoxUnder = {
+      read: (body) => ({
+        card: { value: 'item-one', view: <span>Card of item one</span> },
+        parts: [{ key: 'page-two', view: <span>Live part of page two</span> }],
+        names: textOf(body) ? ['item-one', 'page-two'] : [],
+      }),
+    }
+    const body: JSONContent = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: `see ${ISSUE}` }] }] }
+    render(<Box under={under} edit={{ body, onSave, onCancel: () => {} }} />)
+    expect(screen.getByText('Card of item one')).toBeTruthy()
+    expect(screen.queryByText('Live part of page two')).toBeNull()
+    await press('Enter')
+    expect(onSave.mock.calls[0][2]).toEqual({ card: 'item-one' })
+  })
+})
+
+describe('a URL pasted over words', () => {
+  const URL_ = 'https://app.example/item/one'
+  const doc = (...content: JSONContent[]): JSONContent => ({ type: 'doc', content: [{ type: 'paragraph', content }] })
+  const editing = (body: JSONContent) => ({ body, onSave: async (): Promise<SendAnswer> => ({ accepted: true }), onCancel: () => {} })
+
+  /** Selects `from`–`to` (1 is the paragraph's start; 'all' selects everything) and pastes `text`, in one act so the box's
+   * opening focus (a frame later) cannot collapse the selection in between. */
+  async function pasteOver(from: number | 'all', to: number, text: string) {
+    await act(async () => {
+      const editor = editorOf()
+      if (from === 'all') editor.commands.selectAll()
+      else editor.commands.setTextSelection({ from, to })
+      const event = { clipboardData: { getData: (type: string) => (type === 'text/plain' ? text : '') }, preventDefault: () => {} } as unknown as ClipboardEvent
+      const slice = new Slice(Fragment.from(editor.state.schema.text(text)), 0, 0)
+      editor.view.someProp('handlePaste', (handle) => handle(editor.view, event, slice))
+    })
+  }
+  const runs = () =>
+    ((editorOf().getJSON() as JSONContent).content?.[0].content ?? []).map((n) => {
+      const link = n.marks?.find((m) => m.type === 'link')
+      return link ? `link:${n.text}>${link.attrs?.href}` : `${n.type}:${n.text ?? ''}`
+    })
+
+  it('links the words, and what is typed after them is not linked', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'see the plan now' }))} />)
+    await pasteOver(5, 13, URL_)
+    expect(runs()).toEqual(['text:see ', `link:the plan>${URL_}`, 'text: now'])
+    await act(async () => {
+      editorOf().chain().setTextSelection(13).insertContent('!').run()
+    })
+    expect(runs()).toEqual(['text:see ', `link:the plan>${URL_}`, 'text:! now'])
+  })
+
+  it('select-all over one line links all its words, without the full stop copied after the URL', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'the plan' }))} />)
+    await pasteOver('all', 0, `${URL_}.`)
+    expect(runs()).toEqual([`link:the plan>${URL_}`])
+  })
+
+  it('words holding a bracket keep their words, and the URL goes in after them', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'see [the] plan' }))} />)
+    await pasteOver(5, 15, URL_)
+    expect(runs()).toEqual([`text:see [the] plan ${URL_}`])
+  })
+
+  it('words across a line break keep their words, and the URL goes in after them', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'one' }, { type: 'hardBreak' }, { type: 'text', text: 'two' }))} />)
+    await pasteOver(1, 8, URL_)
+    expect(runs()).toEqual(['text:one', 'hardBreak:', `text:two ${URL_}`])
+  })
+
+  it('a URL a message cannot carry on words, with a parenthesis, goes in after the words', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'the spec' }))} />)
+    await pasteOver(1, 9, 'https://wiki.example/Nostr_(protocol)')
+    expect(runs()).toEqual(['text:the spec https://wiki.example/Nostr_(protocol)'])
   })
 })

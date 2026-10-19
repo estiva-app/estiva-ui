@@ -7,26 +7,30 @@
  * focus, and always on a screen that cannot hover, so a tap reaches it (Miky,
  * 16 Oct, kickoff).
  */
+import type { ReactNode } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
 import { LinkCard } from './LinkCard'
 import type { LinkState } from './linked'
 
-export interface CardUnderProps {
-  link: LinkState
+interface CardUnderBase {
   /** Draws the ✕. Without it the card shows with none, as it does to anyone but the author. */
   onRemove?: () => void
   /** The ✕ waits for hover or focus: under text already sent. Always shown on a screen that cannot hover. */
   revealOnHover?: boolean
 }
 
-export function CardUnder({ link, onRemove, revealOnHover = false }: CardUnderProps) {
+/**
+ * The card is a `LinkCard` of `link`, or the app's own card as `children`: an
+ * app that draws a sent card itself draws the one under its box the same way.
+ */
+export type CardUnderProps = CardUnderBase & ({ link: LinkState; children?: never } | { link?: never; children: ReactNode })
+
+export function CardUnder({ link, children, onRemove, revealOnHover = false }: CardUnderProps) {
   return (
     <div className="group/card flex max-w-[480px] items-start gap-1">
-      <div className="min-w-0 flex-1">
-        <LinkCard link={link} />
-      </div>
+      <div className="min-w-0 flex-1">{link ? <LinkCard link={link} /> : children}</div>
       {onRemove && (
         // At the card's top corner: halfway down a tall card a ✕ reads as belonging to nothing.
         <div
