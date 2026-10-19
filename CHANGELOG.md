@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.80.0 — 2026-10-19
+
+### Changed
+
+- **A file that did not upload holds Send until its ✕ takes it off**
+  (COMM-6, Leaf; Miky, 19 October, on the issue). In `CommentBox`, a file in
+  the `failed` state now holds Send, Enter and an edit's Save as one still
+  uploading does, and a line under the box says "Remove the file that did not
+  upload to send." (or "…to save." in an edit). Before, the words went out
+  without the file and nothing said so. No prop changes; Leaf
+  (`src/comments/CommentsColumn.tsx`) is the only caller and takes it in
+  leaf#41.
+
 ## 0.79.0 — 2026-10-19
 
 ### Added

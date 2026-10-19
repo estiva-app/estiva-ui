@@ -195,7 +195,7 @@ export const EditingRefused: Story = {
 /** A file uploading: Send waits for it. */
 export const FileUploading: Story = { render: () => <Live upload={uploads('never')} />, play: pickAFile }
 
-/** A file that failed: it says why and can be removed. */
+/** A file that failed: it says why, Send holds, and its ✕ removes it. */
 export const FileFailed: Story = { render: () => <Live upload={uploads('failed')} />, play: pickAFile }
 
 /** Read-only, archived: a line in the box's place. */

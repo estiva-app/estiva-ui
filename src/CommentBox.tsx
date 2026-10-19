@@ -306,6 +306,8 @@ export function CommentBox({
   }, [upload, edit])
 
   const uploading = files.some((f) => f.state === 'uploading')
+  // A file that did not upload holds Send until its ✕ takes it off, so it is never sent without it unnoticed.
+  const failed = files.some((f) => f.state === 'failed')
   const ready = files.some((f) => f.state === 'ready')
 
   const go = useCallback(
@@ -354,7 +356,7 @@ export function CommentBox({
   )
 
   save.current = () => {
-    if (!editor || !edit || sending || uploading) return true
+    if (!editor || !edit || sending || uploading || failed) return true
     setRefused(null)
     setSending(true)
     void edit
@@ -425,13 +427,14 @@ export function CommentBox({
               <Button variant="outlined" size="small" onClick={edit.onCancel}>
                 Cancel
               </Button>
-              <Button variant="primary" size="small" disabled={uploading || sending} onClick={() => save.current()}>
+              <Button variant="primary" size="small" disabled={uploading || failed || sending} onClick={() => save.current()}>
                 Save
               </Button>
             </div>
           </div>
         </div>
         {sending && <FieldLine>Saving…</FieldLine>}
+        {failed && !sending && <FieldLine>Remove the file that did not upload to save.</FieldLine>}
         {refusedLine}
       </div>
     )
@@ -459,13 +462,14 @@ export function CommentBox({
         }
         attachments={fileCards}
         ready={ready}
-        holding={uploading || sending}
+        holding={uploading || failed || sending}
         selection={{ link: true }}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
       {sending && <FieldLine>Sending…</FieldLine>}
       {uploading && !sending && <FieldLine>Uploading… Send waits for the file.</FieldLine>}
+      {failed && !uploading && !sending && <FieldLine>Remove the file that did not upload to send.</FieldLine>}
       {refusedLine}
     </div>
   )
