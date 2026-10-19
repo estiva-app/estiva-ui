@@ -225,8 +225,9 @@ describe('files', () => {
     expect(send.mock.calls[0][1]).toMatchObject([{ name: 'plan.pdf', state: 'ready', value: 'the-record' }])
   })
 
-  it('a failed upload says why, and nothing waits for it', async () => {
-    render(<Box upload={async () => ({ accepted: false, reason: 'too large' })} />)
+  it('a failed upload says why and holds Send and Enter until its ✕ takes it off', async () => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} upload={async () => ({ accepted: false, reason: 'too large' })} />)
     const input = document.querySelector('input[type=file]') as HTMLInputElement
     await act(async () => {
       fireEvent.change(input, { target: { files: [new File(['x'], 'big.mov', { type: 'video/quicktime' })] } })
@@ -234,6 +235,19 @@ describe('files', () => {
     await settle()
     expect(screen.getByText('too large')).toBeTruthy()
     expect(screen.queryByText('Uploading… Send waits for the file.')).toBeNull()
+    await type('See this')
+    expect(screen.getByText('Remove the file that did not upload to send.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'Send' }) as HTMLButtonElement).disabled).toBe(true)
+    await press('Enter')
+    expect(send).not.toHaveBeenCalled()
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Remove big.mov' }))
+    })
+    expect(screen.queryByText('Remove the file that did not upload to send.')).toBeNull()
+    await press('Enter')
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(textOf(send.mock.calls[0][0])).toBe('See this')
+    expect(send.mock.calls[0][1]).toEqual([])
   })
 
   it('an upload that arrives after the box opened offers File in /', async () => {
