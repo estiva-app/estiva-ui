@@ -216,11 +216,13 @@ const PasteOverWords = Extension.create({
         key: new PluginKey('commentBoxPasteOverWords'),
         props: {
           handlePaste: (view, event) => {
-            const url = event.clipboardData?.getData('text/plain').trim() ?? ''
+            // A URL copied with the end of its sentence names what it names without it, as LinkChips reads one.
+            const url = (event.clipboardData?.getData('text/plain').trim() ?? '').replace(/[.,;:!?]+$/, '')
             const { state } = view
-            const { selection, schema } = state
-            if (selection.empty || !schema.marks.link || !/^https?:\/\/\S+$/.test(url)) return false
-            const { $from, $to, from, to } = selection
+            const { schema } = state
+            if (state.selection.empty || !schema.marks.link || !/^https?:\/\/\S+$/.test(url)) return false
+            // Select-all spans the document itself: read it as the text it holds.
+            const { $from, $to, from, to } = TextSelection.between(state.selection.$from, state.selection.$to)
             let plain = $from.sameParent($to) && $from.parent.isTextblock && !$from.parent.type.spec.code
             state.doc.nodesBetween(from, to, (node) => {
               if (node.isTextblock) return true
@@ -382,7 +384,10 @@ export function CommentBox({
   // What shows under the box, read on every change and whenever the app's answers change.
   const reads = !!under
   useEffect(() => {
-    if (!editor || !reads) return
+    if (!editor || !reads) {
+      setReading(undefined)
+      return
+    }
     const read = () => {
       const now = latest.current.under?.read(editor.getJSON())
       setReading(now)

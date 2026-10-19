@@ -392,11 +392,11 @@ describe('a URL pasted over words', () => {
   const doc = (...content: JSONContent[]): JSONContent => ({ type: 'doc', content: [{ type: 'paragraph', content }] })
   const editing = (body: JSONContent) => ({ body, onSave: async (): Promise<SendAnswer> => ({ accepted: true }), onCancel: () => {} })
 
-  /** Selects `from`–`to` (1 is the paragraph's start) and pastes `text`. */
-  async function pasteOver(from: number, to: number, text: string) {
+  /** Selects `from`–`to` (1 is the paragraph's start; none keeps the selection) and pastes `text`. */
+  async function pasteOver(from: number | null, to: number, text: string) {
     await act(async () => {
       const editor = editorOf()
-      editor.commands.setTextSelection({ from, to })
+      if (from !== null) editor.commands.setTextSelection({ from, to })
       const event = { clipboardData: { getData: () => text }, preventDefault: () => {} } as unknown as ClipboardEvent
       editor.view.someProp('handlePaste', (handle) => handle(editor.view, event, editor.state.selection.content()))
     })
@@ -415,6 +415,15 @@ describe('a URL pasted over words', () => {
       editorOf().chain().setTextSelection(13).insertContent('!').run()
     })
     expect(runs()).toEqual(['text:see ', `link:the plan>${URL_}`, 'text:! now'])
+  })
+
+  it('select-all over one line links all its words, without the full stop copied after the URL', async () => {
+    render(<Box edit={editing(doc({ type: 'text', text: 'the plan' }))} />)
+    await act(async () => {
+      editorOf().commands.selectAll()
+    })
+    await pasteOver(null, 0, `${URL_}.`)
+    expect(runs()).toEqual([`link:the plan>${URL_}`])
   })
 
   it('words holding a bracket keep their words, and the URL goes in after them', async () => {
