@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.78.0",
-    "exports": 203,
+    "packageVersion": "0.79.0",
+    "exports": 204,
     "typeExports": 197,
     "files": null
   },
@@ -8701,6 +8701,25 @@
         "bg-warning-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md",
         "bg-error-muted signal:bg-bg-inset signal:border signal:border-border-default signal:shadow-md leaf:bg-bg-inset leaf:border leaf:border-border-default leaf:shadow-md"
       ]
+    },
+    {
+      "name": "toggleTableHeaderRow",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/EditorTableControls.tsx",
+      "purpose": "The table's first row becomes its header row, or an ordinary row again: whichever cell of the table `cell` is.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-editortablecontrols--docs",
+      "storyId": "primitives-editortablecontrols--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "Toolbar",

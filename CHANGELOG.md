@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.79.0 — 2026-10-19
+
+### Added
+
+- **A table's header row turns off and on** (LEAF-12, Leaf 1; Miky, closing
+  Rich text and blocks on 14 October; Katerina approved the place on 18
+  October). `EditorTableControls`' first-row menu
+  opens with Header row, ticked while the first row is the header; choosing it
+  makes the first row ordinary cells, or header cells again
+  (prosemirror-tables' `toggleHeader('row')`). With the header off, the first
+  row takes Insert above and deleting it promotes nothing.
+  `toggleTableHeaderRow` is that row's action. A table with no header row has
+  no text spelling (SPEC §13.3), so the agent keeps it as written (Miky, at
+  LEAF-12's kickoff). Ship, Leaf and Peek get it with the bump; nothing else
+  changes for a caller.
+
 ## 0.78.0 — 2026-10-18
 
 ### Added

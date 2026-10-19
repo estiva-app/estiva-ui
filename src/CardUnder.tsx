@@ -1,6 +1,6 @@
 /**
  * The one card added under a piece of text, and the ✕ that removes it (why:
- * https://github.com/estiva-app/estiva-docs/blob/main/decisions/where-a-link-sits-and-which-file-gets-the-card.md).
+ * https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-link-on-words-counts-toward-the-card.md).
  *
  * Under a box being written in, the ✕ always shows. Under text already sent
  * (`revealOnHover`) it shows when the pointer is over the card or the ✕ has

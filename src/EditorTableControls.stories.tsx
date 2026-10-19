@@ -36,10 +36,18 @@ const DOCUMENT = {
   ],
 }
 
-function Editing({ editable }: { editable: boolean }) {
+const NO_HEADER = {
+  type: 'doc',
+  content: [
+    { type: 'paragraph', content: [{ type: 'text', text: 'The first row’s handle turns the header row back on.' }] },
+    { type: 'table', content: [row('tableCell', 'Item one', 'Value', 'Value'), row('tableCell', 'Item two', 'Value', 'Value')] },
+  ],
+}
+
+function Editing({ editable, content = DOCUMENT }: { editable: boolean; content?: object }) {
   const editor = useEditor({
     extensions: [StarterKit.configure({ dropcursor: blockDropCursor }), TableKit.configure({ table: { resizable: false } }), BlockId],
-    content: DOCUMENT,
+    content,
     editable,
     editorProps: { attributes: { class: richTextClassName('default', 'outline-none'), 'aria-label': 'Text' } },
   })
@@ -52,9 +60,14 @@ function Editing({ editable }: { editable: boolean }) {
   )
 }
 
-/** Point at a cell; press a handle for Insert and Delete, or a ➕ bar to add a row or a column at the end. */
+/** Point at a cell; press a handle for Insert and Delete, or a ➕ bar to add a row or a column at the end. The first row's handle also has Header row, ticked while it is on. */
 export const Default: Story = {
   render: () => <Editing editable />,
+}
+
+/** A table with its header row off: the first row is an ordinary row, and its handle's Header row is not ticked. */
+export const NoHeaderRow: Story = {
+  render: () => <Editing editable content={NO_HEADER} />,
 }
 
 /** An editor that is not editable: no controls. */
