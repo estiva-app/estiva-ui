@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.81.0 — 2026-10-19
+
+### Added
+
+- **The card under the comment box while you write** (COMM-8). `CommentBox`
+  takes `under: { read(body), changed? }`: `read` is the app's reading of the
+  draft (conversation's `boxReadOf`), giving the one card with the app's own
+  view of it, the live parts, and everything the draft names. The box draws
+  the card with an always-visible ✕ and the parts under it, beside the files;
+  an edit box draws the card and no part. A ✕ is forgotten once its link is
+  taken out, and a send shown at once and refused puts back what ✕ took off.
+- `send`, `edit.onSave` and `onSent` get a third argument, `{ card }`: the
+  card still shown as it was sent. Additive; Peek and Ship ignore it.
+- `CardUnder` takes the app's own card as `children`, instead of `link`.
+
+### Changed
+
+- **A URL pasted over words in `CommentBox` links them only when a message
+  can carry them as a link on words** (one line of plain words, no bracket,
+  no chip, no line break, not code, and no `)` or space in the URL); otherwise
+  the words stay and the URL goes in after them. Before, StarterKit linked any
+  selection, and a link a message cannot carry was sent as its words only.
+- Typing right after linked words is no longer linked (Peek's
+  `inclusive: false`).
+
 ## 0.80.0 — 2026-10-19
 
 ### Changed

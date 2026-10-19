@@ -17,6 +17,9 @@ export {
   type CommentBoxEdit,
   type BoxFile,
   type BoxFileState,
+  type BoxUnder,
+  type BoxUnderRead,
+  type BoxSentUnder,
   type SendAnswer,
   type UploadAnswer,
 } from './CommentBox'

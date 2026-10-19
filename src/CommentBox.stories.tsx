@@ -3,9 +3,12 @@ import { useState } from 'react'
 import type { JSONContent } from '@tiptap/react'
 import { userEvent, within } from 'storybook/test'
 import { Button } from './Button'
-import { CommentBox, commentBoxRows, type CommentBoxDraft, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
+import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { CaptionedItem, MentionPerson, ReferenceSection } from './ComposerTriggers'
 import { Kbd } from './Kbd'
+import { LinkCard } from './LinkCard'
+import { ITEM, ready } from './linked.examples'
+import { PartCard } from './PartCard'
 
 /**
  * The one box every app writes in. Every story is live: write, open a list,
@@ -203,6 +206,57 @@ export const ReadOnlyArchived: Story = { render: () => <Live closed={{ reason: '
 
 /** Read-only, signed out: a line in the box's place. */
 export const ReadOnlySignedOut: Story = { render: () => <Live closed={{ reason: 'Sign in to write here.' }} /> }
+
+const ITEM_URL = 'https://app.example/item/one'
+const PART_URL = 'https://app.example/page/two#block'
+
+/**
+ * What the app reads under the box: one item named gets its card; a link to
+ * a block of something is its live part, and then no card.
+ */
+const under: BoxUnder = {
+  read: (body) => {
+    const text = plain(body)
+    const item = text.includes(ITEM_URL)
+    const part = text.includes(PART_URL)
+    return {
+      card: item && !part ? { value: 'item-one', view: <LinkCard link={ready(ITEM)} /> } : undefined,
+      parts: part
+        ? [
+            {
+              key: 'item-two',
+              view: (
+                <PartCard state="ready" kind="issue" heading="Item two" partKey="ABC-3" href="#part">
+                  <p className="text-body-2 text-text-secondary">The block, as it is now. It changes when the text it came from changes.</p>
+                </PartCard>
+              ),
+            },
+          ]
+        : [],
+      names: [...(item ? ['item-one'] : []), ...(part ? ['item-two'] : [])],
+    }
+  },
+}
+
+/** One item named: its card under the box, with ✕ to take it off. Take the link out and put it back and the card comes back. */
+export const CardUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} `) }
+
+/** A link to a block: its live part under the box, and no card. */
+export const PartUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
+
+/** Editing: the card an edit would add, and no part, since an edit carries none. */
+export const EditingWithACard: Story = {
+  render: () => (
+    <Live
+      under={under}
+      edit={{
+        body: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: `As in ${ITEM_URL} and ${PART_URL}` }] }] },
+        onCancel: () => {},
+        onSave: answering,
+      }}
+    />
+  ),
+}
 
 /** The narrowest column it sits in, 320px, with a file uploading. */
 export const Narrow: Story = {

@@ -15,9 +15,12 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 - `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
 - `edit` to change something already sent: the same box with Cancel and Save, and only its keys on the left.
 - `upload` to offer files: the paperclip, `/` → File, a pasted picture and a dropped file.
+- `under` to show, while something is written, the one card it will be sent with (✕ takes it off) and the live part of each block link, drawn as the app draws them under a sent message. An edit box shows the card and no part.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
 
 <Canvas of={CommentBoxStories.Refused} />
+
+<Canvas of={CommentBoxStories.CardUnderTheBox} />
 
 ## When not
 
@@ -56,6 +59,8 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 - **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops File and Urgent itself; with no `upload` there is no File.
 - **Give the box a `key` per destination.** The editor, the rows and `code` are made once, as the box opens; a new thread is a new box.
 - A send shown at once and refused after its box went away writes the words into its draft instead.
+- **`under.read` is the app's reading of the draft**: `@estiva-app/conversation`'s `boxReadOf(body, context)` says which file gets the card and which parts show; the app adds its own view of each. Call `under.changed`'s listener when what a link names comes back. `send`'s third argument is `{ card }`, the card still shown, which the app writes with `embedsToSend` (or `embedsToEdit` for `onSave`).
+- **A link chip for a pasted app URL** is the app's `LinkChips`, passed in `extensions`.
 
 ## What it owns
 
@@ -69,6 +74,8 @@ It does these by itself. Write none of them around it.
 | A refusal: the words back, and a line under the box | a toast, or putting text back |
 | The draft, written as you type and forgotten once sent | an update listener |
 | Files: picking, pasting, dropping, uploading, failing; Send waits for an upload and holds on a failed file until its ✕ removes it | a file list |
+| The card under the box, its ✕, and a ✕ forgotten once the link is taken out; a refused send puts back what ✕ took off | a card state |
+| A URL pasted over words links them when a message can carry them as a link (one line of plain words, no bracket, no chip, no `)` in the URL); otherwise the URL goes in after the words. Typing after linked words is not linked | a paste handler |
 | The read-only line | a disabled box |
 
 ## Keys

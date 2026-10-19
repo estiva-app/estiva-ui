@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, type AnyExtension } from '@tiptap/core'
+import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { EditorContent, useEditor, type Editor, type JSONContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
@@ -7,6 +8,7 @@ import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
 import { Card } from './Card'
+import { CardUnder } from './CardUnder'
 import { cn } from './cn'
 import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, isEmptyDoc as isEmpty } from './ComposeBox'
 import {
@@ -84,7 +86,36 @@ export interface CommentBoxEdit {
   files?: BoxFile[]
   onCancel: () => void
   /** Save; the box holds the words until the answer, and a refusal is said under it. */
-  onSave: (body: JSONContent, files: BoxFile[]) => Promise<SendAnswer>
+  onSave: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
+}
+
+/**
+ * What a draft shows under the box, as the app reads it from the box's
+ * document — `@estiva-app/conversation`'s `boxReadOf`, which reads it as the
+ * message will be sent (why:
+ * https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-link-on-words-counts-toward-the-card.md).
+ */
+export interface BoxUnderRead {
+  /** The one card, before any ✕: what it names, and the app's own view of it, drawn as it draws a sent one. */
+  card?: { value: string; view: ReactNode }
+  /** The live parts, drawn as the app draws them under a sent message. An edit carries none, so the edit box shows none. */
+  parts?: readonly { key: string; view: ReactNode }[]
+  /** Everything the draft names. A ✕ is forgotten once what it took off is no longer named, so a link put back gets its card again. */
+  names: readonly string[]
+}
+
+/** What the box shows under itself while something is written. */
+export interface BoxUnder {
+  /** Read on every change, and once more as it is sent. */
+  read: (body: JSONContent) => BoxUnderRead
+  /** Called with a listener; call it when `read` would answer differently (what a link names came back). */
+  changed?: (listener: () => void) => () => void
+}
+
+/** What was under the box as it was sent or saved. */
+export interface BoxSentUnder {
+  /** The card still shown, by what it names: absent when there was none, or ✕ took it off. */
+  card?: string
 }
 
 export interface CommentBoxProps {
@@ -100,8 +131,10 @@ export interface CommentBoxProps {
   insert?: readonly SlashCommand[]
   /** `/` → Code: a mark inside the line, or a block. */
   code?: CodeFormat
-  /** Send what is written, with the files that are ready; resolves with the relay's answer. */
-  send: (body: JSONContent, files: BoxFile[]) => Promise<SendAnswer>
+  /** Send what is written, with the files that are ready and the card still shown; resolves with the relay's answer. */
+  send: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
+  /** The card and parts under the box while something is written, with ✕ on the card. Absent, nothing shows under it. */
+  under?: BoxUnder
   /**
    * The app shows a send before the relay answers: the box empties at once,
    * and a refusal puts the words back. Otherwise the box holds the words, shut,
@@ -128,7 +161,7 @@ export interface CommentBoxProps {
   extensions?: readonly AnyExtension[]
   autoFocus?: boolean
   /** Called with what was sent once it went out: at once when `showsAtOnce`, else on the answer. */
-  onSent?: (body: JSONContent, files: BoxFile[]) => void
+  onSent?: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => void
   /** Called when a send shown at once was refused, so the app takes it back. */
   onRefused?: () => void
   className?: string
@@ -165,6 +198,62 @@ const BoxKeys = Extension.create<{ onEscape: () => boolean }>({
   },
 })
 
+/** A link a message can carry on words, `[words](url)`: no `)` and no space in it (conversation's `composerText`). */
+const LINK_ON_WORDS_TARGET = /^https?:\/\/[^\s)]+$/
+
+/**
+ * A URL pasted over words links them, as in Peek, when the message can carry
+ * them as a link on words: plain words on one line, no chip, no line break, no
+ * bracket, no code. Otherwise the words stay and the URL goes in after them,
+ * so neither is lost. Ahead of StarterKit's own link-on-paste.
+ */
+const PasteOverWords = Extension.create({
+  name: 'commentBoxPasteOverWords',
+  priority: 1001,
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('commentBoxPasteOverWords'),
+        props: {
+          handlePaste: (view, event) => {
+            const url = event.clipboardData?.getData('text/plain').trim() ?? ''
+            const { state } = view
+            const { selection, schema } = state
+            if (selection.empty || !schema.marks.link || !/^https?:\/\/\S+$/.test(url)) return false
+            const { $from, $to, from, to } = selection
+            let plain = $from.sameParent($to) && $from.parent.isTextblock && !$from.parent.type.spec.code
+            state.doc.nodesBetween(from, to, (node) => {
+              if (node.isTextblock) return true
+              if (!node.isText || node.marks.some((m) => m.type.spec.code || m.type.name === 'code')) plain = false
+              return false
+            })
+            if (plain && LINK_ON_WORDS_TARGET.test(url) && !/[[\]\n]/.test(state.doc.textBetween(from, to))) {
+              view.dispatch(state.tr.addMark(from, to, schema.marks.link.create({ href: url })))
+              return true
+            }
+            const before = state.doc.textBetween(Math.max(to - 1, $to.start()), to, '', '￼')
+            const inserted = before && !/\s/.test(before) ? ` ${url}` : url
+            const tr = state.tr.insertText(inserted, to)
+            view.dispatch(tr.setSelection(TextSelection.create(tr.doc, to + inserted.length)).scrollIntoView())
+            return true
+          },
+        },
+      }),
+    ]
+  },
+})
+
+/** StarterKit with a link that ends where its words end: what is typed after linked words is not linked (Peek's `inclusive: false`). */
+const BoxKit = StarterKit.extend({
+  addExtensions() {
+    return (this.parent?.() ?? []).map((extension) => (extension.name === 'link' ? extension.extend({ inclusive: () => false }) : extension))
+  },
+})
+
+/** What `removed` still holds of what the draft names; the same set when nothing was forgotten. */
+const stillNamed = (removed: ReadonlySet<string>, names: readonly string[]): ReadonlySet<string> =>
+  [...removed].every((value) => names.includes(value)) ? removed : new Set([...removed].filter((value) => names.includes(value)))
+
 const SQUARE = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 const SMALL_SQUARE = <IconSquareRounded size={14} stroke={1.5} />
 
@@ -178,6 +267,7 @@ export function CommentBox({
   insert = [],
   code = 'block',
   send,
+  under,
   showsAtOnce = false,
   label,
   placeholder,
@@ -196,11 +286,14 @@ export function CommentBox({
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
   const [sending, setSending] = useState(false)
   const [refused, setRefused] = useState<string | null>(null)
+  // What shows under the box, and what ✕ took off.
+  const [reading, setReading] = useState<BoxUnderRead | undefined>(undefined)
+  const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
   const picker = useRef<HTMLInputElement>(null)
   const root = useRef<HTMLDivElement>(null)
   // The latest props, for the editor's callbacks, which are made once.
-  const latest = useRef({ edit, people, references, referencesChanged, referenceIcon, upload, draft })
-  latest.current = { edit, people, references, referencesChanged, referenceIcon, upload, draft }
+  const latest = useRef({ edit, people, references, referencesChanged, referenceIcon, upload, draft, under })
+  latest.current = { edit, people, references, referencesChanged, referenceIcon, upload, draft, under }
   const save = useRef<() => boolean>(() => false)
 
   const attachFiles = useCallback((picked: File[]): boolean => {
@@ -231,7 +324,8 @@ export function CommentBox({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ link: { openOnClick: false } }),
+      BoxKit.configure({ link: { openOnClick: false } }),
+      PasteOverWords,
       KeptSelection,
       ComposeKeys,
       BoxKeys.configure({
@@ -285,6 +379,33 @@ export function CommentBox({
     }
   }, [editor, edit])
 
+  // What shows under the box, read on every change and whenever the app's answers change.
+  const reads = !!under
+  useEffect(() => {
+    if (!editor || !reads) return
+    const read = () => {
+      const now = latest.current.under?.read(editor.getJSON())
+      setReading(now)
+      setRemoved((was) => stillNamed(was, now?.names ?? []))
+    }
+    read()
+    editor.on('update', read)
+    const unsubscribe = latest.current.under?.changed?.(read)
+    return () => {
+      editor.off('update', read)
+      unsubscribe?.()
+    }
+  }, [editor, reads])
+
+  // What goes with a send or a save: read from what is sent, minus what ✕ took off.
+  const underOf = useCallback(
+    (body: JSONContent): BoxSentUnder => {
+      const card = latest.current.under?.read(body).card?.value
+      return card && !removed.has(card) ? { card } : {}
+    },
+    [removed],
+  )
+
   useEffect(() => {
     editor?.setEditable(!closed && !sending)
   }, [editor, closed, sending])
@@ -314,14 +435,17 @@ export function CommentBox({
     (ed: Editor): boolean => {
       const body = ed.getJSON()
       const sent = files.filter((f) => f.state === 'ready')
+      const sentUnder = underOf(body)
       setRefused(null)
       const answered = (answer: Promise<SendAnswer>) => answer.catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
       if (showsAtOnce) {
-        // Shown at once: the box empties now (ComposeBox clears it); a refusal puts the words back above anything written since.
+        // Shown at once: the box empties now (ComposeBox clears it); a refusal puts the words back above anything written since,
+        // and what ✕ took off with them.
+        const took = removed
         setFiles((all) => all.filter((f) => f.state !== 'ready'))
         draft?.clear()
-        onSent?.(body, sent)
-        void answered(send(body, sent)).then((answer) => {
+        onSent?.(body, sent, sentUnder)
+        void answered(send(body, sent, sentUnder)).then((answer) => {
           if (answer.accepted) return
           onRefused?.()
           if (ed.isDestroyed) {
@@ -332,6 +456,7 @@ export function CommentBox({
           if (isEmpty(ed)) ed.commands.setContent(body)
           else ed.commands.insertContentAt(0, body.content ?? [])
           ed.commands.focus('end')
+          setRemoved((now) => new Set([...now, ...took]))
           setFiles((all) => [...sent, ...all])
           setRefused(answer.reason)
         })
@@ -339,28 +464,30 @@ export function CommentBox({
       }
       // Held: the words stay, shut, until the relay answers.
       setSending(true)
-      void answered(send(body, sent)).then((answer) => {
+      void answered(send(body, sent, sentUnder)).then((answer) => {
         setSending(false)
         if (!answer.accepted) {
           setRefused(answer.reason)
           return
         }
         if (!ed.isDestroyed) ed.commands.clearContent(true)
+        setRemoved(new Set())
         setFiles((all) => all.filter((f) => !sent.includes(f)))
         draft?.clear()
-        onSent?.(body, sent)
+        onSent?.(body, sent, sentUnder)
       })
       return false
     },
-    [files, showsAtOnce, send, draft, onSent, onRefused],
+    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused],
   )
 
   save.current = () => {
     if (!editor || !edit || sending || uploading) return true
     setRefused(null)
     setSending(true)
+    const body = editor.getJSON()
     void edit
-      .onSave(editor.getJSON(), files)
+      .onSave(body, files, underOf(body))
       .catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
       .then((answer) => {
         setSending(false)
@@ -407,6 +534,26 @@ export function CommentBox({
       </>
     ) : undefined
 
+  // Under the box: the card with its ✕, then the live parts (none in an edit, which carries none).
+  const card = reading?.card && !removed.has(reading.card.value) ? reading.card : undefined
+  const parts = edit ? [] : (reading?.parts ?? [])
+  const underBox =
+    card || parts.length > 0 ? (
+      <div data-box-under className="flex basis-full flex-col gap-2">
+        {card && <CardUnder onRemove={() => setRemoved((was) => new Set([...was, card.value]))}>{card.view}</CardUnder>}
+        {parts.map((part) => (
+          <Fragment key={part.key}>{part.view}</Fragment>
+        ))}
+      </div>
+    ) : undefined
+  const attached =
+    fileCards || underBox ? (
+      <>
+        {fileCards}
+        {underBox}
+      </>
+    ) : undefined
+
   const refusedLine = refused && (
     <FieldLine tone="error">
       {edit ? `Not saved: ${refused}. Your changes are still in the box.` : `Not sent: ${refused}. Your text is back in the box.`}
@@ -418,7 +565,7 @@ export function CommentBox({
       <div className={cn('flex flex-col gap-1', className)}>
         <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
           <EditorContent editor={editor} />
-          {fileCards && <div className="flex flex-wrap gap-2">{fileCards}</div>}
+          {attached && <div className="flex flex-wrap gap-2">{attached}</div>}
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 text-caption text-text-muted">
               <Kbd>Esc</Kbd> to cancel · <Kbd>Enter</Kbd> to save
@@ -458,7 +605,7 @@ export function CommentBox({
             </ToolbarButton>
           ) : undefined
         }
-        attachments={fileCards}
+        attachments={attached}
         ready={ready}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}

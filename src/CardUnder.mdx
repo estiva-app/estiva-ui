@@ -33,6 +33,7 @@ import { CardUnder } from '@estiva-app/ui'
 - **Which link gets the card is the app's**, by the rule every app reads by (`defaultCardOf` in `@estiva-app/protocol`). This draws the one it is given.
 - `onRemove` is the app's: before sending it drops the card from what will be sent; after, it sends the edit that removes it.
 - It is at most 480px wide.
+- **An app that draws its sent cards itself** passes its card as `children` instead of `link`, so the card under a box and under a sent message are the same: `<CardUnder onRemove={remove}>{appCard}</CardUnder>`. `CommentBox` draws its card this way.
 
 ## What it owns
 

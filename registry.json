@@ -6,7 +6,7 @@
     "package": "@estiva-app/ui",
     "packageVersion": "0.80.0",
     "exports": 204,
-    "typeExports": 197,
+    "typeExports": 200,
     "files": null
   },
   "storybook": {
@@ -1041,12 +1041,6 @@
       "purposeFrom": "page",
       "props": [
         {
-          "name": "link",
-          "takes": "LinkState",
-          "required": true,
-          "note": null
-        },
-        {
           "name": "onRemove",
           "takes": "a handler",
           "required": false,
@@ -2018,7 +2012,13 @@
           "name": "send",
           "takes": "a handler",
           "required": true,
-          "note": "Send what is written, with the files that are ready; resolves with the relay's answer."
+          "note": "Send what is written, with the files that are ready and the card still shown; resolves with the relay's answer."
+        },
+        {
+          "name": "under",
+          "takes": "BoxUnder",
+          "required": false,
+          "note": "The card and parts under the box while something is written, with ✕ on the card."
         },
         {
           "name": "showsAtOnce",
