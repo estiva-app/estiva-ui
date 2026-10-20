@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.82.1 — 2026-10-20
+
+### Changed
+
+- **`DocumentEditor`'s `/` → Insert reads Table · File `[` · Upload · Mention
+  `@`** (Miky, 20 October, walking the Storybook). The row that opens `[`'s
+  list is called File (it was *Link to a file*); the row that uploads from the
+  computer is Upload (it was File); a new Mention row opens `@`'s people, when
+  the app passes `mentions`. No prop changes; nothing calls the editor yet.
+- **The message box's `/` upload row is Upload too** (it was File; Miky,
+  20 October), so File never means "upload from the computer". Its `[` row
+  stays Reference, since there `[` also picks messages. `commentBoxRows.file`
+  keeps its name and key; Leaf's comments (`CommentsColumn.tsx`) get the new
+  word with the bump.
+
 ## 0.82.0 — 2026-10-20
 
 ### Added

@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.82.0",
+    "packageVersion": "0.82.1",
     "exports": 206,
     "typeExports": 206,
     "files": null
@@ -2124,7 +2124,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/CommentBox.tsx",
-      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops File and Urgent itself.",
+      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops Upload and Urgent itself.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
@@ -2812,13 +2812,13 @@
           "name": "references",
           "takes": "DocumentReferences",
           "required": false,
-          "note": "`[` and `/` → *Link to a file*."
+          "note": "`[` and `/` → File."
         },
         {
           "name": "mentions",
           "takes": "DocumentMentions",
           "required": false,
-          "note": "`@`."
+          "note": "`@` and `/` → Mention."
         },
         {
           "name": "linkChips",
@@ -2830,7 +2830,7 @@
           "name": "upload",
           "takes": "a handler",
           "required": false,
-          "note": "`/` → File, and a pasted picture: upload one file and answer the attachment's attributes (its `imeta` fields)."
+          "note": "`/` → Upload, and a pasted picture: upload one file and answer the attachment's attributes (its `imeta` fields)."
         },
         {
           "name": "readMarkdown",

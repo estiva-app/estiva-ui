@@ -13,7 +13,7 @@ One document's text as one surface that is always an editor, the same in every a
 
 - **Any document's text**, written where it is read: a page, a description, a panel. The same editor in every app.
 - `references` and `mentions` for `[` and `@`, from the app's own lists. Without them, `[` and `@` are text.
-- `upload` for `/` → File and a pasted picture, uploaded before the file is placed.
+- `upload` for `/` → Upload and a pasted picture, uploaded before the file is placed.
 - `onCommentOnSelection` to offer Comment on what is selected, and draw where comments are. Without it, neither.
 - `blockRows` for the app's rows in a block's menu: Copy link, Comment on the block.
 - `readOnly` for reading: the same drawing, nothing typed or saved. Chips open, and Comment on a selection stays where it is on.
@@ -86,7 +86,7 @@ It does these by itself. Write none of them around it.
 | Someone else's save: loaded while you are not in it; while you are, "*Name* saved a newer version. Load it (replaces your changes)", and leaving saves yours over theirs — the later save wins | a merge, a conflict dialog |
 | Your own save coming back is not someone else's | an echo filter |
 | The text held when the sign-in ends, back unsaved after the tap, and nothing saved on the way out | a draft |
-| `/` Format (with checklist, note and warning) and Insert: Table, File, *Link to a file*, which opens `[` | the `/` rows |
+| `/` Format (with checklist, note and warning) and Insert: Table, File (opens `[`), Upload, Mention (opens `@`) | the `/` rows |
 | A URL pasted over plain words links them; typing after linked words is not linked; a link keeps the keys this version does not know | a paste handler, a link schema |
 | A bare address drawn as a link, opened by a click, and saved as the text it is | a link decoration |
 | Each block's id through editing, so what is anchored to it stays on it | an id plugin |
