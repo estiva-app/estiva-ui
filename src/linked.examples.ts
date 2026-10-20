@@ -60,9 +60,10 @@ export const GROUP: Linked = {
   done: { done: 2, total: 5 },
   conversation: { count: 2, href: '#group-conversation' },
   children: [
-    { id: 'example:c1', title: 'Item one', href: '#c1', key: 'ABC-1', status: { label: 'Done', colour: 'green' }, owner: { name: 'Person one' } },
-    { id: 'example:c2', title: 'Item two', href: '#c2', key: 'ABC-2', status: { label: 'In progress', colour: 'blue' }, owner: { name: 'Person two' } },
-    { id: 'example:c3', title: 'Item three', href: '#c3', key: 'ABC-3', status: { label: 'Todo', colour: 'neutral' } },
+    // The same keys as `ITEM` and `ITEM_NO_SUMMARY`, so a story showing the group beside its items reads as one set.
+    { id: 'example:c1', title: 'Item one', href: '#c1', key: 'ABC-2', status: { label: 'Done', colour: 'green' }, owner: { name: 'Person one' } },
+    { id: 'example:c2', title: 'Item two', href: '#c2', key: 'ABC-3', status: { label: 'In progress', colour: 'blue' }, owner: { name: 'Person two' } },
+    { id: 'example:c3', title: 'Item three', href: '#c3', key: 'ABC-4', status: { label: 'Todo', colour: 'neutral' } },
   ],
 }
 

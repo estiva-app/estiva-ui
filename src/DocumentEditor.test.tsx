@@ -522,6 +522,16 @@ describe('a link, by where it sits', () => {
     expect(places()).toEqual(['row', 'chip', 'card'])
   })
 
+  it('turns from its row into its chip as words are typed before it, and back when they are taken away', async () => {
+    render(<Doc value={doc({ type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] })} referenceView={Placed} />)
+    await screen.findByRole('link', { name: 'Item' })
+    expect(places()).toEqual(['row'])
+    await act(async () => editorOf().chain().focus().insertContentAt(1, 'See ').run())
+    expect(places()).toEqual(['chip'])
+    await act(async () => editorOf().chain().focus().deleteRange({ from: 1, to: 5 }).run())
+    expect(places()).toEqual(['row'])
+  })
+
   it('Show as Card on a lone link saves its card, and Show as Row saves it without one', async () => {
     const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => true)
     render(<Doc value={doc({ type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] })} referenceView={Placed} onCommit={onCommit} />)

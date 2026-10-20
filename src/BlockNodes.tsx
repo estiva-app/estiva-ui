@@ -480,6 +480,12 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
           {uri ? <View uri={uri} {...(href ? { href } : {})} place={place} editing={editor.isEditable} /> : <span>{href}</span>}
         </NodeViewWrapper>
       )
+    }, {
+      // Words typed beside a link leave its node as it was, and Tiptap then skips the redraw; its place has changed (code review).
+      update: ({ oldNode, newNode, oldDecorations, newDecorations, updateProps }) => {
+        if (oldNode !== newNode || placeOf(oldDecorations) !== placeOf(newDecorations)) updateProps()
+        return true
+      },
     })
   },
 })

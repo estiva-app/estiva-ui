@@ -410,7 +410,15 @@ export function DocumentEditor({
       editable: !readOnly,
       editorProps: {
         // Focusable when read only too: the selection strip, and so Comment on its words, shows only in a focused view.
-        attributes: { 'aria-label': label, role: 'textbox', 'aria-multiline': 'true', tabindex: '0', class: richTextClassName('default', 'outline-none') },
+        attributes: {
+          'aria-label': label,
+          role: 'textbox',
+          'aria-multiline': 'true',
+          tabindex: '0',
+          // A row or a card is its whole line (`LinkPlaces`), drawn on that line: a block inside it would push the
+          // separator and trailing break ProseMirror puts beside it onto empty lines of their own (code review).
+          class: richTextClassName('default', 'outline-none [&_[data-link-place]]:inline-block [&_[data-link-place]]:w-full [&_[data-link-place]]:align-top'),
+        },
         handleKeyDown: (view, event) => {
           if (event.key !== 'Escape') return false
           // An open list or chip menu closes first; the next Escape leaves.
