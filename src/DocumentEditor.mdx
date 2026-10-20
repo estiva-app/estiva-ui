@@ -17,6 +17,9 @@ One document's text as one surface that is always an editor, the same in every a
 - `onCommentOnSelection` to offer Comment on what is selected, and draw where comments are. Without it, neither.
 - `blockRows` for the app's rows in a block's menu: Copy link, Comment on the block.
 - `readOnly` for reading: the same drawing, nothing typed or saved. Chips open, and Comment on a selection stays where it is on.
+- `referenceView` for links: the app's chip, row or card, by `place`.
+
+<Canvas of={DocumentEditorStories.Links} />
 
 <Canvas of={DocumentEditorStories.WithFiles} />
 
@@ -53,7 +56,7 @@ const codec: DocumentCodec = {
   references={{ sections: sectionsFor, ariaLabel: 'Items', sectionLabel: 'Items' }}
   mentions={{ people: () => people, uriOf: (person) => `nostr:${encodeNpub(person.pubkey)}` }}
   upload={uploadOne}
-  referenceView={chipView}
+  referenceView={linkView}
   attachmentView={fileView}
   onCommit={async (value, contentFormat, editedFrom) => {
     const adds = mentionAddsFor(me, Date.now(), {
@@ -73,7 +76,8 @@ const codec: DocumentCodec = {
 - **`label` is required**: the editor's accessible name.
 - **Give the editor a `key` per document.** The editor and which of `[`, `@`, File, comments and markdown it has are made once, as it opens; the lists, the upload and the people are read as they are each time.
 - **`hold` is the app's held-typing store.** `register` must not forget what is held when it is called again for the same key during an ending; the editor registers once per `holdKey`.
-- **The cards a chip asks for** are drawn by the app's `cards`, after the text, until the kit has its own.
+- **A link draws where it sits** (**LinkPlaces**): `referenceView` is handed `place` — `chip` in a sentence, `row` alone on its line, `card` in the row's place — and draws the kit's **LinkChip**, **LinkRow** or **LinkCard** for what it names. While `editing`, give the chip and row no hover preview: a click opens the link's menu. A person or a Folder alone on its line is a `chip`.
+- **A link's menu** (**ReferenceMenu**) offers Open, and alone on its line Show as Row or Card; it opens by itself after a paste or a `[` pick on a line of its own.
 
 ## What it owns
 
@@ -90,6 +94,7 @@ It does these by itself. Write none of them around it.
 | A URL pasted over plain words links them; typing after linked words is not linked; a link keeps the keys this version does not know | a paste handler, a link schema |
 | A bare address drawn as a link, opened by a click, and saved as the text it is | a link decoration |
 | Each block's id through editing, so what is anchored to it stays on it | an id plugin |
+| Where each link sits — chip, row, or card in the row's place — kept current as you type, and its menu: Open, Show as Row or Card | a line rule, a card slot, a link menu |
 | A pasted picture uploaded and placed; the file dialog's blur is not leaving | an upload state |
 | Read only: no caret, no `/`, `[` or `@`, no format buttons; still focusable, so a selection's Comment shows | a reading view |
 

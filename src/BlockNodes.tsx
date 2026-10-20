@@ -7,6 +7,7 @@ import type { EditorView, NodeView } from '@tiptap/pm/view'
 import { NodeViewWrapper, ReactNodeViewRenderer, ReactRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Checkbox, type CheckboxProps } from './Checkbox'
 import { calloutLook } from './RichText'
+import { placeOf, type LinkPlace } from './LinkPlaces'
 import { referenceMenuClick } from './ReferenceMenu'
 
 /*
@@ -372,6 +373,14 @@ const webUrl = (raw: string | null): string | null => (raw && /^https?:\/\/\S+$/
 export interface ReferenceViewProps {
   uri: string
   href?: string
+  /**
+   * Where it sits, so how it draws: `chip` in a sentence, `row` alone on its
+   * line, `card` in the row's place (`LinkPlaces`, §13.3). Always `chip` in an
+   * editor without `LinkPlaces`.
+   */
+  place?: LinkPlace
+  /** Being edited: a click opens its menu rather than it, so a row or card shows no hover preview. */
+  editing?: boolean
 }
 
 export interface ReferenceNodeOptions {
@@ -390,11 +399,13 @@ export interface ReferenceNodeOptions {
  * is also how deleting one works. `marks` carries the run's other marks, so a
  * bold reference comes back bold.
  *
- * `embed` is the card its writer chose to draw after its block — `compact`,
- * `detailed`, or null for none (SPEC §13.3, "A reference's card") — and `extra`
- * every key of the mark this version does not know. Both are declared so that
- * ProseMirror keeps them: an undeclared attribute is dropped when the node is
- * made, and the card with it. `ReferenceCards` draws the cards.
+ * `embed` is the card its writer chose — `detailed`, drawn in the row's place
+ * when the reference is alone on its line, or null for its row (SPEC §13.3, "A
+ * reference's card"; older writers wrote `compact`, which draws the row) — and
+ * `extra` every key of the mark this version does not know. Both are declared
+ * so that ProseMirror keeps them: an undeclared attribute is dropped when the
+ * node is made, and the card with it. With `LinkPlaces`, the view is told where
+ * the reference sits (`place`) and draws its chip, row or card.
  *
  * `href` makes it a **URL chip**: an app URL that reads as the chip of what it
  * names, and is that URL on the wire (§13.3). `uri` is what it names, filled in
@@ -440,23 +451,33 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   addNodeView() {
     const View = this.options.view
     if (!View) return null
-    return ReactNodeViewRenderer(({ node, editor, getPos }: ReactNodeViewProps) => {
+    return ReactNodeViewRenderer(({ node, editor, getPos, decorations }: ReactNodeViewProps) => {
       const uri = String(node.attrs.uri ?? '')
       const href = typeof node.attrs.href === 'string' && node.attrs.href ? node.attrs.href : undefined
+      const place = placeOf(decorations)
       return (
         <NodeViewWrapper
           as="span"
-          className="inline"
+          // A row or a card is the whole line.
+          className={place === 'chip' ? 'inline' : 'block w-full'}
           // While editing, a click opens the chip's menu (`ReferenceMenu`) rather than following the chip.
           onClickCapture={(event: MouseEvent) => {
+            // A click in something the view portals out — a picker's list, a hover card — reaches here through React's
+            // tree, not the page's: it is that thing's, not a click on the link.
             const pos = getPos()
-            if (typeof pos !== 'number' || !referenceMenuClick(editor, pos)) return
+            if (typeof pos !== 'number') return
+            // (`Node` here is Tiptap's; a click's target is an Element.)
+            const own = editor.view.nodeDOM(pos)
+            if (!(event.target instanceof Element) || !own || !own.contains(event.target)) return
+            // A card's own controls — its status, its owner — change it from the card, while editing too.
+            if (place === 'card' && event.target.closest('button, input, select, [role="combobox"]')) return
+            if (!referenceMenuClick(editor, pos)) return
             event.preventDefault()
             event.stopPropagation()
           }}
         >
           {/* A URL chip not resolved yet reads as the URL it was written as. */}
-          {uri ? <View uri={uri} {...(href ? { href } : {})} /> : <span>{href}</span>}
+          {uri ? <View uri={uri} {...(href ? { href } : {})} place={place} editing={editor.isEditable} /> : <span>{href}</span>}
         </NodeViewWrapper>
       )
     })

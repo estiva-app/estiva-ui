@@ -1,0 +1,59 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks'
+import * as LinkPlacesStories from './LinkPlaces.stories'
+
+<Meta of={LinkPlacesStories} />
+
+# LinkPlaces
+
+Where a link in a document sits decides how it draws: its chip in a sentence,
+its row alone on its line, and its card in the row's place when its writer
+chose one (`embed` `detailed`). This tells each link's view its place; the
+app's view draws the chip, row or card.
+
+<Canvas of={LinkPlacesStories.InAnEditor} />
+
+## When
+
+- **An editor of a document**: pair it with **ReferenceNode**, whose view is
+  handed `place`, and **ReferenceMenu**, whose Show as Row or Card changes it.
+  **DocumentEditor** has both.
+
+## When not
+
+- A message's box, where every link is a chip while it is written → leave it
+  out: without it every view is told `chip`.
+- A document that is only read, outside an editor → **RichText**, with the
+  lines drawn by the protocol's `documentLineDraws`, the same rule.
+
+## How
+
+```tsx
+import { EditorContent, useEditor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import { LinkCard, LinkChip, LinkRow } from '@estiva-app/ui'
+import { BlockId, LinkPlaces, ReferenceNode, type ReferenceViewProps } from '@estiva-app/ui/editor'
+
+function Link({ uri, place = 'chip', editing }: ReferenceViewProps) {
+  const link = useResolved(uri) // the app's own lookup
+  if (place === 'card') return <LinkCard link={link} />
+  if (place === 'row') return <LinkRow link={link} preview={!editing} />
+  return <LinkChip link={link} preview={!editing} />
+}
+
+const editor = useEditor({ extensions: [StarterKit, BlockId, ReferenceNode.configure({ view: Link }), LinkPlaces] })
+```
+
+- **Alone on its line** is a top-level paragraph's line, or a list item's, up
+  to a hard break, holding the link and nothing but spaces. A heading, a quote,
+  a callout and a table cell are sentences. So is a link inside a marker
+  (bold, italic, code).
+- **A person or a Folder alone on its line stays a chip** (`staysChip`).
+- **Only `detailed` draws the card.** No `embed`, `compact` or a value this
+  version does not know draws the row.
+- **The same rule as the protocol's** `documentLineDrawOf`, read off the
+  editor's tree on every change; a test holds the two to one answer.
+- **A row or a card is the whole line**: its view's wrapper is a block.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.

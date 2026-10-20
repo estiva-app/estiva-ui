@@ -18,7 +18,7 @@ import { LinkChips, type LinkChipsOptions } from './LinkChips'
 import { BareLinks, DocumentKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { PastedMarkdown } from './PastedMarkdown'
-import { ReferenceCards } from './ReferenceCards'
+import { LinkPlaces } from './LinkPlaces'
 import { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen } from './ReferenceMenu'
 import { richTextClassName } from './RichText'
 import { KeptSelection, SelectionToolbar } from './SelectionToolbar'
@@ -118,12 +118,13 @@ export interface DocumentEditorProps {
   onCommentOnSelection?: (anchor: SelectionAnchor) => void
   /** The app's rows in a block's handle menu, after the editing ones: Copy link, Comment. */
   blockRows?: (block: HandleBlock) => ReactNode
-  /** Draws a chip: the app's own, which resolves what it names. */
+  /**
+   * Draws a link: the app's own, which resolves what it names — its chip, its
+   * row or its card in the row's place, as `place` says (§13.3).
+   */
   referenceView?: ComponentType<ReferenceViewProps>
   /** Draws a placed file: the app's own card. */
   attachmentView?: ComponentType<AttachmentViewProps>
-  /** Drawn after the text: the cards chips ask for, as the app draws them. */
-  cards?: (editor: Editor | null) => ReactNode
   /** Around everything the editor draws: the app's providers, which may read the editor. */
   wrap?: (children: ReactNode, editor: Editor | null) => ReactNode
   /** The editor, once it is there, and `null` as it goes. */
@@ -186,7 +187,6 @@ export function DocumentEditor({
   blockRows,
   referenceView,
   attachmentView,
-  cards,
   wrap,
   onEditor,
   extensions = [],
@@ -363,9 +363,9 @@ export function DocumentEditor({
         Checklist,
         Callout,
         ReferenceNode.configure({ view: referenceView ?? null }),
-        // The card a chip asks for, after its line (SPEC §13.3); drawn by the app's `cards`.
-        ReferenceCards,
-        // A click on a chip offers Open and its card.
+        // A link's chip in a sentence, its row alone on its line, its card in the row's place (SPEC §13.3).
+        LinkPlaces,
+        // A click on a link offers Open, and alone on its line Show as Row or Card.
         ReferenceMenu,
         UnknownBlock,
         AttachmentNode.configure({ view: attachmentView ?? null }),
@@ -507,7 +507,6 @@ export function DocumentEditor({
           </span>
         )}
       </EditorBlockHandle>
-      {cards?.(editor)}
       {/* Read only with comments off, the strip would have nothing in it: no strip. */}
       {(!readOnly || onCommentOnSelection) && <SelectionToolbar
         editor={editor}
