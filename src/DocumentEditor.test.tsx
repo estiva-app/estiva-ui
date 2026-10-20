@@ -260,29 +260,32 @@ describe('[ and /', () => {
     expect(screen.queryByRole('listbox')).toBeNull()
   })
 
-  it('/ offers Format and Insert, with Table, File and Link to a file when the app can do each', async () => {
-    render(<Doc references={references} upload={async () => ({})} />)
+  it('/ offers Format and Insert: Table, File, Upload and Mention, each when the app can do it', async () => {
+    render(<Doc references={references} mentions={mentions} upload={async () => ({})} />)
     await type(' /')
-    // A row reads as its label and the key it is typed with.
-    expect(options()).toEqual(expect.arrayContaining(['Text', 'Checklist[]', 'Note', 'Table', 'File', 'Link to a file[']))
+    // A row reads as its label and the key it is typed with; Insert in this order.
+    const rows = options()
+    expect(rows).toEqual(expect.arrayContaining(['Text', 'Checklist[]', 'Note']))
+    expect(rows.slice(-4)).toEqual(['Table', 'File[', 'Upload', 'Mention@'])
     await press('Escape')
     cleanup()
     render(<Doc />)
     await type(' /')
-    expect(options()).not.toContain('File')
-    expect(options()).not.toContain('Link to a file[')
-    expect(options()).toContain('Table')
+    expect(options().slice(-1)).toEqual(['Table'])
   })
 
-  it('/ → Link to a file opens [’s list', async () => {
+  it.each([
+    ['File', '/file', 'Items'],
+    ['Mention', '/mention', 'People'],
+  ])('/ → %s opens its list', async (_row, typed, list) => {
     vi.useFakeTimers({ toFake: ['requestAnimationFrame'] })
-    render(<Doc references={references} />)
-    await type(' /link')
+    render(<Doc references={references} mentions={mentions} />)
+    await type(` ${typed}`)
     await press('Enter')
     await act(async () => {
       vi.advanceTimersToNextFrame()
     })
-    expect(screen.getByRole('listbox', { name: 'Items' })).toBeTruthy()
+    expect(screen.getByRole('listbox', { name: list })).toBeTruthy()
   })
 })
 

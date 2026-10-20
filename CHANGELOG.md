@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.82.1 — 2026-10-20
+
+### Changed
+
+- **`DocumentEditor`'s `/` → Insert reads Table · File `[` · Upload · Mention
+  `@`** (Miky, 20 October, walking the Storybook). The row that opens `[`'s
+  list is called File (it was *Link to a file*); the row that uploads from the
+  computer is Upload (it was File); a new Mention row opens `@`'s people, when
+  the app passes `mentions`. No prop changes; nothing calls the editor yet.
+
 ## 0.82.0 — 2026-10-20
 
 ### Added

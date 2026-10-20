@@ -102,13 +102,13 @@ export interface DocumentEditorProps {
   /** Where text typed when the sign-in ends is held, under `holdKey`. */
   hold?: HeldTyping
   holdKey?: string
-  /** `[` and `/` → *Link to a file*. */
+  /** `[` and `/` → File. */
   references?: DocumentReferences
-  /** `@`. */
+  /** `@` and `/` → Mention. */
   mentions?: DocumentMentions
   /** A pasted app URL drawn as the chip of what it names (`LinkChips`). */
   linkChips?: LinkChipsOptions
-  /** `/` → File, and a pasted picture: upload one file and answer the attachment's attributes (its `imeta` fields). */
+  /** `/` → Upload, and a pasted picture: upload one file and answer the attachment's attributes (its `imeta` fields). */
   upload?: (file: File) => Promise<Record<string, unknown>>
   /** Plain text pasted as the blocks it spells: the app's reader of markdown, as the editor's document. */
   readMarkdown?: (text: string) => JSONContent | undefined
@@ -369,7 +369,7 @@ export function DocumentEditor({
         ReferenceMenu,
         UnknownBlock,
         AttachmentNode.configure({ view: attachmentView ?? null }),
-        SlashCommands.configure({ sections: slashSections({ table, file: !!upload, link: !!references, pickFile }) }),
+        SlashCommands.configure({ sections: slashSections({ table, upload: !!upload, link: !!references, mention: !!mentions, pickFile }) }),
         ...(references
           ? [
               ReferenceTrigger.configure({
@@ -554,15 +554,17 @@ export function DocumentEditor({
 
 /**
  * `/`: the shared Format section with a document's checklist and callouts,
- * then Insert with what this editor can do. *Link to a file* types `[`, so its
- * list opens (Miky's QA note, 15 October).
+ * then Insert with what this editor can do. File and Mention type `[` and `@`,
+ * so their lists open; Upload picks a file from the computer (Miky, 15 October
+ * QA and 20 October at the Storybook: "File" for `[`, a Mention row, "Upload").
  */
-function slashSections({ table, file, link, pickFile }: { table: boolean; file: boolean; link: boolean; pickFile: { current: () => void } }): SlashSection[] {
+function slashSections({ table, upload, link, mention, pickFile }: { table: boolean; upload: boolean; link: boolean; mention: boolean; pickFile: { current: () => void } }): SlashSection[] {
   const insert: SlashCommand[] = [
     // Three by three with a header row, as every app's Insert → Table makes it.
     ...(table ? [{ key: 'insert-table', row: { label: 'Table' }, run: (editor: Editor) => void editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() }] : []),
-    ...(file ? [{ key: 'insert-file', row: { label: 'File' }, keywords: ['attach', 'upload'], run: () => pickFile.current() }] : []),
-    ...(link ? [{ key: 'insert-link', row: { label: 'Link to a file', shortcut: '[' }, keywords: ['[', 'link', 'reference'], run: typeTrigger('[') }] : []),
+    ...(link ? [{ key: 'insert-link', row: { label: 'File', shortcut: '[' }, keywords: ['[', 'link', 'reference'], run: typeTrigger('[') }] : []),
+    ...(upload ? [{ key: 'insert-upload', row: { label: 'Upload' }, keywords: ['attach', 'file', 'picture'], run: () => pickFile.current() }] : []),
+    ...(mention ? [{ key: 'insert-mention', row: { label: 'Mention', shortcut: '@' }, keywords: ['@', 'person', 'people'], run: typeTrigger('@') }] : []),
   ]
   return [formatSection('block'), ...(insert.length > 0 ? [{ label: 'Insert', commands: insert }] : [])]
 }
