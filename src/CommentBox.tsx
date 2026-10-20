@@ -435,7 +435,8 @@ export function CommentBox({
   const [marking, setMarking] = useState(false)
   const markedBy = useRef(marked)
   markedBy.current = marked
-  useEffect(() => {
+  // Before paint: an edit or a draft opening with an urgent mention draws its bar in its first frame.
+  useLayoutEffect(() => {
     const read = () => setMarking(holdsUrgent(editor) || !!markedBy.current?.(editor))
     read()
     editor.on('update', read)
