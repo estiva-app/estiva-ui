@@ -540,7 +540,9 @@ export function DocumentEditor({
           {/* Pressing it must not take focus from the editor: that blur would save yours over theirs first. */}
           <Button variant="muted" size="small" onMouseDown={(event) => event.preventDefault()} onClick={load}>
             Load it
-          </Button>
+          </Button>{' '}
+          {/* What Load it costs, said where it is pressed (Miky, WBD-3's /land, 20 October). */}
+          (replaces your changes)
         </FieldLine>
       )}
       {uploadError && <FieldLine tone="error">{uploadError}</FieldLine>}

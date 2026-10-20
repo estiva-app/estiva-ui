@@ -157,7 +157,8 @@ describe("someone else's save", () => {
     await type(' mine')
     rerender(<Doc value={doc(para('a1', 'Their line'))} changedBy={{ name: 'Person two' }} />)
     await settle()
-    expect(screen.getByText('Person two saved a newer version.')).toBeTruthy()
+    // Who saved it, and what pressing Load it costs.
+    expect(screen.getByText(/^Person two saved a newer version\.\s+\(replaces your changes\)$/)).toBeTruthy()
     expect(editorOf().getText()).toBe('First line mine')
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Load it' }))
