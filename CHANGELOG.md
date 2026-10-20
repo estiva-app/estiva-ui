@@ -32,7 +32,8 @@ what only Peek's box does today"; Miky's PEE-57 and PEE-59, 14 October).
   send. The same in `DocumentEditor`.
 - `CommentBox` builds its editor itself rather than through `useEditor`, so
   a box can take one built ahead; it is still built once per box and
-  destroyed when the box goes.
+  destroyed when the box goes, and built again from its draft when a
+  loading page (a Suspense boundary) hid the box and shows it again.
 
 ## 0.82.1 — 2026-10-20
 

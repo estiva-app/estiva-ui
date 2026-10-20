@@ -320,7 +320,9 @@ export function keepCommentBoxWarm(app: { extensions?: readonly AnyExtension[]; 
 
 /** `useEditor` with no deps, taking a spare when one fits: built once, given the latest `editorProps`, destroyed when the box goes. */
 function useBoxEditor(app: BoxApp, content: JSONContent | undefined, options: Pick<EditorOptions, 'editable' | 'editorProps'>): Held {
-  const [held] = useState(() => {
+  const args = useRef({ app, content, options })
+  args.current = { app, content, options }
+  const [held, setHeld] = useState(() => {
     const fits = !content && spare && !spare.editor.isDestroyed && warmApp && sameApp(warmApp, app)
     const taken = fits ? spare : null
     if (taken) {
@@ -336,6 +338,16 @@ function useBoxEditor(app: BoxApp, content: JSONContent | undefined, options: Pi
   // Mounted, it is this box's until it unmounts — and not remounted at once, as in StrictMode.
   useLayoutEffect(() => {
     clearTimeout(held.destroyAt)
+    /*
+      Shown again after React kept its state but ran this cleanup (a Suspense boundary
+      that suspended again, an <Activity> that hid it): the editor went, so build one
+      from what the box would open with now — its draft holds what was typed.
+    */
+    if (held.editor.isDestroyed) {
+      const { app: now, content: opening, options: current } = args.current
+      setHeld(buildBox(now, { ...current, content: opening }))
+      return
+    }
     return () => {
       held.destroyAt = setTimeout(() => held.editor.destroy(), 1)
     }

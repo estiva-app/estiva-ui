@@ -4,7 +4,7 @@
  * sending held or shown at once, a refusal putting the words back, the edit
  * mode, drafts, files and the read-only line.
  */
-import { act } from 'react'
+import { act, Suspense, use } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { Extension, type Editor } from '@tiptap/core'
@@ -549,5 +549,44 @@ describe('a box built ahead', () => {
     cleanup()
     render(<Box onEditor={(editor) => (handed = editor)} />)
     expect(handed).not.toBe(built[0])
+  })
+
+  it('works again, with what was typed, after a loading page hides the box and shows it again', async () => {
+    // The box lets its editor go a moment after it is hidden: that moment is this clock's.
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    try {
+      let kept: JSONContent | undefined
+      const draft: CommentBoxDraft = { read: () => kept, write: (body) => void (kept = body), clear: () => void (kept = undefined) }
+      const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+      const loading = later<void>()
+      function Loading() {
+        use(loading.promise)
+        return null
+      }
+      function Page({ more }: { more: boolean }) {
+        return (
+          <Suspense fallback={<p>Loading</p>}>
+            <Box send={send} draft={draft} />
+            {more && <Loading />}
+          </Suspense>
+        )
+      }
+      const { rerender } = render(<Page more={false} />)
+      await type('typed before')
+      await act(async () => rerender(<Page more />))
+      expect(screen.getByText('Loading')).toBeTruthy()
+      act(() => vi.advanceTimersByTime(50))
+      await act(async () => {
+        loading.answer()
+        await loading.promise
+      })
+      expect(screen.queryByText('Loading')).toBeNull()
+      expect(screen.queryByRole('textbox', { name: 'Write' })).not.toBeNull()
+      expect(editorOf().getText()).toBe('typed before')
+      await press('Enter')
+      expect(textOf(send.mock.calls[0][0])).toBe('typed before')
+    } finally {
+      vi.useFakeTimers({ toFake: ['Date'] })
+    }
   })
 })
