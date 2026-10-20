@@ -173,10 +173,11 @@ const askForFile = (editor: Editor) => editor.view.dom.dispatchEvent(new CustomE
 
 /**
  * The `/` Insert rows the kit offers. Pass the ones an app can perform, in
- * its order, with its own after them; an edit drops File and Urgent itself.
+ * its order, with its own after them; an edit drops Upload and Urgent itself.
+ * `file` is the Upload row, named as in a document's `/`.
  */
 export const commentBoxRows: Readonly<Record<'file' | 'mention' | 'urgent' | 'reference', SlashCommand>> = {
-  file: { key: 'insert-file', row: { label: 'File' }, keywords: ['attach', 'upload'], run: askForFile },
+  file: { key: 'insert-file', row: { label: 'Upload' }, keywords: ['attach', 'file', 'picture'], run: askForFile },
   mention: { key: 'insert-mention', row: { label: 'Mention', shortcut: '@' }, keywords: ['@', 'Mention a person'], run: typeTrigger('@') },
   urgent: { key: 'insert-urgent', row: { label: 'Urgent', shortcut: '!@' }, keywords: ['!@', 'Urgent mention'], run: typeTrigger('!@') },
   reference: { key: 'insert-reference', row: { label: 'Reference', shortcut: '[' }, keywords: ['[', 'Reference'], run: typeTrigger('[') },

@@ -292,6 +292,8 @@ describe('[ and /', () => {
     vi.useFakeTimers({ toFake: ['requestAnimationFrame'] })
     render(<Doc references={references} mentions={mentions} />)
     await type(` ${typed}`)
+    // The row Enter picks is the one named so, not another the word also finds.
+    expect(within(screen.getByRole('listbox', { name: 'Commands' })).getAllByRole('option')[0].textContent).toMatch(new RegExp(`^${_row}`))
     await press('Enter')
     await act(async () => {
       vi.advanceTimersToNextFrame()

@@ -177,12 +177,12 @@ describe('editing', () => {
     expect(editorOf().getText()).toBe('Said before')
   })
 
-  it('/ offers no File and no Urgent in an edit', async () => {
+  it('/ offers no Upload and no Urgent in an edit', async () => {
     render(<Box upload={async () => ({ accepted: true, value: 1 })} edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
     await type(' /')
     const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
     expect(rows.some((r) => r.startsWith('Mention'))).toBe(true)
-    expect(rows.some((r) => r.startsWith('File') || r.startsWith('Urgent'))).toBe(false)
+    expect(rows.some((r) => r.startsWith('Upload') || r.startsWith('Urgent'))).toBe(false)
     // Closed here: the editor is destroyed on a timer, and a list it closes then would hold the next test's Enter.
     await press('Escape')
   })
@@ -251,21 +251,22 @@ describe('files', () => {
     expect(send.mock.calls[0][1]).toEqual([])
   })
 
-  it('an upload that arrives after the box opened offers File in /', async () => {
+  it('an upload that arrives after the box opened offers Upload in /', async () => {
     const { rerender } = render(<Box />)
     rerender(<Box upload={async () => ({ accepted: true, value: 1 })} />)
     await type('/')
     const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
-    expect(rows.some((r) => r.startsWith('File'))).toBe(true)
+    expect(rows.some((r) => r.startsWith('Upload'))).toBe(true)
+    expect(rows.some((r) => r.startsWith('File'))).toBe(false)
     await press('Escape')
   })
 
-  it('no upload: no paperclip and no File row', async () => {
+  it('no upload: no paperclip and no Upload row', async () => {
     render(<Box />)
     expect(screen.queryByRole('button', { name: 'Attach a file' })).toBeNull()
     await type('/')
     const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
-    expect(rows.some((r) => r.startsWith('File'))).toBe(false)
+    expect(rows.some((r) => r.startsWith('Upload'))).toBe(false)
     await press('Escape')
   })
 })
