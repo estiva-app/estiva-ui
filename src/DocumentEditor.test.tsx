@@ -290,8 +290,11 @@ describe('@', () => {
     const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => true)
     render(<Doc mentions={mentions} onCommit={onCommit} />)
     await type(' @')
-    // Each row starts with the face's initials.
-    expect(options()).toEqual(['POPerson one', 'PTPerson two'])
+    // The names offered; each row also draws the face before its name.
+    const offered = options()
+    expect(offered).toHaveLength(2)
+    expect(offered[0]).toMatch(/Person one$/)
+    expect(offered[1]).toMatch(/Person two$/)
     await press('Enter')
     await leave()
     const runs = saved(onCommit.mock.calls[0][0])[0].runs
@@ -376,6 +379,34 @@ describe('links', () => {
     await type('!', 'end')
     await leave()
     expect(saved(onCommit.mock.calls[0][0])[0].runs).toEqual([{ text: 'the plan', marks: [{ type: 'link', attrs: { href: URL_, title: 'Kept' } }] }])
+  })
+
+  /** A click on the element `pick` finds, as ProseMirror hands one to the editor. */
+  async function clickOn(pick: (root: Element) => Element | null) {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    await act(async () => {
+      const { view } = editorOf()
+      const target = pick(view.dom)
+      expect(target).toBeTruthy()
+      view.someProp('handleClick', (handle) => handle(view, 1, { button: 0, target } as unknown as MouseEvent))
+    })
+    return open
+  }
+
+  it('a click on a link on words or on a bare address opens it in a new tab that cannot reach this one', async () => {
+    render(<Doc value={doc(para('a1', 'the plan', [{ type: 'link', attrs: { href: URL_ } }]), para('b2', `see ${URL_}/bare now`))} />)
+    const onWords = await clickOn((root) => root.querySelector('a'))
+    expect(onWords).toHaveBeenCalledWith(URL_, '_blank', 'noopener,noreferrer')
+    onWords.mockRestore()
+    const bare = await clickOn((root) => root.querySelector('[data-bare-link]'))
+    expect(bare).toHaveBeenCalledWith(`${URL_}/bare`, '_blank', 'noopener,noreferrer')
+  })
+
+  it('a chip saved with a javascript: address opens nothing when clicked', async () => {
+    const evil = 'javascript://example.com/%0aalert(1)'
+    render(<Doc value={doc(para('a1', evil, [{ type: 'link', attrs: { href: evil } }]))} />)
+    const open = await clickOn((root) => root.querySelector('[data-reference]') ?? root.querySelector('p'))
+    expect(open).not.toHaveBeenCalled()
   })
 
   it('an address typed into the text is saved as the text it is', async () => {

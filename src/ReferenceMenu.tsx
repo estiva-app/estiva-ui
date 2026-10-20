@@ -22,7 +22,12 @@
  * on, and `ReferenceMenuView` draws it beside `EditorContent`. Pair them with
  * `ReferenceNode` and `ReferenceCards`.
  *
- * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/clicking-a-chip-while-editing-opens-a-menu.md
+ * Not yet what the record below says: it replaced the Card sizes with Show as
+ * Row or Card for a lone link, and Open only for a chip in a sentence. The
+ * shared editor's chip menu is changed to it next (WBD-4); until then this
+ * menu is the 14 October one.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-lone-links-chip-menu-offers-row-or-card.md
  */
 import { useCallback } from 'react'
 import { Extension, type Editor } from '@tiptap/core'

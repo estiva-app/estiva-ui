@@ -1,14 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { Editor } from '@tiptap/react'
 import type { JSONContent } from '@tiptap/react'
-import { IconLink, IconMessage, IconSquareRounded } from '@tabler/icons-react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { descriptionTextToBlockDocument, documentForEditing, encodeNpub, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
 import { newlyNamedPeople } from '@estiva-app/conversation'
 import { AttachmentCard } from './AttachmentCard'
 import type { HandleBlock } from './BlockHandle'
 import type { AttachmentViewProps, ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
-import type { SelectionAnchor } from './CommentHighlights'
+import { setCommentAnchors, type CommentAnchor, type SelectionAnchor } from './CommentHighlights'
 import type { CaptionedItem, MentionPerson, ReferenceSection } from './ComposerTriggers'
 import { DocumentEditor, type DocumentCodec, type DocumentEditorProps, type HeldTyping } from './DocumentEditor'
 import { InlineChip } from './InlineChip'
@@ -49,6 +50,7 @@ const sections = (query: string): ReferenceSection[] => [{ label: 'Items', items
 const linkChips = { referenceOf: (url: string) => (url === APP_LINK ? ITEMS[0].uri : undefined), ask: null, limit: 24 }
 
 const SQUARE = <IconSquareRounded size={14} stroke={1.5} />
+const ROW_ICON = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 
 /** A chip as the app draws it: a person by name, an item by its label; it opens where it leads. */
 function Chip({ uri, href }: ReferenceViewProps) {
@@ -181,17 +183,27 @@ function Workbench({ lists = true, comments = false, rows = false, readOnly = fa
   const blockRows = (block: HandleBlock) =>
     block.id ? (
       <>
-        <MenuItem label="Copy link" leading={<IconLink size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setSaid(`Copied the link to block ${block.id}.`)} />
-        <MenuItem label="Comment" leading={<IconMessage size={16} stroke={1.5} className="text-text-secondary" />} onClick={() => setSaid(`A comment on block ${block.id}.`)} />
+        <MenuItem label="Copy link" leading={ROW_ICON} onClick={() => setSaid(`Copied the link to block ${block.id}.`)} />
+        <MenuItem label="Comment" leading={ROW_ICON} onClick={() => setSaid(`A comment on block ${block.id}.`)} />
       </>
     ) : null
-  const onCommentOnSelection = (anchor: SelectionAnchor) => setSaid(`A comment on ${anchor.quote ? `“${anchor.quote.start}${anchor.quote.end ? ` … ${anchor.quote.end}` : ''}”` : `block ${anchor.blocks.join(', ')}`}.`)
+  // Each comment stays drawn on its words, through edits and a reload, by the block ids it was anchored to.
+  const [anchors, setAnchors] = useState<CommentAnchor[]>([])
+  const [editor, setEditor] = useState<Editor | null>(null)
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) setCommentAnchors(editor, anchors)
+  }, [editor, anchors])
+  const onCommentOnSelection = (anchor: SelectionAnchor) => {
+    setAnchors((all) => [...all, { id: `comment-${all.length + 1}`, ...anchor }])
+    setSaid(`A comment on ${anchor.quote ? `“${anchor.quote.start}${anchor.quote.end ? ` … ${anchor.quote.end}` : ''}”` : `block ${anchor.blocks.join(', ')}`}.`)
+  }
 
   return (
     <div className="flex max-w-2xl flex-col gap-4 pl-10">
       {signedIn ? (
         <DocumentEditor
           key={opened}
+          onEditor={setEditor}
           value={value}
           format="blocks"
           codec={codec}
@@ -285,4 +297,9 @@ export const Plain: Story = {
 /** For reading: the same drawing, nothing typed or saved. Chips open; a selection still has Comment. */
 export const ReadOnly: Story = {
   render: () => <Workbench readOnly comments rows />,
+}
+
+/** Read only where the app has comments off: a selection has no strip at all. */
+export const ReadOnlyWithoutComments: Story = {
+  render: () => <Workbench readOnly />,
 }

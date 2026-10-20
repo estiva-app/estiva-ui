@@ -100,6 +100,12 @@ const LINK_SPLIT = /\[[^[\]\n]+\]\((?:https?:\/\/|mailto:)[^\s)]+\)|https?:\/\/[
 const TRAILING = /[.,;:!?)\]]+$/
 /** A link's look in an editor: the package `Link variant="text"`, spelled out for a mark's element and a decoration's range. */
 export const LINK_CLASS = 'text-info-default underline underline-offset-2 cursor-pointer'
+
+/** What a click may open: an address a reader may follow (SPEC §13.1), never `javascript:` and the like. */
+const OPENABLE = /^(https?:\/\/|mailto:)/i
+
+/** How a link mark is drawn in a document: the link look, a mark {@link BareLinks} recognises, and a new tab that cannot reach this one. */
+export const LINK_MARK_ATTRIBUTES = { class: LINK_CLASS, 'data-link-mark': '', target: '_blank', rel: 'noopener noreferrer nofollow' }
 /** `[words](url)` names its address in the brackets; a bare address is its own. */
 const LINK_TARGET = /\]\(([^\s)]+)\)$/
 
@@ -110,10 +116,16 @@ export const BareLinks = Extension.create({
       new Plugin({
         key: new PluginKey('bareLinks'),
         props: {
-          handleClick: (_view, _pos, event) => {
+          // The one way a click opens an address: a bare one's decoration, or, while editing, a link on words (read only,
+          // the link is a plain anchor and opens itself). Only its own attributes are read — never a chip's — and only an
+          // address a reader may follow opens, always without handing the new tab this window.
+          handleClick: (view, _pos, event) => {
             if (event.button !== 0) return false
-            const href = (event.target as HTMLElement | null)?.closest?.('[data-href]')?.getAttribute('data-href')
-            if (!href) return false
+            const target = event.target as HTMLElement | null
+            const bare = target?.closest?.('[data-bare-link]')?.getAttribute('data-bare-link')
+            const onWords = view.editable ? target?.closest?.('a[data-link-mark]')?.getAttribute('href') : null
+            const href = bare ?? onWords
+            if (!href || !OPENABLE.test(href)) return false
             window.open(href, '_blank', 'noopener,noreferrer')
             return true
           },
@@ -127,7 +139,7 @@ export const BareLinks = Extension.create({
                 if (match.index === undefined) continue
                 const text = match[0].startsWith('[') ? match[0] : match[0].replace(TRAILING, '')
                 const href = text.startsWith('[') ? (LINK_TARGET.exec(text)?.[1] ?? '') : text
-                found.push(Decoration.inline(pos + match.index, pos + match.index + text.length, { class: LINK_CLASS, ...(href ? { 'data-href': href } : {}) }))
+                found.push(Decoration.inline(pos + match.index, pos + match.index + text.length, { class: LINK_CLASS, ...(href ? { 'data-bare-link': href } : {}) }))
               }
             })
             return found.length ? DecorationSet.create(doc, found) : null

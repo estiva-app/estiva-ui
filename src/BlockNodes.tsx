@@ -429,7 +429,9 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
     // A copy to the clipboard as HTML, and the whole drawing when no view is given.
     // The card goes along, so a paste keeps it; a URL chip copies as its URL.
     const embed = typeof node.attrs.embed === 'string' ? { 'data-embed': node.attrs.embed } : {}
-    const href = typeof node.attrs.href === 'string' && node.attrs.href ? { 'data-href': node.attrs.href } : {}
+    // Only a web address: the document's `href` is whatever its writer saved, and this attribute is read back by a paste.
+    const web = webUrl(typeof node.attrs.href === 'string' ? node.attrs.href : null)
+    const href = web ? { 'data-href': web } : {}
     return ['span', { 'data-reference': String(node.attrs.uri), ...embed, ...href }, String(node.attrs.href || node.attrs.uri)]
   },
   renderText({ node }) {

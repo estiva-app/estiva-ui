@@ -15,7 +15,7 @@ import { EditorTableControls } from './EditorTableControls'
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { LinkChips, type LinkChipsOptions } from './LinkChips'
-import { BareLinks, DocumentKit, LINK_CLASS, PasteOverWords } from './links'
+import { BareLinks, DocumentKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { PastedMarkdown } from './PastedMarkdown'
 import { ReferenceCards } from './ReferenceCards'
@@ -209,6 +209,8 @@ export function DocumentEditor({
   const saved = useRef(value)
   // The value your own save replaced: until your save comes back, the value still holds it, and it is not someone else's.
   const [superseded, setSuperseded] = useState<string | null>(null)
+  // Every text your own saves wrote since someone else's last loaded: an echo of an earlier one can arrive after a later save.
+  const own = useRef(new Set<string>())
   // A save out: nothing is loaded over the text it carries until it is answered.
   const [saving, setSaving] = useState(false)
   const committing = useRef(false)
@@ -217,7 +219,12 @@ export function DocumentEditor({
   // ever take later changes: only a save clears `restored`, and a save of what is saved sends nothing.
   const [held] = useState(() => {
     const doc = heldDocument(hold, holdKey)
-    return doc && codec.write(doc).value !== value ? doc : null
+    // A held document the codec cannot write (another version's, or cut short) is not text anyone can keep.
+    try {
+      return doc && codec.write(doc).value !== value ? doc : null
+    } catch {
+      return null
+    }
   })
   // Until it is saved it is your unsaved text: someone else's save waits behind it, as behind a refused one.
   const [restored, setRestored] = useState(held !== null)
@@ -254,6 +261,7 @@ export function DocumentEditor({
           // The editor already shows it, and may hold more typed since: `shown` keeps the effect below from setting it.
           saved.current = next.value
           shown.current = next.value
+          own.current.add(next.value)
           setSuperseded(replaced)
           setBase(next.value)
           setRestored(false)
@@ -283,18 +291,17 @@ export function DocumentEditor({
     [onCommit, holdKey, readOnly],
   )
 
-  // While open, an ending reads the unsaved text. Keyed on the key alone: a new `hold` object each render must not
-  // unregister, since the app's unregister forgets what was held unless an ending is under way.
-  const holding = useRef(hold)
-  holding.current = hold
+  // While open, an ending reads the unsaved text. Keyed on the key and on there being a store, not on the store object:
+  // a new `hold` each render must not unregister, since the app's unregister forgets what was held unless an ending is under way.
+  const holds = !!hold
   useEffect(() => {
-    const store = holding.current
-    if (!store || !holdKey) return
+    const store = latest.current.hold
+    if (!holds || !store || !holdKey) return
     return store.register(holdKey, () => {
       const doc = typed.current
       return doc && latest.current.codec.write(doc).value !== saved.current ? JSON.stringify(doc) : undefined
     })
-  }, [holdKey])
+  }, [holdKey, holds])
 
   // The latest `save`, for the editor's `onBlur` (made once) and the unmount below.
   const latestSave = useRef(save)
@@ -343,8 +350,9 @@ export function DocumentEditor({
           dropcursor: blockDropCursor,
           codeBlock: false,
           // A link on words is made by pasting a URL over them or by the strip's Link, and opens on a click, as a bare
-          // address does. A bare address stays text: a link made on it by typing would change what is saved.
-          link: { openOnClick: true, autolink: false, linkOnPaste: false, shouldAutoLink: () => false, HTMLAttributes: { class: LINK_CLASS } },
+          // address does — through `BareLinks`, which opens only a followable address and never hands the tab this window;
+          // Tiptap's own click opens without that. A bare address stays text: a link made on it by typing would change what is saved.
+          link: { openOnClick: false, shouldAutoLink: () => false, HTMLAttributes: LINK_MARK_ATTRIBUTES },
         }),
         PasteOverWords,
         KeptSelection,
@@ -439,9 +447,13 @@ export function DocumentEditor({
     with your own text unsaved after a refusal or an ending: it waits, and the
     line below says so. Never over a save that is still out.
   */
-  const arrived = value !== base && value !== superseded
-  if (arrived && !focused && !saving && !failed && !restored) setBase(value)
-  const waiting = arrived && (focused || failed || restored)
+  const arrived = value !== base && value !== superseded && !own.current.has(value)
+  // Read only, there is nothing of yours to keep: theirs loads even while you select words to comment on.
+  if (arrived && (readOnly || (!focused && !saving && !failed && !restored))) {
+    own.current.clear()
+    setBase(value)
+  }
+  const waiting = arrived && !readOnly && (focused || failed || restored)
 
   // The text the editor should hold, set into it when it changes — never under your own typing, which `shown` already holds.
   useEffect(() => {
@@ -496,7 +508,8 @@ export function DocumentEditor({
         )}
       </EditorBlockHandle>
       {cards?.(editor)}
-      <SelectionToolbar
+      {/* Read only with comments off, the strip would have nothing in it: no strip. */}
+      {(!readOnly || onCommentOnSelection) && <SelectionToolbar
         editor={editor}
         marks={readOnly ? [] : ['bold', 'italic', 'underline', 'code']}
         link={!readOnly}
@@ -517,9 +530,10 @@ export function DocumentEditor({
               ]
             : []
         }
-      />
+      />}
       <ReferenceMenuView editor={editor} />
-      {upload && <FilePicker ref={picker} multiple onPick={(files) => void attach(files)} />}
+      {/* Always there, so `/` → File, made as the editor opened, has a dialog to open even if `upload` came and went. */}
+      <FilePicker ref={picker} multiple onPick={(files) => void attach(files)} />
       {waiting && (
         <FieldLine tone="helper">
           {`${who} saved a newer version.`}{' '}
