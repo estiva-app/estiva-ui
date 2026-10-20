@@ -1,6 +1,6 @@
-import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
-import { Extension, type AnyExtension } from '@tiptap/core'
-import { EditorContent, useEditor, type Editor, type JSONContent } from '@tiptap/react'
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
+import { Extension, type AnyExtension, type EditorOptions } from '@tiptap/core'
+import { Editor, EditorContent, type JSONContent } from '@tiptap/react'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
 import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
@@ -163,6 +163,10 @@ export interface CommentBoxProps {
   onSent?: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => void
   /** Called when a send shown at once was refused, so the app takes it back. */
   onRefused?: () => void
+  /** The bar down the text's left edge shows while this holds, besides while an urgent mention is in the box: the app's own marks (a highlight). */
+  marked?: (editor: Editor) => boolean
+  /** Called with the box's editor once it is drawn, and with `null` as it goes: an app's launcher inserts into the box last used. */
+  onEditor?: (editor: Editor | null) => void
   className?: string
 }
 
@@ -205,6 +209,157 @@ const stillNamed = (removed: ReadonlySet<string>, names: readonly string[]): Rea
 const SQUARE = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 const SMALL_SQUARE = <IconSquareRounded size={14} stroke={1.5} />
 
+/** What the box's editor reads as it runs: the box holding it now, swapped in when a box takes a spare. */
+interface BoxLive {
+  edit?: CommentBoxEdit
+  people: readonly MentionPerson[]
+  references?: CommentBoxProps['references']
+  referencesChanged?: CommentBoxProps['referencesChanged']
+  referenceIcon?: CommentBoxProps['referenceIcon']
+  /** Takes pasted pictures; false when the box takes no files. */
+  attach: (files: File[]) => boolean
+}
+
+/** One editor's link to the box holding it: the live props, and the `/` sections the box refills every render. */
+interface BoxHold {
+  current: BoxLive
+  sections: SlashSection[]
+}
+
+/** What an app adds to every box's editor: a spare is built only for these. */
+interface BoxApp {
+  extensions: readonly AnyExtension[]
+  referenceView: ComponentType<ReferenceViewProps> | null
+}
+
+const NO_EXTENSIONS: readonly AnyExtension[] = []
+const sameApp = (a: BoxApp, b: BoxApp) =>
+  a.referenceView === b.referenceView && a.extensions.length === b.extensions.length && a.extensions.every((one, i) => one === b.extensions[i])
+
+function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
+  const iconFor = (uri: string | null) => hold.current.referenceIcon?.(uri)
+  return [
+    BoxKit.configure({ link: { openOnClick: false } }),
+    PasteOverWords,
+    KeptSelection,
+    ComposeKeys,
+    BoxKeys.configure({
+      onEscape: () => {
+        const editing = hold.current.edit
+        if (!editing) return false
+        editing.onCancel()
+        return true
+      },
+    }),
+    PersonMention.configure({ people: () => hold.current.people }),
+    // An edit makes nobody urgent (CON-24): `!@` opens no list there, as `/` offers no Urgent.
+    UrgentPersonMention.extend({
+      addOptions() {
+        const parent = this.parent!()
+        return { ...parent, suggestion: { ...parent.suggestion, allow: () => !hold.current.edit } }
+      },
+    }).configure({ people: () => hold.current.people }),
+    CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor }),
+    ReferenceTrigger.configure({
+      items: () => [],
+      sections: (query) => hold.current.references?.(query) ?? [],
+      subscribe: (listener) => hold.current.referencesChanged?.(listener) ?? (() => {}),
+      ariaLabel: 'References',
+      sectionLabel: 'References',
+      icon: SQUARE,
+      iconFor,
+    }),
+    SlashCommands.configure({ sections: hold.sections }),
+    ReferenceNode.configure({ view: app.referenceView }),
+    PastedImages.configure({ onImages: (files: File[]) => hold.current.attach(files) }),
+    ...app.extensions,
+  ]
+}
+
+interface Held {
+  editor: Editor
+  hold: BoxHold
+  destroyAt?: ReturnType<typeof setTimeout>
+}
+
+function buildBox(app: BoxApp, options: Partial<EditorOptions>): Held {
+  const hold: BoxHold = { current: { people: [], attach: () => false }, sections: [] }
+  return { editor: new Editor({ ...options, extensions: boxExtensions(hold, app) }), hold }
+}
+
+/*
+  A box's editor, built ahead, as Peek's composer has been since 4ef41d41:
+  building one (schema, commands, view) is the longest single step in drawing
+  a box. One is built while the page is idle for the app `keepCommentBoxWarm`
+  names, and the next empty box with those extensions takes it and builds the
+  next; any other box builds its own on the spot.
+*/
+let warmApp: BoxApp | null = null
+let spare: Held | null = null
+let sparing = false
+
+function scheduleSpare() {
+  if (!warmApp || spare || sparing || typeof window === 'undefined' || !window.requestIdleCallback) return
+  sparing = true
+  window.requestIdleCallback(() => {
+    sparing = false
+    // No autofocus: it would fire on the detached spare. The box that takes it focuses it.
+    if (warmApp && !spare) spare = buildBox(warmApp, { autofocus: false })
+  })
+}
+
+/** Keeps an editor built ahead for the next empty box given these `extensions` and `referenceView`, so it opens at once. */
+export function keepCommentBoxWarm(app: { extensions?: readonly AnyExtension[]; referenceView?: ComponentType<ReferenceViewProps> } = {}): void {
+  const next = { extensions: app.extensions ?? NO_EXTENSIONS, referenceView: app.referenceView ?? null }
+  if (warmApp && sameApp(warmApp, next)) return
+  warmApp = next
+  spare?.editor.destroy()
+  spare = null
+  scheduleSpare()
+}
+
+/** `useEditor` with no deps, taking a spare when one fits: built once, given the latest `editorProps`, destroyed when the box goes. */
+function useBoxEditor(app: BoxApp, content: JSONContent | undefined, options: Pick<EditorOptions, 'editable' | 'editorProps'>): Held {
+  const [held] = useState(() => {
+    const fits = !content && spare && !spare.editor.isDestroyed && warmApp && sameApp(warmApp, app)
+    const taken = fits ? spare : null
+    if (taken) {
+      spare = null
+      taken.editor.setOptions(options)
+    }
+    const one = taken ?? buildBox(app, { ...options, content })
+    // A render thrown away never mounts: what it built goes with it. Later than React lets a transition run (5 s).
+    one.destroyAt = setTimeout(() => one.editor.destroy(), 10_000)
+    scheduleSpare()
+    return one
+  })
+  // Mounted, it is this box's until it unmounts — and not remounted at once, as in StrictMode.
+  useLayoutEffect(() => {
+    clearTimeout(held.destroyAt)
+    return () => {
+      held.destroyAt = setTimeout(() => held.editor.destroy(), 1)
+    }
+  }, [held])
+  // The attributes are what changes after it is built: the label.
+  const props = useRef(options.editorProps)
+  props.current = options.editorProps
+  const attributes = JSON.stringify(options.editorProps.attributes ?? {})
+  useEffect(() => {
+    if (!held.editor.isDestroyed) held.editor.setOptions({ editorProps: props.current })
+  }, [held, attributes])
+  return held
+}
+
+/** Whether the document holds an urgent mention: the box draws its bar while one is in it. */
+const holdsUrgent = (editor: Editor): boolean => {
+  let found = false
+  editor.state.doc.descendants((node) => {
+    if (node.type.name === 'urgentMention') found = true
+    return !found
+  })
+  return found
+}
+
 let fileCount = 0
 
 export function CommentBox({
@@ -225,10 +380,12 @@ export function CommentBox({
   accept,
   closed,
   referenceView,
-  extensions = [],
+  extensions = NO_EXTENSIONS,
   autoFocus,
   onSent,
   onRefused,
+  marked,
+  onEditor,
   className,
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
@@ -239,9 +396,9 @@ export function CommentBox({
   const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
   const picker = useRef<HTMLInputElement>(null)
   const root = useRef<HTMLDivElement>(null)
-  // The latest props, for the editor's callbacks, which are made once.
-  const latest = useRef({ edit, people, references, referencesChanged, referenceIcon, upload, draft, under })
-  latest.current = { edit, people, references, referencesChanged, referenceIcon, upload, draft, under }
+  // The latest props, for callbacks made once.
+  const latest = useRef({ edit, upload, draft, under })
+  latest.current = { edit, upload, draft, under }
   const save = useRef<() => boolean>(() => false)
 
   const attachFiles = useCallback((picked: File[]): boolean => {
@@ -264,53 +421,35 @@ export function CommentBox({
 
   // An edit cannot add a file or make a mention urgent, as in every app before the box; no upload, no File.
   const rows = insert.filter((c) => !((edit || !upload) && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
-  // `/` reads its sections each time it opens, from this one array: refilled every render, so a row that
-  // comes or goes with `upload`, `insert` or `code` after the box opened is offered as it is now.
-  const sections = useRef<SlashSection[]>([]).current
-  sections.splice(0, sections.length, formatSection(code), ...(rows.length > 0 ? [{ label: 'Insert', commands: rows }] : []))
-  const iconFor = useCallback((uri: string | null) => latest.current.referenceIcon?.(uri), [])
-
-  const editor = useEditor({
-    extensions: [
-      BoxKit.configure({ link: { openOnClick: false } }),
-      PasteOverWords,
-      KeptSelection,
-      ComposeKeys,
-      BoxKeys.configure({
-        onEscape: () => {
-          const editing = latest.current.edit
-          if (!editing) return false
-          editing.onCancel()
-          return true
-        },
-      }),
-      PersonMention.configure({ people: () => latest.current.people }),
-      // An edit makes nobody urgent (CON-24): `!@` opens no list there, as `/` offers no Urgent.
-      UrgentPersonMention.extend({
-        addOptions() {
-          const parent = this.parent!()
-          return { ...parent, suggestion: { ...parent.suggestion, allow: () => !latest.current.edit } }
-        },
-      }).configure({ people: () => latest.current.people }),
-      CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor }),
-      ReferenceTrigger.configure({
-        items: () => [],
-        sections: (query) => latest.current.references?.(query) ?? [],
-        subscribe: (listener) => latest.current.referencesChanged?.(listener) ?? (() => {}),
-        ariaLabel: 'References',
-        sectionLabel: 'References',
-        icon: SQUARE,
-        iconFor,
-      }),
-      SlashCommands.configure({ sections }),
-      ReferenceNode.configure({ view: referenceView ?? null }),
-      PastedImages.configure({ onImages: attachFiles }),
-      ...extensions,
-    ],
-    content: edit?.body ?? draft?.read(),
+  const { editor, hold } = useBoxEditor({ extensions, referenceView: referenceView ?? null }, edit?.body ?? draft?.read(), {
     editable: !closed,
     editorProps: { attributes: { class: COMPOSE_EDITOR_CLASSES, role: 'textbox', 'aria-multiline': 'true', 'aria-label': label } },
   })
+  // The editor's callbacks are made once, with the editor: they read this box's latest props through its hold.
+  hold.current = { edit, people, references, referencesChanged, referenceIcon, attach: attachFiles }
+  // `/` reads its sections each time it opens, from this one array: refilled every render, so a row that
+  // comes or goes with `upload`, `insert` or `code` after the box opened is offered as it is now.
+  hold.sections.splice(0, hold.sections.length, formatSection(code), ...(rows.length > 0 ? [{ label: 'Insert', commands: rows }] : []))
+
+  // The bar down the text's left edge, while an urgent mention or the app's own mark is in the box.
+  const [marking, setMarking] = useState(false)
+  const markedBy = useRef(marked)
+  markedBy.current = marked
+  useEffect(() => {
+    const read = () => setMarking(holdsUrgent(editor) || !!markedBy.current?.(editor))
+    read()
+    editor.on('update', read)
+    return () => {
+      editor.off('update', read)
+    }
+  }, [editor])
+
+  const handOut = useRef(onEditor)
+  handOut.current = onEditor
+  useEffect(() => {
+    handOut.current?.(editor)
+    return () => handOut.current?.(null)
+  }, [editor])
 
   // Drafts: every change is kept, and an empty box is no draft.
   useEffect(() => {
@@ -508,7 +647,9 @@ export function CommentBox({
     return (
       <div className={cn('flex flex-col gap-1', className)}>
         <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
-          <EditorContent editor={editor} />
+          <div data-composer-editor data-marked={marking || undefined} className={cn('relative min-h-[20px]', marking && 'border-l-4 border-border-strong pl-2')}>
+            <EditorContent editor={editor} />
+          </div>
           {fileCards && <div className="flex flex-wrap gap-2">{fileCards}</div>}
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 text-caption text-text-muted">
@@ -553,6 +694,7 @@ export function CommentBox({
         }
         attachments={fileCards}
         ready={ready}
+        marked={marking}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}

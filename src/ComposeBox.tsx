@@ -19,7 +19,8 @@ import { isSuggestionActive } from './suggestionPopup'
  */
 
 /** The editor's own classes inside the box: Peek's, rich text with no outline. Put them in `editorProps.attributes.class`. */
-export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1')
+/** A long draft stops at half the window and scrolls inside the box, so its first line can be reached (PEE-59). */
+export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] max-h-[50vh] overflow-y-auto [&>p+p]:-mt-1')
 
 type ComposeKeysStorage = { send: (() => boolean) | null }
 
@@ -137,7 +138,7 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
   return (
     <div className={cn('relative', className)}>
       <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors')}>
-        <div data-composer-editor className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
+        <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
           <EditorContent editor={editor} />
           <SelectionToolbar editor={editor} {...selection} />
           {empty && (

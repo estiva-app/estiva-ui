@@ -43,7 +43,10 @@ export const PasteOverWords = Extension.create({
               return false
             })
             if (plain && LINK_ON_WORDS_TARGET.test(url) && !/[[\]\n]/.test(state.doc.textBetween(from, to))) {
-              view.dispatch(state.tr.addMark(from, to, schema.marks.link.create({ href: url })))
+              // The caret goes after the link: left selected, the words open the selection strip's Link field,
+              // which takes focus and the next Enter, so a box needed two to send (COMM-8).
+              const tr = state.tr.addMark(from, to, schema.marks.link.create({ href: url }))
+              view.dispatch(tr.setSelection(TextSelection.create(tr.doc, to)).removeStoredMark(schema.marks.link))
               return true
             }
             const before = state.doc.textBetween(Math.max(to - 1, $to.start()), to, '', '￼')

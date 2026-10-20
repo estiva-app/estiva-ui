@@ -17,8 +17,14 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 - `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file.
 - `under` to show, while something is written, the one card it will be sent with (✕ takes it off) and the live part of each block link, drawn as the app draws them under a sent message. An edit box shows the card and no part.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
+- `marked` when the app has its own reason for the bar down the text, besides an urgent mention, which always draws it.
+- `onEditor` when something outside the box writes into it: the app keeps the editor it is handed and inserts into the box last used.
 
 <Canvas of={CommentBoxStories.Refused} />
+
+<Canvas of={CommentBoxStories.WithAnAppsOwnRows} />
+
+<Canvas of={CommentBoxStories.LongDraft} />
 
 <Canvas of={CommentBoxStories.CardUnderTheBox} />
 
@@ -62,6 +68,8 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 - **`under.read` is the app's reading of the draft**: `@estiva-app/conversation`'s `boxReadOf(body, context)` says which file gets the card and which parts show; the app adds its own view of each. Call `under.changed`'s listener when what a link names comes back. `send`'s third argument is `{ card }`, the card still shown, which the app writes with `embedsToSend` (or `embedsToEdit` for `onSave`).
 - **An edit box's `read` passes `previous: namedBefore(<the message's text>)`**, so only a file the edit names first gets a card. A card the message already has, or one taken off with ✕ before or after sending, never shows again in the edit box, and Save leaves it as it was.
 - **A link chip for a pasted app URL** is the app's `LinkChips`, passed in `extensions`.
+- **`keepCommentBoxWarm({ extensions, referenceView })`**, called once as the app starts, builds an editor while the page is idle, and the next empty box given those same `extensions` and `referenceView` (the same objects, in the same order) takes it, so it opens at once. A box opening with a draft or an edit, or with other extensions, builds its own. Keep `extensions` a module constant: a new array per render never matches.
+- **`onEditor` gets `null` as the box goes**, so a launcher never writes into a box that is gone.
 
 ## What it owns
 
@@ -76,7 +84,9 @@ It does these by itself. Write none of them around it.
 | The draft, written as you type and forgotten once sent | an update listener |
 | Files: picking, pasting, dropping, uploading, failing; Send waits for an upload and holds on a failed file until its ✕ removes it | a file list |
 | The card under the box, its ✕, and a ✕ forgotten once the link is taken out; a refused send puts back what ✕ took off | a card state |
-| A URL pasted over words links them when a message can carry them as a link (one line of plain words, no bracket, no chip, no `)` in the URL); otherwise the URL goes in after the words. Typing after linked words is not linked | a paste handler |
+| A URL pasted over words links them when a message can carry them as a link (one line of plain words, no bracket, no chip, no `)` in the URL); otherwise the URL goes in after the words. The caret goes after the link, so the next Enter sends. Typing after linked words is not linked | a paste handler |
+| A long draft stops at half the window and scrolls inside the box, in the send box and the edit box | a height or a scroll container |
+| The bar down the text while an urgent mention is in the box | an urgent check |
 | The read-only line | a disabled box |
 
 ## Keys

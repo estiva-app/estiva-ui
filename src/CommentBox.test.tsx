@@ -7,10 +7,10 @@
 import { act } from 'react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import type { Editor } from '@tiptap/core'
+import { Extension, type Editor } from '@tiptap/core'
 import { Fragment, Slice } from '@tiptap/pm/model'
 import type { JSONContent } from '@tiptap/react'
-import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
+import { CommentBox, commentBoxRows, keepCommentBoxWarm, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { MentionPerson } from './ComposerTriggers'
 
 const PEOPLE: MentionPerson[] = [{ id: 'one', name: 'Person one', pubkey: 'b'.repeat(64) }]
@@ -422,6 +422,18 @@ describe('a URL pasted over words', () => {
     expect(runs()).toEqual(['text:see ', `link:the plan>${URL_}`, 'text:! now'])
   })
 
+  it('leaves the caret after the linked words, so the selection strip stays shut and one Enter sends (COMM-8)', async () => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} />)
+    await type('see the plan')
+    await pasteOver(5, 13, URL_)
+    expect(editorOf().state.selection.empty).toBe(true)
+    expect(editorOf().state.selection.from).toBe(13)
+    expect(screen.queryByRole('textbox', { name: /link/i })).toBeNull()
+    await press('Enter')
+    expect(send).toHaveBeenCalledTimes(1)
+  })
+
   it('select-all over one line links all its words, without the full stop copied after the URL', async () => {
     render(<Box edit={editing(doc({ type: 'text', text: 'the plan' }))} />)
     await pasteOver('all', 0, `${URL_}.`)
@@ -444,5 +456,98 @@ describe('a URL pasted over words', () => {
     render(<Box edit={editing(doc({ type: 'text', text: 'the spec' }))} />)
     await pasteOver(1, 9, 'https://wiki.example/Nostr_(protocol)')
     expect(runs()).toEqual(['text:the spec https://wiki.example/Nostr_(protocol)'])
+  })
+})
+
+describe('what an app adds around the box', () => {
+  const bar = () => document.querySelector('[data-composer-editor]')?.hasAttribute('data-marked')
+  const URGENT = { type: 'urgentMention', attrs: { id: 'one', label: 'Person one' } }
+
+  it('draws the bar down the text while an urgent mention is in the box, and drops it when the mention goes', async () => {
+    render(<Box />)
+    expect(bar()).toBe(false)
+    await act(async () => {
+      editorOf().chain().focus('end').insertContent([URGENT, { type: 'text', text: ' look' }]).run()
+    })
+    expect(bar()).toBe(true)
+    await act(async () => {
+      editorOf().commands.clearContent(true)
+    })
+    expect(bar()).toBe(false)
+  })
+
+  it("draws the bar while the app's own mark holds, in the edit box too", async () => {
+    const marked = (editor: Editor) => editor.getText().includes('!!')
+    const body: JSONContent = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'plain' }] }] }
+    render(<Box marked={marked} edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    expect(bar()).toBe(false)
+    await type(' !!')
+    expect(bar()).toBe(true)
+  })
+
+  it("hands the box's editor out, so a launcher inserts into it and the words are sent; and null once it goes", async () => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    let handed: Editor | null = null
+    const { unmount } = render(<Box send={send} onEditor={(editor) => (handed = editor)} />)
+    await act(async () => {
+      handed!.chain().focus('end').insertContent('from the launcher').run()
+    })
+    await press('Enter')
+    expect(textOf(send.mock.calls[0][0])).toBe('from the launcher')
+    unmount()
+    expect(handed).toBeNull()
+  })
+})
+
+describe('a box built ahead', () => {
+  /** Runs what waits for an idle moment at once, as a page with nothing to do would. */
+  function idleNow() {
+    const queued: IdleRequestCallback[] = []
+    window.requestIdleCallback = ((callback: IdleRequestCallback) => queued.push(callback)) as typeof window.requestIdleCallback
+    return () => {
+      while (queued.length) queued.shift()!({ didTimeout: false, timeRemaining: () => 50 })
+    }
+  }
+
+  /** An app's own extension that counts the editors built with it. */
+  function counted() {
+    const built: Editor[] = []
+    const extensions = [Extension.create({ name: 'appOwn', onBeforeCreate: ({ editor }) => void built.push(editor as Editor) })]
+    return { built, extensions }
+  }
+
+  it("takes the editor built while the page was idle, labelled as this box, and it sends with this box's send", async () => {
+    const flush = idleNow()
+    const { built, extensions } = counted()
+    keepCommentBoxWarm({ extensions })
+    flush()
+    expect(built).toHaveLength(1)
+    let handed: Editor | null = null
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} extensions={extensions} onEditor={(editor) => (handed = editor)} />)
+    expect(handed).toBe(built[0])
+    expect(screen.getByRole('textbox', { name: 'Write' })).toBeTruthy()
+    await type('ahead')
+    await press('Enter')
+    expect(textOf(send.mock.calls[0][0])).toBe('ahead')
+    // …and the next spare is built for the next box.
+    flush()
+    expect(built).toHaveLength(2)
+  })
+
+  it('a box opening with a draft, or with other extensions, builds its own and leaves the spare', async () => {
+    const flush = idleNow()
+    const { built, extensions } = counted()
+    keepCommentBoxWarm({ extensions })
+    flush()
+    let handed: Editor | null = null
+    const kept: CommentBoxDraft = { read: () => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'kept' }] }] }), write: () => {}, clear: () => {} }
+    render(<Box draft={kept} extensions={extensions} onEditor={(editor) => (handed = editor)} />)
+    expect(built).toHaveLength(2)
+    expect(handed).not.toBe(built[0])
+    expect(editorOf().getText()).toBe('kept')
+    cleanup()
+    render(<Box onEditor={(editor) => (handed = editor)} />)
+    expect(handed).not.toBe(built[0])
   })
 })

@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import type { JSONContent } from '@tiptap/react'
+import type { Editor, JSONContent } from '@tiptap/react'
+import { IconSquareRounded } from '@tabler/icons-react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
+import type { ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
 import { CommentBox, commentBoxRows, type BoxUnder, type CommentBoxDraft, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
-import type { CaptionedItem, MentionPerson, ReferenceSection } from './ComposerTriggers'
+import type { CaptionedItem, MentionPerson, ReferenceSection, SlashCommand } from './ComposerTriggers'
+import { InlineChip } from './InlineChip'
 import { Kbd } from './Kbd'
 import { LinkCard } from './LinkCard'
 import { ITEM, ready } from './linked.examples'
@@ -262,6 +265,76 @@ export const EditingWithACard: Story = {
     await waitFor(() => expect(box.ownerDocument.activeElement).toBe(box))
     await userEvent.keyboard(` ${ITEM_URL} `)
   },
+}
+
+/** An app's own `/` rows, after the kit's: each puts a label at the start of the box, which the app marks. */
+const OWN_ROWS: SlashCommand[] = ['one', 'two', 'three', 'four', 'five'].map((n) => ({
+  key: `own-${n}`,
+  row: { label: `Item ${n}` },
+  keywords: ['item'],
+  run: (editor) => editor.chain().focus().insertContentAt(1, `Item ${n}: `).run(),
+}))
+
+/** The app's own chip for a reference the box holds. */
+const OwnChip = ({ uri }: ReferenceViewProps) => (
+  <InlineChip icon={<IconSquareRounded size={16} stroke={1.5} />}>{uri.endsWith('one') ? 'Item one' : 'Item'}</InlineChip>
+)
+
+const WITH_A_REFERENCE: JSONContent = {
+  type: 'doc',
+  content: [{ type: 'paragraph', content: [{ type: 'text', text: 'As in ' }, { type: 'reference', attrs: { uri: 'nostr:item-one' } }] }],
+}
+
+/** What an app adds around the box: its own rows and mark, its chip, and a control outside the box that writes into the box last used. */
+function AppAround() {
+  const [last, setLast] = useState<Editor | null>(null)
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <Button variant="outlined" size="small" disabled={!last} onClick={() => last?.chain().focus('end').insertContent(' Written from outside the box.').run()}>
+          Write into the box
+        </Button>
+      </div>
+      <Live
+        start={WITH_A_REFERENCE}
+        insert={[...INSERT, ...OWN_ROWS]}
+        referenceView={OwnChip}
+        marked={(editor) => editor.getText().startsWith('Item ')}
+        onEditor={(editor) => setLast(editor)}
+      />
+    </div>
+  )
+}
+
+/**
+ * An app's own `/` rows after the kit's, its own mark (the bar down the text,
+ * as an urgent mention draws it), its chip for a reference, a pasted picture
+ * becoming a file, and a control outside the box writing into it.
+ */
+export const WithAnAppsOwnRows: Story = { render: () => <AppAround />, play: typeInto('/item') }
+
+/** An urgent mention in the box: the bar down the text while it is there. */
+export const UrgentMarked: Story = {
+  render: () => (
+    <Live
+      start={{
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'urgentMention', attrs: { id: 'two', label: 'Person two', pubkey: '2'.repeat(64) } }, { type: 'text', text: ' please look' }] }],
+      }}
+    />
+  ),
+}
+
+/** A draft longer than the box: it stops at half the window and scrolls inside, so its first line can be reached. */
+export const LongDraft: Story = {
+  render: () => (
+    <Live
+      start={{
+        type: 'doc',
+        content: Array.from({ length: 40 }, (_, i) => ({ type: 'paragraph', content: [{ type: 'text', text: `Line ${i + 1} of a long draft.` }] })),
+      }}
+    />
+  ),
 }
 
 /** The narrowest column it sits in, 320px, with a file uploading. */
