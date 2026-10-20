@@ -369,7 +369,7 @@ export function DocumentEditor({
         ReferenceMenu,
         UnknownBlock,
         AttachmentNode.configure({ view: attachmentView ?? null }),
-        SlashCommands.configure({ sections: slashSections({ table, upload: !!upload, link: !!references, mention: !!mentions, pickFile }) }),
+        SlashCommands.configure({ sections: slashSections({ table, upload: !!upload, pickFile }) }),
         ...(references
           ? [
               ReferenceTrigger.configure({
@@ -558,13 +558,14 @@ export function DocumentEditor({
  * so their lists open; Upload picks a file from the computer (Miky, 15 October
  * QA and 20 October at the Storybook: "File" for `[`, a Mention row, "Upload").
  */
-function slashSections({ table, upload, link, mention, pickFile }: { table: boolean; upload: boolean; link: boolean; mention: boolean; pickFile: { current: () => void } }): SlashSection[] {
+function slashSections({ table, upload, pickFile }: { table: boolean; upload: boolean; pickFile: { current: () => void } }): SlashSection[] {
   const insert: SlashCommand[] = [
     // Three by three with a header row, as every app's Insert → Table makes it.
     ...(table ? [{ key: 'insert-table', row: { label: 'Table' }, run: (editor: Editor) => void editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() }] : []),
-    ...(link ? [{ key: 'insert-link', row: { label: 'File', shortcut: '[' }, keywords: ['[', 'link', 'reference'], run: typeTrigger('[') }] : []),
+    // Offered only where the editor has the list the row opens.
+    { key: 'insert-link', row: { label: 'File', shortcut: '[' }, keywords: ['[', 'link', 'reference'], needs: ['referenceTrigger'], run: typeTrigger('[') },
     ...(upload ? [{ key: 'insert-upload', row: { label: 'Upload' }, keywords: ['attach', 'file', 'picture'], run: () => pickFile.current() }] : []),
-    ...(mention ? [{ key: 'insert-mention', row: { label: 'Mention', shortcut: '@' }, keywords: ['@', 'person', 'people'], run: typeTrigger('@') }] : []),
+    { key: 'insert-mention', row: { label: 'Mention', shortcut: '@' }, keywords: ['@', 'person', 'people'], needs: ['personReference'], run: typeTrigger('@') },
   ]
   return [formatSection('block'), ...(insert.length > 0 ? [{ label: 'Insert', commands: insert }] : [])]
 }

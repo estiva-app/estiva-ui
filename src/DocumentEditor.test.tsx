@@ -274,6 +274,17 @@ describe('[ and /', () => {
     expect(options().slice(-1)).toEqual(['Table'])
   })
 
+  it('/ → Upload opens the file dialog, and that dialog taking focus does not save', async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    const onCommit = vi.fn(async () => true)
+    render(<Doc upload={async () => ({})} onCommit={onCommit} />)
+    await type(' /upload')
+    await press('Enter')
+    expect(click).toHaveBeenCalledTimes(1)
+    await leave()
+    expect(onCommit).not.toHaveBeenCalled()
+  })
+
   it.each([
     ['File', '/file', 'Items'],
     ['Mention', '/mention', 'People'],
