@@ -60,6 +60,7 @@ export { EditorTableControls, appendTableRow, appendTableColumn, deleteTableRow,
 export {
   PersonMention,
   UrgentPersonMention,
+  PersonReference,
   CaptionedReference,
   ReferenceTrigger,
   SlashCommands,
@@ -75,6 +76,7 @@ export {
   FORMATS,
   type MentionPerson,
   type PersonMentionOptions,
+  type PersonReferenceOptions,
   type CaptionedItem,
   type CaptionedReferenceOptions,
   type ReferenceTriggerOptions,
@@ -112,3 +114,11 @@ export {
 } from './ReferenceCards'
 export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions, type PastedRange } from './LinkChips'
 export { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen, referenceMenuClick, type ReferenceMenuViewProps } from './ReferenceMenu'
+export {
+  DocumentEditor,
+  type DocumentEditorProps,
+  type DocumentCodec,
+  type DocumentReferences,
+  type DocumentMentions,
+  type HeldTyping,
+} from './DocumentEditor'
