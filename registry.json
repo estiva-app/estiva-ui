@@ -2124,7 +2124,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/CommentBox.tsx",
-      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops File and Urgent itself.",
+      "purpose": "The `/` Insert rows the kit offers. Pass the ones an app can perform, in its order, with its own after them; an edit drops Upload and Urgent itself.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
