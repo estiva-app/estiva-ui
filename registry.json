@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.81.0",
-    "exports": 204,
-    "typeExports": 200,
+    "packageVersion": "0.82.0",
+    "exports": 206,
+    "typeExports": 206,
     "files": null
   },
   "storybook": {
@@ -2730,6 +2730,176 @@
       "docsId": "primitives-divider--docs",
       "storyId": "primitives-divider--default",
       "docPage": "src/Divider.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "DocumentEditor",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/DocumentEditor.tsx",
+      "purpose": "One document's text as one surface that is always an editor, the same in every app: `/`, `[` and `@`, links on words, files, checklists, callouts and tables, the block handle, saving when you leave, someone else's save arriving, and the text held when the sign-in ends.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": "The saved text. A new value while the editor is open is somebody else's save, or your own coming back."
+        },
+        {
+          "name": "format",
+          "takes": "text",
+          "required": true,
+          "note": "The format `value` is in, handed to `codec.read`."
+        },
+        {
+          "name": "codec",
+          "takes": "DocumentCodec",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onCommit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Save. Called when you leave, never while typing, with the text, its format, and the saved text this edit started from — so the app can tell whom the save names anew."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The editor's accessible name."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": false,
+          "note": "Muted words over an empty editor."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "For reading: nothing is typed or saved; chips open, and comments on a selection work when on."
+        },
+        {
+          "name": "changedBy",
+          "takes": "{ name: string } | null",
+          "required": false,
+          "note": "Who saved the text last, when it was not you: named in \"… saved a newer version\"."
+        },
+        {
+          "name": "onLeftUnsaved",
+          "takes": "a handler",
+          "required": false,
+          "note": "A save refused after the editor closed, with nothing left on screen to say it."
+        },
+        {
+          "name": "hold",
+          "takes": "HeldTyping",
+          "required": false,
+          "note": "Where text typed when the sign-in ends is held, under `holdKey`."
+        },
+        {
+          "name": "holdKey",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "references",
+          "takes": "DocumentReferences",
+          "required": false,
+          "note": "`[` and `/` → *Link to a file*."
+        },
+        {
+          "name": "mentions",
+          "takes": "DocumentMentions",
+          "required": false,
+          "note": "`@`."
+        },
+        {
+          "name": "linkChips",
+          "takes": "LinkChipsOptions",
+          "required": false,
+          "note": "A pasted app URL drawn as the chip of what it names (`LinkChips`)."
+        },
+        {
+          "name": "upload",
+          "takes": "a handler",
+          "required": false,
+          "note": "`/` → File, and a pasted picture: upload one file and answer the attachment's attributes (its `imeta` fields)."
+        },
+        {
+          "name": "readMarkdown",
+          "takes": "a handler",
+          "required": false,
+          "note": "Plain text pasted as the blocks it spells: the app's reader of markdown, as the editor's document."
+        },
+        {
+          "name": "table",
+          "takes": "true/false",
+          "required": false,
+          "note": "`/` → Table. Default on."
+        },
+        {
+          "name": "onCommentOnSelection",
+          "takes": "a handler",
+          "required": false,
+          "note": "Comment on what is selected: the selection strip's Comment, and the comment highlights."
+        },
+        {
+          "name": "blockRows",
+          "takes": "a handler",
+          "required": false,
+          "note": "The app's rows in a block's handle menu, after the editing ones: Copy link, Comment."
+        },
+        {
+          "name": "referenceView",
+          "takes": "ComponentType<ReferenceViewProps>",
+          "required": false,
+          "note": "Draws a chip: the app's own, which resolves what it names."
+        },
+        {
+          "name": "attachmentView",
+          "takes": "ComponentType<AttachmentViewProps>",
+          "required": false,
+          "note": "Draws a placed file: the app's own card."
+        },
+        {
+          "name": "cards",
+          "takes": "a handler",
+          "required": false,
+          "note": "Drawn after the text: the cards chips ask for, as the app draws them."
+        },
+        {
+          "name": "wrap",
+          "takes": "a handler",
+          "required": false,
+          "note": "Around everything the editor draws: the app's providers, which may read the editor."
+        },
+        {
+          "name": "onEditor",
+          "takes": "a handler",
+          "required": false,
+          "note": "The editor, once it is there, and `null` as it goes."
+        },
+        {
+          "name": "extensions",
+          "takes": "readonly AnyExtension[]",
+          "required": false,
+          "note": "More of the app's own extensions."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-documenteditor--docs",
+      "storyId": "primitives-documenteditor--with-comments",
+      "docPage": "src/DocumentEditor.mdx",
       "app": null,
       "looks": []
     },
@@ -6182,6 +6352,25 @@
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposerTriggers.tsx",
       "purpose": "`@` — a person, as a chip that writes their key (SPEC §13.1).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-composertriggers--docs",
+      "storyId": "primitives-composertriggers--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "PersonReference",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/ComposerTriggers.tsx",
+      "purpose": "`@` in a document — a person, written as a reference to them: a `ReferenceNode` whose `uri` is their `nostr:npub…` (SPEC §13.1, §13.3).",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],

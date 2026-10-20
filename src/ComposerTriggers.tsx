@@ -216,6 +216,71 @@ export function urgentPubkeys(editor: { state: { doc: Doc } }): string[] | undef
   return urgent.length > 0 ? urgent : undefined
 }
 
+export interface PersonReferenceOptions {
+  /** Everyone `@` can offer, asked each time the query changes. */
+  people: () => readonly MentionPerson[]
+  /** The `nostr:npub…` a person is written as; `null` for someone without one, who is not offered. */
+  uriOf: (person: MentionPerson) => string | null
+  /** The node a pick inserts. Default `reference`, `ReferenceNode`'s. */
+  nodeName: string
+}
+
+/**
+ * `@` in a document — a person, written as a reference to them: a
+ * `ReferenceNode` whose `uri` is their `nostr:npub…` (SPEC §13.1, §13.3). Not
+ * {@link PersonMention}'s chip, which is a message's: a document names people
+ * the way it names anything else, and a save that newly names someone is what
+ * adds them (`@estiva-app/conversation`'s `mentionAddsFor`, which reads only
+ * that uri).
+ *
+ *     PersonReference.configure({ people: () => directory, uriOf: (person) => npubUri(person.pubkey) })
+ *
+ * The chip carries no name: the app's `ReferenceNode` view resolves the uri,
+ * so a rename shows everywhere the person is named.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-mention-in-a-files-text-adds-the-person-with-no-unread.md
+ */
+export const PersonReference = Extension.create<PersonReferenceOptions>({
+  name: 'personReference',
+  addOptions() {
+    return { people: () => [], uriOf: () => null, nodeName: 'reference' }
+  },
+  addProseMirrorPlugins() {
+    const options = this.options
+    return [
+      Suggestion<MentionPerson>({
+        editor: this.editor,
+        char: '@',
+        pluginKey: new PluginKey('personReference'),
+        ...listening('@'),
+        // As `[`'s: only where the chip may go.
+        allow: ({ state, range }) => {
+          const type = state.schema.nodes[options.nodeName]
+          return !!type && !!state.doc.resolve(range.from).parent.type.contentMatch.matchType(type)
+        },
+        items: ({ query }) =>
+          filterPeople(
+            options.people().filter((person) => options.uriOf(person) !== null),
+            query,
+          ),
+        render: suggestionPopup(peopleMenu(false)),
+        command: ({ editor, range, props: person }) => {
+          const uri = options.uriOf(person)
+          if (!uri) return
+          editor
+            .chain()
+            .focus()
+            .insertContentAt(range, [
+              { type: options.nodeName, attrs: { uri } },
+              { type: 'text', text: ' ' },
+            ])
+            .run()
+        },
+      }),
+    ]
+  },
+})
+
 // ─── [ ───
 
 /** Something `[` offers: a reference drawn as who said it and how it opens. */

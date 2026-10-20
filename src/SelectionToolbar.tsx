@@ -505,7 +505,8 @@ export function SelectionToolbar({ editor, marks = ['bold', 'italic', 'underline
             </ToolbarButton>
           )}
           {children}
-          {actions.length > 0 && <ToolbarSeparator />}
+          {/* Between the marks and the app's buttons: with no mark or Link before them (read only), nothing to part. */}
+          {actions.length > 0 && (marks.length > 0 || link || children) && <ToolbarSeparator />}
           {actions.map((action) => (
             <ToolbarButton
               key={action.label}

@@ -1,6 +1,6 @@
 {
   "name": "@estiva-app/ui",
-  "version": "0.81.0",
+  "version": "0.82.0",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
   "license": "MIT",
@@ -93,6 +93,7 @@
     "@tiptap/react": "^3.22.1",
     "@tiptap/suggestion": "^3.22.1",
     "@tiptap/extension-code-block-lowlight": "^3.22.1",
+    "@tiptap/extension-table": "^3.22.1",
     "@tiptap/starter-kit": "^3.22.1"
   },
   "peerDependenciesMeta": {
@@ -123,12 +124,17 @@
     "@tiptap/extension-code-block-lowlight": {
       "optional": true
     },
+    "@tiptap/extension-table": {
+      "optional": true
+    },
     "@tiptap/starter-kit": {
       "optional": true
     }
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@estiva-app/conversation": "^0.17.0",
+    "@estiva-app/protocol": "^0.41.0",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/addon-docs": "^10.5.10",
     "@storybook/addon-vitest": "^10.6.0",

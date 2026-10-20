@@ -107,8 +107,10 @@ describe('create-estiva-app', () => {
   })
 
   it('bakes in protocol, platform and interop', () => {
+    const own = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'))
     const made = JSON.parse(files['package.json'])
-    expect(made.dependencies['@estiva-app/protocol']).toBe('^0.21.0')
+    // Protocol is this package's own (its document editor's stories and tests), so its range is the one made apps get.
+    expect(made.dependencies['@estiva-app/protocol']).toBe(own.devDependencies['@estiva-app/protocol'])
     expect(made.dependencies['@estiva-app/platform']).toBe('^0.1.0')
     expect(made.dependencies['@estiva-app/interop']).toBe('^0.23.0')
   })

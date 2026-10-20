@@ -1,0 +1,106 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as DocumentEditorStories from './DocumentEditor.stories'
+
+<Meta of={DocumentEditorStories} />
+
+# DocumentEditor
+
+One document's text as one surface that is always an editor, the same in every app: `/`, `[` and `@`, links on words, files, checklists, callouts and tables, the block handle, saving when you leave, someone else's save arriving, and the text held when the sign-in ends. The app supplies the translation of its saved text, its lists, its upload and its views of a chip and a file.
+
+<Canvas of={DocumentEditorStories.WithComments} />
+
+## When
+
+- **Any document's text**, written where it is read: a page, a description, a panel. The same editor in every app.
+- `references` and `mentions` for `[` and `@`, from the app's own lists. Without them, `[` and `@` are text.
+- `upload` for `/` → File and a pasted picture, uploaded before the file is placed.
+- `onCommentOnSelection` to offer Comment on what is selected, and draw where comments are. Without it, neither.
+- `blockRows` for the app's rows in a block's menu: Copy link, Comment on the block.
+- `readOnly` for reading: the same drawing, nothing typed or saved. Chips open, and Comment on a selection stays where it is on.
+
+<Canvas of={DocumentEditorStories.WithFiles} />
+
+<Canvas of={DocumentEditorStories.ReadOnly} />
+
+## When not
+
+- Something sent, a comment or a line in a conversation → **CommentBox**. Nothing is sent from here; it saves.
+- One line, a title or the line under it → **InlineText**.
+- Text in a form → **TextInput** or **Textarea**.
+
+## How
+
+```tsx
+import { DocumentEditor, type DocumentCodec } from '@estiva-app/ui/editor'
+import { documentForEditing, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
+import { mentionAddsFor } from '@estiva-app/conversation'
+
+const codec: DocumentCodec = {
+  read: (value, format) => toEditorDocument(documentForEditing(value, format as ContentFormat), { links: true }),
+  write: (doc) => publishableFromEditor(doc as EditorDocument),
+}
+
+<DocumentEditor
+  key={address}
+  value={text}
+  format={format}
+  codec={codec}
+  label="Document"
+  placeholder="Type / for headings and lists."
+  changedBy={lastEditor}
+  hold={heldTyping}
+  holdKey={address}
+  references={{ sections: sectionsFor, ariaLabel: 'Items', sectionLabel: 'Items' }}
+  mentions={{ people: () => people, uriOf: (person) => `nostr:${encodeNpub(person.pubkey)}` }}
+  upload={uploadOne}
+  referenceView={chipView}
+  attachmentView={fileView}
+  onCommit={async (value, contentFormat, editedFrom) => {
+    const adds = mentionAddsFor(me, Date.now(), {
+      file: address,
+      folder: folderId,
+      saved: { content: value, format: contentFormat },
+      editedFrom: { content: editedFrom, format: savedFormatTag },
+    })
+    return save(value, contentFormat, adds)
+  }}
+/>
+```
+
+- **It speaks the editor's document.** The package does not depend on `@estiva-app/protocol`: the app hands it `codec`, which reads its saved text and writes the editor's document back. Pass `{ links: true }`, or a link on words is lost at the next save.
+- **`onCommit` answers whether it was saved**, and gets the saved text the edit started from: whom a save names anew is the difference between the two (`mentionAddsFor`). A refused or thrown save keeps the text and says so.
+- **`@` writes a reference to the person**, a chip whose `uri` is their `nostr:npub…`, not a message's mention. `uriOf` answers it; someone without one is not offered. The chip carries no name: `referenceView` resolves it.
+- **`label` is required**: the editor's accessible name.
+- **Give the editor a `key` per document.** The editor and which of `[`, `@`, File, comments and markdown it has are made once, as it opens; the lists, the upload and the people are read as they are each time.
+- **`hold` is the app's held-typing store.** `register` must not forget what is held when it is called again for the same key during an ending; the editor registers once per `holdKey`.
+- **The cards a chip asks for** are drawn by the app's `cards`, after the text, until the kit has its own.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write |
+|---|---|
+| Saving on blur, on unmount and on a checklist tick; never while typing; Escape leaves | a save button, a timer, a key handler |
+| A refused save: the text kept, and "Could not save. Your text is still here." | a toast, or putting text back |
+| Someone else's save: loaded while you are not in it; while you are, "*Name* saved a newer version." with Load it, and the later save wins | a merge, a conflict dialog |
+| Your own save coming back is not someone else's | an echo filter |
+| The text held when the sign-in ends, back unsaved after the tap, and nothing saved on the way out | a draft |
+| `/` Format (with checklist, note and warning) and Insert: Table, File, *Link to a file*, which opens `[` | the `/` rows |
+| A URL pasted over plain words links them; typing after linked words is not linked; a link keeps the keys this version does not know | a paste handler, a link schema |
+| A bare address drawn as a link, opened by a click, and saved as the text it is | a link decoration |
+| Each block's id through editing, so what is anchored to it stays on it | an id plugin |
+| A pasted picture uploaded and placed; the file dialog's blur is not leaving | an upload state |
+| Read only: no caret, no `/`, `[` or `@`, no format buttons; still focusable, so a selection's Comment shows | a reading view |
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| Escape | Lets go of selected words; with nothing selected, leaves the editor, which saves. With a list or a chip's menu open, closes it first. |
+| Enter | With a list open, picks the row. |
+| `/` | Opens Format and Insert. |
+| `[` | Opens the app's list, when it passed one. |
+| `@` | Opens the app's people, when it passed them. |
+
+<Controls />

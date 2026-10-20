@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.82.0 — 2026-10-20
+
+### Added
+
+- **`DocumentEditor`, one document editor for every app** (WBD-3; Miky,
+  19 October: "the docs are in the shared packages so all apps … has the very
+  same capabilities and behavior"). The union of Leaf's `LiveDocument`,
+  Ship's `LiveDescription` and Peek's `BlockDocumentField`: save on leaving,
+  someone else's save loaded or waiting with "Load it", the text held when
+  the sign-in ends (`hold`), `/` Format and Insert (Table, File, *Link to a
+  file*, which opens `[`), `[` and `@` from the app's lists, a link on words,
+  pasted pictures and markdown, link chips, checklists, callouts, tables,
+  block ids, the block handle with the app's rows, comments on a selection
+  when the app switches them on, and a read-only mode of the same editor. It
+  takes a `codec` for the saved text, so the package still does not depend on
+  `@estiva-app/protocol`. Nothing calls it yet: Leaf, Ship and Peek switch in
+  their own issues (WBD-5, WBD-7, WBD-8).
+- **`PersonReference`**: `@` in a document, a `ReferenceNode` whose `uri` is
+  the person's `nostr:npub…`, which `@estiva-app/conversation`'s
+  `mentionAddsFor` reads. `PersonMention` stays the message's `@`.
+- `@tiptap/extension-table` is an optional peer, as the other Tiptap packages
+  are: `DocumentEditor` uses its `TableKit`. Every app with an editor already
+  has it.
+- `@estiva-app/protocol` 0.41 and `@estiva-app/conversation` 0.17 as
+  devDependencies, for the editor's stories and tests only. Because protocol
+  is now the package's own, `create-estiva-app` gives a new app its range
+  (`^0.41.0`) instead of asking npm.
+
+### Changed
+
+- `CommentBox`'s paste over words and its non-inclusive link moved to a module
+  the document editor shares.
+- **A URL pasted over words in a quote or a list item links them**, in
+  `CommentBox` as in the document editor. Before, the quote or list around
+  the line counted as something other than plain words, and the URL went in
+  after them. Found walking the document editor's callout.
+- `SelectionToolbar` draws no separator before the app's buttons when nothing
+  comes before them (a read-only editor's strip: Comment alone).
+
 ## 0.81.0 — 2026-10-19
 
 ### Added

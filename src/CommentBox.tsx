@@ -1,8 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, type AnyExtension } from '@tiptap/core'
-import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { EditorContent, useEditor, type Editor, type JSONContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
 import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
@@ -28,6 +26,7 @@ import {
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { Kbd } from './Kbd'
+import { BoxKit, PasteOverWords } from './links'
 import { WRITING_BOX_CLASSES } from './looks'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
@@ -195,60 +194,6 @@ const BoxKeys = Extension.create<{ onEscape: () => boolean }>({
       // Open now, with no grace: the first Escape closes a list, the next is a deliberate cancel (suggestionPopup).
       Escape: () => (isSuggestionOpen() ? false : this.options.onEscape()),
     }
-  },
-})
-
-/** A link a message can carry on words, `[words](url)`: no `)` and no space in it (conversation's `composerText`). */
-const LINK_ON_WORDS_TARGET = /^https?:\/\/[^\s)]+$/
-
-/**
- * A URL pasted over words links them, as in Peek, when the message can carry
- * them as a link on words: plain words on one line, no chip, no line break, no
- * bracket, no code. Otherwise the words stay and the URL goes in after them,
- * so neither is lost. Ahead of StarterKit's own link-on-paste.
- */
-const PasteOverWords = Extension.create({
-  name: 'commentBoxPasteOverWords',
-  priority: 1001,
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: new PluginKey('commentBoxPasteOverWords'),
-        props: {
-          handlePaste: (view, event) => {
-            // A URL copied with the end of its sentence names what it names without it, as LinkChips reads one.
-            const url = (event.clipboardData?.getData('text/plain').trim() ?? '').replace(/[.,;:!?]+$/, '')
-            const { state } = view
-            const { schema } = state
-            if (state.selection.empty || !schema.marks.link || !/^https?:\/\/\S+$/.test(url)) return false
-            // Select-all spans the document itself: read it as the text it holds.
-            const { $from, $to, from, to } = TextSelection.between(state.selection.$from, state.selection.$to)
-            let plain = $from.sameParent($to) && $from.parent.isTextblock && !$from.parent.type.spec.code
-            state.doc.nodesBetween(from, to, (node) => {
-              if (node.isTextblock) return true
-              if (!node.isText || node.marks.some((m) => m.type.spec.code || m.type.name === 'code')) plain = false
-              return false
-            })
-            if (plain && LINK_ON_WORDS_TARGET.test(url) && !/[[\]\n]/.test(state.doc.textBetween(from, to))) {
-              view.dispatch(state.tr.addMark(from, to, schema.marks.link.create({ href: url })))
-              return true
-            }
-            const before = state.doc.textBetween(Math.max(to - 1, $to.start()), to, '', '￼')
-            const inserted = before && !/\s/.test(before) ? ` ${url}` : url
-            const tr = state.tr.insertText(inserted, to)
-            view.dispatch(tr.setSelection(TextSelection.create(tr.doc, to + inserted.length)).scrollIntoView())
-            return true
-          },
-        },
-      }),
-    ]
-  },
-})
-
-/** StarterKit with a link that ends where its words end: what is typed after linked words is not linked (Peek's `inclusive: false`). */
-const BoxKit = StarterKit.extend({
-  addExtensions() {
-    return (this.parent?.() ?? []).map((extension) => (extension.name === 'link' ? extension.extend({ inclusive: () => false }) : extension))
   },
 })
 
