@@ -105,9 +105,10 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A document or an image attached to something, posted or waiting to be sent | **AttachmentCard** — the file decides the shape; `pending` in a composer |
 | A picture pasted into an editor, attached rather than pasted | **PastedImages** — from `@estiva-app/ui/editor`; the app hands it its upload |
 | Markdown pasted as plain text, landing as the headings, lists and tables it spells | **PastedMarkdown** — from `@estiva-app/ui/editor`, in an editor that saves a block document; the app hands it the protocol's reader |
-| A card a chip in a document asks for, drawn after its line | **ReferenceCards** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app draws its card into each slot |
+| A link in a document drawn where it sits: chip in a sentence, row alone on its line, card in the row's place | **LinkPlaces** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app's view draws what `place` says. **DocumentEditor** has it |
+| A card a chip in a document asks for, drawn after its line (an editor not yet on the line rule) | **ReferenceCards** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app draws its card into each slot |
 | A URL in a document that reads as the chip of what it points at | **LinkChips** — from `@estiva-app/ui/editor`, beside `ReferenceNode`; the app says what each URL names |
-| Open a chip in a document, or choose its card, while writing | **ReferenceMenu** — from `@estiva-app/ui/editor`, beside `ReferenceCards`; a click on the chip, or putting one in, opens it |
+| Open a link in a document, or show a lone one as its row or card, while writing | **ReferenceMenu** — from `@estiva-app/ui/editor`, beside `LinkPlaces`; a click on the link, or putting one alone on a line, opens it |
 | A code block in an editor, coloured by its language as you type | **CodeBlockColours** — from `@estiva-app/ui/editor`, in place of the starter kit's code block |
 | A link to something an app looked up, in a sentence | **LinkChip** — hover shows its card; loading and "not available" drawn for you. **LinkChips** (editor) turns a URL in a document into one |
 | A link alone on its line | **LinkRow** — one 36px line for every kind; **LinkUnavailable** when it cannot be read |

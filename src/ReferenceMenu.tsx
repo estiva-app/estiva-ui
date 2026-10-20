@@ -1,13 +1,16 @@
 /**
- * What a chip in a document offers its writer — Open, and its card: none,
- * compact or detailed (SPEC §13.3, "A reference's card").
+ * What a link in a document offers its writer: Open, and — alone on its line —
+ * Show as Row or Card (SPEC §13.3, "A reference's card"). Card puts its card in
+ * the row's place (`embed` `detailed`); Row puts the row back (no `embed`).
+ * Nothing writes `compact`. A chip in a sentence, and a person or a Folder alone
+ * on its line (which stay chips), offer Open only (`linkPlaceAt`).
  *
- * **Where it opens** (Miky, 14 Oct): a click on a chip while editing opens the
- * menu instead of following the chip, and a chip just put in — pasted, picked
- * with `[`, or a pasted URL becoming its chip (`LinkChips`) — opens it by
- * itself, so the card can be chosen at once. That menu takes no focus: the
- * person is still writing, and typing on closes it with no card. Enter on a
- * selected chip opens it from the keyboard.
+ * **Where it opens**: a click on a link while editing opens the menu instead
+ * of following it, and a lone-line link just put in — pasted, picked with `[`,
+ * or a pasted URL becoming its chip (`LinkChips`) — opens it by itself, so the
+ * card can be chosen at once. That menu takes no focus: the person is still
+ * writing, and typing on closes it with no card. Enter on a selected link opens
+ * it from the keyboard.
  *
  * **Keys while it is open**, handed over by the editor as the `/` menu's are:
  * ↓ and ↑ move through the rows (nothing is highlighted until they do, so
@@ -20,12 +23,7 @@
  *
  * Two parts: the extension `ReferenceMenu` holds which chip the menu is open
  * on, and `ReferenceMenuView` draws it beside `EditorContent`. Pair them with
- * `ReferenceNode` and `ReferenceCards`.
- *
- * Not yet what the record below says: it replaced the Card sizes with Show as
- * Row or Card for a lone link, and Open only for a chip in a sentence. The
- * shared editor's chip menu is changed to it next (WBD-4); until then this
- * menu is the 14 October one.
+ * `ReferenceNode` and `LinkPlaces`.
  *
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-lone-links-chip-menu-offers-row-or-card.md
  */
@@ -35,11 +33,12 @@ import { useEditorState } from '@tiptap/react'
 import { NodeSelection, Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state'
 import { ReplaceStep } from '@tiptap/pm/transform'
 import type { EditorView } from '@tiptap/pm/view'
-import { IconCheck } from '@tabler/icons-react'
+import { IconCheck, IconExternalLink } from '@tabler/icons-react'
 import { CHIPS_MADE } from './LinkChips'
+import { linkPlaceAt } from './LinkPlaces'
 import { MenuItem, MenuSection, MenuSeparator } from './Menu'
 import { Popover } from './Popover'
-import { setReferenceCardAt, type ReferenceCardLayout } from './ReferenceCards'
+import { setReferenceCardAt } from './ReferenceCards'
 
 interface MenuState {
   /** The chip's position. */
@@ -50,14 +49,16 @@ interface MenuState {
 
 const key = new PluginKey<MenuState | null>('referenceMenu')
 
-const LAYOUTS: { layout: ReferenceCardLayout; label: string }[] = [
-  { layout: 'none', label: 'None' },
-  { layout: 'compact', label: 'Compact' },
-  { layout: 'detailed', label: 'Detailed' },
+/** How a lone-line link can show. */
+type ShowAs = 'row' | 'card'
+
+const SHOW_AS: { as: ShowAs; label: string }[] = [
+  { as: 'row', label: 'Row' },
+  { as: 'card', label: 'Card' },
 ]
 
-/** A row: Open, or a card. */
-type Row = 'open' | ReferenceCardLayout
+/** A row of the menu: Open, or a way to show the link. */
+type Row = 'open' | ShowAs
 
 /** The chip's own control to click, or null. */
 function chipTarget(view: EditorView, pos: number): HTMLElement | null {
@@ -72,12 +73,15 @@ function webHref(view: EditorView, pos: number): string {
 }
 
 /**
- * The menu's rows: Open when there is something to open — the chip's own
- * control, or its URL — and the cards when the chip names something.
+ * The menu's rows: Open when there is something to open — the link's own
+ * control, or its URL — and Row and Card when it is alone on its line and is
+ * neither a person nor a Folder (`linkPlaceAt`).
  */
 function rowsOf(view: EditorView, pos: number): Row[] {
-  const open: Row[] = chipTarget(view, pos) || webHref(view, pos) ? ['open'] : []
-  return view.state.doc.nodeAt(pos)?.attrs.uri ? [...open, ...LAYOUTS.map((card) => card.layout)] : open
+  // A link the app draws has its own control even before React has drawn it, as right after a `[` pick.
+  const drawn = !!view.state.doc.nodeAt(pos)?.attrs.uri && !!view.someProp('nodeViews', (views) => views?.reference)
+  const open: Row[] = drawn || chipTarget(view, pos) || webHref(view, pos) ? ['open'] : []
+  return linkPlaceAt(view.state.doc, pos) === 'chip' ? open : [...open, ...SHOW_AS.map((show) => show.as)]
 }
 
 /** A chip node, or null. */
@@ -114,6 +118,8 @@ function justPlaced(tr: Transaction, state: EditorState): number | null {
   // The same chip as before the step — a key pressed after it, a card set on it — is not new. One put in just before
   // an identical chip pushes that chip along, so it no longer maps onto `pos` (code review).
   if (was && was.type.name === 'reference' && was.attrs.uri === before.attrs.uri && tr.mapping.map(old, 1) === pos) return null
+  // Only a link alone on its line has a card to choose; in a sentence the menu would offer Open alone.
+  if (linkPlaceAt(state.doc, pos) === 'chip') return null
   return pos
 }
 
@@ -144,7 +150,7 @@ function openChip(view: EditorView, pos: number): void {
 function choose(editor: Editor, pos: number, row: Row | undefined): void {
   dispatchMenu(editor.view, null)
   if (row === 'open') openChip(editor.view, pos)
-  else if (row) setReferenceCardAt(editor, pos, row)
+  else if (row) setReferenceCardAt(editor, pos, row === 'card' ? 'detailed' : 'none')
 }
 
 /** Whether the menu is open, for an editor's own Escape: while it is, Escape closes it rather than leaving. */
@@ -248,12 +254,11 @@ export const ReferenceMenu = Extension.create({
   },
 })
 
-/** What the panel draws: the chip the menu is open on, and its card. */
+/** What the panel draws: the link the menu is open on, and how it shows. */
 interface Shown {
   pos: number
   active: number
-  named: boolean
-  layout: ReferenceCardLayout
+  shownAs: ShowAs
 }
 
 export interface ReferenceMenuViewProps {
@@ -268,12 +273,9 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
       if (!ed || ed.isDestroyed) return null
       const open = key.getState(ed.state)
       if (!open) return null
-      const node = chipAt(ed.state, open.pos)
-      if (!node) return null
-      const embed = node.attrs.embed
-      // An unknown layout draws compact (§13.3), so it reads as compact here.
-      const layout: ReferenceCardLayout = embed === 'detailed' ? 'detailed' : typeof embed === 'string' && embed !== '' && embed !== 'none' ? 'compact' : 'none'
-      return { pos: open.pos, active: open.active, named: !!node.attrs.uri, layout }
+      if (!chipAt(ed.state, open.pos)) return null
+      // `compact` and a value this version does not know draw the row (§13.3), so they read as Row here.
+      return { pos: open.pos, active: open.active, shownAs: linkPlaceAt(ed.state.doc, open.pos) === 'card' ? 'card' : 'row' }
     },
   })
   // A press anywhere in the panel keeps focus in the text, as a row's does: the editor saves and ends its menus when it loses focus.
@@ -290,6 +292,7 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
   const anchor = dom instanceof HTMLElement ? dom : null
   const rows = live && shown ? rowsOf(live.view, shown.pos) : []
   const opens = rows[0] === 'open'
+  const showAs = rows.includes('card')
   const run = (row: Row) => {
     if (editor && shown) choose(editor, shown.pos, row)
   }
@@ -315,6 +318,7 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
               role="menuitem"
               tabIndex={-1}
               label="Open"
+              leading={<IconExternalLink size={16} />}
               selected={shown.active === 0}
               onMouseDown={(event) => {
                 event.preventDefault()
@@ -322,23 +326,23 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
               }}
             />
           )}
-          {shown.named && (
+          {showAs && (
             <>
               {opens && <MenuSeparator />}
-              <div role="group" aria-label="Card">
-                <MenuSection label="Card">
-                  {LAYOUTS.map(({ layout, label }, i) => (
+              <div role="group" aria-label="Show as">
+                <MenuSection label="Show as">
+                  {SHOW_AS.map(({ as, label }, i) => (
                     <MenuItem
-                      key={layout}
+                      key={as}
                       role="menuitemradio"
-                      aria-checked={shown.layout === layout}
+                      aria-checked={shown.shownAs === as}
                       tabIndex={-1}
                       label={label}
                       selected={shown.active === i + (opens ? 1 : 0)}
-                      trailing={shown.layout === layout ? <IconCheck size={16} aria-hidden /> : undefined}
+                      trailing={shown.shownAs === as ? <IconCheck size={16} aria-hidden /> : undefined}
                       onMouseDown={(event) => {
                         event.preventDefault()
-                        run(layout)
+                        run(as)
                       }}
                     />
                   ))}

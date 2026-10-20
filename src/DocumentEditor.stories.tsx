@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Editor } from '@tiptap/react'
 import type { JSONContent } from '@tiptap/react'
 import { IconSquareRounded } from '@tabler/icons-react'
-import { descriptionTextToBlockDocument, documentForEditing, encodeNpub, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
+import { descriptionTextToBlockDocument, documentForEditing, encodeNaddr, encodeNpub, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
 import { newlyNamedPeople } from '@estiva-app/conversation'
 import { AttachmentCard } from './AttachmentCard'
 import type { HandleBlock } from './BlockHandle'
@@ -13,6 +13,11 @@ import { setCommentAnchors, type CommentAnchor, type SelectionAnchor } from './C
 import type { CaptionedItem, MentionPerson, ReferenceSection } from './ComposerTriggers'
 import { DocumentEditor, type DocumentCodec, type DocumentEditorProps, type HeldTyping } from './DocumentEditor'
 import { InlineChip } from './InlineChip'
+import { LinkCard } from './LinkCard'
+import { LinkChip } from './LinkChip'
+import { LinkRow } from './LinkRow'
+import type { Linked } from './linked'
+import { GROUP, ITEM, ITEM_NO_SUMMARY, ready } from './linked.examples'
 import { MenuItem } from './Menu'
 
 /**
@@ -45,23 +50,73 @@ const npubOf = (person: MentionPerson) => (person.pubkey ? `nostr:${encodeNpub(p
 const nameOfKey = (key: string) => PEOPLE.find((person) => person.pubkey === key)?.name ?? 'Someone'
 
 const APP_LINK = 'https://app.example/item/one'
-const ITEMS: CaptionedItem[] = ['one', 'two', 'three'].map((n) => ({ id: `item-${n}`, label: `Item ${n}`, snippet: '', uri: `nostr:naddr1item${n}` }))
+const APP_GROUP_LINK = 'https://app.example/group/one'
+const naddr = (kind: number, identifier: string) => `nostr:${encodeNaddr({ kind, pubkey: 'a'.repeat(64), identifier, relays: [] })}`
+/** What the app resolves each address to: the link kit's placeholder items and a group with a key. */
+const LINKED: { uri: string; linked: Linked }[] = [
+  { uri: naddr(30851, 'item-one'), linked: { ...ITEM, title: 'Item one' } },
+  { uri: naddr(30851, 'item-two'), linked: ITEM_NO_SUMMARY },
+  { uri: naddr(30850, 'group-one'), linked: { ...GROUP, key: 'ABC' } },
+]
+/** A place that holds items: alone on its line it stays a chip. */
+const PLACE_URI = naddr(39000, 'place-one')
+const ITEMS: CaptionedItem[] = LINKED.map(({ uri, linked }) => ({ id: linked.id, label: linked.title, snippet: '', uri }))
 const sections = (query: string): ReferenceSection[] => [{ label: 'Items', items: ITEMS.filter((item) => item.label.toLowerCase().includes(query.toLowerCase())) }]
-const linkChips = { referenceOf: (url: string) => (url === APP_LINK ? ITEMS[0].uri : undefined), ask: null, limit: 24 }
+const APP_LINKS = new Map([
+  [APP_LINK, LINKED[0].uri],
+  [APP_GROUP_LINK, LINKED[2].uri],
+])
+const linkChips = { referenceOf: (url: string) => APP_LINKS.get(url), ask: null, limit: 24 }
 
 const SQUARE = <IconSquareRounded size={14} stroke={1.5} />
 const ROW_ICON = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 
-/** A chip as the app draws it: a person by name, an item by its label; it opens where it leads. */
-function Chip({ uri, href }: ReferenceViewProps) {
+/** The app's side of a card's status and owner: a change from the card is kept here, and every drawing of it reads it back. */
+const picked = new Map<string, { status?: string; owner?: string }>()
+const pickListeners = new Set<() => void>()
+let pickVersion = 0
+function pick(uri: string, change: { status?: string; owner?: string }) {
+  picked.set(uri, { ...picked.get(uri), ...change })
+  pickVersion++
+  for (const listener of pickListeners) listener()
+}
+const subscribePicks = (listener: () => void) => {
+  pickListeners.add(listener)
+  return () => void pickListeners.delete(listener)
+}
+
+/** What `uri` names, with its status and owner as last picked; undefined for what the app does not know. */
+function useLinked(uri: string): Linked | undefined {
+  useSyncExternalStore(subscribePicks, () => pickVersion)
+  const found = LINKED.find((one) => one.uri === uri)?.linked
+  if (!found) return undefined
+  const now = picked.get(uri)
+  return {
+    ...found,
+    ...(found.status && { status: { ...found.status, value: now?.status ?? found.status.value, onChange: (status: string) => pick(uri, { status }) } }),
+    ...(found.owner && { owner: { ...found.owner, value: now?.owner ?? found.owner.value, onChange: (owner: string) => pick(uri, { owner }) } }),
+  }
+}
+
+/**
+ * A link as the app draws it, where it sits: a person by name; an item as the
+ * link kit's chip, row or card. While editing, a click is the menu's, so a
+ * chip or row shows no hover card.
+ */
+function Chip({ uri, href, place = 'chip', editing = false }: ReferenceViewProps) {
+  const linked = useLinked(uri)
   const person = PEOPLE.find((one) => npubOf(one) === uri)
-  if (person) return <InlineChip tone="person">{`@${person.name}`}</InlineChip>
-  const item = ITEMS.find((one) => one.uri === uri)
-  return (
-    <InlineChip icon={SQUARE} href={href ?? 'https://example.com/item'} target="_blank" rel="noreferrer">
-      {item?.label ?? 'Item'}
-    </InlineChip>
-  )
+  if (person) return <InlineChip tone="person" href={`#${person.id}`}>{`@${person.name}`}</InlineChip>
+  if (!linked) {
+    return (
+      <InlineChip icon={SQUARE} href={href ?? 'https://example.com/item'} target="_blank" rel="noreferrer">
+        {uri === PLACE_URI ? 'Place one' : 'Item'}
+      </InlineChip>
+    )
+  }
+  if (place === 'card') return <LinkCard link={ready(linked)} />
+  if (place === 'row') return <LinkRow link={ready(linked)} preview={!editing} />
+  return <LinkChip link={ready(linked)} preview={!editing} />
 }
 
 function PlacedFile({ attrs }: AttachmentViewProps) {
@@ -96,6 +151,24 @@ const START = JSON.stringify({
       ],
     },
     { type: 'blockquote', id: 'b6', attrs: { tone: 'note' }, content: [{ type: 'text', text: 'A note, kept with its tone.' }] },
+  ],
+})
+
+const reference = (uri: string, embed?: string) => ({ type: 'text', text: uri, marks: [{ type: 'reference', attrs: { uri, ...(embed ? { embed } : {}) } }] })
+const lone = (id: string, uri: string, embed?: string) => ({ type: 'paragraph', id, content: [reference(uri, embed)] })
+
+/** Links where they sit: in a sentence, alone on a line, alone with its card chosen, and a person and a place alone. */
+const LINKS_START = JSON.stringify({
+  type: 'doc',
+  content: [
+    { type: 'paragraph', id: 'l1', content: [{ type: 'text', text: 'A sentence that names ' }, reference(LINKED[0].uri), { type: 'text', text: ' in passing.' }] },
+    lone('l2', LINKED[2].uri),
+    lone('l3', LINKED[0].uri, 'detailed'),
+    lone('l4', LINKED[1].uri),
+    lone('l5', `nostr:${encodeNpub(PEOPLE[0].pubkey!)}`),
+    lone('l6', PLACE_URI),
+    { type: 'paragraph', id: 'l7', content: [{ type: 'text', text: `On an empty line, paste ${APP_GROUP_LINK} or type [.` }] },
+    { type: 'paragraph', id: 'l8', content: [] },
   ],
 })
 
@@ -156,11 +229,13 @@ type Bench = Pick<DocumentEditorProps, 'readOnly' | 'upload' | 'linkChips' | 're
   comments?: boolean
   /** The block handle's rows: Copy link, and Comment on the block. */
   rows?: boolean
+  /** The saved document it opens on. */
+  start?: string
 }
 
 /** The editor and the app around it. */
-function Workbench({ lists = true, comments = false, rows = false, readOnly = false, ...rest }: Bench) {
-  const [value, setValue] = useState(START)
+function Workbench({ lists = true, comments = false, rows = false, readOnly = false, start = START, ...rest }: Bench) {
+  const [value, setValue] = useState(start)
   const [changedBy, setChangedBy] = useState<{ name: string } | null>(null)
   const [opened, setOpened] = useState(0)
   const [signedIn, setSignedIn] = useState(true)
@@ -287,6 +362,17 @@ export const WithComments: Story = {
  */
 export const WithFiles: Story = {
   render: () => <Workbench rows upload={upload} linkChips={linkChips} readMarkdown={readMarkdown} />,
+}
+
+/**
+ * Links where they sit: a chip in a sentence, a row alone on its line, and the
+ * card in the row's place. Click a link for its menu: Open, and alone on its
+ * line Show as Row or Card. A person or a place alone stays a chip, and its
+ * menu has Open only. On an empty line, a pasted link or a `[` pick opens the
+ * menu by itself. A card's status and owner change from the card.
+ */
+export const Links: Story = {
+  render: () => <Workbench start={LINKS_START} linkChips={linkChips} />,
 }
 
 /** Nothing of the app's but its chips: no `[`, no `@`, no rows, no comments. */

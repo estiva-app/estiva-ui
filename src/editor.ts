@@ -113,6 +113,7 @@ export {
   type ReferenceCardSlot,
 } from './ReferenceCards'
 export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions, type PastedRange } from './LinkChips'
+export { LinkPlaces, linkPlaceAt, staysChip, type LinkPlace } from './LinkPlaces'
 export { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen, referenceMenuClick, type ReferenceMenuViewProps } from './ReferenceMenu'
 export {
   DocumentEditor,
