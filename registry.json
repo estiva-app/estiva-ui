@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.85.0",
-    "exports": 206,
-    "typeExports": 206,
+    "packageVersion": "0.86.0",
+    "exports": 208,
+    "typeExports": 211,
     "files": null
   },
   "storybook": {
@@ -4572,6 +4572,128 @@
       "looks": []
     },
     {
+      "name": "linkedFrom",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linkedFrom.ts",
+      "purpose": "The file a reference names, as the kit's chip, row and card draw it.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "ref",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "address",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "eventId",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "kind",
+          "takes": "number",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "widget",
+          "takes": "string | string[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "appName",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "slots",
+          "takes": "Record<string, LinkedSlot | undefined>",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "meta",
+          "takes": "LinkedSlot[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "LinkedSource[]",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "people",
+          "takes": "Record<string, LinkedProfile>",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "actions",
+          "takes": "LinkedAction[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "parentField",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "openUrl",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "unreachable",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "archived",
+          "takes": "unknown",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "changedAt",
+          "takes": "number",
+          "required": false,
+          "note": "When it last changed, in seconds (interop 0.64)."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "LinkedIcon",
       "repo": "estiva-ui",
       "kind": "component",
@@ -4818,6 +4940,25 @@
       "docsId": "components-linkrow--docs",
       "storyId": "components-linkrow--default",
       "docPage": "src/LinkRow.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "linkStateFrom",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linkedFrom.ts",
+      "purpose": "Where a reference's read stands, for the kit: `undefined` is still read, `null` an answer of nothing.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
       "app": null,
       "looks": []
     },

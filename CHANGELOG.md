@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.86.0 — 2026-10-21
+
+One file, one card, in every app (5ebf2756). Peek, Ship and Leaf each built
+the kit's `Linked` from interop's projection in a copy of their own, and the
+copies drifted: the same project drew its key, issues and progress in Leaf and
+pickers with a comment count in Peek (Miky, 21 Oct: "The one in Leaf is
+correct").
+
+### Added
+
+- **`linkedFrom(object, options)` and `linkStateFrom(object, unread,
+  options)`**: interop's `ForeignObject` → `Linked` / `LinkState`, with its
+  key, summary, status and owner (pickers through the file's own actions, words
+  without `onAct`, for an archived file, or where its app shares no control),
+  conversation, its items as rows and its ring. The app passes what needs the
+  protocol: `hrefOf(object, top)`, `previewText(body, people)`, and, for a link
+  not yet read, its kind and noun.
+- **A card lists its 7 most recently changed items** (`CARD_ROWS`), newest
+  first by interop 0.64's `changedAt`, a tie going to the address so every app
+  lists the same 7 (Miky, 21 Oct); a Folder's files keep the Folder's order.
+  The ring counts every item; a muted (cancelled) one is in the total and not
+  done.
+- `LinkedSource`, the part of `ForeignObject` it reads, so the package depends
+  on neither interop nor protocol; `linkedKindOfKind`.
+
 ## 0.85.0 — 2026-10-21
 
 One box for writing: `CommentBox`. ComposeBox was the frame it is built on,
