@@ -20,8 +20,11 @@ wrong pick (Katerina, 21 Oct).
   the package): the text in its `ScrollArea`, the bar while marked, what is
   attached, and a footer. A change to the box is made once; 0.84.0's
   scrollbar fix had to be made in two copies. The edit box keeps its own
-  footer (the keys, Cancel and Save) and still has no selection strip.
-  Nothing drawn changes.
+  footer (the keys, Cancel and Save). Nothing else drawn changes.
+- **The edit box has the selection strip**, as the send box does: Bold,
+  Italic, Underline and Link over selected words (Katerina, 21 Oct: writing
+  and editing work the same way). With words selected, the first Escape
+  closes the strip and keeps the edit; the next cancels, as with an open list.
 - `CommentBox` gains the story **With a file** (a file attached and ready),
   which was ComposeBox's.
 - **The package's own gate refuses a box that scrolls with the browser's

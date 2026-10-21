@@ -169,6 +169,21 @@ describe('editing', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
+  it('with words selected, the first Escape closes the selection strip and keeps the edit; the next cancels', async () => {
+    const onCancel = vi.fn()
+    render(<Box edit={{ body, onSave: async () => ({ accepted: true }), onCancel }} />)
+    // Selected and pressed in one act, so the box's opening focus (a frame later) cannot collapse the selection in between.
+    await act(async () => {
+      const editor = editorOf()
+      editor.commands.setTextSelection({ from: 1, to: 5 })
+      editor.view.someProp('handleKeyDown', (handle) => handle(editor.view, new KeyboardEvent('keydown', { key: 'Escape' })))
+    })
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(editorOf().state.selection.empty).toBe(true)
+    await press('Escape')
+    expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
   it('a refused save keeps the words and says it was not saved', async () => {
     render(<Box edit={{ body, onSave: async () => ({ accepted: false, reason: 'gone' }), onCancel: () => {} }} />)
     await press('Enter')

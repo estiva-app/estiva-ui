@@ -186,8 +186,8 @@ export const commentBoxRows: Readonly<Record<'file' | 'mention' | 'urgent' | 're
   reference: { key: 'insert-reference', row: { label: 'Reference', shortcut: '[' }, keywords: ['[', 'Reference'], run: typeTrigger('[') },
 }
 
-/** Ctrl/Cmd+Enter sends as Enter does; Escape cancels an edit (an open list takes Escape first). */
-const BoxKeys = Extension.create<{ onEscape: () => boolean }>({
+/** Ctrl/Cmd+Enter sends as Enter does; Escape cancels an edit (an open list, or the selection strip, takes Escape first). */
+const BoxKeys = Extension.create<{ onEscape: (editor: Editor) => boolean }>({
   name: 'commentBoxKeys',
   addOptions() {
     return { onEscape: () => false }
@@ -196,7 +196,7 @@ const BoxKeys = Extension.create<{ onEscape: () => boolean }>({
     return {
       'Mod-Enter': ({ editor }) => (editor.storage as unknown as { composeKeys?: { send: (() => boolean) | null } }).composeKeys?.send?.() ?? false,
       // Open now, with no grace: the first Escape closes a list, the next is a deliberate cancel (suggestionPopup).
-      Escape: () => (isSuggestionOpen() ? false : this.options.onEscape()),
+      Escape: ({ editor }) => (isSuggestionOpen() ? false : this.options.onEscape(editor as unknown as Editor)),
     }
   },
 })
@@ -243,9 +243,16 @@ function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
     KeptSelection,
     ComposeKeys,
     BoxKeys.configure({
-      onEscape: () => {
+      onEscape: (ed) => {
         const editing = hold.current.edit
         if (!editing) return false
+        // Words selected: the strip is over them, and the first Escape closes it, leaving the caret at their end.
+        // The next is the deliberate cancel, as with an open list (Katerina, 21 Oct: the edit box gets the strip).
+        const { selection } = ed.state
+        if (!selection.empty) {
+          ed.commands.setTextSelection(selection.to)
+          return true
+        }
         editing.onCancel()
         return true
       },
@@ -661,6 +668,8 @@ export function CommentBox({
         <BoxFrame
           editor={editor}
           marked={marking}
+          // The same strip as the send box: writing and editing work the same way (Katerina, 21 Oct).
+          selection={{ link: true }}
           attachments={fileCards}
           className={cn(sending && '[&_.ProseMirror]:text-text-muted')}
           footer={
