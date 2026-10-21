@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.83.0",
-    "exports": 206,
-    "typeExports": 206,
+    "packageVersion": "0.84.0",
+    "exports": 209,
+    "typeExports": 207,
     "files": null
   },
   "storybook": {
@@ -2872,19 +2872,13 @@
           "name": "referenceView",
           "takes": "ComponentType<ReferenceViewProps>",
           "required": false,
-          "note": "Draws a chip: the app's own, which resolves what it names."
+          "note": "Draws a link: the app's own, which resolves what it names — its chip, its row or its card in the row's place, as `place` says (§13.3)."
         },
         {
           "name": "attachmentView",
           "takes": "ComponentType<AttachmentViewProps>",
           "required": false,
           "note": "Draws a placed file: the app's own card."
-        },
-        {
-          "name": "cards",
-          "takes": "a handler",
-          "required": false,
-          "note": "Drawn after the text: the cards chips ask for, as the app draws them."
         },
         {
           "name": "wrap",
@@ -4814,6 +4808,44 @@
       "docsId": "components-linkparts--docs",
       "storyId": "components-linkparts--pickers",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "linkPlaceAt",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkPlaces.ts",
+      "purpose": "How the reference node at `pos` draws. Anything that is not a reference with a `uri` draws as a chip.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkplaces--docs",
+      "storyId": "primitives-linkplaces--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "LinkPlaces",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkPlaces.ts",
+      "purpose": "Where a link in a document sits decides how it draws: its chip in a sentence, its row alone on its line, and its card in the row's place when its writer chose one (`embed` `detailed`).",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkplaces--docs",
+      "storyId": "primitives-linkplaces--in-an-editor",
+      "docPage": "src/LinkPlaces.mdx",
       "app": null,
       "looks": []
     },
@@ -7269,7 +7301,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ReferenceMenu.tsx",
-      "purpose": "What a chip in a document offers whoever is writing it: Open, and its Card — none, compact or detailed.",
+      "purpose": "What a link in a document offers whoever is writing it: Open, and — when it is alone on its line — Show as Row or Card.",
       "purposeFrom": "page",
       "props": [],
       "variants": [],
@@ -8407,6 +8439,25 @@
       "migrationStage": null,
       "docsId": "components-linkparts--docs",
       "storyId": "components-linkparts--pickers",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "staysChip",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/LinkPlaces.ts",
+      "purpose": "Whether what `uri` names stays a chip alone on its line: a person (`npub`, `nprofile`) or a Folder (an `naddr` of kind 39000).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-linkplaces--docs",
+      "storyId": "primitives-linkplaces--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []

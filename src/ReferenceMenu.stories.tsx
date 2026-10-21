@@ -4,14 +4,14 @@ import StarterKit from '@tiptap/starter-kit'
 import { BlockId, ReferenceNode, type ReferenceViewProps } from './BlockNodes'
 import { Card } from './Card'
 import { InlineChip } from './InlineChip'
-import { ReferenceCards, useReferenceCards } from './ReferenceCards'
+import { LinkPlaces } from './LinkPlaces'
 import { ReferenceMenu, ReferenceMenuView } from './ReferenceMenu'
 import { richTextClassName } from './RichText'
 
 /**
- * Click the chip: its menu opens under it — Open, and a card of none, compact
- * or detailed. The chip is a placeholder naming what it points at, and the
- * card a line naming its layout: the real ones are the app's.
+ * Click a link: its menu opens under it — Open, and alone on its line Show as
+ * Row or Card. The link is a placeholder naming where it sits: the real chip,
+ * row and card are the app's.
  */
 const meta = {
   title: 'Primitives/ReferenceMenu',
@@ -21,39 +21,38 @@ const meta = {
 export default meta
 type Story = StoryObj
 
-function Placeholder({ uri }: ReferenceViewProps) {
-  return <InlineChip>Item for {uri}</InlineChip>
+function Placeholder({ place = 'chip' }: ReferenceViewProps) {
+  if (place === 'chip') return <InlineChip>Item one</InlineChip>
+  return (
+    <Card fill="inset" className={place === 'card' ? 'flex h-24 items-start p-3' : 'flex h-9 items-center px-3'}>
+      <span className="text-body-2 text-text-secondary">Item two, its {place}</span>
+    </Card>
+  )
 }
 
 function Box() {
   const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), BlockId, ReferenceNode.configure({ view: Placeholder }), ReferenceCards, ReferenceMenu],
+    extensions: [StarterKit.configure({ link: false }), BlockId, ReferenceNode.configure({ view: Placeholder }), LinkPlaces, ReferenceMenu],
     content: {
       type: 'doc',
       content: [
         {
           type: 'paragraph',
           attrs: { blockId: 'p1' },
-          content: [
-            { type: 'text', text: 'See ' },
-            { type: 'reference', attrs: { uri: 'nostr:naddr1one' } },
-            { type: 'text', text: ' for the details.' },
-          ],
+          content: [{ type: 'text', text: 'See ' }, { type: 'reference', attrs: { uri: 'nostr:naddr1one' } }, { type: 'text', text: ' for the details.' }],
         },
+        { type: 'paragraph', attrs: { blockId: 'p2' }, content: [{ type: 'reference', attrs: { uri: 'nostr:naddr1two' } }] },
       ],
     },
     editorProps: { attributes: { class: richTextClassName('default', 'outline-none'), 'aria-label': 'Text' } },
   })
-  const slots = useReferenceCards(editor)
-  const cards = slots.flatMap((slot) => slot.cards.map((card) => `${card.layout} card for ${card.uri}`))
   return (
     <Card fill="surface" className="flex w-[520px] flex-col gap-2 p-3">
       <EditorContent editor={editor} />
       <ReferenceMenuView editor={editor} />
-      <p className="text-caption text-text-secondary">{cards.length ? cards.join(', ') : 'No card'}</p>
     </Card>
   )
 }
 
-/** A chip in a sentence: click it to open its menu, and choose a card. */
+/** A link in a sentence, whose menu has Open only, and one alone on its line: choose Card, then Row. */
 export const InAnEditor: Story = { render: () => <Box /> }

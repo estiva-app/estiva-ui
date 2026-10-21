@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.83.0 — 2026-10-20
+## 0.84.0 — 2026-10-21
 
 The comment box takes what only Peek's own box does, so Peek can move onto it
 (project "Peek moves onto the shared box", issue "The shared comment box takes
@@ -36,6 +36,33 @@ what only Peek's box does today"; Miky's PEE-57 and PEE-59, 14 October).
   a box can take one built ahead; it is still built once per box and
   destroyed when the box goes, and built again from its draft when a
   loading page (a Suspense boundary) hid the box and shows it again.
+
+## 0.83.0 — 2026-10-20
+
+### Added
+
+- **`LinkPlaces`: a link in a document draws where it sits** (WBD-4; SPEC
+  §13.3, C22): its chip in a sentence, its row alone on its line, its card in
+  the row's place when its writer chose one (`embed` `detailed`). A person or a
+  Folder alone stays a chip; a heading, a quote, a callout, a table cell and a
+  marker around it make a sentence. `ReferenceViewProps` gains `place` and
+  `editing`, so the app's view draws the kit's `LinkChip`, `LinkRow` or
+  `LinkCard`. `linkPlaceAt` and `staysChip` answer it for one link. The rule
+  is the protocol's `documentLineDrawOf`, read off the editor's tree; a test
+  holds the two to one answer.
+
+### Changed
+
+- **`ReferenceMenu` offers Open, and alone on its line Show as Row or Card**
+  (the record *a-lone-links-chip-menu-offers-row-or-card*). Card writes `embed`
+  `detailed`; Row removes it; nothing writes `compact`, and an older writer's
+  reads as Row until one is chosen. A link in a sentence, and a person or a
+  Folder alone, offer Open only. It opens by itself only after a paste or a `[`
+  pick on a line of its own. Leaf's `LiveDocument` gets this menu with the
+  bump, while its cards still draw after their line through `ReferenceCards`.
+- **`DocumentEditor` draws a link's card in the row's place**, with
+  `LinkPlaces`, and its `cards` prop is gone (nothing called it). A card on a
+  link in a sentence draws nothing, as §13.3 reads it.
 
 ## 0.82.1 — 2026-10-20
 

@@ -20,6 +20,10 @@ one, and the app draws its own card into it.
 
 ## When not
 
+- A new editor of a document → **LinkPlaces**: since §13.3's line rule, a
+  card draws in a lone link's row's place, and a card on a link in a sentence
+  draws nothing. **DocumentEditor** uses it; this stays for an editor that has
+  not moved yet.
 - A document that is only read → **RichText**, with each block's cards drawn
   after it from the text's own description of them.
 - A text whose cards travel beside it rather than on its chips → the app keeps

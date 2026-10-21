@@ -51,7 +51,7 @@ await build({
 // The block nodes (MAN-9) are the editor's own too: they import Tiptap, so the main entry cannot carry them.
 // So is EditorBlockHandle (RIC-18); the BlockHandle it wraps is the main entry's, and imported from there.
 // CodeBlockColours imports Tiptap; it brings codeColours, so the editor colours with its own highlight.js instance (lowlight itself stays external, one copy).
-const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle', './EditorTableControls', './PastedImages', './PastedMarkdown', './CodeBlockColours', './codeColours', './CommentHighlights', './ComposeBox', './CommentBox', './InlineText', './looks', './ReferenceCards', './LinkChips', './ReferenceMenu', './DocumentEditor', './links'])
+const EDITOR_OWN = new Set(['./SelectionToolbar', './suggestionPopup', './BlockNodes', './ComposerTriggers', './EditorBlockHandle', './EditorTableControls', './PastedImages', './PastedMarkdown', './CodeBlockColours', './codeColours', './CommentHighlights', './ComposeBox', './CommentBox', './InlineText', './looks', './ReferenceCards', './LinkChips', './LinkPlaces', './ReferenceMenu', './DocumentEditor', './links'])
 await build({
   entryPoints: ['src/editor.ts'],
   outfile: 'dist/editor.js',

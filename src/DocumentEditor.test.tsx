@@ -501,6 +501,55 @@ describe('blocks', () => {
   })
 })
 
+describe('a link, by where it sits', () => {
+  const run = (uri: string, embed?: string) => ({ type: 'text', text: uri, marks: [{ type: 'reference', attrs: { uri, ...(embed ? { embed } : {}) } }] })
+  /** The app's drawing of a link: says where it sits. */
+  const Placed = ({ uri, place }: { uri: string; place?: string }) => (
+    <a href={`/o/${uri}`} data-place={place ?? 'none'} onClick={(event) => event.preventDefault()}>
+      Item
+    </a>
+  )
+  const places = () => [...document.querySelectorAll('[data-place]')].map((el) => el.getAttribute('data-place'))
+
+  it('draws as its row alone on its line, its chip in a sentence, and its card in the row\'s place once chosen', async () => {
+    const value = doc(
+      { type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] },
+      { type: 'paragraph', id: 'a2', content: [{ type: 'text', text: 'See ' }, run(ITEM_URI)] },
+      { type: 'paragraph', id: 'a3', content: [run(ITEM_URI, 'detailed')] },
+    )
+    render(<Doc value={value} referenceView={Placed} />)
+    await screen.findAllByRole('link', { name: 'Item' })
+    expect(places()).toEqual(['row', 'chip', 'card'])
+  })
+
+  it('turns from its row into its chip as words are typed before it, and back when they are taken away', async () => {
+    render(<Doc value={doc({ type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] })} referenceView={Placed} />)
+    await screen.findByRole('link', { name: 'Item' })
+    expect(places()).toEqual(['row'])
+    await act(async () => editorOf().chain().focus().insertContentAt(1, 'See ').run())
+    expect(places()).toEqual(['chip'])
+    await act(async () => editorOf().chain().focus().deleteRange({ from: 1, to: 5 }).run())
+    expect(places()).toEqual(['row'])
+  })
+
+  it('Show as Card on a lone link saves its card, and Show as Row saves it without one', async () => {
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => true)
+    render(<Doc value={doc({ type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] })} referenceView={Placed} onCommit={onCommit} />)
+    const choose = async (label: 'Row' | 'Card') => {
+      await act(async () => editorOf().view.focus())
+      fireEvent.click(await screen.findByRole('link', { name: 'Item' }))
+      fireEvent.mouseDown(await screen.findByRole('menuitemradio', { name: label }))
+      await leave()
+    }
+    await choose('Card')
+    expect(places()).toEqual(['card'])
+    expect(saved(onCommit.mock.calls[0][0])[0].runs[0].marks).toEqual([{ type: 'reference', attrs: { uri: ITEM_URI, embed: 'detailed' } }])
+    await choose('Row')
+    expect(places()).toEqual(['row'])
+    expect(saved(onCommit.mock.calls[1][0])[0].runs[0].marks).toEqual([{ type: 'reference', attrs: { uri: ITEM_URI } }])
+  })
+})
+
 describe('reading', () => {
   it('read only, nothing can be typed or saved, and the text is drawn the same', async () => {
     const onCommit = vi.fn(async () => true)
