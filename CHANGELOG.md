@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.86.1 — 2026-10-21
+
+### Fixed
+
+- **`keepCommentBoxWarm` is exported** from `@estiva-app/ui/editor`. 0.84.0
+  announced it and its page tells an app to call it, but it was never in the
+  entry point, so no app could build a box ahead (PEEKM-1's last check). In
+  Chromium, an empty box went from a click to the page in a median 9.5 ms
+  built ahead against 13.9 ms cold, and 72 ms against 113 ms at 4× CPU
+  slowdown.
+
 ## 0.86.0 — 2026-10-21
 
 One file, one card, in every app (5ebf2756). Peek, Ship and Leaf each built

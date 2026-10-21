@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.86.0",
-    "exports": 208,
+    "packageVersion": "0.86.1",
+    "exports": 209,
     "typeExports": 211,
     "files": null
   },
@@ -4187,6 +4187,38 @@
         "ship:border-b-2 ship:bg-bg-wash ship:font-mono ship:text-small",
         "border-border-tooltip-key bg-bg-tooltip-key text-text-tooltip-key signal:bg-bg-tooltip-key ship:bg-bg-tooltip-key"
       ]
+    },
+    {
+      "name": "keepCommentBoxWarm",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/CommentBox.tsx",
+      "purpose": "Keeps an editor built ahead for the next empty box given these `extensions` and `referenceView`, so it opens at once.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "extensions",
+          "takes": "readonly AnyExtension[]",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "referenceView",
+          "takes": "ComponentType<ReferenceViewProps>",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "primitives-commentbox--docs",
+      "storyId": "primitives-commentbox--empty",
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "keepSelection",
