@@ -39,6 +39,13 @@ tester.run('no-hand-rolled-behaviour', noHandRolledBehaviour, {
       name: 'a global listener kept with its reason',
       code: 'export function probe() {\n  // @estiva-escape(no-hand-rolled-behaviour): the frame measures the window, which no floating part owns\n  window.addEventListener("resize", () => {})\n}\n',
     },
+    { name: "the package's ScrollArea, its cap on the viewport", code: 'export const Probe = () => <ScrollArea viewportClassName="max-h-[50vh]" />\n' },
+    { name: 'a box that clips, which draws no bar', code: 'export const Probe = () => <div className="overflow-hidden" />\n' },
+    { name: 'the class named in a comment', code: '// a hand-made overflow-y-auto box never scrolled\nexport const Probe = () => null\n' },
+    {
+      name: 'a scroll class kept with its reason',
+      code: "// @estiva-escape(no-hand-rolled-behaviour): a probe that keeps the browser bar on purpose\nexport const PROBE_CLASSES = 'overflow-y-auto'\n",
+    },
   ],
   invalid: [
     {
@@ -65,6 +72,26 @@ tester.run('no-hand-rolled-behaviour', noHandRolledBehaviour, {
       name: 'closing on Escape by hand',
       code: 'export function probe() {\n  document.addEventListener("keydown", () => {})\n}\n',
       errors: [{ messageId: 'listener', data: { event: 'keydown', target: 'document' } }],
+    },
+    {
+      name: "the comment box's long draft, as the review of 0.83 found it",
+      code: "export const COMPOSE_EDITOR_CLASSES = 'outline-none max-h-[50vh] overflow-y-auto'\n",
+      errors: [{ messageId: 'scroll', data: { what: 'overflow-y-auto' } }],
+    },
+    {
+      name: 'a scroll class in a className, behind a variant',
+      code: 'export const Probe = () => <div className="[&_pre]:overflow-x-auto" />\n',
+      errors: [{ messageId: 'scroll', data: { what: '[&_pre]:overflow-x-auto' } }],
+    },
+    {
+      name: 'a scroll class in a template',
+      code: 'export const probe = (h: string) => `max-h-${h} overflow-auto`\n',
+      errors: [{ messageId: 'scroll', data: { what: 'overflow-auto' } }],
+    },
+    {
+      name: 'a style that scrolls',
+      code: "export const Probe = () => <div style={{ overflowY: 'scroll' }} />\n",
+      errors: [{ messageId: 'scroll', data: { what: "overflowY: 'scroll'" } }],
     },
   ],
 })

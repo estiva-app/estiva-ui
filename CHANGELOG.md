@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **The package's own gate refuses a box that scrolls with the browser's
+  bar** (Katerina's review of #198, 21 Oct: the comment box's long draft drew
+  the browser's scrollbar, and none in some browsers). `estiva/no-hand-rolled-
+  behaviour` reads a scroll class (`overflow-auto`, `overflow-y-scroll`…, behind
+  a variant too) in any string, and `overflow: 'auto' | 'scroll'` in a style,
+  and names `ScrollArea`. The apps' rule already did; only the package's inward
+  set lacked it. Nothing in the package trips it today. No app changes: the
+  inward set runs in this package alone.
+
 ## 0.84.0 — 2026-10-21
 
 The comment box takes what only Peek's own box does, so Peek can move onto it

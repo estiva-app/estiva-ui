@@ -1,5 +1,6 @@
 import type { Rule } from 'eslint'
 import { ESCAPE_MESSAGES, isEscaped } from './escape'
+import { SCROLL_CLASS, utilityOf } from './no-rebuilt-behaviour'
 
 /**
  * Behaviour Base UI already owns, written by hand inside the package (UIG-5,
@@ -17,6 +18,12 @@ import { ESCAPE_MESSAGES, isEscaped } from './escape'
  * - **a listener on `window` or `document`** for the events a floating part
  *   lives on — resize, scroll, an outside press, a key. Base UI's Positioner
  *   follows the anchor and its Root closes on an outside press and on Escape.
+ * - **a box that scrolls with the browser's bar**: `overflow-auto`,
+ *   `overflow-y-scroll`… in any string, or `overflow: 'auto'` in a style. The
+ *   apps' rule (`no-rebuilt-behaviour`) refuses it and names `ScrollArea`; until
+ *   21 Oct nothing refused it here, and a part's own box drew the browser's bar
+ *   in every app (the comment box's long draft, Katerina's review of 0.83).
+ *   `ScrollArea` is Base UI's, so it needs no such class itself.
  *
  * What it deliberately does not try to read: measuring arithmetic. `Popover`
  * hands Base UI a virtual anchor with a `getBoundingClientRect`, which is the
@@ -76,11 +83,48 @@ export const noHandRolledBehaviour: Rule.RuleModule = {
         'A portal written by hand. Base UI\'s parts carry their own (Popover, Menu, Select, Tooltip, Dialog, Toast): use the part, or say why this one stays.',
       listener:
         'A `{{event}}` listener on `{{target}}`. A floating part follows its anchor and closes on an outside press and on Escape by itself (Base UI Positioner and Root): use the part, or say why this one stays.',
+      scroll:
+        '`{{what}}` scrolls with the browser\'s own bar, and some browsers draw none. Put what grows in a ScrollArea, with a `max-h-*` cap on its viewport (`viewportClassName`), or say why this one stays.',
       ...ESCAPE_MESSAGES,
     },
   },
   create(context) {
+    const reported = new Set<string>()
+    const scroll = (node: Rule.Node, what: string) => {
+      // The escape sits above the whole line: `export const …` puts the declaration inside the export.
+      let at = statement(node as unknown as CallExpression)
+      for (let p: Rule.Node | null = node.parent; p; p = p.parent) {
+        if (p.range?.[0] === at.range[0] && p.range?.[1] === at.range[1]) {
+          if (p.parent && /^Export/.test(p.parent.type) && p.parent.loc && p.parent.range) at = { loc: p.parent.loc, range: p.parent.range }
+          break
+        }
+      }
+      const key = `${at.range[0]}:${what}`
+      if (reported.has(key) || isEscaped(context, at)) return
+      reported.add(key)
+      context.report({ loc: (node as unknown as Node).loc, messageId: 'scroll', data: { what } })
+    }
+    const classTokens = (node: Rule.Node, value: string) => {
+      for (const token of value.split(/\s+/)) if (token && SCROLL_CLASS.test(utilityOf(token))) scroll(node, token)
+    }
     return {
+      Literal(node: Rule.Node) {
+        const literal = node as unknown as { value: unknown; parent?: { type: string } }
+        if (typeof literal.value !== 'string') return
+        if (literal.parent && /^(Import|Export)|^TSLiteralType$|^TSExternalModuleReference$/.test(literal.parent.type)) return
+        classTokens(node, literal.value)
+      },
+      TemplateElement(node: Rule.Node) {
+        const cooked = (node as unknown as { value: { cooked: string | null } }).value.cooked
+        if (cooked) classTokens(node, cooked)
+      },
+      Property(node: Rule.Node) {
+        const property = node as unknown as { key: { type: string; name?: string; value?: unknown }; value: { type: string; value?: unknown } }
+        const name = property.key.type === 'Identifier' ? property.key.name : typeof property.key.value === 'string' ? property.key.value : undefined
+        if (!name || !/^overflow[XY]?$/.test(name)) return
+        const setting = property.value.type === 'Literal' ? property.value.value : undefined
+        if (setting === 'auto' || setting === 'scroll') scroll(node, `${name}: '${setting}'`)
+      },
       ImportDeclaration(node: Rule.Node) {
         const declaration = node as unknown as ImportDeclaration
         if (declaration.source.value !== 'react-dom') return
