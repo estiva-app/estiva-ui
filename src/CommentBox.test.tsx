@@ -590,3 +590,23 @@ describe('a box built ahead', () => {
     }
   })
 })
+
+describe('a long draft', () => {
+  const said: JSONContent = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Said before' }] }] }
+
+  it('scrolls in the package’s ScrollArea, capped at half the window, in the send box and the edit box — not with the browser’s bar', () => {
+    for (const props of [{}, { edit: { body: said, onSave: async () => ({ accepted: true as const }), onCancel: () => {} } }]) {
+      const { unmount } = render(<Box {...props} />)
+      const text = document.querySelector('.ProseMirror') as HTMLElement
+      // The text itself never scrolls: that is the browser's bar (Katerina, 21 Oct).
+      expect(text.className).not.toMatch(/(^|\s)overflow(-[xy])?-(auto|scroll)(\s|$)/)
+      expect(text.className).not.toContain('max-h-')
+      // ScrollArea's viewport (its overscroll rule is its mark) holds the text, with the cap.
+      const viewport = text.parentElement?.closest('[class*="overscroll-y-contain"]') as HTMLElement | null
+      expect(viewport).not.toBeNull()
+      expect(viewport!.className.split(' ')).toContain('max-h-[50vh]')
+      expect(viewport!.closest('[data-composer-editor]')).not.toBeNull()
+      unmount()
+    }
+  })
+})

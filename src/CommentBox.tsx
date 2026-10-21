@@ -8,7 +8,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { CardUnder } from './CardUnder'
 import { cn } from './cn'
-import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, isEmptyDoc as isEmpty } from './ComposeBox'
+import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, COMPOSE_SCROLL_CLASSES, isEmptyDoc as isEmpty } from './ComposeBox'
 import {
   CaptionedReference,
   PersonMention,
@@ -29,6 +29,7 @@ import { Kbd } from './Kbd'
 import { BoxKit, PasteOverWords } from './links'
 import { WRITING_BOX_CLASSES } from './looks'
 import { PastedImages } from './PastedImages'
+import { ScrollArea } from './ScrollArea'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
@@ -661,7 +662,9 @@ export function CommentBox({
       <div className={cn('flex flex-col gap-1', className)}>
         <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
           <div data-composer-editor data-marked={marking || undefined} className={cn('relative min-h-[20px]', marking && 'border-l-4 border-border-strong pl-2')}>
-            <EditorContent editor={editor} />
+            <ScrollArea viewportClassName={COMPOSE_SCROLL_CLASSES}>
+              <EditorContent editor={editor} />
+            </ScrollArea>
           </div>
           {fileCards && <div className="flex flex-wrap gap-2">{fileCards}</div>}
           <div className="flex items-center justify-between gap-2">

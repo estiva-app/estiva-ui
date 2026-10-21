@@ -2250,7 +2250,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposeBox.tsx",
-      "purpose": "A long draft stops at half the window and scrolls inside the box, so its first line can be reached (PEE-59).",
+      "purpose": "The classes the box's editor wears: rich text with no outline.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
@@ -2342,7 +2342,6 @@
       "docPage": "src/ComposeBox.mdx",
       "app": null,
       "looks": [
-        "outline-none bg-transparent overflow-y-auto [&>p+p]:-mt-1",
         "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
         "select-none font-mono text-menu font-normal tracking-wider text-text-muted"
       ]
@@ -2364,9 +2363,7 @@
       "storyId": "primitives-composebox--default",
       "docPage": null,
       "app": null,
-      "looks": [
-        "outline-none bg-transparent overflow-y-auto [&>p+p]:-mt-1"
-      ]
+      "looks": []
     },
     {
       "name": "ConfirmDialog",

@@ -6,6 +6,7 @@ import { IconButton } from './IconButton'
 import { Toolbar } from './Toolbar'
 import { cn } from './cn'
 import { richTextClassName } from './RichText'
+import { ScrollArea } from './ScrollArea'
 import { WRITING_BOX_CLASSES } from './looks'
 import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar'
 import { isSuggestionActive } from './suggestionPopup'
@@ -19,8 +20,16 @@ import { isSuggestionActive } from './suggestionPopup'
  */
 
 /** The editor's own classes inside the box: Peek's, rich text with no outline. Put them in `editorProps.attributes.class`. */
-/** A long draft stops at half the window and scrolls inside the box, so its first line can be reached (PEE-59). */
-export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] max-h-[50vh] overflow-y-auto [&>p+p]:-mt-1')
+/** The classes the box's editor wears: rich text with no outline. It never scrolls itself; the box does, in a `ScrollArea`. */
+export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1')
+
+/**
+ * A long draft stops at half the window and scrolls inside the box, so its
+ * first line can be reached (PEE-59). The package's `ScrollArea` scrolls it,
+ * not the browser: its bar, and one that shows while there is more (Katerina,
+ * 21 Oct: the browser's bar, and none at all in some browsers).
+ */
+export const COMPOSE_SCROLL_CLASSES = 'max-h-[50vh]'
 
 type ComposeKeysStorage = { send: (() => boolean) | null }
 
@@ -139,7 +148,9 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
     <div className={cn('relative', className)}>
       <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors')}>
         <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
-          <EditorContent editor={editor} />
+          <ScrollArea viewportClassName={COMPOSE_SCROLL_CLASSES}>
+            <EditorContent editor={editor} />
+          </ScrollArea>
           <SelectionToolbar editor={editor} {...selection} />
           {empty && (
             <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center gap-1 text-body-2 text-text-muted">{placeholder}</div>

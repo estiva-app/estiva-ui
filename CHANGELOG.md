@@ -22,10 +22,12 @@ what only Peek's box does today"; Miky's PEE-57 and PEE-59, 14 October).
 
 ### Changed
 
-- **A long draft scrolls inside the box** (PEE-59): `COMPOSE_EDITOR_CLASSES`
-  stops the text at half the window (`max-h-[50vh] overflow-y-auto`), so the
-  first line of a long draft or edit can be reached. Every `ComposeBox` and
-  `CommentBox` takes it.
+- **A long draft scrolls inside the box** (PEE-59): the text sits in the
+  package's `ScrollArea`, capped at half the window (`COMPOSE_SCROLL_CLASSES`),
+  so the first line of a long draft or edit can be reached, and the package's
+  bar shows while there is more. Every `ComposeBox` and `CommentBox` takes it.
+  The editor itself never scrolls (Katerina, 21 Oct: it drew the browser's
+  bar, and none at all in some browsers).
 - **A URL pasted over words leaves the caret after the link** (COMM-8's
   production check): with the words still selected, the selection strip's
   Link field opened and took the first Enter, so Leaf's box needed two to
