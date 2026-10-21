@@ -28,8 +28,13 @@ export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none
  * first line can be reached (PEE-59). The package's `ScrollArea` scrolls it,
  * not the browser: its bar, and one that shows while there is more (Katerina,
  * 21 Oct: the browser's bar, and none at all in some browsers).
+ *
+ * The region reaches into the box's right padding (the box's `p-3`) and its
+ * content gives it back, so the text ends where it did and the bar sits 3px
+ * from the box's edge, as every other box's bar does (Katerina, 21 Oct: the gap
+ * on the right; measured 15px before, 3px after).
  */
-export const COMPOSE_SCROLL_CLASSES = 'max-h-[50vh]'
+export const COMPOSE_SCROLL_CLASSES = { area: '-mr-3', viewport: 'max-h-[50vh]', content: 'pr-3' }
 
 type ComposeKeysStorage = { send: (() => boolean) | null }
 
@@ -148,7 +153,7 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
     <div className={cn('relative', className)}>
       <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors')}>
         <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
-          <ScrollArea viewportClassName={COMPOSE_SCROLL_CLASSES}>
+          <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
             <EditorContent editor={editor} />
           </ScrollArea>
           <SelectionToolbar editor={editor} {...selection} />

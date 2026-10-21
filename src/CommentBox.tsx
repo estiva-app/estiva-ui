@@ -662,7 +662,7 @@ export function CommentBox({
       <div className={cn('flex flex-col gap-1', className)}>
         <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
           <div data-composer-editor data-marked={marking || undefined} className={cn('relative min-h-[20px]', marking && 'border-l-4 border-border-strong pl-2')}>
-            <ScrollArea viewportClassName={COMPOSE_SCROLL_CLASSES}>
+            <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
               <EditorContent editor={editor} />
             </ScrollArea>
           </div>

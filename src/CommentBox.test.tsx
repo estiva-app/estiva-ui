@@ -605,6 +605,9 @@ describe('a long draft', () => {
       const viewport = text.parentElement?.closest('[class*="overscroll-y-contain"]') as HTMLElement | null
       expect(viewport).not.toBeNull()
       expect(viewport!.className.split(' ')).toContain('max-h-[50vh]')
+      // The region reaches into the box's right padding and its content gives it back: the bar at the box's edge, the text where it was.
+      expect(viewport!.parentElement!.className.split(' ')).toContain('-mr-3')
+      expect((viewport!.firstElementChild as HTMLElement).className.split(' ')).toContain('pr-3')
       expect(viewport!.closest('[data-composer-editor]')).not.toBeNull()
       unmount()
     }
