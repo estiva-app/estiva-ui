@@ -17,13 +17,14 @@ correct").
   conversation, its items as rows and its ring. The app passes what needs the
   protocol: `hrefOf(object, top)`, `previewText(body, people)`, and, for a link
   not yet read, its kind and noun.
-- **A card lists its 7 most recently changed items** (`CARD_ROWS`), newest
-  first by interop 0.64's `changedAt`, a tie going to the address so every app
-  lists the same 7 (Miky, 21 Oct); a Folder's files keep the Folder's order.
-  The ring counts every item; a muted (cancelled) one is in the total and not
-  done.
-- `LinkedSource`, the part of `ForeignObject` it reads, so the package depends
-  on neither interop nor protocol; `linkedKindOfKind`.
+- **A card lists its 7 most recently changed items**, newest first by interop
+  0.64's `changedAt`, a tie going to the address so every app lists the same 7
+  (Miky, 21 Oct); a Folder's files keep the Folder's order, and an object from
+  an older interop keeps interop's. The ring counts every item; a muted
+  (cancelled) one is in the total and not done.
+- `LinkedSource`, `LinkedSlot`, `LinkedAction` and `LinkedProfile`: the part of
+  `ForeignObject` it reads, so the package depends on neither interop nor
+  protocol. `LinkedFromOptions<T>` takes the app's own object type in `hrefOf`.
 
 ## 0.85.0 — 2026-10-21
 

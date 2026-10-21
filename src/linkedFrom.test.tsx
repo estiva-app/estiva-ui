@@ -101,6 +101,13 @@ describe('a card built from interop’s projection', () => {
     expect(rows).toEqual(['Item 3', 'Item 8', 'Item 9', 'Item 6', 'Item 5', 'Item 4', 'Item 2'])
   })
 
+  it('keeps the order it was given when nothing says when an item changed', () => {
+    const unknown = ITEMS.map(({ changedAt: _, ...rest }) => rest)
+    render(<LinkCard link={linkStateFrom({ ...GROUP, children: unknown }, UNREAD, options())} />)
+    const rows = rowTitles().map((text) => text.match(/Item \d/)?.[0])
+    expect(rows).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6', 'Item 7'])
+  })
+
   it('counts every item in its ring, listed or not, a dropped one in the total and not as done', () => {
     render(<LinkCard link={linkStateFrom(GROUP, UNREAD, options())} />)
     expect(screen.getByText('3/9')).toBeTruthy()
@@ -154,6 +161,11 @@ describe('a file the reader cannot read', () => {
     cleanup()
     render(<LinkCard link={linkStateFrom({ ...stub, openUrl: 'javascript:alert(1)' }, UNREAD, options())} />)
     expect(screen.queryByRole('link')).toBeNull()
+  })
+
+  it('is named by its address when its app gives it no noun', () => {
+    render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record' }, options())} />)
+    expect(screen.getByText('Record — not available.')).toBeTruthy()
   })
 
   it('reads as the address says while it loads and when nothing came back', () => {

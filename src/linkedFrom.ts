@@ -139,6 +139,8 @@ function ownerSlotOf(object: LinkedSource): LinkedSlot | undefined {
 function listedOf(object: LinkedSource): LinkedSource[] {
   const children = object.children ?? []
   if (object.kind === KIND_CHANNEL) return children
+  // An interop before 0.64 says nothing of when an item changed: its own order, rather than the addresses'.
+  if (children.some((child) => child.changedAt === undefined)) return children.slice(0, CARD_ROWS)
   return [...children]
     .sort((a, b) => (b.changedAt ?? 0) - (a.changedAt ?? 0) || (idOf(a) < idOf(b) ? -1 : idOf(a) > idOf(b) ? 1 : 0))
     .slice(0, CARD_ROWS)
@@ -276,7 +278,7 @@ export function linkStateFrom<T extends LinkedSource>(
     return {
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
-      noun: (object.noun && nounOf(object)) || `${object.appName ?? 'Another app'} object`,
+      noun: (object.noun && nounOf(object)) || unread.noun,
       ...(href ? { openIn: { app: object.appName ?? 'its app', href } } : {}),
     }
   }
