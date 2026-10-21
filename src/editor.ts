@@ -8,7 +8,7 @@
  * `Toolbar`, `MenuItem`, `SuggestionMenu` — is the main entry's own, not a copy.
  */
 export { KeptSelection, SelectionToolbar, keepSelection, releaseSelection, normalizeHref, type MarkId, type SelectionAction, type SelectionToolbarProps } from './SelectionToolbar'
-export { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, type ComposeBoxProps } from './ComposeBox'
+
 export {
   CommentBox,
   commentBoxRows,

@@ -1,9 +1,32 @@
 # Changelog
 
-## Unreleased
+## 0.85.0 — 2026-10-21
+
+One box for writing: `CommentBox`. ComposeBox was the frame it is built on,
+offered as a part of its own; no app used it alone, and two names invited the
+wrong pick (Katerina, 21 Oct).
+
+### Removed
+
+- **`ComposeBox`, `ComposeKeys`, `COMPOSE_EDITOR_CLASSES` and
+  `ComposeBoxProps`** from `@estiva-app/ui/editor`, with ComposeBox's page and
+  stories. Callers, read from the apps on 21 Oct: none (Peek, Ship, Leaf and
+  estiva-agent import none of them; Peek's own `ComposeBox` is its own file).
+  Write with **CommentBox**.
 
 ### Changed
 
+- **The send box and the edit box are one frame** (`commentBoxFrame`, inside
+  the package): the text in its `ScrollArea`, the bar while marked, what is
+  attached, and a footer. A change to the box is made once; 0.84.0's
+  scrollbar fix had to be made in two copies. The edit box keeps its own
+  footer (the keys, Cancel and Save). Nothing else drawn changes.
+- **The edit box has the selection strip**, as the send box does: Bold,
+  Italic, Underline and Link over selected words (Katerina, 21 Oct: writing
+  and editing work the same way). With words selected, the first Escape
+  closes the strip and keeps the edit; the next cancels, as with an open list.
+- `CommentBox` gains the story **With a file** (a file attached and ready),
+  which was ComposeBox's.
 - **The package's own gate refuses a box that scrolls with the browser's
   bar** (Katerina's review of #198, 21 Oct: the comment box's long draft drew
   the browser's scrollbar, and none in some browsers). `estiva/no-hand-rolled-
@@ -12,6 +35,7 @@
   and names `ScrollArea`. The apps' rule already did; only the package's inward
   set lacked it. Nothing in the package trips it today. No app changes: the
   inward set runs in this package alone.
+
 
 ## 0.84.0 — 2026-10-21
 
