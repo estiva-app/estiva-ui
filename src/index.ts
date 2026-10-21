@@ -103,6 +103,15 @@ export {
   type StatusColour,
   type UnavailableMemory,
 } from './linked'
+export {
+  linkedFrom,
+  linkStateFrom,
+  type LinkedAction,
+  type LinkedFromOptions,
+  type LinkedProfile,
+  type LinkedSlot,
+  type LinkedSource,
+} from './linkedFrom'
 export { CommentCount, LinkedIcon, LinkKey, LinkPickers, ProgressRing, StatusMark, type LinkPickersProps } from './LinkParts'
 export { LinkChip, type LinkChipProps } from './LinkChip'
 export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps } from './LinkRow'

@@ -44,6 +44,7 @@ const linked = {
 - The picker offers only the options it is given: to let the reader set nobody as the owner, include an option for it.
 - `linked.latest` is drawn whenever it is given: pass it only to a reader who may read it.
 - `linked.conversation.unread` only for a member of it.
+- **From interop's projection, build it with `linkStateFrom(object, unread, options)`** (or `linkedFrom` for a read object), so every app draws one thing as one card: its key, its 7 most recently changed items, a ring over all of them, and pickers through its own actions when `options.onAct` is passed (words once it is archived). The app passes `hrefOf(object, top)`, `previewText(body, people)` and, for a link not yet read, its kind and noun.
 
 ## What it owns
 
