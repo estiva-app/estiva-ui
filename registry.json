@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.84.0",
-    "exports": 209,
-    "typeExports": 207,
+    "packageVersion": "0.85.0",
+    "exports": 206,
+    "typeExports": 206,
     "files": null
   },
   "storybook": {
@@ -2125,10 +2125,7 @@
       "storyId": "primitives-commentbox--empty",
       "docPage": "src/CommentBox.mdx",
       "app": null,
-      "looks": [
-        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
-        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors [&_.ProseMirror]:text-text-muted"
-      ]
+      "looks": []
     },
     {
       "name": "commentBoxRows",
@@ -2240,127 +2237,6 @@
       "migrationStage": null,
       "docsId": "primitives-commenthighlights--docs",
       "storyId": "primitives-commenthighlights--default",
-      "docPage": null,
-      "app": null,
-      "looks": []
-    },
-    {
-      "name": "COMPOSE_EDITOR_CLASSES",
-      "repo": "estiva-ui",
-      "kind": "helper",
-      "importPath": "@estiva-app/ui/editor",
-      "sourceFile": "src/ComposeBox.tsx",
-      "purpose": "The classes the box's editor wears: rich text with no outline.",
-      "purposeFrom": "comment",
-      "props": [],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "primitives-composebox--docs",
-      "storyId": "primitives-composebox--default",
-      "docPage": null,
-      "app": null,
-      "looks": []
-    },
-    {
-      "name": "ComposeBox",
-      "repo": "estiva-ui",
-      "kind": "component",
-      "importPath": "@estiva-app/ui/editor",
-      "sourceFile": "src/ComposeBox.tsx",
-      "purpose": "The box a message, a reply or a comment is written in: the text, the selection strip over it, what is attached, the tools and Send.",
-      "purposeFrom": "page",
-      "props": [
-        {
-          "name": "editor",
-          "takes": "Editor | null",
-          "required": true,
-          "note": "The app's editor, with `ComposeKeys` in its extensions and `COMPOSE_EDITOR_CLASSES` on it."
-        },
-        {
-          "name": "onSend",
-          "takes": "a handler",
-          "required": true,
-          "note": "Send what is written. The box empties afterwards — unless this returns `false`: nothing was sent, and the words stay."
-        },
-        {
-          "name": "placeholder",
-          "takes": "anything",
-          "required": true,
-          "note": "Said in the empty box: words, and a `Kbd` where a key helps (\"type / for commands\")."
-        },
-        {
-          "name": "tools",
-          "takes": "anything",
-          "required": false,
-          "note": "The tools under the text, left: `ToolbarButton`s (attach, highlight)."
-        },
-        {
-          "name": "attachments",
-          "takes": "anything",
-          "required": false,
-          "note": "What is attached, under the text: `AttachmentCard pending`s."
-        },
-        {
-          "name": "ready",
-          "takes": "true/false",
-          "required": false,
-          "note": "Something to send even with no words — a file ready."
-        },
-        {
-          "name": "holding",
-          "takes": "true/false",
-          "required": false,
-          "note": "Sending waits — a file still uploading."
-        },
-        {
-          "name": "marked",
-          "takes": "true/false",
-          "required": false,
-          "note": "The bar down the text's left: an urgent mention or a highlight, as Peek draws it."
-        },
-        {
-          "name": "selection",
-          "takes": "Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>",
-          "required": false,
-          "note": "The selection strip's buttons: its marks, Link, and the app's own (`actions`)."
-        },
-        {
-          "name": "className",
-          "takes": "text",
-          "required": false,
-          "note": null
-        }
-      ],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "primitives-composebox--docs",
-      "storyId": "primitives-composebox--default",
-      "docPage": "src/ComposeBox.mdx",
-      "app": null,
-      "looks": [
-        "bg-bg-inset border border-border-default rounded-lg signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring focus-within:border-border-strong transition-colors",
-        "select-none font-mono text-menu font-normal tracking-wider text-text-muted"
-      ]
-    },
-    {
-      "name": "ComposeKeys",
-      "repo": "estiva-ui",
-      "kind": "component",
-      "importPath": "@estiva-app/ui/editor",
-      "sourceFile": "src/ComposeBox.tsx",
-      "purpose": "Enter sends; Shift+Enter is a new line — in a list a new item (or out of the list, on an empty one), in a quote a new line (or out of it, on an empty one).",
-      "purposeFrom": "comment",
-      "props": [],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "primitives-composebox--docs",
-      "storyId": "primitives-composebox--default",
       "docPage": null,
       "app": null,
       "looks": []

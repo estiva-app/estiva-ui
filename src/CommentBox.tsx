@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, type AnyExtension, type EditorOptions } from '@tiptap/core'
-import { Editor, EditorContent, type JSONContent } from '@tiptap/react'
+import { Editor, type JSONContent } from '@tiptap/react'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
 import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
@@ -8,7 +8,7 @@ import { Button } from './Button'
 import { Card } from './Card'
 import { CardUnder } from './CardUnder'
 import { cn } from './cn'
-import { ComposeBox, ComposeKeys, COMPOSE_EDITOR_CLASSES, COMPOSE_SCROLL_CLASSES, isEmptyDoc as isEmpty } from './ComposeBox'
+import { BoxFrame, ComposeKeys, COMPOSE_EDITOR_CLASSES, isEmptyDoc as isEmpty, SendBox } from './commentBoxFrame'
 import {
   CaptionedReference,
   PersonMention,
@@ -27,9 +27,7 @@ import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { Kbd } from './Kbd'
 import { BoxKit, PasteOverWords } from './links'
-import { WRITING_BOX_CLASSES } from './looks'
 import { PastedImages } from './PastedImages'
-import { ScrollArea } from './ScrollArea'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
@@ -37,7 +35,7 @@ import { ToolbarButton } from './Toolbar'
 /**
  * The one box every app writes a comment, a reply and a chat line in, from the
  * approved prototype (`concept/comments-everywhere`, Miky 17 October): the
- * package's `ComposeBox` with everything each app built around it — `@`,
+ * box's one frame (`commentBoxFrame`) with everything each app built around it — `@`,
  * `!@`, `[` and `/`, the keys, drafts, files, the edit mode, sending and a
  * refused send. An app hands over only its people, its `[` sections, its `/`
  * Insert rows and a send that says whether the relay accepted it.
@@ -543,7 +541,7 @@ export function CommentBox({
       setRefused(null)
       const answered = (answer: Promise<SendAnswer>) => answer.catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
       if (showsAtOnce) {
-        // Shown at once: the box empties now (ComposeBox clears it); a refusal puts the words back above anything written since,
+        // Shown at once: the box empties now (the send box clears it); a refusal puts the words back above anything written since,
         // and what ✕ took off with them.
         const took = removed
         setFiles((all) => all.filter((f) => f.state !== 'ready'))
@@ -600,7 +598,7 @@ export function CommentBox({
     return true
   }
 
-  // Enter and Ctrl/Cmd+Enter save an edit; the send box wires them through ComposeBox.
+  // Enter and Ctrl/Cmd+Enter save an edit; the send box wires them itself.
   useEffect(() => {
     if (!editor || !edit) return
     const storage = (editor.storage as unknown as { composeKeys?: { send: (() => boolean) | null } }).composeKeys
@@ -660,27 +658,27 @@ export function CommentBox({
   if (edit) {
     return (
       <div className={cn('flex flex-col gap-1', className)}>
-        <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', sending && '[&_.ProseMirror]:text-text-muted')}>
-          <div data-composer-editor data-marked={marking || undefined} className={cn('relative min-h-[20px]', marking && 'border-l-4 border-border-strong pl-2')}>
-            <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
-              <EditorContent editor={editor} />
-            </ScrollArea>
-          </div>
-          {fileCards && <div className="flex flex-wrap gap-2">{fileCards}</div>}
-          <div className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-1 text-caption text-text-muted">
-              <Kbd>Esc</Kbd> to cancel · <Kbd>Enter</Kbd> to save
-            </span>
-            <div className="flex items-center gap-2">
-              <Button variant="outlined" size="small" onClick={edit.onCancel}>
-                Cancel
-              </Button>
-              <Button variant="primary" size="small" disabled={uploading || sending} onClick={() => save.current()}>
-                Save
-              </Button>
+        <BoxFrame
+          editor={editor}
+          marked={marking}
+          attachments={fileCards}
+          className={cn(sending && '[&_.ProseMirror]:text-text-muted')}
+          footer={
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1 text-caption text-text-muted">
+                <Kbd>Esc</Kbd> to cancel · <Kbd>Enter</Kbd> to save
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="outlined" size="small" onClick={edit.onCancel}>
+                  Cancel
+                </Button>
+                <Button variant="primary" size="small" disabled={uploading || sending} onClick={() => save.current()}>
+                  Save
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
+          }
+        />
         {underBox}
         {sending && <FieldLine>Saving…</FieldLine>}
         {refusedLine}
@@ -697,7 +695,7 @@ export function CommentBox({
 
   return (
     <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={upload ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
-      <ComposeBox
+      <SendBox
         editor={editor}
         onSend={go}
         placeholder={placeholder}

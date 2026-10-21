@@ -198,6 +198,9 @@ export const EditingRefused: Story = {
   play: typeInto('{Enter}'),
 }
 
+/** A file attached and ready: its card under the text, and Send can send it with no words. */
+export const WithAFile: Story = { render: () => <Live />, play: pickAFile }
+
 /** A file uploading: Send waits for it. */
 export const FileUploading: Story = { render: () => <Live upload={uploads('never')} />, play: pickAFile }
 

@@ -70,7 +70,7 @@ export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] ov
 
 /**
  * The box a message or a comment is written in: Peek's writing box (its
- * `looks.ts`, Katerina 24 September), moved with ComposeBox. Inset, a hairline,
+ * `looks.ts`, Katerina 24 September), moved with the comment box. Inset, a hairline,
  * 12px in, 16px between the text and the row under it; the focus ring in Signal.
  */
 export const WRITING_BOX_CLASSES =

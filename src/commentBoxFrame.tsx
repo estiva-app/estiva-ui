@@ -1,3 +1,4 @@
+// @estiva-escape(component-has-a-page, component-has-a-story): CommentBox's own frame, not offered to apps — CommentBox's page and stories show it (Katerina, 21 Oct: one box)
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Extension } from '@tiptap/core'
 import { EditorContent, type Editor } from '@tiptap/react'
@@ -12,14 +13,15 @@ import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar
 import { isSuggestionActive } from './suggestionPopup'
 
 /**
- * The box a message, a reply or a comment is written in, from Katerina's Leaf
- * prototype (9 October). Peek's `ComposeBox`, its look and its keys, with
- * what only Peek knows left in Peek: drafts, uploads, highlights, its text
- * format. The app makes the editor (its extensions are its own) and adds
- * `ComposeKeys`; this draws the box around it and sends.
+ * The frame `CommentBox` writes in, from Katerina's Leaf prototype (9
+ * October): the text, scrolling in a `ScrollArea` past half the window, the
+ * bar down its left while it is marked, what is attached, and a footer. The
+ * send box and the edit box are this one frame with different footers, so a
+ * change to the box is made once (Katerina, 21 Oct: the scrollbar had to be
+ * fixed in two copies). It was `ComposeBox`, a part of its own until 0.85.0;
+ * no app used it, and two box names invited the wrong pick.
  */
 
-/** The editor's own classes inside the box: Peek's, rich text with no outline. Put them in `editorProps.attributes.class`. */
 /** The classes the box's editor wears: rich text with no outline. It never scrolls itself; the box does, in a `ScrollArea`. */
 export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1')
 
@@ -86,8 +88,45 @@ export function isEmptyDoc(editor: Editor): boolean {
   return empty
 }
 
-export interface ComposeBoxProps {
-  /** The app's editor, with `ComposeKeys` in its extensions and `COMPOSE_EDITOR_CLASSES` on it. `null` while it loads. */
+export interface BoxFrameProps {
+  /** The box's editor, with `ComposeKeys` in its extensions and `COMPOSE_EDITOR_CLASSES` on it. `null` while it loads. */
+  editor: Editor | null
+  /** The bar down the text's left: an urgent mention or a highlight, as Peek draws it. */
+  marked?: boolean
+  /** The selection strip over the text, with these buttons. Absent, no strip (the edit box). */
+  selection?: Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>
+  /** Said while the text is empty: words, and a `Kbd` where a key helps. */
+  placeholder?: ReactNode
+  empty?: boolean
+  /** What is attached, under the text: `AttachmentCard pending`s. */
+  attachments?: ReactNode
+  /** The row under it all: the tools and Send, or the keys and Cancel/Save. */
+  footer: ReactNode
+  /** On the box itself. */
+  className?: string
+}
+
+/** The one frame both boxes draw: the bordered box, its text in a `ScrollArea`, what is attached, the footer. */
+export function BoxFrame({ editor, marked = false, selection, placeholder, empty = false, attachments, footer, className }: BoxFrameProps) {
+  return (
+    <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', className)}>
+      <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
+        <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
+          <EditorContent editor={editor} />
+        </ScrollArea>
+        {selection && <SelectionToolbar editor={editor} {...selection} />}
+        {empty && placeholder != null && (
+          <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center gap-1 text-body-2 text-text-muted">{placeholder}</div>
+        )}
+      </div>
+      {attachments && <div className="flex flex-wrap gap-2">{attachments}</div>}
+      {footer}
+    </div>
+  )
+}
+
+export interface SendBoxProps {
+  /** The box's editor. `null` while it loads. */
   editor: Editor | null
   /**
    * Send what is written. The box empties afterwards — unless this returns
@@ -112,11 +151,10 @@ export interface ComposeBoxProps {
 }
 
 /**
- * The box for writing: the text, the selection strip over it, what is
- * attached, the tools and Send. Enter sends (`ComposeKeys`), and so does the
- * button.
+ * The send box: the frame with the selection strip over the text, the tools
+ * and Send under it. Enter sends (`ComposeKeys`), and so does the button.
  */
-export function ComposeBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, className }: ComposeBoxProps) {
+export function SendBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, className }: SendBoxProps) {
   const [empty, setEmpty] = useState(true)
   const canSend = (!empty || ready) && !holding
 
@@ -151,20 +189,15 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
 
   return (
     <div className={cn('relative', className)}>
-      <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors')}>
-        <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
-          <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
-            <EditorContent editor={editor} />
-          </ScrollArea>
-          <SelectionToolbar editor={editor} {...selection} />
-          {empty && (
-            <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center gap-1 text-body-2 text-text-muted">{placeholder}</div>
-          )}
-        </div>
-
-        {attachments && <div className="flex flex-wrap gap-2">{attachments}</div>}
-
-        {/* The tools are one strip — one Tab stop, arrows along it; Send, the answer rather than a tool, keeps its own. */}
+      <BoxFrame
+        editor={editor}
+        marked={marked}
+        selection={selection ?? {}}
+        placeholder={placeholder}
+        empty={empty}
+        attachments={attachments}
+        footer={
+        // The tools are one strip — one Tab stop, arrows along it; Send, the answer rather than a tool, keeps its own.
         <div className="flex items-center justify-between">
           {tools ? (
             <Toolbar aria-label="Compose tools" surface={false} className="flex items-center gap-1">
@@ -195,7 +228,8 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
             </IconButton>
           </div>
         </div>
-      </div>
+        }
+      />
     </div>
   )
 }

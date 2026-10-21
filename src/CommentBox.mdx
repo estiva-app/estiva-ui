@@ -22,6 +22,8 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 
 <Canvas of={CommentBoxStories.Refused} />
 
+<Canvas of={CommentBoxStories.WithAFile} />
+
 <Canvas of={CommentBoxStories.WithAnAppsOwnRows} />
 
 <Canvas of={CommentBoxStories.LongDraft} />
@@ -31,7 +33,6 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 ## When not
 
 - Writing a document in place → the editor itself, with **EditorBlockHandle** and **SelectionToolbar**. Nothing is sent.
-- A box with nothing of this — no lists, no drafts, no files → **ComposeBox**, with the app's own editor. CommentBox is built on it.
 - One line of plain text in a form → **TextInput** or **Textarea**.
 
 ## How
