@@ -12,6 +12,7 @@ export { KeptSelection, SelectionToolbar, keepSelection, releaseSelection, norma
 export {
   CommentBox,
   commentBoxRows,
+  keepCommentBoxWarm,
   type CommentBoxProps,
   type CommentBoxDraft,
   type CommentBoxEdit,
