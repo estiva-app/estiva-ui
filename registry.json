@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.83.0",
+    "packageVersion": "0.84.0",
     "exports": 209,
     "typeExports": 207,
     "files": null
@@ -2099,6 +2099,18 @@
           "note": "Called when a send shown at once was refused, so the app takes it back."
         },
         {
+          "name": "marked",
+          "takes": "a handler",
+          "required": false,
+          "note": "The bar down the text's left edge shows while this holds, besides while an urgent mention is in the box: the app's own marks (a highlight)."
+        },
+        {
+          "name": "onEditor",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called with the box's editor once it is drawn, and with `null` as it goes: an app's launcher inserts into the box last used."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -2238,7 +2250,7 @@
       "kind": "helper",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ComposeBox.tsx",
-      "purpose": "The editor's own classes inside the box: Peek's, rich text with no outline.",
+      "purpose": "The classes the box's editor wears: rich text with no outline.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],

@@ -6,6 +6,7 @@ import { IconButton } from './IconButton'
 import { Toolbar } from './Toolbar'
 import { cn } from './cn'
 import { richTextClassName } from './RichText'
+import { ScrollArea } from './ScrollArea'
 import { WRITING_BOX_CLASSES } from './looks'
 import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar'
 import { isSuggestionActive } from './suggestionPopup'
@@ -19,7 +20,21 @@ import { isSuggestionActive } from './suggestionPopup'
  */
 
 /** The editor's own classes inside the box: Peek's, rich text with no outline. Put them in `editorProps.attributes.class`. */
+/** The classes the box's editor wears: rich text with no outline. It never scrolls itself; the box does, in a `ScrollArea`. */
 export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1')
+
+/**
+ * A long draft stops at half the window and scrolls inside the box, so its
+ * first line can be reached (PEE-59). The package's `ScrollArea` scrolls it,
+ * not the browser: its bar, and one that shows while there is more (Katerina,
+ * 21 Oct: the browser's bar, and none at all in some browsers).
+ *
+ * The region reaches into the box's right padding (the box's `p-3`) and its
+ * content gives it back, so the text ends where it did and the bar sits 3px
+ * from the box's edge, as every other box's bar does (Katerina, 21 Oct: the gap
+ * on the right; measured 15px before, 3px after).
+ */
+export const COMPOSE_SCROLL_CLASSES = { area: '-mr-3', viewport: 'max-h-[50vh]', content: 'pr-3' }
 
 type ComposeKeysStorage = { send: (() => boolean) | null }
 
@@ -137,8 +152,10 @@ export function ComposeBox({ editor, onSend, placeholder, tools, attachments, re
   return (
     <div className={cn('relative', className)}>
       <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors')}>
-        <div data-composer-editor className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
-          <EditorContent editor={editor} />
+        <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
+          <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
+            <EditorContent editor={editor} />
+          </ScrollArea>
           <SelectionToolbar editor={editor} {...selection} />
           {empty && (
             <div className="pointer-events-none absolute inset-0 flex flex-wrap items-center gap-1 text-body-2 text-text-muted">{placeholder}</div>
