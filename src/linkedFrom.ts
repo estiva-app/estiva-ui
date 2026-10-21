@@ -59,13 +59,14 @@ export interface LinkedSource {
   changedAt?: number
 }
 
-export interface LinkedFromOptions {
+/** `T` is the app's own object type (interop's `ForeignObject`), so `hrefOf` takes it as it is. */
+export interface LinkedFromOptions<T extends LinkedSource = LinkedSource> {
   /**
    * Where a file opens in this app: the linked file itself (`top`), or one of
    * the rows on its card. Another app's address comes from a manifest anyone
    * may publish, so the app keeps it to https.
    */
-  hrefOf: (object: LinkedSource, top: boolean) => string
+  hrefOf: (object: T, top: boolean) => string
   /** A message's words for a one-line preview: marks stripped, references read as words. */
   previewText: (body: string, people: Record<string, LinkedProfile> | undefined) => string
   /** The workspace's people, for the owner picker's options. */
@@ -143,8 +144,9 @@ function listedOf(object: LinkedSource): LinkedSource[] {
     .slice(0, CARD_ROWS)
 }
 
-function childrenOf(object: LinkedSource, options: LinkedFromOptions): LinkedChild[] | undefined {
-  const listed = listedOf(object)
+function childrenOf<T extends LinkedSource>(object: T, options: LinkedFromOptions<T>): LinkedChild[] | undefined {
+  // An object's children are objects of its own type: interop's are `ForeignObject`s.
+  const listed = listedOf(object) as T[]
   if (!listed.length) return undefined
   return listed.map((child) => {
     const status = child.slots.status
@@ -187,7 +189,7 @@ function statusOf(object: LinkedSource, onAct: LinkedFromOptions['onAct']): Link
   return { value: slots.status.value, options: [{ value: slots.status.value, label: slots.status.value, colour: colourOf(slots.status.colour) }] }
 }
 
-function ownerOf(object: LinkedSource, options: LinkedFromOptions, onAct: LinkedFromOptions['onAct']): { owner: LinkedPicker; ownerLabel?: string } | undefined {
+function ownerOf(object: LinkedSource, options: Pick<LinkedFromOptions, 'directory'>, onAct: LinkedFromOptions['onAct']): { owner: LinkedPicker; ownerLabel?: string } | undefined {
   const { slots, people } = object
   // Who owns it: the manifest's person control that is neither the title nor the move (FOL-4).
   const action = object.actions.find(
@@ -223,7 +225,7 @@ function ownerOf(object: LinkedSource, options: LinkedFromOptions, onAct: Linked
 }
 
 /** The file a reference names, as the kit's chip, row and card draw it. */
-export function linkedFrom(object: LinkedSource, options: LinkedFromOptions): Linked {
+export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFromOptions<T>): Linked {
   const { slots, people } = object
   const id = idOf(object)
   const href = options.hrefOf(object, true)
@@ -262,10 +264,10 @@ export function linkedFrom(object: LinkedSource, options: LinkedFromOptions): Li
  * alone, for those two. Nothing, and a file the reader may not read, draw
  * alike: "not available." (Miky, 15 Oct).
  */
-export function linkStateFrom(
-  object: LinkedSource | null | undefined,
+export function linkStateFrom<T extends LinkedSource>(
+  object: T | null | undefined,
   unread: { kind: LinkedKind; noun: string },
-  options: LinkedFromOptions,
+  options: LinkedFromOptions<T>,
 ): LinkState {
   if (object === undefined) return { state: 'loading', kind: unread.kind }
   if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun }
