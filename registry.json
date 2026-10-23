@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.86.1",
-    "exports": 209,
+    "packageVersion": "0.87.0",
+    "exports": 210,
     "typeExports": 211,
     "files": null
   },
@@ -278,6 +278,25 @@
       "looks": [
         "overflow-hidden rounded-2xl bg-bg-surface signal:border signal:border-border-subtle signal:shadow-highlight-inset"
       ]
+    },
+    {
+      "name": "archivedLine",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/archivedLine.ts",
+      "purpose": "The line in the comment box's place on an archived file (CommentBox's `closed.reason`), in every app's words alike.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "AttachmentCard",

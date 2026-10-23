@@ -1,6 +1,10 @@
 /**
+ * archivedLine, the one sentence every app shows on an archived file (PEEKM-2).
+ */
+
+/**
  * The line in the comment box's place on an archived file (CommentBox's
- * `closed.reason`), in every app's words alike (PEEKM-2).
+ * `closed.reason`), in every app's words alike.
  *
  * A file archived itself says so; one archived with a file above it names the
  * closest archived one by its kind — "Unarchive the page to comment." — so a
