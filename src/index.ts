@@ -103,6 +103,7 @@ export {
   type StatusColour,
   type UnavailableMemory,
 } from './linked'
+export { archivedLine } from './archivedLine'
 export {
   linkedFrom,
   linkStateFrom,
