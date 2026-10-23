@@ -13,7 +13,8 @@
 export function archivedLine(archive: { with?: string } | undefined, noun?: string): string | undefined {
   if (!archive) return undefined
   if (!archive.with) return 'Archived. Unarchive it to comment.'
-  const word = noun?.trim().toLowerCase()
-  // A Folder is a proper noun in every app's copy; with no noun, Peek's word.
+  // A noun arrives as the manifest wrote it; a Folder is a proper noun in every
+  // app's copy. With no noun, Peek's ArchivedNotice word.
+  const word = noun?.trim()
   return `Unarchive the ${word === 'folder' ? 'Folder' : word || 'parent'} to comment.`
 }

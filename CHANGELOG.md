@@ -10,8 +10,10 @@
   closest one by its kind: "Unarchive the page to comment.", "Unarchive the
   Folder to comment.". `archive` is interop's `Archive` (its `with` is the
   file above); `noun` is that file's, read by the app. Ship's own
-  `archivedLine` (`src/lib/archive.ts`) moves onto it; Peek and Leaf use it
-  in PEEKM-3 and PEEKM-8. Nothing changes for an existing caller.
+  `archivedLine` (`src/lib/archive.ts`) moves onto it in the Ship PR, passing
+  its parent's address and kind, and its parent line loses "Archived with its
+  project." as the record says; Peek and Leaf use it in PEEKM-3 and PEEKM-8.
+  Additive: no existing export changes.
 
 ## 0.86.1 — 2026-10-21
 

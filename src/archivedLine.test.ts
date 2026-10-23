@@ -19,7 +19,8 @@ describe('archivedLine', () => {
 
   it('names the closest archived file above by its kind', () => {
     expect(archivedLine({ with: ABOVE }, 'page')).toBe('Unarchive the page to comment.')
-    expect(archivedLine({ with: ABOVE }, 'Project')).toBe('Unarchive the project to comment.')
+    expect(archivedLine({ with: ABOVE }, 'project')).toBe('Unarchive the project to comment.')
+    expect(archivedLine({ with: ABOVE }, 'PDF')).toBe('Unarchive the PDF to comment.')
   })
 
   it('writes Folder as a proper noun', () => {
