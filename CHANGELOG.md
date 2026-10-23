@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.87.0 — 2026-10-23
+
+### Added
+
+- **`archivedLine(archive, noun)`**: the line in the comment box's place on
+  an archived file, the same in every app (PEEKM-2). Archived itself:
+  "Archived. Unarchive it to comment."; archived with a file above it, the
+  closest one by its kind: "Unarchive the page to comment.", "Unarchive the
+  Folder to comment.". `archive` is interop's `Archive` (its `with` is the
+  file above); `noun` is that file's, read by the app. Ship's own
+  `archivedLine` (`src/lib/archive.ts`) moves onto it in the Ship PR, passing
+  its parent's address and kind, and its parent line loses "Archived with its
+  project." as the record says; Peek and Leaf use it in PEEKM-3 and PEEKM-8.
+  Additive: no existing export changes.
+
 ## 0.86.1 — 2026-10-21
 
 ### Fixed
