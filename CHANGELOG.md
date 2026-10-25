@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.87.1 — 2026-10-25
+
+### Fixed
+
+- **`DocumentEditor` no longer sends a refused save twice.** Closing the
+  editor while its blur's save was still out queued a second save; when the
+  first was refused, the second sent the same text again, and an app that
+  tells a person about a save refused after they left said so twice. Now only
+  a change made while a save is out is saved next, as Ship's own description
+  editor did before it moved onto this one (WBD-7: Ship's
+  `description.wire.test.tsx`, "left while the save made on blur is still
+  out"). No export changes.
+
 ## 0.87.0 — 2026-10-23
 
 ### Added

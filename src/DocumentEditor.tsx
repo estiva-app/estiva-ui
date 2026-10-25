@@ -283,8 +283,10 @@ export function DocumentEditor({
         setSaving(false)
         if (again.current) {
           again.current = false
-          // After an ending it is held for after the tap, and a save would only be refused.
-          if (!ended()) void latestSave.current(typed.current)
+          // After an ending it is held for after the tap, and a save would only be refused. Only a change: leaving
+          // while a blur's save is out asks again for the same text, and a refused one would be sent and said twice.
+          const waiting = typed.current
+          if (!ended() && waiting && latest.current.codec.write(waiting).value !== next.value) void latestSave.current(waiting)
         }
       }
     },
