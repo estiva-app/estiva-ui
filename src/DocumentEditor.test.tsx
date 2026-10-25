@@ -134,6 +134,34 @@ describe('saving', () => {
     expect(editorOf().getText()).toBe('First line kept')
   })
 
+  it('closed while its save is out, a refused save is not sent again with the same text', async () => {
+    let answer: (ok: boolean) => void = () => {}
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(() => new Promise<boolean>((resolve) => (answer = resolve)))
+    const { unmount } = render(<Doc onCommit={onCommit} />)
+    await type(' and more')
+    await leave()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+    // The page goes while the relay has not answered: closing asks to save the same text again.
+    unmount()
+    await act(async () => answer(false))
+    await settle()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
+  it('a change made while a save is out is saved next', async () => {
+    let answer: (ok: boolean) => void = () => {}
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(() => new Promise<boolean>((resolve) => (answer = resolve)))
+    render(<Doc onCommit={onCommit} />)
+    await type(' and more')
+    await leave()
+    await type('!')
+    await leave()
+    await act(async () => answer(true))
+    await settle()
+    expect(onCommit).toHaveBeenCalledTimes(2)
+    expect(saved(onCommit.mock.calls[1][0])).toEqual([{ id: 'a1', runs: [{ text: 'First line and more!', marks: [] }] }])
+  })
+
   it('Escape leaves, and so saves', async () => {
     const onCommit = vi.fn(async () => true)
     render(<Doc onCommit={onCommit} />)
