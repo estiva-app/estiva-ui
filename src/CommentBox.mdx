@@ -13,8 +13,8 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 
 - **Writing anything that is sent**, in every app: a comment, a reply, a line in a conversation. The same box writes all of them.
 - `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
-- `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words.
-- `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file.
+- `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words. Its files can be taken off, and with `upload` more added. An app that closes the box as Save is pressed and reopens it on a refusal passes `edit.refused`, which is said under the box as it opens.
+- `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file. The edit box has no paperclip, since it shows only its keys; the other three work there too.
 - `under` to show, while something is written, the one card it will be sent with (✕ takes it off) and the live part of each block link, drawn as the app draws them under a sent message. An edit box shows the card and no part.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
 - `marked` when the app has its own reason for the bar down the text, besides an urgent mention, which always draws it.
@@ -63,7 +63,7 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 - **It speaks the editor's document.** The text a document sends, and the document an edit or a draft opens with, are `@estiva-app/conversation`'s: `composerText`, `composerDocument`, `composerDraft`. Never write marker text here.
 - **`send` answers.** Resolve `{ accepted: false, reason }` and the words come back with "Not sent: *reason*". A thrown send is a refusal too.
 - **`label` is required**: the editor's accessible name.
-- **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops Upload and Urgent itself; with no `upload` there is no Upload (`commentBoxRows.file` is that row).
+- **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops Urgent itself (an edit makes nobody urgent); with no `upload` there is no Upload (`commentBoxRows.file` is that row).
 - **Give the box a `key` per destination.** The editor, the rows and `code` are made once, as the box opens; a new thread is a new box.
 - A send shown at once and refused after its box went away writes the words into its draft instead.
 - **`under.read` is the app's reading of the draft**: `@estiva-app/conversation`'s `boxReadOf(body, context)` says which file gets the card and which parts show; the app adds its own view of each. Call `under.changed`'s listener when what a link names comes back. `send`'s third argument is `{ card }`, the card still shown, which the app writes with `embedsToSend` (or `embedsToEdit` for `onSave`).

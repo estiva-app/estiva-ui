@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.88.0 — 2026-10-26
+
+### Added
+
+- **A file can be added while editing**, in every app (Miky, 26 Oct, PEEKM-4).
+  With `upload`, `CommentBox`'s edit mode takes `/` → Upload, a pasted picture
+  and a dropped file, as the send box does. It still draws no paperclip, since
+  the edit box shows only its keys (Decided 2026-10-17). Save waits for an
+  upload and holds while a file did not upload, and `onSave`'s `files` carries
+  the message's own files and the new ones. **An app's `onSave` must now write
+  the files it is handed**, and pass the message's own as `edit.files`. Both
+  callers pass `upload` and today drop what `onSave` is handed, so each must
+  wire it in the PR that bumps to this release, or a file added while editing
+  is lost: Ship's `src/components/conversations/ConversationBox.tsx`
+  (`onSave: (body) => send(body)`, and `send` writes an edit with no files)
+  and Leaf's `src/comments/CommentsColumn.tsx` (`onSave: (body) => send(body)`).
+  Peek's edit moves onto this box in the same ticket.
+- **`edit.refused`**: the reason an edit was refused, said under the box as it
+  opens ("Not saved: … Your changes are still in the box."). It is for an app
+  that closes the edit box as Save is pressed and reopens it when the relay
+  says no.
+
 ## 0.87.1 — 2026-10-25
 
 ### Fixed

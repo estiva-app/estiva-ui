@@ -192,14 +192,60 @@ describe('editing', () => {
     expect(editorOf().getText()).toBe('Said before')
   })
 
-  it('/ offers no Upload and no Urgent in an edit', async () => {
+  it('/ offers Upload and no Urgent in an edit', async () => {
     render(<Box upload={async () => ({ accepted: true, value: 1 })} edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
     await type(' /')
     const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
     expect(rows.some((r) => r.startsWith('Mention'))).toBe(true)
-    expect(rows.some((r) => r.startsWith('Upload') || r.startsWith('Urgent'))).toBe(false)
+    expect(rows.some((r) => r.startsWith('Upload'))).toBe(true)
+    expect(rows.some((r) => r.startsWith('Urgent'))).toBe(false)
     // Closed here: the editor is destroyed on a timer, and a list it closes then would hold the next test's Enter.
     await press('Escape')
+  })
+
+  it('a file added while editing uploads, Save waits for it, and it is saved with the files already there', async () => {
+    const uploaded = later<UploadAnswer>()
+    const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
+    const files = [{ id: 'old', name: 'old.png', state: 'ready' as const, value: 'old-record' }]
+    render(<Box upload={() => uploaded.promise} edit={{ body, files, onSave, onCancel: () => {} }} />)
+    expect(screen.queryByRole('button', { name: 'Attach a file' })).toBeNull()
+    const input = document.querySelector('input[type=file]') as HTMLInputElement
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [new File(['x'], 'shot.png', { type: 'image/png' })] } })
+    })
+    expect(screen.getByText('Uploading… Save waits for the file.')).toBeTruthy()
+    await press('Enter')
+    expect(onSave).not.toHaveBeenCalled()
+    uploaded.answer({ accepted: true, value: 'new-record' })
+    await settle()
+    await press('Enter')
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave.mock.calls[0][1]).toMatchObject([{ value: 'old-record' }, { name: 'shot.png', state: 'ready', value: 'new-record' }])
+  })
+
+  it('a file that did not upload holds Save until its ✕ takes it off', async () => {
+    const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
+    render(<Box upload={async () => ({ accepted: false, reason: 'too large' })} edit={{ body, onSave, onCancel: () => {} }} />)
+    const input = document.querySelector('input[type=file]') as HTMLInputElement
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [new File(['x'], 'big.mov', { type: 'video/quicktime' })] } })
+    })
+    await settle()
+    expect(screen.getByText('Remove the file that did not upload to save.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement).disabled).toBe(true)
+    await press('Enter')
+    expect(onSave).not.toHaveBeenCalled()
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Remove big.mov' }))
+    })
+    await press('Enter')
+    expect(onSave).toHaveBeenCalledTimes(1)
+  })
+
+  it('an edit the app reopens after a refusal says why under it as it opens', () => {
+    render(<Box edit={{ body, refused: 'rate-limited', onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    expect(screen.getByText('Not saved: rate-limited. Your changes are still in the box.')).toBeTruthy()
+    expect(editorOf().getText()).toBe('Said before')
   })
 })
 
