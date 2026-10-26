@@ -80,8 +80,15 @@ export interface CommentBoxDraft {
 export interface CommentBoxEdit {
   /** What it says now, as `composerDocument` opens it. */
   body: JSONContent
-  /** Its files, which can be taken off; none can be added. */
+  /** Its files, which can be taken off; with `upload` and `writesFiles`, more can be added by `/` → Upload, a paste or a drop. A box reopened after a refusal is given the files that save carried. */
   files?: BoxFile[]
+  /**
+   * The app's `onSave` writes the files it is handed, so a file can be added while editing (with `upload`).
+   * Opt-in, so an app whose save drops them never offers it: a file added and silently lost.
+   */
+  writesFiles?: boolean
+  /** Why the relay refused this edit, when the app reopens a box it closed at once: said under it as it opens. Read as the box opens, so a reopen is a new box (a new `key`). */
+  refused?: string
   onCancel: () => void
   /** Save; the box holds the words until the answer, and a refusal is said under it. */
   onSave: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
@@ -408,7 +415,7 @@ export function CommentBox({
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
   const [sending, setSending] = useState(false)
-  const [refused, setRefused] = useState<string | null>(null)
+  const [refused, setRefused] = useState<string | null>(edit?.refused ?? null)
   // What shows under the box, and what ✕ took off.
   const [reading, setReading] = useState<BoxUnderRead | undefined>(undefined)
   const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
@@ -421,7 +428,7 @@ export function CommentBox({
 
   const attachFiles = useCallback((picked: File[]): boolean => {
     const uploadOne = latest.current.upload
-    if (!uploadOne || latest.current.edit) return false
+    if (!uploadOne || (latest.current.edit && !latest.current.edit.writesFiles)) return false
     for (const file of picked) {
       fileCount += 1
       const id = `file-${fileCount}`
@@ -437,8 +444,9 @@ export function CommentBox({
     return true
   }, [])
 
-  // An edit cannot add a file or make a mention urgent, as in every app before the box; no upload, no File.
-  const rows = insert.filter((c) => !((edit || !upload) && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
+  // An edit can add a file, in every app (Miky, 26 Oct, PEEKM-4) whose save writes it, but makes nobody urgent (CON-24); no upload, no File.
+  const takesFiles = !!upload && (!edit || !!edit.writesFiles)
+  const rows = insert.filter((c) => !(!takesFiles && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
   const { editor, hold } = useBoxEditor({ extensions, referenceView: referenceView ?? null }, edit?.body ?? draft?.read(), {
     editable: !closed,
     editorProps: { attributes: { class: COMPOSE_EDITOR_CLASSES, role: 'textbox', 'aria-multiline': 'true', 'aria-label': label } },
@@ -529,11 +537,11 @@ export function CommentBox({
   // `/` → File asks for a file the way the paperclip does.
   useEffect(() => {
     const box = root.current
-    if (!box || !upload || edit) return
+    if (!box || !takesFiles) return
     const ask = () => picker.current?.click()
     box.addEventListener(ATTACH_EVENT, ask)
     return () => box.removeEventListener(ATTACH_EVENT, ask)
-  }, [upload, edit])
+  }, [takesFiles])
 
   const uploading = files.some((f) => f.state === 'uploading')
   // A file that did not upload holds Send until its ✕ takes it off, so it is never sent without it unnoticed.
@@ -591,7 +599,7 @@ export function CommentBox({
   )
 
   save.current = () => {
-    if (!editor || !edit || sending || uploading) return true
+    if (!editor || !edit || sending || uploading || failed > 0) return true
     setRefused(null)
     setSending(true)
     const body = editor.getJSON()
@@ -662,9 +670,28 @@ export function CommentBox({
     </FieldLine>
   )
 
+  const onDrop = (event: DragEvent<HTMLDivElement>) => {
+    const dropped = Array.from(event.dataTransfer?.files ?? [])
+    if (dropped.length === 0 || !takesFiles) return
+    event.preventDefault()
+    attachFiles(dropped)
+  }
+
+  const fileLines = (
+    <>
+      {uploading && !sending && <FieldLine>Uploading… {edit ? 'Save' : 'Send'} waits for the file.</FieldLine>}
+      {failed > 0 && !uploading && !sending && (
+        <FieldLine>
+          {failed === 1 ? 'Remove the file that did not upload' : 'Remove the files that did not upload'} to {edit ? 'save' : 'send'}.
+        </FieldLine>
+      )}
+    </>
+  )
+
   if (edit) {
+    // No paperclip: the edit box shows only its keys (Decided 2026-10-17); a file comes by `/` → Upload, a paste or a drop.
     return (
-      <div className={cn('flex flex-col gap-1', className)}>
+      <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={takesFiles ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
         <BoxFrame
           editor={editor}
           marked={marking}
@@ -681,7 +708,7 @@ export function CommentBox({
                 <Button variant="outlined" size="small" onClick={edit.onCancel}>
                   Cancel
                 </Button>
-                <Button variant="primary" size="small" disabled={uploading || sending} onClick={() => save.current()}>
+                <Button variant="primary" size="small" disabled={uploading || failed > 0 || sending} onClick={() => save.current()}>
                   Save
                 </Button>
               </div>
@@ -689,17 +716,12 @@ export function CommentBox({
           }
         />
         {underBox}
+        {takesFiles && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
         {sending && <FieldLine>Saving…</FieldLine>}
+        {fileLines}
         {refusedLine}
       </div>
     )
-  }
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    const dropped = Array.from(event.dataTransfer?.files ?? [])
-    if (dropped.length === 0 || !upload) return
-    event.preventDefault()
-    attachFiles(dropped)
   }
 
   return (
@@ -725,10 +747,7 @@ export function CommentBox({
       {underBox}
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
       {sending && <FieldLine>Sending…</FieldLine>}
-      {uploading && !sending && <FieldLine>Uploading… Send waits for the file.</FieldLine>}
-      {failed > 0 && !uploading && !sending && (
-        <FieldLine>{failed === 1 ? 'Remove the file that did not upload to send.' : 'Remove the files that did not upload to send.'}</FieldLine>
-      )}
+      {fileLines}
       {refusedLine}
     </div>
   )
