@@ -192,8 +192,8 @@ describe('editing', () => {
     expect(editorOf().getText()).toBe('Said before')
   })
 
-  it('/ offers Upload and no Urgent in an edit', async () => {
-    render(<Box upload={async () => ({ accepted: true, value: 1 })} edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+  it('/ offers Upload and no Urgent in an edit whose save writes files', async () => {
+    render(<Box upload={async () => ({ accepted: true, value: 1 })} edit={{ body, writesFiles: true, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
     await type(' /')
     const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
     expect(rows.some((r) => r.startsWith('Mention'))).toBe(true)
@@ -203,13 +203,28 @@ describe('editing', () => {
     await press('Escape')
   })
 
+  it('an edit whose save does not write files offers no Upload and takes no dropped file, so none is lost', async () => {
+    render(<Box upload={async () => ({ accepted: true, value: 1 })} edit={{ body, onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    expect(document.querySelector('input[type=file]')).toBeNull()
+    // Dropped beside Save, so it reaches the box's own drop and not the editor's.
+    await act(async () => {
+      fireEvent.drop(screen.getByRole('button', { name: 'Save' }), { dataTransfer: { files: [new File(['x'], 'shot.png', { type: 'image/png' })] } })
+    })
+    expect(screen.queryByText('shot.png')).toBeNull()
+    await type(' /')
+    const rows = within(screen.getByRole('listbox')).getAllByRole('option').map((o) => o.textContent ?? '')
+    expect(rows.some((r) => r.startsWith('Upload'))).toBe(false)
+    await press('Escape')
+  })
+
   it('a file added while editing uploads, Save waits for it, and it is saved with the files already there', async () => {
     const uploaded = later<UploadAnswer>()
     const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
     const files = [{ id: 'old', name: 'old.png', state: 'ready' as const, value: 'old-record' }]
-    render(<Box upload={() => uploaded.promise} edit={{ body, files, onSave, onCancel: () => {} }} />)
+    render(<Box upload={() => uploaded.promise} edit={{ body, files, writesFiles: true, onSave, onCancel: () => {} }} />)
     expect(screen.queryByRole('button', { name: 'Attach a file' })).toBeNull()
     const input = document.querySelector('input[type=file]') as HTMLInputElement
+    expect(input).not.toBeNull()
     await act(async () => {
       fireEvent.change(input, { target: { files: [new File(['x'], 'shot.png', { type: 'image/png' })] } })
     })
@@ -225,8 +240,9 @@ describe('editing', () => {
 
   it('a file that did not upload holds Save until its ✕ takes it off', async () => {
     const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
-    render(<Box upload={async () => ({ accepted: false, reason: 'too large' })} edit={{ body, onSave, onCancel: () => {} }} />)
+    render(<Box upload={async () => ({ accepted: false, reason: 'too large' })} edit={{ body, writesFiles: true, onSave, onCancel: () => {} }} />)
     const input = document.querySelector('input[type=file]') as HTMLInputElement
+    expect(input).not.toBeNull()
     await act(async () => {
       fireEvent.change(input, { target: { files: [new File(['x'], 'big.mov', { type: 'video/quicktime' })] } })
     })

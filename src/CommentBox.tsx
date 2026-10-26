@@ -80,9 +80,14 @@ export interface CommentBoxDraft {
 export interface CommentBoxEdit {
   /** What it says now, as `composerDocument` opens it. */
   body: JSONContent
-  /** Its files, which can be taken off; with `upload`, more can be added by `/` → Upload, a paste or a drop. */
+  /** Its files, which can be taken off; with `upload` and `writesFiles`, more can be added by `/` → Upload, a paste or a drop. A box reopened after a refusal is given the files that save carried. */
   files?: BoxFile[]
-  /** Why the relay refused this edit, when the app reopens a box it closed at once: said under it as it opens. */
+  /**
+   * The app's `onSave` writes the files it is handed, so a file can be added while editing (with `upload`).
+   * Opt-in, so an app whose save drops them never offers it: a file added and silently lost.
+   */
+  writesFiles?: boolean
+  /** Why the relay refused this edit, when the app reopens a box it closed at once: said under it as it opens. Read as the box opens, so a reopen is a new box (a new `key`). */
   refused?: string
   onCancel: () => void
   /** Save; the box holds the words until the answer, and a refusal is said under it. */
@@ -423,7 +428,7 @@ export function CommentBox({
 
   const attachFiles = useCallback((picked: File[]): boolean => {
     const uploadOne = latest.current.upload
-    if (!uploadOne) return false
+    if (!uploadOne || (latest.current.edit && !latest.current.edit.writesFiles)) return false
     for (const file of picked) {
       fileCount += 1
       const id = `file-${fileCount}`
@@ -439,8 +444,9 @@ export function CommentBox({
     return true
   }, [])
 
-  // An edit can add a file, in every app (Miky, 26 Oct, PEEKM-4), but makes nobody urgent (CON-24); no upload, no File.
-  const rows = insert.filter((c) => !(!upload && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
+  // An edit can add a file, in every app (Miky, 26 Oct, PEEKM-4) whose save writes it, but makes nobody urgent (CON-24); no upload, no File.
+  const takesFiles = !!upload && (!edit || !!edit.writesFiles)
+  const rows = insert.filter((c) => !(!takesFiles && c.key === commentBoxRows.file.key) && !(edit && c.key === commentBoxRows.urgent.key))
   const { editor, hold } = useBoxEditor({ extensions, referenceView: referenceView ?? null }, edit?.body ?? draft?.read(), {
     editable: !closed,
     editorProps: { attributes: { class: COMPOSE_EDITOR_CLASSES, role: 'textbox', 'aria-multiline': 'true', 'aria-label': label } },
@@ -531,11 +537,11 @@ export function CommentBox({
   // `/` → File asks for a file the way the paperclip does.
   useEffect(() => {
     const box = root.current
-    if (!box || !upload) return
+    if (!box || !takesFiles) return
     const ask = () => picker.current?.click()
     box.addEventListener(ATTACH_EVENT, ask)
     return () => box.removeEventListener(ATTACH_EVENT, ask)
-  }, [upload])
+  }, [takesFiles])
 
   const uploading = files.some((f) => f.state === 'uploading')
   // A file that did not upload holds Send until its ✕ takes it off, so it is never sent without it unnoticed.
@@ -666,7 +672,7 @@ export function CommentBox({
 
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
     const dropped = Array.from(event.dataTransfer?.files ?? [])
-    if (dropped.length === 0 || !upload) return
+    if (dropped.length === 0 || !takesFiles) return
     event.preventDefault()
     attachFiles(dropped)
   }
@@ -685,7 +691,7 @@ export function CommentBox({
   if (edit) {
     // No paperclip: the edit box shows only its keys (Decided 2026-10-17); a file comes by `/` → Upload, a paste or a drop.
     return (
-      <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={upload ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
+      <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={takesFiles ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
         <BoxFrame
           editor={editor}
           marked={marking}
@@ -710,7 +716,7 @@ export function CommentBox({
           }
         />
         {underBox}
-        {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
+        {takesFiles && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
         {sending && <FieldLine>Saving…</FieldLine>}
         {fileLines}
         {refusedLine}

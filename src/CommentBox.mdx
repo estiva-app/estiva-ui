@@ -13,7 +13,7 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 
 - **Writing anything that is sent**, in every app: a comment, a reply, a line in a conversation. The same box writes all of them.
 - `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
-- `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words. Its files can be taken off, and with `upload` more added. An app that closes the box as Save is pressed and reopens it on a refusal passes `edit.refused`, which is said under the box as it opens.
+- `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words. Its files can be taken off, and with `upload` and `edit.writesFiles` (the app's save writes them) more added. An app that closes the box as Save is pressed and reopens it on a refusal passes `edit.refused`, which is said under the box as it opens.
 - `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file. The edit box has no paperclip, since it shows only its keys; the other three work there too.
 - `under` to show, while something is written, the one card it will be sent with (✕ takes it off) and the live part of each block link, drawn as the app draws them under a sent message. An edit box shows the card and no part.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
