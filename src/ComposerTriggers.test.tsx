@@ -653,6 +653,17 @@ describe('/ mid-line, in every kind of line — LFB-3', () => {
     }
   })
 
+  it('keeps a quoted list line quoted when Quote is picked on it', async () => {
+    render(<BlockComposer />)
+    await act(async () => {
+      editor!.commands.setContent({ type: 'doc', content: [{ type: 'blockquote', content: [{ type: 'bulletList', content: [item()] }] }] })
+      editor!.chain().focus().setTextSelection(1 + 1 + 1 + 1 + 'Some words'.length).run()
+    })
+    await type(' /quote')
+    await press('Enter')
+    expect(line()).toEqual({ blocks: 'paragraph<blockquote', text: 'Some words  here', caret: 11 })
+  })
+
   it('changes the line with every Format row in every kind of line, and leaves no "/" and the caret where it was', async () => {
     render(<BlockComposer />)
     for (const kind of Object.keys(LINES) as (keyof typeof LINES)[]) {
