@@ -9,6 +9,7 @@ import { Checkbox, type CheckboxProps } from './Checkbox'
 import { calloutLook } from './RichText'
 import { placeOf, type LinkPlace } from './LinkPlaces'
 import { referenceMenuClick } from './ReferenceMenu'
+import { isSuggestionOpen } from './suggestionPopup'
 
 /*
  * The four nodes an editor of a block document needs that a stock schema does
@@ -760,6 +761,8 @@ export const Checklist = Extension.create({
   addKeyboardShortcuts() {
     return {
       Enter: () => {
+        // An open `/`, `@` or `[` list picks its row: running first, this split the line under it and left the `/` behind (LFB-3).
+        if (isSuggestionOpen()) return false
         const { state } = this.editor
         const item = itemAtCaret(state)
         const { $from, empty } = state.selection

@@ -12,6 +12,8 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import {
   CaptionedReference,
+  DOCUMENT_FORMATS,
+  FORMATS,
   PersonMention,
   ReferenceTrigger,
   SlashCommands,
@@ -591,5 +593,75 @@ describe('/ in a block editor — RIC-19', () => {
     render(<BlockComposer blocks={false} />)
     await type('/')
     expect(options()).toEqual(['Text', 'Heading#', 'Subheading##', 'Quote>', 'Code```', 'Bulleted list-', 'Numbered list1.'])
+  })
+})
+
+describe('/ mid-line, in every kind of line — LFB-3', () => {
+  function BlockComposer() {
+    const made = useEditor({ extensions: [StarterKit, Checklist, Callout, SlashCommands.configure({ sections: [formatSection('block')] })] })
+    editor = made
+    return <EditorContent editor={made} />
+  }
+
+  const words = (text: string) => [{ type: 'paragraph', content: [{ type: 'text', text }] }]
+  const item = (checked?: boolean) => ({ type: 'listItem', ...(checked === undefined ? {} : { attrs: { checked } }), content: words('Some words here') })
+  const LINES = {
+    paragraph: words('Some words here')[0],
+    heading: { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Some words here' }] },
+    quote: { type: 'blockquote', content: words('Some words here') },
+    bullet: { type: 'bulletList', content: [item()] },
+    numbered: { type: 'orderedList', content: [item()] },
+    checklist: { type: 'bulletList', content: [item(false)] },
+  }
+  // Each line as `line()` reads it before a pick, and the row it already is: picking that one rightly leaves it as it was.
+  const START = { paragraph: 'paragraph', heading: 'heading:1', quote: 'paragraph<blockquote', bullet: 'paragraph<listItem<bulletList', numbered: 'paragraph<listItem<orderedList', checklist: 'paragraph<listItem☐<bulletList' }
+  const ALREADY: Record<string, string> = { paragraph: 'paragraph', heading: 'heading', checklist: 'checklist' }
+
+  /** The line `kind` between two others, the caret after "Some words", then ` /<query>` typed and the first row picked with Enter. */
+  async function pick(kind: keyof typeof LINES, query: string) {
+    await act(async () => {
+      editor!.commands.setContent({ type: 'doc', content: [...words('Before'), LINES[kind], ...words('After')] })
+      let at = 0
+      editor!.state.doc.descendants((node, pos) => {
+        if (node.isText && node.text === 'Some words here') at = pos + 'Some words'.length
+      })
+      editor!.chain().focus().setTextSelection(at).run()
+    })
+    await type(` /${query}`)
+    await press('Enter')
+  }
+
+  /** The caret's line: its blocks from the inside out, as `paragraph<listItem☐<bulletList`, a callout with its tone. */
+  function line() {
+    const { $from } = editor!.state.selection
+    const blocks: string[] = []
+    for (let depth = $from.depth; depth > 0; depth--) {
+      const node = $from.node(depth)
+      const tone = node.type.name === 'blockquote' && node.attrs.tone ? `:${node.attrs.tone}` : ''
+      blocks.push(`${node.type.name}${node.attrs.level ? `:${node.attrs.level}` : ''}${typeof node.attrs.checked === 'boolean' ? '☐' : ''}${tone}`)
+    }
+    return { blocks: blocks.join('<'), text: $from.parent.textContent, caret: $from.parentOffset }
+  }
+
+  it('turns a bulleted, numbered or checklist line into a quote, a note or a warning, out of its list', async () => {
+    render(<BlockComposer />)
+    for (const kind of ['bullet', 'numbered', 'checklist'] as const) {
+      for (const [query, blocks] of [['quote', 'paragraph<blockquote'], ['note', 'paragraph<blockquote:note'], ['warning', 'paragraph<blockquote:warning']]) {
+        await pick(kind, query)
+        expect({ kind, query, ...line() }).toEqual({ kind, query, blocks, text: 'Some words  here', caret: 11 })
+      }
+    }
+  })
+
+  it('changes the line with every Format row in every kind of line, and leaves no "/" and the caret where it was', async () => {
+    render(<BlockComposer />)
+    for (const kind of Object.keys(LINES) as (keyof typeof LINES)[]) {
+      for (const format of [...FORMATS, ...DOCUMENT_FORMATS]) {
+        await pick(kind, format.id)
+        const after = line()
+        expect({ kind, format: format.id, text: after.text, caret: after.caret }).toEqual({ kind, format: format.id, text: 'Some words  here', caret: 11 })
+        if (ALREADY[kind] !== format.id) expect({ kind, format: format.id, blocks: after.blocks }).not.toEqual({ kind, format: format.id, blocks: START[kind] })
+      }
+    }
   })
 })

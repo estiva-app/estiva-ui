@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.88.1 — 2026-10-27
+
+### Fixed
+
+- **Every `/` row works mid-line in a list line** (Katerina, 22 Oct, LFB-3).
+  In a bulleted, numbered or checklist line, Quote, Note and Warning ate the
+  `/` and changed nothing: a list item's first line cannot be wrapped where it
+  is. `applyFormat` now takes the line out of its list first, as Heading and
+  Code already did, so it becomes the quote or callout. Peek's, Ship's and
+  Leaf's `/` all go through it.
+- **Enter in a checklist line picks the open list's row.** `Checklist`'s Enter
+  ran before the `/`, `@` and `[` lists and split the line under them, leaving
+  the `/` behind and the caret on the next line — Katerina's report. It now
+  leaves Enter to an open list.
+
 ## 0.88.0 — 2026-10-26
 
 ### Added
