@@ -583,16 +583,30 @@ export type CodeFormat = 'inline' | 'block'
  * nothing changed, not that anything failed.
  */
 export function applyFormat(editor: Editor, id: FormatId, code: CodeFormat = 'inline'): boolean {
-  const chain = editor.chain().focus()
   /*
     The node's own command, called by name: StarterKit's extensions declare
     them, and this package builds without StarterKit. Its own command, rather
     than the core one it wraps, because a list's runs with the app's options
     (`keepMarks`, `itemTypeName`). An editor without that node changes nothing.
+    A chain per call: a chain holds the state it was made from, and a quote
+    first takes its line out of a list.
   */
   const run = (command: string, ...args: unknown[]): boolean => {
+    const chain = editor.chain().focus()
     const named = (chain as unknown as Record<string, ((...a: unknown[]) => { run: () => boolean }) | undefined>)[command]
     return named ? named(...args).run() : false
+  }
+  /*
+    A list item's first line cannot be wrapped where it is, so Quote, Note and
+    Warning did nothing in a bulleted line once the `/` was gone (LFB-3). The
+    line leaves its list first, as Heading's and Code's already do — only in
+    an editor that has a quote to make. Whether it left one.
+  */
+  const leaveList = (): boolean => {
+    if (!editor.schema.nodes.blockquote) return false
+    let left = false
+    while (editor.isActive('listItem') && run('liftListItem', 'listItem')) left = true
+    return left
   }
   switch (id) {
     case 'paragraph':
@@ -602,6 +616,8 @@ export function applyFormat(editor: Editor, id: FormatId, code: CodeFormat = 'in
     case 'subheading':
       return run('setHeading', { level: 2 })
     case 'quote':
+      // A list inside a quote: the line, out of its list, is already quoted, and toggling would unquote it.
+      if (leaveList() && editor.isActive('blockquote')) return true
       return run('toggleBlockquote')
     case 'bulletList':
       return run('toggleBulletList')
@@ -618,6 +634,7 @@ export function applyFormat(editor: Editor, id: FormatId, code: CodeFormat = 'in
     }
     case 'note':
     case 'warning': {
+      leaveList()
       if (!editor.isActive('blockquote') && !run('toggleBlockquote')) return false
       return editor.chain().updateAttributes('blockquote', { tone: id }).run()
     }
