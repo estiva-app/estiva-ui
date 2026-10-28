@@ -66,6 +66,23 @@ describe('AppShell', () => {
     expect(screen.getByRole('navigation').textContent).toBe('Rows')
   })
 
+  it('keeps a menu the caller passes in place of the fold, and draws no fold on the floating rail', () => {
+    const { unmount } = render(
+      <AppShell variant="inset" menu={<button>Own menu</button>} nav={<Sidebar>Rows</Sidebar>} navOpen onNavOpenChange={() => {}}>
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect(screen.getByRole('button', { name: 'Own menu' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /sidebar/ })).toBeNull()
+    unmount()
+    render(
+      <AppShell variant="floating" nav={<nav>Rail</nav>} navOpen onNavOpenChange={() => {}}>
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect(screen.queryByRole('button', { name: /sidebar/ })).toBeNull()
+  })
+
   it('draws no fold when the caller does not keep one', () => {
     render(
       <AppShell variant="inset" nav={<Sidebar>Rows</Sidebar>}>

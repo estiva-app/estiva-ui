@@ -60,7 +60,8 @@ export interface AppShellProps {
 }
 
 export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, navOpen = true, onNavOpenChange, children }: AppShellProps) {
-  const fold = onNavOpenChange && (
+  // The floating manner's rail does not fold here: its collapse stays the app's.
+  const fold = onNavOpenChange && variant !== 'floating' && (
     <IconButton
       tooltip={navOpen ? 'Hide the sidebar' : 'Show the sidebar'}
       tooltipPlacement="bottom"
@@ -134,12 +135,13 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-bg-base text-text-primary">
       {bar}
       <div className="flex min-h-0 flex-1">
-        {navOpen ? (
+        {/* Folded, the navigation stays mounted and hidden, so it comes back as it was left (its scroll, its open
+            rows); open, `contents` keeps it a direct flex child of the row. */}
+        <div className="contents" hidden={!navOpen}>
           <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
-        ) : (
-          // Folded: the inset card keeps a left margin as wide as its right one.
-          inset && <div className="w-4 flex-none" />
-        )}
+        </div>
+        {/* Folded: the inset card keeps a left margin as wide as its right one. */}
+        {!navOpen && inset && <div className="w-4 flex-none" />}
         {/* `inset`: the content is a card on the ground, the Card's own surface look,
             16px from the right and bottom as the floating card is, 8px corners (Katerina,
             28 September). */}
