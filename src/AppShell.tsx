@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
+import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react'
 import { cn } from './cn'
 import { Card } from './Card'
+import { IconButton } from './IconButton'
 import { ScrollArea } from './ScrollArea'
 import { SidebarOnGround } from './Sidebar'
 import { TopBar } from './TopBar'
@@ -46,11 +48,31 @@ export interface AppShellProps {
   banner?: ReactNode
   /** The navigation: a `Sidebar` in the solid manner, a `Rail` in the floating one. */
   nav: ReactNode
+  /**
+   * Whether the navigation is shown, in the solid and inset manners. With `onNavOpenChange`, the frame draws the
+   * fold as the top bar's menu button (unless `menu` is given) and, folded, leaves only the content's own margin
+   * (LED-3, Katerina, 28 October: the sidebar fold top left, on the top bar's menu button). Where it is kept is
+   * the caller's.
+   */
+  navOpen?: boolean
+  onNavOpenChange?: (open: boolean) => void
   children: ReactNode
 }
 
-export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, children }: AppShellProps) {
-  const bar = <TopBar variant={variant} menu={menu} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} right={identity} />
+export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, navOpen = true, onNavOpenChange, children }: AppShellProps) {
+  // The floating manner's rail does not fold here: its collapse stays the app's.
+  const fold = onNavOpenChange && variant !== 'floating' && (
+    <IconButton
+      tooltip={navOpen ? 'Hide the sidebar' : 'Show the sidebar'}
+      tooltipPlacement="bottom"
+      aria-label={navOpen ? 'Hide the sidebar' : 'Show the sidebar'}
+      aria-expanded={navOpen}
+      onClick={() => onNavOpenChange(!navOpen)}
+    >
+      {navOpen ? <IconLayoutSidebarLeftCollapse size={16} stroke={1.5} /> : <IconLayoutSidebarLeftExpand size={16} stroke={1.5} />}
+    </IconButton>
+  )
+  const bar = <TopBar variant={variant} menu={menu ?? fold} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} right={identity} />
   const inset = variant === 'inset'
 
   if (variant === 'floating') {
@@ -113,7 +135,13 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-bg-base text-text-primary">
       {bar}
       <div className="flex min-h-0 flex-1">
-        <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
+        {/* Folded, the navigation stays mounted and hidden, so it comes back as it was left (its scroll, its open
+            rows); open, `contents` keeps it a direct flex child of the row. */}
+        <div className="contents" hidden={!navOpen}>
+          <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
+        </div>
+        {/* Folded: the inset card keeps a left margin as wide as its right one. */}
+        {!navOpen && inset && <div className="w-4 flex-none" />}
         {/* `inset`: the content is a card on the ground, the Card's own surface look,
             16px from the right and bottom as the floating card is, 8px corners (Katerina,
             28 September). */}

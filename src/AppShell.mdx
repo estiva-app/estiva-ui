@@ -85,6 +85,12 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
   Ctrl+K.
 - In the floating manner the card owns `overflow-hidden` — your content
   manages its own scrolling inside it.
+- **Folding the navigation**, in the solid and inset manners: pass `navOpen`
+  and `onNavOpenChange`, and the frame draws the fold as the top bar's menu
+  button ("Hide the sidebar" / "Show the sidebar") and, folded, keeps only
+  the content's own margin. Where the state is kept (remembered, started
+  folded in a narrow window) is yours. A `menu` you pass replaces the fold
+  button.
 - Desktop only for now — no narrow-screen behaviour is provided.
 - In the Signal theme the floating frame draws the control-room dot grid on
   its ground, behind the card. Nothing to add: the preset makes it.

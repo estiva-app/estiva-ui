@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { useState } from 'react'
 import { IconMenu2, IconSquareRounded } from '@tabler/icons-react'
 import { AppShell } from './AppShell'
 import { Banner } from './Banner'
@@ -103,6 +104,19 @@ export const Inset: Story = {
       <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
+}
+
+/** The navigation folds away from the top bar's menu button, and comes back from the same place. */
+export const InsetFolds: Story = {
+  args: { variant: 'inset' },
+  render: function Render(args) {
+    const [open, setOpen] = useState(true)
+    return (
+      <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} navOpen={open} onNavOpenChange={setOpen}>
+        <EmptyState message="Nothing here yet." />
+      </AppShell>
+    )
+  },
 }
 
 export const InsetWithBanner: Story = {
