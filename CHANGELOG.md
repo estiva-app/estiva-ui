@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.90.1 — 2026-10-28
+
+### Fixed
+
+- **`AppShell`'s fold now hides the navigation** (LED-3, found by the
+  production check of Leaf's fold). Folded, 0.90.0 set only the `hidden`
+  attribute on a `contents` wrapper, and Tailwind 3's `[hidden]` rule has no
+  `!important`, so `.contents` won: the button flipped and the sidebar stayed
+  drawn. It is now hidden by the class too. `InsetFolds` measures the sidebar's
+  drawn width before, folded and after, in a real browser.
+
 ## 0.90.0 — 2026-10-28
 
 ### Added
