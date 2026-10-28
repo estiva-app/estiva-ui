@@ -136,8 +136,9 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
       {bar}
       <div className="flex min-h-0 flex-1">
         {/* Folded, the navigation stays mounted and hidden, so it comes back as it was left (its scroll, its open
-            rows); open, `contents` keeps it a direct flex child of the row. */}
-        <div className="contents" hidden={!navOpen}>
+            rows); open, `contents` keeps it a direct flex child of the row. Hidden by the class as well as the
+            attribute: in a Tailwind 3 app `[hidden]` loses to `.contents`, and the sidebar stayed drawn (0.90.0). */}
+        <div className={navOpen ? 'contents' : 'hidden'} hidden={!navOpen}>
           <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
         </div>
         {/* Folded: the inset card keeps a left margin as wide as its right one. */}

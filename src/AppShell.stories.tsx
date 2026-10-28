@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { IconMenu2, IconSquareRounded } from '@tabler/icons-react'
+import { expect, userEvent, within } from 'storybook/test'
 import { AppShell } from './AppShell'
 import { Banner } from './Banner'
 import { EmptyState } from './EmptyState'
@@ -116,6 +117,16 @@ export const InsetFolds: Story = {
         <EmptyState message="Nothing here yet." />
       </AppShell>
     )
+  },
+  // Measured as drawn: in a Tailwind 3 app the `hidden` attribute alone loses to a display class (LED-3, 0.90.0).
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const drawn = () => canvasElement.querySelector('nav')?.getBoundingClientRect().width ?? 0
+    await expect(drawn()).toBeGreaterThan(0)
+    await userEvent.click(canvas.getByRole('button', { name: 'Hide the sidebar' }))
+    await expect(drawn()).toBe(0)
+    await userEvent.click(canvas.getByRole('button', { name: 'Show the sidebar' }))
+    await expect(drawn()).toBeGreaterThan(0)
   },
 }
 
