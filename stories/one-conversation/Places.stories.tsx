@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { CONVERSATION, WITH_QUOTES } from './fixtures'
-import { LeafColumn, PeekPane, Phone, ShipActivity, dmTitle } from './Places'
+import { LeafColumn, PeekPane, Phone, ShipSidebar, dmTitle } from './Places'
 
 /**
  * PROTOTYPE (concept/one-conversation): one conversation, placed by each app.
@@ -30,11 +30,11 @@ export const PeekDirect: Story = {
   render: () => <PeekPane comments={CONVERSATION} title={dmTitle} />,
 }
 
-/** Ship: a page's Activity, up to 768 px; a thread opens under its comment. */
+/** Ship: the 384 px column beside the page, as in Leaf; a thread opens under its comment. */
 export const ShipPage: Story = {
-  name: 'Ship Activity',
+  name: 'Ship sidebar',
   globals: { theme: 'ship' },
-  render: () => <ShipActivity comments={WITH_QUOTES} />,
+  render: () => <ShipSidebar comments={WITH_QUOTES} />,
 }
 
 /** Leaf: the 384 px column beside the page; a thread opens under its comment. */

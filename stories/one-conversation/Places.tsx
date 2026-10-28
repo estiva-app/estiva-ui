@@ -142,20 +142,21 @@ export function PeekPane({ comments, start, title, ...rest }: PlaceProps & { tit
   )
 }
 
-/** Ship: a page's Activity, up to 768 px; a thread opens under its comment. */
-export function ShipActivity({ comments, start, ...rest }: PlaceProps) {
+/** Ship: the 384 px column beside the page, as in Leaf (Miky, 28 October); a thread opens under its comment. */
+export function ShipSidebar({ comments, start, ...rest }: PlaceProps) {
   const c = useConversation(comments, start)
   return (
-    <div className="flex h-screen justify-center bg-bg-base">
-      <div className="flex w-full max-w-[768px] flex-col">
-        <div className="flex flex-col gap-3 px-4 pt-6 pb-4">
-          <h1 className="text-h2 text-text-primary">Item one</h1>
-          <SkeletonBar className="h-3" style={{ width: '80%' }} />
-          <SkeletonBar className="h-3" style={{ width: '60%' }} />
-          <h2 className="pt-4 text-body-2 font-medium text-text-secondary">Activity</h2>
-        </div>
+    <div className="flex h-screen bg-bg-base">
+      <article className="flex min-w-0 flex-1 flex-col gap-3 px-10 py-8">
+        <h1 className="text-h2 text-text-primary">Item one</h1>
+        <SkeletonBar className="h-3" style={{ width: '80%' }} />
+        <SkeletonBar className="h-3" style={{ width: '60%' }} />
+        <SkeletonBar className="h-3" style={{ width: '70%' }} />
+      </article>
+      <aside className="flex w-[384px] shrink-0 flex-col border-l border-border-subtle bg-bg-surface">
+        <Header>Comments</Header>
         <Column c={c} opens="under" {...rest} />
-      </div>
+      </aside>
     </div>
   )
 }
