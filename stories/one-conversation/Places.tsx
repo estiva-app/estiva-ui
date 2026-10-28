@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { cn } from '../../src/cn'
@@ -42,17 +42,24 @@ export function List({
     <div className="flex flex-col gap-5">
       {c.comments.map((comment) => {
         const expanded = c.expanded.has(comment.id)
-        if (isResolved(comment) && !expanded) return <Collapsed key={comment.id} comment={comment} c={c} archived={archived} onOpen={() => c.toggle(comment.id)} />
+        const selected = cn('-mx-2 rounded-md px-2 py-1', opens === 'beside' && open === comment.id && 'bg-bg-selected')
+        const toThread = <ThreadLink comment={comment} c={c} onClick={() => (opens === 'beside' ? onOpen?.(comment.id) : c.toggle(comment.id))} />
+        if (isResolved(comment) && !expanded)
+          return (
+            <div key={comment.id} className={selected}>
+              <Collapsed comment={comment} c={c} archived={archived} onOpen={() => c.toggle(comment.id)} threadLink={toThread} />
+            </div>
+          )
         if (opens === 'under' && expanded)
-          return <Thread key={comment.id} comment={comment} c={c} archived={archived} urgentBar={urgentBar} threadLink={<ThreadLink comment={comment} open onClick={() => c.toggle(comment.id)} />} />
+          return <Thread key={comment.id} comment={comment} c={c} archived={archived} urgentBar={urgentBar} threadLink={<ThreadLink comment={comment} c={c} open onClick={() => c.toggle(comment.id)} />} />
         return (
-          <div key={comment.id} className={cn('-mx-2 rounded-md px-2 py-1', opens === 'beside' && open === comment.id && 'bg-bg-selected')}>
+          <div key={comment.id} className={selected}>
             <NoteCard
               comment={comment}
               c={c}
               archived={archived}
               urgentBar={urgentBar}
-              threadLink={<ThreadLink comment={comment} onClick={() => (opens === 'beside' ? onOpen?.(comment.id) : c.toggle(comment.id))} />}
+              threadLink={toThread}
               onResolve={() => {
                 if (opens === 'beside') {
                   onOpen?.(comment.id)
@@ -106,6 +113,10 @@ export function PeekPane({ comments, start, title, ...rest }: PlaceProps & { tit
   const c = useConversation(comments, start)
   const [open, setOpen] = useState<string | undefined>(comments.find((x) => x.replies?.length && !isResolved(x))?.id)
   const thread = c.comments.find((x) => x.id === open)
+  // A thread open in the column is read: its row says "1 new" no longer.
+  useEffect(() => {
+    if (open) c.read(open)
+  }, [open])
   return (
     <div className="flex h-screen bg-bg-base">
       <section className="flex min-w-0 flex-1 flex-col">

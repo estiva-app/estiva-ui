@@ -2,8 +2,10 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
 import { IconChecks, IconChevronDown, IconChevronRight, IconCircleCheck, IconDots, IconWorld } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
+import { AvatarGroup } from '../../src/AvatarGroup'
 import { Button } from '../../src/Button'
 import { Card } from '../../src/Card'
+import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { CommentBox, commentBoxRows, type BoxFile, type SendAnswer, type UploadAnswer } from '../../src/CommentBox'
 import type { SlashCommand } from '../../src/ComposerTriggers'
@@ -112,6 +114,8 @@ export function useConversation(initial: Comment[], start: Partial<ConversationS
       set((x) => ({ ...x, resolving: undefined, expanded: new Set([...x.expanded].filter((e) => e !== id)) }))
       change(id, (c) => ({ ...c, resolutions: [...(c.resolutions ?? []), { resolved, by: ME, at: now(), note: note || undefined }] }))
     },
+    /** The thread was opened: its new replies are read. */
+    read: (id: string) => change(id, (c) => ({ ...c, newReplies: undefined })),
     toggle: (id: string) =>
       set((x) => {
         const expanded = new Set(x.expanded)
@@ -441,12 +445,11 @@ export function Thread({
 }
 
 /** A resolved thread, collapsed where it was said: its first line, who resolved it and the note. */
-export function Collapsed({ comment, c, onOpen, archived = false }: { comment: Comment; c: Conversation; onOpen: () => void; archived?: boolean }) {
+export function Collapsed({ comment, c, onOpen, threadLink, archived = false }: { comment: Comment; c: Conversation; onOpen: () => void; threadLink?: ReactNode; archived?: boolean }) {
   const first = comment.lines.find((l): l is Run[] => Array.isArray(l))
   const text = first?.map((r) => ('text' in r ? r.text : `@${nameOf('person' in r ? r.person : r.urgent)}`)).join('') ?? 'This comment was deleted.'
   const r = resolutionOf(comment)!
-  const n = comment.replies?.length ?? 0
-  // The comment's own card, folded: its head and first line, then who resolved it → the note. Reopen is in its ⋯.
+  // The comment's own card, folded: its head and first line, the replies row as on any comment (Miky, 28 October: no count in the head), then who resolved it → the note. Reopen is in its ⋯.
   return (
     <div className="group relative flex gap-2">
       {!archived && !comment.deleted && (
@@ -462,26 +465,59 @@ export function Collapsed({ comment, c, onOpen, archived = false }: { comment: C
           <span className="flex min-h-6 items-center gap-2">
             <span className="truncate text-body-2 font-medium text-text-primary">{nameOf(comment.by)}</span>
             <span className="shrink-0 text-caption text-text-muted">{comment.at}</span>
-            {n > 0 && <span className="shrink-0 text-caption text-text-muted">· {n === 1 ? '1 reply' : `${n} replies`}</span>}
-            <IconChevronRight size={14} stroke={1.5} className="shrink-0 text-text-muted" aria-hidden />
           </span>
           <span className="truncate text-body-2 text-text-secondary">{text}</span>
         </button>
+        {threadLink}
         <ResolutionBanner r={r} />
       </div>
     </div>
   )
 }
 
-/** "2 replies" or "Reply", under a comment. */
-export function ThreadLink({ comment, open, onClick }: { comment: Comment; open?: boolean; onClick: () => void }) {
-  const n = comment.replies?.length ?? 0
+/**
+ * The way into a thread, under a comment. With replies it is Peek's replies row
+ * (Miky, 28 October): who replied, "2 replies", the last reply's time, and
+ * "1 new" until the thread opens. With none, "Reply".
+ */
+export function ThreadLink({ comment, c, open, onClick }: { comment: Comment; c: Conversation; open?: boolean; onClick: () => void }) {
+  const replies = comment.replies ?? []
+  const n = replies.length
   if (comment.deleted && n === 0) return null
+  const go = () => {
+    c.read(comment.id)
+    onClick()
+  }
+  if (n === 0)
+    return (
+      <div>
+        <Button size="small" variant="muted" onClick={go}>
+          Reply
+        </Button>
+      </div>
+    )
+  const authors = [...new Set(replies.map((r) => r.by))]
+  const fresh = open ? 0 : (comment.newReplies ?? 0)
+  const Chevron = open ? IconChevronDown : IconChevronRight
   return (
-    <div>
-      <Button size="small" variant="muted" leadingIcon={open ? <IconChevronDown /> : undefined} onClick={onClick}>
-        {n === 0 ? 'Reply' : n === 1 ? '1 reply' : `${n} replies`}
-      </Button>
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={go}
+        aria-expanded={open}
+        className="group/replies -ml-2 flex shrink-0 items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-accent-outline hover:bg-accent-wash"
+      >
+        <AvatarGroup size={18} members={authors.map((a) => ({ name: nameOf(a) }))} />
+        <span className="text-chip font-medium text-text-interactive transition-colors group-hover/replies:text-text-primary">{n === 1 ? '1 reply' : `${n} replies`}</span>
+        <span className="mt-px font-mono text-small leading-3 text-text-muted tabular-nums">{replies[n - 1].at}</span>
+        <Chevron size={12} stroke={2} className="text-text-muted transition-all group-hover/replies:translate-x-0.5 group-hover/replies:text-text-primary" aria-hidden />
+      </button>
+      {fresh > 0 && (
+        <>
+          <span className="h-0.5 w-0.5 shrink-0 rounded-full bg-text-muted" aria-hidden />
+          <Chip type="brand" label={`${fresh} new`} />
+        </>
+      )}
     </div>
   )
 }

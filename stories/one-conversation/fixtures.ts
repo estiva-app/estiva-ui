@@ -56,6 +56,8 @@ export interface Comment {
   quote?: Quote
   reactions?: ReactionCount[]
   replies?: Comment[]
+  /** How many of the replies the viewer has not read yet: "1 new" on the replies row until the thread opens. */
+  newReplies?: number
   /** Every resolve and reopen, oldest first: the last one is the thread's state. */
   resolutions?: Resolution[]
 }
@@ -91,6 +93,7 @@ export const FIRST: Comment = {
     { emoji: '👀', by: ['one'] },
   ],
   replies: [REPLY_ONE, REPLY_TWO],
+  newReplies: 1,
 }
 
 export const SECOND: Comment = {
