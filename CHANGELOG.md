@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.89.0 — 2026-10-28
+
+### Changed
+
+- **`archivedLine` comes from `@estiva-app/conversation` 0.22** (PEEKM-8), so
+  the agent's refusal on an archived file prints the words Peek, Ship and Leaf
+  show. It is handed on unchanged: every call that worked still says the same.
+  It now takes `options.in`, where to unarchive for an app with no Unarchive of
+  its own ("Archived. Unarchive it in Peek to comment."), and `options.to`,
+  what waits ("…to edit."). Its sentence tests moved with it.
+- The `@estiva-app/protocol` devDependency goes to ^0.45, conversation 0.22's
+  peer. It is a devDependency only: nothing ui exports changes with it.
+
 ## 0.88.1 — 2026-10-27
 
 ### Fixed
