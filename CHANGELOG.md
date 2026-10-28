@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.90.0 — 2026-10-28
+
+### Added
+
+- **`AppShell` folds its navigation** (LED-3: Miky, 16 Oct, and Katerina,
+  18–22 Oct, asked to fold Leaf's sidebar away to write in peace). Pass
+  `navOpen` and `onNavOpenChange` and the frame draws the fold as the top
+  bar's menu button, "Hide the sidebar" / "Show the sidebar" (Katerina, 28
+  October: top left, on the menu button); folded, the inset card keeps a 16px
+  left margin as its right one. A caller that passes neither sees no change;
+  a `menu` passed in still replaces the button. Where the state is kept is the
+  caller's. Leaf takes it first; Ship can take it by passing the two props.
+
 ## 0.89.0 — 2026-10-28
 
 ### Changed

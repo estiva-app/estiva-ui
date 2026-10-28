@@ -7,7 +7,9 @@
  * Chrome on Ship's four pages.
  */
 import { afterEach, describe, expect, it } from 'vitest'
+import { useState } from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { AppShell } from './AppShell'
 import { Sidebar } from './Sidebar'
 
@@ -44,6 +46,34 @@ describe('AppShell', () => {
     const panel = screen.getByRole('main').closest('.rounded-lg')
     expect(panel?.className).toContain('bg-bg-surface')
     expect(panel?.className).toContain('mr-4')
+  })
+
+  it('folds the navigation from the top bar’s menu button and brings it back', async () => {
+    function Folding() {
+      const [open, setOpen] = useState(true)
+      return (
+        <AppShell variant="inset" nav={<Sidebar>Rows</Sidebar>} navOpen={open} onNavOpenChange={setOpen}>
+          <p>Page</p>
+        </AppShell>
+      )
+    }
+    const user = userEvent.setup()
+    render(<Folding />)
+    await user.click(screen.getByRole('button', { name: 'Hide the sidebar' }))
+    expect(screen.queryByRole('navigation')).toBeNull()
+    expect(screen.getByText('Page')).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Show the sidebar' }))
+    expect(screen.getByRole('navigation').textContent).toBe('Rows')
+  })
+
+  it('draws no fold when the caller does not keep one', () => {
+    render(
+      <AppShell variant="inset" nav={<Sidebar>Rows</Sidebar>}>
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect(screen.queryByRole('button', { name: /sidebar/ })).toBeNull()
+    expect(screen.getByRole('navigation')).toBeTruthy()
   })
 
   it('leaves the floating manner’s card as it was', () => {
