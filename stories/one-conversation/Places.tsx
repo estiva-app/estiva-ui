@@ -110,6 +110,7 @@ export function PeekPane({ comments, start, title, ...rest }: PlaceProps & { tit
         <aside className="flex w-[380px] shrink-0 flex-col border-l border-border-subtle bg-bg-surface">
           <Header>
             <span className="flex-1">Thread</span>
+            {isResolved(thread) && <span className="rounded-full border border-success-outline bg-success-wash px-2 text-caption text-success-default">Resolved</span>}
             <IconButton aria-label="Close" tooltip="Close" onClick={() => setOpen(undefined)}>
               <IconX size={16} stroke={1.5} />
             </IconButton>

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { userEvent, within } from 'storybook/test'
 import { ITEM, ready } from '../../src/linked.examples'
-import { FIRST, FOURTH, LINKS, ON_WORDS, SECOND, THIRD, type Comment } from './fixtures'
+import { FIRST, FOURTH, LINKS, LONG_NOTE, ON_WORDS, SECOND, THIRD, type Comment } from './fixtures'
 import { REFUSED } from './Conversation'
 import { Narrow } from './Places'
 
@@ -26,11 +26,20 @@ export const AComment: Story = { name: 'A comment', render: () => <Narrow commen
 /** Its thread open under it: the replies, Resolve and the box. */
 export const ThreadOpen: Story = { name: 'Thread open', render: () => <Narrow comments={[FIRST]} start={open(FIRST)} /> }
 
-/** A resolved thread, folded where it was said: first line, who resolved it, the note, Reopen. */
+/** A resolved thread, folded where it was said: its head and first line, then who resolved it → the note in the green box, and Reopen. */
 export const Resolved: Story = { render: () => <Narrow comments={[SECOND, FIRST]} /> }
 
-/** A resolved thread opened again to read: who resolved it, with the reply that resolved it. */
-export const ResolvedRead: Story = { name: 'Resolved, opened to read', render: () => <Narrow comments={[SECOND]} start={open(SECOND)} /> }
+/** A long note: three lines in the green box, then Show all. */
+export const ResolvedLongNote: Story = {
+  name: 'Resolved, a long note',
+  render: () => <Narrow comments={[{ ...SECOND, resolutions: [{ ...SECOND.resolutions![0], note: LONG_NOTE }] }, FIRST]} />,
+}
+
+/** A resolved thread opened again to read: the replies, then who resolved it → the note, in the order it happened. */
+export const ResolvedRead: Story = {
+  name: 'Resolved, opened to read',
+  render: () => <Narrow comments={[{ ...SECOND, resolutions: [{ ...SECOND.resolutions![0], note: LONG_NOTE }] }]} start={open(SECOND)} />,
+}
 
 /** Reopened after a resolve: both lines stay, the newest counts. */
 export const Reopened: Story = {
@@ -42,7 +51,7 @@ export const Reopened: Story = {
   ),
 }
 
-/** Resolving: a note, optional, in place. */
+/** Resolving: the reply box becomes the resolution's, with its green bar; what you write is the note, or resolve without one. */
 export const Resolving: Story = { render: () => <Narrow comments={[FIRST]} start={{ ...open(FIRST), resolving: FIRST.id }} /> }
 
 /** A deleted comment: its reply kept under it, and no Reply or Resolve. */

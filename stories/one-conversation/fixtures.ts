@@ -58,8 +58,6 @@ export interface Comment {
   replies?: Comment[]
   /** Every resolve and reopen, oldest first: the last one is the thread's state. */
   resolutions?: Resolution[]
-  /** A reply that resolved the thread as it was sent. */
-  resolvesThread?: boolean
 }
 
 const words = (text: string): Line => [{ text }]
@@ -100,9 +98,15 @@ export const SECOND: Comment = {
   by: 'two',
   at: '11:05',
   lines: [words('A resolved thread folds to its first line, who resolved it and the note, in the place it was said.')],
-  replies: [{ id: 'r3', by: 'one', at: '11:09', lines: [words('Resolving from the thread, with a note.')], resolvesThread: true }],
-  resolutions: [{ resolved: true, by: 'one', at: '11:09', note: 'Settled in the reply.' }],
+  replies: [{ id: 'r3', by: 'one', at: '11:08', lines: [words('A reply before it was resolved.')] }],
+  resolutions: [{ resolved: true, by: 'one', at: '11:09', note: 'The second option, as agreed.' }],
 }
+
+/** A resolution note a few sentences long, with a second paragraph: it folds to three lines in the list and reads whole in the thread. */
+export const LONG_NOTE =
+  'The second option, as agreed: the line stays where it was said, and the note says what was settled in words anyone outside the thread understands. ' +
+  'The first option goes to the list of things to look at later.\n' +
+  'Anyone who may comment can reopen it, and the newest line counts.'
 
 export const THIRD: Comment = {
   id: 'c3',
