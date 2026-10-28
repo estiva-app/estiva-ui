@@ -11,7 +11,7 @@ A prototype, on the `concept/cross-app-navigation` branch only. It never merges,
 - **The app switcher** is top left. Peek, Ship and Leaf keep the same topic open, and each shows its own part of it: Peek the conversation, Ship the projects, Leaf the documents.
 - **The same sidebar in every app** has the app's home (Desk, My issues, Home), **Topics** (the ones with an end) and **Teams**. Under a team, Peek lists its spaces, Ship its projects and Leaf its documents.
 - **Peek's topic** has **All** (every conversation, each labelled with its file), **Main** (the topic's own conversation, what was shared up from its files, and your mentions) and **Files ▾** (one file's conversation). The files it lists are on the right, each with the team it lives in.
-- **View as** is in the person menu, top right. As Katerina, outside Engineering, you see Engineering's front door (*Ask Engineering*) and *Bugs*, but not its chat, and its projects show as "you can't open".
+- **View as** is in the person menu, top right. As Katerina, outside Engineering and Marketing, you see their front doors (*Ask Engineering*, *Bugs*, *Talk to Marketing*), but not their chats, and Engineering's projects show as "you can't open".
 
 ## The model drawn
 
@@ -24,8 +24,13 @@ A prototype, on the `concept/cross-app-navigation` branch only. It never merges,
 
 Miky decides the setup after clicking through this (28 October). The question behind it comes next, as its own brief: is the team that leads a space the same as who can read it? A front door and a shared space already say no.
 
-## Next iteration (Miky's sketch, 28 October)
+## Two variants to compare
 
-- **Peek**: a rail of Desk, Topics, Teams and People, with a list column beside it (#general, marketing, "talk to marketing"). A team's settings are private or public-facing. Is Desk one idea across apps?
-- **Ship**: Topics (= Initiative), Projects and Issues, then Teams. Desk has activity, "needs my attention" and "in progress, I'm managing it".
-- **Leaf**: a **Teams | Topics** toggle at the top of the sidebar, with Recent/Home, Open work and Starred. A topic need not belong to a team; if not, it defaults to Company.
+**Lens** draws one sidebar, the same in every app. **Per app (sketch)** draws Miky's sketch of 28 October: the same model and the same pages, but each app finds its way around in its own shape. Click both in all three apps.
+
+- **Peek**: a rail of **Desk, Topics, Teams and People**, with a list column beside it. Under Teams, each team's spaces sit flat under its name: *#general*, *marketing* (Marketing's own chat) and *Talk to Marketing* (its front door).
+- **Ship**: **Desk**, then **Topics** (Linear's Initiatives: each with the projects it lists), **Projects** and **Issues**, then **Teams**.
+- **Leaf**: a **Teams | Topics** toggle at the top of the sidebar, then Home, Open work and Starred. A topic without a team of its own is led by Company.
+- **One Desk**: *Needs your attention*, *In progress, you are running it* and *Activity*, the same in all three apps, with rows from every app. Opening a Leaf row from Ship's Desk goes to Leaf. Leaf calls it Home, as in the sketch.
+
+Not drawn: Issues, Open work, Starred, a conversation with a person.

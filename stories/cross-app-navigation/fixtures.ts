@@ -6,7 +6,7 @@
 
 export type App = 'peek' | 'ship' | 'leaf'
 export type PersonId = 'miky' | 'katerina' | 'agent'
-export type TeamId = 'company' | 'eng' | 'design' | 'steer'
+export type TeamId = 'company' | 'eng' | 'design' | 'steer' | 'marketing'
 
 export const PEOPLE: Record<PersonId, { name: string }> = {
   miky: { name: 'Miky' },
@@ -27,6 +27,7 @@ export const TEAMS: Team[] = [
   { id: 'eng', name: 'Engineering', private: true, members: ['miky', 'agent'] },
   { id: 'design', name: 'Design', members: ['katerina', 'miky'] },
   { id: 'steer', name: 'Steer', members: ['miky', 'agent'] },
+  { id: 'marketing', name: 'Marketing', private: true, members: ['miky'] },
 ]
 
 export const teamOf = (id: TeamId) => TEAMS.find((t) => t.id === id)!
@@ -154,6 +155,8 @@ export const TOPICS: Topic[] = [
   },
   { id: 'design-chat', title: 'Design', lead: 'design', ends: false, readers: 'team', role: 'chat', lists: [] },
   { id: 'steer-chat', title: 'Steer', lead: 'steer', ends: false, readers: 'team', role: 'chat', lists: ['p-agent-feedback', 'p-records-2'] },
+  { id: 'mkt-chat', title: 'Marketing', lead: 'marketing', ends: false, readers: 'team', role: 'chat', lists: [] },
+  { id: 'mkt-door', title: 'Talk to Marketing', lead: 'marketing', ends: false, readers: 'everyone', role: 'front-door', lists: [] },
 ]
 
 export const topicOf = (id: string) => TOPICS.find((t) => t.id === id)!
@@ -226,4 +229,54 @@ export const MESSAGES: Record<string, Message[]> = {
   'eng-design': [{ id: 'x1', by: 'katerina', at: 'Thu 11:00', on: 'p-one-conversation', body: 'Story for the replies row is up; can you check it builds from the shared piece?' }],
   'design-chat': [{ id: 'dc1', by: 'katerina', at: 'Thu 09:00', body: 'Moodboard for the Teams sidebar.' }],
   'steer-chat': [{ id: 'st1', by: 'agent', at: 'Fri 10:00', on: 'p-agent-feedback', body: 'ship edit-issue now keeps every unchanged block.' }],
+  'mkt-chat': [{ id: 'm1', by: 'miky', at: 'Thu 17:00', body: 'Draft of the Suits Update 13 post is in. Ship it Monday with the release?' }],
+  'mkt-door': [{ id: 'md1', by: 'katerina', at: 'Thu 16:00', body: 'Can the release post use the new Leaf screenshots? I can export them tonight.' }],
+}
+
+/**
+ * One row on the Desk: something from any app that is waiting on you, that you
+ * are running, or that just happened. `topic` or `file` is what it opens.
+ */
+export interface DeskRow {
+  id: string
+  app: App
+  title: string
+  detail: string
+  topic?: string
+  file?: string
+}
+
+/** The Desk, the same in every app (Miky's question, 28 October: is Desk one idea across apps?). */
+export const DESK: Record<'miky' | 'katerina', { needs: DeskRow[]; managing: DeskRow[]; activity: DeskRow[] }> = {
+  miky: {
+    needs: [
+      { id: 'dn1', app: 'ship', title: 'Ship opens instantly', detail: 'Estiva agent asked you: keep Peek’s copy on the device, or its own?', file: 'p-ship-instant' },
+      { id: 'dn2', app: 'peek', title: 'Ask Engineering', detail: 'Katerina: why does Leaf ask me to sign in again after a week?', topic: 'eng-door' },
+      { id: 'dn3', app: 'peek', title: 'Talk to Marketing', detail: 'Katerina: can the release post use the new Leaf screenshots?', topic: 'mkt-door' },
+    ],
+    managing: [
+      { id: 'dm1', app: 'ship', title: 'Navigation & structure in Nostr for Business', detail: 'Project you lead · Company', file: 'p-navigation' },
+      { id: 'dm2', app: 'leaf', title: 'Navigation', detail: 'Your document · in Navigation', file: 'd-navigation' },
+      { id: 'dm3', app: 'peek', title: 'Peek, Ship and Leaf are fast', detail: 'Topic you follow as a member · 3 new', topic: 'fast' },
+    ],
+    activity: [
+      { id: 'da1', app: 'ship', title: 'Apps read only what they show', detail: 'Estiva agent resolved “Leaf reads only what it draws”', file: 'p-read-only' },
+      { id: 'da2', app: 'peek', title: 'Widgets', detail: 'Katerina: one more look at the card before we call it done', topic: 'widgets' },
+      { id: 'da3', app: 'leaf', title: 'Testing Widgets', detail: 'You added three cases', file: 'd-testing-widgets' },
+    ],
+  },
+  katerina: {
+    needs: [
+      { id: 'kn1', app: 'leaf', title: 'Navigation', detail: 'Miky mentioned you: some thinking to pick up together', file: 'd-navigation' },
+      { id: 'kn2', app: 'peek', title: 'Bugs', detail: 'Miky filed your report in Leaf: Feedback & Bugs', topic: 'bugs' },
+    ],
+    managing: [
+      { id: 'km1', app: 'ship', title: 'One conversation in every app', detail: 'Project you lead · Design', file: 'p-one-conversation' },
+      { id: 'km2', app: 'leaf', title: 'Testing Widgets', detail: 'Your document · in Widgets', file: 'd-testing-widgets' },
+    ],
+    activity: [
+      { id: 'ka1', app: 'peek', title: 'General', detail: 'Miky: Estiva Suits Update 12 is out', topic: 'general' },
+      { id: 'ka2', app: 'ship', title: 'Widgets 2: build 2', detail: 'Estiva agent resolved “the card keeps its height while loading”', file: 'p-widgets-2' },
+    ],
+  },
 }

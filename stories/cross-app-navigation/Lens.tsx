@@ -52,7 +52,7 @@ import {
  * app's own kind of file. The switcher in the top bar keeps what is open.
  */
 
-const APPS: { id: App; name: string; theme: string; what: string }[] = [
+export const APPS: { id: App; name: string; theme: string; what: string }[] = [
   { id: 'peek', name: 'Peek', theme: 'signal', what: 'Conversations' },
   { id: 'ship', name: 'Ship', theme: 'ship', what: 'Projects and issues' },
   { id: 'leaf', name: 'Leaf', theme: 'leaf', what: 'Documents' },
@@ -61,7 +61,7 @@ const APPS: { id: App; name: string; theme: string; what: string }[] = [
 const appOfTheme = (theme?: string): App => APPS.find((a) => a.theme === theme)?.id ?? 'peek'
 
 /** The app follows the theme on <html>: the toolbar's, or the switcher's. */
-function useApp(): [App, (app: App) => void] {
+export function useApp(): [App, (app: App) => void] {
   const [app, setApp] = useState<App>(() => appOfTheme(document.documentElement.dataset.theme))
   useEffect(() => {
     const html = document.documentElement
@@ -82,31 +82,33 @@ function useApp(): [App, (app: App) => void] {
   return [app, switchTo]
 }
 
-type Selection = { type: 'home' } | { type: 'topic'; id: string } | { type: 'team'; id: TeamId } | { type: 'file'; id: string }
+export type Selection = { type: 'home' } | { type: 'topic'; id: string } | { type: 'team'; id: TeamId } | { type: 'file'; id: string }
 type PeekView = 'all' | 'main' | { file: string }
 
-const icon16 = { size: 16, stroke: 1.5 } as const
-const kindOf = (file: FileRow) => (file.app === 'ship' ? 'project' : 'file')
-const noun = (app: App, n: number) => (app === 'ship' ? (n === 1 ? 'project' : 'projects') : n === 1 ? 'document' : 'documents')
-const go = (fn: () => void) => (event: MouseEvent) => {
+export const icon16 = { size: 16, stroke: 1.5 } as const
+export const kindOf = (file: FileRow) => (file.app === 'ship' ? 'project' : 'file')
+export const noun = (app: App, n: number) => (app === 'ship' ? (n === 1 ? 'project' : 'projects') : n === 1 ? 'document' : 'documents')
+export const go = (fn: () => void) => (event: MouseEvent) => {
   event.preventDefault()
   fn()
 }
+/** The conversations with something new, as each person would see it. */
+export const unreadFor = (viewer: PersonId) => new Set(viewer === 'miky' ? ['fast', 'eng-door', 'mkt-door'] : ['navigation', 'bugs'])
 
-function readersLabel(topic: Topic) {
+export function readersLabel(topic: Topic) {
   if (topic.readers === 'everyone') return { icon: <IconWorld {...icon16} />, words: 'Everyone' }
   if (topic.readers === 'teams') return { icon: <IconUsersGroup {...icon16} />, words: (topic.shared ?? []).map((t) => teamOf(t).name).join(' and ') }
   return { icon: <IconLock {...icon16} />, words: `${teamOf(topic.lead).name} only` }
 }
 
-function spaceIcon(topic: Topic) {
+export function spaceIcon(topic: Topic) {
   if (topic.readers === 'teams') return <IconUsersGroup {...icon16} />
   if (topic.role === 'front-door') return <IconWorld {...icon16} />
   if (topic.readers === 'team' && topic.lead !== 'company') return <IconLock {...icon16} />
   return <IconHash {...icon16} />
 }
 
-function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
+export function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
   const current = APPS.find((a) => a.id === app)!
   return (
     <Menu
@@ -127,7 +129,7 @@ function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
   )
 }
 
-function ViewAs({ viewer, onViewer }: { viewer: PersonId; onViewer: (who: PersonId) => void }) {
+export function ViewAs({ viewer, onViewer }: { viewer: PersonId; onViewer: (who: PersonId) => void }) {
   return (
     <Menu align="right" trigger={<PersonTrigger name={PEOPLE[viewer].name} />}>
       <MenuItem label="View as Miky" description="In every team" selected={viewer === 'miky'} onClick={() => onViewer('miky')} />
@@ -153,7 +155,7 @@ function Nav({ app, viewer, selection, onSelect }: { app: App; viewer: PersonId;
     ]
   }
   const home = app === 'peek' ? { label: 'Desk', icon: <IconLayoutDashboard {...icon16} /> } : app === 'ship' ? { label: 'My issues', icon: <IconListCheck {...icon16} /> } : { label: 'Home', icon: <IconHome {...icon16} /> }
-  const unread = new Set(viewer === 'miky' ? ['fast', 'eng-door'] : ['navigation', 'bugs'])
+  const unread = unreadFor(viewer)
   return (
     <Sidebar aria-label={`${app} navigation`}>
       <NavItem href="#" label={home.label} icon={home.icon} active={selection.type === 'home'} onClick={go(() => onSelect({ type: 'home' }))} />
@@ -220,7 +222,7 @@ function Nav({ app, viewer, selection, onSelect }: { app: App; viewer: PersonId;
   )
 }
 
-function Header({ title, children, right }: { title: string; children?: ReactNode; right?: ReactNode }) {
+export function Header({ title, children, right }: { title: string; children?: ReactNode; right?: ReactNode }) {
   return (
     <div className="flex min-h-12 shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2">
       <span className="text-body-1 font-medium text-text-primary">{title}</span>
@@ -298,7 +300,7 @@ function MessageRow({ m, showFile, onFile }: { m: Message; showFile: boolean; on
 }
 
 /** Peek's topic: All, Main, or one listed file's conversation; the listed files beside it. */
-function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
+export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
   const [view, setView] = useState<PeekView>('main')
   useEffect(() => setView('main'), [topic.id])
   const listed = topic.lists.map(fileOf)
@@ -399,7 +401,7 @@ function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; view
 }
 
 /** Ship's and Leaf's topic: the app's own files the topic lists, from any team. */
-function FilesOfTopic({ topic, app, viewer, onApp, onSelect }: { topic: Topic; app: 'ship' | 'leaf'; viewer: PersonId; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
+export function FilesOfTopic({ topic, app, viewer, onApp, onSelect }: { topic: Topic; app: 'ship' | 'leaf'; viewer: PersonId; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
   const mine = topic.lists.map(fileOf).filter((f) => f.app === app)
   const open = mine.filter((f) => canReadFile(viewer, f))
   return (
@@ -426,7 +428,7 @@ function FilesOfTopic({ topic, app, viewer, onApp, onSelect }: { topic: Topic; a
   )
 }
 
-function FileList({ files, app, onSelect }: { files: FileRow[]; app: 'ship' | 'leaf'; onSelect: (s: Selection) => void }) {
+export function FileList({ files, app, onSelect }: { files: FileRow[]; app: 'ship' | 'leaf'; onSelect: (s: Selection) => void }) {
   return (
     <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">
       {files.map((f) => (
@@ -441,7 +443,7 @@ function FileList({ files, app, onSelect }: { files: FileRow[]; app: 'ship' | 'l
   )
 }
 
-function TeamPage({ team, app, viewer, onSelect }: { team: TeamId; app: App; viewer: PersonId; onSelect: (s: Selection) => void }) {
+export function TeamPage({ team, app, viewer, onSelect }: { team: TeamId; app: App; viewer: PersonId; onSelect: (s: Selection) => void }) {
   const t = teamOf(team)
   const member = t.members.includes(viewer)
   const files = FILES.filter((f) => f.team === team && f.app === app)
@@ -477,7 +479,7 @@ function TeamPage({ team, app, viewer, onSelect }: { team: TeamId; app: App; vie
             </div>
           </>
         ) : !member && t.private ? (
-          <EmptyState scope="section" message={`${t.name} is private. Its ${noun(app, 2)} are for its members; talk to it through Ask ${t.name} in Peek.`} />
+          <EmptyState scope="section" message={`${t.name} is private. Its ${noun(app, 2)} are for its members; talk to it through ${spacesOf(team).find((s) => s.role === 'front-door')?.title ?? 'its front door'} in Peek.`} />
         ) : (
           <>
             <SectionLabel tone="muted">{app === 'ship' ? 'Its projects' : 'Its documents'}</SectionLabel>
@@ -500,7 +502,7 @@ function TeamPage({ team, app, viewer, onSelect }: { team: TeamId; app: App; vie
 }
 
 /** A project or a document: one team, any number of topics. */
-function FilePage({ id, app, onSelect }: { id: string; app: App; onSelect: (s: Selection) => void }) {
+export function FilePage({ id, app, onSelect }: { id: string; app: App; onSelect: (s: Selection) => void }) {
   const f = fileOf(id)
   const topics = TOPICS.filter((t) => t.lists.includes(id))
   return (
