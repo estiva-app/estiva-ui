@@ -1,6 +1,6 @@
 {
   "name": "@estiva-app/ui",
-  "version": "0.88.1",
+  "version": "0.89.0",
   "description": "Estiva's design tokens (the contract) and a small set of primitives (a convenience) for every Estiva app.",
   "type": "module",
   "license": "MIT",
@@ -133,8 +133,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@estiva-app/conversation": "^0.17.0",
-    "@estiva-app/protocol": "^0.41.0",
+    "@estiva-app/conversation": "^0.22.0",
+    "@estiva-app/protocol": "^0.45.0",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/addon-docs": "^10.5.10",
     "@storybook/addon-vitest": "^10.6.0",
