@@ -34,7 +34,7 @@ export const Ship: Story = {
   render: () => <PerApp start={{ type: 'page', id: 'topics' }} />,
 }
 
-/** Leaf: a Teams | Topics toggle at the top of the sidebar, then Home, Open work and Starred. */
+/** Leaf: Home, Open work and Starred, then a Teams | Topics toggle heading the tree it switches. */
 export const Leaf: Story = {
   globals: { theme: 'leaf' },
   render: () => <PerApp start={{ type: 'file', id: 'd-navigation' }} />,

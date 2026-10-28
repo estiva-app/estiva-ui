@@ -217,7 +217,11 @@ function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
   const item = (label: string, icon: ReactNode, to: Place) => <NavItem href="#" label={label} icon={icon} active={same(place, to)} onClick={go(() => onOpen(to))} />
   return (
     <Sidebar aria-label="leaf navigation">
-      <div className="px-2 pb-3">
+      {item('Home', <IconHome {...icon16} />, { type: 'home' })}
+      {item('Open work', <IconClock {...icon16} />, { type: 'page', id: 'open-work' })}
+      {item('Starred', <IconStar {...icon16} />, { type: 'page', id: 'starred' })}
+      {/* The toggle heads the tree it switches (Miky, 28 October: at the top it read as apart from it). */}
+      <div className="px-2 pb-2 pt-4">
         <Tabs<'teams' | 'topics'>
           aria-label="Show documents by"
           size="small"
@@ -228,12 +232,6 @@ function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
             { id: 'topics', label: 'Topics' },
           ]}
         />
-      </div>
-      {item('Home', <IconHome {...icon16} />, { type: 'home' })}
-      {item('Open work', <IconClock {...icon16} />, { type: 'page', id: 'open-work' })}
-      {item('Starred', <IconStar {...icon16} />, { type: 'page', id: 'starred' })}
-      <div className="px-2 pb-1 pt-4">
-        <SectionLabel tone="muted">{by === 'teams' ? 'Teams' : 'Topics'}</SectionLabel>
       </div>
       {by === 'teams'
         ? TEAMS.map((team) => {
