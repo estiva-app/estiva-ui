@@ -101,12 +101,16 @@ export function readersLabel(topic: Topic) {
   return { icon: <IconLock {...icon16} />, words: `${teamOf(topic.lead).name} only` }
 }
 
+/** Three kinds of discussion space in Peek, three icons (Miky, 28 Oct): a team's chat, a space two teams share, and a topic, lasting ones like Bugs included. */
 export function spaceIcon(topic: Topic) {
-  if (topic.readers === 'teams') return <IconUsersGroup {...icon16} />
-  if (topic.role === 'front-door') return <IconWorld {...icon16} />
-  if (topic.readers === 'team' && topic.lead !== 'company') return <IconLock {...icon16} />
-  return <IconHash {...icon16} />
+  if (topic.role === 'chat') return <IconHash {...icon16} />
+  if (isCrossTeam(topic)) return <IconUsersGroup {...icon16} />
+  return <KindIcon kind="topic" />
 }
+
+/** A team's chat or a space two teams share: just the conversation, with no All, Main or listed files. */
+export const isCrossTeam = (topic: Topic) => topic.readers === 'teams'
+export const isChatOnly = (topic: Topic) => topic.role === 'chat' || isCrossTeam(topic)
 
 export function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
   const current = APPS.find((a) => a.id === app)!
@@ -307,8 +311,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   const readable = listed.filter((f) => canReadFile(viewer, f))
   const all = (MESSAGES[topic.id] ?? []).filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
   const hidden = (MESSAGES[topic.id] ?? []).length - all.length
+  const chatOnly = isChatOnly(topic)
   const shown =
-    view === 'all' ? all : view === 'main' ? all.filter((m) => !m.on || m.sharedUp || m.mentions === viewer) : all.filter((m) => m.on === view.file)
+    chatOnly || view === 'all' ? all : view === 'main' ? all.filter((m) => !m.on || m.sharedUp || m.mentions === viewer) : all.filter((m) => m.on === view.file)
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
   return (
@@ -317,7 +322,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         <Header title={topic.title} right={<OtherApps topic={topic} app={app} viewer={viewer} onApp={onApp} />}>
           <TopicFacts topic={topic} />
         </Header>
-        <div className="flex items-center gap-2 border-b border-border-subtle px-4">
+        {!chatOnly && <div className="flex items-center gap-2 border-b border-border-subtle px-4">
           <Tabs<'all' | 'main' | 'file'>
             aria-label="What to show"
             size="small"
@@ -340,15 +345,15 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
               <MenuItem key={f.id} label={f.title} description={`${f.app === 'ship' ? 'Ship project' : 'Leaf document'} · ${teamOf(f.team).name}`} leading={<KindIcon kind={kindOf(f)} />} selected={chosen?.id === f.id} onClick={() => setView({ file: f.id })} />
             ))}
           </Menu>
-        </div>
+        </div>}
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
-          <p className="mb-4 text-caption text-text-muted">
+          {!chatOnly && <p className="mb-4 text-caption text-text-muted">
             {view === 'all'
               ? 'Everything: the topic’s own conversation and every listed file’s, each labelled with its file.'
               : view === 'main'
                 ? 'The topic’s own conversation, what was shared up from its files, and where you are mentioned.'
                 : `Only the conversation on ${chosen?.title}.`}
-          </p>
+          </p>}
           {shown.length === 0 ? (
             <EmptyState scope="section" message="Nothing here yet." />
           ) : (
@@ -364,7 +369,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           <div className="rounded-md border border-border-field bg-bg-field px-3 py-2 text-body-2 text-text-muted">{chosen ? `Write on ${chosen.title}…` : `Write to ${topic.title}…`}</div>
         </div>
       </div>
-      <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!chatOnly && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         <SectionLabel tone="muted">Listed files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(['ship', 'leaf'] as const).map((a) => {
@@ -395,7 +400,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         <button type="button" onClick={() => onSelect({ type: 'team', id: topic.lead })} className="mt-2 text-left text-caption text-text-secondary hover:text-text-primary">
           Led by {teamOf(topic.lead).name} →
         </button>
-      </aside>
+      </aside>}
     </div>
   )
 }

@@ -157,6 +157,7 @@ function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App
   if ((topic && !canReadTopic(viewer, topic)) || (place.type === 'file' && !canReadFile(viewer, fileOf(place.id)))) return <EmptyState message="You can’t open this." />
   switch (place.type) {
     case 'home':
+      if (app === 'peek') return <EmptyState message="Pick something from your Desk." />
       return <Desk viewer={viewer} app={app} title={app === 'leaf' ? 'Home' : 'Desk'} onOpen={onOpen} onApp={onApp} />
     case 'page':
       if (place.id === 'topics') return <TopicsPage viewer={viewer} onOpen={onOpen} />
@@ -291,8 +292,57 @@ function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place;
   })
 }
 
+const deskPlace = (row: DeskRow): Place => (row.topic ? { type: 'topic', id: row.topic } : { type: 'file', id: row.file! })
+const deskOf = (viewer: PersonId) => DESK[viewer === 'katerina' ? 'katerina' : 'miky']
+
+/** The first Peek row on the Desk, which Peek opens beside the list, as it does today. */
+const firstDeskPlace = (viewer: PersonId): Place => {
+  const desk = deskOf(viewer)
+  const row = [...desk.needs, ...desk.managing, ...desk.activity].find((r) => r.app === 'peek' && r.topic)
+  return row ? deskPlace(row) : { type: 'home' }
+}
+
+/**
+ * Peek's Desk as today's Peek draws it (Miky, 28 Oct): the Desk's rows in the
+ * list column, and the conversation open beside it. A row from Ship or Leaf
+ * goes to its app.
+ */
+function DeskList({ viewer, place, onShow, onApp }: { viewer: PersonId; place: Place; onShow: (p: Place) => void; onApp: (a: App) => void }) {
+  const desk = deskOf(viewer)
+  const unread = unreadFor(viewer)
+  const section = (label: string, rows: DeskRow[]) => (
+    <div key={label} className="flex flex-col gap-0.5 pb-3">
+      <div className="px-2 pb-1">
+        <SectionLabel tone="muted">{label}</SectionLabel>
+      </div>
+      {rows.map((row) => (
+        <NavItem
+          key={row.id}
+          href="#"
+          label={row.title}
+          tooltip={`${appName(row.app)}: ${row.detail}`}
+          icon={row.topic ? spaceIcon(topicOf(row.topic)) : <KindIcon kind={kindOf(fileOf(row.file!))} />}
+          unread={!!row.topic && unread.has(row.topic)}
+          active={same(place, deskPlace(row))}
+          onClick={go(() => {
+            if (row.app !== 'peek') onApp(row.app)
+            onShow(deskPlace(row))
+          })}
+        />
+      ))}
+    </div>
+  )
+  return (
+    <>
+      {section('Needs your attention', desk.needs)}
+      {section('In progress, you are running it', desk.managing)}
+      {section('Activity', desk.activity)}
+    </>
+  )
+}
+
 /** Peek: a rail of Desk, Topics, Teams and People, and the list column the rail chose. */
-function PeekFrame({ viewer, place, rail, onRail, onOpen, identity, logo, children }: { viewer: PersonId; place: Place; rail: RailId; onRail: (r: RailId) => void; onOpen: (p: Place) => void; identity: ReactNode; logo: ReactNode; children: ReactNode }) {
+function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identity, logo, children }: { viewer: PersonId; place: Place; rail: RailId; onRail: (r: RailId) => void; onOpen: (p: Place) => void; onShow: (p: Place) => void; onApp: (a: App) => void; identity: ReactNode; logo: ReactNode; children: ReactNode }) {
   const unread = unreadFor(viewer)
   const rails: { id: RailId; label: string; icon: ReactNode }[] = [
     { id: 'desk', label: 'Desk', icon: <IconLayoutDashboard size={20} stroke={1.5} /> },
@@ -301,7 +351,9 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, identity, logo, childr
     { id: 'people', label: 'People', icon: <IconUser size={20} stroke={1.5} /> },
   ]
   const list =
-    rail === 'topics'
+    rail === 'desk'
+      ? <DeskList viewer={viewer} place={place} onShow={onShow} onApp={onApp} />
+      : rail === 'topics'
       ? TOPICS.filter((t) => t.ends && canReadTopic(viewer, t)).map((t) => (
           <NavItem key={t.id} href="#" label={t.title} tooltip={`Led by ${teamOf(t.lead).name}`} icon={<KindIcon kind="topic" />} unread={unread.has(t.id)} active={same(place, { type: 'topic', id: t.id })} onClick={go(() => onOpen({ type: 'topic', id: t.id }))} />
         ))
@@ -328,7 +380,7 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, identity, logo, childr
               active={rail === r.id}
               onClick={go(() => {
                 onRail(r.id)
-                if (r.id === 'desk') onOpen({ type: 'home' })
+                if (r.id === 'desk') onShow(firstDeskPlace(viewer))
               })}
             />
           ))}
@@ -336,7 +388,7 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, identity, logo, childr
       }
     >
       <div className="flex h-full min-h-0">
-        <ListColumn title={rails.find((r) => r.id === rail)!.label} collapsed={rail === 'desk'}>
+        <ListColumn title={rails.find((r) => r.id === rail)!.label}>
           {list}
         </ListColumn>
         <div className="flex min-w-0 flex-1 flex-col">{children}</div>
@@ -353,8 +405,8 @@ export interface PerAppProps {
 export function PerApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'fast' } }: PerAppProps) {
   const [app, switchTo] = useApp()
   const [viewer, setViewer] = useState<PersonId>(firstViewer)
-  const [place, setPlace] = useState<Place>(start)
-  const [rail, setRail] = useState<RailId>(() => railFor(start, 'topics'))
+  const [place, setPlace] = useState<Place>(() => (start.type === 'home' && app === 'peek' ? firstDeskPlace(firstViewer) : start))
+  const [rail, setRail] = useState<RailId>(() => (start.type === 'home' ? 'desk' : railFor(start, 'topics')))
   const open = (next: Place) => {
     setPlace(next)
     setRail((current) => railFor(next, current))
@@ -365,7 +417,7 @@ export function PerApp({ viewer: firstViewer = 'miky', start = { type: 'topic', 
   return (
     <div className="h-screen overflow-hidden">
       {app === 'peek' ? (
-        <PeekFrame viewer={viewer} place={place} rail={rail} onRail={setRail} onOpen={open} identity={identity} logo={logo}>
+        <PeekFrame viewer={viewer} place={place} rail={rail} onRail={setRail} onOpen={open} onShow={setPlace} onApp={switchTo} identity={identity} logo={logo}>
           {content}
         </PeekFrame>
       ) : (

@@ -21,7 +21,14 @@ export const Peek: Story = {
   render: () => <PerApp />,
 }
 
-/** Peek's Teams: each team's spaces under its name, its chat, its front door, a space it shares. */
+/** Peek's Desk as today's Peek draws it: the Desk's rows in the list column, the conversation open beside it. */
+export const PeekDesk: Story = {
+  name: 'Peek, Desk',
+  globals: { theme: 'signal' },
+  render: () => <PerApp start={{ type: 'home' }} />,
+}
+
+/** Peek's Teams: each team's chat (#), its topics (Bugs, a front door), and a space it shares with another team. */
 export const PeekTeams: Story = {
   name: 'Peek, Teams',
   globals: { theme: 'signal' },
