@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.89.0",
+    "packageVersion": "0.90.0",
     "exports": 210,
     "typeExports": 211,
     "files": null
@@ -250,6 +250,18 @@
           "takes": "anything",
           "required": true,
           "note": "The navigation: a `Sidebar` in the solid manner, a `Rail` in the floating one."
+        },
+        {
+          "name": "navOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether the navigation is shown, in the solid and inset manners."
+        },
+        {
+          "name": "onNavOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
         },
         {
           "name": "children",
