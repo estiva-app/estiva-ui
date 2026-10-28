@@ -106,6 +106,8 @@ export function useConversation(initial: Comment[], start: Partial<ConversationS
       })
     },
     startResolving: (id?: string) => set((x) => ({ ...x, resolving: id })),
+    /** Resolve from the comment: its thread opens under it, with the box resolving. */
+    resolve: (id: string) => set((x) => ({ ...x, resolving: id, expanded: new Set([...x.expanded, id]) })),
     mark(id: string, resolved: boolean, note?: string) {
       set((x) => ({ ...x, resolving: undefined, expanded: new Set([...x.expanded].filter((e) => e !== id)) }))
       change(id, (c) => ({ ...c, resolutions: [...(c.resolutions ?? []), { resolved, by: ME, at: now(), note: note || undefined }] }))
@@ -252,7 +254,7 @@ const who = (r: Resolution) => `${r.by === ME ? 'You' : nameOf(r.by)} ${r.resolv
  * Under a resolved comment, in the list: who resolved it → the note, in a green
  * box. A long note folds to three lines, with Show all.
  */
-export function ResolutionBanner({ r, onReopen }: { r: Resolution; onReopen?: () => void }) {
+export function ResolutionBanner({ r }: { r: Resolution }) {
   const note = useRef<HTMLParagraphElement>(null)
   const [long, setLong] = useState(false)
   const [all, setAll] = useState(false)
@@ -260,30 +262,22 @@ export function ResolutionBanner({ r, onReopen }: { r: Resolution; onReopen?: ()
     const el = note.current
     if (el && !all) setLong(el.scrollHeight > el.clientHeight + 1)
   }, [r.note, all])
-  const reopen = onReopen && (
-    <Button size="small" variant="muted" onClick={onReopen}>
-      Reopen
-    </Button>
-  )
+  // One line sits centred in the box; a longer note starts at the icon's line. Reopen is in the comment's ⋯, not here.
+  const multi = long || all
   return (
-    <div className="flex items-start gap-2 rounded-md border border-success-outline bg-success-wash px-3 py-2">
-      <IconChecks size={16} stroke={1.5} className="mt-0.5 shrink-0 text-success-default" aria-hidden />
+    <div className={cn('flex gap-2 rounded-md border border-success-outline bg-success-wash px-3 py-2', multi ? 'items-start' : 'items-center')}>
+      <IconChecks size={16} stroke={1.5} className={cn('shrink-0 text-success-default', multi && 'mt-0.5')} aria-hidden />
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
         <p ref={note} className={cn('whitespace-pre-line text-body-2 text-text-primary', !all && 'line-clamp-3')}>
           <span className="font-medium text-success-default">{who(r)}</span>
           {r.note && <> → {r.note}</>}
         </p>
-        {/* A long note takes the box's width; Show all and Reopen sit under it. */}
-        {(long || all) && (
-          <div className="flex gap-1">
-            <Button size="small" variant="muted" onClick={() => setAll(!all)}>
-              {all ? 'Show less' : 'Show all'}
-            </Button>
-            {reopen}
-          </div>
+        {multi && (
+          <Button size="small" variant="muted" onClick={() => setAll(!all)}>
+            {all ? 'Show less' : 'Show all'}
+          </Button>
         )}
       </div>
-      {!(long || all) && reopen}
     </div>
   )
 }
@@ -316,11 +310,14 @@ export interface CardProps {
   urgentBar?: UrgentBar
   /** The way into the thread, drawn under the words: "2 replies" or "Reply". */
   threadLink?: ReactNode
+  /** Resolve, from the comment's own actions: the place opens the thread where it opens it, with the box resolving. */
+  onResolve?: () => void
 }
 
-/** One comment or reply, the same card in every app. */
-export function NoteCard({ comment, c, reply = false, archived = false, urgentBar = 'grey', threadLink }: CardProps) {
+/** One comment or reply, the same card in every app. Resolve sits in its actions; Reopen in its ⋯. */
+export function NoteCard({ comment, c, reply = false, archived = false, urgentBar = 'grey', threadLink, onResolve }: CardProps) {
   const mine = comment.by === ME
+  const resolved = !reply && isResolved(comment)
   const urgent = comment.lines.some((l) => Array.isArray(l) && l.some((r) => 'urgent' in r))
   const editing = c.editing === comment.id
   const size = reply ? 20 : 24
@@ -352,10 +349,16 @@ export function NoteCard({ comment, c, reply = false, archived = false, urgentBa
           {!archived && !editing && (
             <span className="flex items-center gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
               <AddReactionButton options={OPTIONS} onPick={(e) => c.react(comment.id, e)} />
-              {mine && (
+              {!reply && !resolved && onResolve && (
+                <IconButton aria-label="Resolve" tooltip="Resolve" onClick={onResolve}>
+                  <IconCircleCheck size={16} stroke={1.5} className="text-success-default" />
+                </IconButton>
+              )}
+              {(mine || resolved) && (
                 <Menu align="right" trigger={<IconButton aria-label="More" tooltip="More"><IconDots size={16} stroke={1.5} /></IconButton>}>
-                  <MenuItem label="Edit" onClick={() => c.edit(comment.id)} />
-                  <MenuItem label="Delete" destructive onClick={() => c.remove(comment.id)} />
+                  {resolved && <MenuItem label="Reopen" onClick={() => c.mark(comment.id, false)} />}
+                  {mine && <MenuItem label="Edit" onClick={() => c.edit(comment.id)} />}
+                  {mine && <MenuItem label="Delete" destructive onClick={() => c.remove(comment.id)} />}
                 </Menu>
               )}
             </span>
@@ -419,11 +422,10 @@ export function Thread({
   ].sort((a, b) => a.at.localeCompare(b.at))
   return (
     <div className="flex flex-col gap-3">
-      <NoteCard comment={comment} c={c} archived={archived} urgentBar={urgentBar} threadLink={threadLink} />
+      <NoteCard comment={comment} c={c} archived={archived} urgentBar={urgentBar} threadLink={threadLink} onResolve={() => c.resolve(comment.id)} />
       <div className="flex flex-col gap-3 border-l border-border-subtle pl-3">
         {timeline.map((t) => ('reply' in t && t.reply ? <NoteCard key={t.reply.id} comment={t.reply} c={c} reply archived={archived} urgentBar={urgentBar} /> : 'res' in t && t.res ? <ResolutionEvent key={`res${t.i}`} r={t.res} /> : null))}
       </div>
-      {c.resolving !== comment.id && <ThreadActions comment={comment} c={c} archived={archived} />}
       {/* An archived file says so once, in place of the box under the whole conversation. */}
       {!archived && (
         <Box
@@ -438,36 +440,25 @@ export function Thread({
   )
 }
 
-/** Resolve or Reopen for a thread; neither on a deleted comment or an archived file. Resolve turns the box below into the resolution's. */
-function ThreadActions({ comment, c, archived }: { comment: Comment; c: Conversation; archived: boolean }) {
-  if (archived || comment.deleted) return null
-  return (
-    <div className="flex justify-end">
-      {isResolved(comment) ? (
-        <Button size="small" variant="muted" onClick={() => c.mark(comment.id, false)}>
-          Reopen
-        </Button>
-      ) : (
-        <Button size="small" variant="resolve" leadingIcon={<IconCircleCheck />} onClick={() => c.startResolving(comment.id)}>
-          Resolve
-        </Button>
-      )}
-    </div>
-  )
-}
-
 /** A resolved thread, collapsed where it was said: its first line, who resolved it and the note. */
 export function Collapsed({ comment, c, onOpen, archived = false }: { comment: Comment; c: Conversation; onOpen: () => void; archived?: boolean }) {
   const first = comment.lines.find((l): l is Run[] => Array.isArray(l))
   const text = first?.map((r) => ('text' in r ? r.text : `@${nameOf('person' in r ? r.person : r.urgent)}`)).join('') ?? 'This comment was deleted.'
   const r = resolutionOf(comment)!
   const n = comment.replies?.length ?? 0
-  // The comment's own card, folded: its head and first line, then who resolved it → the note.
+  // The comment's own card, folded: its head and first line, then who resolved it → the note. Reopen is in its ⋯.
   return (
-    <div className="flex gap-2">
+    <div className="group relative flex gap-2">
+      {!archived && !comment.deleted && (
+        <span className="absolute top-0 right-0 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+          <Menu align="right" trigger={<IconButton aria-label="More" tooltip="More"><IconDots size={16} stroke={1.5} /></IconButton>}>
+            <MenuItem label="Reopen" onClick={() => c.mark(comment.id, false)} />
+          </Menu>
+        </span>
+      )}
       <Avatar name={nameOf(comment.by)} size={24} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <button type="button" onClick={onOpen} aria-label="Open the resolved thread" className="-mx-1 flex min-w-0 flex-col rounded-md px-1 text-left hover:bg-bg-hover">
+        <button type="button" onClick={onOpen} aria-label="Open the resolved thread" className="-mx-1 mr-7 flex min-w-0 flex-col rounded-md px-1 text-left hover:bg-bg-hover">
           <span className="flex min-h-6 items-center gap-2">
             <span className="truncate text-body-2 font-medium text-text-primary">{nameOf(comment.by)}</span>
             <span className="shrink-0 text-caption text-text-muted">{comment.at}</span>
@@ -476,7 +467,7 @@ export function Collapsed({ comment, c, onOpen, archived = false }: { comment: C
           </span>
           <span className="truncate text-body-2 text-text-secondary">{text}</span>
         </button>
-        <ResolutionBanner r={r} onReopen={archived || comment.deleted ? undefined : () => c.mark(comment.id, false)} />
+        <ResolutionBanner r={r} />
       </div>
     </div>
   )

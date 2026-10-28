@@ -23,10 +23,10 @@ const open = (c: Comment) => ({ expanded: new Set([c.id]) })
 /** A comment with a person named, a link alone on its line, reactions and "edited" with its time. */
 export const AComment: Story = { name: 'A comment', render: () => <Narrow comments={[FIRST]} /> }
 
-/** Its thread open under it: the replies, Resolve and the box. */
+/** Its thread open under it: the replies and the box. Resolve is the ✓ in the comment's actions, on hover. */
 export const ThreadOpen: Story = { name: 'Thread open', render: () => <Narrow comments={[FIRST]} start={open(FIRST)} /> }
 
-/** A resolved thread, folded where it was said: its head and first line, then who resolved it → the note in the green box, and Reopen. */
+/** A resolved thread, folded where it was said: its head and first line, then who resolved it → the note in the green box. Reopen is in its ⋯. */
 export const Resolved: Story = { render: () => <Narrow comments={[SECOND, FIRST]} /> }
 
 /** A long note: three lines in the green box, then Show all. */

@@ -53,6 +53,12 @@ export function List({
               archived={archived}
               urgentBar={urgentBar}
               threadLink={<ThreadLink comment={comment} onClick={() => (opens === 'beside' ? onOpen?.(comment.id) : c.toggle(comment.id))} />}
+              onResolve={() => {
+                if (opens === 'beside') {
+                  onOpen?.(comment.id)
+                  c.startResolving(comment.id)
+                } else c.resolve(comment.id)
+              }}
             />
           </div>
         )
@@ -109,8 +115,9 @@ export function PeekPane({ comments, start, title, ...rest }: PlaceProps & { tit
       {thread && (
         <aside className="flex w-[380px] shrink-0 flex-col border-l border-border-subtle bg-bg-surface">
           <Header>
-            <span className="flex-1">Thread</span>
-            {isResolved(thread) && <span className="rounded-full border border-success-outline bg-success-wash px-2 text-caption text-success-default">Resolved</span>}
+            <span className="flex-1">Replies</span>
+            {/* Peek's resolved label, at the top of the column and green. */}
+            {isResolved(thread) && <span className="rounded-full border border-success-outline bg-success-wash px-2 py-0.5 text-caption font-medium text-success-default">Resolved</span>}
             <IconButton aria-label="Close" tooltip="Close" onClick={() => setOpen(undefined)}>
               <IconX size={16} stroke={1.5} />
             </IconButton>
