@@ -1,6 +1,6 @@
 import { Fragment, useState, type MouseEvent, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconArrowBigUpLine, IconChecks, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
+import { IconChecks, IconShare3, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Button } from '../../src/Button'
@@ -180,10 +180,7 @@ export function SentCard({ m, up, readable, viewer, selected, onFile, onOpen }: 
         <Avatar name={nameOf(up.by)} size={24} />
         <div className="flex items-center gap-2">
           <span className="whitespace-nowrap text-body-2-strong text-text-primary">{nameOf(up.by)}</span>
-          <span className="flex items-center gap-1 whitespace-nowrap text-caption text-accent-text">
-            <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
-            sent this up
-          </span>
+          {/* No verb on the card: the sender, their line and the thread say enough (Miky, 29 Oct, to judge). */}
           <span className={META}>{up.at}</span>
         </div>
         {up.note && (
@@ -369,11 +366,12 @@ export function ThreadPanel({
           <Button
             variant="outlined"
             size="small"
-            leadingIcon={<IconArrowBigUpLine size={16} stroke={1.5} />}
-            disabledReason={open.length > 0 ? undefined : places.length === 0 ? 'No topic you read lists this file' : 'Already sent to every topic that lists this file'}
+            leadingIcon={<IconShare3 size={16} stroke={1.5} />}
+            disabledReason={open.length > 0 ? undefined : places.length === 0 ? 'No topic you read lists this file' : 'Already shared to every topic that lists this file'}
             onClick={() => setSending(true)}
           >
-            Send to topic
+            {/* Share, the action's word (Miky, 29 Oct). */}
+            Share
           </Button>
         )}
         <IconButton aria-label="Close the thread" tooltip="Close" onClick={onClose}>
@@ -400,8 +398,8 @@ export function ThreadPanel({
             </span>
             {sentTo.map(({ topic, up }) => (
               <span key={topic} className="flex items-center gap-1 text-caption text-text-muted">
-                <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
-                {up.by === viewer ? 'You' : nameOf(up.by)} sent this to {places.find((p) => p.id === topic)?.title ?? 'a topic'} · {up.at}
+                <IconShare3 size={14} stroke={1.5} aria-hidden />
+                {up.by === viewer ? 'You' : nameOf(up.by)} shared this to {places.find((p) => p.id === topic)?.title ?? 'a topic'} · {up.at}
               </span>
             ))}
           </div>
@@ -476,7 +474,7 @@ function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places
           Cancel
         </Button>
         <Button variant="primary" size="small" type="submit" disabledReason={topics.length === 0 ? 'Tick a topic first' : undefined}>
-          Send
+          Share
         </Button>
       </div>
     </form>
