@@ -1,5 +1,5 @@
 import { useContext, useState, type ReactNode } from 'react'
-import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
+import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStack2, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
 import { Button } from '../../src/Button'
@@ -19,7 +19,7 @@ import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { ActivityVariant, Following, NewDot, hasNewActivity } from './PeekConversation'
-import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
+import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type TeamId, type Topic } from './fixtures'
 import {
   APPS,
   AppSwitcher,
@@ -51,8 +51,9 @@ import {
  * The Desk is the same in all three.
  */
 
-type Page = 'topics' | 'projects' | 'issues' | 'open-work' | 'starred'
-type Place = Selection | { type: 'page'; id: Page } | { type: 'person'; id: PersonId }
+type Page = 'topics' | 'projects' | 'issues' | 'views' | 'open-work' | 'starred'
+/** A page, or a team's own page when `team` is set (Ship's Topics, Projects, Issues and Views under a team). */
+type Place = Selection | { type: 'page'; id: Page; team?: TeamId } | { type: 'person'; id: PersonId }
 type RailId = 'desk' | 'topics' | 'teams' | 'people'
 
 const same = (a: Place, b: Place) => JSON.stringify(a) === JSON.stringify(b)
@@ -123,14 +124,16 @@ function Desk({ viewer, app, title, onOpen, onApp }: { viewer: PersonId; app: Ap
 }
 
 /** Ship's Topics: what the company is focused on, each with the projects it lists (Linear's Initiatives). */
-function TopicsPage({ viewer, onOpen }: { viewer: PersonId; onOpen: (p: Place) => void }) {
+function TopicsPage({ viewer, team, onOpen }: { viewer: PersonId; team?: TeamId; onOpen: (p: Place) => void }) {
+  const topics = TOPICS.filter((t) => t.ends && canReadTopic(viewer, t) && (!team || t.lead === team))
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <Header title="Topics">
-        <span className="text-caption text-text-muted">What the company is focused on now. Each one ends.</span>
+      <Header title={team ? `${teamOf(team).name} · Topics` : 'Topics'}>
+        <span className="text-caption text-text-muted">{team ? 'The topics this team leads.' : 'What the company is focused on now. Each one ends.'}</span>
       </Header>
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
-        {TOPICS.filter((t) => t.ends && canReadTopic(viewer, t)).map((t) => {
+        {topics.length === 0 && <EmptyState scope="section" message="This team leads no topic." />}
+        {topics.map((t) => {
           const projects = t.lists.map(fileOf).filter((f) => f.app === 'ship')
           const open = projects.filter((f) => canReadFile(viewer, f))
           return (
@@ -160,13 +163,14 @@ function TopicsPage({ viewer, onOpen }: { viewer: PersonId; onOpen: (p: Place) =
 }
 
 /** Ship's Projects: every project, with the team it lives in. */
-function ProjectsPage({ viewer, onOpen }: { viewer: PersonId; onOpen: (p: Place) => void }) {
-  const projects = FILES.filter((f) => f.app === 'ship')
+function ProjectsPage({ viewer, team, onOpen }: { viewer: PersonId; team?: TeamId; onOpen: (p: Place) => void }) {
+  const projects = FILES.filter((f) => f.app === 'ship' && (!team || f.team === team))
   const open = projects.filter((f) => canReadFile(viewer, f))
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <Header title="Projects" />
+      <Header title={team ? `${teamOf(team).name} · Projects` : 'Projects'} />
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+        {projects.length === 0 && <EmptyState scope="section" message="No projects in this team." />}
         <FileList files={open} app="ship" onSelect={onOpen} />
         {projects.length > open.length && (
           <p className="flex items-center gap-1 text-caption text-text-muted">
@@ -186,10 +190,11 @@ function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App
   switch (place.type) {
     case 'home':
       if (app === 'peek') return <EmptyState message="Pick something from your Desk." />
-      return <Desk viewer={viewer} app={app} title={app === 'leaf' ? 'Home' : 'Desk'} onOpen={onOpen} onApp={onApp} />
+      // Ship's is Home too (Miky, 29 Oct).
+      return <Desk viewer={viewer} app={app} title="Home" onOpen={onOpen} onApp={onApp} />
     case 'page':
-      if (place.id === 'topics') return <TopicsPage viewer={viewer} onOpen={onOpen} />
-      if (place.id === 'projects') return <ProjectsPage viewer={viewer} onOpen={onOpen} />
+      if (place.id === 'topics') return <TopicsPage viewer={viewer} team={place.team} onOpen={onOpen} />
+      if (place.id === 'projects') return <ProjectsPage viewer={viewer} team={place.team} onOpen={onOpen} />
       return <EmptyState message="Not drawn in this prototype." />
     case 'person':
       return <EmptyState message={`Your conversation with ${PEOPLE[place.id].name}. Not drawn in this prototype.`} />
@@ -215,12 +220,12 @@ function fileRows(files: FileRow[], app: 'ship' | 'leaf', viewer: PersonId, plac
 
 const teamIcon = (team: (typeof TEAMS)[number]) => (team.private ? <IconLock {...icon16} /> : <IconUsers {...icon16} />)
 
-/** Ship: Desk, then Topics, Projects and Issues, then Teams. */
+/** Ship: Home, then Topics, Projects and Issues, then Teams, each opening to its own Topics, Projects, Issues and Views (Miky, 29 Oct). */
 function ShipNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; onOpen: (p: Place) => void }) {
-  const item = (label: string, icon: ReactNode, to: Place) => <NavItem href="#" label={label} icon={icon} active={same(place, to)} onClick={go(() => onOpen(to))} />
+  const item = (label: string, icon: ReactNode, to: Place) => <NavItem key={label} href="#" label={label} icon={icon} active={same(place, to)} onClick={go(() => onOpen(to))} />
   return (
     <Sidebar aria-label="ship navigation">
-      {item('Desk', <IconLayoutDashboard {...icon16} />, { type: 'home' })}
+      {item('Home', <IconHome {...icon16} />, { type: 'home' })}
       <div className="pt-3" />
       {item('Topics', <IconTarget {...icon16} />, { type: 'page', id: 'topics' })}
       {item('Projects', <KindIcon kind="project" />, { type: 'page', id: 'projects' })}
@@ -228,14 +233,14 @@ function ShipNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
       <div className="px-2 pb-1 pt-4">
         <SectionLabel tone="muted">Teams</SectionLabel>
       </div>
-      {TEAMS.map((team) => {
-        const rows = fileRows(FILES.filter((f) => f.team === team.id), 'ship', viewer, place, onOpen)
-        return (
-          <NavItem key={team.id} href="#" label={team.name} icon={teamIcon(team)} active={same(place, { type: 'team', id: team.id })} onClick={go(() => onOpen({ type: 'team', id: team.id }))} defaultOpen={false}>
-            {rows.length > 0 ? rows : undefined}
-          </NavItem>
-        )
-      })}
+      {TEAMS.map((team) => (
+        <NavItem key={team.id} href="#" label={team.name} icon={teamIcon(team)} active={same(place, { type: 'team', id: team.id })} onClick={go(() => onOpen({ type: 'team', id: team.id }))} defaultOpen={false}>
+          {item('Topics', <IconTarget {...icon16} />, { type: 'page', id: 'topics', team: team.id })}
+          {item('Projects', <KindIcon kind="project" />, { type: 'page', id: 'projects', team: team.id })}
+          {item('Issues', <IconListCheck {...icon16} />, { type: 'page', id: 'issues', team: team.id })}
+          {item('Views', <IconStack2 {...icon16} />, { type: 'page', id: 'views', team: team.id })}
+        </NavItem>
+      ))}
     </Sidebar>
   )
 }

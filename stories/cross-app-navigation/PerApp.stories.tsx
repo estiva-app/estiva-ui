@@ -42,7 +42,7 @@ export const PeekTeams: Story = {
   render: () => <PerApp start={{ type: 'topic', id: 'general' }} />,
 }
 
-/** Ship: Desk, then Topics, Projects and Issues, then Teams. */
+/** Ship: Home, then Topics, Projects and Issues, then Teams, each with its Topics, Projects, Issues and Views. */
 export const Ship: Story = {
   globals: { theme: 'ship' },
   render: () => <PerApp start={{ type: 'page', id: 'topics' }} />,
