@@ -1,4 +1,4 @@
-import { Fragment, useState, type MouseEvent, type ReactNode } from 'react'
+import { Fragment, createContext, useContext, useState, type MouseEvent, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
 import { IconArrowForwardUp, IconChecks, IconCircleCheck, IconShare3, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
@@ -354,6 +354,14 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
  * `main` is the topic they are on, when it has a Main; `sentTo` says where it
  * already went, and by whom.
  */
+/**
+ * Which story is drawn: Activity in the column, behind the dot, or behind the
+ * dot with the topic's icon as how you follow it (Miky, 29 Oct).
+ */
+export const ActivityVariant = createContext<'column' | 'dot' | 'follow'>('column')
+/** Main is Important in the Follow story (Miky, 29 Oct); the older stories keep Main, to compare. */
+export const useMainWord = () => (useContext(ActivityVariant) === 'follow' ? 'Important' : 'Main')
+
 export function ThreadPanel({
   m,
   viewer,
@@ -373,6 +381,7 @@ export function ThreadPanel({
 }) {
   const [sent, setSent] = useState<Reply[]>([])
   const [sending, setSending] = useState(false)
+  const word = useMainWord()
   const file = m.on ? fileOf(m.on) : undefined
   const open = places.filter((p) => !sentTo.some((s) => s.topic === p.id))
   // Share to Main only for a file's thread, on a topic that lists the file and has a Main.
@@ -421,7 +430,7 @@ export function ThreadPanel({
             {sentTo.map(({ topic, up }) => (
               <span key={topic} className="flex items-center gap-1 text-caption text-text-muted">
                 {up.forwarded ? <IconArrowForwardUp size={14} stroke={1.5} aria-hidden /> : <IconShare3 size={14} stroke={1.5} aria-hidden />}
-                {up.by === viewer ? 'You' : nameOf(up.by)} {up.forwarded ? 'forwarded this to' : 'shared this to Main in'} {places.find((p) => p.id === topic)?.title ?? 'a conversation'} · {up.at}
+                {up.by === viewer ? 'You' : nameOf(up.by)} {up.forwarded ? 'forwarded this to' : `shared this to ${word} in`} {places.find((p) => p.id === topic)?.title ?? 'a conversation'} · {up.at}
               </span>
             ))}
           </div>
@@ -499,6 +508,7 @@ function ShareThread({ file, main, places, onCancel, onSend }: { file?: FileRow;
   const [to, setTo] = useState<Place>()
   const [query, setQuery] = useState('')
   const [note, setNote] = useState('')
+  const word = useMainWord()
   const matches = query.trim() ? places.filter((p) => startsAWord(p.title, query.trim())).slice(0, 5) : []
   const target = how === 'main' ? main : to
   return (
@@ -511,7 +521,7 @@ function ShareThread({ file, main, places, onCancel, onSend }: { file?: FileRow;
     >
       {main && (
         <div role="radiogroup" aria-label="Share" className="flex flex-col gap-1.5">
-          <Choice on={how === 'main'} icon={<IconShare3 size={16} stroke={1.5} />} label={`Share to Main in ${main.title}`} hint="An important update: everyone in the topic sees it in Main." onPick={() => setHow('main')} />
+          <Choice on={how === 'main'} icon={<IconShare3 size={16} stroke={1.5} />} label={`Share to ${word} in ${main.title}`} hint={`An important update: everyone in the topic sees it${word === 'Main' ? ' in Main' : ', however they follow it'}.`} onPick={() => setHow('main')} />
           <Choice on={how === 'forward'} icon={<IconArrowForwardUp size={16} stroke={1.5} />} label="Forward somewhere else" hint="To one conversation you read." onPick={() => setHow('forward')} />
         </div>
       )}
@@ -552,7 +562,7 @@ function ShareThread({ file, main, places, onCancel, onSend }: { file?: FileRow;
           Cancel
         </Button>
         <Button variant="primary" size="small" type="submit" disabledReason={target ? undefined : 'Pick where it goes first'}>
-          {how === 'main' ? 'Share to Main' : 'Forward'}
+          {how === 'main' ? `Share to ${word}` : 'Forward'}
         </Button>
       </div>
     </form>

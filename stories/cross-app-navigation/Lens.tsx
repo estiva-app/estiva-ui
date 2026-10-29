@@ -1,8 +1,9 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react'
+import { useContext, useEffect, useState, type MouseEvent, type ReactNode } from 'react'
 import {
   IconArrowUpRight,
   IconCheck,
   IconChevronDown,
+  IconCircle,
   IconHash,
   IconHome,
   IconLayoutDashboard,
@@ -14,6 +15,7 @@ import {
   IconUsers,
   IconUsersGroup,
   IconWorld,
+  IconX,
 } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
@@ -28,7 +30,7 @@ import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { EmptyState } from '../../src/EmptyState'
 import { KindIcon } from '../../src/KindIcon'
-import { Menu, MenuItem } from '../../src/Menu'
+import { Menu, MenuItem, MenuSection } from '../../src/Menu'
 import { NavItem } from '../../src/NavItem'
 import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
@@ -37,8 +39,8 @@ import { TooltipTrigger } from '../../src/Tooltip'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ScrollArea } from '../../src/ScrollArea'
-import { ActivityDot, PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
-import { post, setStatus, usePosted, useStatuses } from './posted'
+import { ActivityDot, ActivityVariant, PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf, useMainWord } from './PeekConversation'
+import { post, setFollow, setStatus, useFollow, useFollows, usePosted, useStatuses, type Follow } from './posted'
 import {
   FILES,
   MESSAGES,
@@ -123,6 +125,16 @@ export function spaceIcon(topic: Topic) {
   if (topic.role === 'dm') return (topic.members?.length ?? 0) > 2 ? <IconUsers {...icon16} /> : <IconUser {...icon16} />
   if (isCrossTeam(topic)) return <IconUsersGroup {...icon16} />
   return <KindIcon kind="topic" />
+}
+
+/** How you follow a topic, as its icon (Miky, 29 Oct): a dashed circle for Important, a full one for All. */
+export const FollowIcon = ({ follow }: { follow: Follow }) => (follow === 'all' ? <IconCircle {...icon16} aria-hidden /> : <KindIcon kind="topic" />)
+
+/** A space's icon in the sidebar; in the Follow story a topic's says how you follow it. */
+export function useSpaceIcon() {
+  const variant = useContext(ActivityVariant)
+  const follows = useFollows()
+  return (topic: Topic) => (variant === 'follow' && !isChatOnly(topic) ? <FollowIcon follow={follows[topic.id] ?? 'important'} /> : spaceIcon(topic))
 }
 
 /** A team's chat, a space two teams share or a direct conversation: just the conversation, with no All, Main or listed files. */
@@ -243,10 +255,11 @@ function Nav({ app, viewer, selection, onSelect }: { app: App; viewer: PersonId;
   )
 }
 
-export function Header({ title, locked = false, children, right }: { title: string; locked?: boolean; children?: ReactNode; right?: ReactNode }) {
+export function Header({ title, icon, locked = false, children, right }: { title: string; icon?: ReactNode; locked?: boolean; children?: ReactNode; right?: ReactNode }) {
   return (
     <div className="flex min-h-12 shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2">
       <span className="flex items-center gap-1 text-body-1 font-medium text-text-primary">
+        {icon}
         {locked && <IconLock {...icon16} className="text-text-secondary" aria-label="Private" />}
         {title}
       </span>
@@ -338,9 +351,48 @@ function ViewToggle({ view, onView, counts, file }: { view: 'all' | 'main' | 'fi
   )
 }
 
+/**
+ * The Follow story's control (Miky, 29 Oct): the circle before the title says
+ * how you follow the topic, and you change it there, in place of All | Main.
+ * Important is the default.
+ */
+function FollowControl({ topic, counts }: { topic: Topic; counts: Record<Follow, number> }) {
+  const follow = useFollow(topic.id)
+  const item = (f: Follow, label: string, description: string) => (
+    <MenuItem
+      leading={<FollowIcon follow={f} />}
+      label={label}
+      description={description}
+      aside={String(counts[f])}
+      selected={follow === f}
+      trailing={follow === f ? <IconCheck {...icon16} /> : undefined}
+      onClick={() => setFollow(topic.id, f)}
+    />
+  )
+  return (
+    <Menu
+      trigger={
+        <button
+          type="button"
+          aria-label={`You follow ${follow === 'all' ? 'All' : 'Important'}: change how you follow ${topic.title}`}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+        >
+          <FollowIcon follow={follow} />
+        </button>
+      }
+    >
+      <MenuSection label="How you follow it">
+        {item('important', 'Important', 'What was said on the topic and what was shared to it')}
+        {item('all', 'All', 'Every conversation, the files’ too')}
+      </MenuSection>
+    </Menu>
+  )
+}
+
 /** Peek's topic: All, Main, or one listed file's conversation; the listed files beside it. */
-export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'column' }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void; activity?: 'column' | 'dot' }) {
+export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'column' }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void; activity?: 'column' | 'dot' | 'follow' }) {
   const [view, setView] = useState<PeekView>('main')
+  const follow = useFollow(topic.id)
   const [sent, setSent] = useState<Record<string, Message[]>>({})
   const [thread, setThread] = useState<string | null>(null)
   const [side, setSide] = useState(true)
@@ -367,7 +419,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
   const chatOnly = isChatOnly(topic)
   // Main: what was said on the topic itself, and the threads someone sent up by hand (Miky, 29 Oct). Resolving or a mention alone does not bring one here.
   const main = entries.filter((e) => !e.m.on || e.up)
-  const shown = chatOnly || view === 'all' ? entries : view === 'main' ? main : entries.filter((e) => e.m.on === view.file && e.readable)
+  // In the Follow story how you follow the topic is what it shows (Miky, 29 Oct); a file opened from the column still shows alone.
+  const current: PeekView = activity === 'follow' && typeof view === 'string' ? (follow === 'all' ? 'all' : 'main') : view
+  const shown = chatOnly || current === 'all' ? entries : current === 'main' ? main : entries.filter((e) => e.m.on === current.file && e.readable)
   // Where a thread can be shared: any conversation you read (Miky, 29 Oct); the form ticks the one you are on.
   const placesOf = (m: Message) =>
     [...TOPICS, ...DMS].filter((t) => canReadTopic(viewer, t)).map((t) => ({ id: t.id, title: t.role === 'dm' ? dmTitle(viewer, t) : t.title, icon: spaceIcon(t), listed: !!m.on && t.lists.includes(m.on) }))
@@ -385,14 +439,15 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
     }))
     return { ...card, linked: { ...card.linked, summary: f.summary, children, conversation: count ? { count, href: '#' } : undefined } }
   }
-  const tab = typeof view === 'string' ? view : 'file'
-  const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
+  const tab = typeof current === 'string' ? current : 'file'
+  const chosen = typeof current === 'string' ? undefined : fileOf(current.file)
   return (
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
           title={topic.role === 'dm' ? dmTitle(viewer, topic) : topic.title}
           locked={isPrivate(topic)}
+          icon={activity === 'follow' && !chatOnly ? <FollowControl topic={topic} counts={{ important: main.length, all: entries.length }} /> : undefined}
           right={
             <>
               {topic.role === 'dm' ? <AvatarGroup size={20} members={(topic.members ?? []).map((p) => ({ name: PEOPLE[p].name }))} /> : <TopicFacts topic={topic} />}
@@ -404,9 +459,19 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
             </>
           }
         >
+          {/* A file opened from the column, in the Follow story: its name after the topic's, and ✕ goes back to the topic. */}
+          {activity === 'follow' && chosen && (
+            <span className="flex items-center gap-1 rounded-md border border-border-subtle bg-bg-inset py-0.5 pl-2 pr-0.5 text-body-2-strong text-text-primary">
+              <KindIcon kind={kindOf(chosen)} />
+              <span className="max-w-48 truncate">{chosen.title}</span>
+              <IconButton aria-label={`Back to ${topic.title}`} tooltip={`Back to ${topic.title}`} onClick={() => setView('main')}>
+                <IconX size={14} stroke={1.5} />
+              </IconButton>
+            </span>
+          )}
           {/* The dot variant: Activity behind a dot between the title and All | Main (Miky, 29 Oct). */}
-          {activity === 'dot' && <ActivityDot viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} unread={unreadFor(viewer).has(topic.id)} onOpen={setThread} />}
-          {!chatOnly && <ViewToggle view={tab} onView={setView} counts={{ all: entries.length, main: main.length }} file={chosen} />}
+          {activity !== 'column' && <ActivityDot viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} unread={unreadFor(viewer).has(topic.id)} onOpen={setThread} />}
+          {!chatOnly && activity !== 'follow' && <ViewToggle view={tab} onView={setView} counts={{ all: entries.length, main: main.length }} file={chosen} />}
         </Header>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {shown.length === 0 ? (
@@ -424,7 +489,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
               )}
             </div>
           )}
-          {hidden > 0 && view === 'all' && <p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
+          {hidden > 0 && current === 'all' &&<p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
         </div>
         <div className="border-t border-border-subtle p-3">
           <PeekBox
@@ -605,6 +670,7 @@ const STATUSES = ['Planned', 'In progress', 'Completed']
  */
 function CompletedDialog({ file, viewer, onClose }: { file: FileRow; viewer: PersonId; onClose: () => void }) {
   const [body, setBody] = useState('')
+  const word = useMainWord()
   const topics = TOPICS.filter((t) => t.lists.includes(file.id) && !isChatOnly(t))
   return (
     <DialogShell
@@ -633,7 +699,7 @@ function CompletedDialog({ file, viewer, onClose }: { file: FileRow; viewer: Per
     >
       <div className="flex flex-col gap-3">
         <p className="text-body-2 text-text-primary">
-          {file.title} is completed. {topics.length > 0 ? `Say what it delivered, and it goes to Main in ${topics.map((t) => t.title).join(' and ')} as an Update.` : 'No topic lists it, so the update stays on the project.'}
+          {file.title} is completed. {topics.length > 0 ? `Say what it delivered, and it goes to ${word} in ${topics.map((t) => t.title).join(' and ')} as an Update.` : 'No topic lists it, so the update stays on the project.'}
         </p>
         <Field label="What it delivered">
           <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="What changed for people, and what moved elsewhere…" autoFocus />

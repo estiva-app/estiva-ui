@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { useContext, useState, type ReactNode } from 'react'
 import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
@@ -18,7 +18,7 @@ import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
 import { AvatarGroup } from '../../src/AvatarGroup'
-import { NewDot, hasNewActivity } from './PeekConversation'
+import { ActivityVariant, NewDot, hasNewActivity } from './PeekConversation'
 import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
 import {
   APPS,
@@ -38,6 +38,7 @@ import {
   spaceIcon,
   unreadFor,
   useApp,
+  useSpaceIcon,
   type Selection,
 } from './Lens'
 
@@ -56,8 +57,6 @@ type RailId = 'desk' | 'topics' | 'teams' | 'people'
 
 const same = (a: Place, b: Place) => JSON.stringify(a) === JSON.stringify(b)
 const appName = (app: App) => APPS.find((a) => a.id === app)!.name
-
-const ActivityVariant = createContext<'column' | 'dot'>('column')
 
 /**
  * The dot variant's sidebar row: blue for new messages (the row's own dot),
@@ -296,6 +295,7 @@ function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
 /** Peek's list column under Teams: each team's spaces, flat under its name (#general, marketing, Talk to Marketing). */
 function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place; onOpen: (p: Place) => void }) {
   const unread = unreadFor(viewer)
+  const iconOf = useSpaceIcon()
   return TEAMS.map((team) => {
     const spaces = spacesOf(team.id).filter((s) => canReadTopic(viewer, s))
     return (
@@ -310,7 +310,7 @@ function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place;
             href="#"
             label={s.role === 'chat' ? (team.id === 'company' ? 'general' : team.name.toLowerCase()) : s.title}
             tooltip={s.role === 'chat' ? (team.private ? 'The team’s own chat: members only' : 'The team’s own chat') : s.role === 'front-door' ? `Open to everyone: how others talk to ${team.name}` : readersLabel(s).words}
-            icon={spaceIcon(s)}
+            icon={iconOf(s)}
             unread={unread.has(s.id)}
             active={same(place, { type: 'topic', id: s.id })}
             onClick={go(() => onOpen({ type: 'topic', id: s.id }))}
@@ -429,6 +429,7 @@ function DeskList({ viewer, place, onShow, onApp }: { viewer: PersonId; place: P
 /** Peek: a rail of Desk, Topics, Teams and People, and the list column the rail chose. */
 function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identity, logo, children }: { viewer: PersonId; place: Place; rail: RailId; onRail: (r: RailId) => void; onOpen: (p: Place) => void; onShow: (p: Place) => void; onApp: (a: App) => void; identity: ReactNode; logo: ReactNode; children: ReactNode }) {
   const unread = unreadFor(viewer)
+  const iconOf = useSpaceIcon()
   const rails: { id: RailId; label: string; icon: ReactNode }[] = [
     { id: 'desk', label: 'Desk', icon: <IconLayoutDashboard size={20} stroke={1.5} /> },
     { id: 'topics', label: 'Topics', icon: <IconTarget size={20} stroke={1.5} /> },
@@ -441,7 +442,7 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
       : rail === 'topics'
       ? TOPICS.filter((t) => t.ends && canReadTopic(viewer, t)).map((t) => (
           <Row key={t.id} viewer={viewer} id={t.id} unread={unread.has(t.id)}>
-            <NavItem href="#" label={t.title} tooltip={`Led by ${teamOf(t.lead).name}`} icon={<KindIcon kind="topic" />} unread={unread.has(t.id)} active={same(place, { type: 'topic', id: t.id })} onClick={go(() => onOpen({ type: 'topic', id: t.id }))} />
+            <NavItem href="#" label={t.title} tooltip={`Led by ${teamOf(t.lead).name}`} icon={iconOf(t)} unread={unread.has(t.id)} active={same(place, { type: 'topic', id: t.id })} onClick={go(() => onOpen({ type: 'topic', id: t.id }))} />
           </Row>
         ))
       : rail === 'teams'
@@ -500,8 +501,12 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
 export interface PerAppProps {
   viewer?: PersonId
   start?: Place
-  /** Where Activity lives: its own column beside the files, or behind a dot by the title (Miky, 29 Oct, to compare). */
-  activity?: 'column' | 'dot'
+  /**
+   * Where Activity lives: its own column beside the files, or behind a dot by
+   * the title (Miky, 29 Oct, to compare); `follow` is the dot with the topic's
+   * icon as how you follow it, Important or All, in place of All | Main.
+   */
+  activity?: 'column' | 'dot' | 'follow'
 }
 
 export function PerApp(props: PerAppProps) {
