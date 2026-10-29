@@ -220,7 +220,11 @@ function fileRows(files: FileRow[], app: 'ship' | 'leaf', viewer: PersonId, plac
 
 const teamIcon = (team: (typeof TEAMS)[number]) => (team.private ? <IconLock {...icon16} /> : <IconUsers {...icon16} />)
 
-/** Ship: Home, then Topics, Projects and Issues, then Teams, each opening to its own Topics, Projects, Issues and Views (Miky, 29 Oct). */
+/** What the viewer starred in Ship, in this prototype: a topic and a project. */
+const SHIP_STARRED = ['widgets']
+const SHIP_STARRED_PROJECTS = ['p-widgets-2']
+
+/** Ship: Home, Topics, Projects, Issues and Views, then Starred, then Teams, each opening to its own Topics, Projects, Issues and Views (Miky, 29 Oct). */
 function ShipNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; onOpen: (p: Place) => void }) {
   const item = (label: string, icon: ReactNode, to: Place) => <NavItem key={label} href="#" label={label} icon={icon} active={same(place, to)} onClick={go(() => onOpen(to))} />
   return (
@@ -230,6 +234,13 @@ function ShipNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
       {item('Topics', <IconTarget {...icon16} />, { type: 'page', id: 'topics' })}
       {item('Projects', <KindIcon kind="project" />, { type: 'page', id: 'projects' })}
       {item('Issues', <IconListCheck {...icon16} />, { type: 'page', id: 'issues' })}
+      {item('Views', <IconStack2 {...icon16} />, { type: 'page', id: 'views' })}
+      {/* Starred, between the pages and Teams (Miky, 29 Oct): what you starred, a topic or a project. */}
+      <div className="px-2 pb-1 pt-4">
+        <SectionLabel tone="muted">Starred</SectionLabel>
+      </div>
+      {SHIP_STARRED.map(topicOf).filter((t) => canReadTopic(viewer, t)).map((t) => item(t.title, <KindIcon kind="topic" />, { type: 'topic', id: t.id }))}
+      {SHIP_STARRED_PROJECTS.map(fileOf).filter((f) => canReadFile(viewer, f)).map((f) => item(f.title, <KindIcon kind="project" />, { type: 'file', id: f.id }))}
       <div className="px-2 pb-1 pt-4">
         <SectionLabel tone="muted">Teams</SectionLabel>
       </div>
