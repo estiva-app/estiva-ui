@@ -244,6 +244,8 @@ export interface DeskRow {
   detail: string
   topic?: string
   file?: string
+  /** Marked urgent by whoever wrote it: Peek's Desk lists it under Urgent, not in the Screener. */
+  urgent?: boolean
 }
 
 /** The Desk, the same in every app (Miky's question, 28 October: is Desk one idea across apps?). */
@@ -252,7 +254,7 @@ export const DESK: Record<'miky' | 'katerina', { needs: DeskRow[]; managing: Des
     needs: [
       { id: 'dn1', app: 'ship', title: 'Ship opens instantly', detail: 'Estiva agent asked you: keep Peek’s copy on the device, or its own?', file: 'p-ship-instant' },
       { id: 'dn2', app: 'peek', title: 'Ask Engineering', detail: 'Katerina: why does Leaf ask me to sign in again after a week?', topic: 'eng-door' },
-      { id: 'dn3', app: 'peek', title: 'Talk to Marketing', detail: 'Katerina: can the release post use the new Leaf screenshots?', topic: 'mkt-door' },
+      { id: 'dn3', app: 'peek', title: 'Talk to Marketing', detail: 'Katerina: can the release post use the new Leaf screenshots?', topic: 'mkt-door', urgent: true },
     ],
     managing: [
       { id: 'dm1', app: 'ship', title: 'Navigation & structure in Nostr for Business', detail: 'Project you lead · Company', file: 'p-navigation' },

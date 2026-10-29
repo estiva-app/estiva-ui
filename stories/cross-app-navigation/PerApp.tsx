@@ -1,8 +1,14 @@
 import { useState, type ReactNode } from 'react'
-import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconStar, IconTarget, IconUser, IconUsers } from '@tabler/icons-react'
+import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
+import { Button } from '../../src/Button'
+import { Chip } from '../../src/Chip'
+import { CollapsibleSection } from '../../src/CollapsibleSection'
+import { Divider } from '../../src/Divider'
 import { EmptyState } from '../../src/EmptyState'
+import { IconButton } from '../../src/IconButton'
+import { SectionHeader } from '../../src/SectionHeader'
 import { KindIcon } from '../../src/KindIcon'
 import { ListColumn } from '../../src/ListColumn'
 import { NavItem } from '../../src/NavItem'
@@ -302,41 +308,96 @@ const firstDeskPlace = (viewer: PersonId): Place => {
   return row ? deskPlace(row) : { type: 'home' }
 }
 
+const deskIcon = (row: DeskRow) => (row.topic ? spaceIcon(topicOf(row.topic)) : <KindIcon kind={kindOf(fileOf(row.file!))} />)
+
+/** One Screener item as Peek draws it (ScreenerItem): who or what, a two-line preview, then Open, Later and Dismiss. */
+function ScreenerRow({ row, onOpen, onDismiss }: { row: DeskRow; onOpen: () => void; onDismiss: () => void }) {
+  return (
+    <div className="flex flex-col rounded-lg p-2 hover:bg-bg-hover has-[button:hover]:bg-transparent">
+      <div className="flex items-center gap-2">
+        {deskIcon(row)}
+        <span className="truncate text-body-2-strong text-text-primary">{row.title}</span>
+      </div>
+      <p className="line-clamp-2 py-1 pl-6 pr-2 text-caption text-text-secondary">{row.detail}</p>
+      <div className="flex items-center justify-between pl-6 pt-3">
+        <div className="flex items-center gap-2">
+          <Button variant="primary" size="small" onClick={onOpen}>
+            Open
+          </Button>
+          <Button variant="outlined" size="small" onClick={onDismiss}>
+            Later
+          </Button>
+        </div>
+        <IconButton variant="outlined" tooltip="Dismiss" aria-label="Dismiss" onClick={onDismiss}>
+          <IconX size={16} stroke={1.5} />
+        </IconButton>
+      </div>
+    </div>
+  )
+}
+
 /**
- * Peek's Desk as today's Peek draws it (Miky, 28 Oct): the Desk's rows in the
- * list column, and the conversation open beside it. A row from Ship or Leaf
- * goes to its app.
+ * Peek's Desk as Peek draws it today (peek-app DeskPage; Miky, 28 Oct): the
+ * Screener, Urgent, Open work and Starred in the list column, the conversation
+ * open beside it. Every section but Open work hides when it is empty. A row
+ * from Ship or Leaf goes to its app. Ship and Leaf keep the Desk as a page.
  */
 function DeskList({ viewer, place, onShow, onApp }: { viewer: PersonId; place: Place; onShow: (p: Place) => void; onApp: (a: App) => void }) {
   const desk = deskOf(viewer)
   const unread = unreadFor(viewer)
-  const section = (label: string, rows: DeskRow[]) => (
-    <div key={label} className="flex flex-col gap-0.5 pb-3">
-      <div className="px-2 pb-1">
-        <SectionLabel tone="muted">{label}</SectionLabel>
-      </div>
-      {rows.map((row) => (
-        <NavItem
-          key={row.id}
-          href="#"
-          label={row.title}
-          tooltip={`${appName(row.app)}: ${row.detail}`}
-          icon={row.topic ? spaceIcon(topicOf(row.topic)) : <KindIcon kind={kindOf(fileOf(row.file!))} />}
-          unread={!!row.topic && unread.has(row.topic)}
-          active={same(place, deskPlace(row))}
-          onClick={go(() => {
-            if (row.app !== 'peek') onApp(row.app)
-            onShow(deskPlace(row))
-          })}
-        />
-      ))}
-    </div>
+  const [opened, setOpened] = useState<DeskRow[]>([])
+  const [gone, setGone] = useState<Set<string>>(new Set())
+  const screener = desk.needs.filter((r) => !r.urgent && !gone.has(r.id))
+  const urgent = desk.needs.filter((r) => r.urgent)
+  const openWork = [...desk.managing, ...opened]
+  const starred = (Object.keys(PEOPLE) as PersonId[]).filter((p) => p !== viewer && p !== 'agent')
+  const show = (row: DeskRow) => {
+    if (row.app !== 'peek') onApp(row.app)
+    onShow(deskPlace(row))
+  }
+  const row = (r: DeskRow) => (
+    <NavItem key={r.id} href="#" label={r.title} tooltip={`${appName(r.app)}: ${r.detail}`} icon={deskIcon(r)} unread={!!r.topic && unread.has(r.topic)} active={same(place, deskPlace(r))} onClick={go(() => show(r))} />
   )
   return (
     <>
-      {section('Needs your attention', desk.needs)}
-      {section('In progress, you are running it', desk.managing)}
-      {section('Activity', desk.activity)}
+      {screener.length > 0 && (
+        <>
+          <CollapsibleSection title="Screener" trailing={<Chip type="brand" label={String(screener.length)} />} contentClassName="gap-0.5 mt-1">
+            {screener.map((r) => (
+              <ScreenerRow
+                key={r.id}
+                row={r}
+                onOpen={() => {
+                  setGone((g) => new Set([...g, r.id]))
+                  setOpened((o) => [...o, r])
+                  show(r)
+                }}
+                onDismiss={() => setGone((g) => new Set([...g, r.id]))}
+              />
+            ))}
+          </CollapsibleSection>
+          <Divider className="my-2" />
+        </>
+      )}
+      {urgent.length > 0 && (
+        <>
+          <div className="flex flex-col">
+            <SectionHeader title="Urgent" hover="none" />
+            {urgent.map(row)}
+          </div>
+          <Divider className="my-2" />
+        </>
+      )}
+      <div className="flex flex-col">
+        <SectionHeader title="Open work" showActions="always" hover="none" actions={[{ icon: <IconSortDescending size={16} stroke={1.5} />, tooltip: 'Sort by', onClick: () => {} }]} />
+        {openWork.map(row)}
+      </div>
+      <Divider className="my-2" />
+      <CollapsibleSection title="Starred" contentClassName="gap-0.5 mt-1">
+        {starred.map((p) => (
+          <NavItem key={p} href="#" label={PEOPLE[p].name} icon={<Avatar name={PEOPLE[p].name} size={16} />} active={same(place, { type: 'person', id: p })} onClick={go(() => onShow({ type: 'person', id: p }))} />
+        ))}
+      </CollapsibleSection>
     </>
   )
 }
