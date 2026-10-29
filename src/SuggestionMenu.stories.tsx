@@ -48,11 +48,28 @@ const commandRow = (c: Command): SuggestionMenuRow => ({ label: c.label, shortcu
  * A line of text with the caret's place marked, and the list hung from it —
  * the way the editor hangs it. The list is drawn from a rect, so the story
  * measures a stand-in for the caret once it is on screen.
+ *
+ * And again whenever the page moves under it, as an editor sends a new rect
+ * on every change. Measured once, the lists on the Docs page hung where their
+ * carets were while the stories above were still drawing, over the page's
+ * words (Katerina, 29 Oct).
  */
 function AtACaret<T>({ children, ...props }: { children?: ReactNode } & Omit<Parameters<typeof SuggestionMenu<T>>[0], 'rect'>) {
   const caret = useRef<HTMLSpanElement>(null)
   const [rect, setRect] = useState<DOMRect | null>(null)
-  useLayoutEffect(() => setRect(caret.current?.getBoundingClientRect() ?? null), [])
+  useLayoutEffect(() => {
+    const measure = () => setRect(caret.current?.getBoundingClientRect() ?? null)
+    measure()
+    // The page growing above it, and the window's width changing.
+    const page = new ResizeObserver(measure)
+    page.observe(document.body)
+    // @estiva-escape(no-hand-rolled-behaviour): SuggestionMenu is given a rect, not an element, so its Positioner cannot follow the caret; measured only once, the Docs page's lists stay where their carets were as the page scrolls
+    window.addEventListener('scroll', measure, true)
+    return () => {
+      page.disconnect()
+      window.removeEventListener('scroll', measure, true)
+    }
+  }, [])
   return (
     <div className="flex h-[520px] items-end pb-6 text-body-2 text-text-primary">
       <p>
