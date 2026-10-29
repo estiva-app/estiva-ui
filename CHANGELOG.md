@@ -12,7 +12,8 @@ Her look pass's open notes (Ship, "Katerina's look pass on the widget kit").
   word for it, in a chip, a row, a card and a part ("A part of this issue not
   available"). The chip said "Issue, not available"; the rest "Issue — not
   available.".
-- **A card's time beside its faces reads "Updated 2h ago"**, as it does alone.
+- **A card's time beside its faces reads "Updated 2h ago", in italic**, as it
+  does alone.
 - **A person's words with no time have no "Open"**: their name is the link
   then, the only action word on a card gone.
 - **An attached card's ✕ is named "Remove"**, not "Remove card". An app test

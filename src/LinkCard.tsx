@@ -121,7 +121,8 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
         {linked.authors ? (
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <AvatarGroup members={linked.authors} size={16} on={on} />
-            {linked.updated && <span className="shrink-0">Updated {linked.updated}</span>}
+            {/* Italic, as every "Updated …" on a card is (Katerina, 30 Oct). */}
+            {linked.updated && <span className="shrink-0 italic">Updated {linked.updated}</span>}
           </span>
         ) : (
           !linked.status && !linked.owner && linked.updated && <span className="text-caption italic text-text-secondary">Updated {linked.updated}</span>
