@@ -1,5 +1,5 @@
 import { useContext, useState, type ReactNode } from 'react'
-import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStack2, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
+import { IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStack2, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
 import { Button } from '../../src/Button'
@@ -16,7 +16,6 @@ import { Rail } from '../../src/Rail'
 import { RailItem } from '../../src/RailItem'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
-import { Tabs } from '../../src/Tabs'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { ActivityVariant, Following, NewDot, hasNewActivity } from './PeekConversation'
 import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type TeamId, type Topic } from './fixtures'
@@ -256,38 +255,26 @@ function ShipNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
   )
 }
 
-/** Leaf: a Teams | Topics toggle, Home, Open work and Starred, then the tree the toggle chose. */
+/** What the viewer starred in Leaf, in this prototype: two documents. */
+const LEAF_STARRED = ['d-navigation', 'd-testing-widgets']
+
+/** Leaf (Miky, 29 Oct): Home; Starred, the starred documents; Topics, the last five, each with its documents; then Teams. */
 function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; onOpen: (p: Place) => void }) {
-  const [by, setBy] = useState<'teams' | 'topics'>('teams')
   const item = (label: string, icon: ReactNode, to: Place) => <NavItem href="#" label={label} icon={icon} active={same(place, to)} onClick={go(() => onOpen(to))} />
+  const section = (label: string) => (
+    <div className="px-2 pb-1 pt-4">
+      <SectionLabel tone="muted">{label}</SectionLabel>
+    </div>
+  )
   return (
     <Sidebar aria-label="leaf navigation">
       {item('Home', <IconHome {...icon16} />, { type: 'home' })}
-      {item('Open work', <IconClock {...icon16} />, { type: 'page', id: 'open-work' })}
-      {item('Starred', <IconStar {...icon16} />, { type: 'page', id: 'starred' })}
-      {/* The toggle heads the tree it switches (Miky, 28 October: at the top it read as apart from it). */}
-      <div className="px-2 pb-2 pt-4">
-        <Tabs<'teams' | 'topics'>
-          aria-label="Show documents by"
-          size="small"
-          active={by}
-          onChange={setBy}
-          tabs={[
-            { id: 'teams', label: 'Teams' },
-            { id: 'topics', label: 'Topics' },
-          ]}
-        />
-      </div>
-      {by === 'teams'
-        ? TEAMS.map((team) => {
-            const rows = fileRows(FILES.filter((f) => f.team === team.id), 'leaf', viewer, place, onOpen)
-            return (
-              <NavItem key={team.id} href="#" label={team.name} icon={teamIcon(team)} active={same(place, { type: 'team', id: team.id })} onClick={go(() => onOpen({ type: 'team', id: team.id }))} defaultOpen={team.id === 'company'}>
-                {rows.length > 0 ? rows : undefined}
-              </NavItem>
-            )
-          })
-        : TOPICS.filter((t) => t.ends && canReadTopic(viewer, t)).map((t) => {
+      {section('Starred')}
+      {fileRows(LEAF_STARRED.map(fileOf), 'leaf', viewer, place, onOpen)}
+      {section('Topics')}
+      {TOPICS.filter((t) => t.ends && canReadTopic(viewer, t))
+        .slice(0, 5)
+        .map((t) => {
             const rows = fileRows(t.lists.map(fileOf), 'leaf', viewer, place, onOpen)
             return (
               <NavItem
@@ -304,6 +291,15 @@ function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
               </NavItem>
             )
           })}
+      {section('Teams')}
+      {TEAMS.map((team) => {
+        const rows = fileRows(FILES.filter((f) => f.team === team.id), 'leaf', viewer, place, onOpen)
+        return (
+          <NavItem key={team.id} href="#" label={team.name} icon={teamIcon(team)} active={same(place, { type: 'team', id: team.id })} onClick={go(() => onOpen({ type: 'team', id: team.id }))} defaultOpen={false}>
+            {rows.length > 0 ? rows : undefined}
+          </NavItem>
+        )
+      })}
     </Sidebar>
   )
 }
