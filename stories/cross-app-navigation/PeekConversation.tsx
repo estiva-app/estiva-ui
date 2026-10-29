@@ -1,6 +1,6 @@
 import { Fragment, useState, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
+import { IconArrowBigUpLine, IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Card } from '../../src/Card'
@@ -185,9 +185,18 @@ export function PeekCard({ m, viewer, heading, selected, onFile, onOpen }: { m: 
             <span className="mb-2 flex size-6 items-center justify-center text-text-secondary">
               <KindIcon kind={kindOf(file)} size={16} />
             </span>
-            <button type="button" onClick={() => onFile(file.id)} className="-mx-1 mb-2 justify-self-start truncate rounded px-1 text-left text-h4 text-text-primary hover:bg-bg-hover">
-              {file.title}
-            </button>
+            <span className="mb-2 flex min-w-0 items-center gap-2">
+              <button type="button" onClick={() => onFile(file.id)} className="-mx-1 truncate rounded px-1 text-left text-h4 text-text-primary hover:bg-bg-hover">
+                {file.title}
+              </button>
+              {/* Why it is in Main: it bubbled up from its file (Miky, 29 Oct). */}
+              {m.sharedUp && (
+                <span className="flex shrink-0 items-center gap-1 rounded bg-accent-wash px-1.5 py-0.5 text-caption text-accent-text">
+                  <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
+                  Bubbled up
+                </span>
+              )}
+            </span>
           </>
         )}
         <Avatar name={PEOPLE[m.by].name} size={24} />

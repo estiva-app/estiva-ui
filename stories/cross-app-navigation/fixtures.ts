@@ -199,7 +199,7 @@ export interface Message {
   sharedUp?: 'resolved' | 'shared'
   /** Who resolved its thread, and what they said: drawn under the message's heading. */
   resolved?: { by: PersonId; note: string }
-  /** Names this person: shown in their Main even when written on a file. */
+  /** Names this person. A mention alone does not bring a file's message into Main (Miky, 29 Oct). */
   mentions?: PersonId
   /** The replies, in the order written. A highlighted one is a step of the timeline in the thread's card. */
   thread?: Reply[]

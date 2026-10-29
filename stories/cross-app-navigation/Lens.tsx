@@ -9,6 +9,7 @@ import {
   IconListCheck,
   IconLayoutSidebarRight,
   IconLock,
+  IconStack2,
   IconUsers,
   IconUsersGroup,
   IconWorld,
@@ -25,7 +26,7 @@ import { NavItem } from '../../src/NavItem'
 import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
-import { Tabs } from '../../src/Tabs'
+import { TooltipTrigger } from '../../src/Tooltip'
 import { PeekBox, PeekCard, ThreadPanel } from './PeekConversation'
 import {
   FILES,
@@ -283,6 +284,45 @@ function OtherApps({ topic, app, viewer, onApp }: { topic: Topic; app: App; view
   )
 }
 
+/**
+ * All | Main beside the topic's title, each saying what it holds and how much
+ * (Miky, 29 Oct): All is every conversation, the topic's and its files'; Main
+ * is the topic's own and what bubbled up from its files. A file opened from the
+ * listed files is a third segment while it is open.
+ */
+function ViewToggle({ view, onView, counts, file }: { view: 'all' | 'main' | 'file'; onView: (v: 'all' | 'main') => void; counts: { all: number; main: number }; file?: FileRow }) {
+  const segment = (on: boolean) =>
+    cn(
+      'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-body-2-strong transition-colors',
+      on ? 'bg-bg-elevated text-text-primary shadow-sm' : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+    )
+  const count = (n: number, on: boolean) => <span className={cn('rounded px-1 font-mono text-caption', on ? 'bg-accent-wash text-accent-text' : 'text-text-muted')}>{n}</span>
+  return (
+    <div role="radiogroup" aria-label="What to show" className="flex items-center gap-0.5 rounded-lg border border-border-subtle bg-bg-inset p-0.5">
+      <TooltipTrigger label="Everything: the topic’s conversation and every file it lists" placement="bottom">
+        <button type="button" role="radio" aria-checked={view === 'all'} onClick={() => onView('all')} className={segment(view === 'all')}>
+          <IconStack2 size={16} stroke={1.5} />
+          All
+          {count(counts.all, view === 'all')}
+        </button>
+      </TooltipTrigger>
+      <TooltipTrigger label="The topic’s own conversation and what bubbled up from its files" placement="bottom">
+        <button type="button" role="radio" aria-checked={view === 'main'} onClick={() => onView('main')} className={segment(view === 'main')}>
+          <KindIcon kind="topic" />
+          Main
+          {count(counts.main, view === 'main')}
+        </button>
+      </TooltipTrigger>
+      {file && (
+        <span role="radio" aria-checked className={cn(segment(true), 'max-w-48')}>
+          <KindIcon kind={kindOf(file)} />
+          <span className="truncate">{file.title}</span>
+        </span>
+      )}
+    </div>
+  )
+}
+
 /** Peek's topic: All, Main, or one listed file's conversation; the listed files beside it. */
 export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
   const [view, setView] = useState<PeekView>('main')
@@ -299,8 +339,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   const hidden = every.length - all.length
   const opened = all.find((m) => m.id === thread)
   const chatOnly = isChatOnly(topic)
-  const shown =
-    chatOnly || view === 'all' ? all : view === 'main' ? all.filter((m) => !m.on || m.sharedUp || m.mentions === viewer) : all.filter((m) => m.on === view.file)
+  // Main: what was said on the topic itself, and what bubbled up from its files (Miky, 29 Oct). A mention alone does not bring it here.
+  const main = all.filter((m) => !m.on || m.sharedUp)
+  const shown = chatOnly || view === 'all' ? all : view === 'main' ? main : all.filter((m) => m.on === view.file)
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
   return (
@@ -320,16 +361,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             </>
           }
         >
-          {/* All | Main beside the title; a file opened from the listed files shows as a third tab while it is open (Miky, 29 Oct). */}
-          {!chatOnly && (
-            <Tabs<'all' | 'main' | 'file'>
-              aria-label="What to show"
-              size="small"
-              active={tab}
-              onChange={(id) => id !== 'file' && setView(id)}
-              tabs={[{ id: 'all', label: 'All', count: all.length }, { id: 'main', label: 'Main' }, ...(chosen ? [{ id: 'file' as const, label: chosen.title }] : [])]}
-            />
-          )}
+          {!chatOnly && <ViewToggle view={tab} onView={setView} counts={{ all: all.length, main: main.length }} file={chosen} />}
         </Header>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {shown.length === 0 ? (
@@ -337,7 +369,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           ) : (
             <div className="flex flex-col gap-1">
               {shown.map((m) => (
-                <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={view !== 'main' || !!m.sharedUp || m.mentions === viewer ? typeof view === 'string' : false} onFile={(id) => setView({ file: id })} />
+                <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
               ))}
             </div>
           )}
