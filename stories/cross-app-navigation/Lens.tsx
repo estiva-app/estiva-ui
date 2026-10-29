@@ -7,6 +7,7 @@ import {
   IconHome,
   IconLayoutDashboard,
   IconListCheck,
+  IconLayoutSidebarRight,
   IconLock,
   IconUsers,
   IconUsersGroup,
@@ -14,6 +15,7 @@ import {
 } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
+import { IconButton } from '../../src/IconButton'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { EmptyState } from '../../src/EmptyState'
@@ -225,29 +227,40 @@ function Nav({ app, viewer, selection, onSelect }: { app: App; viewer: PersonId;
   )
 }
 
-export function Header({ title, children, right }: { title: string; children?: ReactNode; right?: ReactNode }) {
+export function Header({ title, locked = false, children, right }: { title: string; locked?: boolean; children?: ReactNode; right?: ReactNode }) {
   return (
     <div className="flex min-h-12 shrink-0 flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2">
-      <span className="text-body-1 font-medium text-text-primary">{title}</span>
+      <span className="flex items-center gap-1 text-body-1 font-medium text-text-primary">
+        {locked && <IconLock {...icon16} className="text-text-secondary" aria-label="Private" />}
+        {title}
+      </span>
       {children}
       <span className="ml-auto flex items-center gap-2">{right}</span>
     </div>
   )
 }
 
+/**
+ * The team it belongs to, as the team's avatar and name (both teams for a
+ * shared space). Who reads it is not said when everyone does; a private one is
+ * locked at its title (Miky, 29 Oct).
+ */
 function TopicFacts({ topic }: { topic: Topic }) {
-  const readers = readersLabel(topic)
+  const teams = topic.readers === 'teams' ? (topic.shared ?? []) : [topic.lead]
   return (
     <>
-      <Chip label={`Led by ${teamOf(topic.lead).name}`} />
-      <span className="flex items-center gap-1 text-caption text-text-secondary" title="Who reads its conversation">
-        {readers.icon}
-        {readers.words}
-      </span>
+      {teams.map((t) => (
+        <span key={t} className="flex items-center gap-1.5 text-body-2 text-text-secondary">
+          <Avatar name={teamOf(t).name} size={20} />
+          {teamOf(t).name}
+        </span>
+      ))}
       {!topic.ends && <span className="text-caption text-text-muted">No end</span>}
     </>
   )
 }
+
+export const isPrivate = (topic: Topic) => topic.readers === 'team'
 
 function OtherApps({ topic, app, viewer, onApp }: { topic: Topic; app: App; viewer: PersonId; onApp: (a: App) => void }) {
   const files = topic.lists.map(fileOf).filter((f) => canReadFile(viewer, f))
@@ -275,6 +288,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   const [view, setView] = useState<PeekView>('main')
   const [sent, setSent] = useState<Record<string, Message[]>>({})
   const [thread, setThread] = useState<string | null>(null)
+  const [side, setSide] = useState(true)
   useEffect(() => {
     setView('main')
     setThread(null)
@@ -293,7 +307,17 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   return (
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
-        <Header title={topic.title} right={<OtherApps topic={topic} app={app} viewer={viewer} onApp={onApp} />}>
+        <Header
+          title={topic.title}
+          locked={isPrivate(topic)}
+          right={
+            !chatOnly && (
+              <IconButton aria-label={side ? 'Hide the listed files' : 'Show the listed files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                <IconLayoutSidebarRight {...icon16} />
+              </IconButton>
+            )
+          }
+        >
           <TopicFacts topic={topic} />
         </Header>
         {!chatOnly && <div className="flex items-center gap-2 border-b border-border-subtle px-4">
@@ -349,7 +373,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         </div>
       </div>
       {opened && <ThreadPanel key={opened.id} m={opened} viewer={viewer} onClose={() => setThread(null)} />}
-      {!chatOnly && !opened && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!chatOnly && !opened && side && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         <SectionLabel tone="muted">Listed files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(['ship', 'leaf'] as const).map((a) => {
@@ -391,7 +415,7 @@ export function FilesOfTopic({ topic, app, viewer, onApp, onSelect }: { topic: T
   const open = mine.filter((f) => canReadFile(viewer, f))
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <Header title={topic.title}>
+      <Header title={topic.title} locked={isPrivate(topic)}>
         <TopicFacts topic={topic} />
       </Header>
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
