@@ -444,7 +444,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         {(() => {
           const open = listed.filter((f) => canReadFile(viewer, f))
           return (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-3">
               {/* The package's card, for its details, with no app label: the card says what it is (Miky, 29 Oct). A click shows the file's conversation here instead of leaving. */}
               {open.map((f) => (
                 <div
