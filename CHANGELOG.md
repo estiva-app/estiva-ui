@@ -13,7 +13,7 @@
   `LinkChip` was level only by chance, inside its hover card's trigger with
   its baseline taken from its icon.
   The chip now sits on the sentence's baseline (`align-baseline`,
-  `items-baseline`), its icon or picture centred; the quiet tone carries an
+  `items-baseline`), its icon, picture or empty swatch centred; the quiet tone carries an
   invisible body-sized strut so its smaller letters keep the line's height.
   `WithTooltip inline`'s wrapper is on the baseline too (was `align-top`, F1),
   so a chip inside it — the comment box's reference chip, Peek's

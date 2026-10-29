@@ -3883,7 +3883,7 @@
       "docPage": "src/InlineChip.mdx",
       "app": null,
       "looks": [
-        "rounded-sm align-baseline text-body-2 font-normal select-none [&>:is(svg,img)]:self-center [&>:has(svg,img)]:self-center",
+        "rounded-sm align-baseline text-body-2 font-normal select-none [&>:is(svg,img,:empty)]:self-center [&>:has(svg,img)]:self-center",
         "bg-bg-active text-text-muted font-mono text-caption before:invisible before:-mr-1 before:font-sans before:text-body-2 before:content-['x']"
       ]
     },

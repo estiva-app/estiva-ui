@@ -20,10 +20,10 @@ import { cn } from './cn'
  * **Why the baseline.** The chip's words sit on the sentence's baseline,
  * whatever the line's height and whatever wraps the chip. `items-baseline`
  * makes its words the chip's baseline, and `align-baseline` puts that on the
- * sentence's; the `icon` slot, and any child holding an icon or a picture
- * (an app's own chip in an editor), is centred instead, because
- * an icon has no baseline of its own and would set the chip's from its bottom
- * edge (3.8px high, measured 2026-09-13). `1.4em` keeps the chip one 14px
+ * sentence's; the `icon` slot, and any child holding an icon or a picture or
+ * holding nothing at all (an app's own chip in an editor, a colour swatch), is
+ * centred instead, because such a child has no baseline of its own and would
+ * sit with its bottom edge on the words' (3.8px high, measured 2026-09-13). `1.4em` keeps the chip one 14px
  * line tall.
  *
  * It was `align-top` until PEE-72 (2026-10-29), which held only while the
@@ -35,7 +35,7 @@ import { cn } from './cn'
 
 /** The shape every tone shares. Exported for a rich-text editor that renders chips from strings. */
 export const INLINE_CHIP_CLASSES =
-  'inline-flex h-[1.4em] items-baseline gap-1 rounded-sm px-1 mx-0.5 align-baseline text-body-2 font-normal select-none [&>:is(svg,img)]:self-center [&>:has(svg,img)]:self-center'
+  'inline-flex h-[1.4em] items-baseline gap-1 rounded-sm px-1 mx-0.5 align-baseline text-body-2 font-normal select-none [&>:is(svg,img,:empty)]:self-center [&>:has(svg,img)]:self-center'
 
 /** What a chip is made of, by what it stands for. */
 export const INLINE_CHIP_TONE_CLASSES = {
