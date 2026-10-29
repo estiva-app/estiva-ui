@@ -180,6 +180,14 @@ export const spacesOf = (team: TeamId) =>
 /** Peek's highlights (peek-app `HighlightType`). */
 export type HighlightType = 'insight' | 'concern' | 'conclusion' | 'question' | 'summary'
 
+/** One reply in a message's thread. */
+export interface Reply {
+  by: PersonId
+  at: string
+  body: string
+  highlight?: HighlightType
+}
+
 /** One message in a conversation. `on` names the listed file it was written on; absent, the topic itself. */
 export interface Message {
   id: string
@@ -193,8 +201,8 @@ export interface Message {
   resolved?: { by: PersonId; note: string }
   /** Names this person: shown in their Main even when written on a file. */
   mentions?: PersonId
-  /** Replies marked with a highlight, bubbled up into the thread's card in the order written. */
-  highlights?: { by: PersonId; at: string; type: HighlightType; body: string }[]
+  /** The replies, in the order written. A highlighted one is a step of the timeline in the thread's card. */
+  thread?: Reply[]
   reactions?: { emoji: string; by: PersonId[] }[]
   replies?: { by: PersonId[]; count: number; last: string; unread?: boolean }
   /** A listed file whose card the message was sent with. */
@@ -221,16 +229,60 @@ export const MESSAGES: Record<string, Message[]> = {
       sharedUp: 'resolved',
       resolved: { by: 'agent', note: 'Under a second on Miky’s workspace, measured with the QA probe.' },
       body: 'Can Leaf read only what it draws? First paint on my workspace is 6 seconds.',
-      highlights: [
-        { by: 'katerina', at: 'Mon 10:20', type: 'question', body: 'Does a skeleton count as drawn, or only blocks with words in them?' },
-        { by: 'miky', at: 'Mon 10:34', type: 'conclusion', body: 'Words count, a skeleton does not. Measure first paint to the first block with text, on my workspace.' },
+      thread: [
+        { by: 'agent', at: 'Mon 10:11', body: 'Most of the 6 s is reading every block of the page before drawing any. I can try reading the first screenful first.' },
+        { by: 'katerina', at: 'Mon 10:20', highlight: 'question', body: 'Does a skeleton count as drawn, or only blocks with words in them?' },
+        { by: 'agent', at: 'Mon 10:26', body: 'The skeleton shows at 0.3 s today, so counting it would make this done already.' },
+        { by: 'miky', at: 'Mon 10:34', highlight: 'conclusion', body: 'Words count, a skeleton does not. Measure first paint to the first block with text, on my workspace.' },
+        { by: 'agent', at: 'Mon 11:41', body: 'Done: 0.9 s to the first block with text on your workspace.' },
       ],
       reactions: [{ emoji: '💯', by: ['katerina'] }],
       replies: { by: ['agent', 'katerina'], count: 5, last: '11:41' },
     },
     { id: 'f2', by: 'agent', at: 'Mon 11:40', on: 'p-read-only', body: 'Leaf now asks only for the blocks the page draws. First paint on your workspace: 6.1 s → 0.9 s.', reactions: [{ emoji: '🚀', by: ['miky'] }] },
-    { id: 'f4', by: 'katerina', at: 'Tue 10:05', body: 'Does "instantly" include the skeleton, or is a skeleton already too slow?', replies: { by: ['miky'], count: 1, last: '10:20', unread: true } },
-    { id: 'f5', by: 'agent', at: 'Tue 14:22', on: 'p-ship-instant', mentions: 'miky', body: '@Miky should Ship keep Peek\'s copy on the device, or its own? It decides how much the two share.' },
+    { id: 'f4', by: 'katerina', at: 'Tue 10:05', body: 'Does "instantly" include the skeleton, or is a skeleton already too slow?', thread: [{ by: 'miky', at: 'Tue 10:20', body: 'Only words count. A skeleton is still waiting.' }], replies: { by: ['miky'], count: 1, last: '10:20', unread: true } },
+    {
+      id: 'f4b',
+      by: 'agent',
+      at: 'Tue 11:02',
+      on: 'p-ship-instant',
+      sharedUp: 'resolved',
+      body: 'Ship opens in 4 s on Miky’s workspace. Should Ship keep its own copy of the workspace on the device, or read the one Peek already keeps?',
+      thread: [
+        { by: 'katerina', at: 'Tue 11:05', body: 'What is in the copy today? Only Peek’s conversations?' },
+        { by: 'agent', at: 'Tue 11:09', body: 'Every file Peek has opened, its conversation and its read state. Ship’s issues are not in it yet.' },
+        { by: 'miky', at: 'Tue 11:20', body: 'And Leaf?' },
+        { by: 'agent', at: 'Tue 11:22', body: 'Leaf keeps nothing on the device yet.' },
+        {
+          by: 'miky',
+          at: 'Tue 11:40',
+          highlight: 'question',
+          body: 'Before we pick: what does a person see in each case when they open Ship on a new laptop, where neither app has run yet? If Ship reads Peek’s copy, does Peek have to be opened first, or does Ship fill the copy itself? And when Peek is a newer version than Ship and the shape of the copy has changed, does Ship read stale data, wait, or start from nothing?',
+        },
+        { by: 'agent', at: 'Tue 11:52', body: 'Today: on a new laptop Ship would wait for Peek, because only Peek fills the copy.' },
+        { by: 'katerina', at: 'Tue 12:03', body: 'That can’t be right for someone who only uses Ship.' },
+        { by: 'agent', at: 'Tue 12:10', body: 'Agreed. Any app could fill it; the cost is that each app must know the whole shape.' },
+        { by: 'miky', at: 'Tue 12:31', body: 'Or each app fills only its own part?' },
+        { by: 'agent', at: 'Tue 12:40', body: 'That works if the parts don’t overlap. Conversations do: Ship shows them too.' },
+        { by: 'katerina', at: 'Tue 12:58', body: 'And on a version change, I never want to see an empty page again.' },
+        { by: 'miky', at: 'Tue 13:02', body: 'Katerina, can you write down what we agree?' },
+        {
+          by: 'katerina',
+          at: 'Tue 13:15',
+          highlight: 'conclusion',
+          body: 'One copy per device, shared by every app and written by whichever app opens first. Each app reads only the parts it shows, so Ship never waits for Peek. When the shape changes, the copy is rebuilt in the background and the screen keeps what it had, with a quiet “Updating…” line, never an empty page. We measure it on Miky’s workspace on a clean laptop, not on QA-1’s.',
+        },
+        { by: 'miky', at: 'Tue 13:20', body: 'Yes. Build it.' },
+        { by: 'agent', at: 'Tue 16:48', body: 'Built and measured; resolving with the numbers.' },
+      ],
+      resolved: {
+        by: 'agent',
+        note: 'Ship now opens from the shared copy: first paint 0.6 s on Miky’s workspace from a clean profile, 0.4 s after that. After a shape change the copy rebuilds in the background; opening Ship with an old copy as QA-1 and QA-2 never showed an empty page. Peek and Leaf read the same copy from next week.',
+      },
+      reactions: [{ emoji: '🚀', by: ['miky', 'katerina'] }],
+      replies: { by: ['miky', 'katerina', 'agent'], count: 15, last: '16:48' },
+    },
+    { id: 'f5', by: 'agent', at: 'Tue 17:10', on: 'p-ship-instant', mentions: 'miky', body: '@Miky the shared copy is on staging. Can you open Ship there on your own laptop before Friday?' },
     { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.', card: 'p-live' },
     { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'p-peek-fast', body: 'Screener → Open work is still the slow move on my workspace.' },
   ],
@@ -245,6 +297,10 @@ export const MESSAGES: Record<string, Message[]> = {
       sharedUp: 'resolved',
       resolved: { by: 'agent', note: 'Fixed in ui 0.88, checked as QA-1 and QA-2.' },
       body: 'The card jumps when it loads. Can it keep its height?',
+      thread: [
+        { by: 'agent', at: 'Thu 12:02', body: 'It loads with no height set; the placeholder can take the card’s shape.' },
+        { by: 'agent', at: 'Thu 15:12', body: 'Fixed in ui 0.88.' },
+      ],
       replies: { by: ['agent'], count: 2, last: '15:12' },
     },
   ],

@@ -24,7 +24,7 @@ import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
-import { PeekBox, PeekCard } from './PeekConversation'
+import { PeekBox, PeekCard, ThreadPanel } from './PeekConversation'
 import {
   FILES,
   MESSAGES,
@@ -274,12 +274,17 @@ function OtherApps({ topic, app, viewer, onApp }: { topic: Topic; app: App; view
 export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
   const [view, setView] = useState<PeekView>('main')
   const [sent, setSent] = useState<Record<string, Message[]>>({})
-  useEffect(() => setView('main'), [topic.id])
+  const [thread, setThread] = useState<string | null>(null)
+  useEffect(() => {
+    setView('main')
+    setThread(null)
+  }, [topic.id])
   const listed = topic.lists.map(fileOf)
   const readable = listed.filter((f) => canReadFile(viewer, f))
   const every = [...(MESSAGES[topic.id] ?? []), ...(sent[topic.id] ?? [])]
   const all = every.filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
   const hidden = every.length - all.length
+  const opened = all.find((m) => m.id === thread)
   const chatOnly = isChatOnly(topic)
   const shown =
     chatOnly || view === 'all' ? all : view === 'main' ? all.filter((m) => !m.on || m.sharedUp || m.mentions === viewer) : all.filter((m) => m.on === view.file)
@@ -328,7 +333,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           ) : (
             <div className="flex flex-col gap-1">
               {shown.map((m) => (
-                <PeekCard key={m.id} m={m} viewer={viewer} heading={view !== 'main' || !!m.sharedUp || m.mentions === viewer ? typeof view === 'string' : false} onFile={(id) => setView({ file: id })} />
+                <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={view !== 'main' || !!m.sharedUp || m.mentions === viewer ? typeof view === 'string' : false} onFile={(id) => setView({ file: id })} />
               ))}
             </div>
           )}
@@ -343,7 +348,8 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           />
         </div>
       </div>
-      {!chatOnly && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {opened && <ThreadPanel key={opened.id} m={opened} viewer={viewer} onClose={() => setThread(null)} />}
+      {!chatOnly && !opened && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         <SectionLabel tone="muted">Listed files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(['ship', 'leaf'] as const).map((a) => {

@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconArrowNarrowRight, IconChecks, IconChevronRight, IconMessage2 } from '@tabler/icons-react'
+import { IconArrowNarrowRight, IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Card } from '../../src/Card'
@@ -9,11 +9,12 @@ import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { CommentBox, commentBoxRows } from '../../src/CommentBox'
 import type { MentionPerson } from '../../src/ComposerTriggers'
+import { IconButton } from '../../src/IconButton'
 import { KindIcon } from '../../src/KindIcon'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
-import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId } from './fixtures'
+import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply } from './fixtures'
 
 /**
  * Peek's topic conversation, from what is built and settled: each message is
@@ -76,14 +77,29 @@ function HighlightPill({ type }: { type: HighlightType }) {
  * The left column under the avatar. `through` carries the timeline's line past
  * this row; `to-marker` ends it at this row's marker.
  */
-function Rail({ line = 'none', marker, middle = false }: { line?: 'none' | 'through' | 'to-marker'; marker?: ReactNode; middle?: boolean }) {
+function Rail({ line = 'none', marker, banner = false }: { line?: 'none' | 'through' | 'to-marker' | 'dotted'; marker?: ReactNode; banner?: boolean }) {
   return (
     <div className="relative" aria-hidden>
-      {line !== 'none' && (
-        <span className={cn('absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-border-strong', line === 'through' ? 'bottom-0' : middle ? 'h-1/2' : 'h-2.5')} />
+      {line === 'dotted' && <span className="absolute bottom-0 left-1/2 top-0 -translate-x-1/2 border-l-2 border-dotted border-border-strong" />}
+      {(line === 'through' || line === 'to-marker') && (
+        <span className={cn('absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-border-strong', line === 'through' ? 'bottom-0' : banner ? 'h-5' : 'h-2.5')} />
       )}
-      {marker && <span className={cn('absolute left-1/2 flex -translate-x-1/2 -translate-y-1/2', middle ? 'top-1/2' : 'top-2.5')}>{marker}</span>}
+      {/* On a highlight's name line, or on the banner's first line. */}
+      {marker && <span className={cn('absolute left-1/2 flex -translate-x-1/2 -translate-y-1/2', banner ? 'top-5' : 'top-2.5')}>{marker}</span>}
     </div>
+  )
+}
+
+/** The replies between two steps of the timeline, said quietly on a dotted stretch of its line. */
+function Between({ n }: { n?: number }) {
+  if (!n) return null
+  return (
+    <>
+      <Rail line="dotted" />
+      <span className="pb-2 text-caption text-text-muted signal:font-mono signal:text-small signal:tracking-wide">
+        {n} {n === 1 ? 'reply' : 'replies'}
+      </span>
+    </>
   )
 }
 
@@ -115,13 +131,14 @@ function RepliesRow({ replies }: { replies: NonNullable<Message['replies']> }) {
 /** peek-app's resolution banner: who resolved, and what they said. */
 function Resolution({ r }: { r: NonNullable<Message['resolved']> }) {
   return (
-    <div className="mb-2 mr-1 flex min-w-0 items-center gap-2 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
+    // Peek's banner, with the note wrapping instead of cut to one line: a resolution can be a paragraph.
+    <div className="mb-2 mr-1 flex min-w-0 items-start gap-2 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
       <IconChecks size={16} stroke={1.5} className="shrink-0 text-success-default signal:drop-shadow-glow-success" aria-hidden />
-      <span className="whitespace-nowrap text-h5 text-success-default">{nameOf(r.by)} resolved</span>
+      <span className="mt-0.5 whitespace-nowrap text-h5 text-success-default">{nameOf(r.by)} resolved</span>
       {r.note && (
         <>
-          <IconArrowNarrowRight size={12} stroke={1.5} className="shrink-0 text-text-primary" aria-hidden />
-          <span className="truncate text-h5 text-text-primary">{r.note}</span>
+          <IconArrowNarrowRight size={12} stroke={1.5} className="mt-0.5 shrink-0 text-text-primary" aria-hidden />
+          <span className="mt-0.5 text-h5 leading-snug text-text-primary">{r.note}</span>
         </>
       )}
     </div>
@@ -134,11 +151,11 @@ function Resolution({ r }: { r: NonNullable<Message['resolved']> }) {
  * highlighted replies draws them under the message on a line that ends at its
  * resolution, or at the last highlight.
  */
-export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: PersonId; heading: boolean; onFile: (id: string) => void }) {
+export function PeekCard({ m, viewer, heading, selected, onFile, onOpen }: { m: Message; viewer: PersonId; heading: boolean; selected: boolean; onFile: (id: string) => void; onOpen: () => void }) {
   const [reactions, setReactions] = useState(m.reactions ?? [])
   const file = m.on ? fileOf(m.on) : undefined
   const under = m.card ? fileOf(m.card) : undefined
-  const highlights = m.highlights ?? []
+  const { steps: highlights, rest } = stepsOf(m.thread ?? [])
   const timeline = highlights.length > 0
   const body = timeline ? 'through' : 'none'
   const toggle = (emoji: string) =>
@@ -149,14 +166,25 @@ export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: P
       return now.map((r) => (r === held ? { emoji, by } : r)).filter((r) => r.by.length > 0)
     })
   return (
-    <Card fill="surface" hover="fill" quietUntilHover className="relative">
+    <Card
+      fill="surface"
+      hover="fill"
+      quietUntilHover
+      selected={selected}
+      className="relative"
+      // As Peek's card: a click opens the thread beside it, unless it was on a control inside.
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest('button, [role="button"], [data-interactive]')) return
+        onOpen()
+      }}
+    >
       <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 px-2 pt-2">
         {file && heading && (
           <>
-            <span className="flex size-6 items-center justify-center pb-2 text-text-secondary">
+            <span className="mb-2 flex size-6 items-center justify-center text-text-secondary">
               <KindIcon kind={kindOf(file)} size={16} />
             </span>
-            <button type="button" onClick={() => onFile(file.id)} className="-mx-1 mb-2 justify-self-start truncate rounded px-1 text-left text-body-2-strong text-text-primary hover:bg-bg-hover">
+            <button type="button" onClick={() => onFile(file.id)} className="-mx-1 mb-2 justify-self-start truncate rounded px-1 text-left text-h4 text-text-primary hover:bg-bg-hover">
               {file.title}
             </button>
           </>
@@ -186,19 +214,31 @@ export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: P
             </div>
           </>
         )}
-        {highlights.map((h, i) => (
-          <HighlightRow key={i} h={h} line={i === highlights.length - 1 && !m.resolved ? 'to-marker' : 'through'} />
+        {highlights.map((s, i) => (
+          <Fragment key={i}>
+            <Between n={s.after} />
+            <HighlightRow h={s.reply} line={i === highlights.length - 1 && !m.resolved ? 'to-marker' : 'through'} />
+          </Fragment>
         ))}
-        {m.replies && (
+        {/* Without a timeline, Peek's order: the replies, then the resolution. */}
+        {m.replies && !timeline && (
           <>
-            <Rail line={timeline && m.resolved ? 'through' : 'none'} />
+            <span />
             <RepliesRow replies={m.replies} />
           </>
         )}
         {m.resolved && (
           <>
-            <Rail line={timeline ? 'to-marker' : 'none'} middle marker={timeline && <span className="size-2 rounded-full bg-success-default" />} />
+            {timeline && <Between n={rest} />}
+            <Rail line={timeline ? 'to-marker' : 'none'} banner marker={timeline && <span className="size-2 rounded-full bg-success-default" />} />
             <Resolution r={m.resolved} />
+          </>
+        )}
+        {/* With one, the replies row closes the card: the way into the whole thread. */}
+        {m.replies && timeline && (
+          <>
+            <span />
+            <RepliesRow replies={m.replies} />
           </>
         )}
       </div>
@@ -206,21 +246,91 @@ export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: P
   )
 }
 
+/** The thread's highlighted replies, each with how many plain replies came since the step before; `rest` came after the last. */
+function stepsOf(thread: Reply[]) {
+  const steps: { reply: Reply; after: number }[] = []
+  let plain = 0
+  for (const reply of thread) {
+    if (!reply.highlight) plain++
+    else {
+      steps.push({ reply, after: plain })
+      plain = 0
+    }
+  }
+  return { steps, rest: plain }
+}
+
 /** One highlighted reply, bubbled up into the thread's card: who, the highlight, when, and the words. */
-function HighlightRow({ h, line }: { h: NonNullable<Message['highlights']>[number]; line: 'through' | 'to-marker' }) {
+function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) {
+  const type = h.highlight!
   return (
     <>
-      <Rail line={line} marker={<span className={cn('size-2 rounded-sm', HIGHLIGHT[h.type].fill)} />} />
+      <Rail line={line} marker={<span className={cn('size-2 rounded-sm', HIGHLIGHT[type].fill)} />} />
       <div className="flex min-w-0 flex-col gap-1 pb-3 pr-2">
         <div className="flex h-5 items-center gap-2">
           <Avatar name={PEOPLE[h.by].name} size={16} />
           <span className="whitespace-nowrap text-body-2-strong text-text-primary">{PEOPLE[h.by].name}</span>
-          <HighlightPill type={h.type} />
+          <HighlightPill type={type} />
           <span className={META}>{h.at}</span>
         </div>
         <p className="text-body-2 text-text-primary">{h.body}</p>
       </div>
     </>
+  )
+}
+
+/**
+ * The thread beside the conversation, as Peek opens it: the message, every
+ * reply (a highlighted one with its pill), the resolution, and a box to reply.
+ */
+export function ThreadPanel({ m, viewer, onClose }: { m: Message; viewer: PersonId; onClose: () => void }) {
+  const [sent, setSent] = useState<Reply[]>([])
+  const file = m.on ? fileOf(m.on) : undefined
+  const rows: Reply[] = [{ by: m.by, at: m.at, body: m.body }, ...(m.thread ?? []), ...sent]
+  return (
+    <aside className="flex w-96 shrink-0 flex-col border-l border-border-subtle">
+      <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="text-h4 text-text-primary">Thread</span>
+          {file && (
+            <span className="flex items-center gap-1 truncate text-caption text-text-muted">
+              <KindIcon kind={kindOf(file)} size={14} />
+              {file.title}
+            </span>
+          )}
+        </div>
+        <IconButton aria-label="Close the thread" tooltip="Close" onClick={onClose}>
+          <IconX size={16} stroke={1.5} />
+        </IconButton>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+        {rows.map((r, i) => (
+          <Fragment key={i}>
+            <div className="flex gap-2">
+              <Avatar name={PEOPLE[r.by].name} size={24} />
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="whitespace-nowrap text-body-2-strong text-text-primary">{PEOPLE[r.by].name}</span>
+                  {r.highlight && <HighlightPill type={r.highlight} />}
+                  <span className={META}>{r.at}</span>
+                </div>
+                <p className="whitespace-pre-wrap text-body-2 text-text-primary">{r.body}</p>
+              </div>
+            </div>
+            {i === 0 && rows.length > 1 && (
+              <div className="flex items-center gap-2 text-caption text-text-muted">
+                {rows.length - 1} {rows.length === 2 ? 'reply' : 'replies'}
+                <span className="h-px flex-1 bg-border-subtle" />
+              </div>
+            )}
+          </Fragment>
+        ))}
+        {m.resolved && <Resolution r={m.resolved} />}
+      </div>
+      <div className="border-t border-border-subtle p-3">
+        <PeekBox to="the thread" label="Reply" onSent={(body) => setSent((now) => [...now, { by: viewer, at: 'Now', body }])} />
+      </div>
+    </aside>
   )
 }
 
@@ -233,12 +343,12 @@ function textOf(node: JSONContent): string {
 }
 
 /** Peek's box under the conversation: the shared CommentBox. Sending adds the message here. */
-export function PeekBox({ to, onSent }: { to: string; onSent: (body: string) => void }) {
+export function PeekBox({ to, label, onSent }: { to: string; label?: string; onSent: (body: string) => void }) {
   return (
     <CommentBox
       key={to}
-      label={`Write to ${to}`}
-      placeholder={`Write to ${to}…`}
+      label={label ?? `Write to ${to}`}
+      placeholder={label ? `${label}…` : `Write to ${to}…`}
       people={MENTION_PEOPLE}
       insert={[commentBoxRows.mention, commentBoxRows.urgent]}
       showsAtOnce
