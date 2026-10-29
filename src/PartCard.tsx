@@ -18,6 +18,7 @@ import { inTheBox, type LinkedKind } from './linked'
 import { kindNounOf, LinkTile } from './LinkParts'
 import { LinkUnavailable } from './LinkRow'
 import { QUOTE_BAR_CLASSES } from './looks'
+import { ShowMore } from './ShowMore'
 
 export interface PartCardProps {
   /** Where its lookup stands. Default `ready`. */
@@ -36,16 +37,24 @@ export interface PartCardProps {
   openIn?: { app: string; href: string }
   /** The part's blocks, drawn by the app. */
   children?: ReactNode
+  /**
+   * The way out to where the part lives: a small `Button` with a leading icon ("Open in Leaf"). Drawn under the
+   * blocks at the right, level with Show more, outside the quote bar (Katerina, 30 Oct: "the vertical line should not
+   * be covering the button"). Peek and Ship put it in ShowMore's row inside the blocks before.
+   */
+  action?: ReactNode
+  /** Cut the blocks at this height, in px, behind ShowMore's fade and its Show more. Absent, they are drawn whole. */
+  maxHeight?: number
 }
 
-export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, openIn, children }: PartCardProps) {
+export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, openIn, children, action, maxHeight }: PartCardProps) {
   const word = noun ?? kindNounOf({ kind }) ?? 'File'
   const boxed = useContext(inTheBox)
   if (state === 'loading') return <LinkCardLoading kind={kind} shape={{ summary: true, rows: 0, footer: 'none' }} />
   if (state === 'unavailable') return <LinkUnavailable kind={kind} noun={`A part of this ${word.toLowerCase()}`} openIn={openIn} card />
   return (
-    // In a box being written in, on the files' fill as the card beside it is; elsewhere at most 480px.
-    <Card fill={boxed ? 'elevated' : 'inset'} className={cn('flex flex-col gap-3 p-3', !boxed && 'max-w-[480px]')}>
+    // At most 480px wide, in a box too; in a box being written in, on the files' fill as the card beside it is.
+    <Card fill={boxed ? 'elevated' : 'inset'} className="flex max-w-[480px] flex-col gap-3 p-3">
       <div className="flex items-center gap-3">
         <LinkTile kind={kind} />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -61,8 +70,14 @@ export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, 
           <span className="truncate text-caption text-text-secondary">{partKey ? `A part of ${partKey}` : `A part of this ${word.toLowerCase()}`}</span>
         </span>
       </div>
-      {/* The quote bar starts where the tile above it starts (Katerina, 29 Oct). */}
-      <div className={QUOTE_BAR_CLASSES}>{children}</div>
+      {/* The quote bar starts where the tile above it starts (Katerina, 29 Oct), and runs beside the blocks only. */}
+      {action || maxHeight !== undefined ? (
+        <ShowMore maxHeight={maxHeight ?? Infinity} surface={boxed ? 'elevated' : 'inset'} action={action} contentClassName={QUOTE_BAR_CLASSES}>
+          {children}
+        </ShowMore>
+      ) : (
+        <div className={QUOTE_BAR_CLASSES}>{children}</div>
+      )}
     </Card>
   )
 }

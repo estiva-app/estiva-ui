@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.91.1 — 2026-10-30
+
+Katerina, 30 Oct, on 0.91.0 live in Peek.
+
+### Fixed
+
+- **A card with nothing for its footer draws no footer row.** A topic with a
+  title and a summary alone drew an empty row under the summary, 36px of
+  nothing (its hover preview most of all).
+- **A part's way out sits under the quote bar, not beside it** ("the vertical
+  line should not be covering the button"). `PartCard` takes `action`, the
+  small button to where the part lives ("Open in Leaf"), and `maxHeight`, the
+  height to cut a long part at behind Show more: it draws them on one row under
+  the blocks, the quote bar beside the blocks alone. Peek and Ship put the
+  button in ShowMore's row inside the blocks: they pass it to `PartCard` now.
+  `ShowMore` takes `contentClassName` (on its content alone) and an `elevated`
+  fade, for a part in a box being written in.
+- **A card's conversation count sits on its title's line**, at the right, between
+  its ring and its faces, as a row's does ("progress, comment, people"); alone
+  there when the card has neither. The footer keeps the pickers, or who and
+  when, and is not drawn for the count alone.
+- **Cards and rows stop at 480px in a box being written in too** ("in the
+  bigger compose box it's not looking good"); in a narrow box they fill it as
+  before.
+
 ## 0.91.0 — 2026-10-29
 
 One release for Katerina's review of the kit's Storybook on 29 Oct: where

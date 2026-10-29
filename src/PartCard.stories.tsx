@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { IconExternalLink } from '@tabler/icons-react'
+import { Button } from './Button'
 import { PartCard } from './PartCard'
 import { RichText, type RichTextBlock } from './RichText'
 
@@ -28,6 +30,28 @@ export const Default: Story = {
     href: '#part',
     // As the apps draw a part's blocks: RichText in its small size (Peek's and Leaf's PartCard do), not sizes typed by hand.
     children: <RichText blocks={PART_BLOCKS} size="small" />,
+  },
+}
+
+const LONG_BLOCKS: RichTextBlock[] = [
+  { type: 'heading', level: 2, inline: [{ text: 'A heading in the part', marks: [] }] },
+  ...Array.from({ length: 6 }, (_, i): RichTextBlock => ({ type: 'paragraph', inline: [{ text: `Paragraph ${i + 1} of the part, long enough to fill a line of the card and go on to a second one.`, marks: [] }] })),
+]
+
+/** As an app quotes a long part: cut behind Show more, and its way out ("Open in App one") level with it, under the quote bar, not beside it. */
+export const WithItsWayOut: Story = {
+  args: {
+    state: 'ready',
+    kind: 'page',
+    heading: 'Document one',
+    href: '#part',
+    maxHeight: 160,
+    action: (
+      <Button size="small" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />} onClick={() => {}}>
+        Open in App one
+      </Button>
+    ),
+    children: <RichText blocks={LONG_BLOCKS} size="small" />,
   },
 }
 

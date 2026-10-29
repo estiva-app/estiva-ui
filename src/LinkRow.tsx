@@ -6,8 +6,7 @@
  * card; a tap opens it. Loading draws the row in bars; not available says so
  * in a row of the same shape.
  *
- * At most 480px in a message or a document, as a card is; in a box being
- * written in it fills the box.
+ * At most 480px wide, as a card is, in a box being written in too.
  */
 import { useContext } from 'react'
 import { Avatar } from './Avatar'
@@ -43,7 +42,7 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
 export function LinkUnavailable({ kind, noun, openIn, card = false }: LinkUnavailableProps) {
   const wide = useContext(inTheBox)
   return (
-    <Card fill={wide ? 'elevated' : 'inset'} className={cn(card ? 'flex items-center gap-3 p-3' : ROW_CLASSES, !wide && 'max-w-[480px]')}>
+    <Card fill={wide ? 'elevated' : 'inset'} className={cn(card ? 'flex items-center gap-3 p-3' : ROW_CLASSES, 'max-w-[480px]')}>
       <span className={TYPE_TILE_CLASSES}>
         <LinkedIcon kind={kind} />
       </span>
@@ -71,8 +70,8 @@ export interface LinkRowProps {
 }
 
 export function LinkRow({ link, preview = true }: LinkRowProps) {
-  const wide = useContext(inTheBox)
-  const width = !wide && 'max-w-[480px]'
+  // At most 480px, in a box being written in too (Katerina, 30 Oct).
+  const width = 'max-w-[480px]'
   if (link.state === 'loading') {
     return (
       <div className="animate-skeleton-in" aria-busy>

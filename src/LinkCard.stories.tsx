@@ -40,6 +40,9 @@ export const WithItems: Story = { args: { link: ready(GROUP) } }
 /** A place people talk: its members and its newest conversation. */
 export const WithLatest: Story = { args: { link: ready(PLACE) } }
 
+/** A title and a summary, nothing more, as a topic often is: no footer row, and no space where one would be. */
+export const TitleAndSummary: Story = { args: { link: ready({ ...PLACE, members: undefined, latest: undefined, updated: undefined, conversation: undefined }) } }
+
 /** A page of text: who wrote it, and when. */
 export const WithAuthors: Story = { args: { link: ready(PAGE) } }
 

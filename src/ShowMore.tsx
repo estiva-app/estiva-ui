@@ -27,16 +27,18 @@ export interface ShowMoreProps {
   children: ReactNode
   /** The height to cut at, in px. Default 96: about seven lines of caption text. */
   maxHeight?: number
-  /** What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`. */
-  surface?: 'surface' | 'inset'
+  /** What the content sits on, for the fade to end in: a panel's `surface` (default), an inset card's `inset`, or a card in a box being written in, `elevated`. */
+  surface?: 'surface' | 'inset' | 'elevated'
   /** A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives. Its words end where the content does. */
   action?: ReactNode
+  /** On the content alone, not the toggle's row under it: PartCard's quote bar runs beside the blocks only. */
+  contentClassName?: string
   className?: string
 }
 
-const FADE_CLASSES = { surface: 'from-bg-surface', inset: 'from-bg-inset' } as const
+const FADE_CLASSES = { surface: 'from-bg-surface', inset: 'from-bg-inset', elevated: 'from-bg-elevated' } as const
 
-export function ShowMore({ children, maxHeight = 96, surface = 'surface', action, className }: ShowMoreProps) {
+export function ShowMore({ children, maxHeight = 96, surface = 'surface', action, contentClassName, className }: ShowMoreProps) {
   const box = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [overflows, setOverflows] = useState(false)
@@ -55,7 +57,7 @@ export function ShowMore({ children, maxHeight = 96, surface = 'surface', action
   const cut = overflows && !open
   return (
     <div className={cn('flex flex-col items-start', className)}>
-      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden')} style={cut ? { maxHeight } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
+      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden', contentClassName)} style={cut ? { maxHeight } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
         {children}
         {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', FADE_CLASSES[surface])} />}
       </div>

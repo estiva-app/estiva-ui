@@ -11,8 +11,9 @@ A link's card: what a row cannot hold, and the changes the reader may make from 
 
 ## When
 
-- **ready** — it starts as its row does: its kind in a file's 36px tile, the title as the link on one line, cut short when long, and under it the key and what it is ("ABC-2 · Issue"); a ring or faces on the title's line. Then its summary, the items inside it in a box of their own, its newest conversation as a quote, and a footer: the pickers and the conversation count, or who wrote it and when. No summary, the title alone.
-- **width** — at most 480px in a message or a document; in a box being written in it fills the box, on the files' fill, its values as words until it is sent.
+- **ready** — it starts as its row does: its kind in a file's 36px tile, the title as the link on one line, cut short when long, and under it the key and what it is ("ABC-2 · Issue"); on the title's line, at the right, its ring, its conversation count and its faces, in that order, as a row's. Then its summary, the items inside it in a box of their own, its newest conversation as a quote, and a footer: the pickers, or who wrote it and when. No summary, the title alone.
+- **width** — at most 480px, in a message, a document and a box being written in alike; in a box it sits on the files' fill, its values as words until it is sent.
+- **footer** — only when there is something for it: a title and a summary alone end at the summary.
 - **read only** — a picker the app passed no `onChange` for reads as words in the same place: the reader may not change it. `readOnly` makes every value words, as the hover preview does.
 - **words a person wrote** — their 24px face, their name, the time beside it as the link, and the words.
 - **loading** — the card it will become in bars, at its own height: `shape` from `loadingShapeOf(linked)` the last time it drew, or the kind's usual card. **LinkCardLoading**, from this file.
