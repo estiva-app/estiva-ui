@@ -35,10 +35,11 @@ describe('InlineChip', () => {
     expect(link.getAttribute('href')).toBe('/somewhere')
   })
 
-  it('is one line high and pinned to the top of the line, in every tone', () => {
+  it('is one line high and sits on the sentence’s baseline, in every tone', () => {
     for (const tone of Object.keys(INLINE_CHIP_TONE_CLASSES) as (keyof typeof INLINE_CHIP_TONE_CLASSES)[]) {
       const classes = inlineChipClassName(tone).split(' ')
-      expect(classes).toContain('align-top')
+      expect(classes).toContain('align-baseline')
+      expect(classes).toContain('items-baseline')
       expect(classes).toContain('mx-0.5')
       // One height only: 1.4em of the body size, or the same 19.6px written out where the text is smaller.
       const heights = classes.filter((c) => c.startsWith('h-'))

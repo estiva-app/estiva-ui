@@ -12,22 +12,30 @@ import { cn } from './cn'
  *
  * - the person tone is `person`, not `mention` — every chip here is a
  *   mention of something;
- * - the alignment is a class (`align-top h-[1.4em]`), not a `style` object,
- *   so it is part of the class list like every other size in the package;
+ * - the alignment is a class, not a `style` object, so it is part of the
+ *   class list like every other size in the package;
  * - a chip that leads somewhere takes `href` and `onClick`, the way `NavItem`
  *   does: the package draws an anchor, the app's router takes the click.
  *
- * **Why `align-top` and `1.4em`.** `1.4em` is the body text's line height,
- * so the chip is exactly one line tall; `vertical-align: top` pins it to the
- * line box, which keeps the line at 19.6px and the chip's words level with
- * the sentence's, with or without an icon. Measured in Peek on 2026-09-13:
- * `text-bottom` made the line 21.2px and lifted the chip's words 1.6px;
- * `baseline` lifted them 3.8px once an icon came first.
+ * **Why the baseline.** The chip's words sit on the sentence's baseline,
+ * whatever the line's height and whatever wraps the chip. `items-baseline`
+ * makes its words the chip's baseline, and `align-baseline` puts that on the
+ * sentence's; the `icon` slot, and any child holding an icon or a picture
+ * (an app's own chip in an editor), is centred instead, because
+ * an icon has no baseline of its own and would set the chip's from its bottom
+ * edge (3.8px high, measured 2026-09-13). `1.4em` keeps the chip one 14px
+ * line tall.
+ *
+ * It was `align-top` until PEE-72 (2026-10-29), which held only while the
+ * line was 19.6px and the chip was the line's own child. RichText's 21px
+ * lines (0.64) put every chip's words 1px high, measured on peek.estiva.app;
+ * a link's chip inside its hover card's trigger (0.75) was level only by
+ * chance, its baseline taken from its icon.
  */
 
 /** The shape every tone shares. Exported for a rich-text editor that renders chips from strings. */
 export const INLINE_CHIP_CLASSES =
-  'inline-flex h-[1.4em] items-center gap-1 rounded-sm px-1 mx-0.5 align-top text-body-2 font-normal select-none'
+  'inline-flex h-[1.4em] items-baseline gap-1 rounded-sm px-1 mx-0.5 align-baseline text-body-2 font-normal select-none [&>:is(svg,img)]:self-center [&>:has(svg,img)]:self-center'
 
 /** What a chip is made of, by what it stands for. */
 export const INLINE_CHIP_TONE_CLASSES = {
@@ -40,11 +48,13 @@ export const INLINE_CHIP_TONE_CLASSES = {
   /**
    * A reference nobody could resolve — still a mention, just an anonymous one.
    * Its height is the body line's 19.6px written out, because `1.4em` here is
-   * the caption's em: 16.8px, with the letters 1.8px above the sentence's
-   * baseline. At 19.6px they sit 0.4px off it (measured 2026-09-14; Peek's
-   * copy of this chip still has the 16.8px box).
+   * the caption's em, 16.8px. Its smaller letters would set a baseline of
+   * their own and make the line 3px taller, so a strut — an invisible letter
+   * in the body's type, no wider than nothing, its gap taken back — sets the
+   * chip's baseline and the letters sit on it.
    */
-  quiet: 'h-[19.6px] bg-bg-active text-text-muted font-mono text-caption',
+  quiet:
+    "h-[19.6px] bg-bg-active text-text-muted font-mono text-caption before:invisible before:-mr-1 before:w-0 before:font-sans before:text-body-2 before:content-['x']",
   /** A file this reader cannot open — deleted, or not theirs to see: said in words, quieter than a link. */
   muted: 'bg-bg-active text-text-muted',
 } as const
@@ -73,7 +83,7 @@ export function InlineChip({ tone = 'neutral', icon, href, className, children, 
   const inApp = useInAppClick(href, props.onClick)
   const body = (
     <>
-      {icon && <span className="flex size-4 shrink-0 items-center justify-center text-text-secondary">{icon}</span>}
+      {icon && <span className="flex size-4 shrink-0 items-center justify-center self-center text-text-secondary">{icon}</span>}
       {children}
     </>
   )

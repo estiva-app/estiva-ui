@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.90.2 — 2026-10-29
+
+### Fixed
+
+- **An inline chip's words sit level with the sentence's again** (PEE-72:
+  Katerina, 22 Oct, "mention tag or widgets have been misaligned recently").
+  `InlineChip` was pinned to the line's top (`align-top`), which held only for
+  a 19.6px line with the chip as the line's own child. RichText's 21px lines
+  (0.64) put every chip's words 1px high, measured on peek.estiva.app as QA-1:
+  a mention everywhere, a `LinkChip` on a phone. On a screen that hovers a
+  `LinkChip` was level only by chance, inside its hover card's trigger with
+  its baseline taken from its icon.
+  The chip now sits on the sentence's baseline (`align-baseline`,
+  `items-baseline`), its icon or picture centred; the quiet tone carries an
+  invisible body-sized strut so its smaller letters keep the line's height.
+  `WithTooltip inline`'s wrapper is on the baseline too (was `align-top`, F1),
+  so a chip inside it — the comment box's reference chip, Peek's
+  `Reference.tsx` — is level as well. Measured in the stories at 19.6px and
+  21px lines, desktop and phone: every chip 0px off, no line taller. Callers
+  change nothing; Peek, Ship and Leaf get it on their next bump.
+
 ## 0.90.1 — 2026-10-28
 
 ### Fixed

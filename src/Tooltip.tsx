@@ -172,7 +172,7 @@ export function WithTooltip({ label, shortcut, placement = 'top', wrapperClassNa
           can carry the handlers for all of them. A control that IS the trigger
           (Button, IconButton) composes the part onto itself instead, which is
           what lets a `Dialog.Close` or a `Menu.Trigger` be one of those. */}
-      <BaseTooltip.Trigger delay={OPEN_DELAY} render={<Wrapper className={cn('inline-flex shrink-0', inline && 'align-top', wrapperClassName)} />}>
+      <BaseTooltip.Trigger delay={OPEN_DELAY} render={<Wrapper className={cn('inline-flex shrink-0', inline && 'align-baseline', wrapperClassName)} />}>
         {children}
       </BaseTooltip.Trigger>
       <TooltipSurface label={label} shortcut={shortcut} placement={placement} />
