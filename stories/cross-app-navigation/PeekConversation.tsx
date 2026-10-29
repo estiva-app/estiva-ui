@@ -19,7 +19,9 @@ import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
 import { SearchInput } from '../../src/SearchInput'
 import { TextInput } from '../../src/TextInput'
-import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply, type SentUp } from './fixtures'
+import { PreviewCard } from '../../src/PreviewCard'
+import { ScrollArea } from '../../src/ScrollArea'
+import { MESSAGES, NEW_SINCE, PEOPLE, REACTION_OPTIONS, canReadFile, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply, type SentUp } from './fixtures'
 
 /**
  * Peek's topic conversation, from what is built and settled: each message is
@@ -611,11 +613,48 @@ const dayOf = (at: string) => {
 }
 const timeOf = (at: string) => at.split(' ')[1] ?? at
 
+const isNew = (viewer: PersonId, a: { at: string }) => minutesOf(a.at) > minutesOf(NEW_SINCE[viewer])
+const readableIn = (viewer: PersonId, id: string) => (MESSAGES[id] ?? []).filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
+/** Whether a conversation has activity about you since you last looked: the sidebar's orange dot. */
+export const hasNewActivity = (viewer: PersonId, id: string, messages = readableIn(viewer, id)) => activityFor(viewer, messages).some((a) => isNew(viewer, a))
+
+/** A 6px dot: blue for new messages, orange for new activity only (Miky, 29 Oct). */
+export function NewDot({ tone }: { tone: 'conversation' | 'activity' }) {
+  return <span className={cn('size-1.5 shrink-0 rounded-full', tone === 'conversation' ? 'bg-accent-primary' : 'bg-warning-default')} aria-hidden />
+}
+
+/**
+ * The Activity dot beside a conversation's title (Miky, 29 Oct, to compare
+ * with the column): blue with new messages, orange with new activity only, a
+ * quiet ring with neither. Hovering it shows the activity, the new rows marked.
+ */
+export function ActivityDot({ viewer, messages, unread, onOpen }: { viewer: PersonId; messages: Message[]; unread: boolean; onOpen: (thread: string) => void }) {
+  const fresh = hasNewActivity(viewer, '', messages)
+  return (
+    <PreviewCard
+      side="bottom"
+      className="w-80"
+      content={
+        <div className="flex flex-col gap-2">
+          <span className="px-2 text-h5 text-text-secondary">Activity</span>
+          <ScrollArea viewportClassName="max-h-[320px]">
+            <TopicActivity viewer={viewer} messages={messages} onOpen={onOpen} topicLine="" markNew />
+          </ScrollArea>
+        </div>
+      }
+    >
+      <button type="button" aria-label={unread ? 'New messages; show your activity' : fresh ? 'New activity; show it' : 'Show your activity'} className="flex size-6 items-center justify-center rounded-full hover:bg-bg-hover">
+        {unread || fresh ? <NewDot tone={unread ? 'conversation' : 'activity'} /> : <span className="size-1.5 rounded-full border border-border-strong" aria-hidden />}
+      </button>
+    </PreviewCard>
+  )
+}
+
 /**
  * The topic's activity for you, above its listed files: each row opens its thread.
  * Divided by day as the conversation is, each row headed by its time (Miky, 29 Oct).
  */
-export function TopicActivity({ viewer, messages, onOpen, topicLine = 'On the topic' }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void; topicLine?: string }) {
+export function TopicActivity({ viewer, messages, onOpen, topicLine = 'On the topic', markNew = false }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void; topicLine?: string; markNew?: boolean }) {
   const items = activityFor(viewer, messages)
   return (
     <div className="flex flex-col gap-1">
@@ -623,8 +662,12 @@ export function TopicActivity({ viewer, messages, onOpen, topicLine = 'On the to
       {items.map((a, i) => (
         <Fragment key={a.key}>
           {(i === 0 || dayOf(items[i - 1].at) !== dayOf(a.at)) && <Divider label={dayOf(a.at)} className="my-1" />}
-          <button type="button" onClick={() => onOpen(a.thread)} className="flex flex-col gap-0.5 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover">
-            <span className="text-caption text-text-muted">{timeOf(a.at)}</span>
+          <button type="button" onClick={() => onOpen(a.thread)} className={cn('flex flex-col gap-0.5 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover', markNew && isNew(viewer, a) && 'bg-warning-muted')}>
+            <span className="flex items-center gap-1.5 text-caption text-text-muted">
+              {timeOf(a.at)}
+              {/* What is new since you last looked, in the dot's orange (Miky, 29 Oct). */}
+              {markNew && isNew(viewer, a) && <span className="text-caption text-warning-default">New</span>}
+            </span>
             <span className="flex items-start gap-2">
               <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden>
                 {a.mark}

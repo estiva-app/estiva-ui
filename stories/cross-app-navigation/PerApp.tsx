@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { IconClock, IconHome, IconLayoutDashboard, IconListCheck, IconLock, IconSortDescending, IconStar, IconTarget, IconUser, IconUsers, IconX } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
@@ -18,6 +18,7 @@ import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
 import { AvatarGroup } from '../../src/AvatarGroup'
+import { NewDot, hasNewActivity } from './PeekConversation'
 import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
 import {
   APPS,
@@ -55,6 +56,26 @@ type RailId = 'desk' | 'topics' | 'teams' | 'people'
 
 const same = (a: Place, b: Place) => JSON.stringify(a) === JSON.stringify(b)
 const appName = (app: App) => APPS.find((a) => a.id === app)!.name
+
+const ActivityVariant = createContext<'column' | 'dot'>('column')
+
+/**
+ * The dot variant's sidebar row: blue for new messages (the row's own dot),
+ * orange for new activity alone, in the same place (Miky, 29 Oct).
+ */
+function Row({ viewer, id, unread, children }: { viewer: PersonId; id: string; unread: boolean; children: ReactNode }) {
+  const variant = useContext(ActivityVariant)
+  if (variant === 'column' || unread || !hasNewActivity(viewer, id)) return children
+  return (
+    // The row keeps the dot's 24px slot clear, as NavItem does for its own dot.
+    <div className="relative [&>:first-child]:pr-8">
+      {children}
+      <span className="pointer-events-none absolute right-1 top-0 flex h-full w-6 items-center justify-center">
+        <NewDot tone="activity" />
+      </span>
+    </div>
+  )
+}
 
 /** Where Peek's rail stands for a place: what the list column beside it lists. */
 function railFor(place: Place, current: RailId): RailId {
@@ -160,6 +181,7 @@ function ProjectsPage({ viewer, onOpen }: { viewer: PersonId; onOpen: (p: Place)
 }
 
 function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App; viewer: PersonId; onOpen: (p: Place) => void; onApp: (a: App) => void }) {
+  const activity = useContext(ActivityVariant)
   const topic = place.type === 'topic' ? topicOf(place.id) : undefined
   if ((topic && !canReadTopic(viewer, topic)) || (place.type === 'file' && !canReadFile(viewer, fileOf(place.id)))) return <EmptyState message="You can’t open this." />
   switch (place.type) {
@@ -177,7 +199,7 @@ function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App
     case 'file':
       return <FilePage id={place.id} app={app} viewer={viewer} onSelect={onOpen} />
     case 'topic':
-      return app === 'peek' ? <PeekTopic topic={topic!} viewer={viewer} app={app} onApp={onApp} onSelect={onOpen} /> : <FilesOfTopic topic={topic!} app={app} viewer={viewer} onApp={onApp} onSelect={onOpen} />
+      return app === 'peek' ? <PeekTopic topic={topic!} viewer={viewer} app={app} onApp={onApp} onSelect={onOpen} activity={activity} /> : <FilesOfTopic topic={topic!} app={app} viewer={viewer} onApp={onApp} onSelect={onOpen} />
   }
 }
 
@@ -283,8 +305,8 @@ function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place;
           {team.private && <IconLock size={12} stroke={1.5} />}
         </button>
         {spaces.map((s: Topic) => (
+          <Row key={s.id} viewer={viewer} id={s.id} unread={unread.has(s.id)}>
           <NavItem
-            key={s.id}
             href="#"
             label={s.role === 'chat' ? (team.id === 'company' ? 'general' : team.name.toLowerCase()) : s.title}
             tooltip={s.role === 'chat' ? (team.private ? 'The team’s own chat: members only' : 'The team’s own chat') : s.role === 'front-door' ? `Open to everyone: how others talk to ${team.name}` : readersLabel(s).words}
@@ -293,6 +315,7 @@ function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place;
             active={same(place, { type: 'topic', id: s.id })}
             onClick={go(() => onOpen({ type: 'topic', id: s.id }))}
           />
+          </Row>
         ))}
       </div>
     )
@@ -417,7 +440,9 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
       ? <DeskList viewer={viewer} place={place} onShow={onShow} onApp={onApp} />
       : rail === 'topics'
       ? TOPICS.filter((t) => t.ends && canReadTopic(viewer, t)).map((t) => (
-          <NavItem key={t.id} href="#" label={t.title} tooltip={`Led by ${teamOf(t.lead).name}`} icon={<KindIcon kind="topic" />} unread={unread.has(t.id)} active={same(place, { type: 'topic', id: t.id })} onClick={go(() => onOpen({ type: 'topic', id: t.id }))} />
+          <Row key={t.id} viewer={viewer} id={t.id} unread={unread.has(t.id)}>
+            <NavItem href="#" label={t.title} tooltip={`Led by ${teamOf(t.lead).name}`} icon={<KindIcon kind="topic" />} unread={unread.has(t.id)} active={same(place, { type: 'topic', id: t.id })} onClick={go(() => onOpen({ type: 'topic', id: t.id }))} />
+          </Row>
         ))
       : rail === 'teams'
         ? <TeamSpaces viewer={viewer} place={place} onOpen={onOpen} />
@@ -425,14 +450,16 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
           DMS.filter((d) => canReadTopic(viewer, d)).map((d) => {
             const others = (d.members ?? []).filter((p) => p !== viewer)
             return (
-              <NavItem
-                key={d.id}
-                href="#"
-                label={dmTitle(viewer, d)}
-                icon={others.length > 1 ? <AvatarGroup size={16} members={others.map((p) => ({ name: PEOPLE[p].name }))} /> : <Avatar name={PEOPLE[others[0]].name} size={16} />}
-                active={same(place, { type: 'topic', id: d.id })}
-                onClick={go(() => onOpen({ type: 'topic', id: d.id }))}
-              />
+              <Row key={d.id} viewer={viewer} id={d.id} unread={unread.has(d.id)}>
+                <NavItem
+                  href="#"
+                  label={dmTitle(viewer, d)}
+                  icon={others.length > 1 ? <AvatarGroup size={16} members={others.map((p) => ({ name: PEOPLE[p].name }))} /> : <Avatar name={PEOPLE[others[0]].name} size={16} />}
+                  unread={unread.has(d.id)}
+                  active={same(place, { type: 'topic', id: d.id })}
+                  onClick={go(() => onOpen({ type: 'topic', id: d.id }))}
+                />
+              </Row>
             )
           })
   return (
@@ -473,9 +500,19 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
 export interface PerAppProps {
   viewer?: PersonId
   start?: Place
+  /** Where Activity lives: its own column beside the files, or behind a dot by the title (Miky, 29 Oct, to compare). */
+  activity?: 'column' | 'dot'
 }
 
-export function PerApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'fast' } }: PerAppProps) {
+export function PerApp(props: PerAppProps) {
+  return (
+    <ActivityVariant.Provider value={props.activity ?? 'column'}>
+      <PerAppInner {...props} />
+    </ActivityVariant.Provider>
+  )
+}
+
+function PerAppInner({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'fast' } }: PerAppProps) {
   const [app, switchTo] = useApp()
   const [viewer, setViewer] = useState<PersonId>(firstViewer)
   const [place, setPlace] = useState<Place>(() => (start.type === 'home' && app === 'peek' ? firstDeskPlace(firstViewer) : start))

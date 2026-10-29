@@ -21,6 +21,13 @@ export const Peek: Story = {
   render: () => <PerApp />,
 }
 
+/** Activity behind a dot by the title, the column only the files: to compare with Peek's (Miky, 29 Oct). */
+export const PeekActivityDot: Story = {
+  name: 'Peek, Activity dot',
+  globals: { theme: 'signal' },
+  render: () => <PerApp activity="dot" start={{ type: 'topic', id: 'widgets' }} />,
+}
+
 /** Peek's Desk as today's Peek draws it: the Desk's rows in the list column, the conversation open beside it. */
 export const PeekDesk: Story = {
   name: 'Peek, Desk',

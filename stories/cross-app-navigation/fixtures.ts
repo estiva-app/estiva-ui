@@ -174,6 +174,9 @@ export const TOPICS: Topic[] = [
   { id: 'mkt-door', title: 'Talk to Marketing', lead: 'marketing', ends: false, readers: 'everyone', role: 'front-door', lists: [] },
 ]
 
+/** When each person last looked at their activity: anything after it is new (the Activity dot variant, Miky, 29 Oct). */
+export const NEW_SINCE: Record<PersonId, string> = { miky: 'Fri 12:00', katerina: 'Fri 12:00', agent: 'Fri 12:00' }
+
 /** Direct conversations, under People: a one-to-one and a group (Miky, 29 Oct: Activity in every conversation, one-to-one included). */
 export const DMS: Topic[] = [
   { id: 'dm-katerina', title: 'Katerina Kelepouri', lead: 'company', ends: false, readers: 'people', members: ['miky', 'katerina'], role: 'dm', lists: [] },
@@ -361,6 +364,7 @@ export const MESSAGES: Record<string, Message[]> = {
       highlight: 'update',
       status: 'Completed',
       sentUp: { by: 'miky', at: 'Mon 09:10' },
+      thread: [{ by: 'katerina', at: 'Fri 17:10', highlight: 'question', body: 'Does the look pass keep its own Done when in UI Guardrails?' }],
       // Build 1's real resolution, 27 Oct.
       body: 'Links in Peek messages and Ship comments draw from one kit. Katerina’s look pass moved to UI Guardrails, the summary lines to One conversation in every app.',
       reactions: [{ emoji: '🎉', by: ['katerina', 'agent'] }],

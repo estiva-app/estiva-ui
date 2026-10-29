@@ -37,7 +37,7 @@ import { TooltipTrigger } from '../../src/Tooltip'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ScrollArea } from '../../src/ScrollArea'
-import { PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
+import { ActivityDot, PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
 import { post, setStatus, usePosted, useStatuses } from './posted'
 import {
   FILES,
@@ -109,7 +109,7 @@ export const go = (fn: () => void) => (event: MouseEvent) => {
   fn()
 }
 /** The conversations with something new, as each person would see it. */
-export const unreadFor = (viewer: PersonId) => new Set(viewer === 'miky' ? ['fast', 'eng-door', 'mkt-door'] : ['navigation', 'bugs'])
+export const unreadFor = (viewer: PersonId) => new Set(viewer === 'miky' ? ['fast', 'eng-door', 'mkt-door', 'dm-katerina'] : ['navigation', 'bugs'])
 
 export function readersLabel(topic: Topic) {
   if (topic.readers === 'everyone') return { icon: <IconWorld {...icon16} />, words: 'Everyone' }
@@ -339,7 +339,7 @@ function ViewToggle({ view, onView, counts, file }: { view: 'all' | 'main' | 'fi
 }
 
 /** Peek's topic: All, Main, or one listed file's conversation; the listed files beside it. */
-export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
+export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'column' }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void; activity?: 'column' | 'dot' }) {
   const [view, setView] = useState<PeekView>('main')
   const [sent, setSent] = useState<Record<string, Message[]>>({})
   const [thread, setThread] = useState<string | null>(null)
@@ -396,12 +396,16 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           right={
             <>
               {topic.role === 'dm' ? <AvatarGroup size={20} members={(topic.members ?? []).map((p) => ({ name: PEOPLE[p].name }))} /> : <TopicFacts topic={topic} />}
-              <IconButton aria-label={side ? 'Hide the sidebar' : 'Show the sidebar'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
-                <IconLayoutSidebarRight {...icon16} />
-              </IconButton>
+              {(activity === 'column' || !chatOnly) && (
+                <IconButton aria-label={side ? 'Hide the sidebar' : 'Show the sidebar'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                  <IconLayoutSidebarRight {...icon16} />
+                </IconButton>
+              )}
             </>
           }
         >
+          {/* The dot variant: Activity behind a dot between the title and All | Main (Miky, 29 Oct). */}
+          {activity === 'dot' && <ActivityDot viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} unread={unreadFor(viewer).has(topic.id)} onOpen={setThread} />}
           {!chatOnly && <ViewToggle view={tab} onView={setView} counts={{ all: entries.length, main: main.length }} file={chosen} />}
         </Header>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -448,13 +452,15 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           onClose={() => setThread(null)}
         />
       )}
-      {!opened && side && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!opened && side && (activity === 'column' || !chatOnly) && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. About three rows show; the rest scroll inside. */}
-        {/* In every conversation, a one-to-one included (Miky, 29 Oct); where there are no files it is the whole column. */}
+        {/* In every conversation, a one-to-one included (Miky, 29 Oct); where there are no files it is the whole column. In the dot variant the column is only the files. */}
+        {activity === 'column' && <>
         <SectionLabel tone="muted">Activity</SectionLabel>
         <ScrollArea className="shrink-0" viewportClassName={chatOnly ? undefined : 'max-h-[300px]'}>
           <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} topicLine={chatOnly ? '' : undefined} />
         </ScrollArea>
+        </>}
         {!chatOnly && <>
         <SectionLabel tone="muted">Files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
