@@ -10,7 +10,7 @@
  * words, what an address is before it is read) is the app's, passed in.
  */
 import { thingKindOf } from './KindIcon'
-import type { LinkState, Linked, LinkedChild, LinkedConversation, LinkedKind, LinkedPicker, StatusColour } from './linked'
+import type { LinkState, Linked, LinkedChild, LinkedConversation, LinkedKind, LinkedPerson, LinkedPicker, StatusColour } from './linked'
 
 /** A person as interop names them: a profile, possibly empty. */
 export interface LinkedProfile {
@@ -80,6 +80,23 @@ export interface LinkedFromOptions<T extends LinkedSource = LinkedSource> {
   onAct?: (actionId: string, value: string) => void
   /** What was said about it, when the app has read that. */
   conversation?: LinkedConversation
+  /**
+   * When it last changed, from interop's `changedAt` (in seconds), in the app's words. Without it a card says it the
+   * kit's way, alike in every app: "just now", "5m ago", "2h ago", "3d ago", then the date.
+   */
+  whenOf?: (seconds: number) => string
+}
+
+/** How long ago a time in seconds was, as a card says it: "just now", "5m ago", "2h ago", "3d ago", then "12 Oct". */
+function agoOf(seconds: number, now = Date.now()): string {
+  const gone = Math.max(0, Math.floor(now / 1000 - seconds))
+  if (gone < 60) return 'just now'
+  if (gone < 3600) return `${Math.floor(gone / 60)}m ago`
+  if (gone < 86400) return `${Math.floor(gone / 3600)}h ago`
+  if (gone < 7 * 86400) return `${Math.floor(gone / 86400)}d ago`
+  const date = new Date(seconds * 1000)
+  const year = date.getFullYear() === new Date(now).getFullYear() ? {} : { year: 'numeric' as const }
+  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', ...year })
 }
 
 /** How many of a file's items its card lists: the most recently changed (Miky, 21 Oct). */
@@ -226,17 +243,40 @@ function ownerOf(object: LinkedSource, options: Pick<LinkedFromOptions, 'directo
   }
 }
 
+/**
+ * Who made it, when the app can name them: the key its address is signed by (`kind:pubkey:d`). A topic's is its
+ * relay's, which names nobody; a file with no address has no key in it.
+ */
+function authorOf(object: LinkedSource, directory: LinkedFromOptions['directory']): LinkedPerson | undefined {
+  if (object.kind === KIND_CHANNEL || !object.address) return undefined
+  const pubkey = object.address.split(':')[1]
+  if (!pubkey || !/^[0-9a-f]{64}$/.test(pubkey)) return undefined
+  const profile = object.people?.[pubkey] ?? directory?.[pubkey]
+  if (!profile?.displayName) return undefined
+  return { name: profile.displayName, ...(profile.picture ? { picture: profile.picture } : {}) }
+}
+
 /** The file a reference names, as the kit's chip, row and card draw it. */
 export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFromOptions<T>): Linked {
   const { slots, people } = object
   const id = idOf(object)
   const href = options.hrefOf(object, true)
+  // When it last changed (Katerina, 30 Oct: "no date no person"). A message's is when it was written.
+  const updated = object.changedAt !== undefined ? (options.whenOf ?? agoOf)(object.changedAt) : undefined
   if (isMessage(object) && slots.title?.isPubkey) {
     // A message is titled by its author (RIC-11): drawn with their face, then its opening words.
     const person = people?.[slots.title.value]
     const name = person?.displayName ?? '—'
     const body = slots.body?.value ? options.previewText(slots.body.value, people) : ''
-    return { id, kind: 'message', title: name, href, author: { name, ...(person?.picture ? { picture: person.picture } : {}) }, ...(body ? { body } : {}) }
+    return {
+      id,
+      kind: 'message',
+      title: name,
+      href,
+      author: { name, ...(person?.picture ? { picture: person.picture } : {}) },
+      ...(body ? { body } : {}),
+      ...(updated ? { updated } : {}),
+    }
   }
   const onAct = object.archived ? undefined : options.onAct
   const key = keyOf(object)
@@ -244,6 +284,8 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
   const owner = ownerOf(object, options, onAct)
   const children = childrenOf(object, options)
   const done = doneOf(object)
+  // Who made it, when nothing else on it names a person: an issue's owner already does.
+  const author = owner ? undefined : authorOf(object, options.directory)
   return {
     id,
     kind: linkedKindOfKind(object.kind),
@@ -258,6 +300,8 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
     ...(options.conversation ? { conversation: options.conversation } : {}),
     ...(children ? { children } : {}),
     ...(done ? { done } : {}),
+    ...(author ? { authors: [author] } : {}),
+    ...(updated ? { updated } : {}),
   }
 }
 

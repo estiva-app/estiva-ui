@@ -152,6 +152,58 @@ describe('a card built from interop’s projection', () => {
   })
 })
 
+// Katerina, 30 Oct: "there are no metadata in the card, no date no person".
+describe('when it changed, and who made it', () => {
+  const now = Math.floor(Date.now() / 1000)
+  const PAGE: LinkedSource = {
+    ref: `30842:${OTHER}:page`,
+    address: `30842:${OTHER}:page`,
+    kind: 30842,
+    widget: 'card',
+    slots: { title: { value: 'Page one', field: 'title' }, subtitle: { value: 'What the page is for.' } },
+    meta: [],
+    actions: [],
+    changedAt: now - 2 * 3600,
+  }
+
+  it('says when it last changed, and who made it, by the key its address is signed by', () => {
+    const card = render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options())} />)
+    expect(within(card.container).getByText('2h ago')).toBeTruthy()
+    expect(within(card.container).getByText('PT')).toBeTruthy()
+  })
+
+  it('says it in the app’s words when the app gives them', () => {
+    render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options({ whenOf: () => 'Tuesday' }))} />)
+    expect(screen.getByText('Tuesday')).toBeTruthy()
+  })
+
+  it('names nobody it cannot name, and a topic, whose key is its relay’s', () => {
+    const stranger = { ...PAGE, address: `30842:${'c'.repeat(64)}:page` }
+    render(<LinkCard link={linkStateFrom(stranger, UNREAD, options())} />)
+    expect(screen.getByText('Updated 2h ago')).toBeTruthy()
+    cleanup()
+    render(<LinkCard link={linkStateFrom({ ...PAGE, kind: 39000, address: `39000:${OTHER}:topic` }, UNREAD, options())} />)
+    expect(screen.getByText('Updated 2h ago')).toBeTruthy()
+  })
+
+  it('leaves the person to the owner picker on a file that has one', () => {
+    const card = render(<LinkCard link={linkStateFrom({ ...GROUP, children: [] }, UNREAD, options())} />)
+    expect(within(card.container).queryByText('PT')).toBeNull()
+  })
+
+  it('counts minutes, hours and days, then gives the date', () => {
+    const at = (gone: number) => {
+      cleanup()
+      render(<LinkCard link={linkStateFrom({ ...PAGE, address: undefined, changedAt: now - gone }, UNREAD, options())} />)
+      return screen.getByText(/^Updated /).textContent
+    }
+    expect(at(10)).toBe('Updated just now')
+    expect(at(5 * 60)).toBe('Updated 5m ago')
+    expect(at(3 * 86400)).toBe('Updated 3d ago')
+    expect(at(30 * 86400)).not.toMatch(/ago/)
+  })
+})
+
 describe('a file the reader cannot read', () => {
   it('is not available, and opens in its app only at an https address', () => {
     const stub: LinkedSource = { ...GROUP, unreachable: true, noun: 'group', appName: 'App one', openUrl: 'https://app.example/x' }

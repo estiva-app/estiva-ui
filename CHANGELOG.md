@@ -21,6 +21,13 @@ Katerina, 30 Oct, on 0.91.0 live in Peek.
   its ring and its faces, as a row's does ("progress, comment, people"); alone
   there when the card has neither. The footer keeps the pickers, or who and
   when, and is not drawn for the count alone.
+- **A card says when its file last changed, and who made it** ("no date no
+  person"). `linkedFrom` fills `updated` from interop's `changedAt`, in the
+  same words in every app ("5m ago", "2h ago", "3d ago", then the date) unless
+  the app passes `whenOf`, and `authors` from the key the file's address is
+  signed by, when the app's people name it and no owner picker already names
+  a person. A topic's key is its relay's: it names nobody. A message's time
+  is when it was written.
 - **Cards and rows stop at 480px in a box being written in too** ("in the
   bigger compose box it's not looking good"); in a narrow box they fill it as
   before.
