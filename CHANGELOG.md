@@ -28,12 +28,14 @@ things are, and her notes on the parts she found there.
   - The ✕ is a file's: the round one on the card's corner, from
     `AttachmentCard`, shown on hover or focus (while writing too; it always
     showed while writing before) and always on a screen that cannot hover.
-- **A link in text starts with the link icon and stays underlined** (her note
-  8: "icon before but also underlined"). RichText's links and the editors'
-  (`LINK_CLASS`) draw Tabler's `link` before their words, in the link's
-  colour at the text's size. A chip of an Estiva thing keeps its kind's icon
-  and gains nothing. One look, `WEB_LINK_ICON_CLASSES`, a mask on `::before`,
-  so nothing is added to what is saved or copied.
+- **A link in text starts with the link icon, with one underline under the icon
+  and its words**, as Slack draws one (her note 8: "icon before but also
+  underlined"; "I want the icon to be underlined as well like Slack does").
+  It is `Link`'s `text` look, so RichText's links have it, and the editors'
+  links (`LINK_CLASS`) wear the same `WEB_LINK_CLASSES`. A chip of an Estiva
+  thing keeps its kind's icon and gains nothing. The browser's underline skips
+  an icon, so the line is the link's own background, 1px of its colour; the
+  icon is a mask on `::before`, so nothing is added to what is saved or copied.
 - **ReferenceCards says "deprecated"** beside its name in the sidebar, and its
   page opens with what to use instead (LinkPlaces). Any part's stories can
   carry the `deprecated` tag; `.storybook/manager.ts` writes the word.
