@@ -644,6 +644,8 @@ function newMessagesFor(viewer: PersonId, messages: Message[]) {
   return items.sort((a, b) => minutesOf(b.at) - minutesOf(a.at))
 }
 
+export const hasNewMessages = (viewer: PersonId, messages: Message[]) => newMessagesFor(viewer, messages).length > 0
+
 /**
  * The blue dot's list (Miky, 29 Oct): the new messages and replies, and a
  * click scrolls the conversation to the message they are in.
@@ -681,7 +683,7 @@ function NewMessages({ viewer, messages, onJump }: { viewer: PersonId; messages:
  * when it is blue, the new messages and replies first, each scrolling to its
  * message (`onJump`).
  */
-export function ActivityDot({ viewer, messages, unread, onOpen, onJump }: { viewer: PersonId; messages: Message[]; unread: boolean; onOpen: (thread: string) => void; onJump: (thread: string) => void }) {
+export function ActivityDot({ viewer, messages, news = messages, unread, onOpen, onJump }: { viewer: PersonId; messages: Message[]; news?: Message[]; unread: boolean; onOpen: (thread: string) => void; onJump: (thread: string) => void }) {
   const fresh = hasNewActivity(viewer, '', messages)
   return (
     <PreviewCard
@@ -689,7 +691,7 @@ export function ActivityDot({ viewer, messages, unread, onOpen, onJump }: { view
       className="w-80"
       content={
         <div className="flex flex-col gap-2">
-          {unread && <NewMessages viewer={viewer} messages={messages} onJump={onJump} />}
+          {unread && <NewMessages viewer={viewer} messages={news} onJump={onJump} />}
           <span className="px-2 text-h5 text-text-secondary">Activity</span>
           <ScrollArea viewportClassName="max-h-[320px]">
             <TopicActivity viewer={viewer} messages={messages} onOpen={onOpen} topicLine="" markNew />

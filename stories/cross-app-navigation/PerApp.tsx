@@ -36,8 +36,8 @@ import {
   noun,
   readersLabel,
   spaceIcon,
-  unreadFor,
   useApp,
+  useUnread,
   useSpaceIcon,
   type Selection,
 } from './Lens'
@@ -294,7 +294,7 @@ function LeafNav({ viewer, place, onOpen }: { viewer: PersonId; place: Place; on
 
 /** Peek's list column under Teams: each team's spaces, flat under its name (#general, marketing, Talk to Marketing). */
 function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place; onOpen: (p: Place) => void }) {
-  const unread = unreadFor(viewer)
+  const unread = useUnread(viewer)
   const iconOf = useSpaceIcon()
   return TEAMS.map((team) => {
     const spaces = spacesOf(team.id).filter((s) => canReadTopic(viewer, s))
@@ -368,7 +368,7 @@ function ScreenerRow({ row, onOpen, onDismiss }: { row: DeskRow; onOpen: () => v
  */
 function DeskList({ viewer, place, onShow, onApp }: { viewer: PersonId; place: Place; onShow: (p: Place) => void; onApp: (a: App) => void }) {
   const desk = deskOf(viewer)
-  const unread = unreadFor(viewer)
+  const unread = useUnread(viewer)
   const [opened, setOpened] = useState<DeskRow[]>([])
   const [gone, setGone] = useState<Set<string>>(new Set())
   const screener = desk.needs.filter((r) => !r.urgent && !gone.has(r.id))
@@ -428,7 +428,7 @@ function DeskList({ viewer, place, onShow, onApp }: { viewer: PersonId; place: P
 
 /** Peek: a rail of Desk, Topics, Teams and People, and the list column the rail chose. */
 function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identity, logo, children }: { viewer: PersonId; place: Place; rail: RailId; onRail: (r: RailId) => void; onOpen: (p: Place) => void; onShow: (p: Place) => void; onApp: (a: App) => void; identity: ReactNode; logo: ReactNode; children: ReactNode }) {
-  const unread = unreadFor(viewer)
+  const unread = useUnread(viewer)
   const iconOf = useSpaceIcon()
   const rails: { id: RailId; label: string; icon: ReactNode }[] = [
     { id: 'desk', label: 'Desk', icon: <IconLayoutDashboard size={20} stroke={1.5} /> },
