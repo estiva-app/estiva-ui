@@ -5,6 +5,7 @@ import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Button } from '../../src/Button'
 import { Card } from '../../src/Card'
+import { Checkbox } from '../../src/Checkbox'
 import { CardUnder } from '../../src/CardUnder'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
@@ -16,7 +17,6 @@ import { KindIcon } from '../../src/KindIcon'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
-import { Select } from '../../src/Select'
 import { TextInput } from '../../src/TextInput'
 import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply, type SentUp } from './fixtures'
 
@@ -352,7 +352,7 @@ export function ThreadPanel({
   viewer: PersonId
   places: { id: string; title: string }[]
   sentTo: { topic: string; up: SentUp }[]
-  onSend: (topic: string, note: string) => void
+  onSend: (topics: string[], note: string) => void
   onClose: () => void
 }) {
   const [sent, setSent] = useState<Reply[]>([])
@@ -384,8 +384,8 @@ export function ThreadPanel({
           file={file}
           places={open}
           onCancel={() => setSending(false)}
-          onSend={(topic, note) => {
-            onSend(topic, note)
+          onSend={(topics, note) => {
+            onSend(topics, note)
             setSending(false)
           }}
         />
@@ -440,20 +440,33 @@ export function ThreadPanel({
  * your own if you like. The line goes to every reader of the topic, also those
  * who can't open the file, so the form says so.
  */
-function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places: { id: string; title: string }[]; onCancel: () => void; onSend: (topic: string, note: string) => void }) {
-  const [topic, setTopic] = useState(places[0].id)
+function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places: { id: string; title: string }[]; onCancel: () => void; onSend: (topics: string[], note: string) => void }) {
+  // The topic you are on is ticked; with several, tick more or all of them (Miky, 29 Oct).
+  const [topics, setTopics] = useState([places[0].id])
   const [note, setNote] = useState('')
+  const every = topics.length === places.length
+  const tick = (id: string, on: boolean) => setTopics((now) => (on ? [...now, id] : now.filter((t) => t !== id)))
   return (
     <form
       className="flex flex-col gap-3 border-b border-border-subtle bg-bg-inset p-4"
       onSubmit={(e) => {
         e.preventDefault()
-        onSend(topic, note.trim())
+        if (topics.length > 0) onSend(topics, note.trim())
       }}
     >
-      <Field label="Topic" helper={places.length === 1 ? 'The only topic you read that lists this file.' : 'It goes to this topic only.'}>
-        <Select value={topic} onChange={setTopic} options={places.map((p) => ({ value: p.id, label: p.title, leading: <KindIcon kind="topic" /> }))} />
-      </Field>
+      {places.length === 1 ? (
+        <span className="flex items-center gap-2 text-body-2 text-text-primary">
+          <KindIcon kind="topic" />
+          {places[0].title}
+        </span>
+      ) : (
+        <div role="group" aria-label="Topics" className="flex flex-col gap-0.5">
+          <Checkbox row label={`All ${places.length} topics that list it`} checked={every} onChange={(on) => setTopics(on ? places.map((p) => p.id) : [])} />
+          {places.map((p) => (
+            <Checkbox key={p.id} row leading={<KindIcon kind="topic" />} label={p.title} checked={topics.includes(p.id)} onChange={(on) => tick(p.id, on)} />
+          ))}
+        </div>
+      )}
       <Field label="Your line" helper={`Optional. Everyone who reads the topic sees it, also people who can’t open ${file.title}.`}>
         <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="Why the topic should see this…" />
       </Field>
@@ -461,7 +474,7 @@ function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places
         <Button variant="muted" size="small" type="button" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" size="small" type="submit">
+        <Button variant="primary" size="small" type="submit" disabledReason={topics.length === 0 ? 'Tick a topic first' : undefined}>
           Send
         </Button>
       </div>

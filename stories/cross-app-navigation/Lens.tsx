@@ -352,7 +352,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   // Main: what was said on the topic itself, and the threads someone sent up by hand (Miky, 29 Oct). Resolving or a mention alone does not bring one here.
   const main = entries.filter((e) => !e.m.on || e.up)
   const shown = chatOnly || view === 'all' ? entries : view === 'main' ? main : entries.filter((e) => e.m.on === view.file && e.readable)
-  const placesOf = (m: Message) => TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t))
+  // The topics a thread can go to, the one you are on first.
+  const placesOf = (m: Message) =>
+    TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t)).sort((a, b) => Number(b.id === topic.id) - Number(a.id === topic.id))
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
   return (
@@ -410,7 +412,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             const up = upIn(t.id, opened)
             return opened.on && up ? [{ topic: t.id, up }] : []
           })}
-          onSend={(to, note) => setUps((now) => ({ ...now, [to]: [...(now[to] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined } }] }))}
+          onSend={(to, note) =>
+            setUps((now) => ({ ...now, ...Object.fromEntries(to.map((t) => [t, [...(now[t] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined } }]])) }))
+          }
           onClose={() => setThread(null)}
         />
       )}
