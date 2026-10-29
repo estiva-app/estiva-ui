@@ -62,7 +62,9 @@ export function AddReactionButton({ options, onPick, className }: AddReactionBut
       align="left"
       ariaLabel="Add a reaction"
       contentClassName="p-1"
-      className={className}
+      // As wide as its strip: a panel's 180px is a menu's, and left 24px empty right of the emoji (Katerina, 29 Oct).
+      // SelectionToolbar's and Peek's quick menu's panels do the same.
+      className={cn('w-auto min-w-0', className)}
       trigger={
         <IconButton variant="muted" tooltip="Add a reaction" aria-label="Add a reaction">
           <IconMoodPlus size={16} stroke={1.5} />
