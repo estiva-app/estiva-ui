@@ -40,14 +40,23 @@ export interface FileRow {
   team: TeamId
   /** Ship: "3 of 11". */
   progress?: string
+  /** What it is for, in a line or two: the card's summary. */
+  summary?: string
+  /** A project's first issues, for its card (Miky, 29 Oct: summary, or summary + issues). */
+  issues?: { title: string; done: boolean }[]
 }
 
 export const FILES: FileRow[] = [
   { id: 'p-leaf-everyday', app: 'ship', title: 'Leaf works for everyday documents', team: 'eng', progress: '7 of 11' },
-  { id: 'p-read-only', app: 'ship', title: 'Apps read only what they show', team: 'eng', progress: '6 of 10' },
+  { id: 'p-read-only', app: 'ship', title: 'Apps read only what they show', team: 'eng', progress: '6 of 10',
+    summary: 'Each app asks the relay only for what is on screen, so first paint stays under a second on Miky’s workspace.',
+    issues: [{ title: 'Leaf asks only for the blocks it draws', done: true }, { title: 'Ship reads one project at a time', done: false }, { title: 'Peek drops the full topic load', done: false }] },
   { id: 'p-leaf-instant', app: 'ship', title: 'Leaf opens instantly', team: 'eng', progress: '0 of 0' },
-  { id: 'p-ship-instant', app: 'ship', title: 'Ship opens instantly', team: 'eng', progress: '0 of 0' },
-  { id: 'p-live', app: 'ship', title: 'Live across apps', team: 'eng', progress: '0 of 0' },
+  { id: 'p-ship-instant', app: 'ship', title: 'Ship opens instantly', team: 'eng', progress: '0 of 0',
+    summary: 'Ship opens from a copy on the device, so the first screen never waits for the relay.' },
+  { id: 'p-live', app: 'ship', title: 'Live across apps', team: 'eng', progress: '1 of 3',
+    summary: 'A change in one app shows in the others within two seconds.',
+    issues: [{ title: 'Reactions reach Ship live', done: true }, { title: 'Wide watches keep reactions', done: false }, { title: 'Leaf follows renames', done: false }] },
   { id: 'p-peek-fast', app: 'ship', title: 'Peek stays fast', team: 'eng', progress: '0 of 0' },
   { id: 'p-peek-bugs', app: 'ship', title: 'Peek: Feedback & Bugs', team: 'eng', progress: '4 of 9' },
   { id: 'p-ship-bugs', app: 'ship', title: 'Ship: Feedback & Bugs', team: 'eng', progress: '5 of 8' },
@@ -63,7 +72,8 @@ export const FILES: FileRow[] = [
   { id: 'p-docs-2', app: 'ship', title: 'docs.estiva.app 2: a grant reviewer sees what it can do', team: 'company', progress: '0 of 3' },
   { id: 'd-navigation', app: 'leaf', title: 'Navigation', team: 'company' },
   { id: 'd-weekly', app: 'leaf', title: 'Weekly Plans', team: 'company' },
-  { id: 'd-speed', app: 'leaf', title: 'Speed on Miky’s workspace', team: 'eng' },
+  { id: 'd-speed', app: 'leaf', title: 'Speed on Miky’s workspace', team: 'eng',
+    summary: 'Every move timed on the real workspace: what is fast, what is still slow, and the target for each.' },
   { id: 'd-testing-widgets', app: 'leaf', title: 'Testing Widgets', team: 'design' },
   { id: 'd-grant-research', app: 'leaf', title: 'Grant organisation research', team: 'company' },
   { id: 'd-grant-reusable', app: 'leaf', title: 'Reusable grant content', team: 'company' },

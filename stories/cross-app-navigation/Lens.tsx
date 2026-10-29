@@ -358,17 +358,19 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   // The topics a thread can go to, the one you are on first.
   const placesOf = (m: Message) =>
     TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t)).sort((a, b) => Number(b.id === topic.id) - Number(a.id === topic.id))
-  /** A listed file's card with its conversation in this topic: how much was said, the latest message, and when. */
+  /** A listed file's card: its summary, a project's issues (Miky, 29 Oct: not the latest conversation), and how much was said here. */
   const fileCard = (f: FileRow): LinkState => {
     const said = every.filter((m) => m.on === f.id)
-    const last = said.at(-1)
-    const card = cardOf(f, last?.at ?? '')
-    if (card.state !== 'ready' || said.length === 0) return card
+    const card = cardOf(f, said.at(-1)?.at ?? '')
+    if (card.state !== 'ready') return card
     const count = said.reduce((n, m) => n + 1 + (m.thread?.length ?? 0), 0)
-    return {
-      ...card,
-      linked: { ...card.linked, conversation: { count, href: '#' }, latest: last && { author: { name: PEOPLE[last.by].name }, body: last.body, at: last.at } },
-    }
+    const children = f.issues?.map((i, n) => ({
+      id: `${f.id}-${n}`,
+      title: i.title,
+      href: '#',
+      status: i.done ? { label: 'Done', colour: 'green' as const } : { label: 'In progress', colour: 'blue' as const },
+    }))
+    return { ...card, linked: { ...card.linked, summary: f.summary, children, conversation: count ? { count, href: '#' } : undefined } }
   }
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
