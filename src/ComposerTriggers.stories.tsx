@@ -23,7 +23,7 @@ import {
  * Type one of them in the box.
  */
 const meta = {
-  title: 'Primitives/ComposerTriggers',
+  title: 'Writing/ComposerTriggers',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

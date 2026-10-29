@@ -6,7 +6,7 @@ import { SectionHeader } from './SectionHeader'
 
 /** The 32px row a section starts with. Hover it: the row fills, and its actions appear. A section that folds is CollapsibleSection, whose header this is. */
 const meta = {
-  title: 'Navigation/SectionHeader',
+  title: 'Page structure/SectionHeader',
   component: SectionHeader,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
   args: { title: 'Section', showActions: 'hover' },

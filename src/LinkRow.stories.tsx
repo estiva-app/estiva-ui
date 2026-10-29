@@ -3,7 +3,7 @@ import { GROUP, ITEM, ITEM_UNREAD, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABL
 import { LinkRow, LinkUnavailable } from './LinkRow'
 
 const meta = {
-  title: 'Components/LinkRow',
+  title: 'Links & references/LinkRow',
   component: LinkRow,
   parameters: { layout: 'padded' },
   args: { link: ready(ITEM) },
@@ -42,8 +42,8 @@ export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
 export const NotAvailableLine: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
-      <LinkUnavailable kind="issue" noun="Item" openIn={{ app: 'App one', href: '#elsewhere' }} />
-      <LinkUnavailable kind="page" noun="Page" />
+      <LinkUnavailable kind="issue" noun="Issue" openIn={{ app: 'App one', href: '#elsewhere' }} />
+      <LinkUnavailable kind="page" noun="Document" />
     </div>
   ),
 }

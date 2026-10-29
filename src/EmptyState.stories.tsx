@@ -6,7 +6,7 @@ import { EmptyState } from './EmptyState'
 const inBox: Decorator = (Story) => <div className="flex h-[280px] w-[480px] flex-col rounded-lg border border-border-default p-4">{Story()}</div>
 
 const meta = {
-  title: 'Feedback/EmptyState',
+  title: 'Status & feedback/EmptyState',
   component: EmptyState,
   args: { message: 'Nothing here yet.' },
   argTypes: { icon: { control: false } },

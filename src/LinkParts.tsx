@@ -9,7 +9,8 @@ import { Avatar } from './Avatar'
 import { cn } from './cn'
 import { KindIcon } from './KindIcon'
 import { Link } from './Link'
-import { chosenOf, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
+import { chosenOf, type Linked, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
+import { TYPE_TILE_CLASSES } from './looks'
 import { Select } from './Select'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -43,9 +44,30 @@ export function LinkedIcon({ kind, size = 16, tone = 'secondary' }: { kind: Link
   return <KindIcon kind={kind} size={size} tone={tone} />
 }
 
-/** A key, the way people say it ("ABC-2"): before the title, quieter than it. */
-export function LinkKey({ children }: { children: string }) {
-  return <span className="shrink-0 text-caption tabular-nums text-text-muted">{children}</span>
+/**
+ * A key, the way people say it ("ABC-2"): before the title, quieter than it. `secondary` is a step brighter, for a chip
+ * in a sentence, where the muted grey on the chip's fill was hard to read (Katerina, 29 Oct).
+ */
+export function LinkKey({ children, tone = 'muted' }: { children: string; tone?: 'muted' | 'secondary' }) {
+  return <span className={cn('shrink-0 text-caption tabular-nums', tone === 'secondary' ? 'text-text-secondary' : 'text-text-muted')}>{children}</span>
+}
+
+/** The kinds the apps have, in the words they use for them (Katerina, 29 Oct: "topic, project, issue, page or document"). */
+const KIND_NOUN: Partial<Record<LinkedKind, string>> = { issue: 'Issue', project: 'Project', topic: 'Topic', page: 'Document' }
+
+/** What it is, in a word: the app's own word, else its kind's. Another app's file, or words a person wrote, have none. */
+export function kindNounOf(linked: Pick<Linked, 'kind' | 'noun'>): string | undefined {
+  return linked.noun ?? KIND_NOUN[linked.kind]
+}
+
+/** The 36px tile a link's kind sits in, as a file's type does in AttachmentCard; words a person wrote show their face. */
+export function LinkTile({ kind, author }: { kind: LinkedKind; author?: { name: string; picture?: string } }) {
+  if (author) return <Avatar name={author.name} src={author.picture} size={36} />
+  return (
+    <span className={TYPE_TILE_CLASSES}>
+      <LinkedIcon kind={kind} />
+    </span>
+  )
 }
 
 /** Progress as a small ring, with the count beside it. */
@@ -57,7 +79,9 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
   const share = total > 0 ? Math.min(done, total) / total : 0
   return (
     <WithTooltip label={`${done} of ${total} done`} inline wrapperClassName="inline-flex shrink-0">
-      <span className="inline-flex shrink-0 items-center gap-1 text-caption tabular-nums text-text-secondary">
+      {/* 6px between the ring and its count (Katerina, 29 Oct: 4px read as one mark). */}
+      {/* The count in the small size: a mark beside the ring, not words (Katerina, 29 Oct). */}
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-small tabular-nums text-text-secondary">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90" aria-hidden>
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border-default" />
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${c * share} ${c}`} className="stroke-success-default" />
@@ -77,8 +101,15 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
 export function CommentCount({ conversation, noun = 'comments' }: { conversation: LinkedConversation; noun?: string }) {
   const { count, href, unread = false } = conversation
   return (
-    <span className={cn('relative z-10 -mx-1 inline-flex shrink-0 rounded-sm px-1 text-caption tabular-nums hover:bg-bg-active', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
-      <Link href={href} variant="plain" className="inline-flex items-center gap-1">
+    /*
+     * A small button's shape, as Button's small one is: 24px tall like the pickers beside it, 6px each side, its corners
+     * and its hover. It was 15px tall, 1px above and below its icon and 4px at the sides, and read as squashed
+     * (Katerina, 29 Oct). The link fills the box, so all of it opens the conversation. The box keeps its own room:
+     * its 6px and the row's gap part it from the faces and the ring beside it (14px to its icon). The count is in
+     * the small size (10px).
+     */
+    <span className={cn('relative z-10 inline-flex h-6 shrink-0 rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+      <Link href={href} variant="plain" className="flex h-full items-center gap-1 px-1.5">
         <IconMessage2 size={14} stroke={1.5} aria-hidden />
         {count}
         <span className="sr-only">{unread ? `${noun}, unread — open the conversation` : `${noun} — open the conversation`}</span>
@@ -108,7 +139,8 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
   const statusWords = status && (readOnly || !status.onChange)
   const ownerWords = owner && (readOnly || !owner.onChange)
   return (
-    <span className="flex h-6 min-w-0 items-center gap-2 text-caption text-text-secondary">
+    // As words, 16px apart, so the status and the person read as two things; as boxed pickers their borders already part them (Katerina, 29 Oct).
+    <span className={cn('flex h-6 min-w-0 items-center text-caption text-text-secondary', statusWords || ownerWords ? 'gap-4' : 'gap-2')}>
       {status &&
         (statusWords ? (
           <span className="inline-flex shrink-0 items-center gap-1">

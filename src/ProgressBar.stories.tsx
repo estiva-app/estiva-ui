@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ProgressBar } from './ProgressBar'
 
 const meta = {
-  title: 'Feedback/ProgressBar',
+  title: 'Status & feedback/ProgressBar',
   component: ProgressBar,
   args: { value: 10, max: 14, label: 'Items done', variant: 'default' },
   argTypes: { variant: { control: 'inline-radio', options: ['default', 'quiet'] } },

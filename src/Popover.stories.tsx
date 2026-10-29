@@ -16,7 +16,7 @@ import { Toolbar, ToolbarButton, ToolbarInput, ToolbarSeparator } from './Toolba
  * with `MenuPanel` and everything below it is live (Katerina, D25).
  */
 const meta = {
-  title: 'Overlays/Popover',
+  title: 'Menus & windows/Popover',
   component: Popover,
   decorators: [(Story) => <div className="flex min-h-[260px] w-full items-start justify-center pt-6"><Story /></div>],
   args: { children: null },

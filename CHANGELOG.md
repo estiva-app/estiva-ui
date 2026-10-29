@@ -1,5 +1,126 @@
 # Changelog
 
+## 0.91.0 — 2026-10-29
+
+One release for Katerina's review of the kit's Storybook on 29 Oct: where
+things are, and her notes on the parts she found there.
+
+### Changed
+
+- **The Storybook is sorted by what a part is for** (Katerina, 29 Oct: "I am
+  extremely lost in the estiva ui storybook… the writing experience needs its
+  own"). Eleven headings — Start here, App frame, Page structure, Buttons &
+  links, Forms & fields, Menus & windows, Status & feedback, People, Writing,
+  Links & references, Conversation — each listing its parts A to Z, no
+  sub-groups. Every story id changes with its title; the Introduction's "Where
+  things are" table, the hand-written addresses and `registry.json` follow, so
+  an app's `ui:find` prints the new links once it bumps.
+- **`CardUnder` is `AttachedCard`, and it goes inside the box** (her notes 1,
+  2 and 7, from the options she was shown). **Breaking:** rename the import,
+  and drop `revealOnHover`, which has nothing left to say. Callers: Peek's and
+  Ship's `MessageLinks.tsx`, Leaf's `CommentCard.tsx`.
+  - `CommentBox` draws the card and the live parts inside the box, under the
+    text after the files, in the send box and the edit box alike; nothing
+    shows under the box any more (`data-box-under` stays, on their row).
+  - In the box a card and a part sit on the files' fill, `elevated`, and a
+    card's values read as words, not pickers, until it is sent. Apps change
+    nothing: their box card is a `LinkCard`, which reads `inTheBox` itself.
+  - The ✕ is a file's: the round one on the card's corner, from
+    `AttachmentCard`, shown on hover or focus (while writing too; it always
+    showed while writing before) and always on a screen that cannot hover.
+- **A link in text starts with the link icon, with one underline under the icon
+  and its words**, as Slack draws one (her note 8: "icon before but also
+  underlined"; "I want the icon to be underlined as well like Slack does").
+  It is `Link`'s `text` look, so RichText's links have it, and the editors'
+  links (`LINK_CLASS`) wear the same `WEB_LINK_CLASSES`. A chip of an Estiva
+  thing keeps its kind's icon and gains nothing. The browser's underline skips
+  an icon, so the line is the link's own background, 1px of its colour; the
+  icon is a mask on `::before`, so nothing is added to what is saved or copied.
+- **The link widgets have a new look, C** (Katerina, 29 Oct: "Many things look
+  unprofessional, messy, misaligned"; she chose it from seven, drawn side by
+  side). A link and a file are one family: a link's kind sits in the 36px tile
+  a file's type has (`TYPE_TILE_CLASSES`, written once for both).
+  - **LinkRow**: the tile, the title and one line under it (the key and what it
+    is: "ABC-2 · Issue"), and on the title's line the state or ring, the comment
+    count (now on every row), then the faces at the far right. 48px, not 36.
+    Words a person wrote: their face, their name with the time beside it, the
+    words under them.
+  - **LinkCard** starts as its row does; then its summary, its items in a box of
+    their own, its newest conversation as a quote (12px under its label), and
+    the footer. Words a person wrote: a 24px face, the name, the time beside it
+    as the link, the words in the secondary colour. A title keeps to one line.
+  - **PartCard** starts as a card does, "A part of ABC-2" under the title, its
+    blocks behind a quote bar that starts where the tile does.
+  - **LinkChip** keeps its look: its key a step lighter (`LinkKey`'s new
+    `tone="secondary"`) and 8px from the title; up to 40 characters.
+  - **Not available** draws as the card or row it would have been, on the same
+    fill and edge.
+  - Loading cards and rows take the same shapes.
+  - **What it is, in a word, only from the apps' own words**: `Linked` gains
+    `noun`, which `linkedFrom` fills from the file's own noun ("issue",
+    "project"); absent, the kind's: Issue, Project, Topic, Document. Another
+    app's file and words a person wrote have none. The story examples no
+    longer carry a `subtitle` ("Group one", "Shelf one"): no app sends one.
+  - Times of what people said (words a person wrote, the latest conversation)
+    take Peek's conversation type in Signal: mono, small, even digits
+    (`TIME_CLASSES`).
+- **Cards and rows stop at 480px** in a message or a document; inside a box
+  being written in they fill the box. Leaf's document card was the page's
+  whole width.
+- **The link preview opens above** its chip or row, and below only when there
+  is no room; its card has 12px round its words, as every card (PreviewCard's
+  own 12px is off for it: it was 24).
+- **The comment count is a small button's shape**: 24px tall like the pickers
+  beside it, 6px each side, 14px from the faces or ring next to it; it was
+  15px tall. Its number, and the progress ring's, in the small size (10px),
+  the ring 6px from its count. A status and a person drawn as words sit 16px
+  apart.
+- **ReferenceCards says "deprecated"** beside its name in the sidebar, and its
+  page opens with what to use instead (LinkPlaces). Any part's stories can
+  carry the `deprecated` tag; `.storybook/manager.ts` writes the word.
+
+### Added
+
+- `inTheBox`: the context `CommentBox` provides around what is in its box.
+- **`InlineText`'s `variant="heading"`**: a document's title at the largest heading size (h1), as
+  Leaf's file page has it (Katerina, 29 Oct, of three ways: "I choose A").
+- `Linked.noun`, `LinkKey`'s `tone`, `AvatarGroup`'s `on` (the colour its faces'
+  ring takes: the card's, not the page's, which drew a dark outline round them).
+- `Popover`'s `anchor` takes a place that moves, `{ getBoundingClientRect,
+  contextElement }`, asked again each time the panel is placed.
+- `SuggestionMenu`'s `rect` takes a function, Tiptap's `clientRect`.
+
+### Fixed
+
+- **The `/` and `@` lists follow the caret when the page scrolls.** They were
+  handed the caret's rect as they opened and stayed on the screen while the
+  text scrolled away under them. `suggestionPopup` now hands `clientRect`
+  itself, with the editor as the element whose scrolling moves it.
+- **A card in a narrow comment box stays inside the box** however long its
+  title (it ran past the box's edge), and **a chip never runs past its line**:
+  it truncates, with no gap after it.
+- **A link in the comment box looks like a link.** Tiptap's link had no class
+  there, so linked words read as plain words; it now takes the document's
+  `LINK_MARK_ATTRIBUTES`.
+- **The reactions panel is as wide as its emoji.** `AddReactionButton`'s panel kept
+  a menu's 180px, which left 24px empty right of the last emoji (Katerina, 29
+  Oct: "a weird gap on the right"). It fits its strip, as SelectionToolbar's
+  and Peek's quick menu's already do.
+- **SuggestionMenu's Docs page:** each example draws in its own frame, so its
+  list stays in its box (they floated over the page's words, and flipped over
+  them as the page scrolled).
+
+### Gates
+
+- **The gate refuses a restyled part from the editor entry** — `CommentBox`,
+  `InlineText`, `SelectionToolbar` — and counts any `@estiva-app/ui/…`
+  import in an app as the package. A look pushed into `CommentBox` had passed.
+  Leaf set `className="text-h1"` on `InlineText` (`src/pages/FilePage.tsx`,
+  `ShipFilePage.stories.tsx`), which this refuses: it takes `variant="heading"`.
+- **The package's gate and its editor hook read the root `stories/` too**,
+  where a prototype is built; only `src/` is asked for pages and stories.
+  TokensPage's two browser tooltips are `WithTooltip`.
+
 ## 0.90.2 — 2026-10-29
 
 ### Fixed

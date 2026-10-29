@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs'
+import { relative, sep } from 'node:path'
 import type { Rule } from 'eslint'
 import { ESCAPE_MESSAGES, isEscaped } from './escape'
+import { packageDirOf } from './no-restyled-part'
 
 /**
  * A component of the package with no page, and one with no story (UIG-5, P2 and
@@ -21,6 +23,11 @@ import { ESCAPE_MESSAGES, isEscaped } from './escape'
  * page and its story, never the other way round, so a page without a component
  * is not this rule's business.
  *
+ * Only the package's `src/` holds its components. The gate reads `stories/` too
+ * (a prototype there is what a build is checked against), but what lives there
+ * is Storybook's own pages and the helpers its stories draw with, not parts,
+ * so neither rule asks them for a page.
+ *
  * A file that stays without one says why at its top: `// @estiva-escape: <why>`.
  */
 interface ProgramNode {
@@ -29,9 +36,11 @@ interface ProgramNode {
   range: [number, number]
 }
 
-/** A component file: a `.tsx` in the package's source that is not a story or a test. */
+/** A component file: a `.tsx` in the package's `src/` that is not a story or a test. */
 function componentFile(filename: string): boolean {
-  return filename.endsWith('.tsx') && !/\.(stories|test)\.tsx$/.test(filename)
+  if (!filename.endsWith('.tsx') || /\.(stories|test)\.tsx$/.test(filename)) return false
+  const dir = packageDirOf(filename)
+  return !dir || relative(dir, filename).split(sep).join('/').startsWith('src/')
 }
 
 function sibling(filename: string, extension: string): string {

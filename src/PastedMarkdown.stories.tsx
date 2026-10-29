@@ -14,7 +14,7 @@ import { richTextClassName } from './RichText'
  * Ctrl/Cmd+Shift+V: they stay text.
  */
 const meta = {
-  title: 'Primitives/PastedMarkdown',
+  title: 'Writing/PastedMarkdown',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

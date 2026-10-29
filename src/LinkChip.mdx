@@ -5,7 +5,7 @@ import * as LinkChipStories from './LinkChip.stories'
 
 # LinkChip
 
-A link in a sentence: its icon, its key, its title cut short, and its status as a shape.
+A link in a sentence: its icon, its key, its title cut short, and its status as a shape. Up to 40 characters, never wider than its line.
 
 <Canvas of={LinkChipStories.InASentence} />
 
@@ -13,7 +13,7 @@ A link in a sentence: its icon, its key, its title cut short, and its status as 
 
 - **ready** — a link the app has looked up. Hovering it shows its card (**LinkPreview**); a tap or a click opens it.
 - **loading** — still being looked up: the icon, which the address already says, and a bar.
-- **unavailable** — deleted, or not the reader's to see. Both say "Item, not available" in the app's word for it.
+- **unavailable** — deleted, or not the reader's to see. Both say "Issue, not available" in the app's word for it.
 - `preview={false}` — no card on hover, where a card would cover what the reader is choosing from.
 
 <Canvas of={LinkChipStories.EachKind} />
@@ -21,7 +21,7 @@ A link in a sentence: its icon, its key, its title cut short, and its status as 
 ## When not
 
 - A link alone on its line → **LinkRow**.
-- The one card under a piece of text → **CardUnder**.
+- The one card attached to a piece of text → **AttachedCard**.
 - A person, a place or a label with no lookup behind it → **InlineChip**.
 
 ## How

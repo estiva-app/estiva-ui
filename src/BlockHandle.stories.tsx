@@ -10,7 +10,7 @@ import { RichText, type RichTextBlock } from './RichText'
  * and the editing rows.
  */
 const meta = {
-  title: 'Primitives/BlockHandle',
+  title: 'Writing/BlockHandle',
   // The handle sits 28px left of the content, in the page's margin.
   parameters: { layout: 'padded' },
 } satisfies Meta

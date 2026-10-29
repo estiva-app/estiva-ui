@@ -5,23 +5,25 @@ import * as LinkRowStories from './LinkRow.stories'
 
 # LinkRow
 
-A link alone on its line: one 36px row for every kind, with what it has in its corner.
+A link alone on its line: its kind in a file's tile, the title and its key under it, and on the title's line its state, comments and faces.
 
 <Canvas of={LinkRowStories.EachKind} />
 
 ## When
 
-- **ready** — the icon, the key, the title as the link, and in the corner its status, ring, owner, members or authors, and when it changed. Hovering it shows its card; a tap opens it.
-- **unread** — with something unread in its conversation the count shows, with its dot. A row otherwise keeps to one line and leaves the count to the card, except where conversations are what it holds.
-- **loading** — the row in bars, at the row's height.
-- **unavailable** — one line, "Item — not available.", with where it may still open (`openIn`). This is also what a card draws when it is not available: **LinkUnavailable**, from this file.
+- **ready** — its kind in the 36px tile a file's type has (**AttachmentCard**), the title as the link, and under it the key and what it is ("ABC-2 · Issue"), in the app's word for it, else its kind's. On the title's line: its status or its ring, its comment count, then the owner, members or authors at the far right. Hovering it shows its card; a tap opens it.
+- **words a person wrote** — their face in the tile, their name with the time beside it, and the words under them.
+- **width** — at most 480px in a message or a document; in a box being written in it fills the box.
+- **unread** — the count is brighter, with its dot.
+- **loading** — the row in bars, in the row's own shape.
+- **unavailable** — a row's shape, "Issue — not available.", with where it may still open (`openIn`). This is also what a card draws when it is not available: **LinkUnavailable**, from this file.
 
 <Canvas of={LinkRowStories.NotAvailable} />
 
 ## When not
 
 - A link in a sentence → **LinkChip**.
-- The one card under a piece of text → **CardUnder**.
+- The one card attached to a piece of text → **AttachedCard**.
 
 ## How
 

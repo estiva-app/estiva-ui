@@ -30,9 +30,15 @@ export interface AvatarGroupProps {
    * for two months for want of this one number, and drifted while it did.
    */
   size?: number
+  /**
+   * What the stack sits on, so each face's ring is that colour and reads as a gap. Default `surface`. On a card
+   * (`inset`, or `elevated` in a box) the surface-coloured ring drew a dark outline round every face (proposal,
+   * Katerina 29 Oct).
+   */
+  on?: 'surface' | 'inset' | 'elevated'
 }
 
-export function AvatarGroup({ members, size = 24 }: AvatarGroupProps) {
+export function AvatarGroup({ members, size = 24, on = 'surface' }: AvatarGroupProps) {
   const visible = members.slice(0, 3)
   /*
     A third of the face, so a stack reads the same at any size — which is
@@ -56,7 +62,7 @@ export function AvatarGroup({ members, size = 24 }: AvatarGroupProps) {
           key={i}
           className="relative flex rounded-sm"
           /* eslint-disable-next-line no-restricted-syntax -- @estiva-escape: the ring's width is the `ring` prop, so it cannot be a class; its colour is the surface token */
-          style={{ marginRight: -overlap, boxShadow: `0 0 0 ${ring}px var(--bg-surface)` }}
+          style={{ marginRight: -overlap, boxShadow: `0 0 0 ${ring}px var(--bg-${on})` }}
         >
           {/* Each face says whose it is: a stack stands on its own, with no
               name beside it to borrow. It read as its initials before —

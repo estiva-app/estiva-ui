@@ -60,8 +60,12 @@ export interface SuggestionMenuHandle {
 }
 
 export interface SuggestionMenuProps<T> {
-  /** The caret's rect, from the editor. `null` closes the box. */
-  rect: DOMRect | null
+  /**
+   * Where the caret is, from the editor: Tiptap's `clientRect`, asked again each
+   * time the box is placed, so it follows the caret as the page scrolls. A rect
+   * is where the caret was, and stays there. `null` closes the box.
+   */
+  rect: (() => DOMRect | null) | DOMRect | null
   /** The editor's own element — told which row is active. Absent in a story. */
   editorElement?: HTMLElement | null
   /** Names the list — "Commands", "People". */
@@ -80,6 +84,19 @@ export interface SuggestionMenuProps<T> {
 }
 
 export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHeight, sections, itemKey, row, onSelect, handle }: SuggestionMenuProps<T>) {
+  // The caret where it is now, and the editor it sits in, whose scrolling moves it. Given only the rect it had as the
+  // list opened, the list stayed on the screen while the text scrolled away under it (Katerina, 29 Oct).
+  const last = useRef<DOMRect | null>(null)
+  const anchor = useMemo(() => {
+    if (typeof rect !== 'function') return rect
+    return {
+      getBoundingClientRect: () => {
+        last.current = rect() ?? last.current
+        return last.current ?? new DOMRect()
+      },
+      contextElement: editorElement ?? undefined,
+    }
+  }, [rect, editorElement])
   const shown = useMemo(() => sections.filter((section) => section.items.length > 0), [sections])
   const items = useMemo(() => shown.flatMap((section) => section.items), [shown])
   const keys = items.map(itemKey).join('\n')
@@ -190,7 +207,7 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
 
   return (
     // finalFocus={false}: focus never left the text, and a list that closes because focus moved elsewhere must not pull it back (71a4577b).
-    <Popover anchor={rect} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel} finalFocus={false}>
+    <Popover anchor={anchor} open={rect !== null} side="top" align="left" className={width} maxHeight={maxHeight} ariaLabel={ariaLabel} finalFocus={false}>
       {/* The list the editor drives from its caret: a listbox, because Base UI's lists need a text field of their own.
           `gap-0.5`: 2px between rows, as a menu's — a section with a heading
           had them from `MenuSection`, and rows without one touched. */}

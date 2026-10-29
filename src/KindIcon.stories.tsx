@@ -4,7 +4,7 @@ import { KindIcon, type ThingKind } from './KindIcon'
 import { MenuItem, MenuPanel, MenuSection } from './Menu'
 
 const meta = {
-  title: 'Primitives/KindIcon',
+  title: 'Links & references/KindIcon',
   component: KindIcon,
   args: { kind: 'topic' },
   argTypes: { kind: { control: 'select', options: ['topic', 'project', 'issue', 'file', 'message'] } },

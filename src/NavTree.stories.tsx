@@ -39,7 +39,7 @@ const GROUPS: NavTreeGroup[] = [
 ]
 
 const meta = {
-  title: 'Frame/NavTree',
+  title: 'App frame/NavTree',
   component: NavTree,
   parameters: { layout: 'fullscreen' },
   args: { title: 'Groups', groups: GROUPS, selected: 'b', emptyMessage: 'Nothing here yet.' },

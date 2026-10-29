@@ -73,7 +73,7 @@ const Popup = forwardRef<SuggestionMenuHandle, Props<unknown>>(function Popup({ 
   return (
     <SuggestionMenu
       handle={menu}
-      rect={props.clientRect?.() ?? null}
+      rect={props.clientRect ?? null}
       editorElement={props.editor.view.dom}
       ariaLabel={options.ariaLabel}
       width={options.width}

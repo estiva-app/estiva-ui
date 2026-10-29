@@ -5,7 +5,7 @@ import { loadingShapeOf, type Linked } from './linked'
 import { GROUP, ITEM, ITEM_NO_SUMMARY, ITEM_READ_ONLY, ITEM_UNREAD, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
-  title: 'Components/LinkCard',
+  title: 'Links & references/LinkCard',
   component: LinkCard,
   parameters: { layout: 'padded' },
   args: { link: ready(ITEM) },

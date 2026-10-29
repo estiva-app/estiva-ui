@@ -11,7 +11,7 @@ import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
 
 const meta = {
-  title: 'Overlays/DialogShell',
+  title: 'Menus & windows/DialogShell',
   component: DialogShell,
   parameters: {
     layout: 'fullscreen',

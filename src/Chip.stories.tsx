@@ -3,7 +3,7 @@ import { IconArrowUp, IconMessage2 } from '@tabler/icons-react'
 import { Chip } from './Chip'
 
 const meta = {
-  title: 'Primitives/Chip',
+  title: 'Status & feedback/Chip',
   component: Chip,
   // axe color-contrast is off here until PLAN.md stage 0.10 is ruled:
   // in ship the brand chip reads 2.70:1 and the info chip 3.99:1 on their washes

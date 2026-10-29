@@ -5,19 +5,19 @@ import * as PartCardStories from './PartCard.stories'
 
 # PartCard
 
-A part of something longer, shared live: its blocks as they are now, under the header of what it is part of.
+A part of something longer, shared live: its blocks as they are now, under the title of what it is part of.
 
 <Canvas of={PartCardStories.Default} />
 
 ## When
 
-- **ready** — the icon, the key and the title of what it is part of, as the link, and the blocks the app draws as `children`.
+- **ready** — what it is part of, as a card starts: its kind in a file's 36px tile, its title as the link, and "A part of ABC-2" under it; then the blocks the app draws as `children`, behind a quote bar that starts where the tile does. The apps draw the blocks with **RichText** `size="small"`.
 - **loading** — at a card's height.
-- **unavailable** — one line: "A part of this item — not available.".
+- **unavailable** — one row: "A part of this issue — not available.", in the app's word for it, else its kind's.
 
 ## When not
 
-- A link to the whole thing → **LinkCard** or **CardUnder**.
+- A link to the whole thing → **LinkCard** or **AttachedCard**.
 
 ## How
 

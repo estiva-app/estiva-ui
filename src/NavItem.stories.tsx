@@ -7,7 +7,7 @@ import { NavItem } from './NavItem'
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 const meta = {
-  title: 'Frame/NavItem',
+  title: 'App frame/NavItem',
   component: NavItem,
   args: { label: 'Item', href: '#', active: false },
   argTypes: { icon: { control: false } },

@@ -17,7 +17,7 @@
  * token contract too, keeping only that contract's errors (B4), and a copied
  * look, which only warns, reaches Claude as a note on a write let through (R10). Tests are not checked
  * (Katerina, 13 September); stories are. This package's inward gate reads `.tsx`
- * only, as its lint does.
+ * only, as its lint does, under `src/` and the root `stories/` (28 October).
  *
  * Input, from Claude Code on stdin: `tool_name` and `tool_input` — `file_path`
  * and `content` for Write; `file_path`, `old_string`, `new_string` and
@@ -111,8 +111,9 @@ export async function runHook({ root, app = '.', audience = 'app', input, seen }
   const file = isAbsolute(args.file_path) ? args.file_path : resolve(call.cwd ?? top, args.file_path)
   const rel = relative(appDir, file).split(sep).join('/')
   // Every script under an app's src/, as the gate reads it (a raw <button> in a .jsx passed
-  // before, the re-review after the audit before UIG-26); the package's own gate is .tsx only.
-  const source = audience === 'package' ? /^src\/.+\.tsx$/ : APP_SOURCE
+  // before, the re-review after the audit before UIG-26); the package's own gate is .tsx only,
+  // in src/ and in the root stories/, where a prototype is built.
+  const source = audience === 'package' ? /^(?:src|stories)\/.+\.tsx$/ : APP_SOURCE
   if (rel.startsWith('../') || isAbsolute(rel) || !source.test(rel) || /\.test\.[cm]?[jt]sx?$/.test(rel) || /\.d\.[cm]?ts$/.test(rel)) return PASS
 
   const text = proposed(call.tool_name, args, file)

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode } from 'react'
+import { WithTooltip } from '../src/Tooltip'
 
 /**
  * The Design Tokens page: every token the preset names, its live value in the
@@ -174,11 +175,15 @@ function Section({ label, blurb, children }: { label: string; blurb: string; chi
 }
 
 function Users({ names }: { names: string[] }) {
-  if (names.length === 0) return <span className="text-caption text-text-secondary">— none yet</span>
+  if (names.length === 0)
+    return (
+      // @estiva-escape(no-handmade-empty-state): a cell of the tokens table, the "Used by" of a token no component spells yet; a value in its row, not a list or a section with nothing in it
+      <span className="text-caption text-text-secondary">— none yet</span>
+    )
   return (
-    <span className="truncate text-caption text-text-secondary" title={names.join(', ')}>
-      {names.join(', ')}
-    </span>
+    <WithTooltip label={names.join(', ')} wrapperClassName="min-w-0">
+      <span className="min-w-0 truncate text-caption text-text-secondary">{names.join(', ')}</span>
+    </WithTooltip>
   )
 }
 
@@ -217,9 +222,9 @@ function TokenRow({ token, utilities }: { token: Token; utilities: string }) {
       <SwatchBox token={token} />
       <span className="truncate text-body-2 text-text-primary">{token.key}</span>
       <code className="truncate font-mono text-caption text-text-secondary">{token.cls}</code>
-      <code className="truncate font-mono text-caption text-text-secondary" title={resolveVar(token.cssVar)}>
-        {resolveVar(token.cssVar)}
-      </code>
+      <WithTooltip label={resolveVar(token.cssVar)} wrapperClassName="min-w-0">
+        <code className="min-w-0 truncate font-mono text-caption text-text-secondary">{resolveVar(token.cssVar)}</code>
+      </WithTooltip>
       <Users names={usedBy(token.key, utilities)} />
     </div>
   )

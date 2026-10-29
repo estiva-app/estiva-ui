@@ -3,7 +3,7 @@ import { IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 
 const meta = {
-  title: 'Primitives/Button',
+  title: 'Buttons & links/Button',
   component: Button,
   args: { children: 'Button', variant: 'muted', size: 'default', disabled: false },
   argTypes: {

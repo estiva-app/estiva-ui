@@ -13,7 +13,7 @@ const placeholder = <IconSquareRounded size={16} stroke={1.5} />
  * background, so every canvas here is full height against one.
  */
 const meta = {
-  title: 'Frame/Rail',
+  title: 'App frame/Rail',
   component: Rail,
   parameters: { layout: 'fullscreen' },
   args: { 'aria-label': 'Navigation', children: null },

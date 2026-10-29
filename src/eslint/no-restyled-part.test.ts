@@ -39,13 +39,18 @@ write(
   "import { Card, cn } from '@estiva-app/ui'\nexport function ConversationCard({ className, title }: { className?: string; title: string }) {\n  return <Card className={cn('relative', className)}>{title}</Card>\n}\n",
 )
 write('app/src/components/Button.tsx', 'export function Button() {\n  return null\n}\n')
-write('pkg/package.json', '{ "name": "@estiva-app/ui" }')
+write('pkg/package.json', '{ "name": "@estiva-app/ui", "exports": { ".": { "default": "./dist/index.js" }, "./editor": { "default": "./dist/editor.js" }, "./tokens.css": "./tokens.css" } }')
 write('pkg/src/index.ts', "export { Link, type LinkProps } from './Link'\nexport { Card } from './Card'\nexport { cn } from './cn'\n")
 write('pkg/src/Link.tsx', 'export function Link() {\n  return null\n}\n')
 write('pkg/src/cn.ts', 'export const cn = (...a: string[]) => a.join(" ")\n')
+// The second entry, `@estiva-app/ui/editor`, where CommentBox lives.
+write('pkg/src/editor.ts', "export { CommentBox, type CommentBoxProps } from './CommentBox'\n")
+write('pkg/src/CommentBox.tsx', 'export function CommentBox() {\n  return null\n}\n')
 
 const app = join(root, 'app/src/Probe.tsx')
 const pkg = join(root, 'pkg/src/Card.tsx')
+/** A prototype's helper in the package's root `stories/`, which the gate reads since 28 October. */
+const pkgStory = join(root, 'pkg/stories/one-conversation/Conversation.tsx')
 const ui = (imports: string, body: string) => `import { ${imports} } from '@estiva-app/ui'\nexport function Probe() {\n  return (\n${body}\n  )\n}\n`
 const local = (imports: string, from: string, body: string) => `import { ${imports} } from '${from}'\nexport function Probe() {\n  return (\n${body}\n  )\n}\n`
 const USE_VARIANT_OR_SIZE = ' Use its `variant` or `size`.'
@@ -236,6 +241,20 @@ tester.run('no-restyled-part', noRestyledPart, {
       errors: [{ message: restyled('`rounded-lg` `border`', '`Link`', ' Use its `variant`, `truncate` or `cover`.') }],
     },
     {
+      name: 'in an app: a part from the editor entry, restyled',
+      filename: app,
+      code: "import { CommentBox } from '@estiva-app/ui/editor'\nexport function Probe() {\n  return <CommentBox className=\"border-l-4 pl-2\" />\n}\n",
+      errors: [{ message: restyled('`border-l-4`', '`CommentBox`', noProp('CommentBox')) }],
+    },
+    {
+      // The One conversation prototype (estiva-ui concept/one-conversation 8641081, Conversation.tsx:199),
+      // which passed because only src/index.ts was read for the package's parts.
+      name: "inside the package: the editor entry's CommentBox restyled from a prototype in stories/, behind a condition",
+      filename: pkgStory,
+      code: "import { CommentBox } from '../../src/CommentBox'\nimport { cn } from '../../src/cn'\nexport function Probe({ on }: { on: boolean }) {\n  return <CommentBox className={cn(on && '[&_[data-composer-editor]]:border-l-4 [&_[data-composer-editor]]:border-success-default [&_[data-composer-editor]]:pl-2')} />\n}\n",
+      errors: [{ message: restyled('`[&_[data-composer-editor]]:border-l-4` `[&_[data-composer-editor]]:border-success-default` `[&_[data-composer-editor]]:pl-2`', '`CommentBox`', noProp('CommentBox')) }],
+    },
+    {
       name: 'inside the package: a part used in the file that declares it',
       filename: pkg,
       code: 'export function Link() {\n  return null\n}\nexport function Probe() {\n  return <Link className="text-caption" />\n}\n',
@@ -244,25 +263,30 @@ tester.run('no-restyled-part', noRestyledPart, {
   ],
 })
 
-/** Every part the package exports, from its own index.ts. */
+/** Every part an entry of the package exports, from its own source: `index.ts`, and `editor.ts` for `@estiva-app/ui/editor`. */
 const SRC = new URL('..', import.meta.url)
-const indexSource = readFileSync(new URL('index.ts', SRC), 'utf8')
-const PARTS = [...indexSource.matchAll(/export \{([^}]*)\} from '\.\/[^']+'/g)]
-  .flatMap((m) => m[1].split(','))
-  .map((name) => name.trim())
-  .filter((name) => /^[A-Z][a-z]/.test(name))
+const partsOf = (entry: string) =>
+  [...readFileSync(new URL(entry, SRC), 'utf8').matchAll(/export \{([^}]*)\} from '\.\/[^']+'/g)]
+    .flatMap((m) => m[1].split(','))
+    .map((name) => name.trim())
+    .filter((name) => /^[A-Z][a-z]/.test(name))
+const MAIN_PARTS = partsOf('index.ts')
+const EDITOR_PARTS = partsOf('editor.ts').filter((name) => !MAIN_PARTS.includes(name))
+const PARTS = [...MAIN_PARTS, ...EDITOR_PARTS]
+const entryOf = (part: string) => (EDITOR_PARTS.includes(part) ? '@estiva-app/ui/editor' : '@estiva-app/ui')
 
 describe('every part of the package is covered, by where it comes from', () => {
   it('finds the parts', () => {
     expect(PARTS.length).toBeGreaterThan(70)
     expect(PARTS).toContain('EnterHint')
+    expect(EDITOR_PARTS).toContain('CommentBox')
   })
   tester.run('no-restyled-part, one case per exported part', noRestyledPart, {
     valid: [],
     invalid: PARTS.map((part) => ({
       name: `${part}, restyled`,
       filename: app,
-      code: ui(part, `    <${part} className="bg-bg-surface" />`),
+      code: `import { ${part} } from '${entryOf(part)}'\nexport function Probe() {\n  return (\n    <${part} className="bg-bg-surface" />\n  )\n}\n`,
       errors: [{ message: restyled('`bg-bg-surface`', `\`${part}\``, PART_LOOK_PROPS[part] ? ` Use its ${PART_LOOK_PROPS[part].length === 1 ? `\`${PART_LOOK_PROPS[part][0]}\`` : `${PART_LOOK_PROPS[part].slice(0, -1).map((p) => `\`${p}\``).join(', ')} or \`${PART_LOOK_PROPS[part].at(-1)}\``}.` : noProp(part)) }],
     })),
   })

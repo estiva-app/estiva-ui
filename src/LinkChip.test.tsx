@@ -59,7 +59,7 @@ describe('LinkChip', () => {
 
   it('says “not available” in words, and leads nowhere', () => {
     render(<LinkChip link={UNAVAILABLE} />)
-    expect(screen.getByText('Item, not available')).toBeTruthy()
+    expect(screen.getByText('Issue, not available')).toBeTruthy()
     expect(screen.queryByRole('link')).toBeNull()
   })
 

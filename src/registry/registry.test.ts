@@ -48,20 +48,20 @@ describe('the registry builds', () => {
     expect(registry.entries.map((one) => one.name).sort()).toEqual(values.map((one) => one.name).sort())
   })
 
-  it('counts 210 names over 98 files: 139 components, 68 helpers and 3 hooks (archivedLine, the line on an archived file in every app (PEEKM-2), on 23 October; keepCommentBoxWarm, a box built ahead, exported as 0.84.0 promised (PEEKM-1), on 21 October;linkedFrom and linkStateFrom, one card for a file in every app (5ebf2756), on 21 October; ComposeBox, ComposeKeys and COMPOSE_EDITOR_CLASSES gone into CommentBox’s own frame (one box), on 21 October; LinkPlaces with linkPlaceAt and staysChip, a link in a document drawn where it sits (WBD-4), on 20 October; DocumentEditor, one document editor for every app, and PersonReference, `@` in a document (WBD-3), on 20 October; toggleTableHeaderRow, a table’s header row on and off (LEAF-12), on 19 October;EntryShell, the screen while nobody is signed in, moved from Peek (AUT-3), on 17 October; CommentBox with commentBoxRows, and ReactionRow with AddReactionButton and whoReacted, the shared comment box and reaction row (COMM-2), on 17 October; the link widgets — LinkChip, LinkRow, LinkCard, CardUnder, PartCard, LinkPreview and their parts, with useCanHover, chosenOf, loadingShapeOf and unavailableMemory — from the Widgets 2 prototype, on 16 October; InlineText, a title or the line under it edited where it stands (SUM-4), on 16 October; ComposeBox with ComposeKeys and its classes, CommentHighlights with its five helpers, and keepSelection and releaseSelection, from the Leaf prototype (LEAF-4), on 16 October;NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October; turnIntoRows, turnListInto and turnQuoteInto, the block menu’s Turn into for a list and a quote (LEAF-11), on 15 October)', () => {
+  it('counts 211 names over 98 files: 139 components, 69 helpers and 3 hooks (inTheBox, a card or part in a box being written in, on the files’ fill and in words, on 29 October; archivedLine, the line on an archived file in every app (PEEKM-2), on 23 October; keepCommentBoxWarm, a box built ahead, exported as 0.84.0 promised (PEEKM-1), on 21 October;linkedFrom and linkStateFrom, one card for a file in every app (5ebf2756), on 21 October; ComposeBox, ComposeKeys and COMPOSE_EDITOR_CLASSES gone into CommentBox’s own frame (one box), on 21 October; LinkPlaces with linkPlaceAt and staysChip, a link in a document drawn where it sits (WBD-4), on 20 October; DocumentEditor, one document editor for every app, and PersonReference, `@` in a document (WBD-3), on 20 October; toggleTableHeaderRow, a table’s header row on and off (LEAF-12), on 19 October;EntryShell, the screen while nobody is signed in, moved from Peek (AUT-3), on 17 October; CommentBox with commentBoxRows, and ReactionRow with AddReactionButton and whoReacted, the shared comment box and reaction row (COMM-2), on 17 October; the link widgets — LinkChip, LinkRow, LinkCard, CardUnder, PartCard, LinkPreview and their parts, with useCanHover, chosenOf, loadingShapeOf and unavailableMemory — from the Widgets 2 prototype, on 16 October; InlineText, a title or the line under it edited where it stands (SUM-4), on 16 October; ComposeBox with ComposeKeys and its classes, CommentHighlights with its five helpers, and keepSelection and releaseSelection, from the Leaf prototype (LEAF-4), on 16 October;NavTree, NavTreeSection, the composer triggers and UnreadDot joined on 2 October; BlockHandle and EditorBlockHandle (RIC-18) on 2 October, moveBlock and blockDropCursor, the drop in the gutter, on 5 October, MembersPill and MembersDialog, moved from Peek (SHI-31), on 6 October, ShowMore on 7 October, AppProvider on 8 October, and KindIcon, thingKindOf and PastedImages with its two helpers, moved from Peek, on 8 October; CodeBlockColours, the coloured code block of the editor, on 9 October; Checklist, Callout, isChecklistTick and calloutLook (RIC-19) on 13 October; EditorTableControls and its four actions (RIC-21) on 13 October; ReferenceCards, useReferenceCards and its three helpers, the card a chip in a document asks for, on 14 October; LinkChips and its two helpers, a URL in a document read as its chip, on 14 October; ReferenceMenu, ReferenceMenuView and three helpers, the menu of a chip while writing, on 14 October; PastedMarkdown, markdown pasted as the blocks it spells (LEAF-10), on 15 October; turnIntoRows, turnListInto and turnQuoteInto, the block menu’s Turn into for a list and a quote (LEAF-11), on 15 October)', () => {
     // The reconciliation GATES.md §24 explains. If this changes, that changes.
     // The `EDITOR_EXTENSIONS` count as components by their names; they are
     // editor extensions, documented on SelectionToolbar's, BlockNodes' and
     // ComposerTriggers' pages.
     const kinds = registry.entries.reduce<Record<string, number>>((all, one) => ({ ...all, [one.kind]: (all[one.kind] ?? 0) + 1 }), {})
-    expect(kinds).toEqual({ component: 139, helper: 68, hook: 3 })
+    expect(kinds).toEqual({ component: 139, helper: 69, hook: 3 })
     expect(new Set(registry.entries.map((one) => one.sourceFile)).size).toBe(98)
   })
 
   it('gives every entry a purpose, from its own page or from the comment above it', () => {
     expect(registry.entries.filter((one) => one.purpose.trim() === '')).toEqual([])
     expect(registry.entries.filter((one) => one.purposeFrom === 'page').length).toBe(90)
-    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(120)
+    expect(registry.entries.filter((one) => one.purposeFrom === 'comment').length).toBe(121)
   })
 
   it('takes a name with a page of its own from the page, and a name without one from the code', () => {
@@ -72,7 +72,7 @@ describe('the registry builds', () => {
     // explained.
     expect(entry('MenuSub').purposeFrom).toBe('comment')
     expect(entry('MenuSub').docPage).toBeNull()
-    expect(entry('MenuSub').docsId).toBe('overlays-menu--docs')
+    expect(entry('MenuSub').docsId).toBe('menus-windows-menu--docs')
     expect(entry('MenuSub').sourceFile).toBe('src/Menu.tsx')
   })
 
@@ -246,13 +246,13 @@ describe('the ids point at something', () => {
    * many-word export, and a name documented on a sibling's page.
    */
   const REAL = [
-    ['Button', 'primitives-button--docs', 'primitives-button--primary'],
-    ['Tabs', 'navigation-tabs--docs', 'navigation-tabs--with-counts'],
-    ['AvatarGroup', 'primitives-avatargroup--docs', 'primitives-avatargroup--three-members'],
-    ['Breadcrumb', 'navigation-breadcrumb--docs', 'navigation-breadcrumb--on-an-item'],
-    ['CommandPalette', 'overlays-commandpalette--docs', 'overlays-commandpalette--first-level'],
-    ['ChipInput', 'inputs-chipinput--docs', 'inputs-chipinput--type-to-search'],
-    ['EnterHint', 'overlays-menu--docs', 'overlays-menu--items'],
+    ['Button', 'buttons-links-button--docs', 'buttons-links-button--primary'],
+    ['Tabs', 'page-structure-tabs--docs', 'page-structure-tabs--with-counts'],
+    ['AvatarGroup', 'people-avatargroup--docs', 'people-avatargroup--three-members'],
+    ['Breadcrumb', 'page-structure-breadcrumb--docs', 'page-structure-breadcrumb--on-an-item'],
+    ['CommandPalette', 'menus-windows-commandpalette--docs', 'menus-windows-commandpalette--first-level'],
+    ['ChipInput', 'forms-fields-chipinput--docs', 'forms-fields-chipinput--type-to-search'],
+    ['EnterHint', 'menus-windows-menu--docs', 'menus-windows-menu--items'],
   ] as const
 
   it.each(REAL)('%s', (name, docsId, storyId) => {
@@ -263,7 +263,7 @@ describe('the ids point at something', () => {
   it('gives every component a page and a story, and only a helper none', () => {
     const without = registry.entries.filter((one) => one.docsId === null || one.storyId === null)
     // The helpers in a file with no page: cn, the shortcut names, the editor's suggestion wiring (documented on SuggestionMenu's page), and the link widgets' data helpers (documented on LinkCard's and LinkChip's pages; linkedFrom's on LinkCard's).
-    expect(without.map((one) => one.name).sort()).toEqual(['archivedLine', 'chosenOf', 'cn', 'isApplePlatform', 'isSuggestionActive', 'isSuggestionOpen', 'linkStateFrom', 'linkedFrom', 'loadingShapeOf', 'shortcutLabel', 'suggestionPopup', 'unavailableMemory'])
+    expect(without.map((one) => one.name).sort()).toEqual(['archivedLine', 'chosenOf', 'cn', 'inTheBox', 'isApplePlatform', 'isSuggestionActive', 'isSuggestionOpen', 'linkStateFrom', 'linkedFrom', 'loadingShapeOf', 'shortcutLabel', 'suggestionPopup', 'unavailableMemory'])
     expect(without.every((one) => one.kind !== 'component')).toBe(true)
   })
 

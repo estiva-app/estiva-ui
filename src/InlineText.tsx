@@ -41,8 +41,11 @@ export interface InlineTextProps {
   onText?: (text: string | null) => void
   /** Enter, after the save has started: where the caret goes next. */
   onEnter?: () => void
-  /** `title`: the page's heading. `summary`: the line under it, quieter. */
-  variant?: 'title' | 'summary'
+  /**
+   * `title`: the page's heading. `heading`: a document's title, at the largest heading size (Leaf's file page).
+   * `summary`: the line under either, quieter.
+   */
+  variant?: 'title' | 'heading' | 'summary'
   /** Empty is a value (a summary). Otherwise leaving it empty brings the saved one back (a title). */
   clearable?: boolean
   /** Text only, the same size and place: nobody can change it, or the editor is not ready. */
@@ -62,6 +65,8 @@ export interface InlineTextHandle {
 /** Size and tone, per variant: the same for the text at rest and while it is written. */
 const VARIANT = {
   title: 'text-h2 text-text-primary',
+  // A document's title: Leaf set text-h1 on InlineText from outside, which the gate refuses (Katerina, 29 Oct: "I choose A").
+  heading: 'text-h1 text-text-primary',
   summary: 'text-body-1 text-text-secondary',
 } as const
 

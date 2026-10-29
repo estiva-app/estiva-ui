@@ -7,7 +7,7 @@ import { TextInput } from './TextInput'
 
 /** The small line a Field draws under a control, on its own — for a group of controls. */
 const meta = {
-  title: 'Inputs/Field line',
+  title: 'Forms & fields/Field line',
   component: FieldLine,
   parameters: { layout: 'padded' },
   args: { tone: 'helper', children: 'Leave this empty and one is made for you.' },

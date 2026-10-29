@@ -1,8 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { PartCard } from './PartCard'
+import { RichText, type RichTextBlock } from './RichText'
+
+/** A part as it is quoted: a heading and the text under it. */
+const PART_BLOCKS: RichTextBlock[] = [
+  { type: 'heading', level: 2, inline: [{ text: 'A heading in the part', marks: [] }] },
+  { type: 'paragraph', inline: [{ text: 'The blocks of the part, as they are now. They change when the text they came from changes.', marks: [] }] },
+]
 
 const meta = {
-  title: 'Components/PartCard',
+  title: 'Links & references/PartCard',
   component: PartCard,
   parameters: { layout: 'padded' },
   decorators: [(Story) => <div className="max-w-[480px]">{Story()}</div>],
@@ -19,12 +26,8 @@ export const Default: Story = {
     heading: 'Item one',
     partKey: 'ABC-2',
     href: '#part',
-    children: (
-      <>
-        <p className="text-body-2-strong text-text-primary">A heading in the part</p>
-        <p className="text-body-2 text-text-secondary">The blocks of the part, as they are now. They change when the text they came from changes.</p>
-      </>
-    ),
+    // As the apps draw a part's blocks: RichText in its small size (Peek's and Leaf's PartCard do), not sizes typed by hand.
+    children: <RichText blocks={PART_BLOCKS} size="small" />,
   },
 }
 
@@ -32,4 +35,4 @@ export const Default: Story = {
 export const Loading: Story = { args: { state: 'loading', kind: 'issue' } }
 
 /** The part, or what it is part of, is gone or not this reader's to see. */
-export const NotAvailable: Story = { args: { state: 'unavailable', kind: 'issue', noun: 'Item', openIn: { app: 'App one', href: '#elsewhere' } } }
+export const NotAvailable: Story = { args: { state: 'unavailable', kind: 'issue', noun: 'Issue', openIn: { app: 'App one', href: '#elsewhere' } } }

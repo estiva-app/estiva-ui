@@ -171,7 +171,9 @@ function textWithLinks(text: string, renderText: (text: string) => ReactNode): R
     if (written) {
       return (
         <span key={i} className="break-words">
-          <Link href={written[2]} external onClick={keepToLink}>{written[1]}</Link>
+          <Link href={written[2]} external onClick={keepToLink}>
+            {written[1]}
+          </Link>
         </span>
       )
     }
@@ -180,7 +182,9 @@ function textWithLinks(text: string, renderText: (text: string) => ReactNode): R
       return (
         // An address has no spaces to wrap at, so it may break anywhere.
         <span key={i} className="break-all">
-          <Link href={bare[1]} external onClick={keepToLink}>{bare[1]}</Link>
+          <Link href={bare[1]} external onClick={keepToLink}>
+            {bare[1]}
+          </Link>
           {bare[2]}
         </span>
       )

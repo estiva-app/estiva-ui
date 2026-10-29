@@ -7,7 +7,7 @@ import { IconButton } from './IconButton'
 import { EmptyState } from './EmptyState'
 
 const meta = {
-  title: 'Inputs/FilePicker',
+  title: 'Forms & fields/FilePicker',
   component: FilePicker,
   // The code tab shows each story's own code: building it from the rendered
   // element reads `element.ref`, which React 19 warns about.

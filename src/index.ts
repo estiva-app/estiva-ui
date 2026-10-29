@@ -88,6 +88,7 @@ export { PreviewCard, type PreviewCardProps } from './PreviewCard'
 // How a link draws, wherever it sits: one kit for every app (Widgets 2).
 export {
   chosenOf,
+  inTheBox,
   loadingShapeOf,
   unavailableMemory,
   type Linked,
@@ -118,7 +119,7 @@ export { LinkChip, type LinkChipProps } from './LinkChip'
 export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps } from './LinkRow'
 export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
 export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
-export { CardUnder, type CardUnderProps } from './CardUnder'
+export { AttachedCard, type AttachedCardProps } from './AttachedCard'
 export { PartCard, type PartCardProps } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'

@@ -8,7 +8,7 @@ import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
 
 const meta = {
-  title: 'Inputs/Form',
+  title: 'Forms & fields/Form',
   component: Form,
   parameters: { layout: 'padded' },
   args: { onSubmit: fn(), busy: false, 'aria-label': 'Example', children: null },

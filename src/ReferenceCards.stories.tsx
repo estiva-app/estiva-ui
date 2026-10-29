@@ -14,7 +14,9 @@ import { richTextClassName } from './RichText'
  * one is the app's, which knows how to resolve what the chip points at.
  */
 const meta = {
-  title: 'Primitives/ReferenceCards',
+  title: 'Writing/ReferenceCards',
+  // On its way out: the sidebar says "deprecated" beside its name (.storybook/manager.ts).
+  tags: ['deprecated'],
   parameters: { layout: 'padded' },
 } satisfies Meta
 

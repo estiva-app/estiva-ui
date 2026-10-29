@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Extension } from '@tiptap/core'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -15,9 +15,14 @@ import { suggestionPopup } from './suggestionPopup'
  * Focus stays in the text: the editor hands its ↑, ↓ and Enter to the list.
  */
 const meta = {
-  title: 'Primitives/SuggestionMenu',
+  title: 'Writing/SuggestionMenu',
   component: SuggestionMenu,
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    // Each example in a frame of its own on the Docs page, so its list stays in its box. Drawn on the page itself, a
+    // list near the top of the window flipped below its caret as the page scrolled, over the words (Katerina, 29 Oct).
+    docs: { story: { inline: false, height: '560px' } },
+  },
 } satisfies Meta
 
 export default meta
@@ -46,13 +51,14 @@ const commandRow = (c: Command): SuggestionMenuRow => ({ label: c.label, shortcu
 
 /**
  * A line of text with the caret's place marked, and the list hung from it —
- * the way the editor hangs it. The list is drawn from a rect, so the story
- * measures a stand-in for the caret once it is on screen.
+ * the way the editor hangs it: from where a stand-in for the caret is now,
+ * asked again each time the list is placed, as Tiptap's `clientRect` is.
  */
 function AtACaret<T>({ children, ...props }: { children?: ReactNode } & Omit<Parameters<typeof SuggestionMenu<T>>[0], 'rect'>) {
   const caret = useRef<HTMLSpanElement>(null)
-  const [rect, setRect] = useState<DOMRect | null>(null)
-  useLayoutEffect(() => setRect(caret.current?.getBoundingClientRect() ?? null), [])
+  const [drawn, setDrawn] = useState(false)
+  useLayoutEffect(() => setDrawn(true), [])
+  const where = useCallback(() => caret.current?.getBoundingClientRect() ?? null, [])
   return (
     <div className="flex h-[520px] items-end pb-6 text-body-2 text-text-primary">
       <p>
@@ -60,7 +66,7 @@ function AtACaret<T>({ children, ...props }: { children?: ReactNode } & Omit<Par
         <span ref={caret}>/</span>
         {children}
       </p>
-      <SuggestionMenu<T> {...props} rect={rect} />
+      <SuggestionMenu<T> {...props} rect={drawn ? where : null} />
     </div>
   )
 }

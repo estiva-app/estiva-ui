@@ -12,6 +12,7 @@ import { Kbd } from './Kbd'
 import { LinkCard } from './LinkCard'
 import { ITEM, ready } from './linked.examples'
 import { PartCard } from './PartCard'
+import { RichText } from './RichText'
 
 /**
  * The one box every app writes in. Every story is live: write, open a list,
@@ -19,7 +20,7 @@ import { PartCard } from './PartCard'
  * refusal. Pick the theme in the toolbar.
  */
 const meta = {
-  title: 'Primitives/CommentBox',
+  title: 'Writing/CommentBox',
   component: CommentBox,
   parameters: { layout: 'padded' },
   decorators: [
@@ -217,7 +218,7 @@ const ITEM_URL = 'https://app.example/item/one'
 const PART_URL = 'https://app.example/page/two#block'
 
 /**
- * What the app reads under the box: one item named gets its card; a link to
+ * What the app reads for the box: one item named gets its card; a link to
  * a block of something is its live part, and then no card.
  */
 const under: BoxUnder = {
@@ -233,7 +234,8 @@ const under: BoxUnder = {
               key: 'item-two',
               view: (
                 <PartCard state="ready" kind="issue" heading="Item two" partKey="ABC-3" href="#part">
-                  <p className="text-body-2 text-text-secondary">The block, as it is now. It changes when the text it came from changes.</p>
+                  {/* As the apps draw a part's blocks: RichText in its small size. */}
+                  <RichText blocks={[{ type: 'paragraph', inline: [{ text: 'The block, as it is now. It changes when the text it came from changes.', marks: [] }] }]} size="small" />
                 </PartCard>
               ),
             },
@@ -244,11 +246,41 @@ const under: BoxUnder = {
   },
 }
 
-/** One item named: its card under the box, with ✕ to take it off. Take the link out and put it back and the card comes back. */
-export const CardUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} `) }
+/** One item named: its card in the box, under the text; point at it for the ✕ that takes it off. Take the link out and put it back and the card comes back. */
+export const WithACard: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} `) }
 
-/** A link to a block: its live part under the box, and no card. */
-export const PartUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
+/** A file and a card: both in the box, on the same fill, with the same ✕ on hover. */
+export const WithAFileAndACard: Story = {
+  render: () => <Live under={under} />,
+  play: async (ctx) => {
+    await pickAFile(ctx)
+    await typeInto(`As in ${ITEM_URL} `)(ctx)
+  },
+}
+
+/** A link in the box, on words: drawn as a link, the link icon before its words (it read as plain words before). */
+export const WithALink: Story = {
+  render: () => (
+    <Live
+      start={{
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'The plan is in ' },
+              { type: 'text', text: 'the guide', marks: [{ type: 'link', attrs: { href: 'https://example.com/guide' } }] },
+              { type: 'text', text: ' for now.' },
+            ],
+          },
+        ],
+      }}
+    />
+  ),
+}
+
+/** A link to a block: its live part in the box, and no card. */
+export const WithAPart: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
 
 /** Editing: a link the edit adds shows the card Save will add. A part never shows here, since an edit carries none. */
 export const EditingWithACard: Story = {

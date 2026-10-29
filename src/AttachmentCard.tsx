@@ -23,6 +23,7 @@ import { Lightbox } from './Lightbox'
 import { Link } from './Link'
 import { WithTooltip, type WithTooltipProps } from './Tooltip'
 import { cn } from './cn'
+import { TYPE_TILE_CLASSES } from './looks'
 
 /**
  * Something attached — a document or an image — drawn as a card.
@@ -88,7 +89,8 @@ const formatBytes = (bytes: number) => {
 /** `'PDF'`, `'ZIP'`, `'DOCX'`, `'FILE'`. */
 const typeLabelOf = (name: string) => extensionOf(name).toUpperCase() || 'FILE'
 
-const TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+/** A file's type tile: the one a link's kind sits in too. */
+const TILE_CLASSES = TYPE_TILE_CLASSES
 // @estiva-escape(no-copied-look): A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
 const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
 const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
@@ -139,6 +141,34 @@ function Truncating({ text, hint, className, wrapperClassName, placement }: { te
     <WithTooltip label={hint ?? text} placement={placement} wrapperClassName={cn('min-w-0 flex-col', wrapperClassName)}>
       {line}
     </WithTooltip>
+  )
+}
+
+/**
+ * The round ✕ on the corner of something attached: a file waiting to be sent,
+ * and an AttachedCard (Katerina, 29 Oct: "we have an x icon used for
+ * attachments so we could reuse that one"). Its parent is `relative`;
+ * `className` says when it shows.
+ *
+ * On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is
+ * a 24px square that fills on hover, and this is Peek's 20px round badge.
+ */
+export function RemoveBadge({ label, onRemove, className }: { label: string; onRemove: () => void; className?: string }) {
+  return (
+    <BaseButton
+      type="button"
+      aria-label={label}
+      className={cn(
+        'absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary transition-opacity',
+        className,
+      )}
+      onClick={(event) => {
+        event.stopPropagation()
+        onRemove()
+      }}
+    >
+      <IconX size={11} stroke={1.75} />
+    </BaseButton>
   )
 }
 
@@ -387,22 +417,14 @@ export function AttachmentCard({
             className={cn(NOTE_CLASSES, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
           />
         </div>
-        {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
-            that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
         {onRemove && (
-          <BaseButton
-            type="button"
-            aria-label={`Remove ${name}`}
+          <RemoveBadge
+            label={`Remove ${name}`}
+            onRemove={onRemove}
             // Shows with the card's hover and with keyboard focus, as Download does: hover-only left it invisible to
             // the keyboard that had reached it (UIG-14, C4, Katerina 19 September).
-            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
-            onClick={(event) => {
-              event.stopPropagation()
-              onRemove()
-            }}
-          >
-            <IconX size={11} stroke={1.75} />
-          </BaseButton>
+            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
+          />
         )}
       </Card>
     )

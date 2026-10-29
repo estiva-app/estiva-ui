@@ -220,7 +220,7 @@ describe('nameProblems', () => {
     const seen = '**Seen in** — *Parts/Badge*, *To be removed/\nTopicActivity* and\n*Media/AttachmentCard*.'
     const dir = app({ 'src/Badge.mdx': page('A word.', seen) })
     const titles = new Set(['Parts/Badge'])
-    expect(nameProblems(registry(dir), dir, { known, titles, packageIds: ['components-attachmentcard--document'] })).toEqual([
+    expect(nameProblems(registry(dir), dir, { known, titles, packageIds: ['links-references-attachmentcard--document'] })).toEqual([
       'src/Badge.mdx: "Seen in" names To be removed/TopicActivity, which no Storybook has',
       'src/Badge.mdx: "Seen in" names Media/AttachmentCard, which no Storybook has',
     ])

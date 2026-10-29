@@ -4,7 +4,7 @@ import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
 
 const meta = {
-  title: 'Inputs/Field',
+  title: 'Forms & fields/Field',
   component: Field,
   parameters: { layout: 'padded' },
   args: { label: 'Title', required: false },

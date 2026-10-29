@@ -13,7 +13,7 @@ import { richTextClassName } from './RichText'
  * it.
  */
 const meta = {
-  title: 'Primitives/EditorTableControls',
+  title: 'Writing/EditorTableControls',
   // The block handle sits 28px left of the content, and the column ➕ 16px right of the table.
   parameters: { layout: 'padded' },
 } satisfies Meta

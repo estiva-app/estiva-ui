@@ -14,7 +14,7 @@ import { richTextClassName } from './RichText'
  * ones are the app's, which knows how to resolve what the link points at.
  */
 const meta = {
-  title: 'Primitives/LinkPlaces',
+  title: 'Writing/LinkPlaces',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

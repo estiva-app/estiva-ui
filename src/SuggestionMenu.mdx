@@ -72,6 +72,9 @@ Suggestion<Command>({
   Escape: the first press closes the list, the second is somebody's own.
 - **Outside an editor**, draw `SuggestionMenu` itself with a `rect` to hang from,
   and call `handle.current.onKeyDown(event)` from wherever the keys arrive.
+  Give `rect` as a function that says where the caret is now, as Tiptap's
+  `clientRect` does, and the list follows the caret when the page scrolls; a
+  rect alone is where the caret was, and the list stays there.
 
 <Canvas of={SuggestionMenuStories.InAnEditor} />
 
@@ -83,7 +86,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Moves through its items with the arrow keys, and wraps at the ends | an arrow-key handler | ✓ |
 | Says what it is to assistive technology: a listbox of options, and the editor pointing at the active one | `role="listbox"`, `role="option"`, `aria-activedescendant` | ✓ |
-| Hangs from the caret: above it, below when there is no room, never off the window | position arithmetic | |
+| Hangs from the caret: above it, below when there is no room, never off the window, and follows it when the page scrolls | position arithmetic, a scroll listener | |
 | Scrolls the highlighted row into view, and back to the first row when the list changes | `scrollIntoView` | |
 | Chooses on a press without taking focus from the text | `preventDefault` on each row | |
 

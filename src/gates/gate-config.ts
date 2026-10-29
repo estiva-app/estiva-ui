@@ -10,7 +10,10 @@
  * Where: every `.ts` and `.tsx` under `src`, stories included (a story is what
  * people read and copy), tests not (a test mounts markup to test it) —
  * Katerina's rulings of 13 September; `.ts` since UIG-8. This package's own
- * inward set reads `.tsx` only, as it always has.
+ * inward set reads `.tsx` only, as it always has, and its root `stories/` as
+ * well as `src/` (28 October): a prototype built there is what a build is
+ * checked against, and the One conversation prototype passed unread with five
+ * refusals in it.
  *
  * A place that keeps something says why, on the line above:
  * `// @estiva-escape: <reason>`, or `{/* @estiva-escape: <reason> *\/}` as a
@@ -48,7 +51,7 @@ export function gateLint({ audience = 'app' }: Pick<GateConfigOptions, 'audience
     ...(audience === 'package' ? estiva.configs.package : estiva.configs.recommended),
     // An app's every script type: a raw <button> in a .jsx, or a key listener in a .mts,
     // passed while only .ts and .tsx were read (the re-review after the audit before UIG-26).
-    files: audience === 'package' ? ['src/**/*.tsx'] : ['src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}'],
+    files: audience === 'package' ? ['src/**/*.tsx', 'stories/**/*.tsx'] : ['src/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}'],
     ignores: ['**/*.test.*'],
     languageOptions: {
       parser: typescriptParser,

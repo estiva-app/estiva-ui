@@ -1,6 +1,7 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
+import { WEB_LINK_CLASSES } from './looks'
 
 /**
  * A link: an anchor with one of four looks, and nothing else of its own.
@@ -9,8 +10,9 @@ import { cn } from './cn'
  * on 13 September 2026, in three jobs (UIG-27). The looks are the ones those
  * links already had, reduced by Katerina's ruling:
  *
- * - `text` — a link inside written text: the theme's link colour, always underlined,
- *   dimming on hover. The look a link in a body of text already had.
+ * - `text` — a link inside written text: the theme's link colour, the link icon
+ *   before its words and one underline under both, dimming on hover (Katerina,
+ *   29 Oct, after Slack). `WEB_LINK_CLASSES`, which the editors' links wear too.
  * - `quiet` — a title or a timestamp that is also a link. It takes the colour
  *   and size of the text it sits in and underlines on hover. Two looks that
  *   differed only in their text became this one (her ruling, 13 September).
@@ -43,7 +45,7 @@ export type LinkVariant = 'text' | 'quiet' | 'underlined' | 'plain'
 const COVER_CLASSES = 'after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:[outline-style:auto]'
 
 const VARIANT_CLASSES: Record<LinkVariant, string> = {
-  text: 'text-text-interactive underline underline-offset-2 hover:opacity-80',
+  text: `text-text-interactive hover:opacity-80 ${WEB_LINK_CLASSES}`,
   quiet: 'hover:underline',
   underlined: 'underline underline-offset-2 hover:text-text-primary',
   plain: '',

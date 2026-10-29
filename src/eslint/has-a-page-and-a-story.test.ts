@@ -16,6 +16,8 @@ const tester = new RuleTester({
 
 /** Real files of this package, so the rules are tested against what they read. */
 const src = (name: string) => fileURLToPath(new URL(`../${name}`, import.meta.url))
+/** The package's root `stories/`: Storybook's pages and a prototype's helpers, which the gate reads too. */
+const stories = (name: string) => fileURLToPath(new URL(`../../stories/${name}`, import.meta.url))
 const code = 'export function Probe() {\n  return null\n}\n'
 const escaped = '// @estiva-escape(component-has-a-page, component-has-a-story): a probe file that documents itself in its own page\nexport function Probe() {\n  return null\n}\n'
 
@@ -39,6 +41,8 @@ tester.run('component-has-a-page', componentHasAPage, {
     { name: 'a test file', code, filename: src('Button.test.tsx') },
     { name: 'a file that is not a component file at all', code, filename: src('index.ts') },
     { name: 'a component with its reason at the top', code: escaped, filename: src('NoPageProbe.tsx') },
+    { name: "a helper in the root stories/, which is not a part (the One conversation prototype's Conversation.tsx)", code, filename: stories('one-conversation/Conversation.tsx') },
+    { name: 'a page of the root stories/ drawn in a .tsx', code, filename: stories('TokensPage.tsx') },
   ],
   invalid: [
     { name: 'a component with no page', code, filename: src('NoPageProbe.tsx'), errors: [{ messageId: 'missing' }] },
@@ -50,6 +54,7 @@ tester.run('component-has-a-story', componentHasAStory, {
     { name: 'a component with its story beside it', code, filename: src('Button.tsx') },
     { name: 'a story file, which is not itself a component', code, filename: src('Button.stories.tsx') },
     { name: 'a component with its reason at the top', code: escaped, filename: src('NoStoryProbe.tsx') },
+    { name: "a helper in the root stories/, which is not a part (the One conversation prototype's Places.tsx)", code, filename: stories('one-conversation/Places.tsx') },
   ],
   invalid: [
     { name: 'a component with no story', code, filename: src('NoStoryProbe.tsx'), errors: [{ messageId: 'missing' }] },

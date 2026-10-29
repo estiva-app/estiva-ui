@@ -53,12 +53,14 @@ describe('Link', () => {
     expect(screen.getByRole('link', { name: 'Documents' }).getAttribute('href')).toBe('/documents')
   })
 
-  it('text is the link colour, always underlined, and is the default', () => {
+  it('text is the link colour, the link icon before its words with one underline under both, and is the default', () => {
     render(<Link href="#">Label</Link>)
     const classes = classesOf(screen.getByRole('link'))
     expect(classes).toContain('text-text-interactive')
-    expect(classes).toContain('underline')
-    expect(classes).toContain('underline-offset-2')
+    // One line under the icon and the words: the link's own background, not text-decoration, which skips the icon.
+    expect(classes).toContain('no-underline')
+    expect(classes).toContain('bg-[length:100%_1px]')
+    expect(classes).toContain("before:content-['']")
   })
 
   it('quiet sets no colour and no size of its own, and underlines on hover', () => {

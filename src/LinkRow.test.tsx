@@ -13,9 +13,9 @@ describe('LinkRow', () => {
     expect(screen.getByRole('link', { name: ITEM.title }).getAttribute('href')).toBe('#item')
   })
 
-  it('keeps to one line: the count shows only when something in it is unread', () => {
+  it('shows its comment count on every row, and says when something in it is unread', () => {
     const { rerender } = render(<LinkRow link={ready(ITEM)} preview={false} />)
-    expect(screen.queryByRole('link', { name: /open the conversation/ })).toBeNull()
+    expect(screen.getByRole('link', { name: /comments — open the conversation/ }).getAttribute('href')).toBe('#item-conversation')
     rerender(<LinkRow link={ready(ITEM_UNREAD)} preview={false} />)
     expect(screen.getByRole('link', { name: /unread — open the conversation/ }).getAttribute('href')).toBe('#item-conversation')
   })
@@ -33,6 +33,6 @@ describe('LinkRow', () => {
 
   it('says it is not available in one line', () => {
     render(<LinkRow link={UNAVAILABLE} />)
-    expect(screen.getByText('Item — not available.')).toBeTruthy()
+    expect(screen.getByText('Issue — not available.')).toBeTruthy()
   })
 })

@@ -14,7 +14,7 @@ import { richTextClassName } from './RichText'
  * row and card are the app's.
  */
 const meta = {
-  title: 'Primitives/ReferenceMenu',
+  title: 'Writing/ReferenceMenu',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

@@ -10,7 +10,7 @@ const logo = (
 )
 
 const meta = {
-  title: 'Frame/EntryShell',
+  title: 'App frame/EntryShell',
   component: EntryShell,
   parameters: { layout: 'fullscreen' },
   args: { logo },

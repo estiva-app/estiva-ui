@@ -3,7 +3,7 @@ import { fn } from 'storybook/test'
 import { Reaction } from './Reaction'
 
 const meta = {
-  title: 'Components/Reaction',
+  title: 'Conversation/Reaction',
   component: Reaction,
   args: { emoji: '👍', count: 2, 'aria-label': 'Makes sense, 2', onClick: fn() },
 } satisfies Meta<typeof Reaction>

@@ -16,7 +16,7 @@ import { SkeletonBar } from './Skeleton'
  * places itself; **`OnARow`** and **`Scrolling`** are the live ones (D25).
  */
 const meta = {
-  title: 'Overlays/PreviewCard',
+  title: 'Menus & windows/PreviewCard',
   component: PreviewCard,
   decorators: [(Story) => <div className="flex min-h-[260px] w-full items-center justify-center"><Story /></div>],
   args: { content: null, children: null },

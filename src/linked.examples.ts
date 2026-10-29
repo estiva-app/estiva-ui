@@ -24,13 +24,13 @@ const picker = (value: string | undefined, options: PickerOption[], mayChange = 
 const SUMMARY = 'A one-sentence summary of what this is for.'
 
 /** A tracked item: a key, a status and an owner the reader may change, and a conversation. */
+// No subtitle: no app sends one (linkedFrom never fills it), and the examples hold only what an app can (Katerina, 29 Oct).
 export const ITEM: Linked = {
   id: 'example:item',
   kind: 'issue',
   title: 'Item one, with a title long enough to be cut short',
   href: '#item',
   key: 'ABC-2',
-  subtitle: 'Group one',
   summary: SUMMARY,
   status: picker('doing', STATUS_OPTIONS),
   owner: picker('a', PEOPLE),
@@ -86,7 +86,6 @@ export const PAGE: Linked = {
   kind: 'page',
   title: 'Page one',
   href: '#page',
-  subtitle: 'Shelf one',
   summary: SUMMARY,
   authors: [{ name: 'Person one' }, { name: 'Person three' }],
   updated: 'Yesterday',
@@ -105,4 +104,4 @@ export const SAID: Linked = {
 
 export const ready = (linked: Linked): LinkState => ({ state: 'ready', linked })
 export const LOADING: LinkState = { state: 'loading', kind: 'issue' }
-export const UNAVAILABLE: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Item', openIn: { app: 'App one', href: '#elsewhere' } }
+export const UNAVAILABLE: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Issue', openIn: { app: 'App one', href: '#elsewhere' } }

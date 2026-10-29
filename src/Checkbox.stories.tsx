@@ -5,7 +5,7 @@ import { IconSquareRounded } from '@tabler/icons-react'
 import { Checkbox } from './Checkbox'
 
 const meta = {
-  title: 'Inputs/Checkbox',
+  title: 'Forms & fields/Checkbox',
   component: Checkbox,
   // `onChange` makes it the control; without one it is the picture of a
   // state (the "inside a row" story), and these stories are about the control.

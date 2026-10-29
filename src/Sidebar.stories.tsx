@@ -8,7 +8,7 @@ import { Sidebar } from './Sidebar'
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 const meta = {
-  title: 'Frame/Sidebar',
+  title: 'App frame/Sidebar',
   component: Sidebar,
   parameters: { layout: 'fullscreen' },
   args: { children: null },

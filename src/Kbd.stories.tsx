@@ -4,7 +4,7 @@ import { MenuItem, MenuPanel, MenuSection } from './Menu'
 import { Tooltip } from './Tooltip'
 
 const meta = {
-  title: 'Primitives/Kbd',
+  title: 'Buttons & links/Kbd',
   component: Kbd,
   args: { children: 'Cmd+K' },
   argTypes: { children: { control: 'text' } },

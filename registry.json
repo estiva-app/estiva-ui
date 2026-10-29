@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.90.2",
-    "exports": 210,
+    "packageVersion": "0.91.0",
+    "exports": 211,
     "typeExports": 211,
     "files": null
   },
@@ -68,8 +68,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-reactionrow--docs",
-      "storyId": "primitives-reactionrow--default",
+      "docsId": "conversation-reactionrow--docs",
+      "storyId": "conversation-reactionrow--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -87,8 +87,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -106,8 +106,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -125,8 +125,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -144,8 +144,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -182,8 +182,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-appprovider--docs",
-      "storyId": "frame-appprovider--pictures",
+      "docsId": "app-frame-appprovider--docs",
+      "storyId": "app-frame-appprovider--pictures",
       "docPage": "src/AppProvider.mdx",
       "app": null,
       "looks": []
@@ -283,8 +283,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-appshell--docs",
-      "storyId": "frame-appshell--solid",
+      "docsId": "app-frame-appshell--docs",
+      "storyId": "app-frame-appshell--solid",
       "docPage": "src/AppShell.mdx",
       "app": null,
       "looks": [
@@ -307,6 +307,32 @@
       "docsId": null,
       "storyId": null,
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "AttachedCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AttachedCard.tsx",
+      "purpose": "The one card attached to a piece of text, and the ✕ that removes it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "onRemove",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws the ✕. Without it the card shows with none, as it does to anyone but the author."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "links-references-attachedcard--docs",
+      "storyId": "links-references-attachedcard--with-remove",
+      "docPage": "src/AttachedCard.mdx",
       "app": null,
       "looks": []
     },
@@ -451,8 +477,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-attachmentcard--docs",
-      "storyId": "components-attachmentcard--document",
+      "docsId": "links-references-attachmentcard--docs",
+      "storyId": "links-references-attachmentcard--document",
       "docPage": "src/AttachmentCard.mdx",
       "app": null,
       "looks": [
@@ -462,7 +488,7 @@
         "text-small tracking-wide leading-tight truncate text-error-default",
         "text-small tracking-wide leading-tight truncate text-warning-default",
         "text-small tracking-wide leading-tight truncate text-text-secondary",
-        "-top-1.5 -right-1.5 rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity",
+        "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100",
         "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
       ]
     },
@@ -479,8 +505,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -540,8 +566,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-avatar--docs",
-      "storyId": "primitives-avatar--initials",
+      "docsId": "people-avatar--docs",
+      "storyId": "people-avatar--initials",
       "docPage": "src/Avatar.mdx",
       "app": null,
       "looks": []
@@ -566,14 +592,29 @@
           "takes": "number",
           "required": false,
           "note": "Face size in pixels; the overlap follows it. 24 is the members pill, 18 the replies row (Katerina, 2026-09-03) — that row drew its own stack for two months for want of this one number, and drifted while it did."
+        },
+        {
+          "name": "on",
+          "takes": "surface | inset | elevated",
+          "required": false,
+          "note": "What the stack sits on, so each face's ring is that colour and reads as a gap."
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "on",
+          "values": [
+            "surface",
+            "inset",
+            "elevated"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-avatargroup--docs",
-      "storyId": "primitives-avatargroup--three-members",
+      "docsId": "people-avatargroup--docs",
+      "storyId": "people-avatargroup--three-members",
       "docPage": "src/AvatarGroup.mdx",
       "app": null,
       "looks": []
@@ -649,8 +690,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-banner--docs",
-      "storyId": "feedback-banner--ok",
+      "docsId": "status-feedback-banner--docs",
+      "storyId": "status-feedback-banner--ok",
       "docPage": "src/Banner.mdx",
       "app": null,
       "looks": []
@@ -668,8 +709,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blockhandle--docs",
-      "storyId": "primitives-blockhandle--default",
+      "docsId": "writing-blockhandle--docs",
+      "storyId": "writing-blockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -687,8 +728,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -731,8 +772,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blockhandle--docs",
-      "storyId": "primitives-blockhandle--default",
+      "docsId": "writing-blockhandle--docs",
+      "storyId": "writing-blockhandle--default",
       "docPage": "src/BlockHandle.mdx",
       "app": null,
       "looks": []
@@ -750,8 +791,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -782,8 +823,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-breadcrumb--docs",
-      "storyId": "navigation-breadcrumb--on-an-item",
+      "docsId": "page-structure-breadcrumb--docs",
+      "storyId": "page-structure-breadcrumb--on-an-item",
       "docPage": "src/Breadcrumb.mdx",
       "app": null,
       "looks": [
@@ -870,8 +911,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-button--docs",
-      "storyId": "primitives-button--primary",
+      "docsId": "buttons-links-button--docs",
+      "storyId": "buttons-links-button--primary",
       "docPage": "src/Button.mdx",
       "app": null,
       "looks": [
@@ -894,8 +935,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -913,8 +954,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-richtext--docs",
-      "storyId": "components-richtext--every-block",
+      "docsId": "writing-richtext--docs",
+      "storyId": "writing-richtext--every-block",
       "docPage": null,
       "app": null,
       "looks": []
@@ -932,8 +973,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -1043,8 +1084,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-card--docs",
-      "storyId": "primitives-card--surface",
+      "docsId": "page-structure-card--docs",
+      "storyId": "page-structure-card--surface",
       "docPage": "src/Card.mdx",
       "app": null,
       "looks": [
@@ -1060,40 +1101,6 @@
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted overflow-hidden",
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed",
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed overflow-hidden"
-      ]
-    },
-    {
-      "name": "CardUnder",
-      "repo": "estiva-ui",
-      "kind": "component",
-      "importPath": "@estiva-app/ui",
-      "sourceFile": "src/CardUnder.tsx",
-      "purpose": "The one card added under a piece of text, and the ✕ that removes it.",
-      "purposeFrom": "page",
-      "props": [
-        {
-          "name": "onRemove",
-          "takes": "a handler",
-          "required": false,
-          "note": "Draws the ✕. Without it the card shows with none, as it does to anyone but the author."
-        },
-        {
-          "name": "revealOnHover",
-          "takes": "true/false",
-          "required": false,
-          "note": "The ✕ waits for hover or focus: under text already sent."
-        }
-      ],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "components-cardunder--docs",
-      "storyId": "components-cardunder--while-writing",
-      "docPage": "src/CardUnder.mdx",
-      "app": null,
-      "looks": [
-        "opacity-0 transition-opacity focus-within:opacity-100 [@media(hover:none)]:opacity-100"
       ]
     },
     {
@@ -1177,8 +1184,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-checkbox--docs",
-      "storyId": "inputs-checkbox--unchecked",
+      "docsId": "forms-fields-checkbox--docs",
+      "storyId": "forms-fields-checkbox--unchecked",
       "docPage": "src/Checkbox.mdx",
       "app": null,
       "looks": [
@@ -1199,8 +1206,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -1273,8 +1280,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-chip--docs",
-      "storyId": "primitives-chip--neutral",
+      "docsId": "status-feedback-chip--docs",
+      "storyId": "status-feedback-chip--neutral",
       "docPage": "src/Chip.mdx",
       "app": null,
       "looks": [
@@ -1405,8 +1412,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-chipinput--docs",
-      "storyId": "inputs-chipinput--type-to-search",
+      "docsId": "forms-fields-chipinput--docs",
+      "storyId": "forms-fields-chipinput--type-to-search",
       "docPage": "src/ChipInput.mdx",
       "app": null,
       "looks": [
@@ -1466,8 +1473,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-codeblockcolours--docs",
-      "storyId": "primitives-codeblockcolours--in-an-editor",
+      "docsId": "writing-codeblockcolours--docs",
+      "storyId": "writing-codeblockcolours--in-an-editor",
       "docPage": "src/CodeBlockColours.mdx",
       "app": null,
       "looks": []
@@ -1608,8 +1615,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-collapsiblesection--docs",
-      "storyId": "navigation-collapsiblesection--default",
+      "docsId": "page-structure-collapsiblesection--docs",
+      "storyId": "page-structure-collapsiblesection--default",
       "docPage": "src/CollapsibleSection.mdx",
       "app": null,
       "looks": [
@@ -1699,8 +1706,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": "src/CommandPalette.mdx",
       "app": null,
       "looks": [
@@ -1733,8 +1740,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": []
@@ -1801,8 +1808,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": []
@@ -1839,8 +1846,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": []
@@ -1865,8 +1872,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": [
@@ -1954,8 +1961,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": [
@@ -1988,8 +1995,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-commandpalette--docs",
-      "storyId": "overlays-commandpalette--first-level",
+      "docsId": "menus-windows-commandpalette--docs",
+      "storyId": "menus-windows-commandpalette--first-level",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2049,7 +2056,7 @@
           "name": "under",
           "takes": "BoxUnder",
           "required": false,
-          "note": "The card and parts under the box while something is written, with ✕ on the card."
+          "note": "The card and parts in the box while something is written, with the files, ✕ on the card."
         },
         {
           "name": "showsAtOnce",
@@ -2152,8 +2159,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commentbox--docs",
-      "storyId": "primitives-commentbox--empty",
+      "docsId": "writing-commentbox--docs",
+      "storyId": "writing-commentbox--empty",
       "docPage": "src/CommentBox.mdx",
       "app": null,
       "looks": []
@@ -2171,8 +2178,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commentbox--docs",
-      "storyId": "primitives-commentbox--empty",
+      "docsId": "writing-commentbox--docs",
+      "storyId": "writing-commentbox--empty",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2203,14 +2210,14 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": [
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active font-medium text-text-primary",
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active text-text-secondary",
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active"
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover font-medium text-text-primary",
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover text-text-secondary",
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover"
       ]
     },
     {
@@ -2226,8 +2233,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2245,8 +2252,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": "src/CommentHighlights.mdx",
       "app": null,
       "looks": [
@@ -2266,8 +2273,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2351,8 +2358,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-confirmdialog--docs",
-      "storyId": "overlays-confirmdialog--destructive",
+      "docsId": "menus-windows-confirmdialog--docs",
+      "storyId": "menus-windows-confirmdialog--destructive",
       "docPage": "src/ConfirmDialog.mdx",
       "app": null,
       "looks": []
@@ -2414,8 +2421,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-containerheader--docs",
-      "storyId": "navigation-containerheader--with-title-menu",
+      "docsId": "page-structure-containerheader--docs",
+      "storyId": "page-structure-containerheader--with-title-menu",
       "docPage": "src/ContainerHeader.mdx",
       "app": null,
       "looks": [
@@ -2435,8 +2442,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2454,8 +2461,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2473,8 +2480,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2576,8 +2583,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-dialogshell--docs",
-      "storyId": "overlays-dialogshell--default",
+      "docsId": "menus-windows-dialogshell--docs",
+      "storyId": "menus-windows-dialogshell--default",
       "docPage": "src/DialogShell.mdx",
       "app": null,
       "looks": [
@@ -2646,8 +2653,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-divider--docs",
-      "storyId": "primitives-divider--default",
+      "docsId": "page-structure-divider--docs",
+      "storyId": "page-structure-divider--default",
       "docPage": "src/Divider.mdx",
       "app": null,
       "looks": []
@@ -2810,8 +2817,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-documenteditor--docs",
-      "storyId": "primitives-documenteditor--with-comments",
+      "docsId": "writing-documenteditor--docs",
+      "storyId": "writing-documenteditor--with-comments",
       "docPage": "src/DocumentEditor.mdx",
       "app": null,
       "looks": []
@@ -2829,8 +2836,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -2908,8 +2915,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-editabletext--docs",
-      "storyId": "inputs-editabletext--title",
+      "docsId": "forms-fields-editabletext--docs",
+      "storyId": "forms-fields-editabletext--title",
       "docPage": "src/EditableText.mdx",
       "app": null,
       "looks": [
@@ -2966,8 +2973,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": "src/EditorBlockHandle.mdx",
       "app": null,
       "looks": []
@@ -3004,8 +3011,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": "src/EditorTableControls.mdx",
       "app": null,
       "looks": [
@@ -3065,8 +3072,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-emptystate--docs",
-      "storyId": "feedback-emptystate--page",
+      "docsId": "status-feedback-emptystate--docs",
+      "storyId": "status-feedback-emptystate--page",
       "docPage": "src/EmptyState.mdx",
       "app": null,
       "looks": []
@@ -3091,8 +3098,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": [
@@ -3149,8 +3156,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-entryshell--docs",
-      "storyId": "frame-entryshell--message-with-action",
+      "docsId": "app-frame-entryshell--docs",
+      "storyId": "app-frame-entryshell--message-with-action",
       "docPage": "src/EntryShell.mdx",
       "app": null,
       "looks": []
@@ -3193,8 +3200,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-errorboundary--docs",
-      "storyId": "feedback-errorboundary--in-a-panel",
+      "docsId": "status-feedback-errorboundary--docs",
+      "storyId": "status-feedback-errorboundary--in-a-panel",
       "docPage": "src/ErrorBoundary.mdx",
       "app": null,
       "looks": []
@@ -3248,8 +3255,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-field--docs",
-      "storyId": "inputs-field--default",
+      "docsId": "forms-fields-field--docs",
+      "storyId": "forms-fields-field--default",
       "docPage": "src/Field.mdx",
       "app": null,
       "looks": []
@@ -3300,8 +3307,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-field-line--docs",
-      "storyId": "inputs-field-line--helper",
+      "docsId": "forms-fields-field-line--docs",
+      "storyId": "forms-fields-field-line--helper",
       "docPage": "src/FieldLine.mdx",
       "app": null,
       "looks": []
@@ -3326,8 +3333,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-filepicker--docs",
-      "storyId": "inputs-filepicker--default",
+      "docsId": "forms-fields-filepicker--docs",
+      "storyId": "forms-fields-filepicker--default",
       "docPage": "src/FilePicker.mdx",
       "app": null,
       "looks": []
@@ -3345,8 +3352,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3364,8 +3371,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3383,8 +3390,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3402,8 +3409,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkchips--docs",
-      "storyId": "primitives-linkchips--in-an-editor",
+      "docsId": "writing-linkchips--docs",
+      "storyId": "writing-linkchips--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3465,8 +3472,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-form--docs",
-      "storyId": "inputs-form--default",
+      "docsId": "forms-fields-form--docs",
+      "storyId": "forms-fields-form--default",
       "docPage": "src/Form.mdx",
       "app": null,
       "looks": []
@@ -3484,8 +3491,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3503,8 +3510,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3522,8 +3529,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-avatar--docs",
-      "storyId": "primitives-avatar--initials",
+      "docsId": "people-avatar--docs",
+      "storyId": "people-avatar--initials",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3627,8 +3634,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-iconbutton--docs",
-      "storyId": "primitives-iconbutton--muted",
+      "docsId": "buttons-links-iconbutton--docs",
+      "storyId": "buttons-links-iconbutton--muted",
       "docPage": "src/IconButton.mdx",
       "app": null,
       "looks": [
@@ -3703,8 +3710,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-identitymenu--docs",
-      "storyId": "navigation-identitymenu--anonymous",
+      "docsId": "app-frame-identitymenu--docs",
+      "storyId": "app-frame-identitymenu--anonymous",
       "docPage": "src/IdentityMenu.mdx",
       "app": null,
       "looks": []
@@ -3777,8 +3784,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-identitymenu--docs",
-      "storyId": "navigation-identitymenu--anonymous",
+      "docsId": "app-frame-identitymenu--docs",
+      "storyId": "app-frame-identitymenu--anonymous",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3796,8 +3803,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-avatar--docs",
-      "storyId": "primitives-avatar--initials",
+      "docsId": "people-avatar--docs",
+      "storyId": "people-avatar--initials",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3815,8 +3822,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-inlinechip--docs",
-      "storyId": "components-inlinechip--neutral",
+      "docsId": "links-references-inlinechip--docs",
+      "storyId": "links-references-inlinechip--neutral",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3834,8 +3841,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-inlinechip--docs",
-      "storyId": "components-inlinechip--neutral",
+      "docsId": "links-references-inlinechip--docs",
+      "storyId": "links-references-inlinechip--neutral",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3878,8 +3885,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-inlinechip--docs",
-      "storyId": "components-inlinechip--neutral",
+      "docsId": "links-references-inlinechip--docs",
+      "storyId": "links-references-inlinechip--neutral",
       "docPage": "src/InlineChip.mdx",
       "app": null,
       "looks": [
@@ -3900,8 +3907,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-inlinechip--docs",
-      "storyId": "components-inlinechip--neutral",
+      "docsId": "links-references-inlinechip--docs",
+      "storyId": "links-references-inlinechip--neutral",
       "docPage": null,
       "app": null,
       "looks": []
@@ -3953,9 +3960,9 @@
         },
         {
           "name": "variant",
-          "takes": "title | summary",
+          "takes": "title | heading | summary",
           "required": false,
-          "note": "`title`: the page's heading. `summary`: the line under it, quieter."
+          "note": "`title`: the page's heading. `heading`: a document's title, at the largest heading size (Leaf's file page)."
         },
         {
           "name": "clearable",
@@ -3987,6 +3994,7 @@
           "prop": "variant",
           "values": [
             "title",
+            "heading",
             "summary"
           ]
         }
@@ -3994,8 +4002,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-inlinetext--docs",
-      "storyId": "primitives-inlinetext--default",
+      "docsId": "writing-inlinetext--docs",
+      "storyId": "writing-inlinetext--default",
       "docPage": "src/InlineText.mdx",
       "app": null,
       "looks": []
@@ -4063,14 +4071,33 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-chipinput--docs",
-      "storyId": "inputs-chipinput--type-to-search",
+      "docsId": "forms-fields-chipinput--docs",
+      "storyId": "forms-fields-chipinput--type-to-search",
       "docPage": null,
       "app": null,
       "looks": [
         "bg-bg-elevated border border-border-subtle rounded-md",
         "text-caption font-medium text-text-primary truncate"
       ]
+    },
+    {
+      "name": "inTheBox",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "Inside a box being written in (CommentBox): a card or a part there sits on a file's fill, `elevated`, as the files beside it do, and a card's values read as words, not pickers, until it is sent (Katerina, 29 Oct).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "isApplePlatform",
@@ -4104,8 +4131,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4123,8 +4150,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencemenu--docs",
-      "storyId": "primitives-referencemenu--in-an-editor",
+      "docsId": "writing-referencemenu--docs",
+      "storyId": "writing-referencemenu--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4207,8 +4234,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-kbd--docs",
-      "storyId": "primitives-kbd--default",
+      "docsId": "buttons-links-kbd--docs",
+      "storyId": "buttons-links-kbd--default",
       "docPage": "src/Kbd.mdx",
       "app": null,
       "looks": [
@@ -4245,8 +4272,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commentbox--docs",
-      "storyId": "primitives-commentbox--empty",
+      "docsId": "writing-commentbox--docs",
+      "storyId": "writing-commentbox--empty",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4264,8 +4291,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-selectiontoolbar--docs",
-      "storyId": "primitives-selectiontoolbar--default",
+      "docsId": "writing-selectiontoolbar--docs",
+      "storyId": "writing-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4283,8 +4310,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-selectiontoolbar--docs",
-      "storyId": "primitives-selectiontoolbar--default",
+      "docsId": "writing-selectiontoolbar--docs",
+      "storyId": "writing-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4345,8 +4372,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-kindicon--docs",
-      "storyId": "primitives-kindicon--default",
+      "docsId": "links-references-kindicon--docs",
+      "storyId": "links-references-kindicon--default",
       "docPage": "src/KindIcon.mdx",
       "app": null,
       "looks": []
@@ -4418,8 +4445,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-lightbox--docs",
-      "storyId": "overlays-lightbox--a-picture",
+      "docsId": "menus-windows-lightbox--docs",
+      "storyId": "menus-windows-lightbox--a-picture",
       "docPage": "src/Lightbox.mdx",
       "app": null,
       "looks": [
@@ -4495,15 +4522,15 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-link--docs",
-      "storyId": "navigation-link--text",
+      "docsId": "buttons-links-link--docs",
+      "storyId": "buttons-links-link--text",
       "docPage": "src/Link.mdx",
       "app": null,
       "looks": [
-        "text-text-interactive underline underline-offset-2 hover:opacity-80",
-        "text-text-interactive underline underline-offset-2 hover:opacity-80 after:rounded-md focus-visible:outline-none",
-        "text-text-interactive underline underline-offset-2 hover:opacity-80 truncate",
-        "text-text-interactive underline underline-offset-2 hover:opacity-80 truncate after:rounded-md focus-visible:outline-none",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current after:rounded-md focus-visible:outline-none",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current truncate",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current truncate after:rounded-md focus-visible:outline-none",
         "hover:underline truncate after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary truncate",
@@ -4542,8 +4569,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkcard--docs",
-      "storyId": "components-linkcard--default",
+      "docsId": "links-references-linkcard--docs",
+      "storyId": "links-references-linkcard--default",
       "docPage": "src/LinkCard.mdx",
       "app": null,
       "looks": []
@@ -4554,7 +4581,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/LinkCard.tsx",
-      "purpose": "The card it will become, drawn in bars at the card's own height.",
+      "purpose": "The card it will become, drawn in bars in the card's own shape: the tile, its two lines, then what it holds.",
       "purposeFrom": "comment",
       "props": [
         {
@@ -4574,13 +4601,12 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkcard--docs",
-      "storyId": "components-linkcard--default",
+      "docsId": "links-references-linkcard--docs",
+      "storyId": "links-references-linkcard--default",
       "docPage": null,
       "app": null,
       "looks": [
-        "divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong",
-        "rounded-md border border-border-subtle leaf:border-border-strong"
+        "divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong"
       ]
     },
     {
@@ -4609,8 +4635,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkchip--docs",
-      "storyId": "components-linkchip--in-a-sentence",
+      "docsId": "links-references-linkchip--docs",
+      "storyId": "links-references-linkchip--in-a-sentence",
       "docPage": "src/LinkChip.mdx",
       "app": null,
       "looks": []
@@ -4628,8 +4654,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkchips--docs",
-      "storyId": "primitives-linkchips--in-an-editor",
+      "docsId": "writing-linkchips--docs",
+      "storyId": "writing-linkchips--in-an-editor",
       "docPage": "src/LinkChips.mdx",
       "app": null,
       "looks": []
@@ -4693,8 +4719,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4713,14 +4739,28 @@
           "takes": "text",
           "required": true,
           "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "muted | secondary",
+          "required": false,
+          "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "muted",
+            "secondary"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4763,8 +4803,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4782,8 +4822,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkplaces--docs",
-      "storyId": "primitives-linkplaces--in-an-editor",
+      "docsId": "writing-linkplaces--docs",
+      "storyId": "writing-linkplaces--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4801,8 +4841,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkplaces--docs",
-      "storyId": "primitives-linkplaces--in-an-editor",
+      "docsId": "writing-linkplaces--docs",
+      "storyId": "writing-linkplaces--in-an-editor",
       "docPage": "src/LinkPlaces.mdx",
       "app": null,
       "looks": []
@@ -4839,8 +4879,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkpreview--docs",
-      "storyId": "components-linkpreview--on-hover",
+      "docsId": "links-references-linkpreview--docs",
+      "storyId": "links-references-linkpreview--on-hover",
       "docPage": "src/LinkPreview.mdx",
       "app": null,
       "looks": []
@@ -4865,8 +4905,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkpreview--docs",
-      "storyId": "components-linkpreview--on-hover",
+      "docsId": "links-references-linkpreview--docs",
+      "storyId": "links-references-linkpreview--on-hover",
       "docPage": null,
       "app": null,
       "looks": []
@@ -4877,7 +4917,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/LinkRow.tsx",
-      "purpose": "A link alone on its line: one 36px row for every kind, with what it has in its corner.",
+      "purpose": "A link alone on its line: its kind in a file's tile, the title and its key under it, and on the title's line its state, comments and faces.",
       "purposeFrom": "page",
       "props": [
         {
@@ -4897,11 +4937,13 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkrow--docs",
-      "storyId": "components-linkrow--default",
+      "docsId": "links-references-linkrow--docs",
+      "storyId": "links-references-linkrow--default",
       "docPage": "src/LinkRow.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "text-caption text-text-muted whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums"
+      ]
     },
     {
       "name": "linkStateFrom",
@@ -4941,21 +4983,27 @@
           "name": "noun",
           "takes": "text",
           "required": true,
-          "note": "What it is, in a word: \"Item\". Drawn as \"Item — not available.\"."
+          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue — not available.\"."
         },
         {
           "name": "openIn",
           "takes": "{ app: string; href: string }",
           "required": false,
           "note": "Where it may still open, for someone who can: its app and address."
+        },
+        {
+          "name": "card",
+          "takes": "true/false",
+          "required": false,
+          "note": "In a card's place: a card's 12px round it."
         }
       ],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkrow--docs",
-      "storyId": "components-linkrow--default",
+      "docsId": "links-references-linkrow--docs",
+      "storyId": "links-references-linkrow--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5022,8 +5070,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "layout-listcolumn--docs",
-      "storyId": "layout-listcolumn--default",
+      "docsId": "page-structure-listcolumn--docs",
+      "storyId": "page-structure-listcolumn--default",
       "docPage": "src/ListColumn.mdx",
       "app": null,
       "looks": []
@@ -5066,6 +5114,12 @@
           "takes": "text",
           "required": false,
           "note": "What the reader calls it, quietly before the title: \"ABC-2\"."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the app calls it, from its description of its files: \"Issue\", \"Project\", \"Topic\", \"Document\"."
         },
         {
           "name": "subtitle",
@@ -5253,8 +5307,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-membersdialog--docs",
-      "storyId": "primitives-membersdialog--member",
+      "docsId": "people-membersdialog--docs",
+      "storyId": "people-membersdialog--member",
       "docPage": "src/MembersDialog.mdx",
       "app": null,
       "looks": []
@@ -5297,8 +5351,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-memberspill--docs",
-      "storyId": "primitives-memberspill--two-members",
+      "docsId": "people-memberspill--docs",
+      "storyId": "people-memberspill--two-members",
       "docPage": "src/MembersPill.mdx",
       "app": null,
       "looks": [
@@ -5414,8 +5468,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": "src/Menu.mdx",
       "app": null,
       "looks": []
@@ -5523,8 +5577,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menuitem--docs",
-      "storyId": "overlays-menuitem--default",
+      "docsId": "menus-windows-menuitem--docs",
+      "storyId": "menus-windows-menuitem--default",
       "docPage": "src/MenuItem.mdx",
       "app": null,
       "looks": []
@@ -5549,8 +5603,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": [
@@ -5583,8 +5637,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5630,8 +5684,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5649,8 +5703,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5708,8 +5762,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-menu--docs",
-      "storyId": "overlays-menu--items",
+      "docsId": "menus-windows-menu--docs",
+      "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5727,8 +5781,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5860,8 +5914,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-navitem--docs",
-      "storyId": "frame-navitem--default",
+      "docsId": "app-frame-navitem--docs",
+      "storyId": "app-frame-navitem--default",
       "docPage": "src/NavItem.mdx",
       "app": null,
       "looks": [
@@ -5935,8 +5989,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-navtree--docs",
-      "storyId": "frame-navtree--default",
+      "docsId": "app-frame-navtree--docs",
+      "storyId": "app-frame-navtree--default",
       "docPage": "src/NavTree.mdx",
       "app": null,
       "looks": []
@@ -6045,8 +6099,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-navtree--docs",
-      "storyId": "frame-navtree--default",
+      "docsId": "app-frame-navtree--docs",
+      "storyId": "app-frame-navtree--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6064,8 +6118,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-selectiontoolbar--docs",
-      "storyId": "primitives-selectiontoolbar--default",
+      "docsId": "writing-selectiontoolbar--docs",
+      "storyId": "writing-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6138,8 +6192,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "layout-panel--docs",
-      "storyId": "layout-panel--default",
+      "docsId": "page-structure-panel--docs",
+      "storyId": "page-structure-panel--default",
       "docPage": "src/Panel.mdx",
       "app": null,
       "looks": []
@@ -6150,7 +6204,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/PartCard.tsx",
-      "purpose": "A part of something longer, shared live: its blocks as they are now, under the header of what it is part of.",
+      "purpose": "A part of something longer, shared live: its blocks as they are now, under the title of what it is part of.",
       "purposeFrom": "page",
       "props": [
         {
@@ -6187,7 +6241,7 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What it is part of, in a word, for \"A part of this item — not available.\"."
+          "note": "What it is part of, in a word, for \"A part of this issue — not available.\"."
         },
         {
           "name": "openIn",
@@ -6215,8 +6269,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-partcard--docs",
-      "storyId": "components-partcard--default",
+      "docsId": "links-references-partcard--docs",
+      "storyId": "links-references-partcard--default",
       "docPage": "src/PartCard.mdx",
       "app": null,
       "looks": []
@@ -6234,8 +6288,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-pastedimages--docs",
-      "storyId": "primitives-pastedimages--in-an-editor",
+      "docsId": "writing-pastedimages--docs",
+      "storyId": "writing-pastedimages--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6253,8 +6307,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-pastedimages--docs",
-      "storyId": "primitives-pastedimages--in-an-editor",
+      "docsId": "writing-pastedimages--docs",
+      "storyId": "writing-pastedimages--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6272,8 +6326,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-pastedimages--docs",
-      "storyId": "primitives-pastedimages--in-an-editor",
+      "docsId": "writing-pastedimages--docs",
+      "storyId": "writing-pastedimages--in-an-editor",
       "docPage": "src/PastedImages.mdx",
       "app": null,
       "looks": []
@@ -6291,8 +6345,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-pastedmarkdown--docs",
-      "storyId": "primitives-pastedmarkdown--in-an-editor",
+      "docsId": "writing-pastedmarkdown--docs",
+      "storyId": "writing-pastedmarkdown--in-an-editor",
       "docPage": "src/PastedMarkdown.mdx",
       "app": null,
       "looks": []
@@ -6310,8 +6364,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6360,8 +6414,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-person--docs",
-      "storyId": "components-person--named",
+      "docsId": "people-person--docs",
+      "storyId": "people-person--named",
       "docPage": "src/Person.mdx",
       "app": null,
       "looks": []
@@ -6379,8 +6433,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6398,8 +6452,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6467,8 +6521,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-persontrigger--docs",
-      "storyId": "components-persontrigger--row",
+      "docsId": "people-persontrigger--docs",
+      "storyId": "people-persontrigger--row",
       "docPage": "src/PersonTrigger.mdx",
       "app": null,
       "looks": [
@@ -6493,7 +6547,7 @@
         },
         {
           "name": "anchor",
-          "takes": "HTMLElement | DOMRect | null",
+          "takes": "a handler",
           "required": false,
           "note": "For a panel with no trigger element: an element, or a rect the caller measured — a text selection's."
         },
@@ -6609,8 +6663,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-popover--docs",
-      "storyId": "overlays-popover--default",
+      "docsId": "menus-windows-popover--docs",
+      "storyId": "menus-windows-popover--default",
       "docPage": "src/Popover.mdx",
       "app": null,
       "looks": []
@@ -6708,8 +6762,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "overlays-previewcard--docs",
-      "storyId": "overlays-previewcard--default",
+      "docsId": "menus-windows-previewcard--docs",
+      "storyId": "menus-windows-previewcard--default",
       "docPage": "src/PreviewCard.mdx",
       "app": null,
       "looks": []
@@ -6775,8 +6829,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-progressbar--docs",
-      "storyId": "feedback-progressbar--default",
+      "docsId": "status-feedback-progressbar--docs",
+      "storyId": "status-feedback-progressbar--default",
       "docPage": "src/ProgressBar.mdx",
       "app": null,
       "looks": [
@@ -6809,8 +6863,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6861,8 +6915,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-property--docs",
-      "storyId": "primitives-property--row",
+      "docsId": "page-structure-property--docs",
+      "storyId": "page-structure-property--row",
       "docPage": "src/Property.mdx",
       "app": null,
       "looks": [
@@ -6907,8 +6961,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6945,8 +6999,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-rail--docs",
-      "storyId": "frame-rail--default",
+      "docsId": "app-frame-rail--docs",
+      "storyId": "app-frame-rail--default",
       "docPage": "src/Rail.mdx",
       "app": null,
       "looks": []
@@ -6995,8 +7049,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-railitem--docs",
-      "storyId": "frame-railitem--default",
+      "docsId": "app-frame-railitem--docs",
+      "storyId": "app-frame-railitem--default",
       "docPage": "src/RailItem.mdx",
       "app": null,
       "looks": []
@@ -7048,8 +7102,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-reaction--docs",
-      "storyId": "components-reaction--default",
+      "docsId": "conversation-reaction--docs",
+      "storyId": "conversation-reaction--default",
       "docPage": "src/Reaction.mdx",
       "app": null,
       "looks": [
@@ -7109,8 +7163,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-reactionpicker--docs",
-      "storyId": "components-reactionpicker--default",
+      "docsId": "conversation-reactionpicker--docs",
+      "storyId": "conversation-reactionpicker--default",
       "docPage": "src/ReactionPicker.mdx",
       "app": null,
       "looks": []
@@ -7165,8 +7219,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-reactionrow--docs",
-      "storyId": "primitives-reactionrow--default",
+      "docsId": "conversation-reactionrow--docs",
+      "storyId": "conversation-reactionrow--default",
       "docPage": "src/ReactionRow.mdx",
       "app": null,
       "looks": []
@@ -7184,8 +7238,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7203,8 +7257,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7215,15 +7269,15 @@
       "kind": "component",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ReferenceCards.ts",
-      "purpose": "A chip in a document can ask for a card after its line: compact, detailed or none.",
+      "purpose": "Deprecated. A new editor uses LinkPlaces.",
       "purposeFrom": "page",
       "props": [],
       "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": "src/ReferenceCards.mdx",
       "app": null,
       "looks": []
@@ -7266,8 +7320,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7285,8 +7339,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencemenu--docs",
-      "storyId": "primitives-referencemenu--in-an-editor",
+      "docsId": "writing-referencemenu--docs",
+      "storyId": "writing-referencemenu--in-an-editor",
       "docPage": "src/ReferenceMenu.mdx",
       "app": null,
       "looks": []
@@ -7304,8 +7358,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencemenu--docs",
-      "storyId": "primitives-referencemenu--in-an-editor",
+      "docsId": "writing-referencemenu--docs",
+      "storyId": "writing-referencemenu--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7351,8 +7405,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencemenu--docs",
-      "storyId": "primitives-referencemenu--in-an-editor",
+      "docsId": "writing-referencemenu--docs",
+      "storyId": "writing-referencemenu--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7370,8 +7424,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7389,8 +7443,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7408,8 +7462,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkchips--docs",
-      "storyId": "primitives-linkchips--in-an-editor",
+      "docsId": "writing-linkchips--docs",
+      "storyId": "writing-linkchips--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7427,8 +7481,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-selectiontoolbar--docs",
-      "storyId": "primitives-selectiontoolbar--default",
+      "docsId": "writing-selectiontoolbar--docs",
+      "storyId": "writing-selectiontoolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7497,8 +7551,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-richtext--docs",
-      "storyId": "components-richtext--every-block",
+      "docsId": "writing-richtext--docs",
+      "storyId": "writing-richtext--every-block",
       "docPage": "src/RichText.mdx",
       "app": null,
       "looks": [
@@ -7526,8 +7580,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-richtext--docs",
-      "storyId": "components-richtext--every-block",
+      "docsId": "writing-richtext--docs",
+      "storyId": "writing-richtext--every-block",
       "docPage": null,
       "app": null,
       "looks": []
@@ -7610,8 +7664,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "layout-scrollarea--docs",
-      "storyId": "layout-scrollarea--default",
+      "docsId": "page-structure-scrollarea--docs",
+      "storyId": "page-structure-scrollarea--default",
       "docPage": "src/ScrollArea.mdx",
       "app": null,
       "looks": [
@@ -7649,8 +7703,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-searchinput--docs",
-      "storyId": "inputs-searchinput--default",
+      "docsId": "forms-fields-searchinput--docs",
+      "storyId": "forms-fields-searchinput--default",
       "docPage": "src/SearchInput.mdx",
       "app": null,
       "looks": [
@@ -7785,8 +7839,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-sectionheader--docs",
-      "storyId": "navigation-sectionheader--plain",
+      "docsId": "page-structure-sectionheader--docs",
+      "storyId": "page-structure-sectionheader--plain",
       "docPage": "src/SectionHeader.mdx",
       "app": null,
       "looks": [
@@ -7852,8 +7906,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-sectionlabel--docs",
-      "storyId": "primitives-sectionlabel--default",
+      "docsId": "page-structure-sectionlabel--docs",
+      "storyId": "page-structure-sectionlabel--default",
       "docPage": "src/SectionLabel.mdx",
       "app": null,
       "looks": [
@@ -7984,8 +8038,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-select--docs",
-      "storyId": "inputs-select--default",
+      "docsId": "forms-fields-select--docs",
+      "storyId": "forms-fields-select--default",
       "docPage": "src/Select.mdx",
       "app": null,
       "looks": [
@@ -8065,8 +8119,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-selectiontoolbar--docs",
-      "storyId": "primitives-selectiontoolbar--default",
+      "docsId": "writing-selectiontoolbar--docs",
+      "storyId": "writing-selectiontoolbar--default",
       "docPage": "src/SelectionToolbar.mdx",
       "app": null,
       "looks": []
@@ -8084,8 +8138,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-commenthighlights--docs",
-      "storyId": "primitives-commenthighlights--default",
+      "docsId": "writing-commenthighlights--docs",
+      "storyId": "writing-commenthighlights--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8103,8 +8157,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8122,8 +8176,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8199,8 +8253,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "layout-showmore--docs",
-      "storyId": "layout-showmore--long",
+      "docsId": "page-structure-showmore--docs",
+      "storyId": "page-structure-showmore--long",
       "docPage": "src/ShowMore.mdx",
       "app": null,
       "looks": [
@@ -8240,8 +8294,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-sidebar--docs",
-      "storyId": "frame-sidebar--composed",
+      "docsId": "app-frame-sidebar--docs",
+      "storyId": "app-frame-sidebar--composed",
       "docPage": "src/Sidebar.mdx",
       "app": null,
       "looks": []
@@ -8292,8 +8346,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-skeleton--docs",
-      "storyId": "feedback-skeleton--list",
+      "docsId": "status-feedback-skeleton--docs",
+      "storyId": "status-feedback-skeleton--list",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8324,8 +8378,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-skeleton--docs",
-      "storyId": "feedback-skeleton--list",
+      "docsId": "status-feedback-skeleton--docs",
+      "storyId": "status-feedback-skeleton--list",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8350,8 +8404,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-skeleton--docs",
-      "storyId": "feedback-skeleton--list",
+      "docsId": "status-feedback-skeleton--docs",
+      "storyId": "status-feedback-skeleton--list",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8369,8 +8423,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8388,8 +8442,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8414,8 +8468,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkparts--docs",
-      "storyId": "components-linkparts--pickers",
+      "docsId": "links-references-linkparts--docs",
+      "storyId": "links-references-linkparts--pickers",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8433,8 +8487,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-linkplaces--docs",
-      "storyId": "primitives-linkplaces--in-an-editor",
+      "docsId": "writing-linkplaces--docs",
+      "storyId": "writing-linkplaces--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8450,9 +8504,9 @@
       "props": [
         {
           "name": "rect",
-          "takes": "DOMRect | null",
+          "takes": "a handler",
           "required": true,
-          "note": "The caret's rect, from the editor. `null` closes the box."
+          "note": "Where the caret is, from the editor: Tiptap's `clientRect`, asked again each time the box is placed, so it follows the caret as the page scrolls."
         },
         {
           "name": "editorElement",
@@ -8542,8 +8596,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-suggestionmenu--docs",
-      "storyId": "primitives-suggestionmenu--default",
+      "docsId": "writing-suggestionmenu--docs",
+      "storyId": "writing-suggestionmenu--default",
       "docPage": "src/SuggestionMenu.mdx",
       "app": null,
       "looks": []
@@ -8701,8 +8755,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "navigation-tabs--docs",
-      "storyId": "navigation-tabs--with-counts",
+      "docsId": "page-structure-tabs--docs",
+      "storyId": "page-structure-tabs--with-counts",
       "docPage": "src/Tabs.mdx",
       "app": null,
       "looks": [
@@ -8727,8 +8781,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-textarea--docs",
-      "storyId": "inputs-textarea--empty",
+      "docsId": "forms-fields-textarea--docs",
+      "storyId": "forms-fields-textarea--empty",
       "docPage": "src/Textarea.mdx",
       "app": null,
       "looks": [
@@ -8768,8 +8822,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "inputs-textinput--docs",
-      "storyId": "inputs-textinput--empty",
+      "docsId": "forms-fields-textinput--docs",
+      "storyId": "forms-fields-textinput--empty",
       "docPage": "src/TextInput.mdx",
       "app": null,
       "looks": [
@@ -8790,8 +8844,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-kindicon--docs",
-      "storyId": "primitives-kindicon--default",
+      "docsId": "links-references-kindicon--docs",
+      "storyId": "links-references-kindicon--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -8870,8 +8924,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-toast--docs",
-      "storyId": "feedback-toast--neutral",
+      "docsId": "status-feedback-toast--docs",
+      "storyId": "status-feedback-toast--neutral",
       "docPage": "src/Toast.mdx",
       "app": null,
       "looks": [
@@ -8919,8 +8973,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-toast--docs",
-      "storyId": "feedback-toast--neutral",
+      "docsId": "status-feedback-toast--docs",
+      "storyId": "status-feedback-toast--neutral",
       "docPage": null,
       "app": null,
       "looks": [
@@ -8944,8 +8998,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editortablecontrols--docs",
-      "storyId": "primitives-editortablecontrols--default",
+      "docsId": "writing-editortablecontrols--docs",
+      "storyId": "writing-editortablecontrols--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9029,8 +9083,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-toolbar--docs",
-      "storyId": "primitives-toolbar--default",
+      "docsId": "buttons-links-toolbar--docs",
+      "storyId": "buttons-links-toolbar--default",
       "docPage": "src/Toolbar.mdx",
       "app": null,
       "looks": []
@@ -9136,8 +9190,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-toolbar--docs",
-      "storyId": "primitives-toolbar--default",
+      "docsId": "buttons-links-toolbar--docs",
+      "storyId": "buttons-links-toolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9179,8 +9233,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-toolbar--docs",
-      "storyId": "primitives-toolbar--default",
+      "docsId": "buttons-links-toolbar--docs",
+      "storyId": "buttons-links-toolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9274,8 +9328,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-toolbar--docs",
-      "storyId": "primitives-toolbar--default",
+      "docsId": "buttons-links-toolbar--docs",
+      "storyId": "buttons-links-toolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9309,8 +9363,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-toolbar--docs",
-      "storyId": "primitives-toolbar--default",
+      "docsId": "buttons-links-toolbar--docs",
+      "storyId": "buttons-links-toolbar--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9358,8 +9412,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-tooltip--docs",
-      "storyId": "primitives-tooltip--default",
+      "docsId": "menus-windows-tooltip--docs",
+      "storyId": "menus-windows-tooltip--default",
       "docPage": "src/Tooltip.mdx",
       "app": null,
       "looks": [
@@ -9425,8 +9479,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-tooltip--docs",
-      "storyId": "primitives-tooltip--default",
+      "docsId": "menus-windows-tooltip--docs",
+      "storyId": "menus-windows-tooltip--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9515,8 +9569,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "frame-topbar--docs",
-      "storyId": "frame-topbar--solid",
+      "docsId": "app-frame-topbar--docs",
+      "storyId": "app-frame-topbar--solid",
       "docPage": "src/TopBar.mdx",
       "app": null,
       "looks": [
@@ -9537,8 +9591,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9556,8 +9610,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9575,8 +9629,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-editorblockhandle--docs",
-      "storyId": "primitives-editorblockhandle--default",
+      "docsId": "writing-editorblockhandle--docs",
+      "storyId": "writing-editorblockhandle--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9594,8 +9648,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9632,8 +9686,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-blocknodes--docs",
-      "storyId": "primitives-blocknodes--default",
+      "docsId": "writing-blocknodes--docs",
+      "storyId": "writing-blocknodes--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9658,8 +9712,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-unreaddot--docs",
-      "storyId": "primitives-unreaddot--default",
+      "docsId": "status-feedback-unreaddot--docs",
+      "storyId": "status-feedback-unreaddot--default",
       "docPage": "src/UnreadDot.mdx",
       "app": null,
       "looks": []
@@ -9677,8 +9731,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9703,8 +9757,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-composertriggers--docs",
-      "storyId": "primitives-composertriggers--default",
+      "docsId": "writing-composertriggers--docs",
+      "storyId": "writing-composertriggers--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9722,8 +9776,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "components-linkpreview--docs",
-      "storyId": "components-linkpreview--on-hover",
+      "docsId": "links-references-linkpreview--docs",
+      "storyId": "links-references-linkpreview--on-hover",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9741,8 +9795,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-referencecards--docs",
-      "storyId": "primitives-referencecards--in-an-editor",
+      "docsId": "writing-referencecards--docs",
+      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9760,8 +9814,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "feedback-toast--docs",
-      "storyId": "feedback-toast--neutral",
+      "docsId": "status-feedback-toast--docs",
+      "storyId": "status-feedback-toast--neutral",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9792,8 +9846,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-reactionrow--docs",
-      "storyId": "primitives-reactionrow--default",
+      "docsId": "conversation-reactionrow--docs",
+      "storyId": "conversation-reactionrow--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -9881,8 +9935,8 @@
       ],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "primitives-tooltip--docs",
-      "storyId": "primitives-tooltip--default",
+      "docsId": "menus-windows-tooltip--docs",
+      "storyId": "menus-windows-tooltip--default",
       "docPage": null,
       "app": null,
       "looks": []

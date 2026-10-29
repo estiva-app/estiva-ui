@@ -2,11 +2,11 @@ import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, ty
 import { Extension, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
+import { AttachedCard } from './AttachedCard'
 import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
 import { Card } from './Card'
-import { CardUnder } from './CardUnder'
 import { cn } from './cn'
 import { BoxFrame, ComposeKeys, COMPOSE_EDITOR_CLASSES, isEmptyDoc as isEmpty, SendBox } from './commentBoxFrame'
 import {
@@ -26,7 +26,8 @@ import {
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { Kbd } from './Kbd'
-import { BoxKit, PasteOverWords } from './links'
+import { inTheBox } from './linked'
+import { BoxKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
@@ -138,7 +139,7 @@ export interface CommentBoxProps {
   code?: CodeFormat
   /** Send what is written, with the files that are ready and the card still shown; resolves with the relay's answer. */
   send: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
-  /** The card and parts under the box while something is written, with ✕ on the card. Absent, nothing shows under it. */
+  /** The card and parts in the box while something is written, with the files, ✕ on the card. Absent, there are none. */
   under?: BoxUnder
   /**
    * The app shows a send before the relay answers: the box empties at once,
@@ -245,7 +246,8 @@ const sameApp = (a: BoxApp, b: BoxApp) =>
 function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
   const iconFor = (uri: string | null) => hold.current.referenceIcon?.(uri)
   return [
-    BoxKit.configure({ link: { openOnClick: false } }),
+    // A link drawn as one, as in a document: it read as plain words in the box before (Katerina, 29 Oct).
+    BoxKit.configure({ link: { openOnClick: false, HTMLAttributes: LINK_MARK_ATTRIBUTES } }),
     PasteOverWords,
     KeptSelection,
     ComposeKeys,
@@ -651,18 +653,28 @@ export function CommentBox({
       </>
     ) : undefined
 
-  // Under the box, outside its border: the card with its ✕, then the live parts (none in an edit, which carries none).
+  // In the box, under the text with the files (Katerina, 29 Oct: "the file's ✕ and inside the box"): the files, then
+  // the card with its ✕ and the live parts on a line of their own (none in an edit, which carries none). On the files'
+  // fill, the card's values as words until it is sent (`inTheBox`).
   const card = reading?.card && !removed.has(reading.card.value) ? reading.card : undefined
   const parts = edit ? [] : (reading?.parts ?? [])
-  const underBox =
+  const attached =
     card || parts.length > 0 ? (
-      <div data-box-under className="mt-1 flex flex-col gap-2">
-        {card && <CardUnder onRemove={() => setRemoved((was) => new Set([...was, card.value]))}>{card.view}</CardUnder>}
-        {parts.map((part) => (
-          <Fragment key={part.key}>{part.view}</Fragment>
-        ))}
-      </div>
-    ) : undefined
+      <>
+        {fileCards}
+        <inTheBox.Provider value>
+          {/* min-w-0: a card with a long title would otherwise be as wide as its title, past the box's edge (29 Oct). */}
+          <div data-box-under className="flex min-w-0 basis-full flex-col gap-2">
+            {card && <AttachedCard onRemove={() => setRemoved((was) => new Set([...was, card.value]))}>{card.view}</AttachedCard>}
+            {parts.map((part) => (
+              <Fragment key={part.key}>{part.view}</Fragment>
+            ))}
+          </div>
+        </inTheBox.Provider>
+      </>
+    ) : (
+      fileCards
+    )
 
   const refusedLine = refused && (
     <FieldLine tone="error">
@@ -697,7 +709,7 @@ export function CommentBox({
           marked={marking}
           // The same strip as the send box: writing and editing work the same way (Katerina, 21 Oct).
           selection={{ link: true }}
-          attachments={fileCards}
+          attachments={attached}
           className={cn(sending && '[&_.ProseMirror]:text-text-muted')}
           footer={
             <div className="flex items-center justify-between gap-2">
@@ -715,7 +727,6 @@ export function CommentBox({
             </div>
           }
         />
-        {underBox}
         {takesFiles && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
         {sending && <FieldLine>Saving…</FieldLine>}
         {fileLines}
@@ -737,14 +748,13 @@ export function CommentBox({
             </ToolbarButton>
           ) : undefined
         }
-        attachments={fileCards}
+        attachments={attached}
         ready={ready}
         marked={marking}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
-      {underBox}
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}
       {sending && <FieldLine>Sending…</FieldLine>}
       {fileLines}

@@ -8,7 +8,7 @@ import { ErrorBoundary } from './ErrorBoundary'
  * page keeps working. Try again draws the part again.
  */
 const meta = {
-  title: 'Feedback/ErrorBoundary',
+  title: 'Status & feedback/ErrorBoundary',
   component: ErrorBoundary,
   parameters: { layout: 'fullscreen' },
   args: { label: 'panel', children: null },

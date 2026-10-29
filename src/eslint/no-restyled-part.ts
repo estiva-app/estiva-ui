@@ -19,15 +19,18 @@ import { ESCAPE_MESSAGES, isEscaped } from './escape'
  * of names is kept, so a part added to the package later is covered the day it
  * is added.
  *
- * - In an app: anything imported from `@estiva-app/ui`, and anything imported
- *   from the app's own files that is one of those — a re-export (Peek's
+ * - In an app: anything imported from `@estiva-app/ui` or one of its other
+ *   entries (`@estiva-app/ui/editor`, where `CommentBox` lives), and anything
+ *   imported from the app's own files that is one of those — a re-export (Peek's
  *   `components/ui/Button.tsx`), a wrapper that hands its props on to a part
  *   (`{...rest}`), or a component that hands its own `className` on to a part
  *   (Peek's `ConversationCard` into `Card`). Relative imports and the apps' `@/`
  *   alias are followed; `@/` is the `src` folder beside the nearest
  *   `package.json`.
- * - Inside the package (Katerina, 17 September): a name `src/index.ts` exports,
- *   imported from a sibling file or declared in the same file.
+ * - Inside the package (Katerina, 17 September): a name one of its entries
+ *   exports (`src/index.ts`, `src/editor.ts`…, read from `package.json`),
+ *   imported from a sibling file or declared in the same file. Until 0.91 only
+ *   `src/index.ts` was read, so `CommentBox` could be restyled from a story.
  *
  * **What it reads:** a string, a template, `cn()`/`clsx()` and their arguments,
  * both sides of a condition, a `const` in the same file and the values of a
@@ -133,11 +136,13 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Chip: ['type'],
   KindIcon: ['tone'],
   LinkedIcon: ['tone'],
+  LinkKey: ['tone'],
   CollapsibleSection: ['look'],
   Divider: ['tone', 'orientation'],
   EmptyState: ['scope'],
   FieldLine: ['tone'],
   IconButton: ['variant', 'pressed', 'glow'],
+  InlineText: ['variant'],
   InputChip: ['truncate'],
   Kbd: ['tone'],
   Link: ['variant', 'truncate', 'cover'],
@@ -223,7 +228,7 @@ interface ModuleFacts {
 const PACKAGE = '@estiva-app/ui'
 const moduleCache = new Map<string, ModuleFacts>()
 const packageDirCache = new Map<string, string | null>()
-const packagePartsCache = new Map<string, { mtime: number; parts: Set<string> }>()
+const packagePartsCache = new Map<string, { mtimes: string; parts: Set<string> }>()
 
 function parseFile(parser: Parser, filePath: string): Node | null {
   const code = readFileSync(filePath, 'utf8')
@@ -238,7 +243,7 @@ function parseFile(parser: Parser, filePath: string): Node | null {
 }
 
 /** The nearest folder holding a `package.json`, from a file. */
-function packageDirOf(file: string): string | null {
+export function packageDirOf(file: string): string | null {
   const start = dirname(resolve(file))
   if (packageDirCache.has(start)) return packageDirCache.get(start) ?? null
   let dir = start
@@ -269,32 +274,53 @@ function resolveModule(fromFile: string, specifier: string): string | null {
   return null
 }
 
-/** The names this package's `src/index.ts` exports, when the file lives in `@estiva-app/ui` itself. */
+/**
+ * The source file behind each of the package's entries: `"."` → `src/index.ts`,
+ * `"./editor"` → `src/editor.ts`, read from its `package.json` `exports`, so an
+ * entry added later is read the day it is added.
+ */
+function entrySources(dir: string, exports: unknown): string[] {
+  const found: string[] = []
+  for (const target of Object.values(exports && typeof exports === 'object' ? exports : {})) {
+    const built = typeof target === 'string' ? target : (target as { default?: unknown } | null)?.default
+    const match = typeof built === 'string' ? /^\.\/dist\/(.+)\.js$/.exec(built) : null
+    if (!match) continue
+    const source = [`${match[1]}.ts`, `${match[1]}.tsx`].map((name) => join(dir, 'src', name)).find((file) => existsSync(file))
+    if (source) found.push(source)
+  }
+  // A package.json with no `exports` (a test's copy of the layout) has its one entry.
+  if (!found.length && existsSync(join(dir, 'src', 'index.ts'))) found.push(join(dir, 'src', 'index.ts'))
+  return found
+}
+
+/** The names this package's entries export, when the file lives in `@estiva-app/ui` itself. */
 function packagePartsFor(file: string, parser: Parser): Set<string> | null {
   const dir = packageDirOf(file)
   if (!dir) return null
-  let name: string | undefined
+  let manifest: { name?: string; exports?: unknown }
   try {
-    name = (JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { name?: string }).name
+    manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { name?: string; exports?: unknown }
   } catch {
     return null
   }
-  if (name !== PACKAGE) return null
-  const index = join(dir, 'src', 'index.ts')
-  if (!existsSync(index)) return null
-  const mtime = statSync(index).mtimeMs
-  const cached = packagePartsCache.get(index)
-  if (cached && cached.mtime === mtime) return cached.parts
+  if (manifest.name !== PACKAGE) return null
+  const entries = entrySources(dir, manifest.exports)
+  if (!entries.length) return null
+  const mtimes = entries.map((entry) => `${entry}:${statSync(entry).mtimeMs}`).join('|')
+  const cached = packagePartsCache.get(dir)
+  if (cached && cached.mtimes === mtimes) return cached.parts
   const parts = new Set<string>()
-  const ast = parseFile(parser, index)
-  for (const statement of ast ? children(ast, 'body') : []) {
-    if (statement?.type !== 'ExportNamedDeclaration' || statement.exportKind === 'type') continue
-    for (const specifier of children(statement, 'specifiers')) {
-      const exported = nameOf(child(specifier as Node, 'exported'))
-      if (specifier?.exportKind !== 'type' && exported && /^[A-Z][a-z]/.test(exported)) parts.add(exported)
+  for (const entry of entries) {
+    const ast = parseFile(parser, entry)
+    for (const statement of ast ? children(ast, 'body') : []) {
+      if (statement?.type !== 'ExportNamedDeclaration' || statement.exportKind === 'type') continue
+      for (const specifier of children(statement, 'specifiers')) {
+        const exported = nameOf(child(specifier as Node, 'exported'))
+        if (specifier?.exportKind !== 'type' && exported && /^[A-Z][a-z]/.test(exported)) parts.add(exported)
+      }
     }
   }
-  packagePartsCache.set(index, { mtime, parts })
+  packagePartsCache.set(dir, { mtimes, parts })
   return parts
 }
 
@@ -334,7 +360,8 @@ function moduleParts(file: string, program: Node, parser: Parser, stack: Set<str
   const body = children(program, 'body')
 
   const exportsOf = (specifier: string): Map<string, PartBinding> | 'package' | null => {
-    if (specifier === PACKAGE) return 'package'
+    // The package's other entries are the package too: `CommentBox` comes from `@estiva-app/ui/editor`.
+    if (specifier === PACKAGE || specifier.startsWith(`${PACKAGE}/`)) return 'package'
     const target = resolveModule(file, specifier)
     if (!target) return null
     if (packageParts) return 'package'
