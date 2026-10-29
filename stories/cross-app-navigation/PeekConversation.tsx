@@ -10,6 +10,7 @@ import { CardUnder } from '../../src/CardUnder'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { CommentBox, commentBoxRows } from '../../src/CommentBox'
+import { Divider } from '../../src/Divider'
 import type { MentionPerson } from '../../src/ComposerTriggers'
 import { Field } from '../../src/Field'
 import { IconButton } from '../../src/IconButton'
@@ -523,26 +524,44 @@ function activityFor(viewer: PersonId, messages: Message[]): ActivityItem[] {
   return items.sort((a, b) => minutesOf(b.at) - minutesOf(a.at))
 }
 
-/** The topic's activity for you, above its listed files: each row opens its thread. */
+/** The prototype's today: the newest day in the fixtures. "Now" is today too. */
+const TODAY = 'Sat'
+const DAY_NAMES: Record<string, string> = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }
+/** "Tue 11:40" → the day's divider: Today, Yesterday, or the weekday. */
+const dayOf = (at: string) => {
+  const [day, time] = at.split(' ')
+  if (!time || day === TODAY) return 'Today'
+  return DAYS.indexOf(day) === DAYS.indexOf(TODAY) - 1 ? 'Yesterday' : DAY_NAMES[day]
+}
+const timeOf = (at: string) => at.split(' ')[1] ?? at
+
+/**
+ * The topic's activity for you, above its listed files: each row opens its thread.
+ * Divided by day as the conversation is, each row headed by its time (Miky, 29 Oct).
+ */
 export function TopicActivity({ viewer, messages, onOpen }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void }) {
   const items = activityFor(viewer, messages)
   return (
     <div className="flex flex-col gap-1">
       {items.length === 0 && <p className="px-2 text-body-2 text-text-muted">Nothing for you yet.</p>}
-      {items.map((a) => (
-        <button key={a.key} type="button" onClick={() => onOpen(a.thread)} className="flex items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover">
-          <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden>
-            {a.mark}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-body-2 text-text-primary">
-              <span className="text-body-2-strong">{nameOf(a.by)}</span> {a.what}
+      {items.map((a, i) => (
+        <Fragment key={a.key}>
+          {(i === 0 || dayOf(items[i - 1].at) !== dayOf(a.at)) && <Divider label={dayOf(a.at)} className="my-1" />}
+          <button type="button" onClick={() => onOpen(a.thread)} className="flex flex-col gap-0.5 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover">
+            <span className="text-caption text-text-muted">{timeOf(a.at)}</span>
+            <span className="flex items-start gap-2">
+              <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden>
+                {a.mark}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="text-body-2 text-text-primary">
+                  <span className="text-body-2-strong">{nameOf(a.by)}</span> {a.what}
+                </span>
+                <span className="truncate text-caption text-text-muted">{a.on ? fileOf(a.on).title : 'On the topic'}</span>
+              </span>
             </span>
-            <span className="truncate text-caption text-text-muted">
-              {a.on ? fileOf(a.on).title : 'On the topic'} · {a.at}
-            </span>
-          </span>
-        </button>
+          </button>
+        </Fragment>
       ))}
     </div>
   )
