@@ -331,9 +331,20 @@ export const MESSAGES: Record<string, Message[]> = {
       reactions: [{ emoji: '🚀', by: ['miky', 'katerina'] }],
       replies: { by: ['miky', 'katerina', 'agent'], count: 15, last: '16:48' },
     },
-    { id: 'f5', by: 'agent', at: 'Tue 17:10', on: 'p-ship-instant', mentions: 'miky', body: '@Miky the shared copy is on staging. Can you open Ship there on your own laptop before Friday?' },
+    {
+      id: 'f5',
+      by: 'agent',
+      at: 'Tue 17:10',
+      on: 'p-ship-instant',
+      mentions: 'miky',
+      body: '@Miky the shared copy is on staging. Can you open Ship there on your own laptop before Friday?',
+      // New since Miky last looked: the blue dot's list (Miky, 29 Oct).
+      thread: [{ by: 'agent', at: 'Fri 15:10', body: 'Still on staging. It moves to production on Monday unless you see something.' }],
+      replies: { by: ['agent'], count: 1, last: '15:10', unread: true },
+    },
     { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.', card: 'p-live' },
     { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'd-speed', body: 'Added Screener → Open work: still the slow move on my workspace.' },
+    { id: 'f8', by: 'katerina', at: 'Sat 09:30', body: 'Opened Ship on staging from my laptop too: under a second, and no empty page after the update.' },
   ],
   'dm-katerina': [
     { id: 'k1', by: 'katerina', at: 'Fri 09:12', body: 'Do you have ten minutes for the Desk sketch today?' },

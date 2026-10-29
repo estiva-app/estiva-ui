@@ -633,12 +633,55 @@ export function NewDot({ tone }: { tone: 'conversation' | 'activity' }) {
   return <span className={cn('size-1.5 shrink-0 rounded-full', tone === 'conversation' ? 'bg-accent-primary' : 'bg-warning-default')} aria-hidden />
 }
 
+/** A message or a reply someone else wrote since you last looked, newest first: the blue dot's list. */
+function newMessagesFor(viewer: PersonId, messages: Message[]) {
+  const items: { key: string; thread: string; by: PersonId; at: string; body: string; reply: boolean; on?: string }[] = []
+  for (const m of messages) {
+    if (m.by !== viewer && isNew(viewer, m)) items.push({ key: m.id, thread: m.id, by: m.by, at: m.at, body: m.body, reply: false, on: m.on })
+    for (const [i, r] of (m.thread ?? []).entries())
+      if (r.by !== viewer && isNew(viewer, r)) items.push({ key: `${m.id}-r${i}`, thread: m.id, by: r.by, at: r.at, body: r.body, reply: true, on: m.on })
+  }
+  return items.sort((a, b) => minutesOf(b.at) - minutesOf(a.at))
+}
+
+/**
+ * The blue dot's list (Miky, 29 Oct): the new messages and replies, and a
+ * click scrolls the conversation to the message they are in.
+ */
+function NewMessages({ viewer, messages, onJump }: { viewer: PersonId; messages: Message[]; onJump: (thread: string) => void }) {
+  const items = newMessagesFor(viewer, messages)
+  if (items.length === 0) return null
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="flex items-center gap-1.5 px-2 text-h5 text-text-secondary">
+        <NewDot tone="conversation" />
+        New messages
+      </span>
+      {items.map((n) => (
+        <button key={n.key} type="button" onClick={() => onJump(n.thread)} className="flex flex-col gap-0.5 rounded-md bg-accent-wash px-2 py-1.5 text-left hover:bg-bg-hover">
+          <span className="text-caption text-text-muted">
+            {dayOf(n.at) === 'Today' ? timeOf(n.at) : `${dayOf(n.at)} ${timeOf(n.at)}`}
+            {n.on && ` · ${fileOf(n.on).title}`}
+          </span>
+          <span className="line-clamp-2 text-body-2 text-text-primary">
+            <span className="text-body-2-strong">{nameOf(n.by)}</span>
+            {n.reply ? ' replied: ' : ': '}
+            {n.body}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 /**
  * The Activity dot beside a conversation's title (Miky, 29 Oct, to compare
  * with the column): blue with new messages, orange with new activity only, a
- * quiet ring with neither. Hovering it shows the activity, the new rows marked.
+ * quiet ring with neither. Hovering it shows the activity, the new rows marked;
+ * when it is blue, the new messages and replies first, each scrolling to its
+ * message (`onJump`).
  */
-export function ActivityDot({ viewer, messages, unread, onOpen }: { viewer: PersonId; messages: Message[]; unread: boolean; onOpen: (thread: string) => void }) {
+export function ActivityDot({ viewer, messages, unread, onOpen, onJump }: { viewer: PersonId; messages: Message[]; unread: boolean; onOpen: (thread: string) => void; onJump: (thread: string) => void }) {
   const fresh = hasNewActivity(viewer, '', messages)
   return (
     <PreviewCard
@@ -646,6 +689,7 @@ export function ActivityDot({ viewer, messages, unread, onOpen }: { viewer: Pers
       className="w-80"
       content={
         <div className="flex flex-col gap-2">
+          {unread && <NewMessages viewer={viewer} messages={messages} onJump={onJump} />}
           <span className="px-2 text-h5 text-text-secondary">Activity</span>
           <ScrollArea viewportClassName="max-h-[320px]">
             <TopicActivity viewer={viewer} messages={messages} onOpen={onOpen} topicLine="" markNew />

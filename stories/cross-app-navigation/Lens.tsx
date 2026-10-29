@@ -439,6 +439,23 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
     }))
     return { ...card, linked: { ...card.linked, summary: f.summary, children, conversation: count ? { count, href: '#' } : undefined } }
   }
+  /**
+   * The blue dot's list (Miky, 29 Oct): scroll to the message a new message or
+   * reply is in, showing its file's conversation when the view leaves it out.
+   */
+  const [flash, setFlash] = useState<string | null>(null)
+  const jump = (id: string) => {
+    const e = entries.find((x) => x.m.id === id)
+    if (!e) return
+    if (!shown.some((x) => x.m.id === id)) setView(e.m.on && !e.up ? { file: e.m.on } : 'main')
+    setFlash(id)
+  }
+  useEffect(() => {
+    if (!flash) return
+    requestAnimationFrame(() => document.querySelector(`[data-message="${flash}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+    const t = setTimeout(() => setFlash(null), 2000)
+    return () => clearTimeout(t)
+  }, [flash])
   const tab = typeof current === 'string' ? current : 'file'
   const chosen = typeof current === 'string' ? undefined : fileOf(current.file)
   return (
@@ -470,7 +487,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
             </span>
           )}
           {/* The dot variant: Activity behind a dot between the title and All | Main (Miky, 29 Oct). */}
-          {activity !== 'column' && <ActivityDot viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} unread={unreadFor(viewer).has(topic.id)} onOpen={setThread} />}
+          {activity !== 'column' && <ActivityDot viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} unread={unreadFor(viewer).has(topic.id)} onOpen={setThread} onJump={jump} />}
           {!chatOnly && activity !== 'follow' && <ViewToggle view={tab} onView={setView} counts={{ all: entries.length, main: main.length }} file={chosen} />}
         </Header>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -478,18 +495,21 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
             <EmptyState scope="section" message="Nothing here yet." />
           ) : (
             <div className="flex flex-col gap-1">
-              {shown.map(({ m, up, readable }) =>
-                // On the topic a sent thread is its sender's message; in a file's own view it is a plain message.
-                // Your own Update shared with no line of its own is the message itself.
-                up && typeof view === 'string' && (up.note || up.by !== m.by || up.forwarded) ? (
-                  <SentCard key={m.id} m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={(id) => setView({ file: id })} />
-                ) : (
-                  <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
-                ),
-              )}
+              {shown.map(({ m, up, readable }) => (
+                // A message the blue dot's list jumped to is ringed for a moment.
+                <div key={m.id} data-message={m.id} className={cn('rounded-lg ring-2 ring-transparent transition-shadow duration-500', flash === m.id && 'ring-accent-outline')}>
+                  {/* On the topic a sent thread is its sender's message; in a file's own view it is a plain message.
+                      Your own Update shared with no line of its own is the message itself. */}
+                  {up && typeof view === 'string' && (up.note || up.by !== m.by || up.forwarded) ? (
+                    <SentCard m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={(id) => setView({ file: id })} />
+                  ) : (
+                    <PeekCard m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
+                  )}
+                </div>
+              ))}
             </div>
           )}
-          {hidden > 0 && current === 'all' &&<p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
+          {hidden > 0 && current === 'all' && <p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
         </div>
         <div className="border-t border-border-subtle p-3">
           <PeekBox
