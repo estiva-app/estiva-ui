@@ -82,6 +82,8 @@ things are, and her notes on the parts she found there.
 ### Added
 
 - `inTheBox`: the context `CommentBox` provides around what is in its box.
+- **`InlineText`'s `variant="heading"`**: a document's title at the largest heading size (h1), as
+  Leaf's file page has it (Katerina, 29 Oct, of three ways: "I choose A").
 - `Linked.noun`, `LinkKey`'s `tone`, `AvatarGroup`'s `on` (the colour its faces'
   ring takes: the card's, not the page's, which drew a dark outline round them).
 - `Popover`'s `anchor` takes a place that moves, `{ getBoundingClientRect,
@@ -113,8 +115,8 @@ things are, and her notes on the parts she found there.
 - **The gate refuses a restyled part from the editor entry** — `CommentBox`,
   `InlineText`, `SelectionToolbar` — and counts any `@estiva-app/ui/…`
   import in an app as the package. A look pushed into `CommentBox` had passed.
-  **Leaf will see two refusals when it bumps:** `className="text-h1"` on
-  `InlineText` (`src/pages/FilePage.tsx:276`, `ShipFilePage.stories.tsx:48`).
+  Leaf set `className="text-h1"` on `InlineText` (`src/pages/FilePage.tsx`,
+  `ShipFilePage.stories.tsx`), which this refuses: it takes `variant="heading"`.
 - **The package's gate and its editor hook read the root `stories/` too**,
   where a prototype is built; only `src/` is asked for pages and stories.
   TokensPage's two browser tooltips are `WithTooltip`.

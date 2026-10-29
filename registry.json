@@ -3960,9 +3960,9 @@
         },
         {
           "name": "variant",
-          "takes": "title | summary",
+          "takes": "title | heading | summary",
           "required": false,
-          "note": "`title`: the page's heading. `summary`: the line under it, quieter."
+          "note": "`title`: the page's heading. `heading`: a document's title, at the largest heading size (Leaf's file page)."
         },
         {
           "name": "clearable",
@@ -3994,6 +3994,7 @@
           "prop": "variant",
           "values": [
             "title",
+            "heading",
             "summary"
           ]
         }

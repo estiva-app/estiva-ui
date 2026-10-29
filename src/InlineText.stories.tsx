@@ -28,7 +28,7 @@ const LINE = 'A line of plain text under the title, saying in a sentence what th
 const LONG = 'A line of plain text under the title that goes on for longer than a line should, so it wraps the way the text around it does and the reader sees all of it, without anything cut off at the edge or hidden behind a control.'
 
 /** A title, the line under it, and the text below: Enter in the title goes to the line, Enter in the line goes to the text. */
-function Page({ title = 'Item one', line = LINE, refuse = false, readOnly = false }: { title?: string; line?: string; refuse?: boolean; readOnly?: boolean }) {
+function Page({ title = 'Item one', line = LINE, refuse = false, readOnly = false, heading = false }: { title?: string; line?: string; refuse?: boolean; readOnly?: boolean; heading?: boolean }) {
   const lineRef = useRef<InlineTextHandle>(null)
   const textRef = useRef<HTMLParagraphElement>(null)
   const [saved, setSaved] = useState({ title, line })
@@ -36,7 +36,7 @@ function Page({ title = 'Item one', line = LINE, refuse = false, readOnly = fals
   return (
     <div className="flex flex-col">
       <InlineText
-        variant="title"
+        variant={heading ? 'heading' : 'title'}
         label="Title"
         placeholder="Untitled"
         value={saved.title}
@@ -72,6 +72,9 @@ function Page({ title = 'Item one', line = LINE, refuse = false, readOnly = fals
 }
 
 export const Default: Story = { render: () => <Page /> }
+
+/** A document's title, at the largest heading size: `variant="heading"`, as Leaf's file page draws it. */
+export const DocumentHeading: Story = { render: () => <Page title="Document one" heading /> }
 
 /** Nothing written yet: what each is for, muted, in its place. */
 export const Empty: Story = { render: () => <Page title="" line="" /> }
