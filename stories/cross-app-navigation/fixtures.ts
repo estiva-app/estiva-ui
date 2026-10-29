@@ -63,6 +63,7 @@ export const FILES: FileRow[] = [
   { id: 'p-docs-2', app: 'ship', title: 'docs.estiva.app 2: a grant reviewer sees what it can do', team: 'company', progress: '0 of 3' },
   { id: 'd-navigation', app: 'leaf', title: 'Navigation', team: 'company' },
   { id: 'd-weekly', app: 'leaf', title: 'Weekly Plans', team: 'company' },
+  { id: 'd-speed', app: 'leaf', title: 'Speed on Miky’s workspace', team: 'eng' },
   { id: 'd-testing-widgets', app: 'leaf', title: 'Testing Widgets', team: 'design' },
   { id: 'd-grant-research', app: 'leaf', title: 'Grant organisation research', team: 'company' },
   { id: 'd-grant-reusable', app: 'leaf', title: 'Reusable grant content', team: 'company' },
@@ -102,7 +103,8 @@ export const TOPICS: Topic[] = [
     lead: 'eng',
     ends: true,
     readers: 'everyone',
-    lists: ['p-read-only', 'p-leaf-instant', 'p-ship-instant', 'p-live', 'p-peek-fast', 'p-agent-cheap'],
+    // Mostly projects, and one document (Miky, 29 Oct).
+    lists: ['p-read-only', 'p-ship-instant', 'p-live', 'd-speed'],
   },
   {
     id: 'widgets',
@@ -299,7 +301,7 @@ export const MESSAGES: Record<string, Message[]> = {
     },
     { id: 'f5', by: 'agent', at: 'Tue 17:10', on: 'p-ship-instant', mentions: 'miky', body: '@Miky the shared copy is on staging. Can you open Ship there on your own laptop before Friday?' },
     { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.', card: 'p-live' },
-    { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'p-peek-fast', body: 'Screener → Open work is still the slow move on my workspace.' },
+    { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'd-speed', body: 'Added Screener → Open work: still the slow move on my workspace.' },
   ],
   widgets: [
     { id: 'w1', by: 'katerina', at: 'Thu 10:00', body: 'Build 2 is close. I would like one more look at the card before we call it done.' },
