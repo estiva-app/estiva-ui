@@ -122,6 +122,7 @@ export function readersLabel(topic: Topic) {
 /** Three kinds of discussion space in Peek, three icons (Miky, 28 Oct): a team's chat, a space two teams share, and a topic, lasting ones like Bugs included. */
 export function spaceIcon(topic: Topic) {
   if (topic.role === 'chat') return <IconHash {...icon16} />
+  if (topic.role === 'project') return <KindIcon kind="project" />
   if (topic.role === 'dm') return (topic.members?.length ?? 0) > 2 ? <IconUsers {...icon16} /> : <IconUser {...icon16} />
   if (isCrossTeam(topic)) return <IconUsersGroup {...icon16} />
   return <KindIcon kind="topic" />
@@ -160,15 +161,19 @@ export function useSpaceIcon() {
   const following = useContext(Following)
   const follows = useFollows()
   return (topic: Topic) => {
-    if (!following || topic.role === 'dm') return spaceIcon(topic)
+    if (!following || topic.role === 'dm' || topic.role === 'project') return spaceIcon(topic)
     if (topic.role === 'chat') return <IconUsersGroup {...icon16} />
     return <FollowIcon follow={isChatOnly(topic) ? 'important' : (follows[topic.id] ?? 'important')} />
   }
 }
 
-/** A team's chat, a space two teams share or a direct conversation: just the conversation, with no All, Main or listed files. */
+/**
+ * A team's chat, a space two teams share, a direct conversation or a project's
+ * own conversation: just the conversation, with no All, Main or listed files.
+ * A project lists its issues instead.
+ */
 export const isCrossTeam = (topic: Topic) => topic.readers === 'teams'
-export const isChatOnly = (topic: Topic) => topic.role === 'chat' || topic.role === 'dm' || isCrossTeam(topic)
+export const isChatOnly = (topic: Topic) => topic.role === 'chat' || topic.role === 'dm' || topic.role === 'project' || isCrossTeam(topic)
 
 export function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
   const current = APPS.find((a) => a.id === app)!
@@ -429,6 +434,8 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
   const [side, setSide] = useState(true)
   // Threads sent up with Send to topic in this prototype, by the topic they went to.
   const [ups, setUps] = useState<Record<string, { m: Message; up: SentUp }[]>>({})
+  // Reports made into issues in this prototype, by message: on a project's own conversation only.
+  const [made, setMade] = useState<Record<string, NonNullable<Message['issue']>>>({})
   useEffect(() => {
     setView('main')
     setThread(null)
@@ -436,7 +443,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
   const posted = usePosted()
   const listed = topic.lists.map(fileOf)
   const said = (t: string) => [...(MESSAGES[t] ?? []), ...(posted[t] ?? [])]
-  const every = [...said(topic.id), ...(sent[topic.id] ?? [])]
+  const every = [...said(topic.id), ...(sent[topic.id] ?? [])].map((m) => (made[m.id] ? { ...m, issue: made[m.id] } : m))
   const readable = (m: Message) => !m.on || canReadFile(viewer, fileOf(m.on))
   /** Where a thread was shared or forwarded to, and by whom: the fixtures' own and Ship's, then this prototype's. */
   const upIn = (t: string, m: Message) => (said(t).some((x) => x.id === m.id) ? m.sentUp : undefined) ?? ups[t]?.find((s) => s.m.id === m.id)?.up
@@ -448,6 +455,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
   const hidden = every.length + sends.length - entries.length
   const opened = entries.find((e) => e.m.id === thread && e.readable)?.m
   const chatOnly = isChatOnly(topic)
+  // A project Peek lists under its team, as Bugs (Miky, 29 Oct): its issues beside the conversation, each made from a report on it.
+  const project = topic.role === 'project'
+  const issues = entries.filter((e) => e.readable && e.m.issue)
   // Main: what was said on the topic itself, and the threads someone sent up by hand (Miky, 29 Oct). Resolving or a mention alone does not bring one here.
   const main = entries.filter((e) => !e.m.on || e.up)
   // How you follow the topic is what it shows (Miky, 29 Oct); a file opened from the column still shows alone.
@@ -495,7 +505,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
         <Header
           title={topic.role === 'dm' ? dmTitle(viewer, topic) : topic.title}
           locked={isPrivate(topic)}
-          icon={following && !chatOnly ? <FollowControl topic={topic} counts={{ important: main.length, all: entries.length }} /> : undefined}
+          icon={following && !chatOnly ? <FollowControl topic={topic} counts={{ important: main.length, all: entries.length }} /> : project ? <KindIcon kind="project" /> : undefined}
           right={
             <>
               {topic.role === 'dm' ? <AvatarGroup size={20} members={(topic.members ?? []).map((p) => ({ name: PEOPLE[p].name }))} /> : <TopicFacts topic={topic} />}
@@ -575,10 +585,11 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
           onSend={(to, note, forwarded) =>
             setUps((now) => ({ ...now, ...Object.fromEntries(to.map((t) => [t, [...(now[t] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined, forwarded: forwarded || undefined } }]])) }))
           }
+          onIssue={project ? (title) => setMade((now) => ({ ...now, [opened.id]: { title, by: viewer, at: 'Now', status: 'Todo' } })) : undefined}
           onClose={() => setThread(null)}
         />
       )}
-      {!opened && side && (activity === 'column' || !chatOnly) && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!opened && side && (activity === 'column' || !chatOnly || project) && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. About three rows show; the rest scroll inside. */}
         {/* In every conversation, a one-to-one included (Miky, 29 Oct); where there are no files it is the whole column. In the dot variant the column is only the files. */}
         {activity === 'column' && <>
@@ -586,6 +597,24 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
         <ScrollArea className="shrink-0" viewportClassName={chatOnly ? undefined : 'max-h-[300px]'}>
           <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} topicLine={chatOnly ? '' : undefined} />
         </ScrollArea>
+        </>}
+        {project && <>
+        <SectionLabel tone="muted">Issues</SectionLabel>
+        {issues.length === 0 ? (
+          <p className="text-body-2 text-text-muted">None yet. Open a report’s thread and choose Make an issue.</p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {issues.map(({ m }) => (
+              <button key={m.id} type="button" onClick={() => setThread(m.id)} className="flex items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover">
+                <KindIcon kind="issue" className="mt-0.5" />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-body-2 text-text-primary">{m.issue!.title}</span>
+                  <span className="text-caption text-text-muted">{m.issue!.status} · from {PEOPLE[m.by].name}’s report</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
         </>}
         {!chatOnly && <>
         <SectionLabel tone="muted">Files</SectionLabel>

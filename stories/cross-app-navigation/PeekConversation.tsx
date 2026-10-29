@@ -261,6 +261,16 @@ function MessageRows({ m, viewer, heading, onFile }: { m: Message; viewer: Perso
         )}
         <Rail line={body} />
         <div className="whitespace-pre-wrap pb-2 pr-2 pt-1 text-body-2 text-text-primary">{m.body}</div>
+        {m.issue && (
+          <>
+            <Rail line={body} />
+            {/* Made into an issue under the same project: the issue's title and status, under the report. */}
+            <span className="flex items-center gap-1.5 pb-2 text-caption text-text-secondary">
+              <KindIcon kind="issue" size={14} />
+              <span className="truncate text-text-primary">{m.issue.title}</span>· {m.issue.status}
+            </span>
+          </>
+        )}
         {under && (
           <>
             <Rail line={body} />
@@ -371,6 +381,7 @@ export function ThreadPanel({
   places,
   sentTo,
   onSend,
+  onIssue,
   onClose,
 }: {
   m: Message
@@ -379,10 +390,13 @@ export function ThreadPanel({
   places: Place[]
   sentTo: { topic: string; up: SentUp }[]
   onSend: (topics: string[], note: string, forwarded: boolean) => void
+  /** On a project's own conversation: make the message an issue under the same project (Miky, 29 Oct). */
+  onIssue?: (title: string) => void
   onClose: () => void
 }) {
   const [sent, setSent] = useState<Reply[]>([])
   const [sending, setSending] = useState(false)
+  const [making, setMaking] = useState(false)
   const word = useMainWord()
   const file = m.on ? fileOf(m.on) : undefined
   const open = places.filter((p) => !sentTo.some((s) => s.topic === p.id))
@@ -394,6 +408,11 @@ export function ThreadPanel({
     <aside className="flex w-96 shrink-0 flex-col border-l border-border-subtle">
       <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
         <span className="flex-1 text-h4 text-text-primary">Thread</span>
+        {onIssue && !m.issue && (
+          <Button variant="outlined" size="small" leadingIcon={<KindIcon kind="issue" tone="inherit" />} onClick={() => setMaking(true)}>
+            Make an issue
+          </Button>
+        )}
         <Button
           variant="outlined"
           size="small"
@@ -420,7 +439,18 @@ export function ThreadPanel({
           }}
         />
       )}
+      {making && onIssue && !m.issue && (
+        <MakeIssue
+          body={m.body}
+          onCancel={() => setMaking(false)}
+          onMake={(title) => {
+            onIssue(title)
+            setMaking(false)
+          }}
+        />
+      )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+        {m.issue && <IssueLine issue={m.issue} viewer={viewer} />}
         {(file || sentTo.length > 0) && (
           <div className="flex flex-col gap-1">
             {file && (
@@ -464,6 +494,51 @@ export function ThreadPanel({
         <PeekBox to="the thread" label="Reply" onSent={(body) => setSent((now) => [...now, { by: viewer, at: 'Now', body }])} />
       </div>
     </aside>
+  )
+}
+
+/** The issue a message was made into: the issue, its status, and who made it when. */
+function IssueLine({ issue, viewer }: { issue: NonNullable<Message['issue']>; viewer: PersonId }) {
+  return (
+    <div className="flex items-start gap-2 rounded-lg border border-border-subtle px-3 py-2">
+      <KindIcon kind="issue" className="mt-0.5" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="text-body-2-strong text-text-primary">{issue.title}</span>
+        <span className="text-caption text-text-muted">
+          {issue.status} · {issue.by === viewer ? 'You' : nameOf(issue.by)} made this an issue · {issue.at}
+        </span>
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Make an issue from a report (Miky, 29 Oct): the title starts as the
+ * message's words. The issue goes under the same project, so the report, its
+ * thread and the issue stay one file's conversation.
+ */
+function MakeIssue({ body, onCancel, onMake }: { body: string; onCancel: () => void; onMake: (title: string) => void }) {
+  const [title, setTitle] = useState(body.replace(/\.$/, ''))
+  return (
+    <form
+      className="flex flex-col gap-3 border-b border-border-subtle bg-bg-inset p-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (title.trim()) onMake(title.trim())
+      }}
+    >
+      <Field label="Issue title" helper="In this project, with this thread as its conversation.">
+        <TextInput value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+      </Field>
+      <div className="flex justify-end gap-2">
+        <Button variant="muted" size="small" type="button" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" size="small" disabledReason={title.trim() ? undefined : 'Give it a title'}>
+          Make an issue
+        </Button>
+      </div>
+    </form>
   )
 }
 

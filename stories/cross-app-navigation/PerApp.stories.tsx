@@ -42,6 +42,18 @@ export const PeekTeams: Story = {
   render: () => <PerApp start={{ type: 'topic', id: 'general' }} />,
 }
 
+/**
+ * Bugs is a project, not a space (Miky, 29 Oct): Peek lists it under
+ * Engineering, a report on it becomes an issue in the same project, and the
+ * report's thread stays its conversation. Open Katerina's second report and
+ * choose Make an issue.
+ */
+export const PeekBugs: Story = {
+  name: 'Peek, Bugs',
+  globals: { theme: 'signal' },
+  render: () => <PerApp start={{ type: 'topic', id: 'bugs' }} />,
+}
+
 /** Ship: Home, Topics, Projects, Issues and Views, then Starred, then Teams, each with its Topics, Projects, Issues and Views. */
 export const Ship: Story = {
   globals: { theme: 'ship' },

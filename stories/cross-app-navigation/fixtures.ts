@@ -38,6 +38,11 @@ export interface FileRow {
   app: 'ship' | 'leaf'
   title: string
   team: TeamId
+  /**
+   * In its team's public group: everyone reads it, even when the team is
+   * private (Miky, 29 Oct: a team holds a private and a public group).
+   */
+  public?: boolean
   /** Ship: "3 of 11". */
   progress?: string
   /** What it is for, in a line or two: the card's summary. */
@@ -61,6 +66,9 @@ export const FILES: FileRow[] = [
   { id: 'p-peek-bugs', app: 'ship', title: 'Peek: Feedback & Bugs', team: 'eng', progress: '4 of 9' },
   { id: 'p-ship-bugs', app: 'ship', title: 'Ship: Feedback & Bugs', team: 'eng', progress: '5 of 8' },
   { id: 'p-leaf-bugs', app: 'ship', title: 'Leaf: Feedback & Bugs', team: 'eng', progress: '1 of 3' },
+  // Bugs is a project, not a space (Miky, 29 Oct): a report on it becomes an issue under the same file, its conversation with it.
+  { id: 'p-bugs', app: 'ship', title: 'Bugs', team: 'eng', public: true, progress: '0 of 1',
+    summary: 'Tell Engineering what is broken. A report becomes an issue right here, and its conversation stays with it.' },
   { id: 'p-private', app: 'ship', title: 'Private folders / topic / files', team: 'eng', progress: '0 of 1' },
   { id: 'p-widgets-1', app: 'ship', title: 'Widgets 2: build 1', team: 'eng', progress: '6 of 6' },
   { id: 'p-widgets-2', app: 'ship', title: 'Widgets 2: build 2', team: 'eng', progress: '4 of 5' },
@@ -103,8 +111,13 @@ export interface Topic {
   shared?: TeamId[]
   /** A direct conversation: the people in it, who alone read it. */
   members?: PersonId[]
-  /** How it shows under its team; a `dm` shows under People instead. */
-  role?: 'chat' | 'front-door' | 'space' | 'dm'
+  /**
+   * How it shows under its team; a `dm` shows under People instead. A
+   * `project` is a Ship project Peek lists under its team, as Bugs (Miky, 29
+   * Oct): its conversation is the project's own, and `file` names it.
+   */
+  role?: 'chat' | 'front-door' | 'space' | 'dm' | 'project'
+  file?: string
   lists: string[]
 }
 
@@ -149,15 +162,8 @@ export const TOPICS: Topic[] = [
   { id: 'suits', title: 'Estiva Suits Updates', lead: 'company', ends: false, readers: 'everyone', role: 'space', lists: ['d-weekly'] },
   { id: 'eng-chat', title: 'Engineering', lead: 'eng', ends: false, readers: 'team', role: 'chat', lists: [] },
   { id: 'eng-door', title: 'Ask Engineering', lead: 'eng', ends: false, readers: 'everyone', role: 'front-door', lists: [] },
-  {
-    id: 'bugs',
-    title: 'Bugs',
-    lead: 'eng',
-    ends: false,
-    readers: 'everyone',
-    role: 'front-door',
-    lists: ['p-peek-bugs', 'p-ship-bugs', 'p-leaf-bugs'],
-  },
+  // The Bugs project, in Engineering's public group: Peek shows its conversation under Engineering.
+  { id: 'bugs', title: 'Bugs', lead: 'eng', ends: false, readers: 'everyone', role: 'project', file: 'p-bugs', lists: [] },
   {
     id: 'eng-design',
     title: 'Engineering × Design',
@@ -191,8 +197,8 @@ export const dmTitle = (who: PersonId, dm: Topic) =>
 
 const inTeam = (who: PersonId, team: TeamId) => teamOf(team).members.includes(who)
 
-/** Whether this person reads the file: its team's members, or everyone when the team is not private. */
-export const canReadFile = (who: PersonId, file: FileRow) => !teamOf(file.team).private || inTeam(who, file.team)
+/** Whether this person reads the file: its team's members, or everyone when the team is not private or the file is in its public group. */
+export const canReadFile = (who: PersonId, file: FileRow) => !!file.public || !teamOf(file.team).private || inTeam(who, file.team)
 
 export const canReadTopic = (who: PersonId, topic: Topic) =>
   topic.readers === 'everyone' ||
@@ -256,6 +262,18 @@ export interface Message {
   replies?: { by: PersonId[]; count: number; last: string; unread?: boolean }
   /** A listed file whose card the message was sent with. */
   card?: string
+  /**
+   * The issue it was made into, under the same project (Miky, 29 Oct): the
+   * message and its thread stay where they are, and the issue is listed with them.
+   */
+  issue?: MadeIssue
+}
+
+export interface MadeIssue {
+  title: string
+  by: PersonId
+  at: string
+  status: string
 }
 
 /** Peek's reactions, as `@estiva-app/conversation`'s REACTION_EMOJI names them. */
@@ -415,8 +433,20 @@ export const MESSAGES: Record<string, Message[]> = {
     { id: 'ed2', by: 'miky', at: 'Tue 09:30', body: 'Shared to the Engineering chat: we look at it there and answer here.' },
   ],
   bugs: [
-    { id: 'b1', by: 'katerina', at: 'Wed 10:10', body: 'The image in a Leaf comment shows twice after a reload.' },
-    { id: 'b2', by: 'miky', at: 'Wed 10:30', on: 'p-leaf-bugs', body: 'Filed as an issue in Leaf: Feedback & Bugs.' },
+    {
+      id: 'b1',
+      by: 'katerina',
+      at: 'Wed 10:10',
+      body: 'The image in a Leaf comment shows twice after a reload.',
+      issue: { title: 'An image in a Leaf comment shows twice after a reload', by: 'miky', at: 'Wed 10:30', status: 'Todo' },
+      thread: [
+        { by: 'agent', at: 'Wed 10:22', body: 'Reproduced as QA-1: the second copy appears once the comment is read back from the relay.' },
+        { by: 'miky', at: 'Wed 10:30', body: 'Made it an issue.' },
+      ],
+      replies: { by: ['agent', 'miky'], count: 2, last: '10:30' },
+    },
+    // Not an issue yet: open its thread and choose Make an issue.
+    { id: 'b2', by: 'katerina', at: 'Thu 14:05', body: 'Ship’s issue list jumps back to the top when I change a status.' },
   ],
   'eng-design': [{ id: 'x1', by: 'katerina', at: 'Thu 11:00', body: 'Story for the replies row is up; can you check it builds from the shared piece?' }],
   'design-chat': [{ id: 'dc1', by: 'katerina', at: 'Thu 09:00', body: 'Moodboard for the Teams sidebar.' }],
@@ -462,7 +492,7 @@ export const DESK: Record<'miky' | 'katerina', { needs: DeskRow[]; managing: Des
   katerina: {
     needs: [
       { id: 'kn1', app: 'leaf', title: 'Navigation', detail: 'Miky mentioned you: some thinking to pick up together', file: 'd-navigation' },
-      { id: 'kn2', app: 'peek', title: 'Bugs', detail: 'Miky filed your report in Leaf: Feedback & Bugs', topic: 'bugs' },
+      { id: 'kn2', app: 'peek', title: 'Bugs', detail: 'Miky made your report an issue', topic: 'bugs' },
     ],
     managing: [
       { id: 'km1', app: 'ship', title: 'One conversation in every app', detail: 'Project you lead · Design', file: 'p-one-conversation' },

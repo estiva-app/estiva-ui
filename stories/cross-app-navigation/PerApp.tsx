@@ -202,6 +202,8 @@ function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App
     case 'file':
       return <FilePage id={place.id} app={app} viewer={viewer} onSelect={onOpen} />
     case 'topic':
+      // A project Peek lists under its team opens as the project itself in Ship and Leaf.
+      if (topic!.role === 'project' && app !== 'peek') return <FilePage id={topic!.file!} app={app} viewer={viewer} onSelect={onOpen} />
       return app === 'peek' ? <PeekTopic topic={topic!} viewer={viewer} app={app} onApp={onApp} onSelect={onOpen} activity={activity} /> : <FilesOfTopic topic={topic!} app={app} viewer={viewer} onApp={onApp} onSelect={onOpen} />
   }
 }
@@ -321,7 +323,7 @@ function TeamSpaces({ viewer, place, onOpen }: { viewer: PersonId; place: Place;
           <NavItem
             href="#"
             label={s.role === 'chat' ? (team.id === 'company' ? 'general' : team.name.toLowerCase()) : s.title}
-            tooltip={s.role === 'chat' ? (team.private ? 'The team’s own chat: members only' : 'The team’s own chat') : s.role === 'front-door' ? `Open to everyone: how others talk to ${team.name}` : readersLabel(s).words}
+            tooltip={s.role === 'chat' ? (team.private ? 'The team’s own chat: members only' : 'The team’s own chat') : s.role === 'project' ? 'A project open to everyone: a report on it becomes an issue in it' : s.role === 'front-door' ? `Open to everyone: how others talk to ${team.name}` : readersLabel(s).words}
             icon={iconOf(s)}
             unread={unread.has(s.id)}
             active={same(place, { type: 'topic', id: s.id })}
