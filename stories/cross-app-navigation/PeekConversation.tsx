@@ -1,6 +1,6 @@
 import { Fragment, useState, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconArrowNarrowRight, IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
+import { IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Card } from '../../src/Card'
@@ -131,16 +131,17 @@ function RepliesRow({ replies }: { replies: NonNullable<Message['replies']> }) {
 /** peek-app's resolution banner: who resolved, and what they said. */
 function Resolution({ r }: { r: NonNullable<Message['resolved']> }) {
   return (
-    // Peek's banner, with the note wrapping instead of cut to one line: a resolution can be a paragraph.
-    <div className="mb-2 mr-1 flex min-w-0 items-start gap-2 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
-      <IconChecks size={16} stroke={1.5} className="shrink-0 text-success-default signal:drop-shadow-glow-success" aria-hidden />
-      <span className="mt-0.5 whitespace-nowrap text-h5 text-success-default">{nameOf(r.by)} resolved</span>
-      {r.note && (
-        <>
-          <IconArrowNarrowRight size={12} stroke={1.5} className="mt-0.5 shrink-0 text-text-primary" aria-hidden />
-          <span className="mt-0.5 text-h5 leading-snug text-text-primary">{r.note}</span>
-        </>
-      )}
+    // Peek's green banner, laid out as a highlight is (Miky, 29 Oct): who resolved it on a line of its own, the note under it.
+    <div className="mb-2 mr-1 flex min-w-0 flex-col gap-1 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
+      <div className="flex h-5 items-center gap-2">
+        <Avatar name={nameOf(r.by)} size={16} />
+        <span className="whitespace-nowrap text-body-2-strong text-text-primary">{nameOf(r.by)}</span>
+        <span className="flex items-center gap-1 text-h5 text-success-default">
+          <IconChecks size={16} stroke={1.5} className="shrink-0 signal:drop-shadow-glow-success" aria-hidden />
+          Resolved
+        </span>
+      </div>
+      {r.note && <p className="text-body-2 text-text-primary">{r.note}</p>}
     </div>
   )
 }
