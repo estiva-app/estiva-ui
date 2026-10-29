@@ -27,7 +27,10 @@ export interface ShowMoreProps {
   children: ReactNode
   /** The height to cut at, in px. Default 96: about seven lines of caption text. */
   maxHeight?: number
-  /** What the content sits on, for the fade to end in: a panel's `surface` (default), an inset card's `inset`, or a card in a box being written in, `elevated`. */
+  /**
+   * @deprecated Nothing to choose: the fade is the content's own, fading out over whatever it sits on, a see-through
+   * inset card and a selected message included. Accepted, and ignored.
+   */
   surface?: 'surface' | 'inset' | 'elevated'
   /** A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives. Its words end where the content does. */
   action?: ReactNode
@@ -36,9 +39,10 @@ export interface ShowMoreProps {
   className?: string
 }
 
-const FADE_CLASSES = { surface: 'from-bg-surface', inset: 'from-bg-inset', elevated: 'from-bg-elevated' } as const
+/** The last 40px of cut content fade out: a mask on the content, not a fill over it, so it ends in whatever is behind. */
+const FADE = 'linear-gradient(to top, transparent, black 40px)'
 
-export function ShowMore({ children, maxHeight = 96, surface = 'surface', action, contentClassName, className }: ShowMoreProps) {
+export function ShowMore({ children, maxHeight = 96, action, contentClassName, className }: ShowMoreProps) {
   const box = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [overflows, setOverflows] = useState(false)
@@ -57,9 +61,8 @@ export function ShowMore({ children, maxHeight = 96, surface = 'surface', action
   const cut = overflows && !open
   return (
     <div className={cn('flex flex-col items-start', className)}>
-      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden', contentClassName)} style={cut ? { maxHeight } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
+      <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden', contentClassName)} style={cut ? { maxHeight, maskImage: FADE, WebkitMaskImage: FADE } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
         {children}
-        {cut && <div aria-hidden className={cn('pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t to-transparent', FADE_CLASSES[surface])} />}
       </div>
       {action ? (
         <div className={cn('mt-1 flex w-full items-center gap-2', overflows ? 'justify-between' : 'justify-end')}>

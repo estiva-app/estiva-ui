@@ -8238,7 +8238,7 @@
           "name": "surface",
           "takes": "surface | inset | elevated",
           "required": false,
-          "note": "What the content sits on, for the fade to end in: a panel's `surface` (default), an inset card's `inset`, or a card in a box being written in, `elevated`."
+          "note": "inset card and a selected message included."
         },
         {
           "name": "action",
@@ -8276,11 +8276,7 @@
       "storyId": "page-structure-showmore--long",
       "docPage": "src/ShowMore.mdx",
       "app": null,
-      "looks": [
-        "pointer-events-none bg-gradient-to-t to-transparent from-bg-surface",
-        "pointer-events-none bg-gradient-to-t to-transparent from-bg-inset",
-        "pointer-events-none bg-gradient-to-t to-transparent from-bg-elevated"
-      ]
+      "looks": []
     },
     {
       "name": "Sidebar",

@@ -12,7 +12,10 @@ import { Link } from './Link'
  *
  * - **The fill is chosen by what the card sits on**: `surface` on the page,
  *   `elevated` on something already filled, `inset` inside a message, `none`
- *   for a hairline alone.
+ *   for a hairline alone. `inset` is the see-through wash, one step over
+ *   whatever the message is drawn on: a selected or hovered message's fill
+ *   shows through it, as an inline chip's does (Katerina, 30 Oct: a solid fill
+ *   was as light as a selected message's tint, and the card melted into it).
  * - **The hairline follows the fill**: the default hairline on `surface` and
  *   `elevated`, the subtle one on `inset` and `none`. Every card has 8px
  *   corners.
@@ -32,7 +35,7 @@ export type CardAttention = 'accent' | 'warning'
 const FILL_CLASSES: Record<CardFill, string> = {
   surface: 'bg-bg-surface border-border-default',
   elevated: 'bg-bg-elevated border-border-default',
-  inset: 'bg-bg-inset border-border-subtle',
+  inset: 'bg-bg-wash border-border-subtle',
   none: 'border-border-subtle',
 }
 

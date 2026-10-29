@@ -31,7 +31,7 @@ describe('Card', () => {
   })
 
   it('the hairline follows the fill: default on surface and elevated, subtle on inset and none', () => {
-    const expected = { surface: ['bg-bg-surface', 'border-border-default'], elevated: ['bg-bg-elevated', 'border-border-default'], inset: ['bg-bg-inset', 'border-border-subtle'], none: ['border-border-subtle'] } as const
+    const expected = { surface: ['bg-bg-surface', 'border-border-default'], elevated: ['bg-bg-elevated', 'border-border-default'], inset: ['bg-bg-wash', 'border-border-subtle'], none: ['border-border-subtle'] } as const
     for (const [fill, classes] of Object.entries(expected)) {
       const actual = classesOf(card(<Card fill={fill as keyof typeof expected}>Item one</Card>))
       for (const c of classes) expect(actual).toContain(c)

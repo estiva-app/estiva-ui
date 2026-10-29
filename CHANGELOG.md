@@ -28,6 +28,12 @@ Katerina, 30 Oct, on 0.91.0 live in Peek.
   signed by, when the app's people name it and no owner picker already names
   a person. A topic's key is its relay's: it names nobody. A message's time
   is when it was written.
+- **A card inside a message is see-through** (`Card fill="inset"`, the link
+  card, row and part): the theme's wash, `bg-wash`, one step over whatever
+  the message is drawn on, as an inline chip is. A solid fill was as light as
+  a selected message's tint in Signal and Ship, and the card melted into it
+  (Katerina, 30 Oct). `ShowMore`'s fade is a mask on the content now, so it
+  ends in whatever is behind; its `surface` is ignored.
 - **Cards and rows stop at 480px in a box being written in too** ("in the
   bigger compose box it's not looking good"); in a narrow box they fill it as
   before.
