@@ -294,7 +294,6 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
     setThread(null)
   }, [topic.id])
   const listed = topic.lists.map(fileOf)
-  const readable = listed.filter((f) => canReadFile(viewer, f))
   const every = [...(MESSAGES[topic.id] ?? []), ...(sent[topic.id] ?? [])]
   const all = every.filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
   const hidden = every.length - all.length
@@ -311,47 +310,28 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           title={topic.title}
           locked={isPrivate(topic)}
           right={
-            !chatOnly && (
-              <IconButton aria-label={side ? 'Hide the listed files' : 'Show the listed files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
-                <IconLayoutSidebarRight {...icon16} />
-              </IconButton>
-            )
+            <>
+              <TopicFacts topic={topic} />
+              {!chatOnly && (
+                <IconButton aria-label={side ? 'Hide the listed files' : 'Show the listed files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                  <IconLayoutSidebarRight {...icon16} />
+                </IconButton>
+              )}
+            </>
           }
         >
-          <TopicFacts topic={topic} />
+          {/* All | Main beside the title; a file opened from the listed files shows as a third tab while it is open (Miky, 29 Oct). */}
+          {!chatOnly && (
+            <Tabs<'all' | 'main' | 'file'>
+              aria-label="What to show"
+              size="small"
+              active={tab}
+              onChange={(id) => id !== 'file' && setView(id)}
+              tabs={[{ id: 'all', label: 'All', count: all.length }, { id: 'main', label: 'Main' }, ...(chosen ? [{ id: 'file' as const, label: chosen.title }] : [])]}
+            />
+          )}
         </Header>
-        {!chatOnly && <div className="flex items-center gap-2 border-b border-border-subtle px-4">
-          <Tabs<'all' | 'main' | 'file'>
-            aria-label="What to show"
-            size="small"
-            active={tab}
-            onChange={(id) => id !== 'file' && setView(id)}
-            tabs={[
-              { id: 'all', label: 'All', count: all.length },
-              { id: 'main', label: 'Main' },
-            ]}
-          />
-          <Menu
-            trigger={
-              <button type="button" disabled={readable.length === 0} className={cn('flex items-center gap-1 rounded-md px-2 py-1 text-body-2 hover:bg-bg-hover disabled:opacity-50', chosen ? 'bg-bg-selected text-text-primary' : 'text-text-secondary')}>
-                {chosen ? chosen.title : 'Files'}
-                <IconChevronDown size={14} stroke={1.5} />
-              </button>
-            }
-          >
-            {readable.map((f) => (
-              <MenuItem key={f.id} label={f.title} description={`${f.app === 'ship' ? 'Ship project' : 'Leaf document'} · ${teamOf(f.team).name}`} leading={<KindIcon kind={kindOf(f)} />} selected={chosen?.id === f.id} onClick={() => setView({ file: f.id })} />
-            ))}
-          </Menu>
-        </div>}
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
-          {!chatOnly && <p className="mb-4 text-caption text-text-muted">
-            {view === 'all'
-              ? 'Everything: the topic’s own conversation and every listed file’s, each labelled with its file.'
-              : view === 'main'
-                ? 'The topic’s own conversation, what was shared up from its files, and where you are mentioned.'
-                : `Only the conversation on ${chosen?.title}.`}
-          </p>}
           {shown.length === 0 ? (
             <EmptyState scope="section" message="Nothing here yet." />
           ) : (
@@ -384,7 +364,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             <div key={a} className="flex flex-col gap-1">
               <span className="text-caption text-text-secondary">{a === 'ship' ? 'Ship' : 'Leaf'}</span>
               {open.map((f) => (
-                <button key={f.id} type="button" onClick={() => setView({ file: f.id })} className="flex items-start gap-2 rounded-md px-2 py-1 text-left hover:bg-bg-hover">
+                <button key={f.id} type="button" aria-pressed={chosen?.id === f.id} onClick={() => setView({ file: f.id })} className={cn('flex items-start gap-2 rounded-md px-2 py-1 text-left hover:bg-bg-hover', chosen?.id === f.id && 'bg-bg-selected')}>
                   <KindIcon kind={kindOf(f)} className="mt-0.5" />
                   <span className="flex flex-col">
                     <span className="text-body-2 text-text-primary">{f.title}</span>
@@ -401,9 +381,6 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             </div>
           )
         })}
-        <button type="button" onClick={() => onSelect({ type: 'team', id: topic.lead })} className="mt-2 text-left text-caption text-text-secondary hover:text-text-primary">
-          Led by {teamOf(topic.lead).name} →
-        </button>
       </aside>}
     </div>
   )
@@ -415,9 +392,7 @@ export function FilesOfTopic({ topic, app, viewer, onApp, onSelect }: { topic: T
   const open = mine.filter((f) => canReadFile(viewer, f))
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <Header title={topic.title} locked={isPrivate(topic)}>
-        <TopicFacts topic={topic} />
-      </Header>
+      <Header title={topic.title} locked={isPrivate(topic)} right={<TopicFacts topic={topic} />} />
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
         <OtherApps topic={topic} app={app} viewer={viewer} onApp={onApp} />
         <SectionLabel tone="muted">{app === 'ship' ? 'Projects this topic lists' : 'Documents this topic lists'}</SectionLabel>

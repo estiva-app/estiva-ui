@@ -283,6 +283,8 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
 /**
  * The thread beside the conversation, as Peek opens it: the message, every
  * reply (a highlighted one with its pill), the resolution, and a box to reply.
+ * The file it was written on heads the thread and scrolls away with it; the
+ * panel's own header says only "Thread" (Miky, 29 Oct).
  */
 export function ThreadPanel({ m, viewer, onClose }: { m: Message; viewer: PersonId; onClose: () => void }) {
   const [sent, setSent] = useState<Reply[]>([])
@@ -291,20 +293,18 @@ export function ThreadPanel({ m, viewer, onClose }: { m: Message; viewer: Person
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-border-subtle">
       <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="text-h4 text-text-primary">Thread</span>
-          {file && (
-            <span className="flex items-center gap-1 truncate text-caption text-text-muted">
-              <KindIcon kind={kindOf(file)} size={14} />
-              {file.title}
-            </span>
-          )}
-        </div>
+        <span className="flex-1 text-h4 text-text-primary">Thread</span>
         <IconButton aria-label="Close the thread" tooltip="Close" onClick={onClose}>
           <IconX size={16} stroke={1.5} />
         </IconButton>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+        {file && (
+          <span className="flex items-center gap-2 text-h4 text-text-primary">
+            <KindIcon kind={kindOf(file)} />
+            {file.title}
+          </span>
+        )}
         {rows.map((r, i) => (
           <Fragment key={i}>
             <div className="flex gap-2">

@@ -10,7 +10,7 @@ A prototype, on the `concept/cross-app-navigation` branch only. It never merges,
 
 - **The app switcher** is top left. Peek, Ship and Leaf keep the same topic open, and each shows its own part of it: Peek the conversation, Ship the projects, Leaf the documents.
 - **The same sidebar in every app** has the app's home (Desk, My issues, Home), **Topics** (the ones with an end) and **Teams**. Under a team, Peek lists its spaces, Ship its projects and Leaf its documents.
-- **Peek's topic** has **All** (every conversation, each labelled with its file), **Main** (the topic's own conversation, what was shared up from its files, and your mentions) and **Files ▾** (one file's conversation). The files it lists are on the right, each with the team it lives in.
+- **Peek's topic** has **All** (every conversation, each labelled with its file) and **Main** (the topic's own conversation, what was shared up from its files, and your mentions) beside its title. The files it lists are on the right, each with the team it lives in; clicking one shows only its conversation, as a third tab beside All and Main.
 - **View as** is in the person menu, top right. As Katerina, outside Engineering and Marketing, you see their front doors (*Ask Engineering*, *Bugs*, *Talk to Marketing*), but not their chats, and Engineering's projects show as "you can't open".
 
 ## The model drawn
@@ -50,3 +50,5 @@ Not drawn: Issues, Open work, Starred, a conversation with a person.
 **The topic's header, cleaned up** (Miky, same day): the title, a lock before it when the topic is private, and the team it belongs to as the team's avatar and name (both teams for a shared space). "Led by", "Everyone" and the "N projects in Ship" link are gone; an icon at the right shows and hides the listed files.
 
 **Clicking a message opens its thread** in a panel on the right, in place of the listed files: the message, every reply (a highlighted one with its pill), the resolution and a box to reply. ✕ closes it.
+
+**Header and thread, second pass** (Miky, same day): All and Main sit beside the topic's title, and the Files menu and the line explaining each view are gone, since the listed files on the right open a file's conversation. The team's avatar and name moved to the right of the header, beside the sidebar toggle, in Ship and Leaf too. The thread panel's header says only "Thread"; the file it was written on heads the thread and scrolls away with it. "Led by" is gone from the listed files.
