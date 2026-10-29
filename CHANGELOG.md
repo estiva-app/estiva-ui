@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.91.2 — 2026-10-30
+
+Katerina, 30 Oct, on the see-through card in 0.91.1.
+
+### Changed
+
+- **A link card's pickers are see-through, as the card is.** `Select` takes
+  `fill`: a form's `field` (default), or `wash`, one step over a see-through
+  card. A link card's status and owner pickers use `wash`: with a field's
+  fill they read as dark holes in a card on a selected message, in Signal and
+  Ship. Leaf's white fields stay white, raised on their shadow.
+
 ## 0.91.1 — 2026-10-30
 
 Katerina, 30 Oct, on 0.91.0 live in Peek.

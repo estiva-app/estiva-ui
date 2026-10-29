@@ -159,7 +159,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   SectionHeader: ['hover', 'look'],
   SectionLabel: ['tone', 'truncate'],
   ShowMore: ['surface'],
-  Select: ['size'],
+  Select: ['size', 'fill'],
   Tabs: ['size'],
   TextInput: ['size'],
   Toast: ['type'],
