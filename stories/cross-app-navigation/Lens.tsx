@@ -10,12 +10,14 @@ import {
   IconLayoutSidebarRight,
   IconLock,
   IconStack2,
+  IconUser,
   IconUsers,
   IconUsersGroup,
   IconWorld,
 } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
+import { AvatarGroup } from '../../src/AvatarGroup'
 import { Button } from '../../src/Button'
 import { DialogShell } from '../../src/DialogShell'
 import { Field } from '../../src/Field'
@@ -43,6 +45,8 @@ import {
   PEOPLE,
   TEAMS,
   TOPICS,
+  DMS,
+  dmTitle,
   canReadFile,
   canReadTopic,
   fileOf,
@@ -116,13 +120,14 @@ export function readersLabel(topic: Topic) {
 /** Three kinds of discussion space in Peek, three icons (Miky, 28 Oct): a team's chat, a space two teams share, and a topic, lasting ones like Bugs included. */
 export function spaceIcon(topic: Topic) {
   if (topic.role === 'chat') return <IconHash {...icon16} />
+  if (topic.role === 'dm') return (topic.members?.length ?? 0) > 2 ? <IconUsers {...icon16} /> : <IconUser {...icon16} />
   if (isCrossTeam(topic)) return <IconUsersGroup {...icon16} />
   return <KindIcon kind="topic" />
 }
 
-/** A team's chat or a space two teams share: just the conversation, with no All, Main or listed files. */
+/** A team's chat, a space two teams share or a direct conversation: just the conversation, with no All, Main or listed files. */
 export const isCrossTeam = (topic: Topic) => topic.readers === 'teams'
-export const isChatOnly = (topic: Topic) => topic.role === 'chat' || isCrossTeam(topic)
+export const isChatOnly = (topic: Topic) => topic.role === 'chat' || topic.role === 'dm' || isCrossTeam(topic)
 
 export function AppSwitcher({ app, onApp }: { app: App; onApp: (app: App) => void }) {
   const current = APPS.find((a) => a.id === app)!
@@ -365,7 +370,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   const shown = chatOnly || view === 'all' ? entries : view === 'main' ? main : entries.filter((e) => e.m.on === view.file && e.readable)
   // Where a thread can be shared: any conversation you read (Miky, 29 Oct); the form ticks the one you are on.
   const placesOf = (m: Message) =>
-    TOPICS.filter((t) => canReadTopic(viewer, t)).map((t) => ({ id: t.id, title: t.title, icon: spaceIcon(t), listed: !!m.on && t.lists.includes(m.on) }))
+    [...TOPICS, ...DMS].filter((t) => canReadTopic(viewer, t)).map((t) => ({ id: t.id, title: t.role === 'dm' ? dmTitle(viewer, t) : t.title, icon: spaceIcon(t), listed: !!m.on && t.lists.includes(m.on) }))
   /** A listed file's card: its summary, a project's issues (Miky, 29 Oct: not the latest conversation), and how much was said here. */
   const fileCard = (f: FileRow): LinkState => {
     const said = every.filter((m) => m.on === f.id)
@@ -386,16 +391,14 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
     <div className="flex h-full min-h-0">
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          title={topic.title}
+          title={topic.role === 'dm' ? dmTitle(viewer, topic) : topic.title}
           locked={isPrivate(topic)}
           right={
             <>
-              <TopicFacts topic={topic} />
-              {!chatOnly && (
-                <IconButton aria-label={side ? 'Hide the files' : 'Show the files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
-                  <IconLayoutSidebarRight {...icon16} />
-                </IconButton>
-              )}
+              {topic.role === 'dm' ? <AvatarGroup size={20} members={(topic.members ?? []).map((p) => ({ name: PEOPLE[p].name }))} /> : <TopicFacts topic={topic} />}
+              <IconButton aria-label={side ? 'Hide the sidebar' : 'Show the sidebar'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                <IconLayoutSidebarRight {...icon16} />
+              </IconButton>
             </>
           }
         >
@@ -435,7 +438,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           viewer={viewer}
           main={chatOnly ? undefined : topic.id}
           places={placesOf(opened)}
-          sentTo={TOPICS.flatMap((t) => {
+          sentTo={[...TOPICS, ...DMS].flatMap((t) => {
             const up = upIn(t.id, opened)
             return up ? [{ topic: t.id, up }] : []
           })}
@@ -445,12 +448,14 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           onClose={() => setThread(null)}
         />
       )}
-      {!chatOnly && !opened && side && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!opened && side && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. About three rows show; the rest scroll inside. */}
+        {/* In every conversation, a one-to-one included (Miky, 29 Oct); where there are no files it is the whole column. */}
         <SectionLabel tone="muted">Activity</SectionLabel>
-        <ScrollArea className="shrink-0" viewportClassName="max-h-[300px]">
-          <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} />
+        <ScrollArea className="shrink-0" viewportClassName={chatOnly ? undefined : 'max-h-[300px]'}>
+          <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} topicLine={chatOnly ? '' : undefined} />
         </ScrollArea>
+        {!chatOnly && <>
         <SectionLabel tone="muted">Files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(() => {
@@ -479,6 +484,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             </div>
           )
         })()}
+        </>}
       </aside>}
     </div>
   )

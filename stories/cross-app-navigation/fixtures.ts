@@ -98,11 +98,13 @@ export interface Topic {
    * team's chat). `teams`: the members of every team in `shared`.
    * `everyone`: the whole company.
    */
-  readers: 'team' | 'teams' | 'everyone'
+  readers: 'team' | 'teams' | 'everyone' | 'people'
   /** A space two teams share: listed under each, read by both. */
   shared?: TeamId[]
-  /** How it shows under its team. */
-  role?: 'chat' | 'front-door' | 'space'
+  /** A direct conversation: the people in it, who alone read it. */
+  members?: PersonId[]
+  /** How it shows under its team; a `dm` shows under People instead. */
+  role?: 'chat' | 'front-door' | 'space' | 'dm'
   lists: string[]
 }
 
@@ -172,7 +174,17 @@ export const TOPICS: Topic[] = [
   { id: 'mkt-door', title: 'Talk to Marketing', lead: 'marketing', ends: false, readers: 'everyone', role: 'front-door', lists: [] },
 ]
 
-export const topicOf = (id: string) => TOPICS.find((t) => t.id === id)!
+/** Direct conversations, under People: a one-to-one and a group (Miky, 29 Oct: Activity in every conversation, one-to-one included). */
+export const DMS: Topic[] = [
+  { id: 'dm-katerina', title: 'Katerina Kelepouri', lead: 'company', ends: false, readers: 'people', members: ['miky', 'katerina'], role: 'dm', lists: [] },
+  { id: 'dm-design-review', title: 'Katerina, Estiva agent', lead: 'company', ends: false, readers: 'people', members: ['miky', 'katerina', 'agent'], role: 'dm', lists: [] },
+]
+
+export const topicOf = (id: string) => [...TOPICS, ...DMS].find((t) => t.id === id)!
+
+/** A direct conversation's name as this person sees it: everyone else in it. */
+export const dmTitle = (who: PersonId, dm: Topic) =>
+  (dm.members ?? []).filter((p) => p !== who).map((p) => PEOPLE[p].name).join(', ')
 
 const inTeam = (who: PersonId, team: TeamId) => teamOf(team).members.includes(who)
 
@@ -182,7 +194,8 @@ export const canReadFile = (who: PersonId, file: FileRow) => !teamOf(file.team).
 export const canReadTopic = (who: PersonId, topic: Topic) =>
   topic.readers === 'everyone' ||
   (topic.readers === 'team' && (topic.lead === 'company' || inTeam(who, topic.lead))) ||
-  (topic.readers === 'teams' && (topic.shared ?? []).some((t) => inTeam(who, t)))
+  (topic.readers === 'teams' && (topic.shared ?? []).some((t) => inTeam(who, t))) ||
+  (topic.readers === 'people' && (topic.members ?? []).includes(who))
 
 /** The lasting spaces listed under a team, its chat first. */
 export const spacesOf = (team: TeamId) =>
@@ -318,6 +331,26 @@ export const MESSAGES: Record<string, Message[]> = {
     { id: 'f5', by: 'agent', at: 'Tue 17:10', on: 'p-ship-instant', mentions: 'miky', body: '@Miky the shared copy is on staging. Can you open Ship there on your own laptop before Friday?' },
     { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.', card: 'p-live' },
     { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'd-speed', body: 'Added Screener → Open work: still the slow move on my workspace.' },
+  ],
+  'dm-katerina': [
+    { id: 'k1', by: 'katerina', at: 'Fri 09:12', body: 'Do you have ten minutes for the Desk sketch today?' },
+    { id: 'k2', by: 'miky', at: 'Fri 09:20', body: 'After lunch. I want to see Screener and Open work side by side.', reactions: [{ emoji: '👍', by: ['katerina'] }] },
+    {
+      id: 'k3',
+      by: 'miky',
+      at: 'Fri 14:05',
+      body: 'Should Later on the Desk offer a time, as Peek does, or only hide the item?',
+      thread: [
+        { by: 'katerina', at: 'Fri 14:20', body: 'A time. Hiding without coming back is how things get lost.', highlight: 'conclusion' },
+        { by: 'miky', at: 'Fri 14:22', body: 'Agreed.' },
+      ],
+    },
+    { id: 'k4', by: 'katerina', at: 'Sat 08:40', body: 'Sent you the new card spacing.', reactions: [{ emoji: '🙏', by: ['miky'] }] },
+  ],
+  'dm-design-review': [
+    { id: 'g1', by: 'agent', at: 'Fri 16:00', body: 'The Storybook preview for the Desk is up. Katerina, the card rows follow your spacing.' },
+    { id: 'g2', by: 'miky', at: 'Fri 16:30', body: 'Looks right to me. One question on the Screener count.', reactions: [{ emoji: '👀', by: ['katerina', 'agent'] }] },
+    { id: 'g3', by: 'katerina', at: 'Sat 09:05', mentions: 'miky', body: '@Miky the count stays when the list is empty? I would hide it.' },
   ],
   widgets: [
     {

@@ -615,7 +615,7 @@ const timeOf = (at: string) => at.split(' ')[1] ?? at
  * The topic's activity for you, above its listed files: each row opens its thread.
  * Divided by day as the conversation is, each row headed by its time (Miky, 29 Oct).
  */
-export function TopicActivity({ viewer, messages, onOpen }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void }) {
+export function TopicActivity({ viewer, messages, onOpen, topicLine = 'On the topic' }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void; topicLine?: string }) {
   const items = activityFor(viewer, messages)
   return (
     <div className="flex flex-col gap-1">
@@ -633,7 +633,7 @@ export function TopicActivity({ viewer, messages, onOpen }: { viewer: PersonId; 
                 <span className="text-body-2 text-text-primary">
                   <span className="text-body-2-strong">{nameOf(a.by)}</span> {a.what}
                 </span>
-                <span className="truncate text-caption text-text-muted">{a.on ? fileOf(a.on).title : 'On the topic'}</span>
+                {(a.on || topicLine) && <span className="truncate text-caption text-text-muted">{a.on ? fileOf(a.on).title : topicLine}</span>}
               </span>
             </span>
           </button>

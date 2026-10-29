@@ -17,7 +17,8 @@ import { RailItem } from '../../src/RailItem'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
-import { DESK, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
+import { AvatarGroup } from '../../src/AvatarGroup'
+import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
 import {
   APPS,
   AppSwitcher,
@@ -60,7 +61,7 @@ function railFor(place: Place, current: RailId): RailId {
   if (place.type === 'home') return 'desk'
   if (place.type === 'team') return 'teams'
   if (place.type === 'person') return 'people'
-  if (place.type === 'topic') return topicOf(place.id).ends ? 'topics' : 'teams'
+  if (place.type === 'topic') return topicOf(place.id).role === 'dm' ? 'people' : topicOf(place.id).ends ? 'topics' : 'teams'
   return current
 }
 
@@ -420,9 +421,20 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
         ))
       : rail === 'teams'
         ? <TeamSpaces viewer={viewer} place={place} onOpen={onOpen} />
-        : (Object.keys(PEOPLE) as PersonId[])
-            .filter((p) => p !== viewer)
-            .map((p) => <NavItem key={p} href="#" label={PEOPLE[p].name} icon={<Avatar name={PEOPLE[p].name} size={16} />} active={same(place, { type: 'person', id: p })} onClick={go(() => onOpen({ type: 'person', id: p }))} />)
+        : // Your direct conversations, a one-to-one and a group (Miky, 29 Oct).
+          DMS.filter((d) => canReadTopic(viewer, d)).map((d) => {
+            const others = (d.members ?? []).filter((p) => p !== viewer)
+            return (
+              <NavItem
+                key={d.id}
+                href="#"
+                label={dmTitle(viewer, d)}
+                icon={others.length > 1 ? <AvatarGroup size={16} members={others.map((p) => ({ name: PEOPLE[p].name }))} /> : <Avatar name={PEOPLE[others[0]].name} size={16} />}
+                active={same(place, { type: 'topic', id: d.id })}
+                onClick={go(() => onOpen({ type: 'topic', id: d.id }))}
+              />
+            )
+          })
   return (
     <AppShell
       variant="floating"
