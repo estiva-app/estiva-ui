@@ -33,7 +33,7 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
   if (link.state === 'unavailable') {
     return (
       <InlineChip tone="muted" icon={<LinkedIcon kind={link.kind} size={14} tone="inherit" />}>
-        {link.noun}, not available
+        {link.noun} not available
       </InlineChip>
     )
   }

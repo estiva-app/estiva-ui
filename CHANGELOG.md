@@ -4,6 +4,20 @@
 
 Katerina, 30 Oct, on 0.91.0 live in Peek.
 
+### Changed
+
+Her look pass's open notes (Ship, "Katerina's look pass on the widget kit").
+
+- **One wording for a link that is gone: "Issue not available"**, in the app's
+  word for it, in a chip, a row, a card and a part ("A part of this issue not
+  available"). The chip said "Issue, not available"; the rest "Issue — not
+  available.".
+- **A card's time beside its faces reads "Updated 2h ago"**, as it does alone.
+- **A person's words with no time have no "Open"**: their name is the link
+  then, the only action word on a card gone.
+- **An attached card's ✕ is named "Remove"**, not "Remove card". An app test
+  that finds the button by its name changes with it.
+
 ### Fixed
 
 - **A card with nothing for its footer draws no footer row.** A topic with a

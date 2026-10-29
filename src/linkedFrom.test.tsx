@@ -168,13 +168,13 @@ describe('when it changed, and who made it', () => {
 
   it('says when it last changed, and who made it, by the key its address is signed by', () => {
     const card = render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options())} />)
-    expect(within(card.container).getByText('2h ago')).toBeTruthy()
+    expect(within(card.container).getByText('Updated 2h ago')).toBeTruthy()
     expect(within(card.container).getByText('PT')).toBeTruthy()
   })
 
   it('says it in the app’s words when the app gives them', () => {
     render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options({ whenOf: () => 'Tuesday' }))} />)
-    expect(screen.getByText('Tuesday')).toBeTruthy()
+    expect(screen.getByText('Updated Tuesday')).toBeTruthy()
   })
 
   it('names nobody it cannot name, and a topic, whose key is its relay’s', () => {
@@ -208,7 +208,7 @@ describe('a file the reader cannot read', () => {
   it('is not available, and opens in its app only at an https address', () => {
     const stub: LinkedSource = { ...GROUP, unreachable: true, noun: 'group', appName: 'App one', openUrl: 'https://app.example/x' }
     render(<LinkCard link={linkStateFrom(stub, UNREAD, options())} />)
-    expect(screen.getByText(/Group — not available/)).toBeTruthy()
+    expect(screen.getByText(/Group not available/)).toBeTruthy()
     expect(screen.getByRole('link', { name: /App one/ }).getAttribute('href')).toBe('https://app.example/x')
     cleanup()
     render(<LinkCard link={linkStateFrom({ ...stub, openUrl: 'javascript:alert(1)' }, UNREAD, options())} />)
@@ -217,12 +217,12 @@ describe('a file the reader cannot read', () => {
 
   it('is named by its address when its app gives it no noun', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText('Record — not available.')).toBeTruthy()
+    expect(screen.getByText('Record not available')).toBeTruthy()
   })
 
   it('reads as the address says while it loads and when nothing came back', () => {
     render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText('Record — not available.')).toBeTruthy()
+    expect(screen.getByText('Record not available')).toBeTruthy()
   })
 })
 

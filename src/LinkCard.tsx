@@ -121,7 +121,7 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
         {linked.authors ? (
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <AvatarGroup members={linked.authors} size={16} on={on} />
-            {linked.updated && <span className="shrink-0">{linked.updated}</span>}
+            {linked.updated && <span className="shrink-0">Updated {linked.updated}</span>}
           </span>
         ) : (
           !linked.status && !linked.owner && linked.updated && <span className="text-caption italic text-text-secondary">Updated {linked.updated}</span>
@@ -132,19 +132,24 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
   )
 }
 
-/** Words a person wrote, linked: their face, their name, the time beside it as the link, and the words. */
+/** Words a person wrote, linked: their face, their name, the time beside it as the link (without a time, the name), and the words. */
 function SaidBody({ linked }: { linked: Linked }) {
   const author = linked.author!
   return (
     <>
       <div className="flex items-center gap-2">
         <Avatar name={author.name} src={author.picture} size={24} />
-        <span className="text-body-2-strong text-text-primary">{author.name}</span>
-        <span className={cn('text-caption text-text-muted', TIME_CLASSES)}>
-          <Link href={linked.href} variant="quiet">
-            {linked.updated ?? 'Open'}
-          </Link>
+        {/* No "Open" in a missing time's place (Katerina, 30 Oct): the name is the link then. */}
+        <span className="text-body-2-strong text-text-primary">
+          {linked.updated ? author.name : <Link href={linked.href} variant="quiet">{author.name}</Link>}
         </span>
+        {linked.updated && (
+          <span className={cn('text-caption text-text-muted', TIME_CLASSES)}>
+            <Link href={linked.href} variant="quiet">
+              {linked.updated}
+            </Link>
+          </span>
+        )}
       </div>
       <p className="line-clamp-4 text-body-2 text-text-secondary">{linked.body ?? linked.title}</p>
     </>

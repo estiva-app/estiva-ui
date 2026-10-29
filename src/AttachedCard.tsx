@@ -31,7 +31,7 @@ export function AttachedCard({ link, children, onRemove }: AttachedCardProps) {
       {link ? <LinkCard link={link} /> : children}
       {onRemove && (
         <RemoveBadge
-          label="Remove card"
+          label="Remove"
           onRemove={onRemove}
           className="opacity-0 group-hover/card:opacity-100 group-focus-within/card:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
         />

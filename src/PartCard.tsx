@@ -31,7 +31,7 @@ export interface PartCardProps {
   href?: string
   /** The key of what it is part of: "ABC-2". */
   partKey?: string
-  /** What it is part of, in a word, for "A part of this issue — not available.". Absent, its kind's word. */
+  /** What it is part of, in a word, for "A part of this issue not available". Absent, its kind's word. */
   noun?: string
   /** Where it may still open, for someone who can, when it is not available. */
   openIn?: { app: string; href: string }

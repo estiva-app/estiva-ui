@@ -4983,7 +4983,7 @@
           "name": "noun",
           "takes": "text",
           "required": true,
-          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue — not available.\"."
+          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue not available\"."
         },
         {
           "name": "openIn",
@@ -6241,7 +6241,7 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What it is part of, in a word, for \"A part of this issue — not available.\"."
+          "note": "What it is part of, in a word, for \"A part of this issue not available\"."
         },
         {
           "name": "openIn",

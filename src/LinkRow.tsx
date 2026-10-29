@@ -22,7 +22,7 @@ import { SkeletonBar } from './Skeleton'
 
 export interface LinkUnavailableProps {
   kind: LinkedKind
-  /** What it is, in a word: "Issue". Drawn as "Issue — not available.". */
+  /** What it is, in a word: "Issue". Drawn as "Issue not available". */
   noun: string
   /** Where it may still open, for someone who can: its app and address. */
   openIn?: { app: string; href: string }
@@ -46,7 +46,7 @@ export function LinkUnavailable({ kind, noun, openIn, card = false }: LinkUnavai
       <span className={TYPE_TILE_CLASSES}>
         <LinkedIcon kind={kind} />
       </span>
-      <span className="min-w-0 flex-1 truncate text-body-2 text-text-muted">{noun} — not available.</span>
+      <span className="min-w-0 flex-1 truncate text-body-2 text-text-muted">{noun} not available</span>
       {openIn && (
         <span className="shrink-0 text-caption text-text-secondary">
           <Link href={openIn.href} variant="quiet" external>
