@@ -441,14 +441,11 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         </ScrollArea>
         <SectionLabel tone="muted">Files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
-        {(['ship', 'leaf'] as const).map((a) => {
-          const of = listed.filter((f) => f.app === a)
-          if (of.length === 0) return null
-          const open = of.filter((f) => canReadFile(viewer, f))
+        {(() => {
+          const open = listed.filter((f) => canReadFile(viewer, f))
           return (
-            <div key={a} className="flex flex-col gap-1">
-              <span className="text-caption text-text-secondary">{a === 'ship' ? 'Ship' : 'Leaf'}</span>
-              {/* The package's card, for its details (Miky, 29 Oct); a click shows the file's conversation here instead of leaving. */}
+            <div className="flex flex-col gap-1">
+              {/* The package's card, for its details, with no app label: the card says what it is (Miky, 29 Oct). A click shows the file's conversation here instead of leaving. */}
               {open.map((f) => (
                 <div
                   key={f.id}
@@ -461,15 +458,15 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
                   <LinkCard link={fileCard(f)} />
                 </div>
               ))}
-              {of.length > open.length && (
+              {listed.length > open.length && (
                 <span className="flex items-center gap-2 px-2 py-1 text-caption text-text-muted">
                   <IconLock size={14} stroke={1.5} />
-                  {of.length - open.length} you can’t open
+                  {listed.length - open.length} you can’t open
                 </span>
               )}
             </div>
           )
-        })}
+        })()}
       </aside>}
     </div>
   )
