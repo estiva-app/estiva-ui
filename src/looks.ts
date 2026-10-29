@@ -43,6 +43,13 @@ export const COUNT_TEXT_CLASSES = 'font-mono text-caption tabular-nums text-text
 /** A chip's words: Chip's label and Reaction's count. */
 export const CHIP_TEXT_CLASSES = 'text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums'
 
+/**
+ * The time of something a person said: one line, and in Signal the mono micro-type with even digits, as Peek's
+ * conversation draws a message's time (its MetaText). Only there: words a person wrote, and the latest conversation
+ * (Katerina, 29 Oct); "Updated" and other times keep the text's own type.
+ */
+export const TIME_CLASSES = 'whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums'
+
 /** Small secondary words that turn mono under signal: Kbd's key, CommandPalette's footer and MembersPill's count. */
 export const MONO_CAPTION_CLASSES = 'text-caption text-text-secondary signal:font-mono signal:text-small'
 
@@ -76,6 +83,12 @@ export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] ov
 export const WRITING_BOX_CLASSES =
   'relative bg-bg-inset border border-border-default rounded-lg p-3 flex flex-col gap-4 signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring'
 
+/** The 36px tile a file's type sits in: AttachmentCard's, and a link's kind in LinkRow, LinkCard and PartCard (Katerina, 29 Oct). */
+export const TYPE_TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+
+/** The bar down a quoted part's left edge: PartCard's blocks, and (proposal) a card's latest conversation. */
+export const QUOTE_BAR_CLASSES = 'border-l-2 border-border-default pl-3'
+
 /**
  * A link in text: the link icon before its words, in the link's colour and at the text's size, and one underline
  * under the icon and the words together, as Slack draws one, so it never reads as a chip (Katerina, 29 Oct: "icon
@@ -87,4 +100,7 @@ export const WRITING_BOX_CLASSES =
  * the link's colour and nothing is added to what is saved or copied. `Link`'s `text` look is this, and so are the
  * editors' links (`LINK_CLASS`).
  */
-export const WEB_LINK_CLASSES = "no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat before:content-[''] before:inline-block before:size-[1em] before:mr-0.5 before:align-[-0.125em] before:bg-current before:[mask:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.75%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M9%2015l6%20-6%27%2F%3E%3Cpath%20d%3D%27M11%206l.463%20-.536a5%205%200%200%201%207.071%207.072l-.534%20.464%27%2F%3E%3Cpath%20d%3D%27M13%2018l-.397%20.534a5.068%205.068%200%200%201%20-7.127%200a4.972%204.972%200%200%201%200%20-7.071l.524%20-.463%27%2F%3E%3C%2Fsvg%3E)_center/contain_no-repeat]"
+/** The line a link in text draws under everything in it, icon included: its own 1px background, since text-decoration skips an icon. */
+export const LINK_UNDERLINE_CLASSES = 'no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat'
+
+export const WEB_LINK_CLASSES = `${LINK_UNDERLINE_CLASSES} before:content-[''] before:inline-block before:size-[1em] before:mr-0.5 before:align-[-0.125em] before:bg-current before:[mask:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.75%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M9%2015l6%20-6%27%2F%3E%3Cpath%20d%3D%27M11%206l.463%20-.536a5%205%200%200%201%207.071%207.072l-.534%20.464%27%2F%3E%3Cpath%20d%3D%27M13%2018l-.397%20.534a5.068%205.068%200%200%201%20-7.127%200a4.972%204.972%200%200%201%200%20-7.071l.524%20-.463%27%2F%3E%3C%2Fsvg%3E)_center/contain_no-repeat]`

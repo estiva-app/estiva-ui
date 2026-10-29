@@ -8,10 +8,11 @@
  * Oct, kickoff). Inside a box being written in, `CommentBox` places it with the
  * files, and the card there reads as words on the files' fill (`inTheBox`).
  */
-import type { ReactNode } from 'react'
+import { useContext, type ReactNode } from 'react'
 import { RemoveBadge } from './AttachmentCard'
 import { LinkCard } from './LinkCard'
-import type { LinkState } from './linked'
+import { cn } from './cn'
+import { inTheBox, type LinkState } from './linked'
 
 interface AttachedCardBase {
   /** Draws the ✕. Without it the card shows with none, as it does to anyone but the author. */
@@ -25,8 +26,10 @@ interface AttachedCardBase {
 export type AttachedCardProps = AttachedCardBase & ({ link: LinkState; children?: never } | { link?: never; children: ReactNode })
 
 export function AttachedCard({ link, children, onRemove }: AttachedCardProps) {
+  const boxed = useContext(inTheBox)
   return (
-    <div className="group/card relative max-w-[480px]">
+    // At most 480px under a message or in a document, so it never runs the column's whole width; in a box it fills the box (Katerina, 29 Oct).
+    <div className={cn('group/card relative', !boxed && 'max-w-[480px]')}>
       {link ? <LinkCard link={link} /> : children}
       {onRemove && (
         <RemoveBadge

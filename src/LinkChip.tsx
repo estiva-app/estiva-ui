@@ -3,6 +3,10 @@
  * wrote), the key, the title cut short, the status as its shape. Loading
  * keeps the icon, since the kind is known from the address; not available says
  * so in words. Hovering it shows its card; a tap opens it.
+ *
+ * Look C (Katerina, 29 Oct): the key a step lighter than LinkKey's muted grey
+ * and 8px from the title; room for 40 characters of title, never more than its
+ * line, so in a narrow box it truncates instead of running past the edge.
  */
 import { Avatar } from './Avatar'
 import { InlineChip } from './InlineChip'
@@ -38,11 +42,20 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
   const said = linked.kind === 'message' && linked.author
   const chip = (
     <InlineChip
-      icon={said ? <Avatar name={said.name} src={said.picture} size={16} /> : <LinkedIcon kind={linked.kind} size={14} tone="inherit" />}
+      icon={said ? <Avatar name={said.name} src={said.picture} size={14} /> : <LinkedIcon kind={linked.kind} size={14} tone="inherit" />}
       href={linked.href}
-      className="max-w-[28ch]"
+      // Never wider than its line. With its hover card, the card's wrapper holds it to the line (max-w-full): a share of the
+      // line on the chip itself made the wrapper as wide as the whole title, and left a gap after the cut-short chip
+      // (Katerina, 29 Oct). Without one, it holds itself, less its own 2px each side.
+      // min-w-0: inside the wrapper it may shrink below its whole title, which then truncates.
+      className={preview ? 'min-w-0 max-w-[40ch]' : 'max-w-[min(40ch,calc(100%_-_4px))]'}
     >
-      {linked.key && <LinkKey>{linked.key}</LinkKey>}
+      {linked.key && (
+        // 4px more than the chip's gap after it, and kept whole: "ABC-2" never breaks at its hyphen.
+        <span className="mr-1 shrink-0 whitespace-nowrap">
+          <LinkKey tone="secondary">{linked.key}</LinkKey>
+        </span>
+      )}
       <span className="truncate">{said ? `${said.name}: ${linked.body ?? linked.title}` : linked.title}</span>
       {status?.colour && <StatusMark status={{ label: status.label, colour: status.colour }} />}
     </InlineChip>

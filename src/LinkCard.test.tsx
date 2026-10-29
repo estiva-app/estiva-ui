@@ -97,7 +97,7 @@ describe('LinkCard', () => {
 
   it('says it is not available, and where it may still open', () => {
     render(<LinkCard link={UNAVAILABLE} />)
-    expect(screen.getByText('Item — not available.')).toBeTruthy()
+    expect(screen.getByText('Issue — not available.')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Open in App one/ }).getAttribute('href')).toBe('#elsewhere')
   })
 })

@@ -592,9 +592,24 @@
           "takes": "number",
           "required": false,
           "note": "Face size in pixels; the overlap follows it. 24 is the members pill, 18 the replies row (Katerina, 2026-09-03) — that row drew its own stack for two months for want of this one number, and drifted while it did."
+        },
+        {
+          "name": "on",
+          "takes": "surface | inset | elevated",
+          "required": false,
+          "note": "What the stack sits on, so each face's ring is that colour and reads as a gap."
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "on",
+          "values": [
+            "surface",
+            "inset",
+            "elevated"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -2200,9 +2215,9 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active font-medium text-text-primary",
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active text-text-secondary",
-        "-mx-1 rounded-sm text-caption tabular-nums hover:bg-bg-active"
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover font-medium text-text-primary",
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover text-text-secondary",
+        "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover"
       ]
     },
     {
@@ -4511,10 +4526,10 @@
       "docPage": "src/Link.mdx",
       "app": null,
       "looks": [
-        "text-text-interactive hover:opacity-80 no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat before:content-[''] before:align-[-0.125em] before:bg-current",
-        "text-text-interactive hover:opacity-80 no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat before:content-[''] before:align-[-0.125em] before:bg-current after:rounded-md focus-visible:outline-none",
-        "text-text-interactive hover:opacity-80 no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat before:content-[''] before:align-[-0.125em] before:bg-current truncate",
-        "text-text-interactive hover:opacity-80 no-underline bg-[linear-gradient(currentColor,currentColor)] bg-[length:100%_1px] bg-bottom bg-no-repeat before:content-[''] before:align-[-0.125em] before:bg-current truncate after:rounded-md focus-visible:outline-none",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current after:rounded-md focus-visible:outline-none",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current truncate",
+        "text-text-interactive hover:opacity-80 before:content-[''] before:align-[-0.125em] before:bg-current truncate after:rounded-md focus-visible:outline-none",
         "hover:underline truncate after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary after:rounded-md focus-visible:outline-none",
         "underline underline-offset-2 hover:text-text-primary truncate",
@@ -4565,7 +4580,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/LinkCard.tsx",
-      "purpose": "The card it will become, drawn in bars at the card's own height.",
+      "purpose": "The card it will become, drawn in bars in the card's own shape: the tile, its two lines, then what it holds.",
       "purposeFrom": "comment",
       "props": [
         {
@@ -4590,8 +4605,7 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong",
-        "rounded-md border border-border-subtle leaf:border-border-strong"
+        "divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong"
       ]
     },
     {
@@ -4724,9 +4738,23 @@
           "takes": "text",
           "required": true,
           "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "muted | secondary",
+          "required": false,
+          "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "muted",
+            "secondary"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -4888,7 +4916,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/LinkRow.tsx",
-      "purpose": "A link alone on its line: one 36px row for every kind, with what it has in its corner.",
+      "purpose": "A link alone on its line: its kind in a file's tile, the title and its key under it, and on the title's line its state, comments and faces.",
       "purposeFrom": "page",
       "props": [
         {
@@ -4912,7 +4940,9 @@
       "storyId": "links-references-linkrow--default",
       "docPage": "src/LinkRow.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "text-caption text-text-muted whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums"
+      ]
     },
     {
       "name": "linkStateFrom",
@@ -4952,13 +4982,19 @@
           "name": "noun",
           "takes": "text",
           "required": true,
-          "note": "What it is, in a word: \"Item\". Drawn as \"Item — not available.\"."
+          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue — not available.\"."
         },
         {
           "name": "openIn",
           "takes": "{ app: string; href: string }",
           "required": false,
           "note": "Where it may still open, for someone who can: its app and address."
+        },
+        {
+          "name": "card",
+          "takes": "true/false",
+          "required": false,
+          "note": "In a card's place: a card's 12px round it."
         }
       ],
       "variants": [],
@@ -5077,6 +5113,12 @@
           "takes": "text",
           "required": false,
           "note": "What the reader calls it, quietly before the title: \"ABC-2\"."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the app calls it, from its description of its files: \"Issue\", \"Project\", \"Topic\", \"Document\"."
         },
         {
           "name": "subtitle",
@@ -6161,7 +6203,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/PartCard.tsx",
-      "purpose": "A part of something longer, shared live: its blocks as they are now, under the header of what it is part of.",
+      "purpose": "A part of something longer, shared live: its blocks as they are now, under the title of what it is part of.",
       "purposeFrom": "page",
       "props": [
         {
@@ -6198,7 +6240,7 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What it is part of, in a word, for \"A part of this item — not available.\"."
+          "note": "What it is part of, in a word, for \"A part of this issue — not available.\"."
         },
         {
           "name": "openIn",

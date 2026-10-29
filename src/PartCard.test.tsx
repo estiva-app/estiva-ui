@@ -13,13 +13,15 @@ describe('PartCard', () => {
         <p>The blocks</p>
       </PartCard>,
     )
-    expect(screen.getByRole('link', { name: /ABC-2.*Item one/ }).getAttribute('href')).toBe('#part')
+    expect(screen.getByRole('link', { name: 'Item one' }).getAttribute('href')).toBe('#part')
+    // The key under the heading, as a card's second line.
+    expect(screen.getByText('A part of ABC-2')).toBeTruthy()
     expect(screen.getByText('The blocks')).toBeTruthy()
   })
 
   it('says a part is not available in words', () => {
-    render(<PartCard state="unavailable" kind="issue" noun="Item" />)
-    expect(screen.getByText('A part of this item — not available.')).toBeTruthy()
+    render(<PartCard state="unavailable" kind="issue" noun="Issue" />)
+    expect(screen.getByText('A part of this issue — not available.')).toBeTruthy()
   })
 
   it('while it loads, is busy and shows nothing of it', () => {

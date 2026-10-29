@@ -136,6 +136,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Chip: ['type'],
   KindIcon: ['tone'],
   LinkedIcon: ['tone'],
+  LinkKey: ['tone'],
   CollapsibleSection: ['look'],
   Divider: ['tone', 'orientation'],
   EmptyState: ['scope'],

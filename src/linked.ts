@@ -91,6 +91,8 @@ export interface Linked {
   href: string
   /** What the reader calls it, quietly before the title: "ABC-2". */
   key?: string
+  /** What the app calls it, from its description of its files: "Issue", "Project", "Topic", "Document". Absent, the kind's own word. */
+  noun?: string
   /** The line under a card's title: what it is in. Drawn after the key. */
   subtitle?: string
   /** Its short summary, a sentence or two. Without one a card shows the title alone. */

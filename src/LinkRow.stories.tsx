@@ -42,8 +42,8 @@ export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
 export const NotAvailableLine: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
-      <LinkUnavailable kind="issue" noun="Item" openIn={{ app: 'App one', href: '#elsewhere' }} />
-      <LinkUnavailable kind="page" noun="Page" />
+      <LinkUnavailable kind="issue" noun="Issue" openIn={{ app: 'App one', href: '#elsewhere' }} />
+      <LinkUnavailable kind="page" noun="Document" />
     </div>
   ),
 }

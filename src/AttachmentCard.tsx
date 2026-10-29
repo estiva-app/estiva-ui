@@ -23,6 +23,7 @@ import { Lightbox } from './Lightbox'
 import { Link } from './Link'
 import { WithTooltip, type WithTooltipProps } from './Tooltip'
 import { cn } from './cn'
+import { TYPE_TILE_CLASSES } from './looks'
 
 /**
  * Something attached — a document or an image — drawn as a card.
@@ -88,7 +89,8 @@ const formatBytes = (bytes: number) => {
 /** `'PDF'`, `'ZIP'`, `'DOCX'`, `'FILE'`. */
 const typeLabelOf = (name: string) => extensionOf(name).toUpperCase() || 'FILE'
 
-const TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+/** A file's type tile: the one a link's kind sits in too. */
+const TILE_CLASSES = TYPE_TILE_CLASSES
 // @estiva-escape(no-copied-look): A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
 const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
 const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
@@ -144,8 +146,8 @@ function Truncating({ text, hint, className, wrapperClassName, placement }: { te
 
 /**
  * The round ✕ on the corner of something attached: a file waiting to be sent,
- * and an AttachedCard (Katerina 29 Oct: "we have an x icon used
- * for attachments so we could reuse that one"). Its parent is `relative`;
+ * and an AttachedCard (Katerina, 29 Oct: "we have an x icon used for
+ * attachments so we could reuse that one"). Its parent is `relative`;
  * `className` says when it shows.
  *
  * On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is

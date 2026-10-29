@@ -38,8 +38,10 @@ export function LinkPreview({ linked, block = false, children }: LinkPreviewProp
   const canHover = useCanHover()
   if (!canHover) return <>{children}</>
   // A row fills its column; PreviewCard's own trigger is inline and would shrink it to its words.
+  // Above the link by default, as a hover card over text sits (Katerina, 29 Oct); PreviewCard flips it below when there is no room.
+  // contentClassName p-0: the card brings its own 12px, as every card has; PreviewCard's 12px on top of it made 24 (Katerina, 29 Oct).
   return (
-    <PreviewCard side="bottom" content={<LinkCard link={{ state: 'ready', linked }} bare readOnly />} wrapperClassName={block ? 'grid w-full min-w-0 grid-cols-[minmax(0,1fr)]' : 'max-w-full'}>
+    <PreviewCard side="top" contentClassName="p-0" content={<LinkCard link={{ state: 'ready', linked }} bare readOnly />} wrapperClassName={block ? 'grid w-full min-w-0 grid-cols-[minmax(0,1fr)]' : 'max-w-full'}>
       {children}
     </PreviewCard>
   )

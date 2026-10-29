@@ -250,6 +250,7 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
     title: titleOf(object),
     href,
     ...(key ? { key } : {}),
+    ...(object.noun ? { noun: object.noun.charAt(0).toUpperCase() + object.noun.slice(1) } : {}),
     // Interop reads every file kind's summary into its subtitle (SPEC §6.12).
     ...(slots.subtitle?.value ? { summary: slots.subtitle.value } : {}),
     ...(status ? { status } : {}),
