@@ -11,7 +11,7 @@ import { TopBar } from './TopBar'
  * over it — no border, no background, clicks passing through.
  */
 const meta = {
-  title: 'App frame/Top bar/TopBar',
+  title: 'App frame/TopBar',
   component: TopBar,
   parameters: {
     layout: 'fullscreen',

@@ -9,7 +9,7 @@ const Body = ({ title = 'Item one', line = 'A line about the item.' }: { title?:
 )
 
 const meta = {
-  title: 'Page structure/Boxes & lines/Card',
+  title: 'Page structure/Card',
   component: Card,
   args: { fill: 'surface', className: 'w-[280px] p-3', children: <Body /> },
   argTypes: {

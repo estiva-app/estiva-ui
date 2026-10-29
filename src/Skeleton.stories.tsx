@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { SkeletonBar, SkeletonList, SkeletonRow } from './Skeleton'
 
 const meta = {
-  title: 'Status & feedback/Loading, empty, broken/Skeleton',
+  title: 'Status & feedback/Skeleton',
   component: SkeletonList,
 } satisfies Meta<typeof SkeletonList>
 

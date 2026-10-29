@@ -175,7 +175,7 @@ export function findInRegistries(registries: Registry[], query: string, { limit 
   return findings.slice(0, limit)
 }
 
-/** `http://localhost:6008/?path=/docs/menus-windows-menus-popover--docs`, or `null` where the entry has no page. */
+/** `http://localhost:6008/?path=/docs/menus-windows-popover--docs`, or `null` where the entry has no page. */
 export function docsLink(registry: Registry, entry: RegistryEntry): string | null {
   if (!entry.docsId) return null
   return registry.storybook.devUrl + registry.storybook.docsPath.replace('{docsId}', entry.docsId)

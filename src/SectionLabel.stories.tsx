@@ -4,7 +4,7 @@ import { SectionLabel } from './SectionLabel'
 
 /** Every section title renders through this span — a style change is one edit. Under Signal it becomes the mono uppercase micro-label. */
 const meta = {
-  title: 'Page structure/Sections/SectionLabel',
+  title: 'Page structure/SectionLabel',
   component: SectionLabel,
   args: { children: 'Starred' },
 } satisfies Meta<typeof SectionLabel>

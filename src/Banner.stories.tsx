@@ -3,7 +3,7 @@ import { IconPencilMinus, IconUserPlus } from '@tabler/icons-react'
 import { Banner } from './Banner'
 
 const meta = {
-  title: 'Status & feedback/Messages/Banner',
+  title: 'Status & feedback/Banner',
   component: Banner,
   parameters: {
     layout: 'fullscreen',

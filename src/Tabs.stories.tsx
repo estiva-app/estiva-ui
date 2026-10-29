@@ -5,7 +5,7 @@ import { Tabs, type TabDef } from './Tabs'
 
 /** A row of tabs; the selected one is a neutral fill, never the accent tint. */
 const meta = {
-  title: 'Page structure/Moving within a page/Tabs',
+  title: 'Page structure/Tabs',
   component: Tabs,
 } satisfies Meta<typeof Tabs>
 

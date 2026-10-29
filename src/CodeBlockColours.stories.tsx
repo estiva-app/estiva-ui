@@ -10,7 +10,7 @@ import { richTextClassName } from './RichText'
  * colours RichText reads it in. Change the theme to see each set.
  */
 const meta = {
-  title: 'Writing/Blocks/CodeBlockColours',
+  title: 'Writing/CodeBlockColours',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

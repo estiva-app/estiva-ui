@@ -28,7 +28,7 @@ import { Textarea } from './Textarea'
  * Nothing here is fetched: what "arrives later" is a timer.
  */
 const meta = {
-  title: 'Menus & windows/Windows/CommandPalette',
+  title: 'Menus & windows/CommandPalette',
   component: CommandPalette,
   parameters: {
     layout: 'fullscreen',

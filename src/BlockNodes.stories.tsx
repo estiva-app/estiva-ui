@@ -12,7 +12,7 @@ import { AttachmentNode, BlockId, Callout, Checklist, ReferenceNode, UnknownBloc
  * draws the reference and the file with its own views.
  */
 const meta = {
-  title: 'Writing/Blocks/BlockNodes',
+  title: 'Writing/BlockNodes',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

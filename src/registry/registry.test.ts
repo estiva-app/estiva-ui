@@ -72,7 +72,7 @@ describe('the registry builds', () => {
     // explained.
     expect(entry('MenuSub').purposeFrom).toBe('comment')
     expect(entry('MenuSub').docPage).toBeNull()
-    expect(entry('MenuSub').docsId).toBe('menus-windows-menus-menu--docs')
+    expect(entry('MenuSub').docsId).toBe('menus-windows-menu--docs')
     expect(entry('MenuSub').sourceFile).toBe('src/Menu.tsx')
   })
 
@@ -247,12 +247,12 @@ describe('the ids point at something', () => {
    */
   const REAL = [
     ['Button', 'buttons-links-button--docs', 'buttons-links-button--primary'],
-    ['Tabs', 'page-structure-moving-within-a-page-tabs--docs', 'page-structure-moving-within-a-page-tabs--with-counts'],
+    ['Tabs', 'page-structure-tabs--docs', 'page-structure-tabs--with-counts'],
     ['AvatarGroup', 'people-avatargroup--docs', 'people-avatargroup--three-members'],
-    ['Breadcrumb', 'page-structure-moving-within-a-page-breadcrumb--docs', 'page-structure-moving-within-a-page-breadcrumb--on-an-item'],
-    ['CommandPalette', 'menus-windows-windows-commandpalette--docs', 'menus-windows-windows-commandpalette--first-level'],
-    ['ChipInput', 'forms-fields-fields-chipinput--docs', 'forms-fields-fields-chipinput--type-to-search'],
-    ['EnterHint', 'menus-windows-menus-menu--docs', 'menus-windows-menus-menu--items'],
+    ['Breadcrumb', 'page-structure-breadcrumb--docs', 'page-structure-breadcrumb--on-an-item'],
+    ['CommandPalette', 'menus-windows-commandpalette--docs', 'menus-windows-commandpalette--first-level'],
+    ['ChipInput', 'forms-fields-chipinput--docs', 'forms-fields-chipinput--type-to-search'],
+    ['EnterHint', 'menus-windows-menu--docs', 'menus-windows-menu--items'],
   ] as const
 
   it.each(REAL)('%s', (name, docsId, storyId) => {

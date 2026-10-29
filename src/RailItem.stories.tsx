@@ -6,7 +6,7 @@ import { RailItem } from './RailItem'
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
 const meta = {
-  title: 'App frame/Sidebar & rail/RailItem',
+  title: 'App frame/RailItem',
   component: RailItem,
   args: { label: 'Item', href: '#', active: false, icon: placeholder },
   argTypes: { icon: { control: false } },

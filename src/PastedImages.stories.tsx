@@ -13,7 +13,7 @@ import { richTextClassName } from './RichText'
  * the text wins.
  */
 const meta = {
-  title: 'Writing/Pasting/PastedImages',
+  title: 'Writing/PastedImages',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

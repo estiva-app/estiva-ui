@@ -14,7 +14,7 @@ import { richTextClassName } from './RichText'
  * one is the app's, which knows how to resolve what the chip points at.
  */
 const meta = {
-  title: 'Writing/Links in a document/ReferenceCards',
+  title: 'Writing/ReferenceCards',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

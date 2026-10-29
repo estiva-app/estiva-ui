@@ -18,7 +18,7 @@ const SHOT = svg(
 const noop = () => {}
 
 const meta = {
-  title: 'Links & references/Attached or shared/AttachmentCard',
+  title: 'Links & references/AttachmentCard',
   component: AttachmentCard,
   parameters: { layout: 'padded' },
   args: { name: 'Q3-billing-summary.pdf', size: 2_412_000, href: 'https://example.com/f', onDownload: noop },

@@ -27,7 +27,7 @@ const personLeading = {
 }
 
 const meta = {
-  title: 'Forms & fields/Fields/ChipInput',
+  title: 'Forms & fields/ChipInput',
   component: ChipInput,
   parameters: {
     // The suggestion list portals to document.body at fixed coordinates —

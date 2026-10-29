@@ -4,7 +4,7 @@ import { ScrollArea } from './ScrollArea'
 
 /** A region that scrolls without taking width for its scrollbar. */
 const meta = {
-  title: 'Page structure/Columns & panels/ScrollArea',
+  title: 'Page structure/ScrollArea',
   component: ScrollArea,
   parameters: { controls: { disable: true } },
   args: { children: null },

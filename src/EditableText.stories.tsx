@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { EditableText } from './EditableText'
 
 const meta = {
-  title: 'Forms & fields/Fields/EditableText',
+  title: 'Forms & fields/EditableText',
   component: EditableText,
   args: {
     value: 'Team charter',

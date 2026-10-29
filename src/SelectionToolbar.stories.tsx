@@ -9,7 +9,7 @@ import { KeptSelection, SelectionToolbar, type MarkId } from './SelectionToolbar
  * text you have already selected. It follows the selection by itself.
  */
 const meta = {
-  title: 'Writing/While you type/SelectionToolbar',
+  title: 'Writing/SelectionToolbar',
   component: SelectionToolbar,
   parameters: { layout: 'padded' },
 } satisfies Meta

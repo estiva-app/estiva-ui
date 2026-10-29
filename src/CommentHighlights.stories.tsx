@@ -12,7 +12,7 @@ import { richTextClassName } from './RichText'
  * comment is now.
  */
 const meta = {
-  title: 'Writing/Comments on the text/CommentHighlights',
+  title: 'Writing/CommentHighlights',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

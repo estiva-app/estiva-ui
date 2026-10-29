@@ -9,7 +9,7 @@ import { InlineText, type InlineTextHandle } from './InlineText'
  * page; Escape or clicking away saves too.
  */
 const meta = {
-  title: 'Writing/The boxes/InlineText',
+  title: 'Writing/InlineText',
   component: InlineText,
   parameters: { layout: 'padded' },
   decorators: [

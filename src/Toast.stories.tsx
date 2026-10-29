@@ -4,7 +4,7 @@ import { Toast, ToastProvider, useToast } from './Toast'
 
 /** The pill that confirms something happened. Positioning and auto-dismiss live in ToastProvider. */
 const meta = {
-  title: 'Status & feedback/Messages/Toast',
+  title: 'Status & feedback/Toast',
   component: Toast,
   args: {
     label: 'Changes saved',

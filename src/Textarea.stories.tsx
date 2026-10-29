@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Textarea } from './Textarea'
 
 const meta = {
-  title: 'Forms & fields/Fields/Textarea',
+  title: 'Forms & fields/Textarea',
   component: Textarea,
   parameters: { layout: 'padded' },
   args: { placeholder: 'Summarise the outcome or decision…', className: 'h-[109px]' },

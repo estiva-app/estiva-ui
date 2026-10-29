@@ -11,7 +11,7 @@ const LONG = Array.from(
 
 /** Long content cut behind a fade, with "Show more" under it. Short content is drawn whole. */
 const meta = {
-  title: 'Page structure/Columns & panels/ShowMore',
+  title: 'Page structure/ShowMore',
   component: ShowMore,
   decorators: [(Story) => <div className="w-[320px]"><Story /></div>],
   args: { children: <p className="text-caption text-text-secondary">{LONG}</p> },

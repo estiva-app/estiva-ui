@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { UnreadDot } from './UnreadDot'
 
 const meta = {
-  title: 'Status & feedback/Small marks/UnreadDot',
+  title: 'Status & feedback/UnreadDot',
   component: UnreadDot,
 } satisfies Meta<typeof UnreadDot>
 

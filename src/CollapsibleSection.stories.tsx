@@ -7,7 +7,7 @@ import { NavItem } from './NavItem'
 
 /** A section that opens and closes: the header's title is the toggle, and the rows slide. */
 const meta = {
-  title: 'Page structure/Sections/CollapsibleSection',
+  title: 'Page structure/CollapsibleSection',
   component: CollapsibleSection,
   decorators: [(Story) => <div className="w-[280px]"><Story /></div>],
   args: { title: 'Section', contentClassName: 'gap-0.5', children: null },

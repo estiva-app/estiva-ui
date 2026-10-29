@@ -18,7 +18,7 @@ import { IdentityMenu, IdentityPanelSurface } from './IdentityMenu'
  * items that are not items.
  */
 const meta = {
-  title: 'App frame/Top bar/IdentityMenu',
+  title: 'App frame/IdentityMenu',
   component: IdentityPanelSurface,
   args: {
     me: {},

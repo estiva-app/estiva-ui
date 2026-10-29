@@ -4,7 +4,7 @@ import { Button } from './Button'
 import { ConfirmDialog } from './ConfirmDialog'
 
 const meta = {
-  title: 'Menus & windows/Windows/ConfirmDialog',
+  title: 'Menus & windows/ConfirmDialog',
   component: ConfirmDialog,
   parameters: {
     layout: 'fullscreen',

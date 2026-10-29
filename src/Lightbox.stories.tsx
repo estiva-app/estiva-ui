@@ -22,7 +22,7 @@ const TALL = svg(
 )
 
 const meta = {
-  title: 'Menus & windows/Windows/Lightbox',
+  title: 'Menus & windows/Lightbox',
   component: Lightbox,
   parameters: {
     layout: 'fullscreen',
