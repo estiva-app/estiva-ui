@@ -27,7 +27,9 @@ import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { TooltipTrigger } from '../../src/Tooltip'
-import { LinkRow } from '../../src/LinkRow'
+import { LinkCard } from '../../src/LinkCard'
+import type { LinkState } from '../../src/linked'
+import { ScrollArea } from '../../src/ScrollArea'
 import { PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
 import {
   FILES,
@@ -356,6 +358,18 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   // The topics a thread can go to, the one you are on first.
   const placesOf = (m: Message) =>
     TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t)).sort((a, b) => Number(b.id === topic.id) - Number(a.id === topic.id))
+  /** A listed file's card with its conversation in this topic: how much was said, the latest message, and when. */
+  const fileCard = (f: FileRow): LinkState => {
+    const said = every.filter((m) => m.on === f.id)
+    const last = said.at(-1)
+    const card = cardOf(f, last?.at ?? '')
+    if (card.state !== 'ready' || said.length === 0) return card
+    const count = said.reduce((n, m) => n + 1 + (m.thread?.length ?? 0), 0)
+    return {
+      ...card,
+      linked: { ...card.linked, conversation: { count, href: '#' }, latest: last && { author: { name: PEOPLE[last.by].name }, body: last.body, at: last.at } },
+    }
+  }
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
   return (
@@ -368,7 +382,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             <>
               <TopicFacts topic={topic} />
               {!chatOnly && (
-                <IconButton aria-label={side ? 'Hide the listed files' : 'Show the listed files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                <IconButton aria-label={side ? 'Hide the files' : 'Show the files'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
                   <IconLayoutSidebarRight {...icon16} />
                 </IconButton>
               )}
@@ -420,13 +434,12 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
         />
       )}
       {!chatOnly && !opened && side && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
-        {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. */}
-        <div className="flex items-baseline justify-between">
-          <SectionLabel tone="muted">Activity</SectionLabel>
-          <span className="text-caption text-text-muted">Only you see this</span>
-        </div>
-        <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} />
-        <SectionLabel tone="muted">Listed files</SectionLabel>
+        {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. About three rows show; the rest scroll inside. */}
+        <SectionLabel tone="muted">Activity</SectionLabel>
+        <ScrollArea className="shrink-0" viewportClassName="max-h-[300px]">
+          <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} />
+        </ScrollArea>
+        <SectionLabel tone="muted">Files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(['ship', 'leaf'] as const).map((a) => {
           const of = listed.filter((f) => f.app === a)
@@ -435,7 +448,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           return (
             <div key={a} className="flex flex-col gap-1">
               <span className="text-caption text-text-secondary">{a === 'ship' ? 'Ship' : 'Leaf'}</span>
-              {/* The package's row widget (Miky, 29 Oct); a click shows the file's conversation here instead of leaving. */}
+              {/* The package's card, for its details (Miky, 29 Oct); a click shows the file's conversation here instead of leaving. */}
               {open.map((f) => (
                 <div
                   key={f.id}
@@ -445,8 +458,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
                     setView({ file: f.id })
                   }}
                 >
-                  {/* No made-up time: the fixtures don't say when each file changed. */}
-                  <LinkRow link={cardOf(f, '')} />
+                  <LinkCard link={fileCard(f)} />
                 </div>
               ))}
               {of.length > open.length && (
