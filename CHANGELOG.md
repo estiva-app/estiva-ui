@@ -36,6 +36,45 @@ things are, and her notes on the parts she found there.
   thing keeps its kind's icon and gains nothing. The browser's underline skips
   an icon, so the line is the link's own background, 1px of its colour; the
   icon is a mask on `::before`, so nothing is added to what is saved or copied.
+- **The link widgets have a new look, C** (Katerina, 29 Oct: "Many things look
+  unprofessional, messy, misaligned"; she chose it from seven, drawn side by
+  side). A link and a file are one family: a link's kind sits in the 36px tile
+  a file's type has (`TYPE_TILE_CLASSES`, written once for both).
+  - **LinkRow**: the tile, the title and one line under it (the key and what it
+    is: "ABC-2 · Issue"), and on the title's line the state or ring, the comment
+    count (now on every row), then the faces at the far right. 48px, not 36.
+    Words a person wrote: their face, their name with the time beside it, the
+    words under them.
+  - **LinkCard** starts as its row does; then its summary, its items in a box of
+    their own, its newest conversation as a quote (12px under its label), and
+    the footer. Words a person wrote: a 24px face, the name, the time beside it
+    as the link, the words in the secondary colour. A title keeps to one line.
+  - **PartCard** starts as a card does, "A part of ABC-2" under the title, its
+    blocks behind a quote bar that starts where the tile does.
+  - **LinkChip** keeps its look: its key a step lighter (`LinkKey`'s new
+    `tone="secondary"`) and 8px from the title; up to 40 characters.
+  - **Not available** draws as the card or row it would have been, on the same
+    fill and edge.
+  - Loading cards and rows take the same shapes.
+  - **What it is, in a word, only from the apps' own words**: `Linked` gains
+    `noun`, which `linkedFrom` fills from the file's own noun ("issue",
+    "project"); absent, the kind's: Issue, Project, Topic, Document. Another
+    app's file and words a person wrote have none. The story examples no
+    longer carry a `subtitle` ("Group one", "Shelf one"): no app sends one.
+  - Times of what people said (words a person wrote, the latest conversation)
+    take Peek's conversation type in Signal: mono, small, even digits
+    (`TIME_CLASSES`).
+- **Cards and rows stop at 480px** in a message or a document; inside a box
+  being written in they fill the box. Leaf's document card was the page's
+  whole width.
+- **The link preview opens above** its chip or row, and below only when there
+  is no room; its card has 12px round its words, as every card (PreviewCard's
+  own 12px is off for it: it was 24).
+- **The comment count is a small button's shape**: 24px tall like the pickers
+  beside it, 6px each side, 14px from the faces or ring next to it; it was
+  15px tall. Its number, and the progress ring's, in the small size (10px),
+  the ring 6px from its count. A status and a person drawn as words sit 16px
+  apart.
 - **ReferenceCards says "deprecated"** beside its name in the sidebar, and its
   page opens with what to use instead (LinkPlaces). Any part's stories can
   carry the `deprecated` tag; `.storybook/manager.ts` writes the word.
@@ -43,6 +82,8 @@ things are, and her notes on the parts she found there.
 ### Added
 
 - `inTheBox`: the context `CommentBox` provides around what is in its box.
+- `Linked.noun`, `LinkKey`'s `tone`, `AvatarGroup`'s `on` (the colour its faces'
+  ring takes: the card's, not the page's, which drew a dark outline round them).
 - `Popover`'s `anchor` takes a place that moves, `{ getBoundingClientRect,
   contextElement }`, asked again each time the panel is placed.
 - `SuggestionMenu`'s `rect` takes a function, Tiptap's `clientRect`.
@@ -53,6 +94,9 @@ things are, and her notes on the parts she found there.
   handed the caret's rect as they opened and stayed on the screen while the
   text scrolled away under them. `suggestionPopup` now hands `clientRect`
   itself, with the editor as the element whose scrolling moves it.
+- **A card in a narrow comment box stays inside the box** however long its
+  title (it ran past the box's edge), and **a chip never runs past its line**:
+  it truncates, with no gap after it.
 - **A link in the comment box looks like a link.** Tiptap's link had no class
   there, so linked words read as plain words; it now takes the document's
   `LINK_MARK_ATTRIBUTES`.
