@@ -27,7 +27,8 @@ import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { TooltipTrigger } from '../../src/Tooltip'
-import { PeekBox, PeekCard, SentCard, ThreadPanel } from './PeekConversation'
+import { LinkRow } from '../../src/LinkRow'
+import { PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
 import {
   FILES,
   MESSAGES,
@@ -418,7 +419,13 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           onClose={() => setThread(null)}
         />
       )}
-      {!chatOnly && !opened && side && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      {!chatOnly && !opened && side && <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+        {/* Yours alone, above the files (Miky, 29 Oct): mentions, highlights and reactions to your messages. */}
+        <div className="flex items-baseline justify-between">
+          <SectionLabel tone="muted">Activity</SectionLabel>
+          <span className="text-caption text-text-muted">Only you see this</span>
+        </div>
+        <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} />
         <SectionLabel tone="muted">Listed files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
         {(['ship', 'leaf'] as const).map((a) => {
@@ -428,14 +435,19 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           return (
             <div key={a} className="flex flex-col gap-1">
               <span className="text-caption text-text-secondary">{a === 'ship' ? 'Ship' : 'Leaf'}</span>
+              {/* The package's row widget (Miky, 29 Oct); a click shows the file's conversation here instead of leaving. */}
               {open.map((f) => (
-                <button key={f.id} type="button" aria-pressed={chosen?.id === f.id} onClick={() => setView({ file: f.id })} className={cn('flex items-start gap-2 rounded-md px-2 py-1 text-left hover:bg-bg-hover', chosen?.id === f.id && 'bg-bg-selected')}>
-                  <KindIcon kind={kindOf(f)} className="mt-0.5" />
-                  <span className="flex flex-col">
-                    <span className="text-body-2 text-text-primary">{f.title}</span>
-                    <span className="text-caption text-text-muted">{teamOf(f.team).name}</span>
-                  </span>
-                </button>
+                <div
+                  key={f.id}
+                  className={cn('rounded-md', chosen?.id === f.id && 'bg-bg-selected')}
+                  onClickCapture={(e) => {
+                    e.preventDefault()
+                    setView({ file: f.id })
+                  }}
+                >
+                  {/* No made-up time: the fixtures don't say when each file changed. */}
+                  <LinkRow link={cardOf(f, '')} />
+                </div>
               ))}
               {of.length > open.length && (
                 <span className="flex items-center gap-2 px-2 py-1 text-caption text-text-muted">

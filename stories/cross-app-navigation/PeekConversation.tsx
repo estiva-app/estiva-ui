@@ -52,7 +52,7 @@ const HIGHLIGHT: Record<HighlightType, { label: string; fill: string }> = {
   summary: { label: 'Summary', fill: 'bg-accent-primary' },
 }
 
-function cardOf(file: FileRow, updated: string): LinkState {
+export function cardOf(file: FileRow, updated: string): LinkState {
   const [done, total] = file.progress?.split(' of ').map(Number) ?? []
   return {
     state: 'ready',
@@ -479,6 +479,72 @@ function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places
         </Button>
       </div>
     </form>
+  )
+}
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+/** "Tue 11:40" as minutes into the week, to put the activity in order; "Now" is last. */
+const minutesOf = (at: string) => {
+  const [day, time] = at.split(' ')
+  if (!time) return Infinity
+  const [h, m] = time.split(':').map(Number)
+  return DAYS.indexOf(day) * 1440 + h * 60 + m
+}
+
+interface ActivityItem {
+  key: string
+  thread: string
+  by: PersonId
+  at: string
+  what: ReactNode
+  mark: ReactNode
+  on?: string
+}
+
+/**
+ * What happened in the topic that is about you, newest first (Miky, 29 Oct):
+ * someone mentioned you, highlighted a reply, or reacted to your message.
+ * It is yours alone, so it never changes what Main shows anyone.
+ */
+function activityFor(viewer: PersonId, messages: Message[]): ActivityItem[] {
+  const items: ActivityItem[] = []
+  for (const m of messages) {
+    if (m.mentions === viewer && m.by !== viewer)
+      items.push({ key: `${m.id}-mention`, thread: m.id, by: m.by, at: m.at, on: m.on, what: 'mentioned you', mark: <span className="text-body-2-strong text-accent-text">@</span> })
+    for (const [i, r] of (m.thread ?? []).entries()) {
+      if (r.highlight && r.by !== viewer)
+        items.push({ key: `${m.id}-h${i}`, thread: m.id, by: r.by, at: r.at, on: m.on, what: <>marked a {HIGHLIGHT[r.highlight].label}</>, mark: <span className={cn('size-2.5 rounded-sm', HIGHLIGHT[r.highlight].fill)} /> })
+    }
+    if (m.by === viewer)
+      for (const r of m.reactions ?? [])
+        for (const who of r.by.filter((p) => p !== viewer))
+          items.push({ key: `${m.id}-${r.emoji}-${who}`, thread: m.id, by: who, at: m.at, on: m.on, what: 'reacted to your message', mark: <span className="text-body-2">{r.emoji}</span> })
+  }
+  return items.sort((a, b) => minutesOf(b.at) - minutesOf(a.at))
+}
+
+/** The topic's activity for you, above its listed files: each row opens its thread. */
+export function TopicActivity({ viewer, messages, onOpen }: { viewer: PersonId; messages: Message[]; onOpen: (thread: string) => void }) {
+  const items = activityFor(viewer, messages)
+  return (
+    <div className="flex flex-col gap-1">
+      {items.length === 0 && <p className="px-2 text-body-2 text-text-muted">Nothing for you yet.</p>}
+      {items.map((a) => (
+        <button key={a.key} type="button" onClick={() => onOpen(a.thread)} className="flex items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-bg-hover">
+          <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden>
+            {a.mark}
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-body-2 text-text-primary">
+              <span className="text-body-2-strong">{nameOf(a.by)}</span> {a.what}
+            </span>
+            <span className="truncate text-caption text-text-muted">
+              {a.on ? fileOf(a.on).title : 'On the topic'} · {a.at}
+            </span>
+          </span>
+        </button>
+      ))}
+    </div>
   )
 }
 
