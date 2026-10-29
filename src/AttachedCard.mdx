@@ -1,0 +1,55 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as AttachedCardStories from './AttachedCard.stories'
+
+<Meta of={AttachedCardStories} />
+
+# AttachedCard
+
+The one card attached to a piece of text, and the ✕ that removes it.
+
+<Canvas of={AttachedCardStories.WithRemove} />
+
+## When
+
+- **while writing** — `CommentBox` places it inside the box, with the files, on their fill, its values as words. Write nothing for that.
+- **after sending** — under the text, its values as pickers.
+- **no ✕** — no `onRemove`: to anyone but who wrote it.
+
+The ✕ is a file's: round, on the card's corner, shown when the pointer is over the card or the ✕ has focus, and always on a screen that cannot hover, so a tap reaches it.
+
+## When not
+
+- A file → **AttachmentCard**.
+- A link alone on its line, with no card chosen → **LinkRow**.
+- A part of something longer: it has no ✕ → **PartCard**.
+
+## How
+
+```tsx
+import { AttachedCard } from '@estiva-app/ui'
+
+<AttachedCard link={link} onRemove={isAuthor ? removeCard : undefined} />
+```
+
+- **Which link gets the card is the app's**, by the rule every app reads by (`defaultCardOf` in `@estiva-app/protocol`). This draws the one it is given.
+- `onRemove` is the app's: before sending it drops the card from what will be sent; after, it sends the edit that removes it.
+- It is at most 480px wide.
+- **An app that draws its sent cards itself** passes its card as `children` instead of `link`, so the card in a box and under a sent message are the same: `<AttachedCard onRemove={remove}>{appCard}</AttachedCard>`. `CommentBox` draws its card this way.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Places the ✕ on the card's corner, as a file's | a remove button of your own |
+| Reveals the ✕ on hover and focus, and always shows it on touch | a hover or touch check |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Reaches the ✕, and shows it |
+| Enter, Space | Removes the card |
+
+## Props
+
+<Controls of={AttachedCardStories.NoRemove} />

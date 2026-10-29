@@ -217,7 +217,7 @@ const ITEM_URL = 'https://app.example/item/one'
 const PART_URL = 'https://app.example/page/two#block'
 
 /**
- * What the app reads under the box: one item named gets its card; a link to
+ * What the app reads for the box: one item named gets its card; a link to
  * a block of something is its live part, and then no card.
  */
 const under: BoxUnder = {
@@ -244,11 +244,20 @@ const under: BoxUnder = {
   },
 }
 
-/** One item named: its card under the box, with ✕ to take it off. Take the link out and put it back and the card comes back. */
-export const CardUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} `) }
+/** One item named: its card in the box, under the text; point at it for the ✕ that takes it off. Take the link out and put it back and the card comes back. */
+export const WithACard: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} `) }
 
-/** A link to a block: its live part under the box, and no card. */
-export const PartUnderTheBox: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
+/** A file and a card: both in the box, on the same fill, with the same ✕ on hover. */
+export const WithAFileAndACard: Story = {
+  render: () => <Live under={under} />,
+  play: async (ctx) => {
+    await pickAFile(ctx)
+    await typeInto(`As in ${ITEM_URL} `)(ctx)
+  },
+}
+
+/** A link to a block: its live part in the box, and no card. */
+export const WithAPart: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
 
 /** Editing: a link the edit adds shows the card Save will add. A part never shows here, since an edit carries none. */
 export const EditingWithACard: Story = {

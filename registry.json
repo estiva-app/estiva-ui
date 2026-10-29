@@ -5,7 +5,7 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.90.2",
-    "exports": 210,
+    "exports": 211,
     "typeExports": 211,
     "files": null
   },
@@ -311,6 +311,32 @@
       "looks": []
     },
     {
+      "name": "AttachedCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AttachedCard.tsx",
+      "purpose": "The one card attached to a piece of text, and the ✕ that removes it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "onRemove",
+          "takes": "a handler",
+          "required": false,
+          "note": "Draws the ✕. Without it the card shows with none, as it does to anyone but the author."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "links-references-attachedcard--docs",
+      "storyId": "links-references-attachedcard--with-remove",
+      "docPage": "src/AttachedCard.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "AttachmentCard",
       "repo": "estiva-ui",
       "kind": "component",
@@ -462,7 +488,7 @@
         "text-small tracking-wide leading-tight truncate text-error-default",
         "text-small tracking-wide leading-tight truncate text-warning-default",
         "text-small tracking-wide leading-tight truncate text-text-secondary",
-        "-top-1.5 -right-1.5 rounded-full bg-bg-elevated border border-border-strong text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity",
+        "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100",
         "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
       ]
     },
@@ -1060,40 +1086,6 @@
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted overflow-hidden",
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed",
         "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed overflow-hidden"
-      ]
-    },
-    {
-      "name": "CardUnder",
-      "repo": "estiva-ui",
-      "kind": "component",
-      "importPath": "@estiva-app/ui",
-      "sourceFile": "src/CardUnder.tsx",
-      "purpose": "The one card added under a piece of text, and the ✕ that removes it.",
-      "purposeFrom": "page",
-      "props": [
-        {
-          "name": "onRemove",
-          "takes": "a handler",
-          "required": false,
-          "note": "Draws the ✕. Without it the card shows with none, as it does to anyone but the author."
-        },
-        {
-          "name": "revealOnHover",
-          "takes": "true/false",
-          "required": false,
-          "note": "The ✕ waits for hover or focus: under text already sent."
-        }
-      ],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "links-references-cardunder--docs",
-      "storyId": "links-references-cardunder--while-writing",
-      "docPage": "src/CardUnder.mdx",
-      "app": null,
-      "looks": [
-        "opacity-0 transition-opacity focus-within:opacity-100 [@media(hover:none)]:opacity-100"
       ]
     },
     {
@@ -2049,7 +2041,7 @@
           "name": "under",
           "takes": "BoxUnder",
           "required": false,
-          "note": "The card and parts under the box while something is written, with ✕ on the card."
+          "note": "The card and parts in the box while something is written, with the files, ✕ on the card."
         },
         {
           "name": "showsAtOnce",
@@ -4071,6 +4063,25 @@
         "bg-bg-elevated border border-border-subtle rounded-md",
         "text-caption font-medium text-text-primary truncate"
       ]
+    },
+    {
+      "name": "inTheBox",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "Inside a box being written in (CommentBox): a card or a part there sits on a file's fill, `elevated`, as the files beside it do, and a card's values read as words, not pickers, until it is sent (Katerina, 29 Oct).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
     },
     {
       "name": "isApplePlatform",

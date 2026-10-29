@@ -8,31 +8,34 @@
  * While it loads it holds the card's own height, so what is around it does
  * not jump; not available is one line.
  */
+import { useContext } from 'react'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
 import { Card } from './Card'
 import { Link } from './Link'
-import type { Linked, LinkedKind, LinkState, LoadingShape } from './linked'
+import { inTheBox, type Linked, type LinkedKind, type LinkState, type LoadingShape } from './linked'
 import { CommentCount, LinkedIcon, LinkKey, LinkPickers, ProgressRing, StatusMark } from './LinkParts'
 import { LinkUnavailable } from './LinkRow'
 import { SkeletonBar } from './Skeleton'
 
 export interface LinkCardProps {
   link: LinkState
-  /** The values read as words, never pickers: the hover preview. */
+  /** The values read as words, never pickers: the hover preview. In a box being written in (`inTheBox`) they always are. */
   readOnly?: boolean
   /** No frame of its own: inside a box that draws one, as the hover preview's. */
   bare?: boolean
 }
 
 export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps) {
+  // In a box being written in: the files' fill, and the values as words until it is sent.
+  const boxed = useContext(inTheBox)
   if (link.state === 'loading') return <LinkCardLoading kind={link.kind} shape={link.shape} />
   if (link.state === 'unavailable') return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} />
   const { linked } = link
-  const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly} />
+  const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly || boxed} />
   if (bare) return <div className="flex flex-col gap-2 p-3">{body}</div>
   return (
-    <Card fill="inset" className="flex flex-col gap-2 p-3">
+    <Card fill={boxed ? 'elevated' : 'inset'} className="flex flex-col gap-2 p-3">
       {body}
     </Card>
   )
@@ -147,9 +150,10 @@ export interface LinkCardLoadingProps {
 /** The card it will become, drawn in bars at the card's own height. */
 export function LinkCardLoading({ kind, shape }: LinkCardLoadingProps) {
   const { subtitle = false, summary = true, rows = 0, latest = false, ring = false, footer = 'line' } = shape ?? KIND_SHAPE[kind]
+  const boxed = useContext(inTheBox)
   return (
     <div className="animate-skeleton-in" aria-busy>
-      <Card fill="inset" aria-hidden className="flex flex-col gap-2 p-3">
+      <Card fill={boxed ? 'elevated' : 'inset'} aria-hidden className="flex flex-col gap-2 p-3">
         <div className="flex h-[19.6px] items-center gap-2">
           <LinkedIcon kind={kind} />
           <SkeletonBar on="inset" className="h-3.5 w-1/2" />

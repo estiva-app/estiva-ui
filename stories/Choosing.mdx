@@ -112,7 +112,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A link to something an app looked up, in a sentence | **LinkChip** — hover shows its card; loading and "not available" drawn for you. **LinkChips** (editor) turns a URL in a document into one |
 | A link alone on its line | **LinkRow** — one 36px line for every kind; **LinkUnavailable** when it cannot be read |
 | A link's card: what a row cannot hold, with the pickers the reader may use | **LinkCard** — `onChange` on a picker only for a reader who may change it; **LinkCardLoading** at its height |
-| The one card under a piece of text, with the ✕ that removes it | **CardUnder** — `revealOnHover` once it is sent |
+| The one card attached to a piece of text, with the ✕ that removes it | **AttachedCard** — in a box, `CommentBox` places it with the files |
 | A link's card on hover, read only | **LinkPreview** — LinkChip and LinkRow already wrap themselves in it |
 | A part of something longer, shared live | **PartCard** — the app draws the blocks |
 | A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |

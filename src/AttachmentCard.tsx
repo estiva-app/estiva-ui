@@ -142,6 +142,34 @@ function Truncating({ text, hint, className, wrapperClassName, placement }: { te
   )
 }
 
+/**
+ * The round ✕ on the corner of something attached: a file waiting to be sent,
+ * and an AttachedCard (Katerina 29 Oct: "we have an x icon used
+ * for attachments so we could reuse that one"). Its parent is `relative`;
+ * `className` says when it shows.
+ *
+ * On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is
+ * a 24px square that fills on hover, and this is Peek's 20px round badge.
+ */
+export function RemoveBadge({ label, onRemove, className }: { label: string; onRemove: () => void; className?: string }) {
+  return (
+    <BaseButton
+      type="button"
+      aria-label={label}
+      className={cn(
+        'absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary transition-opacity',
+        className,
+      )}
+      onClick={(event) => {
+        event.stopPropagation()
+        onRemove()
+      }}
+    >
+      <IconX size={11} stroke={1.75} />
+    </BaseButton>
+  )
+}
+
 export interface AttachmentCardProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
   /** The name it was attached under, extension included: it decides the icon and the type label. */
   name: string
@@ -387,22 +415,14 @@ export function AttachmentCard({
             className={cn(NOTE_CLASSES, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
           />
         </div>
-        {/* On Base UI's Button, as InputChip's ✕ is (Katerina, 2026-09-14): IconButton is a 24px square
-            that fills on hover, and this is Peek's 20px round badge on the card's corner. */}
         {onRemove && (
-          <BaseButton
-            type="button"
-            aria-label={`Remove ${name}`}
+          <RemoveBadge
+            label={`Remove ${name}`}
+            onRemove={onRemove}
             // Shows with the card's hover and with keyboard focus, as Download does: hover-only left it invisible to
             // the keyboard that had reached it (UIG-14, C4, Katerina 19 September).
-            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-bg-elevated border border-border-strong flex items-center justify-center text-text-secondary hover:text-text-primary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
-            onClick={(event) => {
-              event.stopPropagation()
-              onRemove()
-            }}
-          >
-            <IconX size={11} stroke={1.75} />
-          </BaseButton>
+            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
+          />
         )}
       </Card>
     )

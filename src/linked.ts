@@ -1,6 +1,6 @@
 /**
  * What a link stands for, as the link widgets draw it (LinkChip, LinkRow,
- * LinkCard, LinkPreview, CardUnder). The app builds it from its own lookup —
+ * LinkCard, LinkPreview, AttachedCard). The app builds it from its own lookup —
  * every Estiva app from `@estiva-app/interop`'s projection — and hands it in
  * whole: the words, the addresses, and the changes the reader may make. The
  * widgets look nothing up, and keep nothing but what a reader does to them.
@@ -8,7 +8,15 @@
  * The shape follows the prototype Miky approved (Widgets 2, 15 Oct; why:
  * https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-link-on-words-counts-toward-the-card.md).
  */
+import { createContext } from 'react'
 import type { ThingKind } from './KindIcon'
+
+/**
+ * Inside a box being written in (CommentBox): a card or a part there sits on a
+ * file's fill, `elevated`, as the files beside it do, and a card's values read
+ * as words, not pickers, until it is sent (Katerina, 29 Oct). False anywhere else.
+ */
+export const inTheBox = createContext(false)
 
 /** What a link stands for, by its icon. `page` draws a page of text. */
 export type LinkedKind = ThingKind | 'page'

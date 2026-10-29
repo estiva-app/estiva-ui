@@ -15,7 +15,7 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 - `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
 - `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words. Its files can be taken off, and with `upload` and `edit.writesFiles` (the app's save writes them) more added. An app that closes the box as Save is pressed and reopens it on a refusal passes `edit.refused`, which is said under the box as it opens.
 - `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file. The edit box has no paperclip, since it shows only its keys; the other three work there too.
-- `under` to show, while something is written, the one card it will be sent with (✕ takes it off) and the live part of each block link, drawn as the app draws them under a sent message. An edit box shows the card and no part.
+- `under` to show, while something is written, the one card it will be sent with and the live part of each block link. They sit inside the box with the files, on the files' fill; the card's ✕ is a file's, on hover, and its values read as words until it is sent. An edit box shows the card and no part.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
 - `marked` when the app has its own reason for the bar down the text, besides an urgent mention, which always draws it.
 - `onEditor` when something outside the box writes into it: the app keeps the editor it is handed and inserts into the box last used.
@@ -28,7 +28,7 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 
 <Canvas of={CommentBoxStories.LongDraft} />
 
-<Canvas of={CommentBoxStories.CardUnderTheBox} />
+<Canvas of={CommentBoxStories.WithACard} />
 
 ## When not
 
@@ -84,7 +84,7 @@ It does these by itself. Write none of them around it.
 | A refusal: the words back, and a line under the box | a toast, or putting text back |
 | The draft, written as you type and forgotten once sent | an update listener |
 | Files: picking, pasting, dropping, uploading, failing; Send waits for an upload and holds on a failed file until its ✕ removes it | a file list |
-| The card under the box, its ✕, and a ✕ forgotten once the link is taken out; a refused send puts back what ✕ took off | a card state |
+| The card in the box, its ✕, and a ✕ forgotten once the link is taken out; a refused send puts back what ✕ took off | a card state |
 | A URL pasted over words links them when a message can carry them as a link (one line of plain words, no bracket, no chip, no `)` in the URL); otherwise the URL goes in after the words. The caret goes after the link, so the next Enter sends. Typing after linked words is not linked | a paste handler |
 | A long draft stops at half the window and scrolls inside the box, in the send box and the edit box | a height or a scroll container |
 | The bar down the text while an urgent mention is in the box | an urgent check |
