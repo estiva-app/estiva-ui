@@ -7215,7 +7215,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui/editor",
       "sourceFile": "src/ReferenceCards.ts",
-      "purpose": "A chip in a document can ask for a card after its line: compact, detailed or none.",
+      "purpose": "Deprecated. A new editor uses LinkPlaces.",
       "purposeFrom": "page",
       "props": [],
       "variants": [],

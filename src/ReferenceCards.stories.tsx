@@ -15,6 +15,8 @@ import { richTextClassName } from './RichText'
  */
 const meta = {
   title: 'Writing/ReferenceCards',
+  // On its way out: the sidebar says "deprecated" beside its name (.storybook/manager.ts).
+  tags: ['deprecated'],
   parameters: { layout: 'padded' },
 } satisfies Meta
 
