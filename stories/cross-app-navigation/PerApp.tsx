@@ -18,7 +18,7 @@ import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
 import { AvatarGroup } from '../../src/AvatarGroup'
-import { ActivityVariant, NewDot, hasNewActivity } from './PeekConversation'
+import { ActivityVariant, Following, NewDot, hasNewActivity } from './PeekConversation'
 import { DESK, DMS, FILES, PEOPLE, TEAMS, TOPICS, canReadFile, dmTitle, canReadTopic, fileOf, spacesOf, teamOf, topicOf, type App, type DeskRow, type FileRow, type PersonId, type Topic } from './fixtures'
 import {
   APPS,
@@ -501,18 +501,17 @@ function PeekFrame({ viewer, place, rail, onRail, onOpen, onShow, onApp, identit
 export interface PerAppProps {
   viewer?: PersonId
   start?: Place
-  /**
-   * Where Activity lives: its own column beside the files, or behind a dot by
-   * the title (Miky, 29 Oct, to compare); `follow` is the dot with the topic's
-   * icon as how you follow it, Important or All, in place of All | Main.
-   */
-  activity?: 'column' | 'dot' | 'follow'
+  /** Where Activity lives: its own column beside the files, or behind a dot by the title (Miky, 29 Oct, to compare). */
+  activity?: 'column' | 'dot'
 }
 
 export function PerApp(props: PerAppProps) {
   return (
     <ActivityVariant.Provider value={props.activity ?? 'column'}>
-      <PerAppInner {...props} />
+      {/* The topic's icon is how you follow it, in both (Miky, 29 Oct). */}
+      <Following.Provider value>
+        <PerAppInner {...props} />
+      </Following.Provider>
     </ActivityVariant.Provider>
   )
 }

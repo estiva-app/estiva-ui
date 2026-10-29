@@ -354,13 +354,15 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
  * `main` is the topic they are on, when it has a Main; `sentTo` says where it
  * already went, and by whom.
  */
+/** Where Activity lives: its own column beside the files, or behind a dot by the title (Miky, 29 Oct, to compare). */
+export const ActivityVariant = createContext<'column' | 'dot'>('column')
 /**
- * Which story is drawn: Activity in the column, behind the dot, or behind the
- * dot with the topic's icon as how you follow it (Miky, 29 Oct).
+ * How you follow a topic is its icon, Important or All, in place of All | Main
+ * (Miky, 29 Oct): on in Per app, off in Lens, which stays as it was to compare.
  */
-export const ActivityVariant = createContext<'column' | 'dot' | 'follow'>('column')
-/** Main is Important in the Follow story (Miky, 29 Oct); the older stories keep Main, to compare. */
-export const useMainWord = () => (useContext(ActivityVariant) === 'follow' ? 'Important' : 'Main')
+export const Following = createContext(false)
+/** Main is Important wherever you follow a topic (Miky, 29 Oct). */
+export const useMainWord = () => (useContext(Following) ? 'Important' : 'Main')
 
 export function ThreadPanel({
   m,

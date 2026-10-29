@@ -28,17 +28,6 @@ export const PeekActivityDot: Story = {
   render: () => <PerApp activity="dot" start={{ type: 'topic', id: 'widgets' }} />,
 }
 
-/**
- * How you follow a topic: the circle before its title, dashed for Important
- * (the default) and full for All, is the control, and the sidebar shows it per
- * topic. No All | Main toggle; Main is Important (Miky, 29 Oct).
- */
-export const PeekFollow: Story = {
-  name: 'Peek, Follow',
-  globals: { theme: 'signal' },
-  render: () => <PerApp activity="follow" start={{ type: 'topic', id: 'widgets' }} />,
-}
-
 /** Peek's Desk as today's Peek draws it: the Desk's rows in the list column, the conversation open beside it. */
 export const PeekDesk: Story = {
   name: 'Peek, Desk',
