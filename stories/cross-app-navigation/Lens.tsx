@@ -355,9 +355,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   // Main: what was said on the topic itself, and the threads someone sent up by hand (Miky, 29 Oct). Resolving or a mention alone does not bring one here.
   const main = entries.filter((e) => !e.m.on || e.up)
   const shown = chatOnly || view === 'all' ? entries : view === 'main' ? main : entries.filter((e) => e.m.on === view.file && e.readable)
-  // The topics a thread can go to, the one you are on first.
+  // Where a thread can be shared: any conversation you read (Miky, 29 Oct); the form ticks the one you are on.
   const placesOf = (m: Message) =>
-    TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t)).sort((a, b) => Number(b.id === topic.id) - Number(a.id === topic.id))
+    TOPICS.filter((t) => canReadTopic(viewer, t)).map((t) => ({ id: t.id, title: t.title, icon: spaceIcon(t), listed: !!m.on && t.lists.includes(m.on) }))
   /** A listed file's card: its summary, a project's issues (Miky, 29 Oct: not the latest conversation), and how much was said here. */
   const fileCard = (f: FileRow): LinkState => {
     const said = every.filter((m) => m.on === f.id)
@@ -424,6 +424,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           key={opened.id}
           m={opened}
           viewer={viewer}
+          here={topic.id}
           places={placesOf(opened)}
           sentTo={TOPICS.flatMap((t) => {
             const up = upIn(t.id, opened)

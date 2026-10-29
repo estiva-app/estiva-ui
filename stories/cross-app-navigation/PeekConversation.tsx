@@ -18,6 +18,7 @@ import { KindIcon } from '../../src/KindIcon'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
+import { SearchInput } from '../../src/SearchInput'
 import { TextInput } from '../../src/TextInput'
 import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply, type SentUp } from './fixtures'
 
@@ -334,13 +335,14 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
  * The file it was written on heads the thread and scrolls away with it; the
  * panel's own header says only "Thread" (Miky, 29 Oct).
  *
- * A file's thread has Send to topic: nothing reaches a topic's Main by itself,
- * resolved or not (Miky, 29 Oct). `places` are the topics that list the file
- * and that the viewer reads; `sentTo` says where it already went, and by whom.
+ * A file's thread has Share: nothing reaches a topic's Main by itself,
+ * resolved or not (Miky, 29 Oct). `places` are every conversation the viewer
+ * reads, `here` the one they are on; `sentTo` says where it already went, and by whom.
  */
 export function ThreadPanel({
   m,
   viewer,
+  here,
   places,
   sentTo,
   onSend,
@@ -348,7 +350,8 @@ export function ThreadPanel({
 }: {
   m: Message
   viewer: PersonId
-  places: { id: string; title: string }[]
+  here: string
+  places: Place[]
   sentTo: { topic: string; up: SentUp }[]
   onSend: (topics: string[], note: string) => void
   onClose: () => void
@@ -367,7 +370,7 @@ export function ThreadPanel({
             variant="outlined"
             size="small"
             leadingIcon={<IconShare3 size={16} stroke={1.5} />}
-            disabledReason={open.length > 0 ? undefined : places.length === 0 ? 'No topic you read lists this file' : 'Already shared to every topic that lists this file'}
+            disabledReason={open.length > 0 ? undefined : 'Already shared everywhere you read'}
             onClick={() => setSending(true)}
           >
             {/* Share, the action's word (Miky, 29 Oct). */}
@@ -379,8 +382,9 @@ export function ThreadPanel({
         </IconButton>
       </div>
       {file && sending && open.length > 0 && (
-        <SendToTopic
+        <ShareThread
           file={file}
+          here={here}
           places={open}
           onCancel={() => setSending(false)}
           onSend={(topics, note) => {
@@ -399,7 +403,7 @@ export function ThreadPanel({
             {sentTo.map(({ topic, up }) => (
               <span key={topic} className="flex items-center gap-1 text-caption text-text-muted">
                 <IconShare3 size={14} stroke={1.5} aria-hidden />
-                {up.by === viewer ? 'You' : nameOf(up.by)} shared this to {places.find((p) => p.id === topic)?.title ?? 'a topic'} · {up.at}
+                {up.by === viewer ? 'You' : nameOf(up.by)} shared this to {places.find((p) => p.id === topic)?.title ?? 'a conversation'} · {up.at}
               </span>
             ))}
           </div>
@@ -434,16 +438,38 @@ export function ThreadPanel({
   )
 }
 
+/** A conversation a thread can be shared to: a topic, a team's chat or a shared space. */
+export interface Place {
+  id: string
+  title: string
+  icon: ReactNode
+  /** Whether it lists the thread's file. */
+  listed: boolean
+}
+
+/** Word starts only, as Peek's search (Miky, 19 Oct). */
+const startsAWord = (title: string, query: string) => ` ${title.toLowerCase()}`.includes(` ${query.toLowerCase()}`)
+
 /**
- * Send to topic: pick one of the topics that list the file, and add a line of
- * your own if you like. The line goes to every reader of the topic, also those
- * who can't open the file, so the form says so.
+ * Share: the thread can go to any conversation you read, and the topic you
+ * are on is ticked, so the default is the parent topic (Miky, 29 Oct). The
+ * other topics that list the file are offered beside it; anywhere else is a
+ * search away. A line of your own goes to every reader of where it goes, also
+ * those who can't open the file, so the form says so.
  */
-function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places: { id: string; title: string }[]; onCancel: () => void; onSend: (topics: string[], note: string) => void }) {
-  // The topic you are on is ticked; with several, tick more or all of them (Miky, 29 Oct).
-  const [topics, setTopics] = useState([places[0].id])
+function ShareThread({ file, here, places, onCancel, onSend }: { file: FileRow; here: string; places: Place[]; onCancel: () => void; onSend: (topics: string[], note: string) => void }) {
+  const [topics, setTopics] = useState(places.some((p) => p.id === here) ? [here] : [])
+  const [added, setAdded] = useState<string[]>([])
+  const [query, setQuery] = useState('')
   const [note, setNote] = useState('')
-  const every = topics.length === places.length
+  // The topic you are on first, then the others that list the file, then what you found.
+  const rows = [
+    ...places.filter((p) => p.id === here),
+    ...places.filter((p) => p.id !== here && p.listed),
+    ...added.map((id) => places.find((p) => p.id === id)!),
+  ]
+  const listed = places.filter((p) => p.listed)
+  const matches = query.trim() ? places.filter((p) => !rows.includes(p) && startsAWord(p.title, query.trim())).slice(0, 5) : []
   const tick = (id: string, on: boolean) => setTopics((now) => (on ? [...now, id] : now.filter((t) => t !== id)))
   return (
     <form
@@ -453,27 +479,46 @@ function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places
         if (topics.length > 0) onSend(topics, note.trim())
       }}
     >
-      {places.length === 1 ? (
-        <span className="flex items-center gap-2 text-body-2 text-text-primary">
-          <KindIcon kind="topic" />
-          {places[0].title}
-        </span>
-      ) : (
-        <div role="group" aria-label="Topics" className="flex flex-col gap-0.5">
-          <Checkbox row label={`All ${places.length} topics that list it`} checked={every} onChange={(on) => setTopics(on ? places.map((p) => p.id) : [])} />
-          {places.map((p) => (
-            <Checkbox key={p.id} row leading={<KindIcon kind="topic" />} label={p.title} checked={topics.includes(p.id)} onChange={(on) => tick(p.id, on)} />
-          ))}
-        </div>
-      )}
-      <Field label="Your line" helper={`Optional. Everyone who reads the topic sees it, also people who can’t open ${file.title}.`}>
-        <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="Why the topic should see this…" />
+      <div role="group" aria-label="Share to" className="flex flex-col gap-0.5">
+        {listed.length > 1 && (
+          <Checkbox
+            row
+            label={`All ${listed.length} topics that list it`}
+            checked={listed.every((p) => topics.includes(p.id))}
+            onChange={(on) => setTopics((now) => (on ? [...new Set([...now, ...listed.map((p) => p.id)])] : now.filter((t) => !listed.some((p) => p.id === t))))}
+          />
+        )}
+        {rows.map((p) => (
+          <Checkbox key={p.id} row leading={p.icon} label={p.title} checked={topics.includes(p.id)} onChange={(on) => tick(p.id, on)} />
+        ))}
+      </div>
+      <div className="flex flex-col gap-1">
+        <SearchInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Share somewhere else…" aria-label="Share somewhere else" />
+        {query.trim() && matches.length === 0 && <p className="px-2 py-1 text-caption text-text-muted">Nothing matches.</p>}
+        {matches.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-body-2 text-text-primary hover:bg-bg-hover"
+            onClick={() => {
+              setAdded((now) => [...now, p.id])
+              tick(p.id, true)
+              setQuery('')
+            }}
+          >
+            {p.icon}
+            {p.title}
+          </button>
+        ))}
+      </div>
+      <Field label="Your line" helper={`Optional. Everyone who reads where it goes sees it, also people who can’t open ${file.title}.`}>
+        <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="Why they should see this…" />
       </Field>
       <div className="flex justify-end gap-2">
         <Button variant="muted" size="small" type="button" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" size="small" type="submit" disabledReason={topics.length === 0 ? 'Tick a topic first' : undefined}>
+        <Button variant="primary" size="small" type="submit" disabledReason={topics.length === 0 ? 'Pick where it goes first' : undefined}>
           Share
         </Button>
       </div>
