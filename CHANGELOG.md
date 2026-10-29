@@ -1,5 +1,78 @@
 # Changelog
 
+## 0.91.0 — 2026-10-29
+
+One release for Katerina's review of the kit's Storybook on 29 Oct: where
+things are, and her notes on the parts she found there.
+
+### Changed
+
+- **The Storybook is sorted by what a part is for** (Katerina, 29 Oct: "I am
+  extremely lost in the estiva ui storybook… the writing experience needs its
+  own"). Eleven headings — Start here, App frame, Page structure, Buttons &
+  links, Forms & fields, Menus & windows, Status & feedback, People, Writing,
+  Links & references, Conversation — each listing its parts A to Z, no
+  sub-groups. Every story id changes with its title; the Introduction's "Where
+  things are" table, the hand-written addresses and `registry.json` follow, so
+  an app's `ui:find` prints the new links once it bumps.
+- **`CardUnder` is `AttachedCard`, and it goes inside the box** (her notes 1,
+  2 and 7, from the options she was shown). **Breaking:** rename the import,
+  and drop `revealOnHover`, which has nothing left to say. Callers: Peek's and
+  Ship's `MessageLinks.tsx`, Leaf's `CommentCard.tsx`.
+  - `CommentBox` draws the card and the live parts inside the box, under the
+    text after the files, in the send box and the edit box alike; nothing
+    shows under the box any more (`data-box-under` stays, on their row).
+  - In the box a card and a part sit on the files' fill, `elevated`, and a
+    card's values read as words, not pickers, until it is sent. Apps change
+    nothing: their box card is a `LinkCard`, which reads `inTheBox` itself.
+  - The ✕ is a file's: the round one on the card's corner, from
+    `AttachmentCard`, shown on hover or focus (while writing too; it always
+    showed while writing before) and always on a screen that cannot hover.
+- **A link in text starts with the link icon and stays underlined** (her note
+  8: "icon before but also underlined"). RichText's links and the editors'
+  (`LINK_CLASS`) draw Tabler's `link` before their words, in the link's
+  colour at the text's size. A chip of an Estiva thing keeps its kind's icon
+  and gains nothing. One look, `WEB_LINK_ICON_CLASSES`, a mask on `::before`,
+  so nothing is added to what is saved or copied.
+- **ReferenceCards says "deprecated"** beside its name in the sidebar, and its
+  page opens with what to use instead (LinkPlaces). Any part's stories can
+  carry the `deprecated` tag; `.storybook/manager.ts` writes the word.
+
+### Added
+
+- `inTheBox`: the context `CommentBox` provides around what is in its box.
+- `Popover`'s `anchor` takes a place that moves, `{ getBoundingClientRect,
+  contextElement }`, asked again each time the panel is placed.
+- `SuggestionMenu`'s `rect` takes a function, Tiptap's `clientRect`.
+
+### Fixed
+
+- **The `/` and `@` lists follow the caret when the page scrolls.** They were
+  handed the caret's rect as they opened and stayed on the screen while the
+  text scrolled away under them. `suggestionPopup` now hands `clientRect`
+  itself, with the editor as the element whose scrolling moves it.
+- **A link in the comment box looks like a link.** Tiptap's link had no class
+  there, so linked words read as plain words; it now takes the document's
+  `LINK_MARK_ATTRIBUTES`.
+- **The reactions panel is as wide as its emoji.** `AddReactionButton`'s panel kept
+  a menu's 180px, which left 24px empty right of the last emoji (Katerina, 29
+  Oct: "a weird gap on the right"). It fits its strip, as SelectionToolbar's
+  and Peek's quick menu's already do.
+- **SuggestionMenu's Docs page:** each example draws in its own frame, so its
+  list stays in its box (they floated over the page's words, and flipped over
+  them as the page scrolled).
+
+### Gates
+
+- **The gate refuses a restyled part from the editor entry** — `CommentBox`,
+  `InlineText`, `SelectionToolbar` — and counts any `@estiva-app/ui/…`
+  import in an app as the package. A look pushed into `CommentBox` had passed.
+  **Leaf will see two refusals when it bumps:** `className="text-h1"` on
+  `InlineText` (`src/pages/FilePage.tsx:276`, `ShipFilePage.stories.tsx:48`).
+- **The package's gate and its editor hook read the root `stories/` too**,
+  where a prototype is built; only `src/` is asked for pages and stories.
+  TokensPage's two browser tooltips are `WithTooltip`.
+
 ## 0.90.2 — 2026-10-29
 
 ### Fixed
