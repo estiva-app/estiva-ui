@@ -78,9 +78,10 @@ describe('WithTooltip', () => {
     expect(errors).toEqual([])
   })
 
-  // F1: without `align-top` a chip in the wrapper drops 0.2px and its line grows
-  // from 19.6 to 20px; the apps may not add the class to the part, so it carries it.
-  it('inline: the wrapper sits at the top of the line by itself', () => {
+  // F1 pinned the wrapper to the line's top, as the chip was then. Since PEE-72 the
+  // chip sits on the sentence's baseline, and `align-top` put a chip in this wrapper
+  // 1px high in a 21px line; the apps may not add the class to the part, so it carries it.
+  it('inline: the wrapper sits on the line’s baseline by itself', () => {
     render(
       <p>
         <WithTooltip inline label="Item one">
@@ -88,7 +89,7 @@ describe('WithTooltip', () => {
         </WithTooltip>
       </p>,
     )
-    expect(screen.getByText('Item one').parentElement?.className.split(' ')).toContain('align-top')
+    expect(screen.getByText('Item one').parentElement?.className.split(' ')).toContain('align-baseline')
   })
 
   it('a block wrapper is not moved', () => {
