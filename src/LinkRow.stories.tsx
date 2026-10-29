@@ -3,7 +3,7 @@ import { GROUP, ITEM, ITEM_UNREAD, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABL
 import { LinkRow, LinkUnavailable } from './LinkRow'
 
 const meta = {
-  title: 'Components/LinkRow',
+  title: 'Links & references/A link/LinkRow',
   component: LinkRow,
   parameters: { layout: 'padded' },
   args: { link: ready(ITEM) },

@@ -76,7 +76,7 @@ export function sanitize(name: string): string {
 /**
  * Storybook's `storyNameFromExport`, which is lodash's `startCase`: an export
  * called `WithCounts` is the story "With Counts", and its id is
- * `navigation-tabs--with-counts`, not `--withcounts`.
+ * `page-structure-moving-within-a-page-tabs--with-counts`, not `--withcounts`.
  *
  * Measured against a real `storybook build` (2026-09-18): without this, 11 of
  * the 81 ids resolved nowhere — every export whose name is more than one word.

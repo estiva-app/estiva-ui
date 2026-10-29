@@ -5,7 +5,7 @@ import { CardUnder } from './CardUnder'
 import { ITEM, LOADING, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
-  title: 'Components/CardUnder',
+  title: 'Links & references/Attached or shared/CardUnder',
   component: CardUnder,
   parameters: { layout: 'padded' },
   args: { link: ready(ITEM) },

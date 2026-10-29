@@ -3,7 +3,7 @@ import { Avatar } from './Avatar'
 
 /** A picture, or initials on the person's own colour, or a silhouette. Nothing here comes from an app. */
 const meta = {
-  title: 'Primitives/Avatar',
+  title: 'People/Avatar',
   component: Avatar,
   args: { name: 'Ana Duarte', size: 36 },
 } satisfies Meta<typeof Avatar>

@@ -15,7 +15,7 @@ import { suggestionPopup } from './suggestionPopup'
  * Focus stays in the text: the editor hands its ↑, ↓ and Enter to the list.
  */
 const meta = {
-  title: 'Primitives/SuggestionMenu',
+  title: 'Writing/While you type/SuggestionMenu',
   component: SuggestionMenu,
   parameters: { layout: 'padded' },
 } satisfies Meta

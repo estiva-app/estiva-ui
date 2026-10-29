@@ -3,7 +3,7 @@ import { IconSettings } from '@tabler/icons-react'
 import { IconButton } from './IconButton'
 
 const meta = {
-  title: 'Primitives/IconButton',
+  title: 'Buttons & links/IconButton',
   component: IconButton,
   // An icon-only button owes its name; axe's button-name rule fails without it.
   args: { variant: 'muted', disabled: false, 'aria-label': 'Settings', children: <IconSettings className="size-4" stroke={1.5} /> },

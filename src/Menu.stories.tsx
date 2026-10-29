@@ -20,7 +20,7 @@ import { SectionLabel } from './SectionLabel'
  * story below them is live (Katerina, D25).
  */
 const meta = {
-  title: 'Overlays/Menu',
+  title: 'Menus & windows/Menus/Menu',
   component: Menu,
   decorators: [(Story) => <div className="flex min-h-[260px] w-full items-start justify-center pt-6"><Story /></div>],
   args: { trigger: <Button variant="outlined">Open the menu</Button>, children: null },

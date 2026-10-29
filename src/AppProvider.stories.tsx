@@ -12,7 +12,7 @@ const ANA = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" vie
 const pictureFor = (name: string) => (name === 'Ana Duarte' ? ANA : undefined)
 
 const meta = {
-  title: 'Frame/AppProvider',
+  title: 'App frame/AppProvider',
   component: AppProvider,
   args: { children: null },
   argTypes: { children: { control: false }, pictureFor: { control: false }, navigate: { control: false } },

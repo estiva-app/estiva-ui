@@ -6,7 +6,7 @@ import { Tooltip, WithTooltip } from './Tooltip'
 import { Toolbar, ToolbarButton } from './Toolbar'
 
 const meta = {
-  title: 'Primitives/Tooltip',
+  title: 'Menus & windows/On hover/Tooltip',
   component: Tooltip,
   args: { label: 'Add to starred' },
 } satisfies Meta<typeof Tooltip>

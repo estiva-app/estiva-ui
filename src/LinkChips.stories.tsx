@@ -15,7 +15,7 @@ import { richTextClassName } from './RichText'
  * app's, which knows how to resolve it.
  */
 const meta = {
-  title: 'Primitives/LinkChips',
+  title: 'Writing/Links in a document/LinkChips',
   parameters: { layout: 'padded' },
 } satisfies Meta
 

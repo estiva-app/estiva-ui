@@ -13,7 +13,7 @@ import { RailItem } from './RailItem'
 import { Sidebar } from './Sidebar'
 
 const meta = {
-  title: 'Frame/AppShell',
+  title: 'App frame/AppShell',
   component: AppShell,
   parameters: {
     layout: 'fullscreen',

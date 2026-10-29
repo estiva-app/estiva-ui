@@ -9,7 +9,7 @@ import { Panel } from './Panel'
  * stand-ins.
  */
 const meta = {
-  title: 'Layout/Panel',
+  title: 'Page structure/Columns & panels/Panel',
   component: Panel,
   parameters: { layout: 'fullscreen' },
   args: { title: 'Details', children: null, bodyClassName: 'flex flex-col gap-3 px-4 pt-3 pb-4' },

@@ -29,7 +29,7 @@ const EVERY_BLOCK: RichTextBlock[] = [
 ]
 
 const meta = {
-  title: 'Components/RichText',
+  title: 'Writing/Reading it back/RichText',
   component: RichText,
   args: { blocks: EVERY_BLOCK, size: 'default' },
   argTypes: { size: { control: 'inline-radio', options: ['default', 'small'] } },

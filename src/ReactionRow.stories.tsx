@@ -8,7 +8,7 @@ import { AddReactionButton, ReactionRow, type ReactionCount } from './ReactionRo
  * reacted.
  */
 const meta = {
-  title: 'Primitives/ReactionRow',
+  title: 'Conversation/ReactionRow',
   component: ReactionRow,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof ReactionRow>

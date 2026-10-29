@@ -4,7 +4,7 @@ import { PEOPLE, STATUS_OPTIONS } from './linked.examples'
 import { CommentCount, LinkPickers, ProgressRing, StatusMark } from './LinkParts'
 
 const meta = {
-  title: 'Components/LinkParts',
+  title: 'Links & references/A link/LinkParts',
   component: LinkPickers,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof LinkPickers>

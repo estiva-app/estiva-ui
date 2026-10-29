@@ -7,7 +7,7 @@ import { Select } from './Select'
 
 /** A labelled property — the 68px label column is what lines the values up. */
 const meta = {
-  title: 'Primitives/Property',
+  title: 'Page structure/Sections/Property',
   component: Property,
   decorators: [(Story) => <div className="w-[260px]"><Story /></div>],
   args: { label: 'Status', children: <Chip type="success" label="Done" /> },

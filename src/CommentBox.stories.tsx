@@ -19,7 +19,7 @@ import { PartCard } from './PartCard'
  * refusal. Pick the theme in the toolbar.
  */
 const meta = {
-  title: 'Primitives/CommentBox',
+  title: 'Writing/The boxes/CommentBox',
   component: CommentBox,
   parameters: { layout: 'padded' },
   decorators: [

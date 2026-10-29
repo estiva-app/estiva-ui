@@ -18,7 +18,7 @@ import { Toolbar, ToolbarButton } from './Toolbar'
  * stand-ins.
  */
 const meta = {
-  title: 'Layout/ListColumn',
+  title: 'Page structure/Columns & panels/ListColumn',
   component: ListColumn,
   parameters: { layout: 'fullscreen' },
   args: { title: 'Items', children: null },

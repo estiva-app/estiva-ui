@@ -9,7 +9,7 @@ const people = [
 ]
 
 const meta = {
-  title: 'Primitives/MembersDialog',
+  title: 'People/MembersDialog',
   component: MembersDialog,
   args: {
     members: [

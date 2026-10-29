@@ -3,7 +3,7 @@ import { SearchInput } from './SearchInput'
 
 /** An inset field whose border strengthens on focus; under Signal the shortcut becomes the mono kbd chip. */
 const meta = {
-  title: 'Inputs/SearchInput',
+  title: 'Forms & fields/Fields/SearchInput',
   component: SearchInput,
   decorators: [(Story) => <div className="w-[290px]"><Story /></div>],
 } satisfies Meta<typeof SearchInput>

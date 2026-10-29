@@ -5,7 +5,7 @@ import { Card } from './Card'
 
 /** A hairline in `border-subtle`, inset 12px each side — or standing up between two columns. */
 const meta = {
-  title: 'Primitives/Divider',
+  title: 'Page structure/Boxes & lines/Divider',
   component: Divider,
 } satisfies Meta<typeof Divider>
 

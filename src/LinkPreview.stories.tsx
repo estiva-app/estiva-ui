@@ -5,7 +5,7 @@ import { LinkPreview, LinkPreviewOpen } from './LinkPreview'
 import { LinkRow } from './LinkRow'
 
 const meta = {
-  title: 'Components/LinkPreview',
+  title: 'Links & references/A link/LinkPreview',
   component: LinkPreview,
   parameters: { layout: 'padded' },
   args: { linked: ITEM, children: null },

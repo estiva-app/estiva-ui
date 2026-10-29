@@ -3,7 +3,7 @@ import { LinkChip } from './LinkChip'
 import { GROUP, ITEM, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
-  title: 'Components/LinkChip',
+  title: 'Links & references/A link/LinkChip',
   component: LinkChip,
   parameters: { layout: 'padded' },
   args: { link: ready(ITEM) },

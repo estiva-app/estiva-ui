@@ -14,7 +14,7 @@ import { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator } f
  * it without the caller drawing anything.
  */
 const meta = {
-  title: 'Primitives/Toolbar',
+  title: 'Buttons & links/Toolbar',
   component: Toolbar,
   args: { 'aria-label': 'Formatting', children: null },
   argTypes: { children: { control: false } },

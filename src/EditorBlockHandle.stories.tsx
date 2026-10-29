@@ -13,7 +13,7 @@ import { richTextClassName } from './RichText'
  * Turn into, Duplicate, Delete, then the app's rows.
  */
 const meta = {
-  title: 'Primitives/EditorBlockHandle',
+  title: 'Writing/Blocks/EditorBlockHandle',
   // The handle sits 28px left of the content, in the page's margin.
   parameters: { layout: 'padded' },
 } satisfies Meta

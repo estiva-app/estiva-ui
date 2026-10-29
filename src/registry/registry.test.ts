@@ -72,7 +72,7 @@ describe('the registry builds', () => {
     // explained.
     expect(entry('MenuSub').purposeFrom).toBe('comment')
     expect(entry('MenuSub').docPage).toBeNull()
-    expect(entry('MenuSub').docsId).toBe('overlays-menu--docs')
+    expect(entry('MenuSub').docsId).toBe('menus-windows-menus-menu--docs')
     expect(entry('MenuSub').sourceFile).toBe('src/Menu.tsx')
   })
 
@@ -246,13 +246,13 @@ describe('the ids point at something', () => {
    * many-word export, and a name documented on a sibling's page.
    */
   const REAL = [
-    ['Button', 'primitives-button--docs', 'primitives-button--primary'],
-    ['Tabs', 'navigation-tabs--docs', 'navigation-tabs--with-counts'],
-    ['AvatarGroup', 'primitives-avatargroup--docs', 'primitives-avatargroup--three-members'],
-    ['Breadcrumb', 'navigation-breadcrumb--docs', 'navigation-breadcrumb--on-an-item'],
-    ['CommandPalette', 'overlays-commandpalette--docs', 'overlays-commandpalette--first-level'],
-    ['ChipInput', 'inputs-chipinput--docs', 'inputs-chipinput--type-to-search'],
-    ['EnterHint', 'overlays-menu--docs', 'overlays-menu--items'],
+    ['Button', 'buttons-links-button--docs', 'buttons-links-button--primary'],
+    ['Tabs', 'page-structure-moving-within-a-page-tabs--docs', 'page-structure-moving-within-a-page-tabs--with-counts'],
+    ['AvatarGroup', 'people-avatargroup--docs', 'people-avatargroup--three-members'],
+    ['Breadcrumb', 'page-structure-moving-within-a-page-breadcrumb--docs', 'page-structure-moving-within-a-page-breadcrumb--on-an-item'],
+    ['CommandPalette', 'menus-windows-windows-commandpalette--docs', 'menus-windows-windows-commandpalette--first-level'],
+    ['ChipInput', 'forms-fields-fields-chipinput--docs', 'forms-fields-fields-chipinput--type-to-search'],
+    ['EnterHint', 'menus-windows-menus-menu--docs', 'menus-windows-menus-menu--items'],
   ] as const
 
   it.each(REAL)('%s', (name, docsId, storyId) => {

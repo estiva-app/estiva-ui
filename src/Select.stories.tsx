@@ -17,7 +17,7 @@ import { TextInput } from './TextInput'
  * you stop using one.
  */
 const meta = {
-  title: 'Inputs/Select',
+  title: 'Forms & fields/Fields/Select',
   component: Select,
   parameters: { layout: 'padded' },
   decorators: [(Story) => <div className="w-[360px]"><Story /></div>],

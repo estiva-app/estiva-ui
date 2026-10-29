@@ -28,7 +28,7 @@ import { MenuItem } from './Menu'
  * ending. Pick the theme in the toolbar.
  */
 const meta = {
-  title: 'Primitives/DocumentEditor',
+  title: 'Writing/The boxes/DocumentEditor',
   component: DocumentEditor,
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof DocumentEditor>

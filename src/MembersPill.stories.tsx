@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { MembersPill } from './MembersPill'
 
 const meta = {
-  title: 'Primitives/MembersPill',
+  title: 'People/MembersPill',
   component: MembersPill,
   args: {
     members: [{ name: 'Ana Duarte' }, { name: 'Ravi Mehta' }],

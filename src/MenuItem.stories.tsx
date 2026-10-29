@@ -16,7 +16,7 @@ import { EnterHint, Menu, MenuItem, MenuPanel, MenuSub } from './Menu'
  * FromATrigger** is where the keyboard and the placement are.
  */
 const meta = {
-  title: 'Overlays/MenuItem',
+  title: 'Menus & windows/Menus/MenuItem',
   component: MenuItem,
   decorators: [
     (Story) => (

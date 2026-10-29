@@ -4,7 +4,7 @@ import { Select } from './Select'
 import { TextInput } from './TextInput'
 
 const meta = {
-  title: 'Inputs/TextInput',
+  title: 'Forms & fields/Fields/TextInput',
   component: TextInput,
   parameters: { layout: 'padded' },
   args: { placeholder: 'What is this about?' },

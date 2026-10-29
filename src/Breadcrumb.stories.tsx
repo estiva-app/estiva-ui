@@ -4,7 +4,7 @@ import { Breadcrumb } from './Breadcrumb'
 
 /** A trail of places, ending where you are — or on a mono ref. */
 const meta = {
-  title: 'Navigation/Breadcrumb',
+  title: 'Page structure/Moving within a page/Breadcrumb',
   component: Breadcrumb,
   // axe color-contrast is off here until PLAN.md stage 0.10 is ruled:
   // the current item is muted text, 3.94:1 on --bg-base in signal (AA 4.5:1).

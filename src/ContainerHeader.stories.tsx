@@ -9,7 +9,7 @@ import { Card } from './Card'
 const inColumn: Decorator = (Story) => <Card clip className="w-96">{Story()}</Card>
 
 const meta = {
-  title: 'Navigation/ContainerHeader',
+  title: 'Page structure/Columns & panels/ContainerHeader',
   component: ContainerHeader,
   args: { title: 'Items' },
   argTypes: { actions: { control: false } },

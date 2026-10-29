@@ -4,7 +4,7 @@ import { Card } from './Card'
 import { Chip } from './Chip'
 
 const meta = {
-  title: 'Navigation/Link',
+  title: 'Buttons & links/Link',
   component: Link,
   args: { href: '#', variant: 'text', external: false, children: 'a link' },
   argTypes: {

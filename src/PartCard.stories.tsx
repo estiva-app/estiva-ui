@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { PartCard } from './PartCard'
 
 const meta = {
-  title: 'Components/PartCard',
+  title: 'Links & references/Attached or shared/PartCard',
   component: PartCard,
   parameters: { layout: 'padded' },
   decorators: [(Story) => <div className="max-w-[480px]">{Story()}</div>],
