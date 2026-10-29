@@ -132,10 +132,16 @@ describe('gateConfig', () => {
     }
   })
 
-  it('reads .ts for an app (UIG-8), and .tsx only for the package', async () => {
+  it('reads .ts for an app (UIG-8), and .tsx only for the package, in src/ and its root stories/', async () => {
     const listener = "export function listen() {\n  window.addEventListener('keydown', () => {})\n}\n"
     expect(await lintWith(gateConfig(), listener, 'src/lib/probe.ts')).toEqual([expect.objectContaining({ ruleId: 'estiva/no-rebuilt-behaviour' })])
-    expect(gateLint({ audience: 'package' }).files).toEqual(['src/**/*.tsx'])
+    expect(gateLint({ audience: 'package' }).files).toEqual(['src/**/*.tsx', 'stories/**/*.tsx'])
+  })
+
+  // 28 October: the One conversation prototype, built in the package's root stories/, passed unread.
+  it("refuses a buried raw element in the package's root stories/, and asks no page or story of a helper there", async () => {
+    const messages = await lintWith(gateConfig({ audience: 'package' }), component('<div><button type="button">x</button></div>'), 'stories/one-conversation/Probe.tsx')
+    expect(messages.map((m) => m.ruleId)).toEqual(['estiva/raw-element-outside-a-wrapper'])
   })
 
   it('leaves tests alone', async () => {
@@ -291,6 +297,18 @@ describe('runHook', () => {
     expect((await runHook({ root: dir, input: write('src/Probe.jsx', component('<button type="button">x</button>')) })).code).toBe(2)
     expect((await runHook({ root: dir, input: write('src/lib/probe.mts', "export function listen() {\n  document.addEventListener('keydown', () => {})\n}\n") })).code).toBe(2)
     expect((await runHook({ root: dir, input: write('src/Probe.test.jsx', component('<button type="button">x</button>')) })).code).toBe(0)
+  })
+
+  // 28 October: the One conversation prototype was written in the package's root stories/, which the hook let through unread.
+  it("in the package, judges a write to the root stories/ as well as src/", async () => {
+    const pkg = app('hook-package', {})
+    writeFileSync(join(pkg, 'package.json'), JSON.stringify({ name: '@estiva-app/ui', private: true, type: 'module' }))
+    writeFileSync(join(pkg, 'eslint.gates.config.js'), `import { gateConfig } from '${built}'\nexport default gateConfig({ audience: 'package' })\n`)
+    const buried = component('<div><button type="button">x</button></div>')
+    const result = await runHook({ root: pkg, audience: 'package', input: write('stories/one-conversation/Probe.tsx', buried) })
+    expect(result.code).toBe(2)
+    expect(result.message).toContain('estiva/raw-element-outside-a-wrapper')
+    expect((await runHook({ root: pkg, audience: 'package', input: write('scripts/probe.tsx', buried) })).code).toBe(0)
   })
 
   it('lets through a test, a declaration file, and anything outside src', async () => {
