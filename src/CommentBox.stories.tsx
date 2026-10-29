@@ -256,6 +256,27 @@ export const WithAFileAndACard: Story = {
   },
 }
 
+/** A link in the box, on words: drawn as a link, the link icon before its words (it read as plain words before). */
+export const WithALink: Story = {
+  render: () => (
+    <Live
+      start={{
+        type: 'doc',
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              { type: 'text', text: 'The plan is in ' },
+              { type: 'text', text: 'the guide', marks: [{ type: 'link', attrs: { href: 'https://example.com/guide' } }] },
+              { type: 'text', text: ' for now.' },
+            ],
+          },
+        ],
+      }}
+    />
+  ),
+}
+
 /** A link to a block: its live part in the box, and no card. */
 export const WithAPart: Story = { render: () => <Live under={under} />, play: typeInto(`As in ${ITEM_URL} and ${PART_URL} `) }
 

@@ -27,7 +27,7 @@ import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { Kbd } from './Kbd'
 import { inTheBox } from './linked'
-import { BoxKit, PasteOverWords } from './links'
+import { BoxKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
@@ -246,7 +246,8 @@ const sameApp = (a: BoxApp, b: BoxApp) =>
 function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
   const iconFor = (uri: string | null) => hold.current.referenceIcon?.(uri)
   return [
-    BoxKit.configure({ link: { openOnClick: false } }),
+    // A link drawn as one, as in a document: it read as plain words in the box before (Katerina, 29 Oct).
+    BoxKit.configure({ link: { openOnClick: false, HTMLAttributes: LINK_MARK_ATTRIBUTES } }),
     PasteOverWords,
     KeptSelection,
     ComposeKeys,

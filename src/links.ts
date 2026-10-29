@@ -2,6 +2,7 @@ import { Extension, type Mark } from '@tiptap/core'
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import StarterKit from '@tiptap/starter-kit'
+import { WEB_LINK_ICON_CLASSES } from './looks'
 
 /*
  * Links in the kit's editors: a URL pasted over words, the link mark that holds
@@ -101,8 +102,8 @@ export const DocumentKit = StarterKit.extend({
 const LINK_SPLIT = /\[[^[\]\n]+\]\((?:https?:\/\/|mailto:)[^\s)]+\)|https?:\/\/[^\s]+/g
 /** Punctuation after a bare address ends the sentence, not the address. */
 const TRAILING = /[.,;:!?)\]]+$/
-/** A link's look in an editor: the package `Link variant="text"`, spelled out for a mark's element and a decoration's range. */
-export const LINK_CLASS = 'text-info-default underline underline-offset-2 cursor-pointer'
+/** A link's look in an editor: the package `Link variant="text"`, spelled out for a mark's element and a decoration's range, with the link icon before its words as in `RichText`. */
+export const LINK_CLASS = `text-info-default underline underline-offset-2 cursor-pointer ${WEB_LINK_ICON_CLASSES}`
 
 /** What a click may open: an address a reader may follow (SPEC §13.1), never `javascript:` and the like. */
 const OPENABLE = /^(https?:\/\/|mailto:)/i

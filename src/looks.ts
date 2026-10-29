@@ -75,3 +75,11 @@ export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] ov
  */
 export const WRITING_BOX_CLASSES =
   'relative bg-bg-inset border border-border-default rounded-lg p-3 flex flex-col gap-4 signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring'
+
+/**
+ * A link in text: the link icon before its words, in the link's colour and at the text's size, and the words still
+ * underlined, so it never reads as a chip (Katerina, 29 Oct: "icon before but also underlined"). A chip of an Estiva
+ * thing starts with its kind's icon instead and wears none of this. Tabler's `link`, drawn as a mask so it takes the
+ * link's colour. RichText's links and the editors' (`LINK_CLASS`) wear it.
+ */
+export const WEB_LINK_ICON_CLASSES = "before:content-[''] before:inline-block before:size-[1em] before:mr-0.5 before:align-[-0.125em] before:bg-current before:[mask:url(data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.75%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M9%2015l6%20-6%27%2F%3E%3Cpath%20d%3D%27M11%206l.463%20-.536a5%205%200%200%201%207.071%207.072l-.534%20.464%27%2F%3E%3Cpath%20d%3D%27M13%2018l-.397%20.534a5.068%205.068%200%200%201%20-7.127%200a4.972%204.972%200%200%201%200%20-7.071l.524%20-.463%27%2F%3E%3C%2Fsvg%3E)_center/contain_no-repeat]"
