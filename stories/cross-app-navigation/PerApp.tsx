@@ -174,7 +174,7 @@ function Content({ place, app, viewer, onOpen, onApp }: { place: Place; app: App
     case 'team':
       return <TeamPage team={place.id} app={app} viewer={viewer} onSelect={onOpen} />
     case 'file':
-      return <FilePage id={place.id} app={app} onSelect={onOpen} />
+      return <FilePage id={place.id} app={app} viewer={viewer} onSelect={onOpen} />
     case 'topic':
       return app === 'peek' ? <PeekTopic topic={topic!} viewer={viewer} app={app} onApp={onApp} onSelect={onOpen} /> : <FilesOfTopic topic={topic!} app={app} viewer={viewer} onApp={onApp} onSelect={onOpen} />
   }

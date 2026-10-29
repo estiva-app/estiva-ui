@@ -16,7 +16,12 @@ import {
 } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
+import { Button } from '../../src/Button'
+import { DialogShell } from '../../src/DialogShell'
+import { Field } from '../../src/Field'
 import { IconButton } from '../../src/IconButton'
+import { Select } from '../../src/Select'
+import { Textarea } from '../../src/Textarea'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { EmptyState } from '../../src/EmptyState'
@@ -31,6 +36,7 @@ import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ScrollArea } from '../../src/ScrollArea'
 import { PeekBox, PeekCard, SentCard, ThreadPanel, TopicActivity, cardOf } from './PeekConversation'
+import { post, setStatus, usePosted, useStatuses } from './posted'
 import {
   FILES,
   MESSAGES,
@@ -339,15 +345,17 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
     setView('main')
     setThread(null)
   }, [topic.id])
+  const posted = usePosted()
   const listed = topic.lists.map(fileOf)
-  const every = [...(MESSAGES[topic.id] ?? []), ...(sent[topic.id] ?? [])]
+  const said = (t: string) => [...(MESSAGES[t] ?? []), ...(posted[t] ?? [])]
+  const every = [...said(topic.id), ...(sent[topic.id] ?? [])]
   const readable = (m: Message) => !m.on || canReadFile(viewer, fileOf(m.on))
-  /** Where a file's thread was sent up to, and by whom: the fixtures' own, then this prototype's. */
-  const upIn = (t: string, m: Message) => (MESSAGES[t]?.some((x) => x.id === m.id) ? m.sentUp : undefined) ?? ups[t]?.find((s) => s.m.id === m.id)?.up
+  /** Where a thread was shared or forwarded to, and by whom: the fixtures' own and Ship's, then this prototype's. */
+  const upIn = (t: string, m: Message) => (said(t).some((x) => x.id === m.id) ? m.sentUp : undefined) ?? ups[t]?.find((s) => s.m.id === m.id)?.up
   const sends = (ups[topic.id] ?? []).filter((s) => !every.some((m) => m.id === s.m.id))
   // A sent thread is a message on the topic, so every reader of the topic gets it, locked to those who can't open its file.
   const entries = [...every, ...sends.map((s) => s.m)]
-    .map((m) => ({ m, up: m.on ? upIn(topic.id, m) : undefined, readable: readable(m) }))
+    .map((m) => ({ m, up: upIn(topic.id, m), readable: readable(m) }))
     .filter((e) => e.readable || e.up)
   const hidden = every.length + sends.length - entries.length
   const opened = entries.find((e) => e.m.id === thread && e.readable)?.m
@@ -400,7 +408,8 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             <div className="flex flex-col gap-1">
               {shown.map(({ m, up, readable }) =>
                 // On the topic a sent thread is its sender's message; in a file's own view it is a plain message.
-                up && typeof view === 'string' ? (
+                // Your own Update shared with no line of its own is the message itself.
+                up && typeof view === 'string' && (up.note || up.by !== m.by || up.forwarded) ? (
                   <SentCard key={m.id} m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={(id) => setView({ file: id })} />
                 ) : (
                   <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
@@ -424,14 +433,14 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           key={opened.id}
           m={opened}
           viewer={viewer}
-          here={topic.id}
+          main={chatOnly ? undefined : topic.id}
           places={placesOf(opened)}
           sentTo={TOPICS.flatMap((t) => {
             const up = upIn(t.id, opened)
-            return opened.on && up ? [{ topic: t.id, up }] : []
+            return up ? [{ topic: t.id, up }] : []
           })}
-          onSend={(to, note) =>
-            setUps((now) => ({ ...now, ...Object.fromEntries(to.map((t) => [t, [...(now[t] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined } }]])) }))
+          onSend={(to, note, forwarded) =>
+            setUps((now) => ({ ...now, ...Object.fromEntries(to.map((t) => [t, [...(now[t] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined, forwarded: forwarded || undefined } }]])) }))
           }
           onClose={() => setThread(null)}
         />
@@ -574,16 +583,84 @@ export function TeamPage({ team, app, viewer, onSelect }: { team: TeamId; app: A
   )
 }
 
+const STATUSES = ['Planned', 'In progress', 'Completed']
+
+/**
+ * Ship's Completed asks for an Update (Miky, 29 Oct): write what it delivered
+ * and it goes to Main in each topic that lists the project, as an Update with
+ * the status change. Left empty, only the status changes. The agent does the
+ * same from the CLI.
+ */
+function CompletedDialog({ file, viewer, onClose }: { file: FileRow; viewer: PersonId; onClose: () => void }) {
+  const [body, setBody] = useState('')
+  const topics = TOPICS.filter((t) => t.lists.includes(file.id) && !isChatOnly(t))
+  return (
+    <DialogShell
+      title="Share an update?"
+      onClose={onClose}
+      footer={
+        <>
+          <Button variant="muted" onClick={onClose}>
+            Not now
+          </Button>
+          <Button
+            variant="primary"
+            disabledReason={body.trim() ? undefined : 'Write what it delivered first'}
+            onClick={() => {
+              post(
+                topics.map((t) => t.id),
+                { id: `update-${Date.now()}`, by: viewer, at: 'Now', on: file.id, highlight: 'update', status: 'Completed', body: body.trim(), sentUp: { by: viewer, at: 'Now' } },
+              )
+              onClose()
+            }}
+          >
+            Share update
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-3">
+        <p className="text-body-2 text-text-primary">
+          {file.title} is completed. {topics.length > 0 ? `Say what it delivered, and it goes to Main in ${topics.map((t) => t.title).join(' and ')} as an Update.` : 'No topic lists it, so the update stays on the project.'}
+        </p>
+        <Field label="What it delivered">
+          <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="What changed for people, and what moved elsewhere…" autoFocus />
+        </Field>
+      </div>
+    </DialogShell>
+  )
+}
+
 /** A project or a document: one team, any number of topics. */
-export function FilePage({ id, app, onSelect }: { id: string; app: App; onSelect: (s: Selection) => void }) {
+export function FilePage({ id, app, viewer = 'miky', onSelect }: { id: string; app: App; viewer?: PersonId; onSelect: (s: Selection) => void }) {
   const f = fileOf(id)
   const topics = TOPICS.filter((t) => t.lists.includes(id))
+  const [done, total] = f.progress?.split(' of ') ?? []
+  const status = useStatuses()[id] ?? (done && done === total ? 'Completed' : 'In progress')
+  const [asking, setAsking] = useState(false)
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Header title={f.title}>
         <span className="text-caption text-text-muted">{f.app === 'ship' ? `Ship project · ${f.progress} done` : 'Leaf document'}</span>
       </Header>
+      {asking && <CompletedDialog file={f} viewer={viewer} onClose={() => setAsking(false)} />}
       <div className="flex flex-col gap-3 p-4">
+        {f.app === 'ship' && (
+          <div className="flex flex-wrap items-center gap-2 text-body-2">
+            <span className="w-20 text-text-secondary">Status</span>
+            <Select
+              size="small"
+              ariaLabel="Status"
+              className="w-48"
+              value={status}
+              options={STATUSES.map((s) => ({ value: s, label: s }))}
+              onChange={(s) => {
+                setStatus(id, s)
+                if (s === 'Completed') setAsking(true)
+              }}
+            />
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-2 text-body-2">
           <span className="w-20 text-text-secondary">Team</span>
           <Chip label={teamOf(f.team).name} leadingIcon={<IconUsers size={14} stroke={1.5} />} href="#" onClick={go(() => onSelect({ type: 'team', id: f.team }))} />
@@ -618,7 +695,7 @@ export function Lens({ viewer: firstViewer = 'miky', start = { type: 'topic', id
     ) : selection.type === 'team' ? (
       <TeamPage team={selection.id} app={app} viewer={viewer} onSelect={setSelection} />
     ) : selection.type === 'file' ? (
-      <FilePage id={selection.id} app={app} onSelect={setSelection} />
+      <FilePage id={selection.id} app={app} viewer={viewer} onSelect={setSelection} />
     ) : app === 'peek' ? (
       <PeekTopic topic={topic!} viewer={viewer} app={app} onApp={switchTo} onSelect={setSelection} />
     ) : (

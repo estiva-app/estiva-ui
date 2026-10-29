@@ -190,8 +190,8 @@ export const spacesOf = (team: TeamId) =>
     (a, b) => Number(b.role === 'chat') - Number(a.role === 'chat'),
   )
 
-/** Peek's highlights (peek-app `HighlightType`). */
-export type HighlightType = 'insight' | 'concern' | 'conclusion' | 'question' | 'summary'
+/** Peek's highlights (peek-app `HighlightType`), and Update: news about a project or a task, as Linear's project updates (Miky, 29 Oct). */
+export type HighlightType = 'insight' | 'concern' | 'conclusion' | 'question' | 'summary' | 'update'
 
 /** One reply in a message's thread. */
 export interface Reply {
@@ -210,6 +210,8 @@ export interface SentUp {
   by: PersonId
   at: string
   note?: string
+  /** Forwarded somewhere else, not shared to the Main of the topic it was on (Miky, 29 Oct). */
+  forwarded?: boolean
 }
 
 /** One message in a conversation. `on` names the listed file it was written on; absent, the topic itself. */
@@ -226,6 +228,10 @@ export interface Message {
   sentUp?: SentUp
   /** Who resolved its thread, and what they said: drawn under the message's heading. */
   resolved?: { by: PersonId; note: string }
+  /** A highlight on the message itself, such as an Update. */
+  highlight?: HighlightType
+  /** The status the file it was written on moved to with it: Ship's Completed asks for an Update (Miky, 29 Oct). */
+  status?: string
   /** Names this person. A mention alone does not bring a file's message into Main (Miky, 29 Oct). */
   mentions?: PersonId
   /** The replies, in the order written. A highlighted one is a step of the timeline in the thread's card. */
@@ -314,6 +320,18 @@ export const MESSAGES: Record<string, Message[]> = {
     { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'd-speed', body: 'Added Screener → Open work: still the slow move on my workspace.' },
   ],
   widgets: [
+    {
+      id: 'w0',
+      by: 'miky',
+      at: 'Mon 09:10',
+      on: 'p-widgets-1',
+      highlight: 'update',
+      status: 'Completed',
+      sentUp: { by: 'miky', at: 'Mon 09:10' },
+      // Build 1's real resolution, 27 Oct.
+      body: 'Links in Peek messages and Ship comments draw from one kit. Katerina’s look pass moved to UI Guardrails, the summary lines to One conversation in every app.',
+      reactions: [{ emoji: '🎉', by: ['katerina', 'agent'] }],
+    },
     { id: 'w1', by: 'katerina', at: 'Thu 10:00', body: 'Build 2 is close. I would like one more look at the card before we call it done.' },
     { id: 'w2', by: 'miky', at: 'Thu 10:30', on: 'd-testing-widgets', body: 'Added the three cases from yesterday to Testing Widgets.' },
     {

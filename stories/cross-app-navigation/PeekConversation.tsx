@@ -1,11 +1,10 @@
 import { Fragment, useState, type MouseEvent, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconChecks, IconShare3, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
+import { IconArrowForwardUp, IconChecks, IconCircleCheck, IconShare3, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
 import { Button } from '../../src/Button'
 import { Card } from '../../src/Card'
-import { Checkbox } from '../../src/Checkbox'
 import { CardUnder } from '../../src/CardUnder'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
@@ -52,6 +51,8 @@ const HIGHLIGHT: Record<HighlightType, { label: string; fill: string }> = {
   conclusion: { label: 'Conclusion', fill: 'bg-success-default' },
   question: { label: 'Question', fill: 'bg-info-default' },
   summary: { label: 'Summary', fill: 'bg-accent-primary' },
+  // New with this prototype (Miky, 29 Oct); its colour is a placeholder until Katerina picks one.
+  update: { label: 'Update', fill: 'bg-text-secondary' },
 }
 
 export function cardOf(file: FileRow, updated: string): LinkState {
@@ -243,8 +244,19 @@ function MessageRows({ m, viewer, heading, onFile }: { m: Message; viewer: Perso
         <Avatar name={PEOPLE[m.by].name} size={24} />
         <div className="flex items-center gap-2">
           <span className="whitespace-nowrap text-body-2-strong text-text-primary">{PEOPLE[m.by].name}</span>
+          {m.highlight && <HighlightPill type={m.highlight} />}
           <span className={META}>{m.at}</span>
         </div>
+        {m.status && (
+          <>
+            <Rail line={body} />
+            {/* The status change the Update came with, from the file's own app. */}
+            <span className="flex items-center gap-1 pt-1 text-caption text-success-default">
+              <IconCircleCheck size={14} stroke={1.5} aria-hidden />
+              {file?.app === 'ship' ? 'Project' : 'File'} marked {m.status}
+            </span>
+          </>
+        )}
         <Rail line={body} />
         <div className="whitespace-pre-wrap pb-2 pr-2 pt-1 text-body-2 text-text-primary">{m.body}</div>
         {under && (
@@ -335,14 +347,15 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
  * The file it was written on heads the thread and scrolls away with it; the
  * panel's own header says only "Thread" (Miky, 29 Oct).
  *
- * A file's thread has Share: nothing reaches a topic's Main by itself,
- * resolved or not (Miky, 29 Oct). `places` are every conversation the viewer
- * reads, `here` the one they are on; `sentTo` says where it already went, and by whom.
+ * Every thread has Share: nothing reaches a topic's Main by itself, resolved
+ * or not (Miky, 29 Oct). `places` are every conversation the viewer reads;
+ * `main` is the topic they are on, when it has a Main; `sentTo` says where it
+ * already went, and by whom.
  */
 export function ThreadPanel({
   m,
   viewer,
-  here,
+  main,
   places,
   sentTo,
   onSend,
@@ -350,60 +363,63 @@ export function ThreadPanel({
 }: {
   m: Message
   viewer: PersonId
-  here: string
+  main?: string
   places: Place[]
   sentTo: { topic: string; up: SentUp }[]
-  onSend: (topics: string[], note: string) => void
+  onSend: (topics: string[], note: string, forwarded: boolean) => void
   onClose: () => void
 }) {
   const [sent, setSent] = useState<Reply[]>([])
   const [sending, setSending] = useState(false)
   const file = m.on ? fileOf(m.on) : undefined
   const open = places.filter((p) => !sentTo.some((s) => s.topic === p.id))
-  const rows: Reply[] = [{ by: m.by, at: m.at, body: m.body }, ...(m.thread ?? []), ...sent]
+  // Share to Main only for a file's thread, on a topic that lists the file and has a Main.
+  const toMain = file ? open.find((p) => p.id === main && p.listed) : undefined
+  const elsewhere = open.filter((p) => p.id !== main)
+  const rows: Reply[] = [{ by: m.by, at: m.at, body: m.body, highlight: m.highlight }, ...(m.thread ?? []), ...sent]
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-border-subtle">
       <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
         <span className="flex-1 text-h4 text-text-primary">Thread</span>
-        {file && (
-          <Button
-            variant="outlined"
-            size="small"
-            leadingIcon={<IconShare3 size={16} stroke={1.5} />}
-            disabledReason={open.length > 0 ? undefined : 'Already shared everywhere you read'}
-            onClick={() => setSending(true)}
-          >
-            {/* Share, the action's word (Miky, 29 Oct). */}
-            Share
-          </Button>
-        )}
+        <Button
+          variant="outlined"
+          size="small"
+          leadingIcon={<IconShare3 size={16} stroke={1.5} />}
+          disabledReason={toMain || elsewhere.length > 0 ? undefined : 'Already shared everywhere you read'}
+          onClick={() => setSending(true)}
+        >
+          {/* Share, the action's word (Miky, 29 Oct). */}
+          Share
+        </Button>
         <IconButton aria-label="Close the thread" tooltip="Close" onClick={onClose}>
           <IconX size={16} stroke={1.5} />
         </IconButton>
       </div>
-      {file && sending && open.length > 0 && (
+      {sending && (toMain || elsewhere.length > 0) && (
         <ShareThread
           file={file}
-          here={here}
-          places={open}
+          main={toMain}
+          places={elsewhere}
           onCancel={() => setSending(false)}
-          onSend={(topics, note) => {
-            onSend(topics, note)
+          onSend={(topics, note, forwarded) => {
+            onSend(topics, note, forwarded)
             setSending(false)
           }}
         />
       )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-        {file && (
+        {(file || sentTo.length > 0) && (
           <div className="flex flex-col gap-1">
-            <span className="flex items-center gap-2 text-h4 text-text-primary">
-              <KindIcon kind={kindOf(file)} />
-              {file.title}
-            </span>
+            {file && (
+              <span className="flex items-center gap-2 text-h4 text-text-primary">
+                <KindIcon kind={kindOf(file)} />
+                {file.title}
+              </span>
+            )}
             {sentTo.map(({ topic, up }) => (
               <span key={topic} className="flex items-center gap-1 text-caption text-text-muted">
-                <IconShare3 size={14} stroke={1.5} aria-hidden />
-                {up.by === viewer ? 'You' : nameOf(up.by)} shared this to {places.find((p) => p.id === topic)?.title ?? 'a conversation'} · {up.at}
+                {up.forwarded ? <IconArrowForwardUp size={14} stroke={1.5} aria-hidden /> : <IconShare3 size={14} stroke={1.5} aria-hidden />}
+                {up.by === viewer ? 'You' : nameOf(up.by)} {up.forwarded ? 'forwarded this to' : 'shared this to Main in'} {places.find((p) => p.id === topic)?.title ?? 'a conversation'} · {up.at}
               </span>
             ))}
           </div>
@@ -450,76 +466,91 @@ export interface Place {
 /** Word starts only, as Peek's search (Miky, 19 Oct). */
 const startsAWord = (title: string, query: string) => ` ${title.toLowerCase()}`.includes(` ${query.toLowerCase()}`)
 
+/** One of Share's two choices: a row with its icon, its name and what it does. */
+function Choice({ on, icon, label, hint, onPick }: { on: boolean; icon: ReactNode; label: string; hint: string; onPick: () => void }) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={on}
+      onClick={onPick}
+      className={cn('flex items-start gap-2 rounded-lg border px-3 py-2 text-left', on ? 'border-accent-outline bg-accent-wash' : 'border-border-subtle hover:bg-bg-hover')}
+    >
+      <span className="mt-0.5 text-text-secondary">{icon}</span>
+      <span className="flex flex-col">
+        <span className="text-body-2-strong text-text-primary">{label}</span>
+        <span className="text-caption text-text-muted">{hint}</span>
+      </span>
+    </button>
+  )
+}
+
 /**
- * Share: the thread can go to any conversation you read, and the topic you
- * are on is ticked, so the default is the parent topic (Miky, 29 Oct). The
- * other topics that list the file are offered beside it; anywhere else is a
- * search away. A line of your own goes to every reader of where it goes, also
- * those who can't open the file, so the form says so.
+ * Share, opinionated (Miky, 29 Oct): share this important thread to the Main
+ * of the topic you are on, or forward it to one conversation somewhere else.
+ * A message on the topic itself is already there, so it can only be forwarded.
+ * A line of your own goes to every reader of where it goes, also those who
+ * can't open the file, so the form says so.
  */
-function ShareThread({ file, here, places, onCancel, onSend }: { file: FileRow; here: string; places: Place[]; onCancel: () => void; onSend: (topics: string[], note: string) => void }) {
-  const [topics, setTopics] = useState(places.some((p) => p.id === here) ? [here] : [])
-  const [added, setAdded] = useState<string[]>([])
+function ShareThread({ file, main, places, onCancel, onSend }: { file?: FileRow; main?: Place; places: Place[]; onCancel: () => void; onSend: (topics: string[], note: string, forwarded: boolean) => void }) {
+  const [how, setHow] = useState<'main' | 'forward'>(main ? 'main' : 'forward')
+  const [to, setTo] = useState<Place>()
   const [query, setQuery] = useState('')
   const [note, setNote] = useState('')
-  // The topic you are on first, then the others that list the file, then what you found.
-  const rows = [
-    ...places.filter((p) => p.id === here),
-    ...places.filter((p) => p.id !== here && p.listed),
-    ...added.map((id) => places.find((p) => p.id === id)!),
-  ]
-  const listed = places.filter((p) => p.listed)
-  const matches = query.trim() ? places.filter((p) => !rows.includes(p) && startsAWord(p.title, query.trim())).slice(0, 5) : []
-  const tick = (id: string, on: boolean) => setTopics((now) => (on ? [...now, id] : now.filter((t) => t !== id)))
+  const matches = query.trim() ? places.filter((p) => startsAWord(p.title, query.trim())).slice(0, 5) : []
+  const target = how === 'main' ? main : to
   return (
     <form
       className="flex flex-col gap-3 border-b border-border-subtle bg-bg-inset p-4"
       onSubmit={(e) => {
         e.preventDefault()
-        if (topics.length > 0) onSend(topics, note.trim())
+        if (target) onSend([target.id], note.trim(), how === 'forward')
       }}
     >
-      <div role="group" aria-label="Share to" className="flex flex-col gap-0.5">
-        {listed.length > 1 && (
-          <Checkbox
-            row
-            label={`All ${listed.length} topics that list it`}
-            checked={listed.every((p) => topics.includes(p.id))}
-            onChange={(on) => setTopics((now) => (on ? [...new Set([...now, ...listed.map((p) => p.id)])] : now.filter((t) => !listed.some((p) => p.id === t))))}
-          />
-        )}
-        {rows.map((p) => (
-          <Checkbox key={p.id} row leading={p.icon} label={p.title} checked={topics.includes(p.id)} onChange={(on) => tick(p.id, on)} />
+      {main && (
+        <div role="radiogroup" aria-label="Share" className="flex flex-col gap-1.5">
+          <Choice on={how === 'main'} icon={<IconShare3 size={16} stroke={1.5} />} label={`Share to Main in ${main.title}`} hint="An important update: everyone in the topic sees it in Main." onPick={() => setHow('main')} />
+          <Choice on={how === 'forward'} icon={<IconArrowForwardUp size={16} stroke={1.5} />} label="Forward somewhere else" hint="To one conversation you read." onPick={() => setHow('forward')} />
+        </div>
+      )}
+      {how === 'forward' &&
+        (to ? (
+          <span className="flex items-center gap-2 rounded-md border border-border-subtle px-2 py-1.5 text-body-2 text-text-primary">
+            {to.icon}
+            <span className="flex-1">{to.title}</span>
+            <IconButton aria-label="Pick another" tooltip="Pick another" onClick={() => setTo(undefined)}>
+              <IconX size={14} stroke={1.5} />
+            </IconButton>
+          </span>
+        ) : (
+          <div className="flex flex-col gap-1">
+            <SearchInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Forward to…" aria-label="Forward to" autoFocus />
+            {query.trim() && matches.length === 0 && <p className="px-2 py-1 text-caption text-text-muted">Nothing matches.</p>}
+            {matches.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-body-2 text-text-primary hover:bg-bg-hover"
+                onClick={() => {
+                  setTo(p)
+                  setQuery('')
+                }}
+              >
+                {p.icon}
+                {p.title}
+              </button>
+            ))}
+          </div>
         ))}
-      </div>
-      <div className="flex flex-col gap-1">
-        <SearchInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Share somewhere else…" aria-label="Share somewhere else" />
-        {query.trim() && matches.length === 0 && <p className="px-2 py-1 text-caption text-text-muted">Nothing matches.</p>}
-        {matches.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-body-2 text-text-primary hover:bg-bg-hover"
-            onClick={() => {
-              setAdded((now) => [...now, p.id])
-              tick(p.id, true)
-              setQuery('')
-            }}
-          >
-            {p.icon}
-            {p.title}
-          </button>
-        ))}
-      </div>
-      <Field label="Your line" helper={`Optional. Everyone who reads where it goes sees it, also people who can’t open ${file.title}.`}>
+      <Field label="Your line" helper={`Optional. Everyone who reads where it goes sees it${file ? `, also people who can’t open ${file.title}` : ''}.`}>
         <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="Why they should see this…" />
       </Field>
       <div className="flex justify-end gap-2">
         <Button variant="muted" size="small" type="button" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" size="small" type="submit" disabledReason={topics.length === 0 ? 'Pick where it goes first' : undefined}>
-          Share
+        <Button variant="primary" size="small" type="submit" disabledReason={target ? undefined : 'Pick where it goes first'}>
+          {how === 'main' ? 'Share to Main' : 'Forward'}
         </Button>
       </div>
     </form>
@@ -553,6 +584,8 @@ interface ActivityItem {
 function activityFor(viewer: PersonId, messages: Message[]): ActivityItem[] {
   const items: ActivityItem[] = []
   for (const m of messages) {
+    if (m.highlight && m.by !== viewer)
+      items.push({ key: `${m.id}-h`, thread: m.id, by: m.by, at: m.at, on: m.on, what: <>shared an {HIGHLIGHT[m.highlight].label}</>, mark: <span className={cn('size-2.5 rounded-sm', HIGHLIGHT[m.highlight].fill)} /> })
     if (m.mentions === viewer && m.by !== viewer)
       items.push({ key: `${m.id}-mention`, thread: m.id, by: m.by, at: m.at, on: m.on, what: 'mentioned you', mark: <span className="text-body-2-strong text-accent-text">@</span> })
     for (const [i, r] of (m.thread ?? []).entries()) {
