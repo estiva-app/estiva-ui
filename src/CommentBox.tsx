@@ -663,7 +663,8 @@ export function CommentBox({
       <>
         {fileCards}
         <inTheBox.Provider value>
-          <div data-box-under className="flex basis-full flex-col gap-2">
+          {/* min-w-0: a card with a long title would otherwise be as wide as its title, past the box's edge (29 Oct). */}
+          <div data-box-under className="flex min-w-0 basis-full flex-col gap-2">
             {card && <AttachedCard onRemove={() => setRemoved((was) => new Set([...was, card.value]))}>{card.view}</AttachedCard>}
             {parts.map((part) => (
               <Fragment key={part.key}>{part.view}</Fragment>

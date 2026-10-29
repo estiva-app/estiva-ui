@@ -12,6 +12,7 @@ import { Kbd } from './Kbd'
 import { LinkCard } from './LinkCard'
 import { ITEM, ready } from './linked.examples'
 import { PartCard } from './PartCard'
+import { RichText } from './RichText'
 
 /**
  * The one box every app writes in. Every story is live: write, open a list,
@@ -233,7 +234,8 @@ const under: BoxUnder = {
               key: 'item-two',
               view: (
                 <PartCard state="ready" kind="issue" heading="Item two" partKey="ABC-3" href="#part">
-                  <p className="text-body-2 text-text-secondary">The block, as it is now. It changes when the text it came from changes.</p>
+                  {/* As the apps draw a part's blocks: RichText in its small size. */}
+                  <RichText blocks={[{ type: 'paragraph', inline: [{ text: 'The block, as it is now. It changes when the text it came from changes.', marks: [] }] }]} size="small" />
                 </PartCard>
               ),
             },
