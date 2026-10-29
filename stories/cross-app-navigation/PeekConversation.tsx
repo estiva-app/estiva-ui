@@ -1,20 +1,24 @@
-import { Fragment, useState, type ReactNode } from 'react'
+import { Fragment, useState, type MouseEvent, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
-import { IconArrowBigUpLine, IconChecks, IconChevronRight, IconMessage2, IconX } from '@tabler/icons-react'
+import { IconArrowBigUpLine, IconChecks, IconChevronRight, IconLock, IconMessage2, IconX } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { AvatarGroup } from '../../src/AvatarGroup'
+import { Button } from '../../src/Button'
 import { Card } from '../../src/Card'
 import { CardUnder } from '../../src/CardUnder'
 import { Chip } from '../../src/Chip'
 import { cn } from '../../src/cn'
 import { CommentBox, commentBoxRows } from '../../src/CommentBox'
 import type { MentionPerson } from '../../src/ComposerTriggers'
+import { Field } from '../../src/Field'
 import { IconButton } from '../../src/IconButton'
 import { KindIcon } from '../../src/KindIcon'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
-import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply } from './fixtures'
+import { Select } from '../../src/Select'
+import { TextInput } from '../../src/TextInput'
+import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId, type Reply, type SentUp } from './fixtures'
 
 /**
  * Peek's topic conversation, from what is built and settled: each message is
@@ -26,9 +30,10 @@ import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightT
  *
  * What is new: the file a message was written on is the card's heading
  * (decision-briefs/navigation-assets/conversation-heading-inspiration.png),
- * and a thread bubbles up its highlighted replies as a short timeline down to
+ * and a thread's card draws its highlighted replies as a short timeline down to
  * its resolution: heading, the first message, each highlight, the replies row,
- * the resolution.
+ * the resolution. A thread reaches a topic's Main only when someone sends it
+ * there (decision-briefs/what-bubbles-up.html, option A).
  */
 
 const nameOf = (id: string) => PEOPLE[id as PersonId]?.name ?? 'Someone'
@@ -146,13 +151,69 @@ function Resolution({ r }: { r: NonNullable<Message['resolved']> }) {
   )
 }
 
-/**
- * One message: peek-app's ConversationCard, in rows beside a left column.
- * `heading` draws the file it was written on at the top. A thread with
- * highlighted replies draws them under the message on a line that ends at its
- * resolution, or at the last highlight.
- */
+/** As Peek's card: a click opens the thread beside it, unless it was on a control inside. */
+const opensOnClick = (onOpen?: () => void) => (e: MouseEvent) => {
+  if (!onOpen || (e.target as HTMLElement).closest('button, [role="button"], [data-interactive]')) return
+  onOpen()
+}
+
+/** One message: peek-app's ConversationCard. */
 export function PeekCard({ m, viewer, heading, selected, onFile, onOpen }: { m: Message; viewer: PersonId; heading: boolean; selected: boolean; onFile: (id: string) => void; onOpen: () => void }) {
+  return (
+    <Card fill="surface" hover="fill" quietUntilHover selected={selected} className="relative" onClick={opensOnClick(onOpen)}>
+      <MessageRows m={m} viewer={viewer} heading={heading} onFile={onFile} />
+    </Card>
+  )
+}
+
+/**
+ * A thread sent up to the topic by hand (Miky, 29 Oct): a message on the topic
+ * by whoever sent it, their own line, and under it the thread's mini-timeline.
+ * Their line is the topic's, so everyone who reads the topic reads it; someone
+ * who can't open the file sees a locked line in place of the thread.
+ */
+export function SentCard({ m, up, readable, viewer, selected, onFile, onOpen }: { m: Message; up: SentUp; readable: boolean; viewer: PersonId; selected: boolean; onFile: (id: string) => void; onOpen: () => void }) {
+  return (
+    <Card fill="surface" hover="fill" quietUntilHover selected={selected} className="relative" onClick={opensOnClick(readable ? onOpen : undefined)}>
+      <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 px-2 pt-2">
+        <Avatar name={nameOf(up.by)} size={24} />
+        <div className="flex items-center gap-2">
+          <span className="whitespace-nowrap text-body-2-strong text-text-primary">{nameOf(up.by)}</span>
+          <span className="flex items-center gap-1 whitespace-nowrap text-caption text-accent-text">
+            <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
+            sent this up
+          </span>
+          <span className={META}>{up.at}</span>
+        </div>
+        {up.note && (
+          <>
+            <span />
+            <p className="whitespace-pre-wrap pb-1 pr-2 pt-1 text-body-2 text-text-primary">{up.note}</p>
+          </>
+        )}
+        <span />
+        <div className="pb-2 pr-2 pt-1">
+          {readable ? (
+            <div className="rounded-lg border border-border-subtle">
+              <MessageRows m={m} viewer={viewer} heading onFile={onFile} />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-lg border border-border-subtle px-3 py-2 text-body-2 text-text-muted">
+              <IconLock size={16} stroke={1.5} aria-hidden />A thread on a file you can’t open
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+/**
+ * A message's rows beside a left column. `heading` draws the file it was
+ * written on at the top. A thread with highlighted replies draws them under the
+ * message on a line that ends at its resolution, or at the last highlight.
+ */
+function MessageRows({ m, viewer, heading, onFile }: { m: Message; viewer: PersonId; heading: boolean; onFile: (id: string) => void }) {
   const [reactions, setReactions] = useState(m.reactions ?? [])
   const file = m.on ? fileOf(m.on) : undefined
   const under = m.card ? fileOf(m.card) : undefined
@@ -167,35 +228,16 @@ export function PeekCard({ m, viewer, heading, selected, onFile, onOpen }: { m: 
       return now.map((r) => (r === held ? { emoji, by } : r)).filter((r) => r.by.length > 0)
     })
   return (
-    <Card
-      fill="surface"
-      hover="fill"
-      quietUntilHover
-      selected={selected}
-      className="relative"
-      // As Peek's card: a click opens the thread beside it, unless it was on a control inside.
-      onClick={(e) => {
-        if ((e.target as HTMLElement).closest('button, [role="button"], [data-interactive]')) return
-        onOpen()
-      }}
-    >
-      <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 px-2 pt-2">
+    <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 px-2 pt-2">
         {file && heading && (
           <>
             <span className="mb-2 flex size-6 items-center justify-center text-text-secondary">
               <KindIcon kind={kindOf(file)} size={16} />
             </span>
-            <span className="mb-2 flex min-w-0 items-center gap-2">
+            <span className="mb-2 flex min-w-0 items-center">
               <button type="button" onClick={() => onFile(file.id)} className="-mx-1 truncate rounded px-1 text-left text-h4 text-text-primary hover:bg-bg-hover">
                 {file.title}
               </button>
-              {/* Why it is in Main: it bubbled up from its file (Miky, 29 Oct). */}
-              {m.sharedUp && (
-                <span className="flex shrink-0 items-center gap-1 rounded bg-accent-wash px-1.5 py-0.5 text-caption text-accent-text">
-                  <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
-                  Bubbled up
-                </span>
-              )}
             </span>
           </>
         )}
@@ -251,8 +293,7 @@ export function PeekCard({ m, viewer, heading, selected, onFile, onOpen }: { m: 
             <RepliesRow replies={m.replies} />
           </>
         )}
-      </div>
-    </Card>
+    </div>
   )
 }
 
@@ -294,25 +335,75 @@ function HighlightRow({ h, line }: { h: Reply; line: 'through' | 'to-marker' }) 
  * reply (a highlighted one with its pill), the resolution, and a box to reply.
  * The file it was written on heads the thread and scrolls away with it; the
  * panel's own header says only "Thread" (Miky, 29 Oct).
+ *
+ * A file's thread has Send to topic: nothing reaches a topic's Main by itself,
+ * resolved or not (Miky, 29 Oct). `places` are the topics that list the file
+ * and that the viewer reads; `sentTo` says where it already went, and by whom.
  */
-export function ThreadPanel({ m, viewer, onClose }: { m: Message; viewer: PersonId; onClose: () => void }) {
+export function ThreadPanel({
+  m,
+  viewer,
+  places,
+  sentTo,
+  onSend,
+  onClose,
+}: {
+  m: Message
+  viewer: PersonId
+  places: { id: string; title: string }[]
+  sentTo: { topic: string; up: SentUp }[]
+  onSend: (topic: string, note: string) => void
+  onClose: () => void
+}) {
   const [sent, setSent] = useState<Reply[]>([])
+  const [sending, setSending] = useState(false)
   const file = m.on ? fileOf(m.on) : undefined
+  const open = places.filter((p) => !sentTo.some((s) => s.topic === p.id))
   const rows: Reply[] = [{ by: m.by, at: m.at, body: m.body }, ...(m.thread ?? []), ...sent]
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-border-subtle">
       <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
         <span className="flex-1 text-h4 text-text-primary">Thread</span>
+        {file && (
+          <Button
+            variant="outlined"
+            size="small"
+            leadingIcon={<IconArrowBigUpLine size={16} stroke={1.5} />}
+            disabledReason={open.length > 0 ? undefined : places.length === 0 ? 'No topic you read lists this file' : 'Already sent to every topic that lists this file'}
+            onClick={() => setSending(true)}
+          >
+            Send to topic
+          </Button>
+        )}
         <IconButton aria-label="Close the thread" tooltip="Close" onClick={onClose}>
           <IconX size={16} stroke={1.5} />
         </IconButton>
       </div>
+      {file && sending && open.length > 0 && (
+        <SendToTopic
+          file={file}
+          places={open}
+          onCancel={() => setSending(false)}
+          onSend={(topic, note) => {
+            onSend(topic, note)
+            setSending(false)
+          }}
+        />
+      )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
         {file && (
-          <span className="flex items-center gap-2 text-h4 text-text-primary">
-            <KindIcon kind={kindOf(file)} />
-            {file.title}
-          </span>
+          <div className="flex flex-col gap-1">
+            <span className="flex items-center gap-2 text-h4 text-text-primary">
+              <KindIcon kind={kindOf(file)} />
+              {file.title}
+            </span>
+            {sentTo.map(({ topic, up }) => (
+              <span key={topic} className="flex items-center gap-1 text-caption text-text-muted">
+                <IconArrowBigUpLine size={14} stroke={1.5} aria-hidden />
+                {up.by === viewer ? 'You' : nameOf(up.by)} sent this to {places.find((p) => p.id === topic)?.title ?? 'a topic'} · {up.at}
+              </span>
+            ))}
+          </div>
         )}
         {rows.map((r, i) => (
           <Fragment key={i}>
@@ -341,6 +432,40 @@ export function ThreadPanel({ m, viewer, onClose }: { m: Message; viewer: Person
         <PeekBox to="the thread" label="Reply" onSent={(body) => setSent((now) => [...now, { by: viewer, at: 'Now', body }])} />
       </div>
     </aside>
+  )
+}
+
+/**
+ * Send to topic: pick one of the topics that list the file, and add a line of
+ * your own if you like. The line goes to every reader of the topic, also those
+ * who can't open the file, so the form says so.
+ */
+function SendToTopic({ file, places, onCancel, onSend }: { file: FileRow; places: { id: string; title: string }[]; onCancel: () => void; onSend: (topic: string, note: string) => void }) {
+  const [topic, setTopic] = useState(places[0].id)
+  const [note, setNote] = useState('')
+  return (
+    <form
+      className="flex flex-col gap-3 border-b border-border-subtle bg-bg-inset p-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSend(topic, note.trim())
+      }}
+    >
+      <Field label="Topic" helper={places.length === 1 ? 'The only topic you read that lists this file.' : 'It goes to this topic only.'}>
+        <Select value={topic} onChange={setTopic} options={places.map((p) => ({ value: p.id, label: p.title, leading: <KindIcon kind="topic" /> }))} />
+      </Field>
+      <Field label="Your line" helper={`Optional. Everyone who reads the topic sees it, also people who can’t open ${file.title}.`}>
+        <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="Why the topic should see this…" />
+      </Field>
+      <div className="flex justify-end gap-2">
+        <Button variant="muted" size="small" type="button" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button variant="primary" size="small" type="submit">
+          Send
+        </Button>
+      </div>
+    </form>
   )
 }
 

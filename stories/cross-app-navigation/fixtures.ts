@@ -110,7 +110,8 @@ export const TOPICS: Topic[] = [
     lead: 'company',
     ends: true,
     readers: 'everyone',
-    lists: ['p-widgets-1', 'p-widgets-2', 'd-testing-widgets'],
+    // Live across apps is listed here too, so Send to topic has two to pick from.
+    lists: ['p-widgets-1', 'p-widgets-2', 'd-testing-widgets', 'p-live'],
   },
   {
     id: 'navigation',
@@ -188,6 +189,17 @@ export interface Reply {
   highlight?: HighlightType
 }
 
+/**
+ * A thread sent up to a topic: a new message on the topic that points at it.
+ * The line is the sender's own, read by everyone who reads the topic, also
+ * those who can't open the file.
+ */
+export interface SentUp {
+  by: PersonId
+  at: string
+  note?: string
+}
+
 /** One message in a conversation. `on` names the listed file it was written on; absent, the topic itself. */
 export interface Message {
   id: string
@@ -195,8 +207,11 @@ export interface Message {
   at: string
   body: string
   on?: string
-  /** Shared up to the topic's Main from a file, with Resolve or Share. */
-  sharedUp?: 'resolved' | 'shared'
+  /**
+   * Sent to the topic it is listed under, by hand with Send to topic (Miky, 29 Oct):
+   * who sent it, when, and their own line. Resolving sends nothing.
+   */
+  sentUp?: SentUp
   /** Who resolved its thread, and what they said: drawn under the message's heading. */
   resolved?: { by: PersonId; note: string }
   /** Names this person. A mention alone does not bring a file's message into Main (Miky, 29 Oct). */
@@ -226,7 +241,7 @@ export const MESSAGES: Record<string, Message[]> = {
       by: 'miky',
       at: 'Mon 10:02',
       on: 'p-read-only',
-      sharedUp: 'resolved',
+      sentUp: { by: 'miky', at: 'Mon 11:50', note: 'Leaf is under a second on my workspace. Ship is next.' },
       resolved: { by: 'agent', note: 'Under a second on Miky’s workspace, measured with the QA probe.' },
       body: 'Can Leaf read only what it draws? First paint on my workspace is 6 seconds.',
       thread: [
@@ -241,12 +256,12 @@ export const MESSAGES: Record<string, Message[]> = {
     },
     { id: 'f2', by: 'agent', at: 'Mon 11:40', on: 'p-read-only', body: 'Leaf now asks only for the blocks the page draws. First paint on your workspace: 6.1 s → 0.9 s.', reactions: [{ emoji: '🚀', by: ['miky'] }] },
     { id: 'f4', by: 'katerina', at: 'Tue 10:05', body: 'Does "instantly" include the skeleton, or is a skeleton already too slow?', thread: [{ by: 'miky', at: 'Tue 10:20', body: 'Only words count. A skeleton is still waiting.' }], replies: { by: ['miky'], count: 1, last: '10:20', unread: true } },
+    // Resolved and never sent up: All shows it, Main does not.
     {
       id: 'f4b',
       by: 'agent',
       at: 'Tue 11:02',
       on: 'p-ship-instant',
-      sharedUp: 'resolved',
       body: 'Ship opens in 4 s on Miky’s workspace. Should Ship keep its own copy of the workspace on the device, or read the one Peek already keeps?',
       thread: [
         { by: 'katerina', at: 'Tue 11:05', body: 'What is in the copy today? Only Peek’s conversations?' },
@@ -294,7 +309,7 @@ export const MESSAGES: Record<string, Message[]> = {
       by: 'katerina',
       at: 'Thu 11:30',
       on: 'p-widgets-2',
-      sharedUp: 'resolved',
+      sentUp: { by: 'agent', at: 'Thu 15:20', note: 'The card keeps its height now. Katerina, one more look before we call build 2 done?' },
       resolved: { by: 'agent', note: 'Fixed in ui 0.88, checked as QA-1 and QA-2.' },
       body: 'The card jumps when it loads. Can it keep its height?',
       thread: [
@@ -307,7 +322,7 @@ export const MESSAGES: Record<string, Message[]> = {
   navigation: [
     { id: 'n1', by: 'miky', at: 'Wed 21:00', body: 'Top level is Teams or Topics. No Folders as a third thing to learn.' },
     { id: 'n2', by: 'miky', at: 'Wed 21:20', on: 'd-navigation', mentions: 'katerina', card: 'd-navigation', body: '@Katerina I wrote down some thinking based on our conversation, so we can pick it up with something more concrete.' },
-    { id: 'n3', by: 'agent', at: 'Wed 21:40', on: 'p-private', body: 'A front door is read by everyone while its team is private, so who leads a space is not who reads it.' },
+    { id: 'n3', by: 'agent', at: 'Wed 21:40', on: 'p-private', sentUp: { by: 'miky', at: 'Wed 22:05', note: 'Still open, and it is the question behind the next brief.' }, body: 'A front door is read by everyone while its team is private, so who leads a space is not who reads it.' },
   ],
   grants: [{ id: 'g1', by: 'miky', at: 'Fri 09:00', on: 'd-grant-reusable', body: 'The reusable text is ready for the next application.' }],
   osnova: [{ id: 'o1', by: 'miky', at: 'Sat 12:00', body: 'Osnova, or keep Nostr for Business as the name people see?' }],
@@ -319,7 +334,7 @@ export const MESSAGES: Record<string, Message[]> = {
   'eng-chat': [{ id: 'e1', by: 'agent', at: 'Tue 12:00', body: 'The relay timer deployed buzz at 11:58. Probe green.' }],
   'eng-door': [
     { id: 'ed1', by: 'katerina', at: 'Tue 09:00', body: 'Can someone tell me why Leaf asks me to sign in again after a week?' },
-    { id: 'ed2', by: 'miky', at: 'Tue 09:30', sharedUp: 'shared', body: 'Shared to the Engineering chat: we look at it there and answer here.' },
+    { id: 'ed2', by: 'miky', at: 'Tue 09:30', body: 'Shared to the Engineering chat: we look at it there and answer here.' },
   ],
   bugs: [
     { id: 'b1', by: 'katerina', at: 'Wed 10:10', body: 'The image in a Leaf comment shows twice after a reload.' },

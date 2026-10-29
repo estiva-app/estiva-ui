@@ -10,7 +10,7 @@ A prototype, on the `concept/cross-app-navigation` branch only. It never merges,
 
 - **The app switcher** is top left. Peek, Ship and Leaf keep the same topic open, and each shows its own part of it: Peek the conversation, Ship the projects, Leaf the documents.
 - **The same sidebar in every app** has the app's home (Desk, My issues, Home), **Topics** (the ones with an end) and **Teams**. Under a team, Peek lists its spaces, Ship its projects and Leaf its documents.
-- **Peek's topic** has **All** (every conversation, the topic's and its files', each headed by its file) and **Main** (the topic's own conversation and what bubbled up from its files, each marked *Bubbled up*) beside its title. The files it lists are on the right, each with the team it lives in; clicking one shows only its conversation, as a third tab beside All and Main.
+- **Peek's topic** has **All** (every conversation, the topic's and its files', each headed by its file) and **Main** (the topic's own conversation and the threads someone sent up to it by hand) beside its title. The files it lists are on the right, each with the team it lives in; clicking one shows only its conversation, as a third tab beside All and Main.
 - **View as** is in the person menu, top right. As Katerina, outside Engineering and Marketing, you see their front doors (*Ask Engineering*, *Bugs*, *Talk to Marketing*), but not their chats, and Engineering's projects show as "you can't open".
 
 ## The model drawn
@@ -53,4 +53,10 @@ Not drawn: Issues, Open work, Starred, a conversation with a person.
 
 **Header and thread, second pass** (Miky, same day): All and Main sit beside the topic's title, and the Files menu and the line explaining each view are gone, since the listed files on the right open a file's conversation. The team's avatar and name moved to the right of the header, beside the sidebar toggle, in Ship and Leaf too. The thread panel's header says only "Thread"; the file it was written on heads the thread and scrolls away with it. "Led by" is gone from the listed files.
 
-**All | Main says what it does** (Miky, same day): a segmented control with an icon and a count on each side (All 8, Main 4) and a tooltip saying what each holds. **Main is only what was said on the topic itself and what bubbled up** from its files; a mention alone no longer brings a file's message there. A bubbled-up card is marked *Bubbled up* beside its file's name, in All as well, so you can see which ones Main keeps.
+**All | Main says what it does** (Miky, same day): a segmented control with an icon and a count on each side and a tooltip saying what each holds. **Main is only what was said on the topic itself and what was sent up** from its files; a mention alone does not bring a file's message there.
+
+**A thread reaches Main only by hand** (Miky, same day; brief *What bubbles up*, option A). Resolving a thread or highlighting a reply sends nothing. Open a file's thread and choose **Send to topic** in its header: pick one of the topics that list the file (*Live across apps* is listed in two, to try it) and, if you like, add a line of your own. That writes a message on the topic by you: your name, *sent this up*, your line, and under it the thread's mini-timeline. It shows in Main and in All, in the thread's place. The thread says where it was sent and by whom.
+
+- *Peek, Ship and Leaf are fast*: Miky sent *Apps read only what they show* up with a line. *Ship opens instantly* is resolved and was **never sent**, so All shows it and Main does not.
+- *Widgets*: the agent sent the resolved card question up. *Navigation*: Miky sent an open question up, before it has an answer.
+- **The sender's line is read by everyone who reads the topic**, also people who can't open the file, and the form says so. **Someone who can't open the file** sees the sender and their line, and a locked line in place of the thread: view as Katerina, who is not in Engineering, on any of the three.

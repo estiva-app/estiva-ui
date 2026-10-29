@@ -27,7 +27,7 @@ import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { TooltipTrigger } from '../../src/Tooltip'
-import { PeekBox, PeekCard, ThreadPanel } from './PeekConversation'
+import { PeekBox, PeekCard, SentCard, ThreadPanel } from './PeekConversation'
 import {
   FILES,
   MESSAGES,
@@ -44,6 +44,7 @@ import {
   type FileRow,
   type Message,
   type PersonId,
+  type SentUp,
   type TeamId,
   type Topic,
 } from './fixtures'
@@ -287,7 +288,7 @@ function OtherApps({ topic, app, viewer, onApp }: { topic: Topic; app: App; view
 /**
  * All | Main beside the topic's title, each saying what it holds and how much
  * (Miky, 29 Oct): All is every conversation, the topic's and its files'; Main
- * is the topic's own and what bubbled up from its files. A file opened from the
+ * is the topic's own and the threads someone sent up to it. A file opened from the
  * listed files is a third segment while it is open.
  */
 function ViewToggle({ view, onView, counts, file }: { view: 'all' | 'main' | 'file'; onView: (v: 'all' | 'main') => void; counts: { all: number; main: number }; file?: FileRow }) {
@@ -306,7 +307,7 @@ function ViewToggle({ view, onView, counts, file }: { view: 'all' | 'main' | 'fi
           {count(counts.all, view === 'all')}
         </button>
       </TooltipTrigger>
-      <TooltipTrigger label="The topic’s own conversation and what bubbled up from its files" placement="bottom">
+      <TooltipTrigger label="The topic’s own conversation and the threads someone sent up to it" placement="bottom">
         <button type="button" role="radio" aria-checked={view === 'main'} onClick={() => onView('main')} className={segment(view === 'main')}>
           <KindIcon kind="topic" />
           Main
@@ -329,19 +330,29 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
   const [sent, setSent] = useState<Record<string, Message[]>>({})
   const [thread, setThread] = useState<string | null>(null)
   const [side, setSide] = useState(true)
+  // Threads sent up with Send to topic in this prototype, by the topic they went to.
+  const [ups, setUps] = useState<Record<string, { m: Message; up: SentUp }[]>>({})
   useEffect(() => {
     setView('main')
     setThread(null)
   }, [topic.id])
   const listed = topic.lists.map(fileOf)
   const every = [...(MESSAGES[topic.id] ?? []), ...(sent[topic.id] ?? [])]
-  const all = every.filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
-  const hidden = every.length - all.length
-  const opened = all.find((m) => m.id === thread)
+  const readable = (m: Message) => !m.on || canReadFile(viewer, fileOf(m.on))
+  /** Where a file's thread was sent up to, and by whom: the fixtures' own, then this prototype's. */
+  const upIn = (t: string, m: Message) => (MESSAGES[t]?.some((x) => x.id === m.id) ? m.sentUp : undefined) ?? ups[t]?.find((s) => s.m.id === m.id)?.up
+  const sends = (ups[topic.id] ?? []).filter((s) => !every.some((m) => m.id === s.m.id))
+  // A sent thread is a message on the topic, so every reader of the topic gets it, locked to those who can't open its file.
+  const entries = [...every, ...sends.map((s) => s.m)]
+    .map((m) => ({ m, up: m.on ? upIn(topic.id, m) : undefined, readable: readable(m) }))
+    .filter((e) => e.readable || e.up)
+  const hidden = every.length + sends.length - entries.length
+  const opened = entries.find((e) => e.m.id === thread && e.readable)?.m
   const chatOnly = isChatOnly(topic)
-  // Main: what was said on the topic itself, and what bubbled up from its files (Miky, 29 Oct). A mention alone does not bring it here.
-  const main = all.filter((m) => !m.on || m.sharedUp)
-  const shown = chatOnly || view === 'all' ? all : view === 'main' ? main : all.filter((m) => m.on === view.file)
+  // Main: what was said on the topic itself, and the threads someone sent up by hand (Miky, 29 Oct). Resolving or a mention alone does not bring one here.
+  const main = entries.filter((e) => !e.m.on || e.up)
+  const shown = chatOnly || view === 'all' ? entries : view === 'main' ? main : entries.filter((e) => e.m.on === view.file && e.readable)
+  const placesOf = (m: Message) => TOPICS.filter((t) => m.on && t.lists.includes(m.on) && canReadTopic(viewer, t))
   const tab = typeof view === 'string' ? view : 'file'
   const chosen = typeof view === 'string' ? undefined : fileOf(view.file)
   return (
@@ -361,16 +372,21 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
             </>
           }
         >
-          {!chatOnly && <ViewToggle view={tab} onView={setView} counts={{ all: all.length, main: main.length }} file={chosen} />}
+          {!chatOnly && <ViewToggle view={tab} onView={setView} counts={{ all: entries.length, main: main.length }} file={chosen} />}
         </Header>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {shown.length === 0 ? (
             <EmptyState scope="section" message="Nothing here yet." />
           ) : (
             <div className="flex flex-col gap-1">
-              {shown.map((m) => (
-                <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
-              ))}
+              {shown.map(({ m, up, readable }) =>
+                // On the topic a sent thread is its sender's message; in a file's own view it is a plain message.
+                up && typeof view === 'string' ? (
+                  <SentCard key={m.id} m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={(id) => setView({ file: id })} />
+                ) : (
+                  <PeekCard key={m.id} m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
+                ),
+              )}
             </div>
           )}
           {hidden > 0 && view === 'all' && <p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
@@ -384,7 +400,20 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           />
         </div>
       </div>
-      {opened && <ThreadPanel key={opened.id} m={opened} viewer={viewer} onClose={() => setThread(null)} />}
+      {opened && (
+        <ThreadPanel
+          key={opened.id}
+          m={opened}
+          viewer={viewer}
+          places={placesOf(opened)}
+          sentTo={TOPICS.flatMap((t) => {
+            const up = upIn(t.id, opened)
+            return opened.on && up ? [{ topic: t.id, up }] : []
+          })}
+          onSend={(to, note) => setUps((now) => ({ ...now, [to]: [...(now[to] ?? []), { m: opened, up: { by: viewer, at: 'Now', note: note || undefined } }] }))}
+          onClose={() => setThread(null)}
+        />
+      )}
       {!chatOnly && !opened && side && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
         <SectionLabel tone="muted">Listed files</SectionLabel>
         {listed.length === 0 && <p className="text-body-2 text-text-muted">None yet. A topic can be only a conversation.</p>}
