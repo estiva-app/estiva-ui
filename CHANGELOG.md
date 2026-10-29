@@ -1,5 +1,58 @@
 # Changelog
 
+## 0.91.1 — 2026-10-30
+
+Katerina, 30 Oct, on 0.91.0 live in Peek.
+
+### Changed
+
+Her look pass's open notes (Ship, "Katerina's look pass on the widget kit").
+
+- **One wording for a link that is gone: "Issue not available"**, in the app's
+  word for it, in a chip, a row, a card and a part ("A part of this issue not
+  available"). The chip said "Issue, not available"; the rest "Issue — not
+  available.".
+- **A card's time beside its faces reads "Updated 2h ago", in italic**, as it
+  does alone.
+- **A person's words with no time have no "Open"**: their name is the link
+  then, the only action word on a card gone.
+- **An attached card's ✕ is named "Remove"**, not "Remove card". An app test
+  that finds the button by its name changes with it.
+
+### Fixed
+
+- **A card with nothing for its footer draws no footer row.** A topic with a
+  title and a summary alone drew an empty row under the summary, 36px of
+  nothing (its hover preview most of all).
+- **A part's way out sits under the quote bar, not beside it** ("the vertical
+  line should not be covering the button"). `PartCard` takes `action`, the
+  small button to where the part lives ("Open in Leaf"), and `maxHeight`, the
+  height to cut a long part at behind Show more: it draws them on one row under
+  the blocks, the quote bar beside the blocks alone. Peek and Ship put the
+  button in ShowMore's row inside the blocks: they pass it to `PartCard` now.
+  `ShowMore` takes `contentClassName` (on its content alone) and an `elevated`
+  fade, for a part in a box being written in.
+- **A card's conversation count sits on its title's line**, at the right, between
+  its ring and its faces, as a row's does ("progress, comment, people"); alone
+  there when the card has neither. The footer keeps the pickers, or who and
+  when, and is not drawn for the count alone.
+- **A card says when its file last changed, and who made it** ("no date no
+  person"). `linkedFrom` fills `updated` from interop's `changedAt`, in the
+  same words in every app ("5m ago", "2h ago", "3d ago", then the date) unless
+  the app passes `whenOf`, and `authors` from the key the file's address is
+  signed by, when the app's people name it and no owner picker already names
+  a person. A topic's key is its relay's: it names nobody. A message's time
+  is when it was written.
+- **A card inside a message is see-through** (`Card fill="inset"`, the link
+  card, row and part): the theme's wash, `bg-wash`, one step over whatever
+  the message is drawn on, as an inline chip is. A solid fill was as light as
+  a selected message's tint in Signal and Ship, and the card melted into it
+  (Katerina, 30 Oct). `ShowMore`'s fade is a mask on the content now, so it
+  ends in whatever is behind; its `surface` is ignored.
+- **Cards and rows stop at 480px in a box being written in too** ("in the
+  bigger compose box it's not looking good"); in a narrow box they fill it as
+  before.
+
 ## 0.91.0 — 2026-10-29
 
 One release for Katerina's review of the kit's Storybook on 29 Oct: where

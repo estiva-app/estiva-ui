@@ -373,7 +373,7 @@ describe('under the box: the one card, with ✕, and the live parts', () => {
       }
     },
   })
-  const removeCard = () => act(async () => fireEvent.click(screen.getByRole('button', { name: 'Remove card' })))
+  const removeCard = () => act(async () => fireEvent.click(screen.getByRole('button', { name: 'Remove' })))
 
   it('a draft naming one item shows its card under the box, and it is sent with the words', async () => {
     const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))

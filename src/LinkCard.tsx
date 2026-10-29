@@ -1,14 +1,15 @@
 /**
  * A link's card: what a row cannot hold. Look C (Katerina, 29 Oct): it starts
  * as its row does, its kind in a file's 36px tile with the title and one line
- * under it (its key and its kind's word), a ring or faces on the title's line;
+ * under it (its key and its kind's word), and on the title's line, at the right,
+ * its ring, its conversation count and its faces, in that order, as a row's;
  * then its summary, the items inside it in a box of their own, the newest thing said
- * in it as a quote, and a footer: the pickers and the conversation count, or
- * who and when. Words a person wrote draw as themselves: their face, their name
+ * in it as a quote, and a footer: the pickers, or who and when. Words a person wrote draw as themselves: their face, their name
  * and the time beside it, then the words.
  *
- * At most 480px in a message or a document; in a box being written in it fills
- * the box, on the files' fill, its values as words until it is sent. While it
+ * At most 480px wide, in a message, a document and a box being written in alike
+ * (Katerina, 30 Oct: a card across a wide box did not look good); in a box it
+ * sits on the files' fill, its values as words until it is sent. While it
  * loads it holds the card's own shape, so what is around it does not jump; not
  * available is one row.
  */
@@ -44,7 +45,7 @@ export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps
   const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly || boxed} />
   if (bare) return <div className={CARD_CLASSES}>{body}</div>
   return (
-    <Card fill={boxed ? 'elevated' : 'inset'} className={cn(CARD_CLASSES, !boxed && 'max-w-[480px]')}>
+    <Card fill={boxed ? 'elevated' : 'inset'} className={cn(CARD_CLASSES, 'max-w-[480px]')}>
       {body}
     </Card>
   )
@@ -54,6 +55,8 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
   const boxed = useContext(inTheBox)
   const on = boxed ? 'elevated' : 'inset'
   const meta = linkMetaOf(linked)
+  // Only when there is something to put there: a topic with a summary alone drew an empty row, 36px of nothing (Katerina, 30 Oct).
+  const footed = Boolean(linked.status || linked.owner || linked.authors || linked.updated)
   return (
     <>
       <div className="flex items-center gap-3">
@@ -67,10 +70,11 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
           </span>
           {meta && <span className="truncate text-caption text-text-secondary">{meta}</span>}
         </span>
-        {(linked.done || linked.members) && (
-          // On the title's line, not halfway down the header.
+        {(linked.done || linked.conversation || linked.members) && (
+          // On the title's line, not halfway down the header: the ring, the count, the faces, as a row's (Katerina, 30 Oct).
           <span className="flex h-[19.6px] shrink-0 items-center gap-2 self-start">
             {linked.done && <ProgressRing done={linked.done.done} total={linked.done.total} />}
+            {linked.conversation && <CommentCount conversation={linked.conversation} noun={linked.conversation.noun} />}
             {linked.members && <AvatarGroup members={linked.members} size={16} on={on} />}
           </span>
         )}
@@ -110,40 +114,43 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
           </div>
         </div>
       )}
+      {footed && (
       <div className="flex min-h-6 items-center gap-2">
         {(linked.status || linked.owner) && <LinkPickers status={linked.status} owner={linked.owner} ownerLabel={linked.ownerLabel} readOnly={readOnly} />}
         {/* Faces only: names would not fit once several people wrote it. */}
         {linked.authors ? (
           <span className="flex min-w-0 items-center gap-2 text-caption text-text-secondary">
             <AvatarGroup members={linked.authors} size={16} on={on} />
-            {linked.updated && <span className="shrink-0">{linked.updated}</span>}
+            {/* Italic, as every "Updated …" on a card is (Katerina, 30 Oct). */}
+            {linked.updated && <span className="shrink-0 italic">Updated {linked.updated}</span>}
           </span>
         ) : (
           !linked.status && !linked.owner && linked.updated && <span className="text-caption italic text-text-secondary">Updated {linked.updated}</span>
         )}
-        {linked.conversation && (
-          <span className="ml-auto flex">
-            <CommentCount conversation={linked.conversation} noun={linked.conversation.noun} />
-          </span>
-        )}
       </div>
+      )}
     </>
   )
 }
 
-/** Words a person wrote, linked: their face, their name, the time beside it as the link, and the words. */
+/** Words a person wrote, linked: their face, their name, the time beside it as the link (without a time, the name), and the words. */
 function SaidBody({ linked }: { linked: Linked }) {
   const author = linked.author!
   return (
     <>
       <div className="flex items-center gap-2">
         <Avatar name={author.name} src={author.picture} size={24} />
-        <span className="text-body-2-strong text-text-primary">{author.name}</span>
-        <span className={cn('text-caption text-text-muted', TIME_CLASSES)}>
-          <Link href={linked.href} variant="quiet">
-            {linked.updated ?? 'Open'}
-          </Link>
+        {/* No "Open" in a missing time's place (Katerina, 30 Oct): the name is the link then. */}
+        <span className="text-body-2-strong text-text-primary">
+          {linked.updated ? author.name : <Link href={linked.href} variant="quiet">{author.name}</Link>}
         </span>
+        {linked.updated && (
+          <span className={cn('text-caption text-text-muted', TIME_CLASSES)}>
+            <Link href={linked.href} variant="quiet">
+              {linked.updated}
+            </Link>
+          </span>
+        )}
       </div>
       <p className="line-clamp-4 text-body-2 text-text-secondary">{linked.body ?? linked.title}</p>
     </>
@@ -172,7 +179,7 @@ export function LinkCardLoading({ kind, shape }: LinkCardLoadingProps) {
   const boxed = useContext(inTheBox)
   return (
     <div className="animate-skeleton-in" aria-busy>
-      <Card fill={boxed ? 'elevated' : 'inset'} aria-hidden className={cn(CARD_CLASSES, !boxed && 'max-w-[480px]')}>
+      <Card fill={boxed ? 'elevated' : 'inset'} aria-hidden className={cn(CARD_CLASSES, 'max-w-[480px]')}>
         <div className="flex items-center gap-3">
           <span className={TYPE_TILE_CLASSES}>
             <LinkedIcon kind={kind} />

@@ -88,7 +88,7 @@ export const PAGE: Linked = {
   href: '#page',
   summary: SUMMARY,
   authors: [{ name: 'Person one' }, { name: 'Person three' }],
-  updated: 'Yesterday',
+  updated: '1d ago',
 }
 
 /** Words a person wrote, linked as themselves. */

@@ -79,7 +79,7 @@ describe('LinkCard', () => {
     )
     expect(screen.getByText('Latest conversation')).toBeTruthy()
     expect(screen.getByText(PLACE.latest!.body)).toBeTruthy()
-    expect(screen.getByText('Yesterday')).toBeTruthy()
+    expect(screen.getByText('Updated 1d ago')).toBeTruthy()
   })
 
   it('draws a person’s words as theirs, with the time as the link', () => {
@@ -87,6 +87,12 @@ describe('LinkCard', () => {
     expect(screen.getByText('Person one')).toBeTruthy()
     expect(screen.getByText(SAID.body!)).toBeTruthy()
     expect(screen.getByRole('link', { name: '10:42' }).getAttribute('href')).toBe('#said')
+  })
+
+  it('links a person’s words by their name when there is no time, with no other word for it', () => {
+    render(<LinkCard link={ready({ ...SAID, updated: undefined })} />)
+    expect(screen.getByRole('link', { name: 'Person one' }).getAttribute('href')).toBe('#said')
+    expect(screen.queryByText('Open')).toBeNull()
   })
 
   it('while it loads, is busy and shows nothing of it', () => {
@@ -97,7 +103,7 @@ describe('LinkCard', () => {
 
   it('says it is not available, and where it may still open', () => {
     render(<LinkCard link={UNAVAILABLE} />)
-    expect(screen.getByText('Issue — not available.')).toBeTruthy()
+    expect(screen.getByText('Issue not available')).toBeTruthy()
     expect(screen.getByRole('link', { name: /Open in App one/ }).getAttribute('href')).toBe('#elsewhere')
   })
 })

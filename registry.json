@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.91.0",
+    "packageVersion": "0.91.1",
     "exports": 211,
     "typeExports": 211,
     "files": null
@@ -4983,7 +4983,7 @@
           "name": "noun",
           "takes": "text",
           "required": true,
-          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue — not available.\"."
+          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue not available\"."
         },
         {
           "name": "openIn",
@@ -6241,7 +6241,7 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What it is part of, in a word, for \"A part of this issue — not available.\"."
+          "note": "What it is part of, in a word, for \"A part of this issue not available\"."
         },
         {
           "name": "openIn",
@@ -6254,6 +6254,18 @@
           "takes": "anything",
           "required": false,
           "note": "The part's blocks, drawn by the app."
+        },
+        {
+          "name": "action",
+          "takes": "anything",
+          "required": false,
+          "note": "The way out to where the part lives: a small `Button` with a leading icon (\"Open in Leaf\")."
+        },
+        {
+          "name": "maxHeight",
+          "takes": "number",
+          "required": false,
+          "note": "Cut the blocks at this height, in px, behind ShowMore's fade and its Show more."
         }
       ],
       "variants": [
@@ -8224,15 +8236,21 @@
         },
         {
           "name": "surface",
-          "takes": "surface | inset",
+          "takes": "surface | inset | elevated",
           "required": false,
-          "note": "What the content sits on, for the fade to end in: a panel's `surface` (default), or an inset card's `inset`."
+          "note": "inset card and a selected message included."
         },
         {
           "name": "action",
           "takes": "anything",
           "required": false,
           "note": "A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives."
+        },
+        {
+          "name": "contentClassName",
+          "takes": "text",
+          "required": false,
+          "note": "On the content alone, not the toggle's row under it: PartCard's quote bar runs beside the blocks only."
         },
         {
           "name": "className",
@@ -8246,7 +8264,8 @@
           "prop": "surface",
           "values": [
             "surface",
-            "inset"
+            "inset",
+            "elevated"
           ]
         }
       ],
@@ -8257,10 +8276,7 @@
       "storyId": "page-structure-showmore--long",
       "docPage": "src/ShowMore.mdx",
       "app": null,
-      "looks": [
-        "pointer-events-none bg-gradient-to-t to-transparent from-bg-surface",
-        "pointer-events-none bg-gradient-to-t to-transparent from-bg-inset"
-      ]
+      "looks": []
     },
     {
       "name": "Sidebar",

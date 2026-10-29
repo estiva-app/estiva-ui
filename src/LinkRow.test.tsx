@@ -33,6 +33,6 @@ describe('LinkRow', () => {
 
   it('says it is not available in one line', () => {
     render(<LinkRow link={UNAVAILABLE} />)
-    expect(screen.getByText('Issue — not available.')).toBeTruthy()
+    expect(screen.getByText('Issue not available')).toBeTruthy()
   })
 })

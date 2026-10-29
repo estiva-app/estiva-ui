@@ -21,7 +21,7 @@ describe('PartCard', () => {
 
   it('says a part is not available in words', () => {
     render(<PartCard state="unavailable" kind="issue" noun="Issue" />)
-    expect(screen.getByText('A part of this issue — not available.')).toBeTruthy()
+    expect(screen.getByText('A part of this issue not available')).toBeTruthy()
   })
 
   it('while it loads, is busy and shows nothing of it', () => {

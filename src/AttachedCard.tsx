@@ -8,11 +8,10 @@
  * Oct, kickoff). Inside a box being written in, `CommentBox` places it with the
  * files, and the card there reads as words on the files' fill (`inTheBox`).
  */
-import { useContext, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { RemoveBadge } from './AttachmentCard'
 import { LinkCard } from './LinkCard'
-import { cn } from './cn'
-import { inTheBox, type LinkState } from './linked'
+import type { LinkState } from './linked'
 
 interface AttachedCardBase {
   /** Draws the ✕. Without it the card shows with none, as it does to anyone but the author. */
@@ -26,14 +25,13 @@ interface AttachedCardBase {
 export type AttachedCardProps = AttachedCardBase & ({ link: LinkState; children?: never } | { link?: never; children: ReactNode })
 
 export function AttachedCard({ link, children, onRemove }: AttachedCardProps) {
-  const boxed = useContext(inTheBox)
   return (
-    // At most 480px under a message or in a document, so it never runs the column's whole width; in a box it fills the box (Katerina, 29 Oct).
-    <div className={cn('group/card relative', !boxed && 'max-w-[480px]')}>
+    // At most 480px, so it never runs a column's or a wide box's whole width (Katerina, 29 and 30 Oct).
+    <div className="group/card relative max-w-[480px]">
       {link ? <LinkCard link={link} /> : children}
       {onRemove && (
         <RemoveBadge
-          label="Remove card"
+          label="Remove"
           onRemove={onRemove}
           className="opacity-0 group-hover/card:opacity-100 group-focus-within/card:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
         />

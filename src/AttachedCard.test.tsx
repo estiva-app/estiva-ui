@@ -18,7 +18,7 @@ describe('AttachedCard', () => {
     const user = userEvent.setup()
     const onRemove = vi.fn()
     render(<AttachedCard link={ready(ITEM)} onRemove={onRemove} />)
-    await user.click(screen.getByRole('button', { name: 'Remove card' }))
+    await user.click(screen.getByRole('button', { name: 'Remove' }))
     expect(onRemove).toHaveBeenCalledTimes(1)
   })
 
@@ -28,13 +28,13 @@ describe('AttachedCard', () => {
     render(<AttachedCard link={ready({ ...ITEM, conversation: undefined, status: undefined, owner: undefined })} onRemove={onRemove} />)
     await user.tab()
     await user.tab()
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Remove card' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Remove' }))
     await user.keyboard('{Enter}')
     expect(onRemove).toHaveBeenCalledTimes(1)
   })
 
   it('has no ✕ for anyone but who wrote it', () => {
     render(<AttachedCard link={ready(ITEM)} />)
-    expect(screen.queryByRole('button', { name: 'Remove card' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull()
   })
 })
