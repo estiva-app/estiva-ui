@@ -186,28 +186,62 @@ export interface Message {
   on?: string
   /** Shared up to the topic's Main from a file, with Resolve or Share. */
   sharedUp?: 'resolved' | 'shared'
+  /** Who resolved its thread, and what they said: drawn under the message's heading. */
+  resolved?: { by: PersonId; note: string }
   /** Names this person: shown in their Main even when written on a file. */
   mentions?: PersonId
+  reactions?: { emoji: string; by: PersonId[] }[]
+  replies?: { by: PersonId[]; count: number; last: string; unread?: boolean }
+  /** A listed file whose card the message was sent with. */
+  card?: string
 }
+
+/** Peek's reactions, as `@estiva-app/conversation`'s REACTION_EMOJI names them. */
+export const REACTION_OPTIONS = [
+  { emoji: '👍', label: 'Makes sense' },
+  { emoji: '💯', label: 'Agree' },
+  { emoji: '🙏', label: 'Thank you' },
+  { emoji: '🚀', label: "Let's go!" },
+  { emoji: '🎉', label: 'Congrats' },
+]
 
 export const MESSAGES: Record<string, Message[]> = {
   fast: [
-    { id: 'f1', by: 'miky', at: 'Mon 09:12', body: 'Order for the next weeks: Leaf opens instantly first, then Ship, then live across apps. Peek stays fast last.' },
-    { id: 'f2', by: 'agent', at: 'Mon 11:40', on: 'p-read-only', body: 'Leaf now asks only for the blocks the page draws. First paint on your workspace: 6.1 s → 0.9 s.' },
-    { id: 'f3', by: 'agent', at: 'Mon 11:41', on: 'p-read-only', sharedUp: 'resolved', body: 'Resolved "Leaf reads only what it draws" → under a second on Miky\'s workspace, measured with the QA probe.' },
-    { id: 'f4', by: 'katerina', at: 'Tue 10:05', body: 'Does "instantly" include the skeleton, or is a skeleton already too slow?' },
+    { id: 'f1', by: 'miky', at: 'Mon 09:12', body: 'Order for the next weeks: Leaf opens instantly first, then Ship, then live across apps. Peek stays fast last.', reactions: [{ emoji: '👍', by: ['katerina', 'agent'] }] },
+    {
+      id: 'f3',
+      by: 'miky',
+      at: 'Mon 10:02',
+      on: 'p-read-only',
+      sharedUp: 'resolved',
+      resolved: { by: 'agent', note: 'Under a second on Miky’s workspace, measured with the QA probe.' },
+      body: 'Can Leaf read only what it draws? First paint on my workspace is 6 seconds.',
+      reactions: [{ emoji: '💯', by: ['katerina'] }],
+      replies: { by: ['agent', 'katerina'], count: 5, last: '11:41' },
+    },
+    { id: 'f2', by: 'agent', at: 'Mon 11:40', on: 'p-read-only', body: 'Leaf now asks only for the blocks the page draws. First paint on your workspace: 6.1 s → 0.9 s.', reactions: [{ emoji: '🚀', by: ['miky'] }] },
+    { id: 'f4', by: 'katerina', at: 'Tue 10:05', body: 'Does "instantly" include the skeleton, or is a skeleton already too slow?', replies: { by: ['miky'], count: 1, last: '10:20', unread: true } },
     { id: 'f5', by: 'agent', at: 'Tue 14:22', on: 'p-ship-instant', mentions: 'miky', body: '@Miky should Ship keep Peek\'s copy on the device, or its own? It decides how much the two share.' },
-    { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.' },
+    { id: 'f6', by: 'agent', at: 'Tue 16:03', on: 'p-live', body: 'A reaction in Peek reaches Ship in ~2 s today; the watch drops reactions on wide watches.', card: 'p-live' },
     { id: 'f7', by: 'miky', at: 'Wed 08:30', on: 'p-peek-fast', body: 'Screener → Open work is still the slow move on my workspace.' },
   ],
   widgets: [
     { id: 'w1', by: 'katerina', at: 'Thu 10:00', body: 'Build 2 is close. I would like one more look at the card before we call it done.' },
     { id: 'w2', by: 'miky', at: 'Thu 10:30', on: 'd-testing-widgets', body: 'Added the three cases from yesterday to Testing Widgets.' },
-    { id: 'w3', by: 'agent', at: 'Thu 15:12', on: 'p-widgets-2', sharedUp: 'resolved', body: 'Resolved "the card keeps its height while loading" → fixed in ui 0.88, checked as QA-1 and QA-2.' },
+    {
+      id: 'w3',
+      by: 'katerina',
+      at: 'Thu 11:30',
+      on: 'p-widgets-2',
+      sharedUp: 'resolved',
+      resolved: { by: 'agent', note: 'Fixed in ui 0.88, checked as QA-1 and QA-2.' },
+      body: 'The card jumps when it loads. Can it keep its height?',
+      replies: { by: ['agent'], count: 2, last: '15:12' },
+    },
   ],
   navigation: [
     { id: 'n1', by: 'miky', at: 'Wed 21:00', body: 'Top level is Teams or Topics. No Folders as a third thing to learn.' },
-    { id: 'n2', by: 'miky', at: 'Wed 21:20', on: 'd-navigation', mentions: 'katerina', body: '@Katerina I wrote down some thinking based on our conversation, so we can pick it up with something more concrete.' },
+    { id: 'n2', by: 'miky', at: 'Wed 21:20', on: 'd-navigation', mentions: 'katerina', card: 'd-navigation', body: '@Katerina I wrote down some thinking based on our conversation, so we can pick it up with something more concrete.' },
     { id: 'n3', by: 'agent', at: 'Wed 21:40', on: 'p-private', body: 'A front door is read by everyone while its team is private, so who leads a space is not who reads it.' },
   ],
   grants: [{ id: 'g1', by: 'miky', at: 'Fri 09:00', on: 'd-grant-reusable', body: 'The reusable text is ready for the next application.' }],

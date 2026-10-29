@@ -3,13 +3,11 @@ import {
   IconArrowUpRight,
   IconCheck,
   IconChevronDown,
-  IconCircleCheck,
   IconHash,
   IconHome,
   IconLayoutDashboard,
   IconListCheck,
   IconLock,
-  IconShare3,
   IconUsers,
   IconUsersGroup,
   IconWorld,
@@ -26,6 +24,7 @@ import { PersonTrigger } from '../../src/PersonTrigger'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { Tabs } from '../../src/Tabs'
+import { PeekBox, PeekCard } from './PeekConversation'
 import {
   FILES,
   MESSAGES,
@@ -271,46 +270,16 @@ function OtherApps({ topic, app, viewer, onApp }: { topic: Topic; app: App; view
   )
 }
 
-function MessageRow({ m, showFile, onFile }: { m: Message; showFile: boolean; onFile: (id: string) => void }) {
-  const file = m.on ? fileOf(m.on) : undefined
-  return (
-    <div className="flex gap-2">
-      <Avatar name={PEOPLE[m.by].name} size={24} />
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <span className="text-body-2-strong text-text-primary">{PEOPLE[m.by].name}</span>
-          <span className="text-caption text-text-muted">{m.at}</span>
-          {file && showFile && (
-            <button type="button" onClick={() => onFile(file.id)} className="flex items-center gap-1 rounded px-1 text-caption text-text-secondary hover:bg-bg-hover">
-              <KindIcon kind={kindOf(file)} size={14} />
-              on {file.title}
-            </button>
-          )}
-        </div>
-        {m.sharedUp ? (
-          <div className="rounded-md border border-success-outline bg-success-muted px-3 py-2 text-body-2 text-text-primary">
-            <span className="mr-1 inline-flex items-center gap-1 text-text-secondary">
-              {m.sharedUp === 'resolved' ? <IconCircleCheck size={14} stroke={1.5} /> : <IconShare3 size={14} stroke={1.5} />}
-              {m.sharedUp === 'resolved' ? 'Shared up from a resolved thread:' : 'Shared:'}
-            </span>
-            {m.body}
-          </div>
-        ) : (
-          <p className="text-body-2 text-text-primary">{m.body}</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
 /** Peek's topic: All, Main, or one listed file's conversation; the listed files beside it. */
 export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topic; viewer: PersonId; app: App; onApp: (a: App) => void; onSelect: (s: Selection) => void }) {
   const [view, setView] = useState<PeekView>('main')
+  const [sent, setSent] = useState<Record<string, Message[]>>({})
   useEffect(() => setView('main'), [topic.id])
   const listed = topic.lists.map(fileOf)
   const readable = listed.filter((f) => canReadFile(viewer, f))
-  const all = (MESSAGES[topic.id] ?? []).filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
-  const hidden = (MESSAGES[topic.id] ?? []).length - all.length
+  const every = [...(MESSAGES[topic.id] ?? []), ...(sent[topic.id] ?? [])]
+  const all = every.filter((m) => !m.on || canReadFile(viewer, fileOf(m.on)))
+  const hidden = every.length - all.length
   const chatOnly = isChatOnly(topic)
   const shown =
     chatOnly || view === 'all' ? all : view === 'main' ? all.filter((m) => !m.on || m.sharedUp || m.mentions === viewer) : all.filter((m) => m.on === view.file)
@@ -357,16 +326,21 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect }: { topic: Topi
           {shown.length === 0 ? (
             <EmptyState scope="section" message="Nothing here yet." />
           ) : (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
               {shown.map((m) => (
-                <MessageRow key={m.id} m={m} showFile={view !== 'main' || !!m.sharedUp || m.mentions === viewer ? typeof view === 'string' : false} onFile={(id) => setView({ file: id })} />
+                <PeekCard key={m.id} m={m} viewer={viewer} heading={view !== 'main' || !!m.sharedUp || m.mentions === viewer ? typeof view === 'string' : false} onFile={(id) => setView({ file: id })} />
               ))}
             </div>
           )}
           {hidden > 0 && view === 'all' && <p className="mt-5 flex items-center gap-1 text-caption text-text-muted"><IconLock size={14} stroke={1.5} />{hidden} more on files you can’t open</p>}
         </div>
         <div className="border-t border-border-subtle p-3">
-          <div className="rounded-md border border-border-field bg-bg-field px-3 py-2 text-body-2 text-text-muted">{chosen ? `Write on ${chosen.title}…` : `Write to ${topic.title}…`}</div>
+          <PeekBox
+            to={chosen ? chosen.title : topic.title}
+            onSent={(body) =>
+              setSent((now) => ({ ...now, [topic.id]: [...(now[topic.id] ?? []), { id: `sent-${Date.now()}`, by: viewer, at: 'Now', body, on: chosen?.id }] }))
+            }
+          />
         </div>
       </div>
       {!chatOnly && <aside className="hidden w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
