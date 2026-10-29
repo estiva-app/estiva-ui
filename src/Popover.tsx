@@ -45,13 +45,17 @@ export interface PopoverProps {
    * measured — a text selection's. Pair it with `open`, since there is nothing
    * for Base UI to watch.
    *
+   * **A place that moves**, a caret's, is `{ getBoundingClientRect, contextElement }`:
+   * asked again each time the panel is placed, and `contextElement` names what
+   * it sits in, so the panel follows when that scrolls. A rect stays where it was.
+   *
    * An anchored panel **does not take focus**, because the person is still in
    * whatever produced it. That also means it cannot be reached by keyboard, so
    * everything in one must be reachable another way.
    *
    * Render it always and toggle `open`; do not mount it only while it is open.
    */
-  anchor?: HTMLElement | DOMRect | null
+  anchor?: HTMLElement | DOMRect | { getBoundingClientRect: () => DOMRect; contextElement?: Element } | null
   /**
    * Which of the panel's edges hangs from the trigger's, or `center` to put
    * the panel's middle over the anchor's. Default left.
@@ -143,7 +147,7 @@ export function Popover({ trigger, anchor, align = 'left', side = 'bottom', open
      Floating UI takes besides an element. */
   const anchorTarget = useMemo(() => {
     if (!anchor) return undefined
-    if (anchor instanceof Element) return anchor
+    if (anchor instanceof Element || 'getBoundingClientRect' in anchor) return anchor
     return { getBoundingClientRect: () => anchor }
   }, [anchor])
 

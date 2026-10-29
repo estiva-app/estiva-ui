@@ -6504,7 +6504,7 @@
         },
         {
           "name": "anchor",
-          "takes": "HTMLElement | DOMRect | null",
+          "takes": "a handler",
           "required": false,
           "note": "For a panel with no trigger element: an element, or a rect the caller measured — a text selection's."
         },
@@ -8461,9 +8461,9 @@
       "props": [
         {
           "name": "rect",
-          "takes": "DOMRect | null",
+          "takes": "a handler",
           "required": true,
-          "note": "The caret's rect, from the editor. `null` closes the box."
+          "note": "Where the caret is, from the editor: Tiptap's `clientRect`, asked again each time the box is placed, so it follows the caret as the page scrolls."
         },
         {
           "name": "editorElement",
