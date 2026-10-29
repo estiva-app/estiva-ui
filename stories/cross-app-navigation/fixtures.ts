@@ -177,6 +177,9 @@ export const spacesOf = (team: TeamId) =>
     (a, b) => Number(b.role === 'chat') - Number(a.role === 'chat'),
   )
 
+/** Peek's highlights (peek-app `HighlightType`). */
+export type HighlightType = 'insight' | 'concern' | 'conclusion' | 'question' | 'summary'
+
 /** One message in a conversation. `on` names the listed file it was written on; absent, the topic itself. */
 export interface Message {
   id: string
@@ -190,6 +193,8 @@ export interface Message {
   resolved?: { by: PersonId; note: string }
   /** Names this person: shown in their Main even when written on a file. */
   mentions?: PersonId
+  /** Replies marked with a highlight, bubbled up into the thread's card in the order written. */
+  highlights?: { by: PersonId; at: string; type: HighlightType; body: string }[]
   reactions?: { emoji: string; by: PersonId[] }[]
   replies?: { by: PersonId[]; count: number; last: string; unread?: boolean }
   /** A listed file whose card the message was sent with. */
@@ -216,6 +221,10 @@ export const MESSAGES: Record<string, Message[]> = {
       sharedUp: 'resolved',
       resolved: { by: 'agent', note: 'Under a second on Miky’s workspace, measured with the QA probe.' },
       body: 'Can Leaf read only what it draws? First paint on my workspace is 6 seconds.',
+      highlights: [
+        { by: 'katerina', at: 'Mon 10:20', type: 'question', body: 'Does a skeleton count as drawn, or only blocks with words in them?' },
+        { by: 'miky', at: 'Mon 10:34', type: 'conclusion', body: 'Words count, a skeleton does not. Measure first paint to the first block with text, on my workspace.' },
+      ],
       reactions: [{ emoji: '💯', by: ['katerina'] }],
       replies: { by: ['agent', 'katerina'], count: 5, last: '11:41' },
     },

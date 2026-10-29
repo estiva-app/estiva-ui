@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { JSONContent } from '@tiptap/react'
 import { IconArrowNarrowRight, IconChecks, IconChevronRight, IconMessage2 } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
@@ -13,18 +13,21 @@ import { KindIcon } from '../../src/KindIcon'
 import { LinkCard } from '../../src/LinkCard'
 import type { LinkState } from '../../src/linked'
 import { ReactionRow } from '../../src/ReactionRow'
-import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type Message, type PersonId } from './fixtures'
+import { PEOPLE, REACTION_OPTIONS, fileOf, teamOf, type FileRow, type HighlightType, type Message, type PersonId } from './fixtures'
 
 /**
  * Peek's topic conversation, from what is built and settled: each message is
  * peek-app's `ConversationCard` (origin/main, ui 0.88), drawn here from the same
- * ui parts it is made of — `Card`, `Avatar`, `ReactionRow`, its `RepliesRow`
- * and its resolution — because this Storybook cannot import an app. The card a
- * message was sent with is `CardUnder`, and the box is `CommentBox`.
+ * ui parts it is made of — `Card`, `Avatar`, `ReactionRow`, its `RepliesRow`,
+ * `HighlightPill` and resolution banner — because this Storybook cannot import
+ * an app. The card a message was sent with is `CardUnder`, and the box is
+ * `CommentBox`.
  *
- * What is new: the file a message was written on is the card's heading, not a
- * label in its header, and a resolution sits under that heading
- * (decision-briefs/navigation-assets/conversation-heading-inspiration.png).
+ * What is new: the file a message was written on is the card's heading
+ * (decision-briefs/navigation-assets/conversation-heading-inspiration.png),
+ * and a thread bubbles up its highlighted replies as a short timeline down to
+ * its resolution: heading, the first message, each highlight, the replies row,
+ * the resolution.
  */
 
 const nameOf = (id: string) => PEOPLE[id as PersonId]?.name ?? 'Someone'
@@ -33,6 +36,15 @@ const kindOf = (file: FileRow) => (file.app === 'ship' ? 'project' : 'file')
 
 /** Peek's MetaText: the time beside a name. */
 const META = 'whitespace-nowrap text-caption text-text-muted signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums'
+
+/** Peek's HIGHLIGHT_META and HIGHLIGHT_FILL_CLASSES; Summary's colour is Peek's own token, here the accent it points to. */
+const HIGHLIGHT: Record<HighlightType, { label: string; fill: string }> = {
+  insight: { label: 'Insight', fill: 'bg-warning-default' },
+  concern: { label: 'Concern', fill: 'bg-error-default' },
+  conclusion: { label: 'Conclusion', fill: 'bg-success-default' },
+  question: { label: 'Question', fill: 'bg-info-default' },
+  summary: { label: 'Summary', fill: 'bg-accent-primary' },
+}
 
 function cardOf(file: FileRow, updated: string): LinkState {
   const [done, total] = file.progress?.split(' of ').map(Number) ?? []
@@ -50,34 +62,27 @@ function cardOf(file: FileRow, updated: string): LinkState {
   }
 }
 
-/** Who resolved the thread, and what they said: Peek's resolution line. */
-function Resolution({ r, className }: { r: NonNullable<Message['resolved']>; className?: string }) {
+/** peek-app's HighlightPill: the highlight's colour square and its name. */
+function HighlightPill({ type }: { type: HighlightType }) {
   return (
-    <div className={cn('flex min-w-0 items-center gap-2', className)}>
-      <IconChecks size={16} stroke={1.5} className="shrink-0 text-success-default signal:drop-shadow-glow-success" aria-hidden />
-      <span className="whitespace-nowrap text-h5 text-success-default">{nameOf(r.by)} resolved</span>
-      <IconArrowNarrowRight size={12} stroke={1.5} className="shrink-0 text-text-primary" aria-hidden />
-      <span className="truncate text-h5 text-text-primary">{r.note}</span>
-    </div>
+    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm bg-accent-muted px-1.5 py-0.5 text-chip">
+      <span className={cn('size-2.5 shrink-0 rounded-sm', HIGHLIGHT[type].fill)} />
+      <span className="text-text-primary signal:font-mono signal:text-small signal:font-semibold signal:tracking-wide">{HIGHLIGHT[type].label}</span>
+    </span>
   )
 }
 
-/** The file the message was written on, as the card's heading; its resolution hangs under it. */
-function Heading({ file, resolved, onFile }: { file: FileRow; resolved?: Message['resolved']; onFile: (id: string) => void }) {
+/**
+ * The left column under the avatar. `through` carries the timeline's line past
+ * this row; `to-marker` ends it at this row's marker.
+ */
+function Rail({ line = 'none', marker, middle = false }: { line?: 'none' | 'through' | 'to-marker'; marker?: ReactNode; middle?: boolean }) {
   return (
-    <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 pb-2">
-      <span className="flex size-6 items-center justify-center text-text-secondary">
-        <KindIcon kind={kindOf(file)} size={16} />
-      </span>
-      <button type="button" onClick={() => onFile(file.id)} className="justify-self-start truncate rounded px-1 -mx-1 text-left text-body-2-strong text-text-primary hover:bg-bg-hover">
-        {file.title}
-      </button>
-      {resolved && (
-        <>
-          <span className="mx-auto h-full w-px bg-border-subtle" aria-hidden />
-          <Resolution r={resolved} className="py-1" />
-        </>
+    <div className="relative" aria-hidden>
+      {line !== 'none' && (
+        <span className={cn('absolute left-1/2 top-0 w-0.5 -translate-x-1/2 bg-border-strong', line === 'through' ? 'bottom-0' : middle ? 'h-1/2' : 'h-2.5')} />
       )}
+      {marker && <span className={cn('absolute left-1/2 flex -translate-x-1/2 -translate-y-1/2', middle ? 'top-1/2' : 'top-2.5')}>{marker}</span>}
     </div>
   )
 }
@@ -85,7 +90,7 @@ function Heading({ file, resolved, onFile }: { file: FileRow; resolved?: Message
 /** peek-app's RepliesRow: who replied, "N replies", the last reply's time, and "1 new". */
 function RepliesRow({ replies }: { replies: NonNullable<Message['replies']> }) {
   return (
-    <div className="flex w-full items-center gap-2 pb-1.5 pl-8 pr-2">
+    <div className="flex w-full items-center gap-2 pb-1.5 pr-2">
       <div className="group/replies flex shrink-0 items-center gap-2 py-1.5 signal:rounded-lg signal:border signal:border-transparent signal:px-2 signal:transition-colors signal:hover:border-accent-outline signal:hover:bg-accent-wash">
         <div className="hidden shrink-0 items-center signal:flex">
           <AvatarGroup size={18} members={replies.by.map((id) => ({ name: nameOf(id) }))} />
@@ -107,14 +112,35 @@ function RepliesRow({ replies }: { replies: NonNullable<Message['replies']> }) {
   )
 }
 
+/** peek-app's resolution banner: who resolved, and what they said. */
+function Resolution({ r }: { r: NonNullable<Message['resolved']> }) {
+  return (
+    <div className="mb-2 mr-1 flex min-w-0 items-center gap-2 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
+      <IconChecks size={16} stroke={1.5} className="shrink-0 text-success-default signal:drop-shadow-glow-success" aria-hidden />
+      <span className="whitespace-nowrap text-h5 text-success-default">{nameOf(r.by)} resolved</span>
+      {r.note && (
+        <>
+          <IconArrowNarrowRight size={12} stroke={1.5} className="shrink-0 text-text-primary" aria-hidden />
+          <span className="truncate text-h5 text-text-primary">{r.note}</span>
+        </>
+      )}
+    </div>
+  )
+}
+
 /**
- * One message: peek-app's ConversationCard. `heading` draws the file it was
- * written on at the top; without it a resolution is Peek's banner at the bottom.
+ * One message: peek-app's ConversationCard, in rows beside a left column.
+ * `heading` draws the file it was written on at the top. A thread with
+ * highlighted replies draws them under the message on a line that ends at its
+ * resolution, or at the last highlight.
  */
 export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: PersonId; heading: boolean; onFile: (id: string) => void }) {
   const [reactions, setReactions] = useState(m.reactions ?? [])
   const file = m.on ? fileOf(m.on) : undefined
   const under = m.card ? fileOf(m.card) : undefined
+  const highlights = m.highlights ?? []
+  const timeline = highlights.length > 0
+  const body = timeline ? 'through' : 'none'
   const toggle = (emoji: string) =>
     setReactions((now) => {
       const held = now.find((r) => r.emoji === emoji)
@@ -124,34 +150,77 @@ export function PeekCard({ m, viewer, heading, onFile }: { m: Message; viewer: P
     })
   return (
     <Card fill="surface" hover="fill" quietUntilHover className="relative">
-      <div className="flex flex-col items-start px-2 pt-2">
-        {file && heading && <Heading file={file} resolved={m.resolved} onFile={onFile} />}
-        <div className="flex w-full items-center gap-2">
-          <Avatar name={PEOPLE[m.by].name} size={24} />
+      <div className="grid w-full grid-cols-[24px_minmax(0,1fr)] gap-x-2 px-2 pt-2">
+        {file && heading && (
+          <>
+            <span className="flex size-6 items-center justify-center pb-2 text-text-secondary">
+              <KindIcon kind={kindOf(file)} size={16} />
+            </span>
+            <button type="button" onClick={() => onFile(file.id)} className="-mx-1 mb-2 justify-self-start truncate rounded px-1 text-left text-body-2-strong text-text-primary hover:bg-bg-hover">
+              {file.title}
+            </button>
+          </>
+        )}
+        <Avatar name={PEOPLE[m.by].name} size={24} />
+        <div className="flex items-center gap-2">
           <span className="whitespace-nowrap text-body-2-strong text-text-primary">{PEOPLE[m.by].name}</span>
           <span className={META}>{m.at}</span>
         </div>
-        <div className="w-full whitespace-pre-wrap pb-2 pl-8 pr-2 pt-1 text-body-2 text-text-primary">{m.body}</div>
+        <Rail line={body} />
+        <div className="whitespace-pre-wrap pb-2 pr-2 pt-1 text-body-2 text-text-primary">{m.body}</div>
         {under && (
-          <div className="w-full pb-2 pl-8 pr-2">
-            <CardUnder>
-              <LinkCard link={cardOf(under, m.at)} />
-            </CardUnder>
-          </div>
+          <>
+            <Rail line={body} />
+            <div className="pb-2 pr-2">
+              <CardUnder>
+                <LinkCard link={cardOf(under, m.at)} />
+              </CardUnder>
+            </div>
+          </>
         )}
         {reactions.length > 0 && (
-          <div className="w-full pb-2 pl-8 pt-1">
-            <ReactionRow reactions={reactions} options={REACTION_OPTIONS} nameOf={nameOf} viewer={viewer} onToggle={toggle} />
-          </div>
+          <>
+            <Rail line={body} />
+            <div className="pb-2 pt-1">
+              <ReactionRow reactions={reactions} options={REACTION_OPTIONS} nameOf={nameOf} viewer={viewer} onToggle={toggle} />
+            </div>
+          </>
         )}
-        {m.replies && <RepliesRow replies={m.replies} />}
+        {highlights.map((h, i) => (
+          <HighlightRow key={i} h={h} line={i === highlights.length - 1 && !m.resolved ? 'to-marker' : 'through'} />
+        ))}
+        {m.replies && (
+          <>
+            <Rail line={timeline && m.resolved ? 'through' : 'none'} />
+            <RepliesRow replies={m.replies} />
+          </>
+        )}
+        {m.resolved && (
+          <>
+            <Rail line={timeline ? 'to-marker' : 'none'} middle marker={timeline && <span className="size-2 rounded-full bg-success-default" />} />
+            <Resolution r={m.resolved} />
+          </>
+        )}
       </div>
-      {m.resolved && !(file && heading) && (
-        <div className="flex items-center gap-2 pb-2 pl-10 pr-3 signal:mb-2 signal:ml-10 signal:mr-3 signal:rounded-lg signal:border signal:border-success-outline signal:bg-success-wash signal:px-3 signal:py-2.5">
-          <Resolution r={m.resolved} />
-        </div>
-      )}
     </Card>
+  )
+}
+
+/** One highlighted reply, bubbled up into the thread's card: who, the highlight, when, and the words. */
+function HighlightRow({ h, line }: { h: NonNullable<Message['highlights']>[number]; line: 'through' | 'to-marker' }) {
+  return (
+    <>
+      <Rail line={line} marker={<span className={cn('size-2 rounded-sm', HIGHLIGHT[h.type].fill)} />} />
+      <div className="flex min-w-0 flex-col gap-1 pb-3 pr-2">
+        <div className="flex h-5 items-center gap-2">
+          <Avatar name={PEOPLE[h.by].name} size={16} />
+          <span className="whitespace-nowrap text-body-2-strong text-text-primary">{PEOPLE[h.by].name}</span>
+          <HighlightPill type={h.type} />
+          <span className={META}>{h.at}</span>
+        </div>
+        <p className="text-body-2 text-text-primary">{h.body}</p>
+      </div>
+    </>
   )
 }
 
