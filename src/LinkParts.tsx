@@ -140,6 +140,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
   const ownerWords = owner && (readOnly || !owner.onChange)
   return (
     // As words, 16px apart, so the status and the person read as two things; as boxed pickers their borders already part them (Katerina, 29 Oct).
+    // Boxed, they are see-through as the card they sit in is: a field's fill was a dark hole on a selected message (Katerina, 30 Oct).
     <span className={cn('flex h-6 min-w-0 items-center text-caption text-text-secondary', statusWords || ownerWords ? 'gap-4' : 'gap-2')}>
       {status &&
         (statusWords ? (
@@ -150,6 +151,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
         ) : (
           <Select
             size="small"
+            fill="wash"
             className="w-auto"
             value={status.value ?? ''}
             onChange={(value) => status.onChange?.(value)}
@@ -166,6 +168,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
         ) : (
           <Select
             size="small"
+            fill="wash"
             className="w-auto"
             value={owner.value ?? ''}
             placeholder="Unassigned"

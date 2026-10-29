@@ -47,6 +47,12 @@ export interface SelectProps {
   onChange: (value: string) => void
   options: SelectOption[]
   size?: 'default' | 'small'
+  /**
+   * What the trigger is filled with: a form's `field` (default), or the see-through `wash` on a see-through card,
+   * one step over it, as the card is over the message (a link card's pickers; Katerina, 30 Oct: the field's fill
+   * read as a dark hole in a card on a selected message). Leaf's white fields stay white.
+   */
+  fill?: 'field' | 'wash'
   ariaLabel?: string
   /** Set by a `Field` with `required`; a caller inside one owes nothing. */
   'aria-required'?: boolean | 'true' | 'false'
@@ -68,7 +74,7 @@ export interface SelectProps {
 const GAP = 4
 const VIEWPORT_PAD = 8
 
-export function Select({ value, onChange, options, size = 'default', ariaLabel, placeholder = 'Select…', disabled, disabledReason, className, ...aria }: SelectProps) {
+export function Select({ value, onChange, options, size = 'default', fill = 'field', ariaLabel, placeholder = 'Select…', disabled, disabledReason, className, ...aria }: SelectProps) {
   const selected = options.find((o) => o.value === value)
   // With a reason it is held shut rather than disabled: a disabled trigger is
   // a native `disabled` button, which Tab skips and a tooltip cannot open on.
@@ -88,7 +94,9 @@ export function Select({ value, onChange, options, size = 'default', ariaLabel, 
            * `truncate` from ever engaging; in a block container max-w-full is
            * the cap. Full-width callers are unaffected.
            */
-          'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border bg-bg-field shadow-field text-left',
+          'flex w-full min-w-0 max-w-full items-center justify-between gap-2 rounded-lg border text-left',
+          // Leaf's fields are white, raised on their shadow, and stay so on a card: they never read as a hole (Katerina, 30 Oct).
+          fill === 'wash' ? 'bg-bg-wash leaf:bg-bg-field leaf:shadow-field' : 'bg-bg-field shadow-field',
           'border-border-field outline-none transition-colors',
           FIELD_TEXT_CLASSES,
           // The focused border survives a hover: hover alone strengthens the

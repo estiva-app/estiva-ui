@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.91.1",
+    "packageVersion": "0.91.2",
     "exports": 211,
     "typeExports": 211,
     "files": null
@@ -7969,6 +7969,12 @@
           "note": null
         },
         {
+          "name": "fill",
+          "takes": "field | wash",
+          "required": false,
+          "note": "What the trigger is filled with: a form's `field` (default), or the see-through `wash` on a see-through card, one step over it, as the card is over the message (a link card's pickers; Katerina, 30 Oct: the field's fill read as a dark hole in a card on a selected message)."
+        },
+        {
           "name": "ariaLabel",
           "takes": "text",
           "required": false,
@@ -8011,6 +8017,13 @@
           "values": [
             "default",
             "small"
+          ]
+        },
+        {
+          "prop": "fill",
+          "values": [
+            "field",
+            "wash"
           ]
         }
       ],
@@ -8055,15 +8068,18 @@
       "docPage": "src/Select.mdx",
       "app": null,
       "looks": [
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
-        "rounded-lg border bg-bg-field shadow-field text-left border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
-        "rounded-lg border bg-bg-field shadow-field text-left"
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-wash leaf:bg-bg-field leaf:shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted hover:border-border-strong focus-visible:hover:border-border-focus aria-expanded:hover:border-border-focus disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border text-left bg-bg-field shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-field shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption",
+        "rounded-lg border text-left bg-bg-field shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-input-value",
+        "rounded-lg border text-left bg-bg-field shadow-field border-border-field outline-none transition-colors text-text-primary placeholder:text-text-muted disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:border-border-field cursor-not-allowed bg-bg-disabled text-text-disabled focus-visible:border-border-focus aria-expanded:border-border-focus signal:transition-shadow signal:focus-visible:shadow-focus-ring text-caption"
       ]
     },
     {

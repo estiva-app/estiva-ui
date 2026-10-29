@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState, type ComponentProps } from 'react'
 import { Avatar } from './Avatar'
+import { Card } from './Card'
 import { Field } from './Field'
 import { Select } from './Select'
 import { TextInput } from './TextInput'
@@ -32,7 +33,7 @@ const meta = {
     ],
     ariaLabel: 'Status',
   },
-  argTypes: { size: { control: 'inline-radio', options: ['default', 'small'] } },
+  argTypes: { size: { control: 'inline-radio', options: ['default', 'small'] }, fill: { control: 'inline-radio', options: ['field', 'wash'] } },
 } satisfies Meta<typeof Select>
 
 export default meta
@@ -58,6 +59,15 @@ export const Empty: Story = {
 
 /** The dense size, matching `Button`'s small — for property rows, where a full-height field would dominate the label beside it. */
 export const Small: Story = { render: (args) => <Demo {...args} size="small" initial="todo" /> }
+
+/** `fill="wash"` on a see-through card, as a link card's pickers: one step over the card, so a selected message's tint shows through both. */
+export const OnASeeThroughCard: Story = {
+  render: (args) => (
+    <Card fill="inset" className="flex gap-2 p-3">
+      <Demo {...args} size="small" fill="wash" className="w-auto" initial="in_progress" />
+    </Card>
+  ),
+}
 
 /** An option may carry a `leading` node — a face beside a person's name — shown in the trigger and in the list. Ship's addition. */
 export const WithLeading: Story = {
