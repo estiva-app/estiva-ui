@@ -150,11 +150,20 @@ export function useUnread(viewer: PersonId) {
   )
 }
 
-/** A space's icon in the sidebar; where you follow topics, a topic's says how you follow it. */
+/**
+ * A space's icon in the sidebar. Where you follow topics, only two (Miky, 29
+ * Oct): a team's chat is the team, three people; everything else is a circle,
+ * a topic's saying how you follow it. A shared space has no files to follow,
+ * so it stays dashed.
+ */
 export function useSpaceIcon() {
   const following = useContext(Following)
   const follows = useFollows()
-  return (topic: Topic) => (following && !isChatOnly(topic) ? <FollowIcon follow={follows[topic.id] ?? 'important'} /> : spaceIcon(topic))
+  return (topic: Topic) => {
+    if (!following || topic.role === 'dm') return spaceIcon(topic)
+    if (topic.role === 'chat') return <IconUsersGroup {...icon16} />
+    return <FollowIcon follow={isChatOnly(topic) ? 'important' : (follows[topic.id] ?? 'important')} />
+  }
 }
 
 /** A team's chat, a space two teams share or a direct conversation: just the conversation, with no All, Main or listed files. */
