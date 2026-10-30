@@ -488,7 +488,11 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
   const jump = (id: string) => {
     const e = entries.find((x) => x.m.id === id)
     if (!e) return
-    if (!shown.some((x) => x.m.id === id)) setView(e.m.on && !e.up ? { file: e.m.on } : 'main')
+    if (!shown.some((x) => x.m.id === id)) {
+      // Per app: a new message on a file the view leaves out opens in the file's app (Miky and Katerina, 30 Oct).
+      if (following && e.m.on && !e.up) return openFile(e.m.on)
+      setView(e.m.on && !e.up ? { file: e.m.on } : 'main')
+    }
     setFlash(id)
   }
   useEffect(() => {
@@ -497,6 +501,21 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
     const t = setTimeout(() => setFlash(null), 2000)
     return () => clearTimeout(t)
   }, [flash])
+  /**
+   * Per app (Miky and Katerina, 30 Oct): a file is no filter on the topic. Its
+   * card, its heading and a notification about its thread open it in its own
+   * app; Lens keeps the file's own view, to compare.
+   */
+  const openFile = (id: string) => {
+    onSelect({ type: 'file', id })
+    onApp(fileOf(id).app)
+  }
+  const toFile = (id: string) => (following ? openFile(id) : setView({ file: id }))
+  const openThread = (id: string) => {
+    const on = entries.find((x) => x.m.id === id)?.m.on
+    if (following && on) openFile(on)
+    else setThread(id)
+  }
   const tab = typeof current === 'string' ? current : 'file'
   const chosen = typeof current === 'string' ? undefined : fileOf(current.file)
   return (
@@ -535,7 +554,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
               // Following Important, the new messages are only those Important shows (Miky, 29 Oct).
               news={(following && !chatOnly && follow === 'important' ? main : entries).filter((e) => e.readable).map((e) => e.m)}
               unread={unread.has(topic.id)}
-              onOpen={setThread}
+              onOpen={openThread}
               onJump={jump}
             />
           )}
@@ -552,9 +571,9 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
                   {/* On the topic a sent thread is its sender's message; in a file's own view it is a plain message.
                       Your own Update shared with no line of its own is the message itself. */}
                   {up && typeof view === 'string' && (up.note || up.by !== m.by || up.forwarded) ? (
-                    <SentCard m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={(id) => setView({ file: id })} />
+                    <SentCard m={m} up={up} readable={readable} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} onFile={toFile} />
                   ) : (
-                    <PeekCard m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={(id) => setView({ file: id })} />
+                    <PeekCard m={m} viewer={viewer} selected={thread === m.id} onOpen={() => setThread(m.id)} heading={typeof view === 'string'} onFile={toFile} />
                   )}
                 </div>
               ))}
@@ -595,7 +614,7 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
         {activity === 'column' && <>
         <SectionLabel tone="muted">Activity</SectionLabel>
         <ScrollArea className="shrink-0" viewportClassName={chatOnly ? undefined : 'max-h-[300px]'}>
-          <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={setThread} topicLine={chatOnly ? '' : undefined} />
+          <TopicActivity viewer={viewer} messages={entries.filter((e) => e.readable).map((e) => e.m)} onOpen={openThread} topicLine={chatOnly ? '' : undefined} />
         </ScrollArea>
         </>}
         {project && <>
@@ -623,14 +642,14 @@ export function PeekTopic({ topic, viewer, app, onApp, onSelect, activity = 'col
           const open = listed.filter((f) => canReadFile(viewer, f))
           return (
             <div className="flex flex-col gap-4">
-              {/* The package's card, for its details, with no app label: the card says what it is (Miky, 29 Oct). A click shows the file's conversation here instead of leaving. */}
+              {/* The package's card, for its details, with no app label: the card says what it is (Miky, 29 Oct). A click opens the file in its own app in Per app (30 Oct); in Lens it shows the file's conversation here. */}
               {open.map((f) => (
                 <div
                   key={f.id}
                   className={cn('rounded-md', chosen?.id === f.id && 'bg-bg-selected')}
                   onClickCapture={(e) => {
                     e.preventDefault()
-                    setView({ file: f.id })
+                    toFile(f.id)
                   }}
                 >
                   <LinkCard link={fileCard(f)} />
