@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.93.0 — 2026-10-30
 
 Katerina, 30 Oct: Undo on Peek's Screener Dismiss and Later, and a Sort menu on
 Open work.
