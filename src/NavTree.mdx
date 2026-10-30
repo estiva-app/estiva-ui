@@ -20,6 +20,30 @@ rows to any depth.
 
 <Canvas of={NavTreeStories.CurrentDeep} />
 
+- Each time `selected` names a new row, the row shows where it lives: its
+  group and every row above it open — a group closed by hand too — and the
+  column scrolls to it. Once per row: closed again, they stay closed until
+  another row opens. Nothing is closed for it.
+
+<Canvas of={NavTreeStories.OpensOntoTheCurrentRow} />
+
+- In a new tab, where nothing is open yet, the same: the row is in sight
+  when the tree is drawn.
+
+<Canvas of={NavTreeStories.InANewTab} />
+
+- `selectedParent` is the row the current one sits under, while the tree
+  does not draw the current one. Its rows are read only when it opens: the
+  tree opens onto it and opens it, and marks the current row once it is in.
+
+<Canvas of={NavTreeStories.UnderARowNotReadYet} />
+
+- The current item is not a row here at all — a sidebar listing places, not
+  everything in them: the place it is listed in stays marked, and
+  `selectedParent` opens the group holding the row it is under, unmarked.
+
+<Canvas of={NavTreeStories.NotARowHere} />
+
 - A row's `hint` (a neutral **Chip**), `count` and `menu` are **NavItem**'s,
   passed through.
 - `groups={null}` while the first read is on its way draws a skeleton;
@@ -99,7 +123,12 @@ import { NavTree, Sidebar } from '@estiva-app/ui'
   does: through **AppProvider**'s `navigate`, or `onSelect` preventing the
   default and navigating.
 - `storageKey` remembers each group open or closed in this browser, under
-  the key and the group's id. The rows under a row are not remembered yet.
+  the key and the group's id — a group opened for the current row is
+  remembered open, as a click would be. The rows under a row are not
+  remembered yet.
+- Groups the app draws itself open for the current row through `openFor` on
+  each **NavTreeSection** and **NavItem** that holds it; the scroll is the
+  tree's either way, given `selected`.
 - The words in `emptyMessage` are the caller's.
 
 ## What it owns
@@ -109,7 +138,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Draws every level from one list, rows under rows | a recursive render of **NavItem**s and **CollapsibleSection**s |  |
-| Opens the group that holds the current row | a search through the list for the current row |  |
+| Opens the group and the rows above the current row, once per row, and scrolls to it | a search through the list for the current row, an effect that opens it, a scroll into view |  |
 | Says it is loading, or empty, in the rows' place | a skeleton or an **EmptyState** placed by hand |  |
 | Says when the pointer rests on a group, 150ms, and not while it sweeps past | a timer on pointer enter and leave |  |
 

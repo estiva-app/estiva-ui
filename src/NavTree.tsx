@@ -84,8 +84,19 @@ export interface NavTreeProps {
    * is absent.
    */
   children?: ReactNode
-  /** The row that is current: `active`, and its group starts open. */
+  /**
+   * The row that is current: `active`. Each time it names a new row, its
+   * group and every row above it open, closing nothing — a group closed by
+   * hand too — and the column scrolls to it once they have slid open.
+   */
   selected?: string
+  /**
+   * The row the current one sits under, while the tree does not draw the
+   * current one: its rows are not read yet, or it is not a row here. The tree
+   * opens onto that row the same way, opens the row itself so its rows are
+   * read, and marks nothing for it.
+   */
+  selectedParent?: string
   /** A row was clicked. A router app prevents the default and navigates. */
   onSelect?: (node: NavTreeNode, event: MouseEvent<HTMLAnchorElement>) => void
   /** What to say when `groups` is empty. The words are the caller's; absent, nothing is said. */
@@ -97,8 +108,56 @@ export interface NavTreeProps {
 /** How long the pointer rests on a group before `onIntent` (Peek's FolderTree, 150ms). */
 export const NAV_TREE_INTENT_MS = 150
 
+/** How long the column waits to scroll to the current row: the rows above it slide open in 150ms. */
+export const NAV_TREE_REVEAL_MS = 200
+
 function holds(nodes: NavTreeNode[] | null, id: string | undefined): boolean {
   return !!nodes && id !== undefined && nodes.some((node) => node.id === id || holds(node.children ?? null, id))
+}
+
+/** The rows above the row `id`, outermost first; `null` when no row here is `id`. */
+function rowsAbove(nodes: NavTreeNode[] | null | undefined, id: string): string[] | null {
+  for (const node of nodes ?? []) {
+    if (node.id === id) return []
+    const inner = rowsAbove(node.children, id)
+    if (inner) return [node.id, ...inner]
+  }
+  return null
+}
+
+/** What opens so the current row shows: its group and the rows above it — or above `selectedParent`, and that row, until the current one is drawn. */
+interface Opening {
+  /** The current item, for `openFor`: a new one opens them again. */
+  item: string
+  group: string
+  rows: ReadonlySet<string>
+}
+
+function openingFor(groups: NavTreeGroup[], selected: string | undefined, selectedParent: string | undefined): Opening | null {
+  const item = selected ?? selectedParent
+  if (item === undefined) return null
+  for (const [target, andItself] of [[selected, false], [selectedParent, true]] as const) {
+    if (target === undefined) continue
+    for (const group of groups) {
+      const above = rowsAbove(group.nodes, target)
+      if (above) return { item, group: group.id, rows: new Set(andItself ? [...above, target] : above) }
+    }
+  }
+  return null
+}
+
+/**
+ * Scroll the column the row is in, and only that box — never the page, nor a
+ * drawer that is shut — so the row is in sight. A row in sight stays put.
+ */
+function scrollToRow(row: HTMLElement) {
+  let box = row.parentElement
+  while (box && !(/(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight)) box = box.parentElement
+  if (!box || box === document.documentElement || box === document.body) return
+  const at = row.getBoundingClientRect()
+  const view = box.getBoundingClientRect()
+  if (at.top < view.top) box.scrollTop -= view.top - at.top
+  else if (at.bottom > view.bottom) box.scrollTop += at.bottom - view.bottom
 }
 
 /** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September). */
@@ -110,12 +169,14 @@ function Line({ message }: { message: string }) {
   )
 }
 
-function Row({ node, selected, onSelect }: { node: NavTreeNode } & Pick<NavTreeProps, 'selected' | 'onSelect'>) {
+type Drawn = Pick<NavTreeProps, 'selected' | 'onSelect'> & { opening: Opening | null }
+
+function Row({ node, selected, onSelect, opening }: { node: NavTreeNode } & Drawn) {
   const under =
     node.childrenMessage !== undefined ? (
       <Line message={node.childrenMessage} />
     ) : node.children?.length ? (
-      node.children.map((child) => <Row key={child.id} node={child} selected={selected} onSelect={onSelect} />)
+      node.children.map((child) => <Row key={child.id} node={child} selected={selected} onSelect={onSelect} opening={opening} />)
     ) : node.children === null || (node.hasChildren && node.children === undefined) ? (
       <SkeletonList rows={2} />
     ) : undefined
@@ -134,6 +195,7 @@ function Row({ node, selected, onSelect }: { node: NavTreeNode } & Pick<NavTreeP
       defaultOpen={node.defaultOpen ?? true}
       open={node.open}
       onOpenChange={node.onOpenChange}
+      openFor={opening?.rows.has(node.id) ? opening.item : undefined}
       onClick={onSelect ? (event) => onSelect(node, event) : undefined}
     >
       {under}
@@ -141,7 +203,7 @@ function Row({ node, selected, onSelect }: { node: NavTreeNode } & Pick<NavTreeP
   )
 }
 
-function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup } & Pick<NavTreeProps, 'selected' | 'onSelect' | 'storageKey'>) {
+function Group({ group, selected, onSelect, opening, storageKey }: { group: NavTreeGroup } & Drawn & Pick<NavTreeProps, 'storageKey'>) {
   return (
     <NavTreeSection
       id={group.id}
@@ -156,9 +218,10 @@ function Group({ group, selected, onSelect, storageKey }: { group: NavTreeGroup 
       open={group.open}
       onOpenChange={group.onOpenChange}
       storageKey={storageKey ? `${storageKey}.${group.id}` : undefined}
+      openFor={opening?.group === group.id ? opening.item : undefined}
       onIntent={group.onIntent}
     >
-      {group.nodes?.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} />)}
+      {group.nodes?.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} opening={opening} />)}
     </NavTreeSection>
   )
 }
@@ -194,6 +257,8 @@ export interface NavTreeSectionProps {
   pending?: boolean
   /** Remember it open or closed in this browser, under this key. */
   storageKey?: string
+  /** The current item, when it sits in this group: the group opens each time this names a new one — `CollapsibleSection`'s. */
+  openFor?: string
   /** The rows: `NavItem`s. */
   children?: ReactNode
 }
@@ -205,7 +270,7 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, pending, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, pending, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   const intent = onIntent
@@ -233,6 +298,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
         onOpenChange={onOpenChange}
         pending={pending}
         storageKey={storageKey}
+        openFor={openFor}
         trailing={trailing}
         actions={actions}
         menu={menu}
@@ -255,10 +321,36 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
  * arrow that folds what is under it. Groups and rows can be read when they
  * open. Only the group that holds the current row starts open, unless the
  * caller owns it.
+ *
+ * Opening a row shows where it lives (Katerina, 30 October: a file opened
+ * from another app's card, in a new tab, sat marked inside a shut Folder):
+ * each new current row opens its group and the rows above it, even those
+ * closed by hand, once — closed again, they stay closed until another opens —
+ * and the column scrolls to it. Groups the app draws itself take `openFor`
+ * for that; the scroll is the tree's either way.
  */
-export function NavTree({ title, titleActions, groups, children, selected, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
+export function NavTree({ title, titleActions, groups, children, selected, selectedParent, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
+  const opening = groups ? openingFor(groups, selected, selectedParent) : null
+  // Once per current row, when it is drawn and shown: a later draw, or a read landing, does not pull the column back to it.
+  const box = useRef<HTMLDivElement>(null)
+  const scrolled = useRef<string | undefined>(undefined)
+  const waiting = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const latest = useRef(selected)
+  latest.current = selected
+  useEffect(() => {
+    if (selected === undefined || scrolled.current === selected || waiting.current !== undefined) return
+    waiting.current = setTimeout(() => {
+      waiting.current = undefined
+      const row = box.current?.querySelector<HTMLElement>('[aria-current="page"]')
+      if (!row || row.getBoundingClientRect().height === 0) return
+      scrolled.current = latest.current
+      scrollToRow(row)
+    }, NAV_TREE_REVEAL_MS)
+  })
+  useEffect(() => () => clearTimeout(waiting.current), [])
   return (
-    <>
+    // `contents`: a box to find the current row in, that lays nothing out — the groups stay the column's own.
+    <div ref={box} className="contents">
       {title && <SectionHeader title={title} look="quiet" showActions="always" actions={titleActions} className="mt-4 shrink-0" />}
       {groups === undefined ? (
         children
@@ -268,8 +360,8 @@ export function NavTree({ title, titleActions, groups, children, selected, onSel
         // No words, no line: an app that says nothing when it has no groups.
         emptyMessage ? <Line message={emptyMessage} /> : null
       ) : (
-        groups.map((group) => <Group key={group.id} group={group} selected={selected} onSelect={onSelect} storageKey={storageKey} />)
+        groups.map((group) => <Group key={group.id} group={group} selected={selected} onSelect={onSelect} opening={opening} storageKey={storageKey} />)
       )}
-    </>
+    </div>
   )
 }

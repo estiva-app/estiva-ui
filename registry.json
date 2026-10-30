@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.93.0",
+    "packageVersion": "0.94.0",
     "exports": 210,
     "typeExports": 213,
     "files": null
@@ -1554,6 +1554,12 @@
           "takes": "text",
           "required": false,
           "note": "Remember open or closed in this browser, under this key."
+        },
+        {
+          "name": "openFor",
+          "takes": "text",
+          "required": false,
+          "note": "The current item, when it sits in here: the section opens each time this names a new one, as a click would — remembered under `storageKey`, told to `onOpenChange`."
         },
         {
           "name": "icon",
@@ -5943,6 +5949,12 @@
           "note": null
         },
         {
+          "name": "openFor",
+          "takes": "text",
+          "required": false,
+          "note": "With `children`: the current item, when it sits under this row."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -6008,7 +6020,13 @@
           "name": "selected",
           "takes": "text",
           "required": false,
-          "note": "The row that is current: `active`, and its group starts open."
+          "note": "The row that is current: `active`. Each time it names a new row, its group and every row above it open, closing nothing — a group closed by hand too — and the column scrolls to it once they have slid open."
+        },
+        {
+          "name": "selectedParent",
+          "takes": "text",
+          "required": false,
+          "note": "The row the current one sits under, while the tree does not draw the current one: its rows are not read yet, or it is not a row here."
         },
         {
           "name": "onSelect",
@@ -6131,6 +6149,12 @@
           "takes": "text",
           "required": false,
           "note": "Remember it open or closed in this browser, under this key."
+        },
+        {
+          "name": "openFor",
+          "takes": "text",
+          "required": false,
+          "note": "The current item, when it sits in this group: the group opens each time this names a new one — `CollapsibleSection`'s."
         },
         {
           "name": "children",

@@ -3,6 +3,7 @@ import { Collapsible } from '@base-ui/react/collapsible'
 import { IconAlertSquareRounded, IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
+import { useOpenFor } from './CollapsibleSection'
 import { COLLAPSIBLE_PANEL_CLASSES, COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
@@ -85,6 +86,12 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   /** With `children`: the caller owns the state. */
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  /**
+   * With `children`: the current item, when it sits under this row. The row
+   * opens each time this names a new one, as a click would; closed again by
+   * hand, it stays closed until another opens. `NavTree` passes it.
+   */
+  openFor?: string
   className?: string
 }
 
@@ -106,6 +113,7 @@ export function NavItem({
   defaultOpen = true,
   open: openProp,
   onOpenChange,
+  openFor,
   className,
   onClick,
   ...props
@@ -119,6 +127,7 @@ export function NavItem({
     setOpenState(next)
     onOpenChange?.(next)
   }
+  useOpenFor(hasRows ? openFor : undefined, open, setOpen)
   // The row draws beside it — the ⋮, the arrow — so the pointer can leave the
   // link for them while the row still reads as the one it is on.
   const buttons = (menu != null ? 1 : 0) + (action ? 1 : 0)
