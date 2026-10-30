@@ -552,9 +552,14 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
             // A card's own links and controls take the click, while editing too: its title opens the file, its count the
             // conversation, its status and owner change it. Only its empty space opens the menu (Katerina, 30 Oct).
             if (place === 'card' && event.target.closest(CARD_CLICKS)) return
-            if (!referenceMenuClick(editor, pos)) return
-            event.preventDefault()
-            event.stopPropagation()
+            if (referenceMenuClick(editor, pos)) {
+              event.preventDefault()
+              event.stopPropagation()
+              return
+            }
+            // Being written with no menu to open — a message's box: a click on the link does not leave the draft
+            // (Katerina, 30 Oct: a chip in the box does not follow a click).
+            if (!editingLine && editor.isEditable && event.target.closest('a[href]')) event.preventDefault()
           }}
         >
           {/* A URL chip not resolved yet reads as the URL it was written as. */}

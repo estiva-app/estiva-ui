@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
-import { Extension, type AnyExtension, type EditorOptions } from '@tiptap/core'
+import { Extension, nodePasteRule, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
 import { AttachedCard } from './AttachedCard'
@@ -27,6 +27,8 @@ import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
 import { Kbd } from './Kbd'
 import { inTheBox } from './linked'
+import { LinkedIcon } from './LinkParts'
+import { linkedKindOfReference } from './LinkPlaces'
 import { BoxKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
@@ -131,7 +133,10 @@ export interface CommentBoxProps {
   references?: (query: string) => readonly ReferenceSection[]
   /** Called with a listener while `[` is open; call it when `references` would answer differently (a search landed). */
   referencesChanged?: (listener: () => void) => () => void
-  /** A `[` row's and chip's 16px icon from what it points at; absent, a neutral square. */
+  /**
+   * A `[` row's and chip's 16px icon from what it points at. Absent, the kit's icon for the kind its address names
+   * (`LinkedIcon`), and a neutral square for an address that names none.
+   */
   referenceIcon?: (uri: string | null) => ReactNode | undefined
   /** The app's own `/` Insert rows, after the shared Format section: {@link commentBoxRows} and its own. */
   insert?: readonly SlashCommand[]
@@ -161,7 +166,11 @@ export interface CommentBoxProps {
   accept?: string
   /** The box cannot write here (an archived file, signed out): a line saying why takes its place. */
   closed?: { reason: ReactNode }
-  /** How a `nostr:` reference the box holds is drawn — the app's own chip. Absent, as its URI. */
+  /**
+   * How a link the box holds is drawn — a pasted one, a pasted `nostr:` address, and a `[` pick alike: the app's view
+   * of the kit's `LinkChip`, told it is being edited (no preview; a click stays in the draft). Absent, a `nostr:`
+   * reference reads as its URI and a `[` pick as its caption.
+   */
   referenceView?: ComponentType<ReferenceViewProps>
   /** The app's own extra editor extensions: link chips, highlights. */
   extensions?: readonly AnyExtension[]
@@ -216,6 +225,32 @@ const stillNamed = (removed: ReadonlySet<string>, names: readonly string[]): Rea
 const SQUARE = <IconSquareRounded size={16} stroke={1.5} className="text-text-secondary" />
 const SMALL_SQUARE = <IconSquareRounded size={14} stroke={1.5} />
 
+/** The kit's icon for the kind a `nostr:` address names, at a row's or a chip's size; nothing for one that names none. */
+function kindIconOf(uri: string | null, size: 14 | 16): ReactNode | undefined {
+  const kind = uri ? linkedKindOfReference(uri) : undefined
+  return kind ? <LinkedIcon kind={kind} size={size} /> : undefined
+}
+
+/**
+ * A `nostr:` address pasted into the box becomes its link at once, as a pasted app URL does (Katerina, 30 Oct): a file
+ * (`naddr`) or a message (`nevent`, `note`), drawn by the app's `referenceView`. A person's (`npub`) stays the text
+ * it is; `@` names a person.
+ */
+const PastedAddresses = Extension.create({
+  name: 'pastedAddresses',
+  addPasteRules() {
+    const type = this.editor.schema.nodes.reference
+    if (!type) return []
+    return [
+      nodePasteRule({
+        find: /nostr:(?:naddr1|nevent1|note1)[023456789acdefghjklmnpqrstuvwxyz]+/g,
+        type,
+        getAttributes: (match) => ({ uri: match[0] }),
+      }),
+    ]
+  },
+})
+
 /** What the box's editor reads as it runs: the box holding it now, swapped in when a box takes a spare. */
 interface BoxLive {
   edit?: CommentBoxEdit
@@ -244,7 +279,9 @@ const sameApp = (a: BoxApp, b: BoxApp) =>
   a.referenceView === b.referenceView && a.extensions.length === b.extensions.length && a.extensions.every((one, i) => one === b.extensions[i])
 
 function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
-  const iconFor = (uri: string | null) => hold.current.referenceIcon?.(uri)
+  // The app's icons when it gives them; the kit's for the kind each address names otherwise (Katerina, 30 Oct).
+  const own = (uri: string | null, size: 14 | 16) => (hold.current.referenceIcon ? hold.current.referenceIcon(uri) : kindIconOf(uri, size))
+  const iconFor = (uri: string | null) => own(uri, 16)
   return [
     // A link drawn as one, as in a document: it read as plain words in the box before (Katerina, 29 Oct).
     BoxKit.configure({ link: { openOnClick: false, HTMLAttributes: LINK_MARK_ATTRIBUTES } }),
@@ -274,7 +311,8 @@ function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
         return { ...parent, suggestion: { ...parent.suggestion, allow: () => !hold.current.edit } }
       },
     }).configure({ people: () => hold.current.people }),
-    CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor }),
+    // A `[` pick draws as the app draws every other link in the box (Katerina, 30 Oct: one chip look in every box).
+    CaptionedReference.configure({ icon: SMALL_SQUARE, iconFor: (uri) => own(uri, 14), view: app.referenceView }),
     ReferenceTrigger.configure({
       items: () => [],
       sections: (query) => hold.current.references?.(query) ?? [],
@@ -286,6 +324,7 @@ function boxExtensions(hold: BoxHold, app: BoxApp): AnyExtension[] {
     }),
     SlashCommands.configure({ sections: hold.sections }),
     ReferenceNode.configure({ view: app.referenceView }),
+    ...(app.referenceView ? [PastedAddresses] : []),
     PastedImages.configure({ onImages: (files: File[]) => hold.current.attach(files) }),
     ...app.extensions,
   ]

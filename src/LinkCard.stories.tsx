@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { LinkCard, LinkCardLoading } from './LinkCard'
-import { loadingShapeOf, type Linked } from './linked'
+import { inTheBox, loadingShapeOf, type Linked } from './linked'
 import { GROUP, ITEM, ITEM_NO_SUMMARY, ITEM_READ_ONLY, ITEM_UNREAD, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
@@ -27,6 +27,15 @@ export const Default: Story = {
 
 /** To a reader who may not change it: the same two values, as words. */
 export const ReadOnly: Story = { args: { link: ready(ITEM_READ_ONLY) } }
+
+/** In a box being written in: on the files' fill, its values and its links as words, so a click on it never leaves the draft. */
+export const InABox: Story = {
+  render: (args) => (
+    <inTheBox.Provider value>
+      <LinkCard {...args} />
+    </inTheBox.Provider>
+  ),
+}
 
 /** Something unread in its conversation, to a member: the count is brighter, with a dot. */
 export const Unread: Story = { args: { link: ready(ITEM_UNREAD) } }

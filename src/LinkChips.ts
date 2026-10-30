@@ -176,7 +176,8 @@ export function refreshLinkChips(editor: Editor): void {
 
 /**
  * Turns the app URLs in a document into URL chips. Pair it with `ReferenceNode`;
- * `ReferenceCards` then draws a card a URL chip asks for.
+ * `LinkPlaces` then draws a lone one as its row or its card, and
+ * `ReferenceMenu` lets its writer choose.
  */
 export const LinkChips = Extension.create<LinkChipsOptions>({
   name: 'linkChips',

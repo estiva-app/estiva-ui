@@ -59,7 +59,8 @@ export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, 
         <LinkTile kind={kind} />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="block min-w-0 text-body-2-strong text-text-primary">
-            {href ? (
+            {/* In a box being written in, its words alone: the draft is not left for it. */}
+            {href && !boxed ? (
               <Link href={href} variant="quiet" truncate className="block">
                 {heading}
               </Link>

@@ -101,6 +101,7 @@ const urgent = editor ? urgentPubkeys(editor) : undefined
 
 <Canvas of={ComposerTriggersStories.ReferencesOfSeveralKinds} />
 
+- **`CaptionedReference`'s `view`** draws a chip with a `uri` as the app draws its other links (a `referenceView`, the kit's **LinkChip**), told it is being edited; a click on it stays in the draft. `CommentBox` passes its `referenceView`, so a `[` pick looks like a pasted link.
 - **An app's own node name:** `CaptionedReference.extend({ name: 'yourName' })`
   and `ReferenceTrigger.configure({ nodeName: 'yourName' })`. The chip's HTML
   attribute follows the name (`data-your-name`).

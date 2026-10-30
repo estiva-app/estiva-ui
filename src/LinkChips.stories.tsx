@@ -5,7 +5,7 @@ import { BlockId, ReferenceNode, type ReferenceViewProps } from './BlockNodes'
 import { Card } from './Card'
 import { InlineChip } from './InlineChip'
 import { LinkChips } from './LinkChips'
-import { ReferenceCards } from './ReferenceCards'
+import { LinkPlaces } from './LinkPlaces'
 import { richTextClassName } from './RichText'
 
 /**
@@ -35,7 +35,7 @@ function Box() {
       StarterKit.configure({ link: false }),
       BlockId,
       ReferenceNode.configure({ view: Placeholder }),
-      ReferenceCards,
+      LinkPlaces,
       LinkChips.configure({
         referenceOf: (url) => answered.get(url),
         ask: (urls) =>

@@ -15,7 +15,8 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 - `showsAtOnce` when the app shows a send before the relay answers: the box empties at once, and a refusal puts the words back. Without it the box holds the words, shut, until the answer.
 - `edit` to change something already sent: the same box with Cancel and Save, its keys on the left, and the same selection strip over selected words. Its files can be taken off, and with `upload` and `edit.writesFiles` (the app's save writes them) more added. An app that closes the box as Save is pressed and reopens it on a refusal passes `edit.refused`, which is said under the box as it opens.
 - `upload` to offer files: the paperclip, `/` → Upload, a pasted picture and a dropped file. The edit box has no paperclip, since it shows only its keys; the other three work there too.
-- `under` to show, while something is written, the one card it will be sent with and the live part of each block link. They sit inside the box with the files, on the files' fill; the card's ✕ is a file's, on hover, and its values read as words until it is sent. An edit box shows the card and no part.
+- `under` to show, while something is written, the one card it will be sent with and the live part of each block link. They sit inside the box with the files, on the files' fill; the card's ✕ is a file's, on hover, and its values and links read as words until it is sent, so a click on it never leaves the draft. An edit box shows the card and no part.
+- `referenceView` to draw every link the box holds — a pasted app URL once it names something, a pasted `nostr:` address of a file or a message, and a `[` pick — as the app draws a link, with the kit's **LinkChip**: one chip look in every box. It is told it is being edited, so it shows no preview, and a click on it stays in the draft.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
 - `marked` when the app has its own reason for the bar down the text, besides an urgent mention, which always draws it.
 - `onEditor` when something outside the box writes into it: the app keeps the editor it is handed and inserts into the box last used.
@@ -29,6 +30,8 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 <Canvas of={CommentBoxStories.LongDraft} />
 
 <Canvas of={CommentBoxStories.WithACard} />
+
+<Canvas of={CommentBoxStories.WithLinkChips} />
 
 ## When not
 
@@ -68,7 +71,8 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 - A send shown at once and refused after its box went away writes the words into its draft instead.
 - **`under.read` is the app's reading of the draft**: `@estiva-app/conversation`'s `boxReadOf(body, context)` says which file gets the card and which parts show; the app adds its own view of each. Call `under.changed`'s listener when what a link names comes back. `send`'s third argument is `{ card }`, the card still shown, which the app writes with `embedsToSend` (or `embedsToEdit` for `onSave`).
 - **An edit box's `read` passes `previous: namedBefore(<the message's text>)`**, so only a file the edit names first gets a card. A card the message already has, or one taken off with ✕ before or after sending, never shows again in the edit box, and Save leaves it as it was.
-- **A link chip for a pasted app URL** is the app's `LinkChips`, passed in `extensions`.
+- **A link chip for a pasted app URL** is the app's `LinkChips`, passed in `extensions`. A pasted `nostr:` address needs nothing: with a `referenceView`, the box makes it its link itself. A person's (`npub`) stays text; `@` names a person.
+- **`referenceIcon` is optional.** Without it, `[`'s rows wear the kit's icon for the kind each address names (**LinkedIcon**: a message, an issue, a project, a topic, a document, another app's file), and a neutral square for one that names none.
 - **`keepCommentBoxWarm({ extensions, referenceView })`**, called once as the app starts, builds an editor while the page is idle, and the next empty box given those same `extensions` and `referenceView` (the same objects, in the same order) takes it, so it opens at once. A box opening with a draft or an edit, or with other extensions, builds its own. Keep `extensions` a module constant: a new array per render never matches.
 - **`onEditor` gets `null` as the box goes**, so a launcher never writes into a box that is gone.
 
@@ -79,6 +83,8 @@ It does these by itself. Write none of them around it.
 | It does | So you never write |
 |---|---|
 | `@`, `!@`, `[` and `/`, with their lists and chips | the triggers and their extensions |
+| A `[` pick, a pasted link and a pasted `nostr:` address drawn alike, through `referenceView`; none previews while written, and a click on one, or on the card in the box, stays in the draft | a chip of your own for the box, a click guard |
+| `[`'s rows wear the icon of the kind each address names | an icon lookup |
 | Enter and Ctrl/Cmd+Enter send; Escape cancels an edit | key handlers |
 | Holding the words until the answer, or showing the send at once | a sending state |
 | A refusal: the words back, and a line under the box | a toast, or putting text back |

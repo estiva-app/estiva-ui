@@ -4,12 +4,13 @@
  * count with its unread dot, and the pickers. LinkChip, LinkRow and LinkCard
  * place them; an app may place them too.
  */
+import { useContext } from 'react'
 import { IconCircle, IconCircleCheck, IconCircleDashed, IconCircleHalf2, IconCircleX, IconFileText, IconMessage2 } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { cn } from './cn'
 import { KindIcon } from './KindIcon'
 import { Link } from './Link'
-import { chosenOf, type Linked, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
+import { chosenOf, inTheBox, type Linked, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
 import { TYPE_TILE_CLASSES } from './looks'
 import { Select } from './Select'
 import { WithTooltip } from './Tooltip'
@@ -96,10 +97,22 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
  * The count of what was said, a link to where it is read. With something
  * unread there the words are brighter and a dot follows. It sits above a
  * row's covering link, so the row opens the thing and the count its
- * conversation.
+ * conversation. In a box being written in it is the count alone, no link: the
+ * draft is not left for it (Katerina, 30 Oct).
  */
 export function CommentCount({ conversation, noun = 'comments' }: { conversation: LinkedConversation; noun?: string }) {
   const { count, href, unread = false } = conversation
+  const boxed = useContext(inTheBox)
+  if (boxed) {
+    return (
+      <span className={cn('inline-flex h-6 shrink-0 items-center gap-1 px-1.5 text-small tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+        <IconMessage2 size={14} stroke={1.5} aria-hidden />
+        {count}
+        <span className="sr-only">{unread ? `${noun}, unread` : noun}</span>
+        {unread && <UnreadDot className="h-auto w-auto" />}
+      </span>
+    )
+  }
   return (
     /*
      * A small button's shape, as Button's small one is: 24px tall like the pickers beside it, 6px each side, its corners
