@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+Katerina, 30 Oct: Undo on Peek's Screener Dismiss and Later, and a Sort menu on
+Open work.
+
+### Added
+
+- **A toast says when it closes.** `showToast({ onClose })` is told once,
+  however the toast closes: its timer (which pauses while pointed at), its
+  action, a swipe, Escape or `dismissToast`. An Undo that holds a write until
+  the toast goes writes there, with no timer of its own.
+- **A section heading's action can open a menu.** A `SectionAction` takes
+  `menu` in place of `onClick`: its button opens those items, a Sort or a
+  filter, and the row stays lit while it is open. `NavItem`'s `action` is still
+  a button that runs `onClick`.
+
 ## 0.92.1 — 2026-10-30
 
 Katerina, 30 Oct: "Open" into another app is the kit's own Button with a real

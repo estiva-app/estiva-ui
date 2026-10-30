@@ -133,6 +133,12 @@ export interface ToastOptions {
   leadingIcon?: boolean
   /** Auto-dismiss after this many ms. Defaults to 5000. Pass 0 to disable. */
   durationMs?: number
+  /**
+   * Told once when the toast closes, however it closes: its own timer, its
+   * action, a swipe, Escape or `dismissToast`. For an action whose Undo is a
+   * wait — the write happens here, unless the Undo was pressed first.
+   */
+  onClose?: () => void
 }
 
 interface ToastValue {
@@ -163,11 +169,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const manager = useMemo(() => BaseToast.createToastManager<ToastData>(), [])
   const value = useMemo<ToastValue>(
     () => ({
-      showToast: ({ label, type = 'neutral', leadingIcon = true, actionLabel, onAction, durationMs = 5000 }) =>
+      showToast: ({ label, type = 'neutral', leadingIcon = true, actionLabel, onAction, durationMs = 5000, onClose }) =>
         manager.add({
           title: label,
           type,
           timeout: durationMs,
+          onClose,
           // A failure interrupts; everything else waits for a pause.
           priority: type === 'error' ? 'high' : 'low',
           data: { leadingIcon, actionLabel, onAction },
