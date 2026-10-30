@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.95.0",
-    "exports": 210,
-    "typeExports": 213,
+    "packageVersion": "0.94.0",
+    "exports": 211,
+    "typeExports": 214,
     "files": null
   },
   "storybook": {
@@ -207,7 +207,7 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The top bar's menu button, in an app whose navigation collapses."
+          "note": "The top bar's menu button, in place of the fold `onNavOpenChange` draws."
         },
         {
           "name": "logo",
@@ -255,7 +255,7 @@
           "name": "navOpen",
           "takes": "true/false",
           "required": false,
-          "note": "Whether the navigation is shown, in the solid and inset manners."
+          "note": "Whether the navigation is shown. With `onNavOpenChange`, the frame draws the fold as the top bar's menu button (unless `menu` is given), in every manner, and folding narrows and fades the navigation to the content's own margin (LED-3, Katerina, 28 October: the sidebar fold top left, on the top bar's menu button; one fold in every app, with Peek's motion, 31 October)."
         },
         {
           "name": "onNavOpenChange",
@@ -288,6 +288,9 @@
       "docPage": "src/AppShell.mdx",
       "app": null,
       "looks": [
+        "transition-[grid-template-columns] duration-300 ease-in-out motion-reduce:transition-none",
+        "overflow-hidden transition-[opacity,visibility] duration-300 ease-in-out motion-reduce:transition-none visible opacity-100",
+        "overflow-hidden transition-[opacity,visibility] duration-300 ease-in-out motion-reduce:transition-none invisible opacity-0",
         "overflow-hidden rounded-2xl bg-bg-surface signal:border signal:border-border-subtle signal:shadow-highlight-inset"
       ]
     },
@@ -6324,6 +6327,12 @@
           "note": "The part's blocks, drawn by the app."
         },
         {
+          "name": "action",
+          "takes": "anything",
+          "required": false,
+          "note": "The way out to where the part lives: a small `Button` with a leading icon (\"Open in Leaf\")."
+        },
+        {
           "name": "maxHeight",
           "takes": "number",
           "required": false,
@@ -8303,6 +8312,12 @@
           "note": "inset card and a selected message included."
         },
         {
+          "name": "action",
+          "takes": "anything",
+          "required": false,
+          "note": "A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives."
+        },
+        {
           "name": "contentClassName",
           "takes": "text",
           "required": false,
@@ -9576,7 +9591,7 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "Far left: the menu button, in an app whose navigation collapses."
+          "note": "Far left: the menu button, in an app whose navigation folds."
         },
         {
           "name": "logo",
@@ -9850,6 +9865,44 @@
       "migrationStage": null,
       "docsId": "links-references-linkpreview--docs",
       "storyId": "links-references-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useSidebarFold",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AppShell.tsx",
+      "purpose": "Whether the sidebar is shown, and the setter that remembers it, for `AppShell`'s `navOpen` and `onNavOpenChange`: folded stays folded on this browser, across pages and reloads, until unfolded (Ship's and Leaf's since LED-3, Miky, 28 October; every app's, Katerina, 31 October).",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "storageKey",
+          "takes": "text",
+          "required": true,
+          "note": "Where this browser keeps a folded sidebar: the app's own key, such as `ship.sidebarFolded`."
+        },
+        {
+          "name": "isFile",
+          "takes": "a handler",
+          "required": false,
+          "note": "Whether the page open now is a file. A file opened from a link — another app's card, a link in a message — shows where it lives, so a folded sidebar unfolds for it, as its button would, and stays unfolded (Katerina, 30 October)."
+        },
+        {
+          "name": "foldWhen",
+          "takes": "text",
+          "required": false,
+          "note": "A media query: a window that matches it opens folded, whatever was kept, with no room beside the page (Leaf's, `(max-width: 1023px)`)."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "app-frame-appshell--docs",
+      "storyId": "app-frame-appshell--solid",
       "docPage": null,
       "app": null,
       "looks": []

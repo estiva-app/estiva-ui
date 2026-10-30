@@ -68,6 +68,15 @@ export const MUTED_CONTROL_CLASSES = 'text-text-secondary hover:bg-bg-hover hove
 export const MENU_TRIGGER_CLASSES = 'cursor-pointer rounded-md transition-colors hover:bg-bg-hover data-[popup-open]:bg-bg-hover'
 
 /**
+ * A column that folds sideways, as Peek's rail did (Katerina, 31 October: one fold in every app): 300ms, none under
+ * prefers-reduced-motion. Folded, it fades and is then hidden, so nothing in it can be seen once it has gone; with
+ * the `transition-[…]` naming `opacity` and `visibility`. AppShell's navigation, and ListColumn closing with it.
+ */
+export const FOLD_MOTION_CLASSES = 'duration-300 ease-in-out motion-reduce:transition-none'
+export const FOLDED_CLASSES = 'invisible opacity-0'
+export const UNFOLDED_CLASSES = 'visible opacity-100'
+
+/**
  * A panel that slides open and shut on Base UI's Collapsible: Base UI measures
  * it and writes its height to a variable, `auto` again once the slide ends, and
  * the panel is 0 high on its opening and closing frames. None under

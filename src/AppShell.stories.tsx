@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { IconMenu2, IconSquareRounded } from '@tabler/icons-react'
-import { expect, userEvent, within } from 'storybook/test'
-import { AppShell } from './AppShell'
+import { IconSquareRounded } from '@tabler/icons-react'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+import { AppShell, useSidebarFold } from './AppShell'
 import { Banner } from './Banner'
 import { EmptyState } from './EmptyState'
-import { IconButton } from './IconButton'
 import { NavItem } from './NavItem'
 import { PersonTrigger } from './PersonTrigger'
 import { Rail } from './Rail'
@@ -24,7 +23,7 @@ const meta = {
   },
   args: { nav: null, children: null },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['solid', 'floating'] },
+    variant: { control: 'inline-radio', options: ['solid', 'inset', 'floating'] },
     menu: { control: false },
     logo: { control: false },
     search: { control: false },
@@ -41,11 +40,6 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const identity = <PersonTrigger name="Ana Duarte" />
-const menuButton = (
-  <IconButton tooltip="Toggle menu" tooltipPlacement="bottom" aria-label="Toggle menu">
-    <IconMenu2 size={16} stroke={1.5} />
-  </IconButton>
-)
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
 
@@ -63,6 +57,26 @@ const rail = (
     <RailItem href="#" label="Item" icon={placeholder} />
   </Rail>
 )
+
+/**
+ * Folds from the top bar's menu button and comes back from the same place: folded, the navigation takes only the
+ * content's own margin and nothing in it can be seen; open, it takes its own width.
+ */
+function foldsAndComesBack(margin: number, width: number) {
+  return async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+    const canvas = within(canvasElement)
+    const nav = canvasElement.querySelector('nav') as HTMLElement
+    // The room the navigation takes beside the content: the folding box around it, which clips it.
+    const room = () => Math.round((nav.parentElement?.parentElement as HTMLElement).getBoundingClientRect().width)
+    await expect(room()).toBe(width)
+    await userEvent.click(canvas.getByRole('button', { name: 'Hide the sidebar' }))
+    await waitFor(() => expect(room()).toBe(margin), { timeout: 2000 })
+    await waitFor(() => expect(nav).not.toBeVisible())
+    await userEvent.click(canvas.getByRole('button', { name: 'Show the sidebar' }))
+    await waitFor(() => expect(room()).toBe(width), { timeout: 2000 })
+    await expect(nav).toBeVisible()
+  }
+}
 
 /** The structured frame: solid bar, sidebar, content beside it. */
 export const Solid: Story = {
@@ -89,6 +103,31 @@ export const SolidScrolls: Story = {
   ),
 }
 
+/** The sidebar folds from the top bar's menu button: it narrows and fades in 300ms, and the content takes the room. */
+export const SolidFolds: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useState(true)
+    return (
+      <AppShell {...args} logo="Estiva" onSearch={() => {}} identity={identity} nav={sidebar} navOpen={open} onNavOpenChange={setOpen}>
+        <EmptyState message="Nothing here yet." />
+      </AppShell>
+    )
+  },
+  play: foldsAndComesBack(0, 240),
+}
+
+/** `useSidebarFold` keeps it: fold the sidebar, reload the page, and it is still folded. */
+export const RemembersItsFold: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useSidebarFold({ storageKey: 'estiva-ui.stories.sidebarFolded' })
+    return (
+      <AppShell {...args} logo="Estiva" onSearch={() => {}} identity={identity} nav={sidebar} navOpen={open} onNavOpenChange={setOpen}>
+        <EmptyState message="Fold the sidebar, then reload the page." />
+      </AppShell>
+    )
+  },
+}
+
 export const SolidWithBanner: Story = {
   render: (args) => (
     <AppShell {...args} logo="Estiva" identity={identity} nav={sidebar} banner={<Banner tone="ok">Public key copied.</Banner>}>
@@ -107,7 +146,7 @@ export const Inset: Story = {
   ),
 }
 
-/** The navigation folds away from the top bar's menu button, and comes back from the same place. */
+/** Folded, the inset card keeps a left margin as wide as its right one. */
 export const InsetFolds: Story = {
   args: { variant: 'inset' },
   render: function Render(args) {
@@ -118,16 +157,7 @@ export const InsetFolds: Story = {
       </AppShell>
     )
   },
-  // Measured as drawn: in a Tailwind 3 app the `hidden` attribute alone loses to a display class (LED-3, 0.90.0).
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const drawn = () => canvasElement.querySelector('nav')?.getBoundingClientRect().width ?? 0
-    await expect(drawn()).toBeGreaterThan(0)
-    await userEvent.click(canvas.getByRole('button', { name: 'Hide the sidebar' }))
-    await expect(drawn()).toBe(0)
-    await userEvent.click(canvas.getByRole('button', { name: 'Show the sidebar' }))
-    await expect(drawn()).toBeGreaterThan(0)
-  },
+  play: foldsAndComesBack(16, 240),
 }
 
 export const InsetWithBanner: Story = {
@@ -142,18 +172,23 @@ export const InsetWithBanner: Story = {
 /** The floating frame: the bar floats over the top edge, the rail stands on the background, and the content lives in the rounded card. */
 export const Floating: Story = {
   render: (args) => (
-    <AppShell
-      {...args}
-      variant="floating"
-      menu={menuButton}
-      logo="Estiva"
-      onSearch={() => {}}
-      identity={identity}
-      nav={rail}
-    >
+    <AppShell {...args} variant="floating" logo="Estiva" onSearch={() => {}} identity={identity} nav={rail}>
       <EmptyState message="Nothing here yet." />
     </AppShell>
   ),
+}
+
+/** The rail folds as the sidebar does, to the 16px the card keeps from the window's edge. */
+export const FloatingFolds: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useState(true)
+    return (
+      <AppShell {...args} variant="floating" logo="Estiva" onSearch={() => {}} identity={identity} nav={rail} navOpen={open} onNavOpenChange={setOpen}>
+        <EmptyState message="Nothing here yet." />
+      </AppShell>
+    )
+  },
+  play: foldsAndComesBack(16, 64),
 }
 
 /** In the floating frame the banner draws inside the card, at its top. */
@@ -162,7 +197,6 @@ export const FloatingWithBanner: Story = {
     <AppShell
       {...args}
       variant="floating"
-      menu={menuButton}
       logo="Estiva"
       identity={identity}
       nav={rail}

@@ -40,7 +40,7 @@ import { shortcutLabel } from './shortcuts'
  */
 export interface TopBarProps {
   variant?: 'solid' | 'floating' | 'inset'
-  /** Far left: the menu button, in an app whose navigation collapses. Stays the caller's — the bar only places it. */
+  /** Far left: the menu button, in an app whose navigation folds. Inside an `AppShell`, the frame's own fold. */
   menu?: ReactNode
   /** Beside the menu button: the app's logo mark, or its name as text. */
   logo?: ReactNode

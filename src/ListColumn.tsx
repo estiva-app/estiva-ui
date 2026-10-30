@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { cn } from './cn'
 import { ContainerHeader } from './ContainerHeader'
 import { ErrorBoundary } from './ErrorBoundary'
+import { FOLDED_CLASSES, FOLD_MOTION_CLASSES, UNFOLDED_CLASSES } from './looks'
 import { ScrollArea } from './ScrollArea'
 
 /**
@@ -25,7 +26,9 @@ import { ScrollArea } from './ScrollArea'
  * in the middle of the room the list had, and the rest of the page keeps working.
  *
  * `collapsed` closes it with the rail, as Peek's did: it narrows to nothing
- * and fades, in 300ms. What opens and closes the rail stays the app's.
+ * and fades, in 300ms, as `AppShell`'s fold does, and nothing in it can be
+ * reached. The fold that closes it is the frame's; whether it is closed is
+ * the app's to hand on.
  */
 export interface ListColumnProps {
   /** The column's name, in its header. A node for a title that is more than words. */
@@ -51,11 +54,14 @@ function Column({ title, chevron = false, titleMenu, actions, above, collapsed =
     <div
       className={cn(
         // `shrink-0`: the column keeps its 290px beside a main area that grows.
-        'flex shrink-0 flex-col overflow-hidden border-r border-border-subtle transition-[width,opacity] duration-300 ease-in-out',
-        collapsed ? 'w-0 border-r-0 opacity-0' : 'w-[290px] opacity-100',
+        'flex shrink-0 flex-col overflow-hidden border-r border-border-subtle transition-[width,opacity,visibility]',
+        FOLD_MOTION_CLASSES,
+        collapsed ? cn('w-0 border-r-0', FOLDED_CLASSES) : cn('w-[290px]', UNFOLDED_CLASSES),
         className,
       )}
       data-collapsed={collapsed || undefined}
+      // Closed, nothing in it can be reached: inert at once, hidden once it has faded, as AppShell's folded navigation.
+      inert={collapsed}
     >
       <ContainerHeader title={title} chevron={chevron} titleMenu={titleMenu} actions={actions} />
       {above}

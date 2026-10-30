@@ -29,8 +29,7 @@ Layout only: no data, no routes.
   and bottom, with 8px corners, and the Sidebar drops its line and surface
   by itself. Any theme: the ground and the card are its base and surface.
 - **`floating` + Rail** — an app with a handful of top-level places and
-  its content in one card; the `menu` button in the bar collapses the
-  rail (the collapsing stays the app's).
+  its content in one card.
 - The **banner belongs to the content area**: it draws at the top of the
   main column — inside the card, in the floating manner — never across
   the navigation.
@@ -63,11 +62,14 @@ height and grows with a tall page — which is what lets the bar know the
 page changed — so a percentage height has nothing to resolve against.
 
 ```tsx
-import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
+import { AppShell, Banner, IdentityMenu, Rail, RailItem, useSidebarFold } from '@estiva-app/ui'
+
+const [navOpen, setNavOpen] = useSidebarFold({ storageKey: 'peek.sidebarFolded' })
 
 <AppShell
   variant="floating"
-  menu={menuButton}
+  navOpen={navOpen}
+  onNavOpenChange={setNavOpen}
   logo="Estiva"
   onSearch={openLauncher}
   identity={<IdentityMenu me={me} signedIn={signedIn} />}
@@ -85,12 +87,22 @@ import { AppShell, Banner, IdentityMenu, Rail, RailItem } from '@estiva-app/ui'
   Ctrl+K.
 - In the floating manner the card owns `overflow-hidden` — your content
   manages its own scrolling inside it.
-- **Folding the navigation**, in the solid and inset manners: pass `navOpen`
-  and `onNavOpenChange`, and the frame draws the fold as the top bar's menu
-  button ("Hide the sidebar" / "Show the sidebar") and, folded, keeps only
-  the content's own margin. Where the state is kept (remembered, started
-  folded in a narrow window) is yours. A `menu` you pass replaces the fold
-  button.
+- **Folding the navigation**, in every manner: pass `navOpen` and
+  `onNavOpenChange`, and the frame draws the fold as the top bar's menu
+  button ("Hide the sidebar" / "Show the sidebar"), the same button in every
+  app (Katerina, 31 October). Folding narrows and fades the navigation in
+  300ms, Peek's motion, down to the content's own margin: none in the solid
+  manner, 16px in the others. Folded, it stays mounted, and nothing in it can
+  be reached. A `menu` you pass replaces the fold button.
+- **Remembering the fold**: `useSidebarFold({ storageKey })` gives `navOpen`
+  and `onNavOpenChange`, and keeps a folded sidebar folded on this browser,
+  across pages and reloads. `isFile` says whether the page open now is a
+  file: a file opened from a link unfolds a folded sidebar, as its button
+  would, and a reload does not. `foldWhen` is a media query: a window that
+  matches it opens folded.
+
+<Canvas of={AppShellStories.SolidFolds} />
+
 - Desktop only for now — no narrow-screen behaviour is provided.
 - In the Signal theme the floating frame draws the control-room dot grid on
   its ground, behind the card. Nothing to add: the preset makes it.
@@ -110,6 +122,8 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Scrolls the page's content column, in a ScrollArea | `overflow-auto` on the page or on `main` |  |
+| Draws the fold button, and folds the navigation with its motion | a menu button of your own, a width transition around the navigation |  |
+| Keeps a folded sidebar folded (`useSidebarFold`) | a `localStorage` key of your own for it |  |
 
 ## Props
 

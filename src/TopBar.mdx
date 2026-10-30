@@ -24,9 +24,10 @@ bar ignores the pointer so the content underneath stays reachable.
 - **`floating`** — an app whose content runs to the top edge; the bar
   floats over it and only its clusters catch clicks (AppShell's
   `floating` variant).
-- `menu` is the menu button, in an app whose navigation collapses — the
-  collapsing itself stays the caller's. `logo` sits beside it: the app's
-  name as text, or a mark.
+- `menu` is the menu button, in an app whose navigation folds. Inside an
+  **AppShell** it is the frame's fold ("Hide the sidebar" / "Show the
+  sidebar"), the same button in every app (Katerina, 31 October): pass
+  nothing. `logo` sits beside it: the app's name as text, or a mark.
 - `onSearch` is what searching opens — your command launcher. With it the
   bar draws the search field itself: **SearchInput**'s look, 290px, as a
   button showing `searchPlaceholder` ("Search…") and the shortcut. A click on

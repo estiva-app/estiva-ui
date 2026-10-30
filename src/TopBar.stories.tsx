@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconMenu2 } from '@tabler/icons-react'
+import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react'
 import { useState, type ReactNode } from 'react'
 import { IconButton } from './IconButton'
 import { PersonTrigger } from './PersonTrigger'
@@ -34,9 +34,10 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const face = <PersonTrigger name="Ana Duarte" />
+/** The fold AppShell draws there (Katerina, 31 October: the same button in every app). */
 const menuButton = (
-  <IconButton tooltip="Toggle menu" tooltipPlacement="bottom" aria-label="Toggle menu">
-    <IconMenu2 size={16} stroke={1.5} />
+  <IconButton tooltip="Hide the sidebar" tooltipPlacement="bottom" aria-label="Hide the sidebar">
+    <IconLayoutSidebarLeftCollapse size={16} stroke={1.5} />
   </IconButton>
 )
 
