@@ -37,12 +37,12 @@ export interface LinkCardProps {
 const CARD_CLASSES = 'flex flex-col gap-3 p-3'
 
 /**
- * A link on a card, or in a box being written in its words alone: the card under the box follows no click, as the
- * chips in the box do not (Katerina, 30 Oct).
+ * A link on a card, or its words alone: in a box being written in, where the card under the box follows no click,
+ * as the chips in the box do not (Katerina, 30 Oct), and where there is nowhere to open (an empty `href`).
  */
 function CardLink({ href, truncate = false, className, children }: { href: string; truncate?: boolean; className?: string; children: ReactNode }) {
   const boxed = useContext(inTheBox)
-  if (boxed) return <span className={cn(truncate && 'truncate', className)}>{children}</span>
+  if (boxed || !href) return <span className={cn(truncate && 'truncate', className)}>{children}</span>
   return (
     <Link href={href} variant="quiet" truncate={truncate} className={className}>
       {children}
@@ -107,7 +107,7 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
               {child.key && <LinkKey>{child.key}</LinkKey>}
               {/* Each opens on its own; the link covers its row. */}
               <span className="contents text-body-2 text-text-primary">
-                {boxed ? (
+                {boxed || !child.href ? (
                   <span className="min-w-0 flex-1 truncate">{child.title}</span>
                 ) : (
                   <Link href={child.href} variant="quiet" cover truncate className="min-w-0 flex-1">

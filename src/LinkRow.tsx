@@ -134,9 +134,13 @@ export function LinkRow({ link, preview = true }: LinkRowProps) {
         // cut to fit, the time.
         <span className="flex min-w-0 flex-1 items-baseline gap-2">
           <span className="contents text-body-2-strong text-text-primary">
-            <Link href={linked.href} variant="quiet" cover truncate className="min-w-0">
-              {said.name}
-            </Link>
+            {linked.href ? (
+              <Link href={linked.href} variant="quiet" cover truncate className="min-w-0">
+                {said.name}
+              </Link>
+            ) : (
+              <span className="min-w-0 truncate">{said.name}</span>
+            )}
           </span>
           {linked.body && <span className="min-w-0 flex-1 truncate text-caption text-text-secondary">{linked.body}</span>}
           {linked.updated && <span className={cn('ml-auto shrink-0 text-caption text-text-muted', TIME_CLASSES)}>{linked.updated}</span>}
@@ -144,9 +148,14 @@ export function LinkRow({ link, preview = true }: LinkRowProps) {
       ) : (
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="contents text-body-2-strong text-text-primary">
-            <Link href={linked.href} variant="quiet" cover truncate>
-              {linked.title}
-            </Link>
+            {/* Another app's file with no address to open (none over https): its title is words, not a link to nowhere. */}
+            {linked.href ? (
+              <Link href={linked.href} variant="quiet" cover truncate>
+                {linked.title}
+              </Link>
+            ) : (
+              <span className="truncate">{linked.title}</span>
+            )}
           </span>
           {meta && <span className="truncate text-caption text-text-secondary">{meta}</span>}
         </span>

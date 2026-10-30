@@ -58,7 +58,7 @@ describe('AttachedCard', () => {
     )
     expect(screen.getByText(ITEM.title)).toBeTruthy()
     expect(screen.queryAllByRole('link')).toHaveLength(0)
-    expect(screen.getByText('comments')).toBeTruthy()
+    expect(screen.getByText('4 comments')).toBeTruthy()
   })
 
   it('has no ✕ for anyone but who wrote it', () => {

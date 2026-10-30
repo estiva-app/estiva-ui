@@ -94,21 +94,36 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
 }
 
 /**
+ * A count in words, as the kit says one elsewhere ("3 members"): `noun` is the
+ * plural, and one is its singular — "1 comment", "1 conversation", "1 reply".
+ */
+function countWords(count: number, noun: string): string {
+  if (count !== 1) return `${count} ${noun}`
+  const one = /ies$/.test(noun) ? noun.replace(/ies$/, 'y') : noun.replace(/s$/, '')
+  return `${count} ${one}`
+}
+
+/**
  * The count of what was said, a link to where it is read. With something
  * unread there the words are brighter and a dot follows. It sits above a
  * row's covering link, so the row opens the thing and the count its
  * conversation. In a box being written in it is the count alone, no link: the
- * draft is not left for it (Katerina, 30 Oct).
+ * draft is not left for it (Katerina, 30 Oct); and so it is where the app gives
+ * it nowhere to open (an empty `href`).
+ *
+ * A screen reader hears it whole, "3 comments — open the conversation": the
+ * figure drawn is hidden from it, so it never runs into the noun ("3comments").
  */
 export function CommentCount({ conversation, noun = 'comments' }: { conversation: LinkedConversation; noun?: string }) {
   const { count, href, unread = false } = conversation
   const boxed = useContext(inTheBox)
-  if (boxed) {
+  const said = countWords(count, noun)
+  if (boxed || !href) {
     return (
       <span className={cn('inline-flex h-6 shrink-0 items-center gap-1 px-1.5 text-small tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
         <IconMessage2 size={14} stroke={1.5} aria-hidden />
-        {count}
-        <span className="sr-only">{unread ? `${noun}, unread` : noun}</span>
+        <span aria-hidden>{count}</span>
+        <span className="sr-only">{unread ? `${said}, unread` : said}</span>
         {unread && <UnreadDot className="h-auto w-auto" />}
       </span>
     )
@@ -124,8 +139,8 @@ export function CommentCount({ conversation, noun = 'comments' }: { conversation
     <span className={cn('relative z-10 inline-flex h-6 shrink-0 rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
       <Link href={href} variant="plain" className="flex h-full items-center gap-1 px-1.5">
         <IconMessage2 size={14} stroke={1.5} aria-hidden />
-        {count}
-        <span className="sr-only">{unread ? `${noun}, unread — open the conversation` : `${noun} — open the conversation`}</span>
+        <span aria-hidden>{count}</span>
+        <span className="sr-only">{unread ? `${said}, unread — open the conversation` : `${said} — open the conversation`}</span>
         {unread && <UnreadDot className="h-auto w-auto" />}
       </Link>
     </span>

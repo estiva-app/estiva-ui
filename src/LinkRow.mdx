@@ -39,7 +39,7 @@ import { LinkRow } from '@estiva-app/ui'
 <LinkRow link={{ state: 'ready', linked }} />
 ```
 
-- The whole row opens `linked.href`; the conversation count opens `linked.conversation.href` on its own.
+- The whole row opens `linked.href`; the conversation count opens `linked.conversation.href` on its own. With no address (an empty `href`, as for another app's file with none over https), its title, or its count, is words and not a link.
 - `linked.conversation.unread` is the app's to say, and only for a member of it.
 
 ## What it owns

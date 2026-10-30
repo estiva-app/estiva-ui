@@ -81,6 +81,18 @@ Katerina's widget review, 30 Oct: how link widgets work in Peek, Ship and Leaf,
   for its placeholder. Peek's and Ship's `lib/cardShapes.ts`, lifted for Leaf,
   beside `unavailableMemory`.
 
+### Fixed
+
+- **A comment count is said whole**: "1 comment", "3 comments — open the
+  conversation". A screen reader heard the figure run into the noun
+  ("3comments") and the plural for one. `noun` stays the plural; one is its
+  singular. An app test that finds the count by its name matches the figure
+  now (found by the Ship worker).
+- **A file with no address is not a link to nowhere.** Another app's file with
+  no https address had `href=""` on its chip, its row's and card's title, its
+  items and its count: each is words now, and `ReferenceMenu` offers no Open
+  for it (found by the Ship worker).
+
 ### Removed
 
 - **The deprecated `ReferenceCards`, its story and its page** (breaking, in

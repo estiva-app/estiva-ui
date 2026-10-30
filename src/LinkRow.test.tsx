@@ -36,6 +36,23 @@ describe('LinkRow', () => {
     expect(screen.getByText('Issue not available')).toBeTruthy()
   })
 
+  it('says its count whole, one comment or several, never the figure run into the noun', () => {
+    const { rerender } = render(<LinkRow link={ready({ ...ITEM, conversation: { count: 1, href: '#c' } })} preview={false} />)
+    expect(screen.getByRole('link', { name: '1 comment — open the conversation' })).toBeTruthy()
+    rerender(<LinkRow link={ready({ ...ITEM, conversation: { count: 3, href: '#c' } })} preview={false} />)
+    expect(screen.getByRole('link', { name: '3 comments — open the conversation' })).toBeTruthy()
+    rerender(<LinkRow link={ready({ ...ITEM, conversation: { count: 1, href: '#c', noun: 'conversations' } })} preview={false} />)
+    expect(screen.getByRole('link', { name: '1 conversation — open the conversation' })).toBeTruthy()
+  })
+
+  it('draws a file with no address to open as words, its title and its count no links', () => {
+    const { container } = render(<LinkRow link={ready({ ...ITEM, href: '', conversation: { count: 3, href: '' } })} preview={false} />)
+    expect(screen.queryByRole('link')).toBeNull()
+    expect(container.querySelector('a')).toBeNull()
+    expect(screen.getByText(ITEM.title)).toBeTruthy()
+    expect(screen.getByText('3 comments')).toBeTruthy()
+  })
+
   it('says it was deleted, apart from not available, with no way out', () => {
     render(<LinkRow link={DELETED} />)
     expect(screen.getByText('Issue deleted')).toBeTruthy()

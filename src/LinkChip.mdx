@@ -17,6 +17,7 @@ A link in a sentence: its icon, its key, its title cut short, and its status as 
 - **deleted** — `deleted` on the state, when a trusted deletion names it (SPEC §13.6.1): "Issue deleted". A reader tells the two apart; the words never say which a hidden file is.
 - **written as a URL** — `url` on the state: a link written as an app URL that cannot be shown stays that URL, a plain link, deleted or not available alike (SPEC §13.1). The words above are only for a `nostr:` reference.
 - `preview={false}` — no card on hover, where a card would cover what the reader is choosing from.
+- **no address** — an empty `linked.href` (another app's file with none over https): a label, not a link.
 
 <Canvas of={LinkChipStories.EachKind} />
 <Canvas of={LinkChipStories.Deleted} />
