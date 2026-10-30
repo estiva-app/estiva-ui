@@ -5,15 +5,14 @@
  * after its line and keeps its element while the line lives.
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import { act, cleanup, render } from '@testing-library/react'
-import { createPortal } from 'react-dom'
+import { cleanup } from '@testing-library/react'
 import { Editor } from '@tiptap/core'
 import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { BlockId, ReferenceNode } from './BlockNodes'
-import { ReferenceCards, referenceAtSelection, referenceCardPlacements, setReferenceCard, useReferenceCards } from './ReferenceCards'
+import { referenceAtSelection, referenceCardPlacements, setReferenceCard } from './ReferenceCards'
 
-const EXTENSIONS = [StarterKit, BlockId, ReferenceNode, ReferenceCards]
+const EXTENSIONS = [StarterKit, BlockId, ReferenceNode]
 const V = 'nostr:naddr1example'
 const W = 'nostr:naddr1other'
 
@@ -55,7 +54,7 @@ describe('ReferenceNode keeps the card', () => {
 })
 
 describe('referenceCardPlacements', () => {
-  it('asks for a slot after each line whose chips chose a card, keyed by block id', () => {
+  it('finds each line whose chips chose a card, keyed by block id', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
     const placements = referenceCardPlacements(editor.state.doc)
     expect(placements.map((p) => [p.key, p.cards])).toEqual([
@@ -63,14 +62,6 @@ describe('referenceCardPlacements', () => {
       // A list item's paragraph carries no id of its own: the item's is used. An unknown layout is compact.
       ['b:i1', [{ uri: W, layout: 'compact' }]],
     ])
-  })
-
-  it('draws an empty, non-editable slot inside the line', () => {
-    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
-    const slot = editor.view.dom.querySelector('[data-reference-cards="b:p1"]')
-    expect(slot?.getAttribute('contenteditable')).toBe('false')
-    expect(slot?.closest('p')?.textContent).toContain('for now')
-    expect(editor.view.dom.querySelectorAll('[data-reference-cards]')).toHaveLength(2)
   })
 })
 
@@ -117,27 +108,5 @@ describe('choosing a card', () => {
     editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
     expect(referenceAtSelection(editor.state)).toBeNull()
     expect(setReferenceCard(editor, 'compact')).toBe(false)
-  })
-})
-
-describe('useReferenceCards', () => {
-  function Cards({ ed }: { ed: Editor }) {
-    const slots = useReferenceCards(ed)
-    return <>{slots.map((s) => createPortal(<span data-card={s.cards.map((c) => c.layout).join(',')} />, s.element, s.key))}</>
-  }
-
-  it('portals the app\'s cards into the slots, and typing keeps the slot\'s element', () => {
-    editor = new Editor({ extensions: EXTENSIONS, content: DOCUMENT })
-    const ed = editor
-    render(<Cards ed={ed} />)
-    const before = ed.view.dom.querySelector('[data-reference-cards="b:p1"]')
-    expect(before?.querySelector('[data-card="detailed"]')).not.toBeNull()
-
-    act(() => {
-      ed.commands.insertContentAt(1, 'Still ')
-    })
-    const after = ed.view.dom.querySelector('[data-reference-cards="b:p1"]')
-    expect(after).toBe(before)
-    expect(after?.querySelector('[data-card="detailed"]')).not.toBeNull()
   })
 })

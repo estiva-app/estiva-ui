@@ -9,11 +9,11 @@
  *
  * At most 480px wide, in a message, a document and a box being written in alike
  * (Katerina, 30 Oct: a card across a wide box did not look good); in a box it
- * sits on the files' fill, its values as words until it is sent. While it
- * loads it holds the card's own shape, so what is around it does not jump; not
- * available is one row.
+ * sits on the files' fill, its values and its links as words until it is sent,
+ * so a click on it never leaves the draft. While it loads it holds the card's
+ * own shape, so what is around it does not jump; not available is one row.
  */
-import { useContext } from 'react'
+import { useContext, type ReactNode } from 'react'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
 import { Card } from './Card'
@@ -21,7 +21,7 @@ import { cn } from './cn'
 import { Link } from './Link'
 import { inTheBox, type Linked, type LinkedKind, type LinkState, type LoadingShape } from './linked'
 import { CommentCount, LinkedIcon, LinkKey, LinkPickers, LinkTile, ProgressRing, StatusMark } from './LinkParts'
-import { linkMetaOf, LinkUnavailable } from './LinkRow'
+import { linkMetaOf, LinkUnavailable, WrittenUrl } from './LinkRow'
 import { QUOTE_BAR_CLASSES, TIME_CLASSES, TYPE_TILE_CLASSES } from './looks'
 import { SkeletonBar } from './Skeleton'
 
@@ -36,11 +36,28 @@ export interface LinkCardProps {
 /** A card's frame: 12px round it, 12px between what it holds. */
 const CARD_CLASSES = 'flex flex-col gap-3 p-3'
 
+/**
+ * A link on a card, or its words alone: in a box being written in, where the card under the box follows no click,
+ * as the chips in the box do not (Katerina, 30 Oct), and where there is nowhere to open (an empty `href`).
+ */
+function CardLink({ href, truncate = false, className, children }: { href: string; truncate?: boolean; className?: string; children: ReactNode }) {
+  const boxed = useContext(inTheBox)
+  if (boxed || !href) return <span className={cn(truncate && 'truncate', className)}>{children}</span>
+  return (
+    <Link href={href} variant="quiet" truncate={truncate} className={className}>
+      {children}
+    </Link>
+  )
+}
+
 export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps) {
   // In a box being written in: the files' fill, and the values as words until it is sent.
   const boxed = useContext(inTheBox)
   if (link.state === 'loading') return <LinkCardLoading kind={link.kind} shape={link.shape} />
-  if (link.state === 'unavailable') return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} card />
+  if (link.state === 'unavailable') {
+    if (link.url) return <WrittenUrl url={link.url} block />
+    return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} deleted={link.deleted} card />
+  }
   const { linked } = link
   const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly || boxed} />
   if (bare) return <div className={CARD_CLASSES}>{body}</div>
@@ -64,9 +81,9 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="block min-w-0 text-body-2-strong text-text-primary">
             {/* One line, cut short: a long title truncates rather than wrapping (Katerina, 29 Oct). */}
-            <Link href={linked.href} variant="quiet" truncate className="block">
+            <CardLink href={linked.href} truncate className="block">
               {linked.title}
-            </Link>
+            </CardLink>
           </span>
           {meta && <span className="truncate text-caption text-text-secondary">{meta}</span>}
         </span>
@@ -84,15 +101,19 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
         // In a box of their own, a hairline between them, as the card first drew them (Katerina, 29 Oct: "add back the borders").
         <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle leaf:divide-border-strong leaf:border-border-strong">
           {linked.children.map((child) => (
-            <div key={child.id} className="relative flex h-8 items-center gap-2 px-2 hover:bg-bg-active">
+            <div key={child.id} className={cn('relative flex h-8 items-center gap-2 px-2', !boxed && 'hover:bg-bg-active')}>
               {/* The status is the row's icon: a list needs no kind icon on every row. */}
               <StatusMark status={child.status} />
               {child.key && <LinkKey>{child.key}</LinkKey>}
               {/* Each opens on its own; the link covers its row. */}
               <span className="contents text-body-2 text-text-primary">
-                <Link href={child.href} variant="quiet" cover truncate className="min-w-0 flex-1">
-                  {child.title}
-                </Link>
+                {boxed || !child.href ? (
+                  <span className="min-w-0 flex-1 truncate">{child.title}</span>
+                ) : (
+                  <Link href={child.href} variant="quiet" cover truncate className="min-w-0 flex-1">
+                    {child.title}
+                  </Link>
+                )}
               </span>
               {child.owner ? <Avatar name={child.owner.name} src={child.owner.picture} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
             </div>
@@ -142,13 +163,11 @@ function SaidBody({ linked }: { linked: Linked }) {
         <Avatar name={author.name} src={author.picture} size={24} />
         {/* No "Open" in a missing time's place (Katerina, 30 Oct): the name is the link then. */}
         <span className="text-body-2-strong text-text-primary">
-          {linked.updated ? author.name : <Link href={linked.href} variant="quiet">{author.name}</Link>}
+          {linked.updated ? author.name : <CardLink href={linked.href}>{author.name}</CardLink>}
         </span>
         {linked.updated && (
           <span className={cn('text-caption text-text-muted', TIME_CLASSES)}>
-            <Link href={linked.href} variant="quiet">
-              {linked.updated}
-            </Link>
+            <CardLink href={linked.href}>{linked.updated}</CardLink>
           </span>
         )}
       </div>

@@ -76,7 +76,7 @@ const codec: DocumentCodec = {
 - **`label` is required**: the editor's accessible name.
 - **Give the editor a `key` per document.** The editor and which of `[`, `@`, File, comments and markdown it has are made once, as it opens; the lists, the upload and the people are read as they are each time.
 - **`hold` is the app's held-typing store.** `register` must not forget what is held when it is called again for the same key during an ending; the editor registers once per `holdKey`.
-- **A link draws where it sits** (**LinkPlaces**): `referenceView` is handed `place` — `chip` in a sentence, `row` alone on its line, `card` in the row's place — and draws the kit's **LinkChip**, **LinkRow** or **LinkCard** for what it names. While `editing`, give the chip and row no hover preview: a click opens the link's menu. A person or a Folder alone on its line is a `chip`.
+- **A link draws where it sits** (**LinkPlaces**): `referenceView` is handed `place` — `chip` in a sentence, `row` alone on its line, `card` in the row's place — and draws the kit's **LinkChip**, **LinkRow** or **LinkCard** for what it names. A link is `editing` only while the caret is on its line: give the chip and row no hover preview then, as a click opens the link's menu; anywhere else on the page they preview on hover. A card keeps its pickers while the text is edited, and its title and count follow a click. A person or a Folder alone on its line is a `chip`.
 - **A link's menu** (**ReferenceMenu**) offers Open, and alone on its line Show as Row or Card; it opens by itself after a paste or a `[` pick on a line of its own.
 
 ## What it owns

@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { LinkCard } from './LinkCard'
 import { LinkChip } from './LinkChip'
 import { linkStateFrom, type LinkedFromOptions, type LinkedSource } from './linkedFrom'
+import { LinkRow } from './LinkRow'
 
 afterEach(cleanup)
 
@@ -215,14 +216,53 @@ describe('a file the reader cannot read', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  it('is named by its address when its app gives it no noun', () => {
+  it('is named by its app when its type has no name, as the record a-file-is-labelled-by-its-type-not-its-app says', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText('Record not available')).toBeTruthy()
+    expect(screen.getByText('App one not available')).toBeTruthy()
   })
 
   it('reads as the address says while it loads and when nothing came back', () => {
     render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record' }, options())} />)
     expect(screen.getByText('Record not available')).toBeTruthy()
+  })
+
+  it('says it was deleted when a trusted deletion names it, and offers no way out', () => {
+    render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record', deleted: true }, options())} />)
+    expect(screen.getByText('Record deleted')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
+  it('stays the URL it was written as, deleted or not available, in a chip, a row and a card alike', () => {
+    const url = 'https://app.example/item/one'
+    for (const unread of [{ kind: 'file' as const, noun: 'Record', url }, { kind: 'file' as const, noun: 'Record', url, deleted: true }]) {
+      for (const Widget of [LinkChip, LinkRow, LinkCard]) {
+        render(<Widget link={linkStateFrom(null, unread, options())} />)
+        expect(screen.getByRole('link', { name: url }).getAttribute('href')).toBe(url)
+        expect(screen.queryByText(/not available|deleted/)).toBeNull()
+        cleanup()
+      }
+    }
+    render(<LinkRow link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record', url }, options())} />)
+    expect(screen.getByRole('link', { name: url })).toBeTruthy()
+  })
+})
+
+describe('what it is called, and whether it is archived', () => {
+  it('is called by its app when its type has no name, and by its type when it has one', () => {
+    const { rerender } = render(<LinkRow link={linkStateFrom({ ...GROUP, appName: 'App one' }, UNREAD, options())} preview={false} />)
+    expect(screen.getByText(/^ABC · App one/)).toBeTruthy()
+    rerender(<LinkRow link={linkStateFrom({ ...GROUP, noun: 'group', appName: 'App one' }, UNREAD, options())} preview={false} />)
+    expect(screen.getByText(/^ABC · Group/)).toBeTruthy()
+  })
+
+  it('says "Archived" on its row and its card, its values words', () => {
+    const archived = { ...GROUP, noun: 'group', archived: true }
+    render(<LinkRow link={linkStateFrom(archived, UNREAD, options())} preview={false} />)
+    expect(screen.getByText(/^ABC · Group · Archived/)).toBeTruthy()
+    cleanup()
+    render(<LinkCard link={linkStateFrom(archived, UNREAD, options({ onAct: () => {} }))} />)
+    expect(screen.getByText(/^ABC · Group · Archived/)).toBeTruthy()
+    expect(screen.queryByRole('combobox')).toBeNull()
   })
 })
 

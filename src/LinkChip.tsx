@@ -14,6 +14,7 @@ import type { LinkState } from './linked'
 import { chosenOf } from './linked'
 import { LinkedIcon, LinkKey, StatusMark } from './LinkParts'
 import { LinkPreview } from './LinkPreview'
+import { WrittenUrl } from './LinkRow'
 import { SkeletonBar } from './Skeleton'
 
 export interface LinkChipProps {
@@ -31,9 +32,11 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
     )
   }
   if (link.state === 'unavailable') {
+    // Written as a URL, it stays that URL (SPEC §13.1); only a `nostr:` reference says why it is not shown.
+    if (link.url) return <WrittenUrl url={link.url} />
     return (
       <InlineChip tone="muted" icon={<LinkedIcon kind={link.kind} size={14} tone="inherit" />}>
-        {link.noun} not available
+        {link.noun} {link.deleted ? 'deleted' : 'not available'}
       </InlineChip>
     )
   }
@@ -43,7 +46,8 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
   const chip = (
     <InlineChip
       icon={said ? <Avatar name={said.name} src={said.picture} size={14} /> : <LinkedIcon kind={linked.kind} size={14} tone="inherit" />}
-      href={linked.href}
+      // No address to open (another app's file with none over https): a label, not a link to nowhere.
+      href={linked.href || undefined}
       // Never wider than its line. With its hover card, the card's wrapper holds it to the line (max-w-full): a share of the
       // line on the chip itself made the wrapper as wide as the whole title, and left a gap after the cut-short chip
       // (Katerina, 29 Oct). Without one, it holds itself, less its own 2px each side.

@@ -10,8 +10,10 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { Extension, type Editor } from '@tiptap/core'
 import { Fragment, Slice } from '@tiptap/pm/model'
 import type { JSONContent } from '@tiptap/react'
+import { encodeNaddr, encodeNevent } from '@estiva-app/protocol'
+import type { ReferenceViewProps } from './BlockNodes'
 import { CommentBox, commentBoxRows, keepCommentBoxWarm, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
-import type { MentionPerson } from './ComposerTriggers'
+import type { MentionPerson, ReferenceSection } from './ComposerTriggers'
 
 const PEOPLE: MentionPerson[] = [{ id: 'one', name: 'Person one', pubkey: 'b'.repeat(64) }]
 const INSERT = [commentBoxRows.file, commentBoxRows.mention, commentBoxRows.urgent, commentBoxRows.reference]
@@ -665,6 +667,67 @@ describe('a box built ahead', () => {
     } finally {
       vi.useFakeTimers({ toFake: ['Date'] })
     }
+  })
+})
+
+describe('a link in the box', () => {
+  const ISSUE = `nostr:${encodeNaddr({ kind: 30851, pubkey: 'a'.repeat(64), identifier: 'item-one', relays: [] })}`
+  const MESSAGE = `nostr:${encodeNevent({ id: 'e'.repeat(64), relays: [] })}`
+  /** The app's view of a link: the kit's chip would be a link to it. */
+  const View = ({ uri, editing }: ReferenceViewProps) => (
+    <a href={`/o/${uri}`} data-uri={uri} data-editing={String(!!editing)}>
+      Linked
+    </a>
+  )
+  const drawn = () => [...document.querySelectorAll('[data-uri]')].map((el) => el.getAttribute('data-uri'))
+  const inline = () => ((editorOf().getJSON() as JSONContent).content?.[0].content ?? []).map((n) => n.type)
+
+  it('draws a [ pick, and a draft opening with one, as the app draws every other link in the box, being edited', async () => {
+    render(<Box referenceView={View} />)
+    await act(async () => {
+      editorOf()
+        .chain()
+        .focus('end')
+        .insertContent([{ type: 'captionedReference', attrs: { id: ISSUE, label: 'Item one', snippet: '', uri: ISSUE } }, { type: 'text', text: ' and ' }, { type: 'reference', attrs: { uri: MESSAGE } }])
+        .run()
+    })
+    expect(drawn()).toEqual([ISSUE, MESSAGE])
+    expect([...document.querySelectorAll('[data-editing]')].map((el) => el.getAttribute('data-editing'))).toEqual(['true', 'true'])
+    // The caption's own chip is not drawn beside it.
+    expect(screen.queryByText('Item one')).toBeNull()
+  })
+
+  it('never leaves the draft for a click on a link in it', async () => {
+    render(<Box referenceView={View} />)
+    await act(async () => {
+      editorOf()
+        .chain()
+        .focus('end')
+        .insertContent([{ type: 'captionedReference', attrs: { id: ISSUE, label: 'Item one', snippet: '', uri: ISSUE } }, { type: 'text', text: ' ' }, { type: 'reference', attrs: { uri: MESSAGE } }])
+        .run()
+    })
+    for (const link of screen.getAllByRole('link', { name: 'Linked' })) expect(fireEvent.click(link)).toBe(false)
+  })
+
+  it('makes a pasted nostr: address of a file or a message its link at once; a person stays text', async () => {
+    const PERSON = 'nostr:npub1' + 'q'.repeat(58)
+    render(<Box referenceView={View} />)
+    await act(async () => {
+      editorOf().commands.focus('end')
+      editorOf().view.pasteText(`see ${ISSUE} and ${MESSAGE} and ${PERSON}`, new Event('paste') as ClipboardEvent)
+    })
+    expect(drawn()).toEqual([ISSUE, MESSAGE])
+    expect(inline()).toEqual(['text', 'reference', 'text', 'reference', 'text'])
+    expect(editorOf().getText()).toContain(PERSON)
+  })
+
+  it('gives a [ row the icon of the kind its address names when the app gives none', async () => {
+    const sections: ReferenceSection[] = [{ label: 'Files', items: [{ id: 'one', label: 'Item one', snippet: '', uri: ISSUE }] }]
+    render(<Box references={() => sections} />)
+    await type(' [')
+    const row = within(screen.getByRole('listbox')).getByRole('option')
+    expect(row.querySelector('svg')?.getAttribute('class')).toContain('tabler-icon-list-details')
+    await press('Escape')
   })
 })
 

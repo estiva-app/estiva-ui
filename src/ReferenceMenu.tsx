@@ -19,7 +19,9 @@
  *
  * Open does what a click on the chip does when reading: the app's own chip
  * gets the click, so it opens where the app opens it. A chip with nothing to
- * click opens its URL in a new tab.
+ * click opens its URL in a new tab; one with neither — a person, a link still
+ * loading or not available — offers no Open, and a menu left with nothing in
+ * it does not open.
  *
  * Two parts: the extension `ReferenceMenu` holds which chip the menu is open
  * on, and `ReferenceMenuView` draws it beside `EditorContent`. Pair them with
@@ -27,7 +29,7 @@
  *
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/a-lone-links-chip-menu-offers-row-or-card.md
  */
-import { useCallback } from 'react'
+import { useCallback, useEffect, useReducer } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
 import { useEditorState } from '@tiptap/react'
 import { NodeSelection, Plugin, PluginKey, TextSelection, type EditorState, type Transaction } from '@tiptap/pm/state'
@@ -74,13 +76,13 @@ function webHref(view: EditorView, pos: number): string {
 
 /**
  * The menu's rows: Open when there is something to open — the link's own
- * control, or its URL — and Row and Card when it is alone on its line and is
- * neither a person nor a Folder (`linkPlaceAt`).
+ * control as the app drew it, or its URL — and Row and Card when it is alone
+ * on its line and is neither a person nor a Folder (`linkPlaceAt`). A person,
+ * and a link still loading or not available, draw nothing to click: no Open
+ * (Katerina, 30 Oct). The view asks again as the app's drawing changes.
  */
 function rowsOf(view: EditorView, pos: number): Row[] {
-  // A link the app draws has its own control even before React has drawn it, as right after a `[` pick.
-  const drawn = !!view.state.doc.nodeAt(pos)?.attrs.uri && !!view.someProp('nodeViews', (views) => views?.reference)
-  const open: Row[] = drawn || chipTarget(view, pos) || webHref(view, pos) ? ['open'] : []
+  const open: Row[] = chipTarget(view, pos) || webHref(view, pos) ? ['open'] : []
   return linkPlaceAt(view.state.doc, pos) === 'chip' ? open : [...open, ...SHOW_AS.map((show) => show.as)]
 }
 
@@ -290,6 +292,15 @@ export function ReferenceMenuView({ editor }: ReferenceMenuViewProps) {
   const live = shown && editor && !editor.isDestroyed ? editor : null
   const dom = live && shown ? live.view.nodeDOM(shown.pos) : null
   const anchor = dom instanceof HTMLElement ? dom : null
+  // Whether there is something to open is the app's drawing, which can arrive after the menu (right after a `[` pick)
+  // or change under it (a link that loads): the rows are asked again when it does.
+  const [, redraw] = useReducer((count: number) => count + 1, 0)
+  useEffect(() => {
+    if (!anchor || typeof MutationObserver === 'undefined') return
+    const observer = new MutationObserver(redraw)
+    observer.observe(anchor, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] })
+    return () => observer.disconnect()
+  }, [anchor])
   const rows = live && shown ? rowsOf(live.view, shown.pos) : []
   const opens = rows[0] === 'open'
   const showAs = rows.includes('card')

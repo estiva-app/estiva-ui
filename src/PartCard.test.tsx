@@ -24,6 +24,19 @@ describe('PartCard', () => {
     expect(screen.getByText('A part of this issue not available')).toBeTruthy()
   })
 
+  it('says what became of a part in the SPEC’s words: deleted with its file, its block deleted, or no part to show', () => {
+    render(<PartCard state="deleted" kind="issue" noun="Issue" />)
+    expect(screen.getByText('A part of this issue deleted')).toBeTruthy()
+    cleanup()
+    render(<PartCard state="detached" kind="issue" heading="Item one" href="#part" />)
+    expect(screen.getByText('This part was deleted')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+    cleanup()
+    // What it is part of has no blocks: the words open the whole of it.
+    render(<PartCard state="unaddressable" kind="file" heading="Item one" href="#whole" />)
+    expect(screen.getByRole('link', { name: "This part can't be shown" }).getAttribute('href')).toBe('#whole')
+  })
+
   it('while it loads, is busy and shows nothing of it', () => {
     const { container } = render(<PartCard state="loading" kind="issue" />)
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()

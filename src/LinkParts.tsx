@@ -4,12 +4,13 @@
  * count with its unread dot, and the pickers. LinkChip, LinkRow and LinkCard
  * place them; an app may place them too.
  */
+import { useContext } from 'react'
 import { IconCircle, IconCircleCheck, IconCircleDashed, IconCircleHalf2, IconCircleX, IconFileText, IconMessage2 } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { cn } from './cn'
 import { KindIcon } from './KindIcon'
 import { Link } from './Link'
-import { chosenOf, type Linked, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
+import { chosenOf, inTheBox, type Linked, type LinkedConversation, type LinkedKind, type LinkedPicker, type LinkedStatus, type StatusColour } from './linked'
 import { TYPE_TILE_CLASSES } from './looks'
 import { Select } from './Select'
 import { WithTooltip } from './Tooltip'
@@ -93,13 +94,40 @@ export function ProgressRing({ done, total }: { done: number; total: number }) {
 }
 
 /**
+ * A count in words, as the kit says one elsewhere ("3 members"): `noun` is the
+ * plural, and one is its singular — "1 comment", "1 conversation", "1 reply".
+ */
+function countWords(count: number, noun: string): string {
+  if (count !== 1) return `${count} ${noun}`
+  const one = /ies$/.test(noun) ? noun.replace(/ies$/, 'y') : noun.replace(/s$/, '')
+  return `${count} ${one}`
+}
+
+/**
  * The count of what was said, a link to where it is read. With something
  * unread there the words are brighter and a dot follows. It sits above a
  * row's covering link, so the row opens the thing and the count its
- * conversation.
+ * conversation. In a box being written in it is the count alone, no link: the
+ * draft is not left for it (Katerina, 30 Oct); and so it is where the app gives
+ * it nowhere to open (an empty `href`).
+ *
+ * A screen reader hears it whole, "3 comments — open the conversation": the
+ * figure drawn is hidden from it, so it never runs into the noun ("3comments").
  */
 export function CommentCount({ conversation, noun = 'comments' }: { conversation: LinkedConversation; noun?: string }) {
   const { count, href, unread = false } = conversation
+  const boxed = useContext(inTheBox)
+  const said = countWords(count, noun)
+  if (boxed || !href) {
+    return (
+      <span className={cn('inline-flex h-6 shrink-0 items-center gap-1 px-1.5 text-small tabular-nums', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+        <IconMessage2 size={14} stroke={1.5} aria-hidden />
+        <span aria-hidden>{count}</span>
+        <span className="sr-only">{unread ? `${said}, unread` : said}</span>
+        {unread && <UnreadDot className="h-auto w-auto" />}
+      </span>
+    )
+  }
   return (
     /*
      * A small button's shape, as Button's small one is: 24px tall like the pickers beside it, 6px each side, its corners
@@ -111,8 +139,8 @@ export function CommentCount({ conversation, noun = 'comments' }: { conversation
     <span className={cn('relative z-10 inline-flex h-6 shrink-0 rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover', unread ? 'font-medium text-text-primary' : 'text-text-secondary')}>
       <Link href={href} variant="plain" className="flex h-full items-center gap-1 px-1.5">
         <IconMessage2 size={14} stroke={1.5} aria-hidden />
-        {count}
-        <span className="sr-only">{unread ? `${noun}, unread — open the conversation` : `${noun} — open the conversation`}</span>
+        <span aria-hidden>{count}</span>
+        <span className="sr-only">{unread ? `${said}, unread — open the conversation` : `${said} — open the conversation`}</span>
         {unread && <UnreadDot className="h-auto w-auto" />}
       </Link>
     </span>
@@ -126,6 +154,12 @@ export interface LinkPickersProps {
   ownerLabel?: string
   /** Draws the values as words even where they could be changed: the hover preview. */
   readOnly?: boolean
+}
+
+/** The face for an owner option: nobody (value `''`, "Unassigned") is the silhouette, never a letter (Katerina, 30 Oct). */
+function OwnerFace({ option }: { option: { value: string; label: string; picture?: string } | undefined }) {
+  const nobody = !option || option.value === ''
+  return <Avatar name={nobody ? undefined : option.label} src={nobody ? undefined : option.picture} size={16} />
 }
 
 /**
@@ -162,7 +196,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
       {owner &&
         (ownerWords ? (
           <span className="inline-flex min-w-0 items-center gap-1">
-            <Avatar name={ownerNow?.label} src={ownerNow?.picture} size={16} />
+            <OwnerFace option={ownerNow} />
             <span className="truncate">{ownerNow?.label ?? 'Unassigned'}</span>
           </span>
         ) : (
@@ -174,7 +208,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
             placeholder="Unassigned"
             onChange={(value) => owner.onChange?.(value)}
             ariaLabel={ownerLabel}
-            options={owner.options.map((option) => ({ value: option.value, label: option.label, leading: <Avatar name={option.label} src={option.picture} size={16} /> }))}
+            options={owner.options.map((option) => ({ value: option.value, label: option.label, leading: <OwnerFace option={option} /> }))}
           />
         ))}
     </span>

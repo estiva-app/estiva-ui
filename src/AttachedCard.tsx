@@ -7,8 +7,12 @@
  * On a screen that cannot hover it always shows, so a tap reaches it (Miky, 16
  * Oct, kickoff). Inside a box being written in, `CommentBox` places it with the
  * files, and the card there reads as words on the files' fill (`inTheBox`).
+ *
+ * One inside another draws only its card: the box wraps the card an app hands
+ * it, and an app that draws its sent card as an `AttachedCard` hands it that,
+ * so the box's ✕ is the one (Katerina, 30 Oct: no card in a card).
  */
-import type { ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { RemoveBadge } from './AttachmentCard'
 import { LinkCard } from './LinkCard'
 import type { LinkState } from './linked'
@@ -24,11 +28,17 @@ interface AttachedCardBase {
  */
 export type AttachedCardProps = AttachedCardBase & ({ link: LinkState; children?: never } | { link?: never; children: ReactNode })
 
+/** Inside an `AttachedCard`: one inside it draws only its card. */
+const Attached = createContext(false)
+
 export function AttachedCard({ link, children, onRemove }: AttachedCardProps) {
+  const card = link ? <LinkCard link={link} /> : children
+  const inside = useContext(Attached)
+  if (inside) return <>{card}</>
   return (
     // At most 480px, so it never runs a column's or a wide box's whole width (Katerina, 29 and 30 Oct).
     <div className="group/card relative max-w-[480px]">
-      {link ? <LinkCard link={link} /> : children}
+      <Attached.Provider value>{card}</Attached.Provider>
       {onRemove && (
         <RemoveBadge
           label="Remove"

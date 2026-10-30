@@ -10,7 +10,8 @@ import type { CaptionedItem, MentionPerson, ReferenceSection, SlashCommand } fro
 import { InlineChip } from './InlineChip'
 import { Kbd } from './Kbd'
 import { LinkCard } from './LinkCard'
-import { ITEM, ready } from './linked.examples'
+import { LinkChip } from './LinkChip'
+import { ITEM, ITEM_NO_SUMMARY, ready } from './linked.examples'
 import { PartCard } from './PartCard'
 import { RichText } from './RichText'
 
@@ -301,6 +302,32 @@ export const EditingWithACard: Story = {
     await userEvent.keyboard(` ${ITEM_URL} `)
   },
 }
+
+/** The app's view of a link the box holds: the kit's chip, with no preview while it is written. */
+const KitChip = ({ uri, editing }: ReferenceViewProps) => <LinkChip link={ready(uri === ITEMS[0].uri ? ITEM : ITEM_NO_SUMMARY)} preview={!editing} />
+
+const WITH_LINKS: JSONContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: 'Picked with [: ' },
+        { type: 'captionedReference', attrs: { id: ITEMS[0].id, label: 'Label', snippet: 'Item one', uri: ITEMS[0].uri } },
+        { type: 'text', text: ' and pasted: ' },
+        { type: 'reference', attrs: { uri: ITEMS[1].uri } },
+      ],
+    },
+  ],
+}
+
+/**
+ * Every link in the box is the kit's chip, through the app's `referenceView`: a
+ * `[` pick and a pasted link alike, each with its key, its title cut short and
+ * its status as a mark. Neither previews while written, and a click on one
+ * stays in the box. Type `[` to pick another.
+ */
+export const WithLinkChips: Story = { render: () => <Live start={WITH_LINKS} referenceView={KitChip} /> }
 
 /** An app's own `/` rows, after the kit's: each puts a label at the start of the box, which the app marks. */
 const OWN_ROWS: SlashCommand[] = ['one', 'two', 'three', 'four', 'five'].map((n) => ({

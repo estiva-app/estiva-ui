@@ -11,13 +11,14 @@ The small parts the link widgets are built from: the pickers, the conversation c
 
 ## When
 
-- **LinkPickers** — a status and an owner, changed in place. A picker with no `onChange`, or `readOnly`, reads as words in the same place.
-- **CommentCount** — how much was said, as a link to where it is read; brighter, with a dot, when there is something unread for a member.
+- **LinkPickers** — a status and an owner, changed in place. A picker with no `onChange`, or `readOnly`, reads as words in the same place. Nobody — no owner, or the option whose value is `''`, "Unassigned" — is the silhouette, never a letter.
+- **CommentCount** — how much was said, as a link to where it is read; brighter, with a dot, when there is something unread for a member. In a box being written in, or with nowhere to open (an empty `href`), the count alone, no link. A screen reader hears it whole: "1 comment", "3 comments" (`noun` is the plural; one is its singular).
 - **StatusMark** — a status as its shape, which reads without colour; its words on hover.
 - **ProgressRing** — how far along, as a ring and a count.
 - **LinkedIcon**, **LinkKey** — the icon for what a link stands for, and its key.
 
 <Canvas of={LinkPartsStories.PickersReadOnly} />
+<Canvas of={LinkPartsStories.Unassigned} />
 <Canvas of={LinkPartsStories.Conversation} />
 <Canvas of={LinkPartsStories.Marks} />
 

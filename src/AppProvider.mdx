@@ -56,11 +56,13 @@ function Root({ children }) {
   the initials.
 - `navigate` gets the link's path, query and `#` part (`/message/1?x=2`),
   also when the `href` is the app's whole address (`https://app.test/message/1`):
-  a router reads a whole address as a path under the current page. The browser keeps
-  every other click: one already handled (`preventDefault`), one with Ctrl,
-  Cmd, Shift or Alt, the middle button, a link that opens a new tab or
-  downloads, and an address on another site or in another scheme
-  (`folder:`, `mailto:`).
+  a router reads a whole address as a path under the current page.
+- **Another site's address opens in a new tab** on a plain click, one that
+  cannot reach back into this page, as "Open in …" does: another app's file
+  never takes the reader out of this app. The browser keeps every other click:
+  one already handled (`preventDefault`), one with Ctrl, Cmd, Shift or Alt, the
+  middle button, a link that opens a new tab or downloads, and an address in
+  another scheme (`folder:`, `mailto:`).
 - A link's own `onClick` runs first, so an app that still passes its router
   click per link keeps working while it moves over.
 - `active` is still the caller's: say which row is the current page where you

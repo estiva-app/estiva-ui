@@ -87,6 +87,7 @@ export { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator, ty
 export { PreviewCard, type PreviewCardProps } from './PreviewCard'
 // How a link draws, wherever it sits: one kit for every app (Widgets 2).
 export {
+  cardShapeMemory,
   chosenOf,
   inTheBox,
   loadingShapeOf,
@@ -98,6 +99,8 @@ export {
   type LinkedPerson,
   type LinkedPicker,
   type LinkedStatus,
+  type CardShape,
+  type CardShapeMemory,
   type LinkState,
   type LoadingShape,
   type PickerOption,
@@ -120,7 +123,7 @@ export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps 
 export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
 export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
 export { AttachedCard, type AttachedCardProps } from './AttachedCard'
-export { PartCard, type PartCardProps } from './PartCard'
+export { PartCard, type PartCardProps, type PartCardState } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'
 export { RailItem, type RailItemProps } from './RailItem'

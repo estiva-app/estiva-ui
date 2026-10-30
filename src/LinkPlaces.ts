@@ -27,6 +27,8 @@ import { Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { thingKindOf } from './KindIcon'
+import type { LinkedKind } from './linked'
 
 /** How a reference draws: its chip, its row, or its card in the row's place. */
 export type LinkPlace = 'chip' | 'row' | 'card'
@@ -75,6 +77,23 @@ function naddrKind(naddr: string): number | null {
 
 /** A Folder's kind. */
 const FOLDER = 39000
+
+/** A document's kind: it draws a page, as `linkedFrom` draws it. */
+const PAGE = 30842
+
+/**
+ * What a `nostr:` reference names, by the icon it draws, read off its address
+ * alone: a message (`nevent`, `note`), a file by its kind (`naddr`, a document
+ * a page), or undefined for what has no kind icon (a person, anything else).
+ */
+export function linkedKindOfReference(uri: string): LinkedKind | undefined {
+  const bare = uri.toLowerCase().replace(/^nostr:/, '')
+  if (bare.startsWith('nevent1') || bare.startsWith('note1')) return 'message'
+  if (!bare.startsWith('naddr1')) return undefined
+  const kind = naddrKind(bare)
+  if (kind === null) return undefined
+  return kind === PAGE ? 'page' : thingKindOf(kind)
+}
 
 /**
  * Whether what `uri` names stays a chip alone on its line: a person (`npub`,

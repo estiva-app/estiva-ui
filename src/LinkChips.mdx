@@ -14,8 +14,9 @@ recognise, or has not answered for yet, stays text.
 ## When
 
 - **An editor of a document whose URLs can name things**: pair it with
-  **ReferenceNode**, which draws the chip, and **ReferenceCards**, which places
-  the card a chip can ask for.
+  **ReferenceNode**, which draws the chip, **LinkPlaces**, which draws a lone
+  link as its row or its card, and **ReferenceMenu**, where its writer chooses
+  between them. **DocumentEditor** has all of them.
 
 ## When not
 
@@ -29,7 +30,7 @@ recognise, or has not answered for yet, stays text.
 ## How
 
 ```tsx
-import { LinkChips, ReferenceCards, ReferenceNode } from '@estiva-app/ui/editor'
+import { LinkChips, LinkPlaces, ReferenceMenu, ReferenceNode } from '@estiva-app/ui/editor'
 
 LinkChips.configure({
   // What the app has resolved so far: the reference a URL names, or undefined.

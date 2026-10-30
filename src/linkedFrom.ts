@@ -280,6 +280,7 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
   }
   const onAct = object.archived ? undefined : options.onAct
   const key = keyOf(object)
+  const noun = nounOf(object)
   const status = statusOf(object, onAct)
   const owner = ownerOf(object, options, onAct)
   const children = childrenOf(object, options)
@@ -292,7 +293,10 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
     title: titleOf(object),
     href,
     ...(key ? { key } : {}),
-    ...(object.noun ? { noun: object.noun.charAt(0).toUpperCase() + object.noun.slice(1) } : {}),
+    // Its type's word, or its app's name when the type has none (record a-file-is-labelled-by-its-type-not-its-app).
+    ...(noun ? { noun } : {}),
+    // Its row and card say so, as its values turn to words above (Katerina, 30 Oct).
+    ...(object.archived ? { archived: true } : {}),
     // Interop reads every file kind's summary into its subtitle (SPEC §6.12).
     ...(slots.subtitle?.value ? { summary: slots.subtitle.value } : {}),
     ...(status ? { status } : {}),
@@ -307,24 +311,28 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
 
 /**
  * Where a reference's read stands, for the kit: `undefined` is still read,
- * `null` an answer of nothing. `unread` is what the app knows from the address
- * alone, for those two. Nothing, and a file the reader may not read, draw
- * alike: "not available." (Miky, 15 Oct).
+ * `null` an answer of nothing. `unread` is what the app knows without the
+ * object: its kind and noun from the address, whether a trusted deletion names
+ * it (`deleted`, SPEC §13.6.1: "Issue deleted", where nothing otherwise and a
+ * file the reader may not read draw alike, "not available"), and the URL it
+ * was written as (`url`), which it then reads as instead of either (§13.1).
  */
 export function linkStateFrom<T extends LinkedSource>(
   object: T | null | undefined,
-  unread: { kind: LinkedKind; noun: string },
+  unread: { kind: LinkedKind; noun: string; deleted?: boolean; url?: string },
   options: LinkedFromOptions<T>,
 ): LinkState {
   if (object === undefined) return { state: 'loading', kind: unread.kind }
-  if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun }
+  const written = unread.url ? { url: unread.url } : {}
+  if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun, ...(unread.deleted ? { deleted: true } : {}), ...written }
   if (object.unreachable) {
     const href = object.openUrl && /^https:\/\//i.test(object.openUrl) ? object.openUrl : undefined
     return {
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
-      noun: (object.noun && nounOf(object)) || unread.noun,
+      noun: nounOf(object) || unread.noun,
       ...(href ? { openIn: { app: object.appName ?? 'its app', href } } : {}),
+      ...written,
     }
   }
   return { state: 'ready', linked: linkedFrom(object, options) }

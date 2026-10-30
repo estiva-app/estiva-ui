@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { GROUP, ITEM, ITEM_UNREAD, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
+import { DELETED, GROUP, ITEM, ITEM_ARCHIVED, ITEM_UNREAD, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE, WRITTEN_AS_A_URL } from './linked.examples'
 import { LinkRow, LinkUnavailable } from './LinkRow'
 
 const meta = {
@@ -32,11 +32,23 @@ export const EachKind: Story = {
 /** Something unread in its conversation, to a member: the count shows, with its dot. */
 export const Unread: Story = { args: { link: ready(ITEM_UNREAD) } }
 
+/** Words a person wrote, on one line: their face, their name, the words cut to fit, the time. */
+export const WordsAPersonWrote: Story = { args: { link: ready(SAID) } }
+
+/** Archived: "Archived" in the line under its title. */
+export const Archived: Story = { args: { link: ready(ITEM_ARCHIVED) } }
+
 /** Still being looked up: the row in bars, at the row's height. */
 export const Loading: Story = { args: { link: LOADING } }
 
-/** Deleted, or not this reader's to see: one line, and where it may still open. */
+/** Not this reader's to see: one line, and where it may still open. */
 export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
+
+/** Deleted, as a trusted deletion naming it says: the same line, its own words, and no way out. */
+export const Deleted: Story = { args: { link: DELETED } }
+
+/** Written as a URL that cannot be shown: it stays that URL, a plain link, in the row's place. */
+export const WrittenAsAUrl: Story = { args: { link: WRITTEN_AS_A_URL } }
 
 /** The not-available line on its own, as a card or a part draws it too; without `openIn`, no way out. */
 export const NotAvailableLine: Story = {

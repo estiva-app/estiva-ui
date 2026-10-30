@@ -1,10 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, MouseEvent, ReactNode } from 'react'
 import { Extension, type Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import Mention, { type MentionOptions } from '@tiptap/extension-mention'
 import Suggestion from '@tiptap/suggestion'
 import { NodeViewWrapper, ReactNodeViewRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Avatar } from './Avatar'
+import type { ReferenceViewProps } from './BlockNodes'
 import { EnterHint } from './Menu'
 import { inlineChipClassName } from './InlineChip'
 import { WithTooltip } from './Tooltip'
@@ -343,13 +344,26 @@ export interface CaptionedReferenceOptions {
    * The same answer the list's row gave (Katerina, 7 October).
    */
   iconFor?: (uri: string | null) => ReactNode | undefined
+  /**
+   * Draws the chip as the box's other links are drawn — the app's `referenceView`,
+   * the kit's `LinkChip` — told it is being edited, so it shows no preview and a
+   * click on it stays in the draft. Absent, or for a chip with no `uri`, the
+   * caption with `icon`.
+   */
+  view?: ComponentType<ReferenceViewProps> | null
+}
+
+/** A click on a link inside a chip being written: the draft is not left for it (Katerina, 30 Oct). */
+function stayInDraft(event: MouseEvent) {
+  if (event.target instanceof Element && event.target.closest('a[href]')) event.preventDefault()
 }
 
 /**
  * A reference mid-sentence, drawn as `label: snippet` and written as its `uri`
  * verbatim (SPEC §13.1). The caption is the snapshot it was picked with — a
  * caption, never parsed. Inserted by {@link ReferenceTrigger}, a paste or a
- * draft; it opens no list of its own.
+ * draft; it opens no list of its own. With `view` it draws as the app draws
+ * any other link in the box, so a `[` pick and a pasted link look alike.
  */
 export const CaptionedReference = Mention.extend<MentionOptions & CaptionedReferenceOptions>({
   name: 'captionedReference',
@@ -357,7 +371,7 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
   inline: true,
   atom: true,
   addOptions() {
-    return { ...this.parent!(), HTMLAttributes: {}, icon: null, iconFor: undefined, suggestion: { char: '\0', items: () => [] } }
+    return { ...this.parent!(), HTMLAttributes: {}, icon: null, iconFor: undefined, view: null, suggestion: { char: '\0', items: () => [] } }
   },
   addAttributes() {
     return {
@@ -378,19 +392,24 @@ export const CaptionedReference = Mention.extend<MentionOptions & CaptionedRefer
     return [{ tag: `span[data-${this.name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}]` }]
   },
   addNodeView() {
-    const { icon, iconFor } = this.options
+    const { icon, iconFor, view: View } = this.options
     return ReactNodeViewRenderer(
-      ({ node }: ReactNodeViewProps) => (
-        // The caption is cut at 24ch, so the whole of it is on hover, in the package's tooltip (UIG-14) — as Peek's sent chip has it.
-        <NodeViewWrapper as="span">
-          <WithTooltip inline label={captionOf(node.attrs.label, node.attrs.snippet)}>
-            <span className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
-              <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{iconFor?.(node.attrs.uri ?? null) ?? icon}</span>
-              <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
-            </span>
-          </WithTooltip>
-        </NodeViewWrapper>
-      ),
+      ({ node }: ReactNodeViewProps) =>
+        View && node.attrs.uri ? (
+          <NodeViewWrapper as="span" onClickCapture={stayInDraft}>
+            <View uri={String(node.attrs.uri)} place="chip" editing />
+          </NodeViewWrapper>
+        ) : (
+          // The caption is cut at 24ch, so the whole of it is on hover, in the package's tooltip (UIG-14) — as Peek's sent chip has it.
+          <NodeViewWrapper as="span">
+            <WithTooltip inline label={captionOf(node.attrs.label, node.attrs.snippet)}>
+              <span className={inlineChipClassName('neutral', 'max-w-[24ch] cursor-default')}>
+                <span className="flex items-center justify-center w-4 h-4 shrink-0 text-text-secondary">{iconFor?.(node.attrs.uri ?? null) ?? icon}</span>
+                <span className="truncate">{captionOf(node.attrs.label, node.attrs.snippet)}</span>
+              </span>
+            </WithTooltip>
+          </NodeViewWrapper>
+        ),
       { as: 'span' },
     )
   },

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { LinkCard, LinkCardLoading } from './LinkCard'
-import { loadingShapeOf, type Linked } from './linked'
-import { GROUP, ITEM, ITEM_NO_SUMMARY, ITEM_READ_ONLY, ITEM_UNREAD, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
+import { inTheBox, loadingShapeOf, type Linked } from './linked'
+import { DELETED, GROUP, ITEM, ITEM_ARCHIVED, ITEM_NO_SUMMARY, ITEM_READ_ONLY, ITEM_UNREAD, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
   title: 'Links & references/LinkCard',
@@ -27,6 +27,18 @@ export const Default: Story = {
 
 /** To a reader who may not change it: the same two values, as words. */
 export const ReadOnly: Story = { args: { link: ready(ITEM_READ_ONLY) } }
+
+/** Archived: "Archived" in the line under its title, its values as words. */
+export const Archived: Story = { args: { link: ready(ITEM_ARCHIVED) } }
+
+/** In a box being written in: on the files' fill, its values and its links as words, so a click on it never leaves the draft. */
+export const InABox: Story = {
+  render: (args) => (
+    <inTheBox.Provider value>
+      <LinkCard {...args} />
+    </inTheBox.Provider>
+  ),
+}
 
 /** Something unread in its conversation, to a member: the count is brighter, with a dot. */
 export const Unread: Story = { args: { link: ready(ITEM_UNREAD) } }
@@ -69,3 +81,6 @@ export const LoadingByKind: Story = { args: { link: { state: 'loading', kind: 'i
 
 /** Deleted, or not this reader's to see: one line. */
 export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
+
+/** Deleted, as a trusted deletion naming it says: the not-available row, its own words, no way out. */
+export const Deleted: Story = { args: { link: DELETED } }

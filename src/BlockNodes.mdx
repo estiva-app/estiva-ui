@@ -78,7 +78,14 @@ const editor = useEditor({
   `tableCell` nodes, and ProseMirror drops a node its schema does not have —
   the save would delete the table.
 - `ReferenceNode`'s `view` gets the `uri` and draws the thing it points at,
-  resolved by the app. Without one, the URI is drawn as text.
+  resolved by the app. Without one, the URI is drawn as text. It is told
+  `editing` while the editor is editable; with `editingLine` (a document),
+  only while the caret is on its line, so a link elsewhere on the page can
+  show its hover preview.
+- **A card's own links and controls work while editing.** A click on its
+  title, its count or a picker goes to them, and a press on a picker keeps the
+  caret where it was, so the picker opens; only a click on the card's empty
+  space is the link's menu (`ReferenceMenu`).
 - `AttachmentNode`'s `view` gets the block's `imeta` fields as `attrs`.
   Without one, the file's name is drawn as text.
 - `UnknownBlock` draws a block the editor has no design for as its text, in a

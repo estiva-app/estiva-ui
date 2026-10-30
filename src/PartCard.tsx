@@ -16,18 +16,26 @@ import { Link } from './Link'
 import { LinkCardLoading } from './LinkCard'
 import { inTheBox, type LinkedKind } from './linked'
 import { kindNounOf, LinkTile } from './LinkParts'
-import { LinkUnavailable } from './LinkRow'
+import { LinkUnavailable, UnavailableRow } from './LinkRow'
 import { QUOTE_BAR_CLASSES } from './looks'
 import { ShowMore } from './ShowMore'
 
+/**
+ * Where a part's lookup stands, SPEC §13.6.1's five states and loading:
+ * `ready` (resolved), `unaddressable` (what it is part of has no blocks),
+ * `detached` (readable, its block gone), `deleted` (a trusted deletion names
+ * what it is part of) and `unavailable` (not the reader's to see).
+ */
+export type PartCardState = 'ready' | 'loading' | 'unavailable' | 'deleted' | 'detached' | 'unaddressable'
+
 export interface PartCardProps {
   /** Where its lookup stands. Default `ready`. */
-  state?: 'ready' | 'loading' | 'unavailable'
+  state?: PartCardState
   /** What it is part of, by its icon. */
   kind: LinkedKind
   /** The title of what it is part of. */
   heading?: string
-  /** Opens what it is part of, at the part. */
+  /** Opens what it is part of, at the part; `unaddressable`, the whole of it. */
   href?: string
   /** The key of what it is part of: "ABC-2". */
   partKey?: string
@@ -51,7 +59,12 @@ export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, 
   const word = noun ?? kindNounOf({ kind }) ?? 'File'
   const boxed = useContext(inTheBox)
   if (state === 'loading') return <LinkCardLoading kind={kind} shape={{ summary: true, rows: 0, footer: 'none' }} />
-  if (state === 'unavailable') return <LinkUnavailable kind={kind} noun={`A part of this ${word.toLowerCase()}`} openIn={openIn} card />
+  if (state === 'unavailable' || state === 'deleted') {
+    return <LinkUnavailable kind={kind} noun={`A part of this ${word.toLowerCase()}`} openIn={openIn} deleted={state === 'deleted'} card />
+  }
+  // The SPEC's words (§13.6.1): what it is part of is still there; the part is not, or cannot be one.
+  if (state === 'detached') return <UnavailableRow kind={kind} words="This part was deleted" card />
+  if (state === 'unaddressable') return <UnavailableRow kind={kind} words="This part can't be shown" href={href} card />
   return (
     // At most 480px wide, in a box too; in a box being written in, on the files' fill as the card beside it is.
     <Card fill={boxed ? 'elevated' : 'inset'} className="flex max-w-[480px] flex-col gap-3 p-3">
@@ -59,7 +72,8 @@ export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, 
         <LinkTile kind={kind} />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="block min-w-0 text-body-2-strong text-text-primary">
-            {href ? (
+            {/* In a box being written in, its words alone: the draft is not left for it. */}
+            {href && !boxed ? (
               <Link href={href} variant="quiet" truncate className="block">
                 {heading}
               </Link>

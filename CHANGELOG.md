@@ -1,5 +1,115 @@
 # Changelog
 
+## 0.92.0 — 2026-10-30
+
+Katerina's widget review, 30 Oct: how link widgets work in Peek, Ship and Leaf,
+64 findings decided; this is the kit's share.
+
+### Changed
+
+- **A link in a document previews when the caret is not on its line.**
+  `ReferenceNode` takes `editingLine`: a link's view is told `editing` only
+  while the caret is on its line (its textblock, between hard breaks) and the
+  editor has focus. `DocumentEditor` sets it, so a page that is always
+  editable (Leaf's, Ship's description) still previews every link its writer
+  is not working on. Callers that read `editing`: leaf `src/document/PageLink.tsx`,
+  ship `src/components/editing/descriptionLinks.tsx` (both `preview={!editing}`,
+  and `editing && focused` for a card's words, which the review drops: a card
+  keeps its pickers while the text is edited).
+- **A click on a card's own link follows it while a document is edited**: its
+  title opens the file, its count the conversation. Only a click on the card's
+  empty space opens the Show-as menu.
+- **A press on a card's picker keeps the caret where it was**, so the picker
+  opens while the text is edited: Leaf's mousedown fix (`PageLink.tsx`) and
+  Ship's (`descriptionLinks.tsx`) move into `ReferenceNode`'s view, for every
+  app. The record a-card-changes-what-a-files-app-shares said a card's values
+  are words while the text is edited; Katerina decided against it.
+- **The menu offers Open only when there is something to open**: the link the
+  app drew, or its URL. A person, and a link still loading or not available,
+  have none; a menu left with nothing does not open.
+- **One chip look in every box.** `CaptionedReference` takes `view`, and
+  `CommentBox` passes its `referenceView`: a `[` pick, and a draft opening with
+  one, draws as the app draws its other links (the kit's `LinkChip`), told it
+  is being edited. A click on a link in the box stays in the draft, a chip's
+  (a `ReferenceNode` with no menu, being written) as the card's.
+- **The card in the box follows no click**: in a box being written in
+  (`inTheBox`), a card's title, its count, its items and a quoted person's name
+  are words, and a part's title too. An app test that finds the card's title in
+  the box by its link changes with it.
+- **No card in a card.** An `AttachedCard` inside another draws only its card,
+  with the outer one's ✕: the box wraps the card an app hands it, and Leaf,
+  Ship and Peek hand it their `AttachedCard`.
+- **Another site's address opens in a new tab** on a plain click, through
+  `AppProvider` (`useInAppClick`), one that cannot reach back into the page, as
+  "Open in …" does: another app's file never takes the reader out of the app.
+- **A file whose type has no name is called by its app's name** (record
+  a-file-is-labelled-by-its-type-not-its-app): `linkedFrom` sets `noun` from
+  the type's noun, else the app's name, and `linkStateFrom` says "App not
+  available" for an unreadable one, over the noun the address gave. The kind's
+  own word is left for a link the app built by hand.
+- **A row of words a person wrote is one line**: their face, their name, the
+  words cut to fit, the time.
+- **"Unassigned" is the silhouette**, in the owner picker, its list and as
+  words: an option whose value is `''` is nobody, never the letter "U".
+
+### Added
+
+- **Deleted, apart from not available** (SPEC §13.6.1). A not-available
+  `LinkState` takes `deleted`: "Issue deleted" in a chip, a row and a card, and
+  no way out. `linkStateFrom`'s `unread` takes `deleted`, which the app knows
+  from a trusted deletion naming the address. `LinkUnavailable` takes
+  `deleted`.
+- **A part's two missing states, and deleted.** `PartCard`'s `state` (now the
+  exported `PartCardState`) takes `deleted` ("A part of this issue deleted"),
+  `detached` ("This part was deleted") and `unaddressable` ("This part can't
+  be shown", its words opening the whole file at `href`): the SPEC's words, in
+  the not-available row.
+- **The URL as written.** A not-available `LinkState` takes `url`: a link
+  written as an app URL that cannot be shown stays that URL, a plain link, in
+  a chip's, a row's or a card's place (SPEC §13.1, C21); "not available" and
+  "deleted" are only for a `nostr:` reference. `linkStateFrom`'s `unread` takes
+  `url`.
+- **"Archived" in the meta line.** `Linked.archived`; `linkedFrom` sets it from
+  an archived file, whose values already read as words.
+- **Kind icons in every box by default.** Without `referenceIcon`, `[`'s rows
+  wear the kit's icon for the kind each address names.
+- **A pasted `nostr:` address becomes its link at once** in a box with a
+  `referenceView`: a file (`naddr`) or a message (`nevent`, `note`). A person's
+  stays text.
+- **`cardShapeMemory(storageKey, { limit, firstDraw })`**, with `CardShape` and
+  `CardShapeMemory`: the shape and height each card last drew at, per device,
+  for its placeholder. Peek's and Ship's `lib/cardShapes.ts`, lifted for Leaf,
+  beside `unavailableMemory`.
+
+### Fixed
+
+- **A comment count is said whole**: "1 comment", "3 comments — open the
+  conversation". A screen reader heard the figure run into the noun
+  ("3comments") and the plural for one. `noun` stays the plural; one is its
+  singular. An app test that finds the count by its name matches the figure
+  now (found by the Ship worker).
+- **A file with no address is not a link to nowhere.** Another app's file with
+  no https address had `href=""` on its chip, its row's and card's title, its
+  items and its count: each is words now, and `ReferenceMenu` offers no Open
+  for it (found by the Ship worker).
+
+### Removed
+
+- **The deprecated `ReferenceCards`, its story and its page** (breaking, in
+  `@estiva-app/ui/editor`): the extension `ReferenceCards`, its hook
+  `useReferenceCards` and the type `ReferenceCardSlot`, the card slot after a
+  line that `LinkPlaces` replaced. No caller in Peek, Ship or Leaf (`origin/main`,
+  30 Oct). What reads and writes a chip's card stays: `referenceAtSelection`,
+  `referenceCardPlacements`, `setReferenceCard`, `setReferenceCardAt` and their
+  types (`ReferenceMenu` writes Row and Card through them).
+
+### Docs
+
+- `LinkCard`'s page: any app drawing a card offers the file's shared actions
+  (record a-card-changes-what-a-files-app-shares), words only where the reader
+  can't act.
+- `LinkChips`' page pairs it with `LinkPlaces` and `ReferenceMenu`.
+
 ## 0.91.2 — 2026-10-30
 
 Katerina, 30 Oct, on the see-through card in 0.91.1.

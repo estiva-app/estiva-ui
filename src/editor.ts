@@ -103,15 +103,12 @@ export {
   type AttachmentViewProps,
 } from './BlockNodes'
 export {
-  ReferenceCards,
-  useReferenceCards,
   referenceAtSelection,
   referenceCardPlacements,
   setReferenceCard,
   setReferenceCardAt,
   type ReferenceCard,
   type ReferenceCardLayout,
-  type ReferenceCardSlot,
 } from './ReferenceCards'
 export { LinkChips, findLinkChips, refreshLinkChips, type LinkChipsOptions, type PastedRange } from './LinkChips'
 export { LinkPlaces, linkPlaceAt, staysChip, type LinkPlace } from './LinkPlaces'

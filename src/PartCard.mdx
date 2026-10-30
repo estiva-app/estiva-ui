@@ -14,7 +14,15 @@ A part of something longer, shared live: its blocks as they are now, under the t
 - **ready** — what it is part of, as a card starts: its kind in a file's 36px tile, its title as the link, and "A part of ABC-2" under it; then the blocks the app draws as `children`, behind a quote bar that starts where the tile does. The apps draw the blocks with **RichText** `size="small"`.
 - **with its way out** — `action`, a small `Button` ("Open in Leaf"), under the blocks at the right, outside the quote bar; with `maxHeight` a long part is cut behind Show more, the two level on one row.
 - **loading** — at a card's height.
-- **unavailable** — one row: "A part of this issue not available", in the app's word for it, else its kind's.
+- **unavailable** — one row: "A part of this issue not available", in the app's word for it, else its kind's. Not the reader's to see.
+- **deleted** — what it is part of was deleted, as a trusted deletion naming it says (SPEC §13.6.1): the same row, "A part of this issue deleted".
+- **detached** — what it is part of is still there and the part's block is gone: the same row, "This part was deleted".
+- **unaddressable** — what it is part of has no blocks to take a part of: the same row, "This part can't be shown", its words opening the whole of it (`href`). Nothing was deleted.
+
+The five are SPEC §13.6.1's, with its words; a reader tells them apart.
+
+<Canvas of={PartCardStories.Detached} />
+<Canvas of={PartCardStories.Unaddressable} />
 
 ## When not
 

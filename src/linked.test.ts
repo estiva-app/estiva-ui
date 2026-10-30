@@ -5,9 +5,43 @@
  * when the link can be read again or at sign-out.
  */
 import { afterEach, describe, expect, it } from 'vitest'
-import { unavailableMemory } from './linked'
+import { cardShapeMemory, unavailableMemory } from './linked'
 
 afterEach(() => localStorage.clear())
+
+describe('cardShapeMemory', () => {
+  const SHAPE = { subtitle: true, summary: true, rows: 2, latest: false, ring: true, footer: 'pickers' as const, height: 180 }
+
+  it('remembers the shape a card drew at across a reload, and nothing for one never drawn', () => {
+    cardShapeMemory('test.shapes').note('a', SHAPE)
+    expect(cardShapeMemory('test.shapes').of('a', 'issue')).toEqual(SHAPE)
+    expect(cardShapeMemory('test.shapes').of('b', 'issue')).toBeUndefined()
+  })
+
+  it('answers the app’s first shape for a kind it has not drawn yet', () => {
+    const memory = cardShapeMemory('test.shapes', { firstDraw: { issue: { summary: false, footer: 'pickers' } } })
+    expect(memory.of('b', 'issue')).toEqual({ summary: false, footer: 'pickers' })
+    expect(memory.of('b', 'project')).toBeUndefined()
+  })
+
+  it('keeps only the parts a placeholder draws, and a bad stored value draws no page of bars', () => {
+    localStorage.setItem('test.shapes', JSON.stringify([['a', { rows: 9999, footer: 'nonsense', height: -4, extra: 'x' }], ['b', 'not a shape'], 'junk']))
+    expect(cardShapeMemory('test.shapes').of('a', 'issue')).toEqual({ subtitle: false, summary: false, rows: 10, latest: false, ring: false, footer: 'line' })
+    expect(cardShapeMemory('test.shapes').of('b', 'issue')).toBeUndefined()
+  })
+
+  it('keeps only the newest, up to its limit, and forgets everything at sign-out', () => {
+    const memory = cardShapeMemory('test.shapes', { limit: 2 })
+    memory.note('a', SHAPE)
+    memory.note('b', SHAPE)
+    memory.note('c', SHAPE)
+    const next = cardShapeMemory('test.shapes', { limit: 2 })
+    expect(next.of('a', 'issue')).toBeUndefined()
+    expect(next.of('c', 'issue')).toEqual(SHAPE)
+    next.clear()
+    expect(cardShapeMemory('test.shapes').of('c', 'issue')).toBeUndefined()
+  })
+})
 
 describe('unavailableMemory', () => {
   it('remembers a link it could not show across a reload', () => {

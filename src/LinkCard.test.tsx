@@ -44,9 +44,30 @@ describe('LinkCard', () => {
     expect(screen.queryByRole('combobox')).toBeNull()
   })
 
+  it('draws a file with no address to open as words: no link to nowhere on its title, its count or its items', () => {
+    const { container } = render(<LinkCard link={ready({ ...GROUP, href: '', conversation: { count: 1, href: '' }, children: GROUP.children!.map((child) => ({ ...child, href: '' })) })} />)
+    expect(container.querySelector('a')).toBeNull()
+    expect(screen.getByText(GROUP.title)).toBeTruthy()
+    expect(screen.getByText('1 comment')).toBeTruthy()
+  })
+
   it('says nobody owns it when nobody does', () => {
     render(<LinkCard link={ready({ ...ITEM_READ_ONLY, owner: { value: undefined, options: [] } })} />)
     expect(screen.getByText('Unassigned')).toBeTruthy()
+  })
+
+  it('draws "Unassigned" with the silhouette, never a letter, as words and in the picker alike', async () => {
+    const user = userEvent.setup()
+    const nobody = { value: '', label: 'Unassigned' }
+    render(<LinkCard link={ready({ ...ITEM_READ_ONLY, owner: { value: '', options: [nobody] } })} />)
+    expect(screen.getByText('Unassigned')).toBeTruthy()
+    expect(screen.queryByText('U')).toBeNull()
+    cleanup()
+    render(<LinkCard link={ready({ ...ITEM, owner: { ...ITEM.owner!, value: '', options: [nobody, ...ITEM.owner!.options], onChange: () => {} } })} />)
+    expect(screen.queryByText('U')).toBeNull()
+    await user.click(screen.getByRole('combobox', { name: 'Owner' }))
+    await screen.findByRole('option', { name: /Unassigned/ })
+    expect(screen.queryByText('U')).toBeNull()
   })
 
   it('shows the title alone when there is no summary', () => {

@@ -63,6 +63,18 @@ describe('LinkChip', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
+  it('is a label, not a link, for a file with no address to open', () => {
+    const { container } = render(<LinkChip link={{ state: 'ready', linked: { id: 'x', kind: 'file', title: 'Item one', href: '' } }} preview={false} />)
+    expect(container.querySelector('a')).toBeNull()
+    expect(screen.getByText('Item one')).toBeTruthy()
+  })
+
+  it('says it was deleted, apart from not available, and leads nowhere', () => {
+    render(<LinkChip link={{ state: 'unavailable', kind: 'issue', noun: 'Issue', deleted: true }} />)
+    expect(screen.getByText('Issue deleted')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
   it('shows its card, read only, when the pointer rests on it', async () => {
     screenThatCanHover(true)
     render(<LinkChip link={ready(ITEM)} />)

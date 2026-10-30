@@ -11,7 +11,7 @@ The one card attached to a piece of text, and the ✕ that removes it.
 
 ## When
 
-- **while writing** — `CommentBox` places it inside the box, with the files, on their fill, its values as words. Write nothing for that.
+- **while writing** — `CommentBox` places it inside the box, with the files, on their fill, its values and its links as words, so a click on it never leaves the draft. Write nothing for that.
 - **after sending** — under the text, its values as pickers.
 - **no ✕** — no `onRemove`: to anyone but who wrote it.
 
@@ -35,6 +35,7 @@ import { AttachedCard } from '@estiva-app/ui'
 - `onRemove` is the app's: before sending it drops the card from what will be sent; after, it sends the edit that removes it.
 - It is at most 480px wide.
 - **An app that draws its sent cards itself** passes its card as `children` instead of `link`, so the card in a box and under a sent message are the same: `<AttachedCard onRemove={remove}>{appCard}</AttachedCard>`. `CommentBox` draws its card this way.
+- **One inside another draws only its card**, with the outer one's ✕: an app whose sent card is an `AttachedCard` hands the box that same card, and the box's ✕ is the one. There is never a card in a card.
 
 ## What it owns
 

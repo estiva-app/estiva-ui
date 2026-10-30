@@ -91,8 +91,14 @@ export interface Linked {
   href: string
   /** What the reader calls it, quietly before the title: "ABC-2". */
   key?: string
-  /** What the app calls it, from its description of its files: "Issue", "Project", "Topic", "Document". Absent, the kind's own word. */
+  /**
+   * What it is, in a word, from its app's description of its files: "Issue", "Project", "Topic", "Document"; the app's
+   * name when its type has none (record a-file-is-labelled-by-its-type-not-its-app; `linkedFrom` does both). Absent,
+   * the kind's own word.
+   */
   noun?: string
+  /** Archived: its row and card say "Archived" in the line under the title, and its values read as words. */
+  archived?: boolean
   /** The line under a card's title: what it is in. Drawn after the key. */
   subtitle?: string
   /** Its short summary, a sentence or two. Without one a card shows the title alone. */
@@ -136,8 +142,10 @@ export interface LoadingShape {
 
 /**
  * Where a link's lookup stands. `loading` knows the kind from the address, and
- * a shape when the app remembers one; `unavailable` is deleted or not the
- * reader's to see, which read the same (Miky, 15 Oct).
+ * a shape when the app remembers one; `unavailable` is not the reader's to see
+ * ("Issue not available"), or `deleted` ("Issue deleted"), which a reader tells
+ * apart by a deletion naming the address (SPEC §13.6.1: deleted is not
+ * not-permitted). Written as a URL, it is that URL either way (`url`).
  */
 export type LinkState =
   | { state: 'loading'; kind: LinkedKind; shape?: LoadingShape }
@@ -148,6 +156,13 @@ export type LinkState =
       noun: string
       /** Where it may still open for someone who can: the app that owns it, and its address. */
       openIn?: { app: string; href: string }
+      /** Deleted, as a trusted deletion naming its address says (SPEC §13.6.1): "Issue deleted", with no way out. */
+      deleted?: boolean
+      /**
+       * The URL it was written as: drawn as that URL, a plain link, in place of "not available" or "deleted" (SPEC
+       * §13.1, C21). Those words are only for a link with no URL to fall back on, a `nostr:` reference.
+       */
+      url?: string
     }
   | { state: 'ready'; linked: Linked }
 
@@ -165,6 +180,96 @@ export function loadingShapeOf(linked: Linked): LoadingShape {
     latest: !!linked.latest,
     ring: !!linked.done,
     footer: linked.status || linked.owner ? 'pickers' : linked.authors ? 'people' : 'line',
+  }
+}
+
+/** A card's shape, and the height it drew at in px: the height holds what the shape cannot say, a summary of two lines. */
+export type CardShape = LoadingShape & { height?: number }
+
+/**
+ * The shape each card last drew at on this device, so its placeholder the next
+ * time is the card's own height and nothing around it moves as it loads
+ * (Peek's peek#533 and #534, then Ship's copy). One per app, under its own
+ * key, in localStorage because the first paint reads it synchronously; the app
+ * clears it with the rest of the device's copy at sign-out.
+ */
+export interface CardShapeMemory {
+  /** The shape the card for `id` took the last time this device drew it; before that, `firstDraw`'s for its kind, if any. */
+  of: (id: string, kind: LinkedKind) => CardShape | undefined
+  /** The shape a card just drew at: `loadingShapeOf(linked)`, and the height it measured. */
+  note: (id: string, shape: CardShape) => void
+  /** Sign-out. */
+  clear: () => void
+}
+
+const FOOTERS: readonly LoadingFooter[] = ['pickers', 'people', 'line', 'none']
+
+/** A stored shape read back, only the parts a placeholder draws; anything else stored there is dropped. */
+function storedCardShape(value: unknown): CardShape | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const { subtitle, summary, rows, latest, ring, footer, height } = value as Record<string, unknown>
+  return {
+    subtitle: subtitle === true,
+    summary: summary === true,
+    // A card lists a few of its items; a bad number must not draw a page of bars.
+    rows: typeof rows === 'number' && Number.isInteger(rows) ? Math.min(Math.max(rows, 0), 10) : 0,
+    latest: latest === true,
+    ring: ring === true,
+    footer: FOOTERS.find((one) => one === footer) ?? 'line',
+    ...(typeof height === 'number' && height > 0 && height < 2000 ? { height: Math.round(height) } : {}),
+  }
+}
+
+/**
+ * The device's memory of the shapes its cards drew at, under the app's own
+ * `storageKey`, keeping the newest `limit`. `firstDraw` is a kind's shape for
+ * a card this device has not drawn yet, where the kit's own placeholder for
+ * the kind is not the app's usual card. Peek's and Ship's `cardShapes`, lifted
+ * here for Leaf, the third app to need one.
+ */
+export function cardShapeMemory(storageKey: string, options: { limit?: number; firstDraw?: Partial<Record<LinkedKind, LoadingShape>> } = {}): CardShapeMemory {
+  const { limit = 300, firstDraw = {} } = options
+  // Read once per page: a screen of cards asks many times.
+  let held: Map<string, CardShape> | undefined
+  const shapes = () => {
+    if (held) return held
+    held = new Map()
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem(storageKey) ?? '[]')
+      for (const entry of Array.isArray(stored) ? stored : []) {
+        const shape = Array.isArray(entry) && typeof entry[0] === 'string' ? storedCardShape(entry[1]) : undefined
+        if (shape) held.set(entry[0] as string, shape)
+      }
+    } catch {
+      held = new Map()
+    }
+    return held
+  }
+  return {
+    of: (id, kind) => shapes().get(id) ?? firstDraw[kind],
+    note: (id, shape) => {
+      const current = shapes()
+      // Already the card drawn last, as it is now: nothing to move or write.
+      if ([...current.keys()].at(-1) === id && JSON.stringify(current.get(id)) === JSON.stringify(shape)) return
+      const next = new Map(current)
+      // Newest last, so the limit drops the cards drawn longest ago.
+      next.delete(id)
+      next.set(id, shape)
+      held = new Map([...next].slice(-limit))
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...held]))
+      } catch {
+        // Full or blocked storage: the shape is still held for this page.
+      }
+    },
+    clear: () => {
+      held = undefined
+      try {
+        localStorage.removeItem(storageKey)
+      } catch {
+        // Nothing to clear where storage is blocked.
+      }
+    },
   }
 }
 

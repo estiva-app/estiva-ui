@@ -105,3 +105,9 @@ export const SAID: Linked = {
 export const ready = (linked: Linked): LinkState => ({ state: 'ready', linked })
 export const LOADING: LinkState = { state: 'loading', kind: 'issue' }
 export const UNAVAILABLE: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Issue', openIn: { app: 'App one', href: '#elsewhere' } }
+/** Deleted, as a trusted deletion naming its address says: told apart from not available (SPEC §13.6.1). */
+export const DELETED: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Issue', deleted: true }
+/** Written as a URL that cannot be shown: it stays that URL. */
+export const WRITTEN_AS_A_URL: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Issue', url: 'https://app.example/item/one' }
+/** The item, archived: its row and card say so, and its values read as words. */
+export const ITEM_ARCHIVED: Linked = { ...ITEM_READ_ONLY, archived: true }

@@ -124,7 +124,21 @@ describe('changing page', () => {
   })
 
   it.each([
-    ['another site', <Link href="https://elsewhere.test/topics">Topics</Link>],
+    ['Link', <Link href="https://elsewhere.test/topics">Topics</Link>],
+    ['InlineChip', <InlineChip href="https://elsewhere.test/topics">Topics</InlineChip>],
+  ])('%s: a plain click to another site opens it in a new tab that cannot reach back, and stays in the app', (_name, part) => {
+    const navigate = vi.fn()
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    inApp(navigate, part)
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+    screen.getByRole('link').dispatchEvent(event)
+    expect(open).toHaveBeenCalledWith('https://elsewhere.test/topics', '_blank', 'noopener,noreferrer')
+    expect(event.defaultPrevented).toBe(true)
+    expect(navigate).not.toHaveBeenCalled()
+    open.mockRestore()
+  })
+
+  it.each([
     ['another scheme', <Link href="folder:1234">Topics</Link>],
     ['a new tab', <Link href="/topics" external>Topics</Link>],
     ['a download', <Link href="/file.pdf" download>File</Link>],
