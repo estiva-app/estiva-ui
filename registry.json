@@ -870,6 +870,18 @@
           "note": "Why the action cannot succeed right now."
         },
         {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like a button: an anchor, so the address stays real for a modified click, a new tab or \"copy link address\", as `IconButton` and `Link` keep it."
+        },
+        {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `href`: another site, or another app."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,

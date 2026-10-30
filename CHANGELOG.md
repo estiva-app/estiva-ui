@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+Katerina, 30 Oct: "Open" into another app is the kit's own Button with a real
+icon, in Peek and Leaf, in place of a text link with a typed arrow.
+
+### Added
+
+- **A Button can be a link.** `href` draws an `<a>` with the button's look, so
+  a modified click, a new tab and "copy link address" work, and a router app's
+  `navigate` (AppProvider) moves in place, as `IconButton`'s `href` does.
+  `external` opens another site or another app in a new tab, with `noopener
+  noreferrer`, as `Link`'s does. A link cannot be disabled: with `disabled`,
+  `disabledReason` or a busy Form it is the button again, and says why.
+
 ## 0.92.0 — 2026-10-30
 
 Katerina's widget review, 30 Oct: how link widgets work in Peek, Ship and Leaf,

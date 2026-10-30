@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconPlus } from '@tabler/icons-react'
+import { IconExternalLink, IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 
 const meta = {
@@ -86,3 +86,17 @@ export const AllVariants: Story = {
 
 /** `resolve`: primary, and in Signal outlined at rest and green when pointed at — Resolve. */
 export const Resolve: Story = { args: { variant: 'resolve', children: 'Resolve' } }
+
+/** With `href` it is a link that looks like a button: Ctrl-click, a new tab and "copy link address" work as on any link. */
+export const AsALink: Story = { args: { href: '#', children: 'Go to the list' } }
+
+/**
+ * `external`: another site or another app, in a new tab. The small quiet button with the external-link icon is the
+ * way out to the app that owns a file; its tooltip names that app.
+ */
+export const OpensAnotherApp: Story = {
+  args: { href: 'https://example.com', external: true, size: 'small', leadingIcon: <IconExternalLink stroke={1.5} className="size-3.5" />, children: 'Open' },
+}
+
+/** A link cannot be disabled: with `disabledReason` (or `disabled`) it draws as the button, and says why. */
+export const ALinkWithAReason: Story = { args: { href: 'https://example.com', external: true, disabledReason: 'Sign in to open it', children: 'Open' } }

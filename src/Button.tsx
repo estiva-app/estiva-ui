@@ -1,5 +1,6 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
+import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 import { useFormBusy } from './formBusy'
 import { TooltipTrigger } from './Tooltip'
@@ -56,6 +57,16 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   /** Why the action cannot succeed right now. Disables the button, keeps it
    *  reachable by keyboard, and shows the reason as a tooltip on hover. */
   disabledReason?: string
+  /**
+   * A link that looks like a button: an anchor, so the address stays real for a
+   * modified click, a new tab or "copy link address", as `IconButton` and `Link`
+   * keep it. A router app's `navigate` (AppProvider) moves in place. A link
+   * cannot be disabled, so while it would be (`disabled`, `disabledReason`, a
+   * busy Form) it is the button (Katerina, 30 October).
+   */
+  href?: string
+  /** With `href`: another site, or another app. Opens in a new tab, with `noopener noreferrer`, as `Link`'s does. */
+  external?: boolean
   children: ReactNode
 }
 
@@ -68,59 +79,64 @@ export function Button({
   disabled,
   disabledReason,
   type = 'button',
+  href,
+  external = false,
   ...props
 }: ButtonProps) {
   const hasLeadingIcon = !!leadingIcon
   // Inside a busy Form: switched off, and looking it (formBusy.ts).
   const formBusy = useFormBusy()
-  const button = (
-    <BaseButton
-      type={type}
-      disabled={disabled || !!disabledReason || formBusy}
-      focusableWhenDisabled={!!disabledReason}
-      className={(state) =>
-        cn(
-          // No `self-center` here, deliberately — `IconButton` needs it and this
-          // does not, and the difference is the `h-8` / `h-6` on the next two
-          // lines. `align-items: stretch` only stretches a child whose cross
-          // size is `auto`; a Button always states its height, so a stretching
-          // parent cannot change it. Measured in Chrome on 2026-09-12, in the
-          // 260px row of Finding 49: 32px with `self-center` and 32px without.
-          // What the class DID do was override the caller on the other axis —
-          // in a column it beats the parent's `items-start`, which centred the
-          // four actions in Ship's `ProjectRail` and the trigger in five of
-          // this package's own story frames, each of which asks for the top.
-          // A control does not get to decide where its caller puts it.
-          'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
-          size === 'default' && 'h-8 min-h-8 text-btn-default',
-          size === 'small' && 'h-6 min-h-6 text-btn-small',
-          // Extra right padding beside a leading icon, for optical balance.
-          size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
-          size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
-          !state.disabled && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
-          // @estiva-escape(no-copied-look): W2 (Katerina, 24 September: leave alone): an outlined button shares four words with Reaction's pill by coincidence
-          !state.disabled && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
-          !state.disabled && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
-          !state.disabled && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
-          state.disabled && 'bg-bg-disabled text-text-disabled',
-          // `pointer-events-none` only where the button is truly out of reach.
-          // With a `disabledReason` the button IS the tooltip's trigger, and a
-          // trigger the pointer cannot land on never opens one — Base UI already
-          // swallows the click (`focusableWhenDisabled` gives `aria-disabled`
-          // and a prevented `onClick`), so nothing else needs it.
-          state.disabled && !disabledReason && 'pointer-events-none',
-          state.disabled && variant === 'outlined' && 'border border-border-default',
-          // Disabled too, as it always drew.
-          variant === 'resolve' &&
-            'signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors',
-          className,
-        )
-      }
-      {...props}
-    >
-      {leadingIcon}
-      {children}
-    </BaseButton>
-  )
+  const unusable = disabled || !!disabledReason || formBusy
+  const anchor = props as unknown as ComponentPropsWithRef<'a'>
+  const inApp = useInAppClick(href, anchor.onClick)
+  const look = (off: boolean) =>
+    cn(
+      // No `self-center` here, deliberately — `IconButton` needs it and this
+      // does not, and the difference is the `h-8` / `h-6` on the next two
+      // lines. `align-items: stretch` only stretches a child whose cross
+      // size is `auto`; a Button always states its height, so a stretching
+      // parent cannot change it. Measured in Chrome on 2026-09-12, in the
+      // 260px row of Finding 49: 32px with `self-center` and 32px without.
+      // What the class DID do was override the caller on the other axis —
+      // in a column it beats the parent's `items-start`, which centred the
+      // four actions in Ship's `ProjectRail` and the trigger in five of
+      // this package's own story frames, each of which asks for the top.
+      // A control does not get to decide where its caller puts it.
+      'inline-flex items-center justify-center gap-1 rounded-md transition-colors font-sans font-medium',
+      size === 'default' && 'h-8 min-h-8 text-btn-default',
+      size === 'small' && 'h-6 min-h-6 text-btn-small',
+      // Extra right padding beside a leading icon, for optical balance.
+      size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
+      size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
+      !off && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+      // @estiva-escape(no-copied-look): W2 (Katerina, 24 September: leave alone): an outlined button shares four words with Reaction's pill by coincidence
+      !off && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
+      !off && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
+      !off && variant === 'destructive' && 'hover:bg-error-muted text-error-default cursor-pointer',
+      off && 'bg-bg-disabled text-text-disabled',
+      // `pointer-events-none` only where the button is truly out of reach.
+      // With a `disabledReason` the button IS the tooltip's trigger, and a
+      // trigger the pointer cannot land on never opens one — Base UI already
+      // swallows the click (`focusableWhenDisabled` gives `aria-disabled`
+      // and a prevented `onClick`), so nothing else needs it.
+      off && !disabledReason && 'pointer-events-none',
+      off && variant === 'outlined' && 'border border-border-default',
+      // Disabled too, as it always drew.
+      variant === 'resolve' &&
+        'signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors',
+      className,
+    )
+  const button =
+    href && !unusable ? (
+      <a href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={look(false)} {...anchor} onClick={inApp}>
+        {leadingIcon}
+        {children}
+      </a>
+    ) : (
+      <BaseButton type={type} disabled={unusable} focusableWhenDisabled={!!disabledReason} className={(state) => look(state.disabled)} {...props}>
+        {leadingIcon}
+        {children}
+      </BaseButton>
+    )
   return disabledReason ? <TooltipTrigger label={disabledReason}>{button}</TooltipTrigger> : button
 }

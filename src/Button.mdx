@@ -28,7 +28,9 @@ The push-button for an action: a verb, clicked once — "Create", "Save",
 
 - An icon with no label → **IconButton**.
 - Going somewhere rather than doing something → **Link**; **Tabs** or
-  **Breadcrumb** when it is a view or a trail.
+  **Breadcrumb** when it is a view or a trail. A way somewhere that must
+  stand as a button (the way out to another app) is this Button with
+  `href`, still a link.
 - Choosing a value → **Select**. Acting from a popover list → **MenuItem**.
 - A control the person may never be allowed to use is **absent, not
   disabled**. `disabled` is for *momentarily* unavailable — and it says why,
@@ -62,6 +64,26 @@ import { IconPlus } from '@tabler/icons-react'
   wrapper — what a caller gets is the `<button>`, and a `Menu.Trigger` or
   a `Dialog.Close` can be it.
 
+- **A link that looks like a button**: give it `href`. It draws an `<a>`
+  with the same look, so a modified click, a new tab and "copy link
+  address" work. `external` opens another site or another app in a new
+  tab, with `noopener noreferrer`, as Link's does. A link cannot be
+  disabled: with `disabled` or `disabledReason` it is the button again,
+  and says why.
+
+```tsx
+import { Button, WithTooltip } from '@estiva-app/ui'
+import { IconExternalLink } from '@tabler/icons-react'
+
+<WithTooltip label="Open in the app that owns it">
+  <Button href={url} external size="small" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />}>
+    Open
+  </Button>
+</WithTooltip>
+```
+
+<Canvas of={ButtonStories.OpensAnotherApp} />
+
 - `variant="resolve"` is `primary` in every theme but Signal, where it is
   outlined at rest and green when pointed at — the Resolve button. `IconButton`
   has the same look.
@@ -75,7 +97,7 @@ It does these by itself. Write none of them around it.
 
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
-| Says what it is to assistive technology: a button | `role="button"` | ✓ |
+| Says what it is to assistive technology: a button, or a link with `href` | `role="button"` | ✓ |
 | Is reachable with Tab, also when it is disabled with a reason | a `tabIndex` | ✓ |
 | Presses on Enter and Space, and does nothing while disabled | a key handler |  |
 | Keeps its 32px (24px small) in a scrolling column | `shrink-0` |  |
@@ -85,7 +107,7 @@ It does these by itself. Write none of them around it.
 | Key | Does |
 |---|---|
 | Tab | Onto the button, also when it is disabled with a reason; never when it is plain `disabled`. |
-| Space / Enter | The action. Nothing while disabled. |
+| Space / Enter | The action. Nothing while disabled. With `href`, Enter follows the link, as on any link. |
 
 ## Props
 
