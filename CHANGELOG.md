@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.94.0 — 2026-10-30
+
+Katerina, 30 Oct: a file opened from another app's card, in a new tab, sat
+marked inside a shut Folder. Opening a file now shows where it lives, in every
+app's sidebar.
+
+### Added
+
+- **NavTree opens onto the current row.** Each time `selected` names a new
+  row, its group and every row above it open — a group closed by hand too —
+  and the column scrolls to it once they have slid open. Nothing is closed for
+  it. Once per row: closed again, they stay closed until another row opens. A
+  group opened this way is remembered open under `storageKey`, as a click
+  would be.
+- **`selectedParent`**: the row the current one sits under, while the tree
+  does not draw the current one — its rows are read only when it opens, or it
+  is not a row in this tree. The tree opens onto that row and opens it, so its
+  rows are read, and marks nothing for it.
+- **`openFor`** on `CollapsibleSection`, `NavTreeSection` and `NavItem`: the
+  current item, when it sits inside. The section or row opens each time it
+  names a new one, as a click would. For groups an app draws itself; `NavTree`
+  passes it to the groups and rows it draws.
+
+### Changed
+
+- `NavTree` draws its title and groups inside one `display: contents` box, so
+  it can find its current row. It lays nothing out: the groups are still the
+  column's own children for its gap and spacing.
+
 ## 0.93.0 — 2026-10-30
 
 Katerina, 30 Oct: Undo on Peek's Screener Dismiss and Later, and a Sort menu on
