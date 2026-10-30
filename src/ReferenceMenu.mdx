@@ -48,8 +48,9 @@ const editor = useEditor({
 
 - **A click on a link while editing** — its chip, row or card — opens the menu
   under it, instead of following it. Not editing, the click follows it. A
-  card's own controls (its status, its owner) take their click while editing
-  too.
+  card's own links and controls take their click while editing too: its title
+  opens the file, its count the conversation, its status and owner change it.
+  Only a click on the card's empty space opens the menu.
 - **A link just put in alone on its line** — pasted, picked with `[`, or a
   pasted URL becoming its chip — opens the menu by itself. It takes no focus:
   typing on closes it, and nothing is written. In a sentence it does not open:
@@ -60,8 +61,9 @@ const editor = useEditor({
 - **Open** does what a click on the link does when reading: the app's link gets
   the click. A link with nothing to click opens its URL in a new tab.
 - Open is offered only when there is something to open: the link's own
-  control, or its URL. A link in a sentence with neither has no menu, and a
-  click goes on to it.
+  control as the app drew it, or its URL. A person, and a link still loading
+  or not available, have neither: no Open. A link in a sentence with neither
+  has no menu, and a click goes on to it.
 - The menu closes when the editor loses focus, so a card is never chosen after
   the editor has saved on leaving.
 - Choosing Row or Card is an undo step; the menu closes.

@@ -3,7 +3,7 @@ import { Extension, InputRule, Node, type Editor } from '@tiptap/core'
 import { DOMSerializer, type Node as ProseMirrorNode, type Slice } from '@tiptap/pm/model'
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state'
 import { Mapping, ReplaceAroundStep } from '@tiptap/pm/transform'
-import type { EditorView, NodeView } from '@tiptap/pm/view'
+import { Decoration, DecorationSet, type EditorView, type NodeView } from '@tiptap/pm/view'
 import { NodeViewWrapper, ReactNodeViewRenderer, ReactRenderer, type ReactNodeViewProps } from '@tiptap/react'
 import { Checkbox, type CheckboxProps } from './Checkbox'
 import { calloutLook } from './RichText'
@@ -380,7 +380,11 @@ export interface ReferenceViewProps {
    * editor without `LinkPlaces`.
    */
   place?: LinkPlace
-  /** Being edited: a click opens its menu rather than it, so a row or card shows no hover preview. */
+  /**
+   * Being edited, so a chip or a row shows no hover preview: a click on it opens its menu, or does nothing in a box
+   * being written in. In a box, always while it can be written in; in a document (`editingLine`), only while the
+   * caret is on its line, so a link elsewhere on the page previews on hover.
+   */
   editing?: boolean
 }
 
@@ -390,6 +394,58 @@ export interface ReferenceNodeOptions {
    * knows how to resolve it. Without one, the URI is drawn as text.
    */
   view: ComponentType<ReferenceViewProps> | null
+  /**
+   * A link counts as being edited (`editing`) only while the caret is on its
+   * line: its textblock, between the hard breaks either side, while the editor
+   * has focus. `DocumentEditor` sets it, so a page that is always editable
+   * still previews the links its writer is not working on (Katerina, 30 Oct).
+   * Off, every link is being edited while the editor is editable, as in a
+   * message's box.
+   */
+  editingLine: boolean
+}
+
+/** A card's own controls: a press on one stays theirs, see `keepCardPresses`. */
+const CARD_CONTROLS = 'button, [role="combobox"]'
+
+/** What a click in a card goes on to: its links (the title, the count) and its controls. Its empty space opens the menu. */
+const CARD_CLICKS = `a[href], input, select, ${CARD_CONTROLS}`
+
+/**
+ * ProseMirror sees a press before React does and takes the caret into the
+ * text, which closed a card's picker before it opened (Leaf's fix, moved here
+ * so every app has it). It leaves alone a press whose default is prevented.
+ */
+function keepCardPresses(element: HTMLElement | null): (() => void) | undefined {
+  if (!element) return undefined
+  const keep = (event: globalThis.MouseEvent) => {
+    if (event.target instanceof Element && event.target.closest(CARD_CONTROLS)) event.preventDefault()
+  }
+  element.addEventListener('mousedown', keep)
+  return () => element.removeEventListener('mousedown', keep)
+}
+
+/** Every reference on the caret's line: the textblock it is in, between the hard breaks either side of it. */
+function caretLineReferences(state: EditorState): { pos: number; size: number }[] {
+  const { $head } = state.selection
+  const block = $head.parent
+  if (!block.isTextblock) return []
+  const start = $head.start()
+  const at = $head.parentOffset
+  const lines: { from: number; to: number; references: { pos: number; size: number }[] }[] = [{ from: 0, to: block.content.size, references: [] }]
+  block.forEach((child, offset) => {
+    const line = lines[lines.length - 1]
+    if (child.type.name === 'hardBreak') {
+      line.to = offset
+      lines.push({ from: offset + child.nodeSize, to: block.content.size, references: [] })
+    } else if (child.type.name === 'reference') line.references.push({ pos: start + offset, size: child.nodeSize })
+  })
+  return lines.find((line) => at >= line.from && at <= line.to)?.references ?? []
+}
+
+/** Whether a node view's decorations put it on the caret's line. */
+function onCaretLine(decorations: readonly Decoration[] | undefined): boolean {
+  return (decorations ?? []).some((decoration) => (decoration.spec as { caretLine?: boolean }).caretLine === true)
 }
 
 /**
@@ -420,7 +476,26 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   selectable: true,
   draggable: false,
   addOptions() {
-    return { view: null }
+    return { view: null, editingLine: false }
+  },
+  addProseMirrorPlugins() {
+    if (!this.options.editingLine) return []
+    const editor = this.editor
+    return [
+      new Plugin({
+        key: new PluginKey('referenceCaretLine'),
+        props: {
+          // Read on every update, a focus and a blur included (Tiptap sends a transaction for each), so it follows the caret.
+          decorations: (state) =>
+            editor.isFocused && editor.isEditable
+              ? DecorationSet.create(
+                  state.doc,
+                  caretLineReferences(state).map(({ pos, size }) => Decoration.node(pos, pos + size, {}, { caretLine: true })),
+                )
+              : null,
+        },
+      }),
+    ]
   },
   addAttributes() {
     return {
@@ -452,15 +527,19 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
   addNodeView() {
     const View = this.options.view
     if (!View) return null
+    const { editingLine } = this.options
     return ReactNodeViewRenderer(({ node, editor, getPos, decorations }: ReactNodeViewProps) => {
       const uri = String(node.attrs.uri ?? '')
       const href = typeof node.attrs.href === 'string' && node.attrs.href ? node.attrs.href : undefined
       const place = placeOf(decorations)
+      const editing = editor.isEditable && (!editingLine || onCaretLine(decorations))
       return (
         <NodeViewWrapper
           as="span"
           // A row or a card is the whole line.
           className={place === 'chip' ? 'inline' : 'block w-full'}
+          // A card keeps its pickers while the text is edited too (Katerina, 30 Oct): a press on one is not the text's.
+          ref={place === 'card' ? keepCardPresses : undefined}
           // While editing, a click opens the chip's menu (`ReferenceMenu`) rather than following the chip.
           onClickCapture={(event: MouseEvent) => {
             // A click in something the view portals out — a picker's list, a hover card — reaches here through React's
@@ -470,21 +549,24 @@ export const ReferenceNode = Node.create<ReferenceNodeOptions>({
             // (`Node` here is Tiptap's; a click's target is an Element.)
             const own = editor.view.nodeDOM(pos)
             if (!(event.target instanceof Element) || !own || !own.contains(event.target)) return
-            // A card's own controls — its status, its owner — change it from the card, while editing too.
-            if (place === 'card' && event.target.closest('button, input, select, [role="combobox"]')) return
+            // A card's own links and controls take the click, while editing too: its title opens the file, its count the
+            // conversation, its status and owner change it. Only its empty space opens the menu (Katerina, 30 Oct).
+            if (place === 'card' && event.target.closest(CARD_CLICKS)) return
             if (!referenceMenuClick(editor, pos)) return
             event.preventDefault()
             event.stopPropagation()
           }}
         >
           {/* A URL chip not resolved yet reads as the URL it was written as. */}
-          {uri ? <View uri={uri} {...(href ? { href } : {})} place={place} editing={editor.isEditable} /> : <span>{href}</span>}
+          {uri ? <View uri={uri} {...(href ? { href } : {})} place={place} editing={editing} /> : <span>{href}</span>}
         </NodeViewWrapper>
       )
     }, {
-      // Words typed beside a link leave its node as it was, and Tiptap then skips the redraw; its place has changed (code review).
+      // Words typed beside a link leave its node as it was, and Tiptap then skips the redraw; its place has changed (code
+      // review), or the caret came onto its line or left it.
       update: ({ oldNode, newNode, oldDecorations, newDecorations, updateProps }) => {
-        if (oldNode !== newNode || placeOf(oldDecorations) !== placeOf(newDecorations)) updateProps()
+        const moved = placeOf(oldDecorations) !== placeOf(newDecorations) || onCaretLine(oldDecorations) !== onCaretLine(newDecorations)
+        if (oldNode !== newNode || moved) updateProps()
         return true
       },
     })

@@ -14,6 +14,7 @@ import { Fragment, Slice } from '@tiptap/pm/model'
 import type { JSONContent } from '@tiptap/react'
 import { documentForEditing, encodeNpub, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
 import { newlyNamedPeople } from '@estiva-app/conversation'
+import type { ReferenceViewProps } from './BlockNodes'
 import type { MentionPerson, ReferenceSection } from './ComposerTriggers'
 import { DocumentEditor, type DocumentCodec, type DocumentEditorProps, type HeldTyping } from './DocumentEditor'
 
@@ -531,13 +532,33 @@ describe('blocks', () => {
 
 describe('a link, by where it sits', () => {
   const run = (uri: string, embed?: string) => ({ type: 'text', text: uri, marks: [{ type: 'reference', attrs: { uri, ...(embed ? { embed } : {}) } }] })
-  /** The app's drawing of a link: says where it sits. */
-  const Placed = ({ uri, place }: { uri: string; place?: string }) => (
-    <a href={`/o/${uri}`} data-place={place ?? 'none'} onClick={(event) => event.preventDefault()}>
-      Item
-    </a>
-  )
+  /** The app's drawing of a link: says where it sits, and whether it is being edited; a card has room around its link. */
+  const Placed = ({ uri, place, editing }: ReferenceViewProps) => {
+    const link = (
+      <a href={`/o/${uri}`} data-place={place ?? 'none'} data-editing={String(!!editing)} onClick={(event) => event.preventDefault()}>
+        Item
+      </a>
+    )
+    return place === 'card' ? <span data-testid="card">{link} Summary</span> : link
+  }
   const places = () => [...document.querySelectorAll('[data-place]')].map((el) => el.getAttribute('data-place'))
+  const editing = () => [...document.querySelectorAll('[data-editing]')].map((el) => el.getAttribute('data-editing'))
+
+  it('is being edited only while the caret is on its line: elsewhere, and once the editor is left, it can preview', async () => {
+    const value = doc(
+      { type: 'paragraph', id: 'a1', content: [{ type: 'text', text: 'See ' }, run(ITEM_URI)] },
+      { type: 'paragraph', id: 'a2', content: [{ type: 'text', text: 'And ' }, run(ITEM_URI)] },
+    )
+    render(<Doc value={value} referenceView={Placed} />)
+    await screen.findAllByRole('link', { name: 'Item' })
+    expect(editing()).toEqual(['false', 'false'])
+    await type('', 2)
+    expect(editing()).toEqual(['true', 'false'])
+    await type('', 'end')
+    expect(editing()).toEqual(['false', 'true'])
+    await leave()
+    expect(editing()).toEqual(['false', 'false'])
+  })
 
   it('draws as its row alone on its line, its chip in a sentence, and its card in the row\'s place once chosen', async () => {
     const value = doc(
@@ -565,7 +586,8 @@ describe('a link, by where it sits', () => {
     render(<Doc value={doc({ type: 'paragraph', id: 'a1', content: [run(ITEM_URI)] })} referenceView={Placed} onCommit={onCommit} />)
     const choose = async (label: 'Row' | 'Card') => {
       await act(async () => editorOf().view.focus())
-      fireEvent.click(await screen.findByRole('link', { name: 'Item' }))
+      // A card's own link follows; its empty space opens the menu.
+      fireEvent.click(screen.queryByTestId('card') ?? (await screen.findByRole('link', { name: 'Item' })))
       fireEvent.mouseDown(await screen.findByRole('menuitemradio', { name: label }))
       await leave()
     }

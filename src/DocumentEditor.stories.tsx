@@ -100,8 +100,8 @@ function useLinked(uri: string): Linked | undefined {
 
 /**
  * A link as the app draws it, where it sits: a person by name; an item as the
- * link kit's chip, row or card. While editing, a click is the menu's, so a
- * chip or row shows no hover card.
+ * link kit's chip, row or card. On the caret's line a click is the menu's, so
+ * a chip or row there shows no hover card; elsewhere on the page it does.
  */
 function Chip({ uri, href, place = 'chip', editing = false }: ReferenceViewProps) {
   const linked = useLinked(uri)

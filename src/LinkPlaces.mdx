@@ -53,6 +53,9 @@ const editor = useEditor({ extensions: [StarterKit, BlockId, ReferenceNode.confi
 - **The same rule as the protocol's** `documentLineDrawOf`, read off the
   editor's tree on every change; a test holds the two to one answer.
 - **A row or a card is the whole line**: its view's wrapper is a block.
+- **`editing` is true while the editor is editable**, or with
+  `ReferenceNode`'s `editingLine` only while the caret is on the link's line,
+  as `DocumentEditor` has it: elsewhere the chip and the row preview.
 
 ## What it owns
 

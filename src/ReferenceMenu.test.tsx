@@ -260,13 +260,14 @@ describe('ReferenceMenu', () => {
 })
 
 describe('ReferenceMenuView', () => {
-  /** The app's drawing: a link, named by its place, that follows on a click. */
+  /** The app's drawing: a link, named by its place, that follows on a click; a card has room around its link. */
   function Linked({ uri, place = 'chip' }: ReferenceViewProps) {
-    return (
+    const link = (
       <a href={`/o/${uri}`} data-place={place} onClick={(event) => (followed(uri), event.preventDefault())}>
         Item
       </a>
     )
+    return place === 'card' ? <span data-testid="card">{link} Summary</span> : link
   }
   const followed = vi.fn()
 
@@ -323,7 +324,8 @@ describe('ReferenceMenuView', () => {
     await waitFor(() => expect(screen.getByRole('link', { name: 'Item' }).getAttribute('data-place')).toBe('card'))
     await waitFor(() => expect(screen.queryByRole('menu', { name: 'Link' })).toBeNull())
 
-    fireEvent.click(screen.getByRole('link', { name: 'Item' }))
+    // On a card, its empty space opens the menu; its own link takes the click (below).
+    fireEvent.click(screen.getByTestId('card'))
     expect((await screen.findByRole('menuitemradio', { name: 'Card' })).getAttribute('aria-checked')).toBe('true')
     fireEvent.mouseDown(screen.getByRole('menuitemradio', { name: 'Row' }))
     // Row writes no `embed` at all, not `none`.
@@ -370,15 +372,75 @@ describe('ReferenceMenuView', () => {
     expect(isReferenceMenuOpen(editor!.state)).toBe(false)
   })
 
-  it('offers Open at once on a link picked on an empty line, before the app has drawn it', async () => {
+  it('offers Open on a link picked on an empty line once the app has drawn it', async () => {
     render(<Harness content={para()} />)
     await screen.findByRole('textbox')
     act(() => {
-      editor!.commands.focus('end')
+      editor!.commands.setTextSelection(editor!.state.doc.content.size - 1)
       editor!.commands.insertContent([ref(V), { type: 'text', text: ' ' }])
     })
     expect((await screen.findAllByRole('menuitem', { name: 'Open' })).length).toBe(1)
     expect(screen.getByRole('menuitemradio', { name: 'Row' }).getAttribute('aria-checked')).toBe('true')
+  })
+
+  it('follows a click on a card\'s own link while editing; its empty space opens the menu', async () => {
+    followed.mockClear()
+    render(<Harness content={para(ref(V, 'detailed'))} />)
+    fireEvent.click(await screen.findByRole('link', { name: 'Item' }))
+    expect(followed).toHaveBeenCalledWith(V)
+    expect(isReferenceMenuOpen(editor!.state)).toBe(false)
+    fireEvent.click(screen.getByTestId('card'))
+    expect(followed).toHaveBeenCalledTimes(1)
+    await screen.findByRole('menuitemradio', { name: 'Card' })
+  })
+
+  it('keeps a press on a card\'s picker from the text, so the caret does not take it and close the picker', async () => {
+    function WithPicker({ place = 'chip' }: ReferenceViewProps) {
+      return place === 'card' ? (
+        <span>
+          <button type="button">
+            <span>Status</span>
+          </button>
+          <span>Summary</span>
+        </span>
+      ) : (
+        <span>Item</span>
+      )
+    }
+    function PickerHarness() {
+      const e = useEditor({ extensions: [StarterKit.configure({ link: false }), BlockId, ReferenceNode.configure({ view: WithPicker }), LinkPlaces, ReferenceMenu], content: para(ref(V, 'detailed')) })
+      editor = e ?? undefined
+      return <EditorContent editor={e} />
+    }
+    render(<PickerHarness />)
+    // fireEvent answers false when the press's default was prevented, which ProseMirror leaves alone.
+    expect(fireEvent.mouseDown(await screen.findByText('Status'))).toBe(false)
+  })
+
+  it('offers no Open on a link the app draws with nothing to click (a person, loading, not available), and no menu in a sentence', async () => {
+    // As the kit's chip draws a link still loading or not available, and a person with no page: words, no link.
+    const Words = () => <span>Item</span>
+    function WordsHarness({ content }: { content: Record<string, unknown> }) {
+      const e = useEditor({ extensions: [StarterKit.configure({ link: false }), BlockId, ReferenceNode.configure({ view: Words }), LinkPlaces, ReferenceMenu], content })
+      editor = e ?? undefined
+      return (
+        <>
+          <EditorContent editor={e} />
+          <ReferenceMenuView editor={e} />
+        </>
+      )
+    }
+    render(<WordsHarness content={para(ref(V))} />)
+    fireEvent.click(await screen.findByText('Item'))
+    await screen.findByRole('menuitemradio', { name: 'Card' })
+    expect(screen.queryByRole('menuitem', { name: 'Open' })).toBeNull()
+    cleanup()
+    editor?.destroy()
+
+    render(<WordsHarness content={para({ type: 'text', text: 'See ' }, ref(V))} />)
+    fireEvent.click(await screen.findByText('Item'))
+    expect(isReferenceMenuOpen(editor!.state)).toBe(false)
+    expect(screen.queryByRole('menu', { name: 'Link' })).toBeNull()
   })
 
   it('lets a click follow the link when the editor is not editable', async () => {

@@ -364,7 +364,8 @@ export function DocumentEditor({
         BlockId,
         Checklist,
         Callout,
-        ReferenceNode.configure({ view: referenceView ?? null }),
+        // A link is being edited only while the caret is on its line: anywhere else on the page it previews on hover.
+        ReferenceNode.configure({ view: referenceView ?? null, editingLine: true }),
         // A link's chip in a sentence, its row alone on its line, its card in the row's place (SPEC §13.3).
         LinkPlaces,
         // A click on a link offers Open, and alone on its line Show as Row or Card.
