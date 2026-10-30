@@ -167,3 +167,78 @@ describe('NavTree with no groups and no words', () => {
     expect(container.textContent).toBe('')
   })
 })
+
+/** Group two's rows start shut here, so a row two levels in is reached only by opening the rows above it. */
+const SHUT: NavTreeGroup[] = [
+  { id: 'g1', title: 'Group one', nodes: [{ id: 'a', label: 'Item a', href: '#a' }] },
+  {
+    id: 'g2',
+    title: 'Group two',
+    nodes: [
+      { id: 'b', label: 'Item b', href: '#b', defaultOpen: false, children: [{ id: 'c', label: 'Item c', href: '#c', defaultOpen: false, children: [{ id: 'd', label: 'Item d', href: '#d' }] }] },
+      { id: 'e', label: 'Item e', href: '#e' },
+    ],
+  },
+]
+
+describe('NavTree opens onto the current row (Katerina, 30 October)', () => {
+  it('a row that becomes current shows: its shut group and the rows above it open', () => {
+    const { rerender } = render(<NavTree groups={SHUT} selected="a" />)
+    expect(hidden('Item d')).toBe(true)
+    rerender(<NavTree groups={SHUT} selected="d" />)
+    expect(hidden('Item d')).toBe(false)
+    expect(screen.getByRole('link', { name: 'Item d' }).getAttribute('aria-current')).toBe('page')
+  })
+
+  it('a group closed by hand opens for a new current row in it, and stays closed while that row stays current', async () => {
+    const { rerender } = render(<NavTree groups={SHUT} selected="e" />)
+    await userEvent.click(screen.getByRole('button', { name: 'Group two' }))
+    expect(hidden('Item e')).toBe(true)
+    rerender(<NavTree groups={SHUT} selected="d" />)
+    expect(hidden('Item e')).toBe(false)
+    await userEvent.click(screen.getByRole('button', { name: 'Group two' }))
+    rerender(<NavTree groups={SHUT} selected="d" />)
+    expect(hidden('Item e')).toBe(true)
+  })
+
+  it('a row current again after another opens its group again', async () => {
+    const { rerender } = render(<NavTree groups={SHUT} selected="e" />)
+    await userEvent.click(screen.getByRole('button', { name: 'Group two' }))
+    rerender(<NavTree groups={SHUT} selected="a" />)
+    rerender(<NavTree groups={SHUT} selected="e" />)
+    expect(hidden('Item e')).toBe(false)
+  })
+
+  it('a group this browser remembers closed opens for a current row in it, and is remembered open', () => {
+    window.localStorage.setItem('test.tree.g2', 'closed')
+    render(<NavTree groups={SHUT} selected="e" storageKey="test.tree" />)
+    expect(hidden('Item e')).toBe(false)
+    expect(window.localStorage.getItem('test.tree.g2')).toBe('open')
+    window.localStorage.removeItem('test.tree.g2')
+  })
+
+  it('a group the caller owns is told to open', () => {
+    const onOpenChange = vi.fn()
+    render(<NavTree groups={[SHUT[0], { ...SHUT[1], open: false, onOpenChange }]} selected="e" />)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+  })
+
+  it('selectedParent: the row the current one is under opens, so its rows are read, and nothing is marked', () => {
+    const onOpenChange = vi.fn()
+    const groups: NavTreeGroup[] = [
+      SHUT[0],
+      { id: 'g2', title: 'Group two', nodes: [{ id: 'p', label: 'Item p', href: '#p', hasChildren: true, open: false, onOpenChange }] },
+    ]
+    render(<NavTree groups={groups} selected="q" selectedParent="p" />)
+    expect(hidden('Item p')).toBe(false)
+    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(screen.getByRole('link', { name: 'Item p' }).getAttribute('aria-current')).toBeNull()
+  })
+
+  it('a NavTreeSection the app draws opens for openFor', () => {
+    const { rerender } = render(<NavTreeSection title="Group a" defaultOpen={false}><a href="#a">Item a</a></NavTreeSection>)
+    expect(hidden('Item a')).toBe(true)
+    rerender(<NavTreeSection title="Group a" defaultOpen={false} openFor="a"><a href="#a">Item a</a></NavTreeSection>)
+    expect(hidden('Item a')).toBe(false)
+  })
+})

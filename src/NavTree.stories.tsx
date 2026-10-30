@@ -1,12 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { IconArrowUpRight, IconFolder, IconPlus } from '@tabler/icons-react'
+import { Button } from './Button'
 import { Chip } from './Chip'
 import { UnreadDot } from './UnreadDot'
 import { MenuItem, MenuSeparator } from './Menu'
 import { NavItem } from './NavItem'
-import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
+import { NavTree, NavTreeSection, type NavTreeGroup, type NavTreeNode } from './NavTree'
 import { Sidebar } from './Sidebar'
 
 const placeholder = <IconSquareRounded size={16} stroke={1.5} />
@@ -181,6 +182,143 @@ export const AppDrawnGroups: Story = {
             <NavTreeSection title="Group three" message="Nothing in this yet." />
           </NavTree>
         </Sidebar>
+      </div>
+    )
+  },
+}
+
+/*
+  Opening a row shows where it lives (Katerina, 30 October): its group and the
+  rows above it open, the row is marked, and the column scrolls to it.
+*/
+function item(n: number, children?: NavTreeNode[]): NavTreeNode {
+  return { id: `i${n}`, label: `Item ${n}`, href: '#', icon: placeholder, ...(children ? { children, defaultOpen: false } : {}) }
+}
+
+const WORDS = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']
+
+/** Eight shut groups, enough for the column to scroll; in the last, Item 31 is two levels in, under Item 29 and Item 30. */
+const SHUT_GROUPS: NavTreeGroup[] = WORDS.map((word, g) => ({
+  id: `s${g + 1}`,
+  title: `Group ${word}`,
+  defaultOpen: false,
+  nodes: g === 7 ? [item(28), item(29, [item(30, [item(31)])]), item(32)] : [1, 2, 3, 4].map((r) => item(g * 4 + r)),
+}))
+
+/** The page beside the column: what opens a row from outside it — a link, a search. */
+function Page({ children }: { children: ReactNode }) {
+  return <div className="flex flex-1 flex-col items-start gap-2 p-6">{children}</div>
+}
+
+/** Every group starts shut. Open a row from the page: its group and the rows above it open, and the column scrolls to it. Close that group by hand: it stays closed until another row in it opens. */
+export const OpensOntoTheCurrentRow: Story = {
+  args: { groups: SHUT_GROUPS, selected: undefined },
+  render: function Render(args) {
+    const [selected, setSelected] = useState<string | undefined>(undefined)
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree
+            {...args}
+            selected={selected}
+            onSelect={(node, event) => {
+              event.preventDefault()
+              setSelected(node.id)
+            }}
+          />
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => setSelected('i31')}>Open Item 31</Button>
+          <Button variant="outlined" size="small" onClick={() => setSelected('i10')}>Open Item 10</Button>
+          <Button variant="outlined" size="small" onClick={() => setSelected('i2')}>Open Item 2</Button>
+        </Page>
+      </div>
+    )
+  },
+}
+
+/** A new tab, where nothing is open yet: each button starts the column again, every group shut, and opens onto its row. */
+export const InANewTab: Story = {
+  args: { groups: SHUT_GROUPS, selected: undefined },
+  render: function Render(args) {
+    const [tab, setTab] = useState<{ n: number; selected?: string }>({ n: 0 })
+    const open = (id: string) => setTab((now) => ({ n: now.n + 1, selected: id }))
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar key={tab.n}>
+          <NavTree
+            {...args}
+            selected={tab.selected}
+            onSelect={(node, event) => {
+              event.preventDefault()
+              setTab((now) => ({ ...now, selected: node.id }))
+            }}
+          />
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => open('i31')}>Open Item 31 in a new tab</Button>
+          <Button variant="outlined" size="small" onClick={() => open('i14')}>Open Item 14 in a new tab</Button>
+        </Page>
+      </div>
+    )
+  },
+}
+
+/** The current row sits under a row whose rows are read only when it opens: `selectedParent` opens onto that row and opens it; once its rows are read, the current one is marked. */
+export const UnderARowNotReadYet: Story = {
+  args: { selected: undefined },
+  render: function Render(args) {
+    const [selected, setSelected] = useState<string | undefined>(undefined)
+    const [open, setOpen] = useState(false)
+    const [read, setRead] = useState<NavTreeNode[] | null | undefined>(undefined)
+    const openRow = (next: boolean) => {
+      setOpen(next)
+      if (!next || read !== undefined) return
+      setRead(null)
+      setTimeout(() => setRead([item(4), item(5), item(6)]), 800)
+    }
+    const groups: NavTreeGroup[] = [
+      { id: 'n1', title: 'Group one', defaultOpen: false, nodes: [item(7), item(8)] },
+      { id: 'n2', title: 'Group two', defaultOpen: false, nodes: [item(1), { ...item(2), hasChildren: true, children: read, open, onOpenChange: openRow }, item(3)] },
+    ]
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree
+            {...args}
+            groups={groups}
+            selected={selected}
+            selectedParent={selected === 'i5' ? 'i2' : undefined}
+            onSelect={(node, event) => {
+              event.preventDefault()
+              setSelected(node.id)
+            }}
+          />
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => setSelected('i5')}>Open Item 5, under Item 2</Button>
+        </Page>
+      </div>
+    )
+  },
+}
+
+/** The current item is not a row in the tree: the place it is listed in stays marked, and `selectedParent` opens the group holding the row it is under — that row is not marked. */
+export const NotARowHere: Story = {
+  args: { groups: SHUT_GROUPS.slice(0, 5), selected: undefined },
+  render: function Render(args) {
+    const [under, setUnder] = useState<string | undefined>(undefined)
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavItem href="#" label="Item list" icon={placeholder} active />
+          <NavItem href="#" label="Another list" icon={placeholder} />
+          <NavTree {...args} selected={under && `item under ${under}`} selectedParent={under} />
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => setUnder('i18')}>Open an item under Item 18</Button>
+          <Button variant="outlined" size="small" onClick={() => setUnder('i6')}>Open an item under Item 6</Button>
+        </Page>
       </div>
     )
   },

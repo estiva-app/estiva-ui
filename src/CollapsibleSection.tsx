@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from './cn'
 import { SectionHeader, type SectionAction } from './SectionHeader'
@@ -21,7 +21,10 @@ import { COLLAPSIBLE_PANEL_CLASSES } from './looks'
  * - `open` + `onOpenChange`: the caller owns it.
  *
  * A closed section stays closed whatever is selected inside it (her
- * ruling, 2026-09-09) — the reader closed it.
+ * ruling, 2026-09-09) — the reader closed it — until `openFor` names a new
+ * current item inside it: opening a file shows where it lives, even in a
+ * section closed by hand (Katerina, 30 October). Once per item, so closed
+ * again it stays closed until another opens.
  */
 export interface CollapsibleSectionProps {
   title: string
@@ -41,6 +44,13 @@ export interface CollapsibleSectionProps {
   pending?: boolean
   /** Remember open or closed in this browser, under this key. The app prefixes it. */
   storageKey?: string
+  /**
+   * The current item, when it sits in here: the section opens each time this
+   * names a new one, as a click would — remembered under `storageKey`, told to
+   * `onOpenChange`. Closed again by hand, it stays closed until another item
+   * opens. `NavTree` passes it.
+   */
+  openFor?: string
   /** 16px, before the title; the arrow takes its place on hover — `SectionHeader`'s. */
   icon?: ReactNode
   /** Beside the title and always visible, before the actions — a count. `SectionHeader`'s. */
@@ -75,6 +85,22 @@ export interface CollapsibleSectionProps {
 const OPEN = 'open'
 const CLOSED = 'closed'
 
+/**
+ * `openFor`, for a section and a row with rows under it: open, as a click
+ * would, each time it names a new item. An effect, not a render: opening tells
+ * the caller (`onOpenChange`), and a parent is never set while a child draws.
+ * Gone and back — the item opened, another elsewhere, then it again — is new.
+ */
+export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: (open: boolean) => void) {
+  const seen = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (openFor === seen.current) return
+    seen.current = openFor
+    if (openFor !== undefined && !open) setOpen(true)
+    // Only a new item opens it: the reader's own toggles in between are theirs.
+  }, [openFor])
+}
+
 function readStored(key: string | undefined): boolean | undefined {
   if (!key) return undefined
   try {
@@ -94,7 +120,7 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, openFor, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
@@ -102,6 +128,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
     writeStored(storageKey, next)
     onOpenChange?.(next)
   }
+  useOpenFor(openFor, open, setOpen)
   // Pending, Base UI holds the panel shut and so would open it on a click: the click is the title's, and the title says open.
   // Only a click: find-in-page reaching into the shut panel asks to open it, and it is open.
   const shown = open && !pending
