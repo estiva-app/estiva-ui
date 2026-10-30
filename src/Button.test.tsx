@@ -135,4 +135,37 @@ describe('Button', () => {
     expect(button.getAttribute('data-x')).toBe('y')
     expect(button.classList.contains('mt-2')).toBe(true)
   })
+
+  it('with an address it is a link a person can follow; another app opens in a new tab', () => {
+    render(
+      <>
+        <Button href="/list">Go to the list</Button>
+        <Button href="https://example.com/file" external size="small">
+          Open
+        </Button>
+      </>,
+    )
+    const inPlace = screen.getByRole('link', { name: 'Go to the list' })
+    expect(inPlace.getAttribute('href')).toBe('/list')
+    expect(inPlace.hasAttribute('target')).toBe(false)
+    const out = screen.getByRole('link', { name: 'Open' })
+    expect(out.getAttribute('href')).toBe('https://example.com/file')
+    expect(out.getAttribute('target')).toBe('_blank')
+    expect(out.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(screen.queryByRole('button')).toBeNull()
+  })
+
+  it('a link that cannot be followed right now is the button, saying why', async () => {
+    const user = userEvent.setup()
+    render(
+      <Button href="https://example.com/file" external disabledReason="Sign in to open it">
+        Open
+      </Button>,
+    )
+    expect(screen.queryByRole('link')).toBeNull()
+    const button = screen.getByRole('button', { name: 'Open' })
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    await user.hover(button)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Sign in to open it')
+  })
 })

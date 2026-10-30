@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.92.0",
+    "packageVersion": "0.92.1",
     "exports": 210,
     "typeExports": 213,
     "files": null
@@ -868,6 +868,18 @@
           "takes": "text",
           "required": false,
           "note": "Why the action cannot succeed right now."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "A link that looks like a button: an anchor, so the address stays real for a modified click, a new tab or \"copy link address\", as `IconButton` and `Link` keep it."
+        },
+        {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `href`: another site, or another app."
         },
         {
           "name": "children",
