@@ -133,54 +133,72 @@ describe('AppShell', () => {
 describe('useSidebarFold', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
     window.localStorage.clear()
   })
-  function Shell(options: Partial<SidebarFoldOptions>) {
-    const [open, setOpen] = useSidebarFold({ storageKey: 'app.sidebarFolded', ...options })
-    return (
-      <AppShell nav={<nav>Rows</nav>} navOpen={open} onNavOpenChange={setOpen}>
-        <p>Page</p>
-      </AppShell>
-    )
-  }
-  const arrive = (how: 'navigate' | 'reload') => {
-    window.localStorage.setItem('app.sidebarFolded', '1')
+  /** A fresh page load: the fold is read once per load, so each load takes the module again. */
+  async function load(how: 'navigate' | 'reload' = 'navigate') {
+    vi.resetModules()
     vi.spyOn(performance, 'getEntriesByType').mockReturnValue([{ type: how }] as unknown as PerformanceEntryList)
+    const { useSidebarFold: fresh } = await import('./AppShell')
+    return function Shell(options: Partial<SidebarFoldOptions>) {
+      const [open, setOpen] = fresh({ storageKey: 'app.sidebarFolded', ...options })
+      return (
+        <AppShell nav={<nav>Rows</nav>} navOpen={open} onNavOpenChange={setOpen}>
+          <p>Page</p>
+        </AppShell>
+      )
+    }
   }
+  const folded = () => window.localStorage.setItem('app.sidebarFolded', '1')
 
   it('keeps the sidebar folded after a reload, until it is shown again', async () => {
+    let Shell = await load()
     const first = render(<Shell />)
     await userEvent.click(screen.getByRole('button', { name: 'Hide the sidebar' }))
     first.unmount()
+    Shell = await load('reload')
     const reloaded = render(<Shell />)
     await userEvent.click(screen.getByRole('button', { name: 'Show the sidebar' }))
     reloaded.unmount()
+    Shell = await load('reload')
     render(<Shell />)
     expect(screen.getByRole('button', { name: 'Hide the sidebar' })).toBeTruthy()
   })
 
-  it('unfolds for a file opened from a link, and stays unfolded on this browser', () => {
-    arrive('navigate')
+  it('unfolds for a file opened from a link, and stays unfolded on this browser', async () => {
+    folded()
+    const Shell = await load('navigate')
     render(<Shell isFile={() => true} />)
     expect(screen.getByRole('button', { name: 'Hide the sidebar' })).toBeTruthy()
     expect(window.localStorage.getItem('app.sidebarFolded')).toBeNull()
   })
 
-  it('stays folded on a reload of the file, and on a page that is not a file', () => {
-    arrive('reload')
+  it('stays folded on a reload of the file, and on a page that is not a file', async () => {
+    folded()
+    let Shell = await load('reload')
     const reloaded = render(<Shell isFile={() => true} />)
     expect(screen.getByRole('button', { name: 'Show the sidebar' })).toBeTruthy()
     reloaded.unmount()
-    arrive('navigate')
+    Shell = await load('navigate')
     render(<Shell isFile={() => false} />)
     expect(screen.getByRole('button', { name: 'Show the sidebar' })).toBeTruthy()
   })
 
-  it('opens folded in a window too narrow for it, whatever was kept, and keeps nothing for it', () => {
+  it('stays as it was left when a page draws its frame again, even on a file reached by a link', async () => {
+    const Shell = await load('navigate')
+    const list = render(<Shell isFile={() => false} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Hide the sidebar' }))
+    list.unmount()
+    render(<Shell isFile={() => true} />)
+    expect(screen.getByRole('button', { name: 'Show the sidebar' })).toBeTruthy()
+  })
+
+  it('opens folded in a window too narrow for it, whatever was kept, and keeps nothing for it', async () => {
     vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(max-width: 1023px)' }))
+    const Shell = await load()
     render(<Shell foldWhen="(max-width: 1023px)" />)
     expect(screen.getByRole('button', { name: 'Show the sidebar' })).toBeTruthy()
     expect(window.localStorage.getItem('app.sidebarFolded')).toBeNull()
-    vi.unstubAllGlobals()
   })
 })

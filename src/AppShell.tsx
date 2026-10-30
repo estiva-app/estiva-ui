@@ -213,21 +213,34 @@ function reloaded(): boolean {
 }
 
 /**
+ * Each sidebar as it stands since this page loaded, by its key: a frame drawn again — a page that draws its own —
+ * finds it as it was left. The arrival and the window's width are read once, when the page loads, as Leaf's were.
+ */
+const shown = new Map<string, boolean>()
+
+function onLoad({ storageKey, isFile, foldWhen }: SidebarFoldOptions): boolean {
+  if (foldWhen && typeof window.matchMedia === 'function' && window.matchMedia(foldWhen).matches) return false
+  if (!keptFolded(storageKey)) return true
+  if (!isFile?.() || reloaded()) return false
+  keepFolded(storageKey, false)
+  return true
+}
+
+/**
  * Whether the sidebar is shown, and the setter that remembers it, for `AppShell`'s `navOpen` and
  * `onNavOpenChange`: folded stays folded on this browser, across pages and reloads, until unfolded (Ship's and
  * Leaf's since LED-3, Miky, 28 October; every app's, Katerina, 31 October).
  */
-export function useSidebarFold({ storageKey, isFile, foldWhen }: SidebarFoldOptions): [open: boolean, setOpen: (open: boolean) => void] {
+export function useSidebarFold(options: SidebarFoldOptions): [open: boolean, setOpen: (open: boolean) => void] {
+  const { storageKey } = options
   const [open, setOpen] = useState(() => {
-    if (foldWhen && typeof window.matchMedia === 'function' && window.matchMedia(foldWhen).matches) return false
-    if (!keptFolded(storageKey)) return true
-    if (!isFile?.() || reloaded()) return false
-    keepFolded(storageKey, false)
-    return true
+    if (!shown.has(storageKey)) shown.set(storageKey, onLoad(options))
+    return shown.get(storageKey) as boolean
   })
   const change = useCallback(
     (next: boolean) => {
       setOpen(next)
+      shown.set(storageKey, next)
       keepFolded(storageKey, !next)
     },
     [storageKey],
