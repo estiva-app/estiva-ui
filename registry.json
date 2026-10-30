@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.91.2",
-    "exports": 211,
-    "typeExports": 211,
+    "packageVersion": "0.92.0",
+    "exports": 210,
+    "typeExports": 213,
     "files": null
   },
   "storybook": {
@@ -1104,6 +1104,25 @@
       ]
     },
     {
+      "name": "cardShapeMemory",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/linked.ts",
+      "purpose": "The device's memory of the shapes its cards drew at, under the app's own `storageKey`, keeping the newest `limit`.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Checkbox",
       "repo": "estiva-ui",
       "kind": "component",
@@ -2032,7 +2051,7 @@
           "name": "referenceIcon",
           "takes": "a handler",
           "required": false,
-          "note": "A `[` row's and chip's 16px icon from what it points at; absent, a neutral square."
+          "note": "A `[` row's and chip's 16px icon from what it points at."
         },
         {
           "name": "insert",
@@ -2110,7 +2129,7 @@
           "name": "referenceView",
           "takes": "ComponentType<ReferenceViewProps>",
           "required": false,
-          "note": "How a `nostr:` reference the box holds is drawn — the app's own chip."
+          "note": "How a link the box holds is drawn — a pasted one, a pasted `nostr:` address, and a `[` pick alike: the app's view of the kit's `LinkChip`, told it is being edited (no preview; a click stays in the draft)."
         },
         {
           "name": "extensions",
@@ -2215,6 +2234,7 @@
       "docPage": null,
       "app": null,
       "looks": [
+        "text-small tabular-nums font-medium text-text-primary",
         "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover font-medium text-text-primary",
         "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover text-text-secondary",
         "rounded-md text-small tabular-nums transition-colors hover:bg-bg-hover"
@@ -4970,7 +4990,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/LinkRow.tsx",
-      "purpose": "Not available: deleted, or not this reader's to see, which read the same.",
+      "purpose": "Not available: not this reader's to see, or deleted, which says so (SPEC §13.6.1: deleted is not not-permitted).",
       "purposeFrom": "comment",
       "props": [
         {
@@ -4996,6 +5016,12 @@
           "takes": "true/false",
           "required": false,
           "note": "In a card's place: a card's 12px round it."
+        },
+        {
+          "name": "deleted",
+          "takes": "true/false",
+          "required": false,
+          "note": "Deleted (SPEC §13.6.1): \"Issue deleted\", and no way out, since there is nothing left to open."
         }
       ],
       "variants": [],
@@ -5119,7 +5145,13 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What the app calls it, from its description of its files: \"Issue\", \"Project\", \"Topic\", \"Document\"."
+          "note": "What it is, in a word, from its app's description of its files: \"Issue\", \"Project\", \"Topic\", \"Document\"; the app's name when its type has none (record a-file-is-labelled-by-its-type-not-its-app; `linkedFrom` does both)."
+        },
+        {
+          "name": "archived",
+          "takes": "true/false",
+          "required": false,
+          "note": "Archived: its row and card say \"Archived\" in the line under the title, and its values read as words."
         },
         {
           "name": "subtitle",
@@ -6209,7 +6241,7 @@
       "props": [
         {
           "name": "state",
-          "takes": "ready | loading | unavailable",
+          "takes": "ready | loading | unavailable | deleted | detached | unaddressable",
           "required": false,
           "note": "Where its lookup stands. Default `ready`."
         },
@@ -6229,7 +6261,7 @@
           "name": "href",
           "takes": "text",
           "required": false,
-          "note": "Opens what it is part of, at the part."
+          "note": "Opens what it is part of, at the part; `unaddressable`, the whole of it."
         },
         {
           "name": "partKey",
@@ -6274,7 +6306,10 @@
           "values": [
             "ready",
             "loading",
-            "unavailable"
+            "unavailable",
+            "deleted",
+            "detached",
+            "unaddressable"
           ]
         }
       ],
@@ -7250,8 +7285,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []
@@ -7269,28 +7304,9 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
-      "app": null,
-      "looks": []
-    },
-    {
-      "name": "ReferenceCards",
-      "repo": "estiva-ui",
-      "kind": "component",
-      "importPath": "@estiva-app/ui/editor",
-      "sourceFile": "src/ReferenceCards.ts",
-      "purpose": "Deprecated. A new editor uses LinkPlaces.",
-      "purposeFrom": "page",
-      "props": [],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
-      "docPage": "src/ReferenceCards.mdx",
       "app": null,
       "looks": []
     },
@@ -8185,8 +8201,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []
@@ -8204,8 +8220,8 @@
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []
@@ -9810,25 +9826,6 @@
       "migrationStage": null,
       "docsId": "links-references-linkpreview--docs",
       "storyId": "links-references-linkpreview--on-hover",
-      "docPage": null,
-      "app": null,
-      "looks": []
-    },
-    {
-      "name": "useReferenceCards",
-      "repo": "estiva-ui",
-      "kind": "hook",
-      "importPath": "@estiva-app/ui/editor",
-      "sourceFile": "src/ReferenceCards.ts",
-      "purpose": "The slots to draw cards into, kept current as the document changes.",
-      "purposeFrom": "comment",
-      "props": [],
-      "variants": [],
-      "ownsBehaviours": [],
-      "status": "stable",
-      "migrationStage": null,
-      "docsId": "writing-referencecards--docs",
-      "storyId": "writing-referencecards--in-an-editor",
       "docPage": null,
       "app": null,
       "looks": []
