@@ -1,28 +1,16 @@
 /**
- * The cards a block document's writer chose, drawn after the line that holds
- * each reference — SPEC §13.3, "A reference's card".
+ * The card a block document's writer chose for a reference — SPEC §13.3, "A
+ * reference's card": `embed` on the `reference` node (`ReferenceNode`), so the
+ * card moves and goes with its chip. `ReferenceMenu` writes it (Show as Row or
+ * Card) and `LinkPlaces` draws it in the row's place.
  *
- * The choice is `embed` on the `reference` node (`ReferenceNode`), so the card
- * moves and goes with its chip. What a card looks like is the app's — it knows
- * how to resolve an object and draw its row or its card — so this extension
- * draws nothing itself: after every textblock whose chips ask for a card it
- * places one empty, non-editable slot, and `useReferenceCards` hands the app
- * those slots to portal its cards into. A portal, rather than a React root per
- * slot, keeps the app's providers around the card.
- *
- * **A slot keeps its element while its block lives.** It is keyed by the
- * nearest block id (the `blockId` attribute), so typing above a card does not
- * re-make its element, and the card does not reload on every keystroke.
- *
- * The slot sits at the end of the textblock, inside it: a paragraph's card is
- * under the paragraph, a list item's under the item at its indent, a table
- * cell's in the cell.
+ * The extension that placed a slot after each line for the app's card, and its
+ * hook, were deprecated by `LinkPlaces` and are gone (Katerina's widget review,
+ * 30 Oct): no app used them. What stays reads and writes the choice.
  */
-import { Extension, type Editor } from '@tiptap/core'
+import type { Editor } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
-import { NodeSelection, Plugin, PluginKey, type EditorState } from '@tiptap/pm/state'
-import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { useEffect, useState } from 'react'
+import { NodeSelection, type EditorState } from '@tiptap/pm/state'
 
 /** A layout a writer can choose; `none` is no card. */
 export type ReferenceCardLayout = 'none' | 'compact' | 'detailed'
@@ -33,16 +21,9 @@ export interface ReferenceCard {
   layout: Exclude<ReferenceCardLayout, 'none'>
 }
 
-/** One slot: where an app draws the cards of one line. */
-export interface ReferenceCardSlot {
-  key: string
-  element: HTMLElement
-  cards: ReferenceCard[]
-}
-
 interface Placement {
   key: string
-  /** The end of the textblock's content, where the slot goes. */
+  /** The end of the textblock's content. */
   pos: number
   cards: ReferenceCard[]
 }
@@ -77,96 +58,6 @@ export function referenceCardPlacements(doc: PmNode): Placement[] {
     return false
   })
   return out
-}
-
-interface ReferenceCardsStorage {
-  /** One element per slot key, made once and reused, so the app's portal stays put. */
-  elements: Map<string, HTMLElement>
-}
-
-const key = new PluginKey<DecorationSet>('referenceCards')
-
-function elementFor(storage: ReferenceCardsStorage, slotKey: string): HTMLElement {
-  let element = storage.elements.get(slotKey)
-  if (!element) {
-    element = document.createElement('div')
-    element.setAttribute('data-reference-cards', slotKey)
-    element.setAttribute('contenteditable', 'false')
-    storage.elements.set(slotKey, element)
-  }
-  return element
-}
-
-function storageOf(editor: Editor): ReferenceCardsStorage | undefined {
-  return (editor.storage as unknown as { referenceCards?: ReferenceCardsStorage }).referenceCards
-}
-
-/**
- * Places a slot after each line whose chips ask for a card. Pair it with
- * `ReferenceNode`, and draw the cards with `useReferenceCards`.
- */
-export const ReferenceCards = Extension.create<Record<string, never>, ReferenceCardsStorage>({
-  name: 'referenceCards',
-  addStorage() {
-    return { elements: new Map() }
-  },
-  addProseMirrorPlugins() {
-    const storage = this.storage
-    const decorate = (doc: PmNode) =>
-      DecorationSet.create(
-        doc,
-        referenceCardPlacements(doc).map((p) =>
-          Decoration.widget(p.pos, () => elementFor(storage, p.key), {
-            key: p.key,
-            side: 1,
-            ignoreSelection: true,
-            // A click on a card is the card's, not a caret placement in the line.
-            stopEvent: () => true,
-          }),
-        ),
-      )
-    return [
-      new Plugin<DecorationSet>({
-        key,
-        state: {
-          init: (_, state) => decorate(state.doc),
-          apply: (tr, set) => (tr.docChanged ? decorate(tr.doc) : set),
-        },
-        props: { decorations: (state) => key.getState(state) },
-      }),
-    ]
-  },
-})
-
-/**
- * The slots to draw cards into, kept current as the document changes. Draw
- * each with `createPortal(<cards/>, slot.element)`, keyed by `slot.key`.
- */
-export function useReferenceCards(editor: Editor | null): ReferenceCardSlot[] {
-  const [slots, setSlots] = useState<ReferenceCardSlot[]>([])
-  useEffect(() => {
-    if (!editor) return
-    const storage = storageOf(editor)
-    if (!storage) return
-    let last = ''
-    const read = () => {
-      if (editor.isDestroyed) return
-      const next = referenceCardPlacements(editor.state.doc).map((p) => ({ key: p.key, element: elementFor(storage, p.key), cards: p.cards }))
-      // Only a change in what is drawn re-renders the app; typing does not.
-      const signature = JSON.stringify(next.map((s) => [s.key, s.cards]))
-      if (signature === last) return
-      last = signature
-      const live = new Set(next.map((s) => s.key))
-      for (const k of storage.elements.keys()) if (!live.has(k)) storage.elements.delete(k)
-      setSlots(next)
-    }
-    read()
-    editor.on('transaction', read)
-    return () => {
-      editor.off('transaction', read)
-    }
-  }, [editor])
-  return slots
 }
 
 /**

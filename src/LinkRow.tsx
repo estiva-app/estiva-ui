@@ -90,7 +90,7 @@ export function WrittenUrl({ url, block = false }: { url: string; block?: boolea
       {url}
     </Link>
   )
-  return block ? <span className="block min-w-0 max-w-[480px] truncate text-body-2">{link}</span> : link
+  return block ? <span className="block min-w-0 truncate text-body-2">{link}</span> : link
 }
 
 export interface LinkRowProps {

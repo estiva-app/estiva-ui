@@ -10,7 +10,7 @@ import { TextSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { BlockId, ReferenceNode } from './BlockNodes'
 import { LinkChips, refreshLinkChips } from './LinkChips'
-import { ReferenceCards, referenceAtSelection, referenceCardPlacements } from './ReferenceCards'
+import { referenceAtSelection, referenceCardPlacements } from './ReferenceCards'
 
 const URL_ = 'https://app.example/i/one'
 const V = 'nostr:naddr1example'
@@ -32,7 +32,6 @@ const make = (content: Record<string, unknown>, known: Map<string, string>, aske
       StarterKit.configure({ link: false }),
       BlockId,
       ReferenceNode,
-      ReferenceCards,
       LinkChips.configure({
         referenceOf: (url) => known.get(url),
         ask: (urls) => {

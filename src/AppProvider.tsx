@@ -49,11 +49,15 @@ export function usePictureFor(): AppSetup['pictureFor'] {
  * on a plain left click to this app's own address, the app's `navigate` in
  * place of a page load.
  *
+ * A plain left click to another site's address — another app's file — opens
+ * it in a new tab that cannot reach back into this one, as "Open in …" does
+ * (Katerina, 30 Oct): the app being written in is not left for it.
+ *
  * Left to the browser, as an `<a>` always is: a click the caller already
  * handled (`preventDefault`), a click with a modifier or another button (a new
- * tab), a link that opens elsewhere (`target`) or downloads, and an address on
- * another site or in another scheme (`folder:`, `mailto:`). So an app that
- * still passes its own router `onClick`, as Ship's `linkTo` does, is unchanged.
+ * tab), a link that opens elsewhere (`target`) or downloads, and an address in
+ * another scheme (`folder:`, `mailto:`). So an app that still passes its own
+ * router `onClick`, as Ship's `linkTo` does, is unchanged.
  */
 export function useInAppClick<E extends HTMLElement>(href: string | undefined, onClick?: MouseEventHandler<E>): MouseEventHandler<E> | undefined {
   const navigate = useContext(Setup).navigate
@@ -70,7 +74,12 @@ export function useInAppClick<E extends HTMLElement>(href: string | undefined, o
     } catch {
       return
     }
-    if (url.origin !== window.location.origin) return
+    if (url.origin !== window.location.origin) {
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') return
+      event.preventDefault()
+      window.open(url.href, '_blank', 'noopener,noreferrer')
+      return
+    }
     event.preventDefault()
     // The path, never the whole address: a router reads `https://…` as a path
     // under the current page and lands nowhere (Peek's message link, 8 October).

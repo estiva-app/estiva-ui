@@ -87,6 +87,7 @@ export { Toolbar, ToolbarButton, ToolbarInput, ToolbarLink, ToolbarSeparator, ty
 export { PreviewCard, type PreviewCardProps } from './PreviewCard'
 // How a link draws, wherever it sits: one kit for every app (Widgets 2).
 export {
+  cardShapeMemory,
   chosenOf,
   inTheBox,
   loadingShapeOf,
@@ -98,6 +99,8 @@ export {
   type LinkedPerson,
   type LinkedPicker,
   type LinkedStatus,
+  type CardShape,
+  type CardShapeMemory,
   type LinkState,
   type LoadingShape,
   type PickerOption,

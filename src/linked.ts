@@ -183,6 +183,96 @@ export function loadingShapeOf(linked: Linked): LoadingShape {
   }
 }
 
+/** A card's shape, and the height it drew at in px: the height holds what the shape cannot say, a summary of two lines. */
+export type CardShape = LoadingShape & { height?: number }
+
+/**
+ * The shape each card last drew at on this device, so its placeholder the next
+ * time is the card's own height and nothing around it moves as it loads
+ * (Peek's peek#533 and #534, then Ship's copy). One per app, under its own
+ * key, in localStorage because the first paint reads it synchronously; the app
+ * clears it with the rest of the device's copy at sign-out.
+ */
+export interface CardShapeMemory {
+  /** The shape the card for `id` took the last time this device drew it; before that, `firstDraw`'s for its kind, if any. */
+  of: (id: string, kind: LinkedKind) => CardShape | undefined
+  /** The shape a card just drew at: `loadingShapeOf(linked)`, and the height it measured. */
+  note: (id: string, shape: CardShape) => void
+  /** Sign-out. */
+  clear: () => void
+}
+
+const FOOTERS: readonly LoadingFooter[] = ['pickers', 'people', 'line', 'none']
+
+/** A stored shape read back, only the parts a placeholder draws; anything else stored there is dropped. */
+function storedCardShape(value: unknown): CardShape | undefined {
+  if (!value || typeof value !== 'object') return undefined
+  const { subtitle, summary, rows, latest, ring, footer, height } = value as Record<string, unknown>
+  return {
+    subtitle: subtitle === true,
+    summary: summary === true,
+    // A card lists a few of its items; a bad number must not draw a page of bars.
+    rows: typeof rows === 'number' && Number.isInteger(rows) ? Math.min(Math.max(rows, 0), 10) : 0,
+    latest: latest === true,
+    ring: ring === true,
+    footer: FOOTERS.find((one) => one === footer) ?? 'line',
+    ...(typeof height === 'number' && height > 0 && height < 2000 ? { height: Math.round(height) } : {}),
+  }
+}
+
+/**
+ * The device's memory of the shapes its cards drew at, under the app's own
+ * `storageKey`, keeping the newest `limit`. `firstDraw` is a kind's shape for
+ * a card this device has not drawn yet, where the kit's own placeholder for
+ * the kind is not the app's usual card. Peek's and Ship's `cardShapes`, lifted
+ * here for Leaf, the third app to need one.
+ */
+export function cardShapeMemory(storageKey: string, options: { limit?: number; firstDraw?: Partial<Record<LinkedKind, LoadingShape>> } = {}): CardShapeMemory {
+  const { limit = 300, firstDraw = {} } = options
+  // Read once per page: a screen of cards asks many times.
+  let held: Map<string, CardShape> | undefined
+  const shapes = () => {
+    if (held) return held
+    held = new Map()
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem(storageKey) ?? '[]')
+      for (const entry of Array.isArray(stored) ? stored : []) {
+        const shape = Array.isArray(entry) && typeof entry[0] === 'string' ? storedCardShape(entry[1]) : undefined
+        if (shape) held.set(entry[0] as string, shape)
+      }
+    } catch {
+      held = new Map()
+    }
+    return held
+  }
+  return {
+    of: (id, kind) => shapes().get(id) ?? firstDraw[kind],
+    note: (id, shape) => {
+      const current = shapes()
+      // Already the card drawn last, as it is now: nothing to move or write.
+      if ([...current.keys()].at(-1) === id && JSON.stringify(current.get(id)) === JSON.stringify(shape)) return
+      const next = new Map(current)
+      // Newest last, so the limit drops the cards drawn longest ago.
+      next.delete(id)
+      next.set(id, shape)
+      held = new Map([...next].slice(-limit))
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...held]))
+      } catch {
+        // Full or blocked storage: the shape is still held for this page.
+      }
+    },
+    clear: () => {
+      held = undefined
+      try {
+        localStorage.removeItem(storageKey)
+      } catch {
+        // Nothing to clear where storage is blocked.
+      }
+    },
+  }
+}
+
 /**
  * What this device last found it could not show, kept so the next open draws
  * "not available." from the first paint instead of a card's height that then

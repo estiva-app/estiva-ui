@@ -11,6 +11,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { Editor } from '@tiptap/core'
 import { Fragment, Slice } from '@tiptap/pm/model'
+import { TextSelection } from '@tiptap/pm/state'
 import type { JSONContent } from '@tiptap/react'
 import { documentForEditing, encodeNpub, publishableFromEditor, toEditorDocument, type ContentFormat, type EditorDocument } from '@estiva-app/protocol'
 import { newlyNamedPeople } from '@estiva-app/conversation'
@@ -552,9 +553,16 @@ describe('a link, by where it sits', () => {
     render(<Doc value={value} referenceView={Placed} />)
     await screen.findAllByRole('link', { name: 'Item' })
     expect(editing()).toEqual(['false', 'false'])
-    await type('', 2)
+    // The caret placed at once, focused: Tiptap's own `focus` command focuses a frame later, which could land after `leave`.
+    const caretAt = (at: (size: number) => number) =>
+      act(async () => {
+        const { view, state } = editorOf()
+        view.focus()
+        view.dispatch(state.tr.setSelection(TextSelection.create(state.doc, at(state.doc.content.size))))
+      })
+    await caretAt(() => 2)
     expect(editing()).toEqual(['true', 'false'])
-    await type('', 'end')
+    await caretAt((size) => size - 1)
     expect(editing()).toEqual(['false', 'true'])
     await leave()
     expect(editing()).toEqual(['false', 'false'])
