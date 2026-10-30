@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.92.1 — 2026-10-30
 
 Katerina, 30 Oct: "Open" into another app is the kit's own Button with a real
 icon, in Peek and Leaf, in place of a text link with a typed arrow.
