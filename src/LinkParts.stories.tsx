@@ -37,6 +37,14 @@ export const NoOwner: Story = {
   args: { status: { value: 'todo', options: STATUS_OPTIONS }, owner: { value: undefined, options: PEOPLE } },
 }
 
+/** "Unassigned" as an owner the reader may pick: the silhouette, never a letter, in the picker and its list. */
+export const Unassigned: Story = {
+  render: () => {
+    const [owner, setOwner] = useState('')
+    return <LinkPickers owner={{ value: owner, options: [{ value: '', label: 'Unassigned' }, ...PEOPLE], onChange: setOwner }} ownerLabel="Owner" />
+  },
+}
+
 /** The count of what was said, opening where it is read. With something unread, to a member: brighter, with a dot. */
 export const Conversation: Story = {
   render: () => (

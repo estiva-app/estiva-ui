@@ -21,7 +21,7 @@ import { cn } from './cn'
 import { Link } from './Link'
 import { inTheBox, type Linked, type LinkedKind, type LinkState, type LoadingShape } from './linked'
 import { CommentCount, LinkedIcon, LinkKey, LinkPickers, LinkTile, ProgressRing, StatusMark } from './LinkParts'
-import { linkMetaOf, LinkUnavailable } from './LinkRow'
+import { linkMetaOf, LinkUnavailable, WrittenUrl } from './LinkRow'
 import { QUOTE_BAR_CLASSES, TIME_CLASSES, TYPE_TILE_CLASSES } from './looks'
 import { SkeletonBar } from './Skeleton'
 
@@ -54,7 +54,10 @@ export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps
   // In a box being written in: the files' fill, and the values as words until it is sent.
   const boxed = useContext(inTheBox)
   if (link.state === 'loading') return <LinkCardLoading kind={link.kind} shape={link.shape} />
-  if (link.state === 'unavailable') return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} card />
+  if (link.state === 'unavailable') {
+    if (link.url) return <WrittenUrl url={link.url} block />
+    return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} deleted={link.deleted} card />
+  }
   const { linked } = link
   const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly || boxed} />
   if (bare) return <div className={CARD_CLASSES}>{body}</div>

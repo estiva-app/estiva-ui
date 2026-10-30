@@ -12,13 +12,19 @@ A link alone on its line: its kind in a file's tile, the title and its key under
 ## When
 
 - **ready** — its kind in the 36px tile a file's type has (**AttachmentCard**), the title as the link, and under it the key and what it is ("ABC-2 · Issue"), in the app's word for it, else its kind's. On the title's line: its status or its ring, its comment count, then the owner, members or authors at the far right. Hovering it shows its card; a tap opens it.
-- **words a person wrote** — their face in the tile, their name with the time beside it, and the words under them.
+- **ready** and archived — `linked.archived`: "Archived" in the line under the title ("ABC-2 · Issue · Archived"). `linkStateFrom` sets it, and words for its values, from an archived file.
+- **words a person wrote** — on one line, as a quote is cut to one: their face in the tile, their name, the words cut to fit, the time.
 - **width** — at most 480px, in a box being written in too.
 - **unread** — the count is brighter, with its dot.
 - **loading** — the row in bars, in the row's own shape.
 - **unavailable** — a row's shape, "Issue not available", with where it may still open (`openIn`). This is also what a card draws when it is not available: **LinkUnavailable**, from this file.
+- **deleted** — `deleted` on the state, when a trusted deletion names it (SPEC §13.6.1): the same row, "Issue deleted", and no way out.
+- **written as a URL** — `url` on the state: the URL as it was written, a plain link in the row's place, deleted or not available alike (SPEC §13.1).
 
 <Canvas of={LinkRowStories.NotAvailable} />
+<Canvas of={LinkRowStories.Deleted} />
+<Canvas of={LinkRowStories.WordsAPersonWrote} />
+<Canvas of={LinkRowStories.Archived} />
 
 ## When not
 

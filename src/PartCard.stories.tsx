@@ -60,3 +60,12 @@ export const Loading: Story = { args: { state: 'loading', kind: 'issue' } }
 
 /** The part, or what it is part of, is gone or not this reader's to see. */
 export const NotAvailable: Story = { args: { state: 'unavailable', kind: 'issue', noun: 'Issue', openIn: { app: 'App one', href: '#elsewhere' } } }
+
+/** What it is part of was deleted, as a trusted deletion naming it says: no title. */
+export const Deleted: Story = { args: { state: 'deleted', kind: 'issue', noun: 'Issue' } }
+
+/** What it is part of is still there, and the part's block is gone. */
+export const Detached: Story = { args: { state: 'detached', kind: 'issue', heading: 'Item one' } }
+
+/** What it is part of has no blocks to show a part of: the words open the whole of it. */
+export const Unaddressable: Story = { args: { state: 'unaddressable', kind: 'file', heading: 'Item one', href: '#whole' } }

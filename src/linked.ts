@@ -91,8 +91,14 @@ export interface Linked {
   href: string
   /** What the reader calls it, quietly before the title: "ABC-2". */
   key?: string
-  /** What the app calls it, from its description of its files: "Issue", "Project", "Topic", "Document". Absent, the kind's own word. */
+  /**
+   * What it is, in a word, from its app's description of its files: "Issue", "Project", "Topic", "Document"; the app's
+   * name when its type has none (record a-file-is-labelled-by-its-type-not-its-app; `linkedFrom` does both). Absent,
+   * the kind's own word.
+   */
   noun?: string
+  /** Archived: its row and card say "Archived" in the line under the title, and its values read as words. */
+  archived?: boolean
   /** The line under a card's title: what it is in. Drawn after the key. */
   subtitle?: string
   /** Its short summary, a sentence or two. Without one a card shows the title alone. */
@@ -136,8 +142,10 @@ export interface LoadingShape {
 
 /**
  * Where a link's lookup stands. `loading` knows the kind from the address, and
- * a shape when the app remembers one; `unavailable` is deleted or not the
- * reader's to see, which read the same (Miky, 15 Oct).
+ * a shape when the app remembers one; `unavailable` is not the reader's to see
+ * ("Issue not available"), or `deleted` ("Issue deleted"), which a reader tells
+ * apart by a deletion naming the address (SPEC §13.6.1: deleted is not
+ * not-permitted). Written as a URL, it is that URL either way (`url`).
  */
 export type LinkState =
   | { state: 'loading'; kind: LinkedKind; shape?: LoadingShape }
@@ -148,6 +156,13 @@ export type LinkState =
       noun: string
       /** Where it may still open for someone who can: the app that owns it, and its address. */
       openIn?: { app: string; href: string }
+      /** Deleted, as a trusted deletion naming its address says (SPEC §13.6.1): "Issue deleted", with no way out. */
+      deleted?: boolean
+      /**
+       * The URL it was written as: drawn as that URL, a plain link, in place of "not available" or "deleted" (SPEC
+       * §13.1, C21). Those words are only for a link with no URL to fall back on, a `nostr:` reference.
+       */
+      url?: string
     }
   | { state: 'ready'; linked: Linked }
 

@@ -141,6 +141,12 @@ export interface LinkPickersProps {
   readOnly?: boolean
 }
 
+/** The face for an owner option: nobody (value `''`, "Unassigned") is the silhouette, never a letter (Katerina, 30 Oct). */
+function OwnerFace({ option }: { option: { value: string; label: string; picture?: string } | undefined }) {
+  const nobody = !option || option.value === ''
+  return <Avatar name={nobody ? undefined : option.label} src={nobody ? undefined : option.picture} size={16} />
+}
+
 /**
  * A status and an owner, where the reader can change them from the card. A
  * picker whose app passed no `onChange` reads as words in the same place: the
@@ -175,7 +181,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
       {owner &&
         (ownerWords ? (
           <span className="inline-flex min-w-0 items-center gap-1">
-            <Avatar name={ownerNow?.label} src={ownerNow?.picture} size={16} />
+            <OwnerFace option={ownerNow} />
             <span className="truncate">{ownerNow?.label ?? 'Unassigned'}</span>
           </span>
         ) : (
@@ -187,7 +193,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
             placeholder="Unassigned"
             onChange={(value) => owner.onChange?.(value)}
             ariaLabel={ownerLabel}
-            options={owner.options.map((option) => ({ value: option.value, label: option.label, leading: <Avatar name={option.label} src={option.picture} size={16} /> }))}
+            options={owner.options.map((option) => ({ value: option.value, label: option.label, leading: <OwnerFace option={option} /> }))}
           />
         ))}
     </span>

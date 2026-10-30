@@ -14,6 +14,7 @@ import type { LinkState } from './linked'
 import { chosenOf } from './linked'
 import { LinkedIcon, LinkKey, StatusMark } from './LinkParts'
 import { LinkPreview } from './LinkPreview'
+import { WrittenUrl } from './LinkRow'
 import { SkeletonBar } from './Skeleton'
 
 export interface LinkChipProps {
@@ -31,9 +32,11 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
     )
   }
   if (link.state === 'unavailable') {
+    // Written as a URL, it stays that URL (SPEC §13.1); only a `nostr:` reference says why it is not shown.
+    if (link.url) return <WrittenUrl url={link.url} />
     return (
       <InlineChip tone="muted" icon={<LinkedIcon kind={link.kind} size={14} tone="inherit" />}>
-        {link.noun} not available
+        {link.noun} {link.deleted ? 'deleted' : 'not available'}
       </InlineChip>
     )
   }

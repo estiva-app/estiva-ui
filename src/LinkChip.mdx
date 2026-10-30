@@ -13,10 +13,14 @@ A link in a sentence: its icon, its key, its title cut short, and its status as 
 
 - **ready** — a link the app has looked up. Hovering it shows its card (**LinkPreview**); a tap or a click opens it.
 - **loading** — still being looked up: the icon, which the address already says, and a bar.
-- **unavailable** — deleted, or not the reader's to see. Both say "Issue not available" in the app's word for it.
+- **unavailable** — not the reader's to see: "Issue not available", in the app's word for it (its type's, else its app's name).
+- **deleted** — `deleted` on the state, when a trusted deletion names it (SPEC §13.6.1): "Issue deleted". A reader tells the two apart; the words never say which a hidden file is.
+- **written as a URL** — `url` on the state: a link written as an app URL that cannot be shown stays that URL, a plain link, deleted or not available alike (SPEC §13.1). The words above are only for a `nostr:` reference.
 - `preview={false}` — no card on hover, where a card would cover what the reader is choosing from.
 
 <Canvas of={LinkChipStories.EachKind} />
+<Canvas of={LinkChipStories.Deleted} />
+<Canvas of={LinkChipStories.WrittenAsAUrl} />
 
 ## When not
 

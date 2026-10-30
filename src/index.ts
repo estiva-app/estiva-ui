@@ -120,7 +120,7 @@ export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps 
 export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
 export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
 export { AttachedCard, type AttachedCardProps } from './AttachedCard'
-export { PartCard, type PartCardProps } from './PartCard'
+export { PartCard, type PartCardProps, type PartCardState } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'
 export { RailItem, type RailItemProps } from './RailItem'

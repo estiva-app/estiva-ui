@@ -63,6 +63,12 @@ describe('LinkChip', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
+  it('says it was deleted, apart from not available, and leads nowhere', () => {
+    render(<LinkChip link={{ state: 'unavailable', kind: 'issue', noun: 'Issue', deleted: true }} />)
+    expect(screen.getByText('Issue deleted')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+  })
+
   it('shows its card, read only, when the pointer rests on it', async () => {
     screenThatCanHover(true)
     render(<LinkChip link={ready(ITEM)} />)

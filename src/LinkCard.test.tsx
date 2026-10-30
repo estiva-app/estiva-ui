@@ -49,6 +49,20 @@ describe('LinkCard', () => {
     expect(screen.getByText('Unassigned')).toBeTruthy()
   })
 
+  it('draws "Unassigned" with the silhouette, never a letter, as words and in the picker alike', async () => {
+    const user = userEvent.setup()
+    const nobody = { value: '', label: 'Unassigned' }
+    render(<LinkCard link={ready({ ...ITEM_READ_ONLY, owner: { value: '', options: [nobody] } })} />)
+    expect(screen.getByText('Unassigned')).toBeTruthy()
+    expect(screen.queryByText('U')).toBeNull()
+    cleanup()
+    render(<LinkCard link={ready({ ...ITEM, owner: { ...ITEM.owner!, value: '', options: [nobody, ...ITEM.owner!.options], onChange: () => {} } })} />)
+    expect(screen.queryByText('U')).toBeNull()
+    await user.click(screen.getByRole('combobox', { name: 'Owner' }))
+    await screen.findByRole('option', { name: /Unassigned/ })
+    expect(screen.queryByText('U')).toBeNull()
+  })
+
   it('shows the title alone when there is no summary', () => {
     render(<LinkCard link={ready(ITEM_NO_SUMMARY)} />)
     expect(screen.getByRole('link', { name: 'Item two' })).toBeTruthy()

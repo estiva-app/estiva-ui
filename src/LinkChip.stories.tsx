@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { LinkChip } from './LinkChip'
-import { GROUP, ITEM, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
+import { DELETED, GROUP, ITEM, LOADING, PAGE, PLACE, ready, SAID, UNAVAILABLE, WRITTEN_AS_A_URL } from './linked.examples'
 
 const meta = {
   title: 'Links & references/LinkChip',
@@ -38,3 +38,9 @@ export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
 
 /** No card on hover: where a card would cover what the reader is choosing from. */
 export const WithoutPreview: Story = { args: { preview: false } }
+
+/** Deleted, as a trusted deletion naming it says: told apart from not available. */
+export const Deleted: Story = { args: { link: DELETED } }
+
+/** Written as a URL that cannot be shown: it stays that URL, a plain link, as a message draws one. */
+export const WrittenAsAUrl: Story = { args: { link: WRITTEN_AS_A_URL } }
