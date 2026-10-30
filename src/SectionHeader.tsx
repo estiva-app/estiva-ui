@@ -35,12 +35,18 @@ import { SectionLabel } from './SectionLabel'
  * old shape yet: the two hard-wired action slots (add, sort) became
  * `actions` — the caller brings the icon, the tooltip and the handler.
  */
-export interface SectionAction {
+export type SectionAction = {
   /** 16px, stroke 1.5. */
   icon: ReactNode
   tooltip: string
-  onClick: () => void
-}
+} & (
+  | { onClick: () => void; menu?: undefined }
+  /**
+   * The button opens a menu of these items instead: a choice that is the
+   * action, a sort or a filter (Katerina, 30 October: Open work's Sort).
+   */
+  | { menu: ReactNode; onClick?: undefined }
+)
 
 export interface SectionHeaderProps {
   title: string
@@ -225,11 +231,27 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
           className="-mr-1 flex shrink-0 items-center"
         >
           <div className={cn('flex items-center gap-1', reveal)}>
-            {actions?.map((action) => (
-              <IconButton key={action.tooltip} tooltip={action.tooltip} aria-label={action.tooltip} onClick={action.onClick}>
-                {action.icon}
-              </IconButton>
-            ))}
+            {actions?.map((action) =>
+              action.menu != null ? (
+                // `data-section-menu`, as the ⋮ has: the row stays lit while its menu is open.
+                <div key={action.tooltip} data-section-menu className="flex items-center">
+                  <Menu
+                    align="right"
+                    trigger={
+                      <IconButton tooltip={action.tooltip} aria-label={action.tooltip}>
+                        {action.icon}
+                      </IconButton>
+                    }
+                  >
+                    {action.menu}
+                  </Menu>
+                </div>
+              ) : (
+                <IconButton key={action.tooltip} tooltip={action.tooltip} aria-label={action.tooltip} onClick={action.onClick}>
+                  {action.icon}
+                </IconButton>
+              ),
+            )}
             {menu != null && (
               <div data-section-menu className="flex items-center">
                 <Menu

@@ -57,6 +57,9 @@ showToast({ label: 'Link copied', type: 'success' })
 - **The action closes its own toast.** Pressing it runs `onAction`, if you
   gave one, then closes that toast and no other. A Dismiss is just
   `actionLabel: 'Dismiss'`.
+- `onClose` is told once when the toast closes, however it closes. An Undo
+  that is a wait — the write held until the toast goes — writes there, so the
+  toast's own timer, which pauses while it is pointed at, is the only one.
 - `showToast` returns the toast's id. `dismissToast(id)` closes that toast;
   `dismissToast()` with no id closes **every** toast on screen.
 - A toast can be swiped away towards its corner — left or down.

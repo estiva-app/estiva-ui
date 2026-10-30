@@ -69,7 +69,7 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   /** The ⋮'s accessible name and tooltip. Default "More options for {label}". */
   menuLabel?: string
   /** One button beside the ⋮, shown with it: any 16px icon, its tooltip and its handler — a `SectionHeader` action's shape. With a menu too, it sits before the ⋮. */
-  action?: SectionAction
+  action?: SectionAction & { onClick: () => void }
   /** Shown only while the row is pointed at or focused, left of the count: a neutral `Chip`, typically. */
   hint?: ReactNode
   /** A sentence about the item, in the package's tooltip while the label is pointed at; the row stays one line. Absent or blank, no tooltip. */

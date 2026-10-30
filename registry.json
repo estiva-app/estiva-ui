@@ -5890,7 +5890,7 @@
         },
         {
           "name": "action",
-          "takes": "SectionAction",
+          "takes": "a handler",
           "required": false,
           "note": "One button beside the ⋮, shown with it: any 16px icon, its tooltip and its handler — a `SectionHeader` action's shape."
         },
