@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** What the PartCard page claims, pinned: the header opens what it is part of, the blocks draw, and the states say so. */
 import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PartCard } from './PartCard'
 
 afterEach(cleanup)
@@ -17,6 +17,18 @@ describe('PartCard', () => {
     // The key under the heading, as a card's second line.
     expect(screen.getByText('A part of ABC-2')).toBeTruthy()
     expect(screen.getByText('The blocks')).toBeTruthy()
+  })
+
+  it('a long part is cut behind Show more, its title the only way to it (Katerina, 31 Oct: no "Open in" beside it)', () => {
+    const tall = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(300)
+    render(
+      <PartCard kind="page" heading="Document one" href="#part" maxHeight={160}>
+        <p>The blocks</p>
+      </PartCard>,
+    )
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['Show more'])
+    expect(screen.getAllByRole('link').map((a) => a.textContent)).toEqual(['Document one'])
+    tall.mockRestore()
   })
 
   it('says a part is not available in words', () => {

@@ -18,10 +18,6 @@ import { cn } from './cn'
  *
  * Focus arriving inside the cut content opens it: a field or a link there,
  * reached by Tab or a click, is never worked on out of sight.
- *
- * `action` is one more small button on the toggle's row, at its right
- * (Katerina, 8 October: Peek's block card puts "Open in Estiva Ship" level with
- * Show more). The row is drawn for it whether or not the content is cut.
  */
 export interface ShowMoreProps {
   children: ReactNode
@@ -32,8 +28,6 @@ export interface ShowMoreProps {
    * inset card and a selected message included. Accepted, and ignored.
    */
   surface?: 'surface' | 'inset' | 'elevated'
-  /** A small muted `Button` with a leading icon, at the right of the toggle's row: the way out to where the content lives. Its words end where the content does. */
-  action?: ReactNode
   /** On the content alone, not the toggle's row under it: PartCard's quote bar runs beside the blocks only. */
   contentClassName?: string
   className?: string
@@ -42,7 +36,7 @@ export interface ShowMoreProps {
 /** The last 40px of cut content fade out: a mask on the content, not a fill over it, so it ends in whatever is behind. */
 const FADE = 'linear-gradient(to top, transparent, black 40px)'
 
-export function ShowMore({ children, maxHeight = 96, action, contentClassName, className }: ShowMoreProps) {
+export function ShowMore({ children, maxHeight = 96, contentClassName, className }: ShowMoreProps) {
   const box = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [overflows, setOverflows] = useState(false)
@@ -64,15 +58,7 @@ export function ShowMore({ children, maxHeight = 96, action, contentClassName, c
       <div ref={box} className={cn('relative w-full', cut && 'overflow-hidden', contentClassName)} style={cut ? { maxHeight, maskImage: FADE, WebkitMaskImage: FADE } : undefined} onFocus={cut ? () => setOpen(true) : undefined}>
         {children}
       </div>
-      {action ? (
-        <div className={cn('mt-1 flex w-full items-center gap-2', overflows ? 'justify-between' : 'justify-end')}>
-          {overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} />}
-          {/* `-mr-2`: a small button's 8px right inset beside a leading icon, so its words end where the content's do. */}
-          <div className="-mr-2 flex shrink-0">{action}</div>
-        </div>
-      ) : (
-        overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} className="mt-1" />
-      )}
+      {overflows && <Toggle open={open} onToggle={() => setOpen((o) => !o)} className="mt-1" />}
     </div>
   )
 }
