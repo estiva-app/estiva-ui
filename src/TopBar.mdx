@@ -62,7 +62,8 @@ import { TopBar, IdentityMenu } from '@estiva-app/ui'
 ```
 
 - Geometry is fixed: 52px, `pl-5 pr-[26px]`, right cluster `gap-[6px]` —
-  don't restyle it per app.
+  don't restyle it per app. With a menu button in the solid or inset bar it
+  starts at `pl-3.5`, so the button's icon lines up with the Sidebar's.
 - `onSearch` is called on every Ctrl+K, open or not: to close the launcher
   on a second Ctrl+K, toggle in your handler.
 - A click on the field leaves focus where it was, so a launcher can act on the
@@ -70,8 +71,8 @@ import { TopBar, IdentityMenu } from '@estiva-app/ui'
 - The frame is desktop-only for now — there is no narrow-screen
   behaviour; the menu button collapses panels, it does not open a drawer.
 
-- The bar is 52px tall, 20px in on the left and 26px on the right, 16px between
-  its slots.
+- The bar is 52px tall, 20px in on the left (14px with a menu button over a
+  Sidebar) and 26px on the right, 16px between its slots.
 
 ## What it owns
 
