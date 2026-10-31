@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.95.0 — 2026-10-31
+
+Katerina, 31 Oct: a part's "Open in Leaf" button said again what its title
+does. The title already opens it, in the app it lives in.
+
+### Removed
+
+- **`PartCard`'s `action`** (breaking): the "Open in …" button under a part's
+  blocks. Its title is the way to it: a path of the app's own opens in place,
+  another app's address in a new tab. `maxHeight` still cuts a long part behind
+  Show more. Peek, Ship and Leaf each passed their own button; they stop with
+  this version.
+- **`ShowMore`'s `action`** (breaking): the button beside Show more, there for
+  the part's "Open in …" alone. No other caller in the kit, Peek, Ship or Leaf
+  (`origin/main`, 31 Oct). Its stories `WithAnAction` and `ShortWithAnAction`
+  go with it; `PartCard`'s `WithItsWayOut` story is now `Long`.
+
+### Changed
+
+- **Not available: its way out is the kit's `Button`.** A row, card or part
+  that is not available keeps its one way to where it may still open, since it
+  has no title to click. It was a text link with a typed arrow ("Open in Ship
+  ↗"). It is now a small `Button` with an open-out icon and the word "Open",
+  a link to a new tab, the app in its name and tooltip ("Open in Ship"), as
+  Peek's file header has it (Katerina, 31 Oct). An app test that reads the
+  row's text reads "Open" now; one that finds the link by its name still finds
+  "Open in Ship".
+
 ## 0.94.0 — 2026-10-30
 
 Katerina, 30 Oct: a file opened from another app's card, in a new tab, sat

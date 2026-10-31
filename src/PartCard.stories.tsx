@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconExternalLink } from '@tabler/icons-react'
-import { Button } from './Button'
 import { PartCard } from './PartCard'
 import { RichText, type RichTextBlock } from './RichText'
 
@@ -38,19 +36,14 @@ const LONG_BLOCKS: RichTextBlock[] = [
   ...Array.from({ length: 6 }, (_, i): RichTextBlock => ({ type: 'paragraph', inline: [{ text: `Paragraph ${i + 1} of the part, long enough to fill a line of the card and go on to a second one.`, marks: [] }] })),
 ]
 
-/** As an app quotes a long part: cut behind Show more, and its way out ("Open in App one") level with it, under the quote bar, not beside it. */
-export const WithItsWayOut: Story = {
+/** As an app quotes a long part: cut behind Show more, under the quote bar. Its title is the way to it, in its own app. */
+export const Long: Story = {
   args: {
     state: 'ready',
     kind: 'page',
     heading: 'Document one',
     href: '#part',
     maxHeight: 160,
-    action: (
-      <Button size="small" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />} onClick={() => {}}>
-        Open in App one
-      </Button>
-    ),
     children: <RichText blocks={LONG_BLOCKS} size="small" />,
   },
 }

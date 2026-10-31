@@ -8,6 +8,9 @@
  * Look C (Katerina, 29 Oct): what it is part of as a card starts, its kind in a
  * file's 36px tile, its title and "A part of ABC-2" under it; then the blocks
  * behind a quote bar that starts where the tile does.
+ *
+ * The title is the way to it, in the app it lives in: no "Open in …" button
+ * beside the blocks (Katerina, 31 Oct: it said again what the title does).
  */
 import { useContext, type ReactNode } from 'react'
 import { Card } from './Card'
@@ -45,17 +48,11 @@ export interface PartCardProps {
   openIn?: { app: string; href: string }
   /** The part's blocks, drawn by the app. */
   children?: ReactNode
-  /**
-   * The way out to where the part lives: a small `Button` with a leading icon ("Open in Leaf"). Drawn under the
-   * blocks at the right, level with Show more, outside the quote bar (Katerina, 30 Oct: "the vertical line should not
-   * be covering the button"). Peek and Ship put it in ShowMore's row inside the blocks before.
-   */
-  action?: ReactNode
   /** Cut the blocks at this height, in px, behind ShowMore's fade and its Show more. Absent, they are drawn whole. */
   maxHeight?: number
 }
 
-export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, openIn, children, action, maxHeight }: PartCardProps) {
+export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, openIn, children, maxHeight }: PartCardProps) {
   const word = noun ?? kindNounOf({ kind }) ?? 'File'
   const boxed = useContext(inTheBox)
   if (state === 'loading') return <LinkCardLoading kind={kind} shape={{ summary: true, rows: 0, footer: 'none' }} />
@@ -85,8 +82,8 @@ export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, 
         </span>
       </div>
       {/* The quote bar starts where the tile above it starts (Katerina, 29 Oct), and runs beside the blocks only. */}
-      {action || maxHeight !== undefined ? (
-        <ShowMore maxHeight={maxHeight ?? Infinity} surface={boxed ? 'elevated' : 'inset'} action={action} contentClassName={QUOTE_BAR_CLASSES}>
+      {maxHeight !== undefined ? (
+        <ShowMore maxHeight={maxHeight} contentClassName={QUOTE_BAR_CLASSES}>
           {children}
         </ShowMore>
       ) : (

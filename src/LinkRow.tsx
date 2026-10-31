@@ -9,8 +9,10 @@
  * At most 480px wide, as a card is, in a box being written in too.
  */
 import { useContext } from 'react'
+import { IconExternalLink } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
+import { Button } from './Button'
 import { Card } from './Card'
 import { cn } from './cn'
 import { Link } from './Link'
@@ -19,6 +21,7 @@ import { CommentCount, kindNounOf, LinkedIcon, LinkTile, ProgressRing, StatusMar
 import { LinkPreview } from './LinkPreview'
 import { TIME_CLASSES, TYPE_TILE_CLASSES } from './looks'
 import { SkeletonBar } from './Skeleton'
+import { WithTooltip } from './Tooltip'
 
 export interface LinkUnavailableProps {
   kind: LinkedKind
@@ -63,12 +66,14 @@ export function UnavailableRow({ kind, words, href, openIn, card = false }: { ki
           words
         )}
       </span>
+      {/* The kit's Button as a link, as Peek's file header has it (Katerina, 31 Oct): "Open", the app in its name and
+          tooltip, in place of a text link with a typed arrow. */}
       {openIn && (
-        <span className="shrink-0 text-caption text-text-secondary">
-          <Link href={openIn.href} variant="quiet" external>
-            Open in {openIn.app} ↗
-          </Link>
-        </span>
+        <WithTooltip label={`Open in ${openIn.app}`}>
+          <Button href={openIn.href} external size="small" className="shrink-0" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />} aria-label={`Open in ${openIn.app}`}>
+            Open
+          </Button>
+        </WithTooltip>
       )}
     </Card>
   )
