@@ -122,9 +122,12 @@ describe('LinkCard', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  it('says it is not available, and where it may still open', () => {
+  it('says it is not available, and where it may still open: an "Open" button that links there, in a new tab', () => {
     render(<LinkCard link={UNAVAILABLE} />)
     expect(screen.getByText('Issue not available')).toBeTruthy()
-    expect(screen.getByRole('link', { name: /Open in App one/ }).getAttribute('href')).toBe('#elsewhere')
+    const open = screen.getByRole('link', { name: 'Open in App one' })
+    expect(open.getAttribute('href')).toBe('#elsewhere')
+    expect(open.getAttribute('target')).toBe('_blank')
+    expect(open.textContent).toBe('Open')
   })
 })

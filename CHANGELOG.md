@@ -17,8 +17,16 @@ does. The title already opens it, in the app it lives in.
   (`origin/main`, 31 Oct). Its stories `WithAnAction` and `ShortWithAnAction`
   go with it; `PartCard`'s `WithItsWayOut` story is now `Long`.
 
-The "Open in … ↗" link on a row or card that is not available stays: it has no
-title to click.
+### Changed
+
+- **Not available: its way out is the kit's `Button`.** A row, card or part
+  that is not available keeps its one way to where it may still open, since it
+  has no title to click. It was a text link with a typed arrow ("Open in Ship
+  ↗"). It is now a small `Button` with an open-out icon and the word "Open",
+  a link to a new tab, the app in its name and tooltip ("Open in Ship"), as
+  Peek's file header has it (Katerina, 31 Oct). An app test that reads the
+  row's text reads "Open" now; one that finds the link by its name still finds
+  "Open in Ship".
 
 ## 0.94.0 — 2026-10-30
 
