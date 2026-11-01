@@ -14,6 +14,9 @@ Where a conversation's cards sit: two columns, or one 384px column beside the pa
 - `threads="beside"`, two columns: the comments fill the page; an open thread stands beside them, 384px.
 - `threads="under"`, one column: the comments are the 384px column beside the page; a thread opens under its comment, and the two become one card.
 - With two columns, `header` puts the comments' own **PageHeader** over their column only, and the thread runs the page's full height beside it.
+- With two columns, `aside` is what the 384px column holds while no thread is open: the page's own **Panel** beside its comments (an overview). A thread opened takes its place.
+
+<Canvas of={Stories.TwoColumnsAside} />
 - With two columns, each comment's `day` names its stretch with a line that stays at the top while the stretch scrolls (Peek's day lines).
 
 <Canvas of={Stories.TwoColumnsDays} />
@@ -42,7 +45,10 @@ import { ConversationLayout } from '@estiva-app/ui'
 - Which layout is the app's: where a conversation sits is its own.
 - The right column is 384px in every app.
 - The app keeps `open`; the layout says when it changes, with `onOpenChange`. Give every comment a `thread`, a
-  **Thread** with its box, even one with no replies yet: pressing it opens it to its box.
+  **Thread** with its box, even one with no replies yet: pressing it opens it to its box. An app that builds only the
+  open thread gives a function, `thread: () => threadOf(comment)`: it is called only while that one is open.
+- Draw no column of your own for the thread or for the panel beside the comments: `aside`. The column catches what
+  throws in it, and says so in its place; the comments stay.
 - Write nothing on the cards for opening: no `onClick`, `selected`, `onReply`, or the replies row's `onOpen` and
   `open`. The layout gives each **ConversationCard** its place, and the card opens its thread from it. What a card is
   given still wins.
@@ -67,6 +73,9 @@ import { ConversationLayout } from '@estiva-app/ui'
 
 <Canvas of={Stories.TwoColumnsSeen} />
 
+- A link to a comment shows it: `showInConversation(id, { comments: true })` scrolls it to the middle and flashes it
+  (the open thread's pinned comment first, when it is that one's); `false` when it is not drawn. Each comment carries
+  its `id` as `data-conversation-item`. See **Thread** for replies.
 - The box at the foot of a thread that opens takes the caret, at its end, without scrolling: the layout tells it with
   `caretOnOpen`, which **CommentBox** reads. Nothing to pass; a box outside a layout never takes it this way.
 
@@ -83,7 +92,7 @@ import { ConversationLayout } from '@estiva-app/ui'
 | Two columns: opens at the newest, comes back to where it was left, follows only a reader at the bottom, goes down to the reader's own comment, holds still while cards load | a scroll policy, a place per conversation, a ResizeObserver |  |
 | Placeholders while reading, and a line when there are none | a loading and an empty state |  |
 | Says which comments have been on screen a moment, with `seen` | an IntersectionObserver and a timer per card |  |
-| The right column at 384px, in every app | a width |  |
+| The right column at 384px, in every app: the open thread, or the page's `aside` | a width, a column, its error boundary |  |
 
 ## Props
 

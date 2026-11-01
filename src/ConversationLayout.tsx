@@ -19,8 +19,12 @@ export interface ConversationItem {
   id: string
   /** The comment: a `ConversationCard`. */
   card: ReactNode
-  /** Its thread: a `Thread` with the same `place` as the layout's `threads`, drawn while it is the open one. Give every comment one, even with no replies yet: a card without one cannot be opened. */
-  thread?: ReactNode
+  /**
+   * Its thread: a `Thread` with the same `place` as the layout's `threads`, drawn while it is the open one. Give every
+   * comment one, even with no replies yet: a card without one cannot be opened. Or a function that draws it, called
+   * only while it is the open one: for an app that builds only the open thread.
+   */
+  thread?: ReactNode | (() => ReactNode)
   /** Resolved. In one column it waits under "Resolved", closed, at the end; in two columns it stays in its place. */
   resolved?: boolean
   /** What it was on was deleted from the page. In one column it waits under "On deleted blocks", closed, before "Resolved"; a resolved one is under "Resolved". */
@@ -37,6 +41,8 @@ export interface ConversationLayoutProps {
   items: readonly ConversationItem[]
   /** The id of the comment whose thread is open. */
   open?: string
+  /** Two columns: what the 384px column holds while no thread is open, the page's own panel beside its comments (Peek's Overview). Nothing: no column. */
+  aside?: ReactNode
   /**
    * A comment asks to open or close its thread: a press anywhere on its card, its replies row, or Reply. In one column
    * a second press closes it. The layout draws it open in place, with no jump, and puts the caret in its box; the app
@@ -89,6 +95,9 @@ interface ListProps {
   /** How many times a thread has opened: its box takes the caret each time. */
   caret: number
 }
+
+/** An item's thread as it is drawn: the app's element, or what its function draws, asked only while it is open. */
+const threadOf = (item: ConversationItem | undefined): ReactNode => (typeof item?.thread === 'function' ? item.thread() : item?.thread)
 
 /** The list's own room: placeholders, the empty line, or the comments 8px apart. */
 function List({ items, open, under, above, loading, empty, change, caret }: ListProps) {
@@ -206,7 +215,7 @@ function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isO
           <LineByLayout.Provider value>
             {/* Over this card's edge, 1px out each way: the comment keeps its place and width, open or closed. */}
             <div className="-m-px flex flex-col">{item.card}</div>
-            {isOpen && <caretOnOpen.Provider value={caret}>{item.thread}</caretOnOpen.Provider>}
+            {isOpen && <caretOnOpen.Provider value={caret}>{threadOf(item)}</caretOnOpen.Provider>}
           </LineByLayout.Provider>
         </InThreadCard.Provider>
       </InConversationItem.Provider>
@@ -232,6 +241,7 @@ export function ConversationLayout({
   threads,
   items,
   open,
+  aside,
   onOpenChange,
   box,
   above,
@@ -365,7 +375,9 @@ export function ConversationLayout({
       </Panel>
     )
   }
-  const opened = items.find((item) => item.id === open)?.thread
+  const opened = threadOf(items.find((item) => item.id === open))
+  // The column: the open thread, or while none is, the page's own panel (Peek's Overview); neither, no column.
+  const side = opened || aside
   return (
     <div className={cn('flex min-h-0 min-w-0 flex-1', className)}>
       {/* If the column throws, its name stays with the message, as a Panel's does; the thread beside it stays. */}
@@ -397,9 +409,10 @@ export function ConversationLayout({
           )}
         </div>
       </ErrorBoundary>
-      {opened && (
-        <div className="flex w-[384px] shrink-0 flex-col border-l border-border-subtle">
-          <caretOnOpen.Provider value={caret}>{opened}</caretOnOpen.Provider>
+      {side && (
+        // Its own catch, as Peek's column had: a thread or a panel that throws says so in the column, and the comments stay.
+        <div className="flex w-[384px] shrink-0 flex-col overflow-hidden border-l border-border-subtle">
+          <ErrorBoundary label="thread panel">{opened ? <caretOnOpen.Provider value={caret}>{opened}</caretOnOpen.Provider> : aside}</ErrorBoundary>
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
@@ -105,6 +105,39 @@ export const TwoColumns: Story = {
   render: function Render() {
     const [open, setOpen] = useState<string | undefined>('c1')
     return <ConversationLayout threads="beside" items={useItems('beside', open, setOpen, false)} open={open} onOpenChange={setOpen} box={<WriteBox label="Comment" />} />
+  },
+}
+
+/**
+ * Two columns with the page's own panel: while no thread is open, the 384px column holds it (Peek's Overview); a
+ * thread opened takes its place, and closing it brings the panel back. Each thread is drawn only while it is open.
+ */
+export const TwoColumnsAside: Story = {
+  name: 'Two columns, with a panel',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>(undefined)
+    const items = useItems('beside', open, setOpen, false).map((item) => {
+      const thread = item.thread as ReactNode
+      return { ...item, thread: () => thread }
+    })
+    return (
+      <ConversationLayout
+        threads="beside"
+        items={items}
+        open={open}
+        onOpenChange={setOpen}
+        aside={
+          <Panel title="Item one">
+            <div className="flex flex-col gap-3 p-4">
+              <SkeletonBar className="h-3 w-[90%]" />
+              <SkeletonBar className="h-3 w-[70%]" />
+              <SkeletonBar className="h-3 w-[85%]" />
+            </div>
+          </Panel>
+        }
+        box={<WriteBox label="Comment" />}
+      />
+    )
   },
 }
 
