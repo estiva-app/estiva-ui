@@ -1,5 +1,103 @@
 # Changelog
 
+## 0.96.0 — 2026-11-01
+
+Katerina, 28 October to 1 November: one conversation in every app. Peek's
+comments, replies and threads move into the kit, with the looks she picked,
+so Ship and Leaf draw the same conversation in their own colours. An app sees
+none of it until it uses the new parts; what it sees on taking this version
+is under **Changed**.
+
+### Added
+
+- **The conversation** (Storybook: Conversation). Peek's parts, moved and
+  made one for every app:
+  - **`ConversationCard`** and **`ReplyCard`**: who, when, "(edited)", the
+    words, files, reactions, the replies row, the strip on hover (React,
+    Reply, Resolve, ⋯) and the ⋯ menu (Resolve or Reopen, the app's rows,
+    Edit and Delete on your own). It asks before it deletes, opens the
+    Resolve dialog (`resolveRefused` says there why a resolve was refused),
+    holds its edit box or lets the app hold it. A press anywhere on it opens
+    its thread; a double click or a drag that picks words does not. No fill of
+    its own at rest. New or urgent: the dot or the urgent mark, and the edge
+    in the theme's outline colour. **Resolved is folded** (Katerina, 1
+    November): "✓ Resolved" by the time, "Person two → the note · time"
+    above the replies row, a 2px line from the face down to it; while its
+    thread is closed, the words fold to their first line, without files or
+    reactions, whatever box the app draws its words in. What it is about (`about`, a `QuotedLine`) stands under the
+    name, above the words.
+  - **`ConversationLayout`**: where the cards sit, two columns (the thread
+    beside, 384px) or one 384px column (the thread under its comment, the
+    two one card). It owns opening: a press anywhere on a card, its replies
+    row or Reply opens its thread, a second press closes it in one column;
+    the comment never moves as it opens, and the thread's box takes the
+    caret. In one column, `resolved` items wait closed under "Resolved" and
+    `gone` ones under "On deleted blocks", at the end, as Leaf's column has
+    them.
+  - **`Thread`**: a comment's replies and the box, in the right column
+    (pinned comment, "Replies", Close, "Resolved") or under its comment.
+  - **`RepliesRow`**, **`ResolveDialog`**, **`QuotedLine`** (the words in the
+    page's highlight; "Changed since", "Deleted from the page"),
+    **`PinnedComment`**, **`ConversationActions`**, **`ConversationMenu`**,
+    **`MetaText`**, **`EditedMarker`**, **`UrgentMark`**,
+    **`ReactionHorizon`**, **`SkeletonConversation`**, and `caretOnOpen`.
+- **`PageHeader`**: the bar at the top of a page, with a place for its icon,
+  lock, title, counts, when it last changed, members and buttons.
+- **`Panel`'s `header`**: a page's own bar, a `PageHeader`, in place of the
+  panel's, for a panel that is the page (Peek's file pages, Leaf's
+  documents).
+- **`ArchivedNotice`**: the card on an archived file, which Peek, Ship and
+  Leaf each drew.
+- **`useSidebarFold`**: a folded sidebar stays folded on this browser, opens
+  for a file reached by a link, and opens folded in a narrow window.
+- **`Divider`**: a node as `label`, `look="section"` between stretches of a
+  list, `sticky` while it scrolls.
+- **`LinkPickers`'s `disabledReason`**: the pickers shut, saying why on
+  hover (an archived file).
+
+### Changed
+
+What an app sees on taking this version, before it uses any new part:
+
+- **The sidebar fold, in every manner** (Katerina, 31 October). With
+  `onNavOpenChange`, `AppShell` draws the fold in the floating manner too, and
+  folding slides and fades in 300ms, as Peek's rail did; folded, nothing in
+  the navigation can be reached. An app that passes no `onNavOpenChange`
+  (Peek today) sees nothing new. `ListColumn` closed is also out of reach
+  once it has faded.
+- **`TopBar`**: with a menu button over a Sidebar (solid and inset: Ship,
+  Leaf), the bar starts 14px in, not 20px, so the button's icon lines up
+  with the rows under it.
+- **Resolve** (`Button` and `IconButton` `resolve`): outlined, green when
+  pointed at, in Ship and Leaf too, as in Signal. They drew it filled.
+- **The comment box is a field**: the field's fill and edge. In Signal and
+  Ship those are the colours it had; in Leaf its edge is darker (below).
+  "Enter to send · Shift+Enter new line" shows in every theme, not only
+  Signal. The edit box writes no keys under it (Cancel and Save say it) and
+  has no Signal glow; its edge darkens on focus, in Leaf to the focus colour.
+- **`IconButton` `primary`, disabled, in Leaf** (the comment box's Send while
+  the box is empty): no fill, its icon in the muted colour, so it still reads
+  on the box's grey.
+- **`Card`'s `attention`** (a new or urgent card): the edge in the theme's
+  `-outline` colour, not the `-muted` fill, which read near black in Signal
+  and not at all in Ship (Katerina, 31 October). Peek's new and urgent cards
+  draw it today: their edge goes from 11% to 30% of the cyan or the amber.
+- **New and urgent edges as strong as Signal's** (Katerina, 1 November):
+  Ship's `--accent-outline` at 64%; Leaf's `--accent-outline` at 52% and its
+  `--warning-outline` in its own warning, #967000 at 52%. Read only by
+  `Card` attention, `RepliesRow` and Signal's chips.
+- **Leaf's greys and fields** (Katerina, 31 October): fields take the
+  comment box's grey (`--bg-field` #e9e9ea) with a 2:1 edge
+  (`--border-field` #b2b2b2) and no shadow; `--border-strong` #909090 (a
+  field pointed at, an unticked checkbox, and wherever Leaf draws the strong
+  edge: a link card's edge and its dividers, a scrollbar, a key, editable
+  text at rest, a card's edge on hover); `--text-muted` #818285. Every field
+  in Leaf changes; the Leaf theme work continues after this release.
+- **`Select`** is always controlled: held by a reason it shuts, even when it
+  was open, and stays shut once let go, with no warning from Base UI when the
+  reason goes.
+- **`NavItem`**'s urgent mark is the exported `UrgentMark`, the same look.
+
 ## 0.95.0 — 2026-10-31
 
 Katerina, 31 Oct: a part's "Open in Leaf" button said again what its title

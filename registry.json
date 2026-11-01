@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.95.0",
+    "packageVersion": "0.96.0",
     "exports": 229,
     "typeExports": 234,
     "files": null
@@ -2665,6 +2665,12 @@
           "note": "Resolve, with the note written in the dialog the card opens."
         },
         {
+          "name": "resolveRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`)."
+        },
+        {
           "name": "onReopen",
           "takes": "a handler",
           "required": false,
@@ -2811,7 +2817,9 @@
       "storyId": "conversation-conversationcard--comment",
       "docPage": "src/ConversationCard.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
+      ]
     },
     {
       "name": "ConversationLayout",
@@ -8618,7 +8626,9 @@
       "storyId": "conversation-replycard--reply",
       "docPage": "src/ReplyCard.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
+      ]
     },
     {
       "name": "ResolveDialog",
