@@ -27,6 +27,8 @@ move it.
   hover.
 - `hover="fill"` — a card in a feed: it lights up when pointed at, so the light
   says which one you are on. `quietUntilHover` hides its hairline until then.
+- `onPress` — the card opens what it stands for: a press anywhere on it but on
+  a button, a link or a field inside it, and Enter or Space once Tab reaches it.
 - `hovered` — hold that look while the pointer is elsewhere: a card whose own
   menu or picker is open stays lit, because the menu opens outside the card.
 - `selected` — the one you are on. `active` — the one being changed in place.
@@ -37,6 +39,8 @@ move it.
   is dashed.
 
 <Canvas of={CardStories.InAFeed} />
+
+<Canvas of={CardStories.OpensOnAPress} />
 
 ## When not
 
@@ -63,6 +67,11 @@ import { Card } from '@estiva-app/ui'
   the content pad itself.
 - With `href` it renders `Link`'s anchor, with every anchor prop passed through,
   so it changes page as **Link** does and the address stays real.
+- A card that opens on a press takes `onPress`, not `onClick`: it works out for you
+  whether a press was on the card or on a control inside it, a menu it opened
+  (outside it in the page), a double click or words being picked, and it is
+  a Tab stop that Enter and Space open. `onClick` stays for a card that only
+  needs the click.
 - Without `href`, a card that responds to a click gets `cursor-pointer` from its
   `hover` and your `onClick` — the selected one too, since it can open again;
   the one being changed does not. Controls inside it should stop their own
@@ -87,7 +96,17 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | With `href`, becomes a link: Link's anchor, with a real address | an anchor around the card |  |
-| Without `href`, shows it can be clicked when you pass `onClick` | `cursor-pointer` |  |
+| Without `href`, shows it can be clicked when you pass `onClick` or `onPress` | `cursor-pointer` |  |
+| With `onPress`: a press on the card, never on a button, link, field or menu inside it, nor a double click or picked words; a Tab stop, opened by Enter and Space | a click guard (`closest('button')`), a key handler, a `tabIndex` |  |
+
+## Keys
+
+With `onPress`:
+
+| Input | What happens |
+|---|---|
+| Tab | stops on the card |
+| Enter / Space | on the card: opens it; on a button, a link or a field inside it: that control's own |
 
 ## Props
 

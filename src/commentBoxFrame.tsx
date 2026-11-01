@@ -8,7 +8,7 @@ import { Toolbar } from './Toolbar'
 import { cn } from './cn'
 import { richTextClassName } from './RichText'
 import { ScrollArea } from './ScrollArea'
-import { BOX_HINT_CLASSES, WRITING_BOX_CLASSES, WRITING_RING_CLASSES } from './looks'
+import { BOX_HINT_CLASSES, EDITOR_SELECTION_CLASSES, WRITING_BOX_CLASSES, WRITING_RING_CLASSES } from './looks'
 import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar'
 import { isSuggestionActive } from './suggestionPopup'
 
@@ -23,7 +23,7 @@ import { isSuggestionActive } from './suggestionPopup'
  */
 
 /** The classes the box's editor wears: rich text with no outline. It never scrolls itself; the box does, in a `ScrollArea`. */
-export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', 'outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1')
+export const COMPOSE_EDITOR_CLASSES = richTextClassName('default', cn('outline-none w-full bg-transparent min-h-[20px] [&>p+p]:-mt-1', EDITOR_SELECTION_CLASSES))
 
 /**
  * A long draft stops at half the window and scrolls inside the box, so its

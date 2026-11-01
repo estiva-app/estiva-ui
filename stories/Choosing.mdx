@@ -37,6 +37,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | One line | **TextInput** |
 | One line in a dense row, beside small selects | **TextInput** `size="small"` — 24px, the small Select's height |
 | Several lines | **Textarea** |
+| A document written in a form and sent with it: blocks, marks, `[`, `@` | **DocumentField**, from `@estiva-app/ui/editor` — every edit back as it is typed; the box is a Textarea's |
 | Typing that filters a list | **SearchInput** |
 | A title edited in place | **EditableText** |
 | Label and required-mark around any control | **Field** |
@@ -95,6 +96,7 @@ The same conversation in every app; only its colours are each app's.
 |---|---|
 | Where the comments sit, and where a thread opens | **ConversationLayout** — two columns, the thread beside them; or one 384px column, the thread under its comment |
 | One comment | **ConversationCard** — the words, files, cards, reactions, replies row, the actions on hover and the ⋯ menu |
+| Where a conversation shown away from its place was said, above its card | **ConversationPlace** — how it is related and the place, in your words |
 | One reply in a thread | **ReplyCard** — a comment's pieces, without replies of its own or Resolve |
 | A comment's replies and the box to write one | **Thread** — in the right column under its header, or under its comment |
 | The way into a thread | **RepliesRow** — faces, "2 replies", the last time and "1 new" |
@@ -116,7 +118,7 @@ The same conversation in every app; only its colours are each app's.
 | Text that can run long above things the reader needs, cut behind a fade | **ShowMore** — measures; what fits has no button |
 | A status, a count or a category, in a small pill | **Chip** — six colour types; the colour is the message, the label makes it legible |
 | Something new on a row or a card, no count | **UnreadDot** — the 6px dot in a 24px slot; in a sidebar row, **NavItem** `unread` draws it |
-| One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed |
+| One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed, `onPress` when a press opens it |
 | A section heading, chevron, hover actions, a count beside the title | **SectionHeader** |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |
 | The uppercase micro-label | **SectionLabel** |

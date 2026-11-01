@@ -7,6 +7,7 @@ import { IconMessagePlus } from '@tabler/icons-react'
 import type { HandleBlock } from './BlockHandle'
 import { AttachmentNode, BlockId, Callout, Checklist, ReferenceNode, UnknownBlock, isChecklistTick, type AttachmentViewProps, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
+import { cn } from './cn'
 import { CodeBlockColours } from './CodeBlockColours'
 import { CommentHighlights, anchorOfSelection, type SelectionAnchor } from './CommentHighlights'
 import { PersonReference, ReferenceTrigger, SlashCommands, formatSection, typeTrigger, type MentionPerson, type ReferenceSection, type SlashCommand, type SlashSection } from './ComposerTriggers'
@@ -19,6 +20,7 @@ import { BareLinks, DocumentKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './
 import { PastedImages } from './PastedImages'
 import { PastedMarkdown } from './PastedMarkdown'
 import { LinkPlaces } from './LinkPlaces'
+import { EDITOR_SELECTION_CLASSES } from './looks'
 import { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen } from './ReferenceMenu'
 import { richTextClassName } from './RichText'
 import { KeptSelection, SelectionToolbar } from './SelectionToolbar'
@@ -345,69 +347,21 @@ export function DocumentEditor({
 
   const editor = useEditor(
     {
-      extensions: [
-        DocumentKit.configure({
-          strike: false,
-          heading: { levels: [1, 2, 3] },
-          dropcursor: blockDropCursor,
-          codeBlock: false,
-          // A link on words is made by pasting a URL over them or by the strip's Link, and opens on a click, as a bare
-          // address does — through `BareLinks`, which opens only a followable address and never hands the tab this window;
-          // Tiptap's own click opens without that. A bare address stays text: a link made on it by typing would change what is saved.
-          link: { openOnClick: false, shouldAutoLink: () => false, HTMLAttributes: LINK_MARK_ATTRIBUTES },
-        }),
-        PasteOverWords,
-        KeptSelection,
-        BareLinks,
-        CodeBlockColours,
-        TableKit.configure({ table: { resizable: false } }),
-        BlockId,
-        Checklist,
-        Callout,
-        // A link is being edited only while the caret is on its line: anywhere else on the page it previews on hover.
-        ReferenceNode.configure({ view: referenceView ?? null, editingLine: true }),
-        // A link's chip in a sentence, its row alone on its line, its card in the row's place (SPEC §13.3).
-        LinkPlaces,
-        // A click on a link offers Open, and alone on its line Show as Row or Card.
-        ReferenceMenu,
-        UnknownBlock,
-        AttachmentNode.configure({ view: attachmentView ?? null }),
-        SlashCommands.configure({ sections: slashSections({ table, upload: !!upload, pickFile }) }),
-        ...(references
-          ? [
-              ReferenceTrigger.configure({
-                items: () => [],
-                sections: (query) => latest.current.references?.sections(query) ?? [],
-                subscribe: (listener) => latest.current.references?.subscribe?.(listener) ?? (() => {}),
-                nodeName: 'reference',
-                ariaLabel: references.ariaLabel,
-                sectionLabel: references.sectionLabel,
-                icon: references.icon ?? null,
-              }),
-            ]
-          : []),
-        ...(mentions
-          ? [PersonReference.configure({ people: () => latest.current.mentions?.people() ?? [], uriOf: (person) => latest.current.mentions?.uriOf(person) ?? null })]
-          : []),
-        ...(linkChips ? [LinkChips.configure(linkChips)] : []),
-        ...(upload
-          ? [
-              // A pasted picture is placed as `/` File places one; text on the clipboard stays text.
-              PastedImages.configure({
-                onImages: (pasted) => {
-                  if (!latest.current.upload) return false
-                  void attachTo.current(pasted)
-                  return true
-                },
-              }),
-            ]
-          : []),
-        // Markdown pasted as plain text lands as the blocks it spells, tables included.
-        ...(readMarkdown ? [PastedMarkdown.configure({ read: (text) => latest.current.readMarkdown?.(text) })] : []),
-        // Where each comment is, drawn as a decoration, so a save never carries it.
-        ...(onCommentOnSelection ? [CommentHighlights] : []),
-        ...extensions,
-      ],
+      extensions: documentExtensions({
+        latest,
+        references,
+        mentions,
+        linkChips,
+        table,
+        upload: !!upload,
+        readMarkdown: !!readMarkdown,
+        comments: !!onCommentOnSelection,
+        referenceView,
+        attachmentView,
+        pickFile,
+        attach: attachTo,
+        extensions,
+      }),
       // Made once. A value coming back must not rebuild the editor under the caret; see the effect below.
       content: held ?? codec.read(value, format),
       editable: !readOnly,
@@ -420,7 +374,7 @@ export function DocumentEditor({
           tabindex: '0',
           // A row or a card is its whole line (`LinkPlaces`), drawn on that line: a block inside it would push the
           // separator and trailing break ProseMirror puts beside it onto empty lines of their own (code review).
-          class: richTextClassName('default', 'outline-none [&_[data-link-place]]:inline-block [&_[data-link-place]]:w-full [&_[data-link-place]]:align-top'),
+          class: richTextClassName('default', cn('outline-none [&_[data-link-place]]:inline-block [&_[data-link-place]]:w-full [&_[data-link-place]]:align-top', EDITOR_SELECTION_CLASSES)),
         },
         handleKeyDown: (view, event) => {
           if (event.key !== 'Escape') return false
@@ -560,6 +514,106 @@ export function DocumentEditor({
     </div>
   )
   return <>{wrap ? wrap(drawn, editor) : drawn}</>
+}
+
+/** What a document's editor is built from: the app's parts, and its latest handlers, read through `latest` (the editor is made once). */
+export interface DocumentGrammar {
+  latest: {
+    current: {
+      references?: DocumentReferences
+      mentions?: DocumentMentions
+      upload?: unknown
+      readMarkdown?: (text: string) => JSONContent | undefined
+    }
+  }
+  references?: DocumentReferences
+  mentions?: DocumentMentions
+  linkChips?: LinkChipsOptions
+  /** `/` → Table. */
+  table: boolean
+  /** `/` → Upload, and a pasted picture placed. */
+  upload: boolean
+  /** Markdown pasted as plain text lands as blocks. */
+  readMarkdown: boolean
+  /** The comment highlights. */
+  comments: boolean
+  referenceView?: ComponentType<ReferenceViewProps>
+  attachmentView?: ComponentType<AttachmentViewProps>
+  /** Opens the file dialog, for `/` → Upload. */
+  pickFile: { current: () => void }
+  /** Uploads and places pasted pictures. */
+  attach: { current: (files: File[]) => Promise<void> }
+  extensions: readonly AnyExtension[]
+}
+
+/**
+ * A document's grammar, one list for every editor of a document (`DocumentEditor`, `DocumentField`): the blocks, the
+ * marks, links where they sit, `/`, and `[` and `@` when the app gives them.
+ */
+export function documentExtensions({ latest, references, mentions, linkChips, table, upload, readMarkdown, comments, referenceView, attachmentView, pickFile, attach, extensions }: DocumentGrammar): AnyExtension[] {
+  return [
+    DocumentKit.configure({
+      strike: false,
+      heading: { levels: [1, 2, 3] },
+      dropcursor: blockDropCursor,
+      codeBlock: false,
+      // A link on words is made by pasting a URL over them or by the strip's Link, and opens on a click, as a bare
+      // address does — through `BareLinks`, which opens only a followable address and never hands the tab this window;
+      // Tiptap's own click opens without that. A bare address stays text: a link made on it by typing would change what is saved.
+      link: { openOnClick: false, shouldAutoLink: () => false, HTMLAttributes: LINK_MARK_ATTRIBUTES },
+    }),
+    PasteOverWords,
+    KeptSelection,
+    BareLinks,
+    CodeBlockColours,
+    TableKit.configure({ table: { resizable: false } }),
+    BlockId,
+    Checklist,
+    Callout,
+    // A link is being edited only while the caret is on its line: anywhere else on the page it previews on hover.
+    ReferenceNode.configure({ view: referenceView ?? null, editingLine: true }),
+    // A link's chip in a sentence, its row alone on its line, its card in the row's place (SPEC §13.3).
+    LinkPlaces,
+    // A click on a link offers Open, and alone on its line Show as Row or Card.
+    ReferenceMenu,
+    UnknownBlock,
+    AttachmentNode.configure({ view: attachmentView ?? null }),
+    SlashCommands.configure({ sections: slashSections({ table, upload, pickFile }) }),
+    ...(references
+      ? [
+          ReferenceTrigger.configure({
+            items: () => [],
+            sections: (query) => latest.current.references?.sections(query) ?? [],
+            subscribe: (listener) => latest.current.references?.subscribe?.(listener) ?? (() => {}),
+            nodeName: 'reference',
+            ariaLabel: references.ariaLabel,
+            sectionLabel: references.sectionLabel,
+            icon: references.icon ?? null,
+          }),
+        ]
+      : []),
+    ...(mentions
+      ? [PersonReference.configure({ people: () => latest.current.mentions?.people() ?? [], uriOf: (person) => latest.current.mentions?.uriOf(person) ?? null })]
+      : []),
+    ...(linkChips ? [LinkChips.configure(linkChips)] : []),
+    ...(upload
+      ? [
+          // A pasted picture is placed as `/` File places one; text on the clipboard stays text.
+          PastedImages.configure({
+            onImages: (pasted) => {
+              if (!latest.current.upload) return false
+              void attach.current(pasted)
+              return true
+            },
+          }),
+        ]
+      : []),
+    // Markdown pasted as plain text lands as the blocks it spells, tables included.
+    ...(readMarkdown ? [PastedMarkdown.configure({ read: (text) => latest.current.readMarkdown?.(text) })] : []),
+    // Where each comment is, drawn as a decoration, so a save never carries it.
+    ...(comments ? [CommentHighlights] : []),
+    ...extensions,
+  ]
 }
 
 /**

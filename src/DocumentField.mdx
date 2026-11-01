@@ -1,0 +1,83 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './DocumentField.stories'
+
+<Meta of={Stories} />
+
+# DocumentField
+
+A form's field that holds a document: the document editor's blocks, marks, `[`, `@` and `/`, in a field's box.
+
+<Canvas of={Stories.InAForm} />
+
+## When
+
+- A form asks for longer text that is a document where it lands: a description written in the form that files it.
+- Its box is a field's, as a **Textarea**'s beside it: the same fill, edge, corners, hover and focus.
+- `references` for `[` and `/` → File, `mentions` for `@` and `/` → Mention, as in **DocumentEditor**.
+
+<Canvas of={Stories.Written} />
+
+<Canvas of={Stories.WithReferencesAndMentions} />
+
+## When not
+
+- Plain text, one paragraph, no formatting → **Textarea**. One line → **TextInput**.
+- A document on its own page, saved when you leave it → **DocumentEditor**.
+- A comment, a reply, a chat line → **CommentBox**.
+
+## How
+
+```tsx
+import { Field, Form } from '@estiva-app/ui'
+import { DocumentField } from '@estiva-app/ui/editor'
+
+<Form onSubmit={file}>
+  <Field label="Description" required>
+    <DocumentField
+      value={draft.value}
+      format={draft.format}
+      codec={codec}
+      label="Description"
+      placeholder="What happened?"
+      references={references}
+      mentions={mentions}
+      onChange={(value, contentFormat) => setDraft({ value, format: contentFormat ? 'blocks' : 'marker' })}
+    />
+  </Field>
+</Form>
+```
+
+- It is the form's, controlled: every edit goes to `onChange` as it is typed, with the format it is in, and `''` once it is emptied, so a required field is missing again. Nothing is saved on leaving: the form sends.
+- `codec` and `format` are **DocumentEditor**'s: how your text and the editor's document turn into each other.
+- A new `value` from outside (a prefill, the form coming back) loads into it as the document it is. Its own edits coming back, late or not, are never loaded over newer typing.
+- Ctrl/Cmd+Enter sends the form around it; Enter is a new paragraph and Shift+Enter a line break.
+- Escape is the form's: the field does not take it, except to close an open list.
+- No `/` → Table and no upload in a field.
+- The `Field` around it names it for a screen reader through `label`, and a required `Field` marks it required.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write |
+|---|---|
+| Every edit handed back as it is typed; `''` when emptied | an update listener, a serializer call, an empty check |
+| A value from outside loaded; its own edits, however late, never loaded over newer typing | a queue of edits in flight, a compare |
+| The field's box and its hover and focus, as a Textarea's | a box of your own around an editor |
+| The placeholder while it is empty | an overlay |
+| `[`, `@` and `/`, their lists and chips; the strip over picked words; a link's menu | the triggers, a toolbar |
+| Ctrl/Cmd+Enter reaching the form; Shift+Enter a line break | key handlers |
+| Selected words painted in the selected colour | a `::selection` rule |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Ctrl/Cmd+Enter | Sends the form around it |
+| Enter | A new paragraph; in an open list, picks |
+| Shift+Enter | A line break |
+| Escape | Closes an open list; otherwise the form's |
+
+## Props
+
+<Controls />

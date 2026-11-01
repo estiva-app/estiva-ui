@@ -121,3 +121,4 @@ export {
   type DocumentMentions,
   type HeldTyping,
 } from './DocumentEditor'
+export { DocumentField, type DocumentFieldProps } from './DocumentField'
