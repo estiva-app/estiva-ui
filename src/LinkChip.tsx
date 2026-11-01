@@ -45,7 +45,7 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
   const said = linked.kind === 'message' && linked.author
   const chip = (
     <InlineChip
-      icon={said ? <Avatar name={said.name} src={said.picture} size={14} /> : <LinkedIcon kind={linked.kind} size={14} tone="inherit" />}
+      icon={said ? <Avatar name={said.name} src={said.picture} bot={said.bot} size={14} /> : <LinkedIcon kind={linked.kind} size={14} tone="inherit" />}
       // No address to open (another app's file with none over https): a label, not a link to nowhere.
       href={linked.href || undefined}
       // Never wider than its line. With its hover card, the card's wrapper holds it to the line (max-w-full): a share of the

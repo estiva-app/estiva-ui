@@ -62,8 +62,8 @@ export function kindNounOf(linked: Pick<Linked, 'kind' | 'noun'>): string | unde
 }
 
 /** The 36px tile a link's kind sits in, as a file's type does in AttachmentCard; words a person wrote show their face. */
-export function LinkTile({ kind, author }: { kind: LinkedKind; author?: { name: string; picture?: string } }) {
-  if (author) return <Avatar name={author.name} src={author.picture} size={36} />
+export function LinkTile({ kind, author }: { kind: LinkedKind; author?: { name: string; picture?: string; bot?: boolean } }) {
+  if (author) return <Avatar name={author.name} src={author.picture} bot={author.bot} size={36} />
   return (
     <span className={TYPE_TILE_CLASSES}>
       <LinkedIcon kind={kind} />
@@ -159,9 +159,9 @@ export interface LinkPickersProps {
 }
 
 /** The face for an owner option: nobody (value `''`, "Unassigned") is the silhouette, never a letter (Katerina, 30 Oct). */
-function OwnerFace({ option }: { option: { value: string; label: string; picture?: string } | undefined }) {
+function OwnerFace({ option }: { option: { value: string; label: string; picture?: string; bot?: boolean } | undefined }) {
   const nobody = !option || option.value === ''
-  return <Avatar name={nobody ? undefined : option.label} src={nobody ? undefined : option.picture} size={16} />
+  return <Avatar name={nobody ? undefined : option.label} src={nobody ? undefined : option.picture} bot={!nobody && option.bot} size={16} />
 }
 
 /**

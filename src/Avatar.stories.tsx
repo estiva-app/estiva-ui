@@ -17,6 +17,19 @@ export const Initials: Story = {}
 /** No name, no picture: the silhouette. Never a key, never a `?`. */
 export const Unnamed: Story = { args: { name: undefined } }
 
+/** An agent (its profile says `bot`): a robot on lime in place of its initials, at every size. */
+export const Agent: Story = {
+  args: { name: 'Agent (steered by Ana Duarte)', bot: true },
+  parameters: { controls: { disable: true } },
+  render: (args) => (
+    <div className="flex items-end gap-3">
+      {[16, 20, 24, 32, 36].map((size) => (
+        <Avatar key={size} {...args} size={size} />
+      ))}
+    </div>
+  ),
+}
+
 /** A picture — here an inline SVG, so the story needs nothing from anywhere. */
 export const WithPicture: Story = {
   args: {

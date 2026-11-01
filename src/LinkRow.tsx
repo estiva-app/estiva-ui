@@ -170,7 +170,7 @@ export function LinkRow({ link, preview = true }: LinkRowProps) {
         {/* A ring already says how far along it is. */}
         {linked.done ? <ProgressRing done={linked.done.done} total={linked.done.total} /> : status?.colour && <StatusMark status={{ label: status.label, colour: status.colour }} />}
         {linked.conversation && <CommentCount conversation={linked.conversation} noun={linked.conversation.noun} />}
-        {owner && <Avatar name={owner.label} src={owner.picture} size={16} />}
+        {owner && <Avatar name={owner.label} src={owner.picture} bot={owner.bot} size={16} />}
         {linked.members && <AvatarGroup members={linked.members} size={16} on="inset" />}
         {linked.authors && <AvatarGroup members={linked.authors} size={16} on="inset" />}
       </span>

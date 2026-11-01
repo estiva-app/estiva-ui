@@ -29,7 +29,7 @@ export interface PersonTriggerProps
   compact?: boolean
 }
 
-export function PersonTrigger({ name, picture, fallback, size, open = false, compact = false, className, ...props }: PersonTriggerProps) {
+export function PersonTrigger({ name, picture, bot, fallback, size, open = false, compact = false, className, ...props }: PersonTriggerProps) {
   if (compact) {
     return (
       <BaseButton
@@ -56,7 +56,7 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
         className={cn('cursor-pointer rounded-full', className)}
         {...props}
       >
-        <Avatar name={name} src={picture} size={size ?? 36} />
+        <Avatar name={name} src={picture} bot={bot} size={size ?? 36} />
       </BaseButton>
     )
   }
@@ -78,7 +78,7 @@ export function PersonTrigger({ name, picture, fallback, size, open = false, com
       )}
       {...props}
     >
-      <Person name={name} picture={picture} fallback={fallback} size={size ?? 22} />
+      <Person name={name} picture={picture} bot={bot} fallback={fallback} size={size ?? 22} />
       <IconChevronDown size={14} stroke={1.5} className="shrink-0 text-text-muted" />
     </BaseButton>
   )

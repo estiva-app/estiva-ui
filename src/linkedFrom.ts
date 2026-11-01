@@ -16,6 +16,8 @@ import type { LinkState, Linked, LinkedChild, LinkedConversation, LinkedKind, Li
 export interface LinkedProfile {
   displayName?: string
   picture?: string
+  /** NIP-24's `bot`: the profile is an agent's. */
+  bot?: boolean
 }
 
 /** One of interop's resolved slots. */
@@ -178,7 +180,7 @@ function childrenOf<T extends LinkedSource>(object: T, options: LinkedFromOption
       href: options.hrefOf(child, false),
       ...(key ? { key } : {}),
       status: { label: status?.value ?? nounOf(child) ?? 'File', colour: colourOf(status?.colour) ?? 'muted' },
-      ...(person?.displayName ? { owner: { name: person.displayName, ...(person.picture ? { picture: person.picture } : {}) } } : {}),
+      ...(person?.displayName ? { owner: { name: person.displayName, ...(person.picture ? { picture: person.picture } : {}), ...(person.bot ? { bot: true } : {}) } } : {}),
     }
   })
 }
@@ -238,7 +240,7 @@ function ownerOf(object: LinkedSource, options: Pick<LinkedFromOptions, 'directo
   if (!slot) return undefined
   const person = people?.[slot.value]
   return {
-    owner: { value: slot.value, options: [{ value: slot.value, label: person?.displayName ?? '—', ...(person?.picture ? { picture: person.picture } : {}) }] },
+    owner: { value: slot.value, options: [{ value: slot.value, label: person?.displayName ?? '—', ...(person?.picture ? { picture: person.picture } : {}), ...(person?.bot ? { bot: true } : {}) }] },
     ...(slot.label ? { ownerLabel: slot.label } : {}),
   }
 }
@@ -273,7 +275,7 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
       kind: 'message',
       title: name,
       href,
-      author: { name, ...(person?.picture ? { picture: person.picture } : {}) },
+      author: { name, ...(person?.picture ? { picture: person.picture } : {}), ...(person?.bot ? { bot: true } : {}) },
       ...(body ? { body } : {}),
       ...(updated ? { updated } : {}),
     }

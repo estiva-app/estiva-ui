@@ -40,6 +40,8 @@ export interface MentionPerson {
   pubkey?: string | null
   /** The face at the row's start. Default: the package `Avatar` for the name. */
   avatar?: ReactNode
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 /** How many people the list shows. */
@@ -67,7 +69,7 @@ export function peopleMenu(urgent: boolean): SuggestionPopupOptions<MentionPerso
     row: (person) => ({
       label: person.name,
       description: person.description,
-      leading: person.avatar ?? <Avatar size={32} alt={person.name} />,
+      leading: person.avatar ?? <Avatar size={32} alt={person.name} bot={person.bot} />,
       hint: <EnterHint />,
       size: 'tall',
     }),

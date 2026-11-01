@@ -363,7 +363,7 @@ describe('a second parser agrees', async () => {
 const INHERITED_WITH_A_DEFAULT = new Set(['Button.type', 'IconButton.type', 'TextInput.type', 'SearchInput.placeholder'])
 
 /**
- * The eighteen where **this registry is right and `react-docgen` is not**.
+ * The nineteen where **this registry is right and `react-docgen` is not**.
  *
  * `IdentityPanelProps extends Omit<IdentityMenuProps, 'compact'>` and
  * `PersonTriggerProps extends Omit<PersonProps, 'className'>`: docgen does not
@@ -388,6 +388,7 @@ const DOCGEN_STOPS_AT_OMIT = new Set([
   'IdentityPanel.children',
   'PersonTrigger.name',
   'PersonTrigger.picture',
+  'PersonTrigger.bot',
   'PersonTrigger.fallback',
   'PersonTrigger.size',
   'ToolbarLink.variant',

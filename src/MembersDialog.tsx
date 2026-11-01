@@ -16,6 +16,8 @@ export interface MembersDialogMember {
   name: string
   /** A picture URL, resolved by the caller, as `Avatar` takes its `src`. */
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
   /** The line under the name: a role, a relation ("Assignee"), or a state. */
   caption?: string
 }
@@ -23,6 +25,8 @@ export interface MembersDialogMember {
 /** Somebody who can be added: a `ChipInput` option with a face. */
 export interface MembersDialogCandidate extends ChipInputOption {
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 /** What the viewer's own row offers: in when they are out, out when they are in. */
@@ -132,8 +136,8 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
               options={candidates}
               placeholder="Search people..."
               excludeIds={members.map((m) => m.id)}
-              chipLeading={(o) => <Avatar name={o.label} src={o.picture} size={16} />}
-              rowLeading={(o) => <Avatar name={o.label} src={o.picture} size={32} />}
+              chipLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={16} />}
+              rowLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={32} />}
               autoFocus
             />
           </Field>
@@ -182,7 +186,7 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
       )}
       {roster.map((member) => (
         <div key={member.id} className="flex h-12 items-center gap-3 px-5">
-          <Avatar size={32} name={member.name} src={member.picture} />
+          <Avatar size={32} name={member.name} src={member.picture} bot={member.bot} />
           <div className="flex min-w-0 flex-1 flex-col justify-center gap-[2px]">
             <div className="truncate text-body-2 text-text-primary">{member.name}</div>
             {member.caption && <div className="truncate text-caption text-text-secondary">{member.caption}</div>}

@@ -8,7 +8,7 @@ export interface RepliesRowProps {
   /** How many replies. */
   count: number
   /** Who replied: their faces. */
-  faces?: readonly { name: string; picture?: string }[]
+  faces?: readonly { name: string; picture?: string; bot?: boolean }[]
   /** The last reply's time, in the app's words. */
   last?: string
   /** "1 new": a reply you have not read. */
@@ -39,7 +39,7 @@ export function RepliesRow({ count, faces, last, isNew = false, urgent = false, 
     <>
       {withFaces && (
         <span className="flex shrink-0 items-center">
-          <AvatarGroup size={18} members={faces.map((f) => ({ name: f.name, picture: f.picture }))} />
+          <AvatarGroup size={18} members={faces.map((f) => ({ name: f.name, picture: f.picture, bot: f.bot }))} />
         </span>
       )}
       <IconMessage2

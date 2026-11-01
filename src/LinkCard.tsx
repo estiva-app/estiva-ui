@@ -115,7 +115,7 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
                   </Link>
                 )}
               </span>
-              {child.owner ? <Avatar name={child.owner.name} src={child.owner.picture} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
+              {child.owner ? <Avatar name={child.owner.name} src={child.owner.picture} bot={child.owner.bot} size={16} /> : <span className="size-4 shrink-0" aria-hidden />}
             </div>
           ))}
         </div>
@@ -127,7 +127,7 @@ function CardBody({ linked, readOnly }: { linked: Linked; readOnly: boolean }) {
           <span className="text-caption text-text-muted">Latest conversation</span>
           <div className={cn('flex flex-col gap-1', QUOTE_BAR_CLASSES)}>
             <span className="flex items-center gap-2 text-caption">
-              <Avatar name={linked.latest.author.name} src={linked.latest.author.picture} size={16} />
+              <Avatar name={linked.latest.author.name} src={linked.latest.author.picture} bot={linked.latest.author.bot} size={16} />
               <span className="text-text-primary">{linked.latest.author.name}</span>
               <span className={cn('text-text-muted', TIME_CLASSES)}>{linked.latest.at}</span>
             </span>
@@ -160,7 +160,7 @@ function SaidBody({ linked }: { linked: Linked }) {
   return (
     <>
       <div className="flex items-center gap-2">
-        <Avatar name={author.name} src={author.picture} size={24} />
+        <Avatar name={author.name} src={author.picture} bot={author.bot} size={24} />
         {/* No "Open" in a missing time's place (Katerina, 30 Oct): the name is the link then. */}
         <span className="text-body-2-strong text-text-primary">
           {linked.updated ? author.name : <CardLink href={linked.href}>{author.name}</CardLink>}

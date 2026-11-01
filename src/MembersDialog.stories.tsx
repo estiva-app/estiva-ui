@@ -77,3 +77,14 @@ export const Long: Story = {
 export const AddLayer: Story = {
   args: { initialView: 'add' },
 }
+
+/** An agent among the members: its face is a robot (`bot`). */
+export const WithAnAgent: Story = {
+  args: {
+    members: [
+      { id: 'me', name: 'You', caption: 'Product designer' },
+      { id: 'ana', name: 'Ana Duarte', caption: 'Assignee' },
+      { id: 'agent', name: 'Agent (steered by Ana Duarte)', caption: 'Agent', bot: true },
+    ],
+  },
+}

@@ -7,6 +7,7 @@ import * as AvatarStories from './Avatar.stories'
 
 A person's face: their picture, or their initials on a colour that is
 theirs, or — when there is no name to take initials from — a silhouette.
+An agent's face is a robot on lime.
 
 <Canvas of={AvatarStories.Sizes} />
 
@@ -68,6 +69,29 @@ a stack of members — and the tile becomes one image with one name.
 
 <Canvas of={AvatarStories.Palette} />
 
+### An agent
+
+**`bot` draws a robot on lime** in place of the initials, for a profile that
+says it is an agent (NIP-24's `bot: true`, which Estiva ID publishes for every
+agent). Its picture still wins when it has one.
+
+```tsx
+<Avatar name={profile.name} src={profile.picture} bot={profile.bot} />
+```
+
+- Take `bot` from the profile, **never from the name**: "steered by" is a
+  name, not a marker.
+- Lime is the same in every theme, on the initials' light and shade. No
+  person's colour is near it, so an agent never reads as a person, nor as the
+  yellow urgent mark.
+- The robot is drawn at 5/8 of the tile, larger than the silhouette, so it
+  still reads at 16px.
+- Every part that draws a face takes `bot` with the person: `Person`,
+  `PersonTrigger`, `AvatarGroup`, `MembersPill`, `MembersDialog`, the mention
+  menu, a comment's and a reply's author, and the link parts.
+
+<Canvas of={AvatarStories.Agent} />
+
 - **Planned:** a Byline part — face · name · time — in migration stage 7.
 
 - `initialsFor(name)` and `hueFor(name)` give the same initials and colour where
@@ -80,6 +104,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Shows initials from the name when there is no picture, or when it fails to load | an `onError`, or initials of your own |  |
+| Shows a robot for an agent (`bot`) when there is no picture | a robot icon of your own, or a check of the name |  |
 
 ## Props
 

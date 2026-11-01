@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.97.0 — 2026-11-01
+
+Katerina, 1 November: an agent's face. Agents answer in every app, and each
+showed a letter on a colour, as a person does ("C" for "Claude (steered by
+…)"). Now an agent's face is a robot on lime. An app sees it once it passes
+the profile's `bot` to the faces it draws; until then nothing changes.
+
+### Added
+
+- **`Avatar`'s `bot`**: a robot on lime in place of the initials, for a
+  profile that says it is an agent (NIP-24's `"bot": true`, which Estiva ID
+  publishes for every agent). Its picture still wins; if the picture fails,
+  the robot shows. Take it from the profile, never from the name. The robot
+  is Remix Icon's `robot-2-fill`, one path in the package (Tabler has no solid
+  robot), drawn at 5/8 of the tile so it reads at 16px. Lime is the same in
+  every theme, on the initials' light and shade; no person's colour is near
+  it, nor the urgent mark's yellow. Storybook: People/Avatar, "Agent" and
+  "An agent" on its page.
+- **`bot` wherever a face is drawn**, passed on to the face: `Person`,
+  `PersonTrigger`, an `AvatarGroup` member (so `MembersPill` and the replies
+  row), a `MembersDialog` member and candidate, a `MentionPerson` (the
+  mention menu), a `ConversationPerson` (a comment's, a reply's and a pinned
+  comment's author), and the link parts' `LinkedPerson`, `PickerOption` and
+  `LinkedProfile` (`linkedFrom` carries it from the profile). Storybook:
+  People/MembersDialog "With an agent"; the mention menu lists an agent.
+
 ## 0.96.0 — 2026-11-01
 
 Katerina, 28 October to 1 November: one conversation in every app. Peek's
