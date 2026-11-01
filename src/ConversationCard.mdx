@@ -13,7 +13,8 @@ One comment, the same in every app: who, when, the words, files, cards, reaction
 
 - **A comment** in any conversation: in the comments beside a page, or filling the page with its thread beside it (**ConversationLayout**).
 - `own` on yours: Edit (with `editor`) and Delete (with `onDelete`) in its menu. The card asks before it deletes.
-- `resolved`: folded. "✓ Resolved" by the time, with who, when and the note on hover; "Person two → the note · time" above its replies row. While its thread is closed, the words fold to their first line, without files or reactions; open, it is whole.
+- `resolved`: "✓ Resolved" by the time, with who, when and the note on hover; "Person two → the note · time" above its replies row. Nothing of the comment is hidden: its words, cards, files and reactions stay.
+- `noun`: what the delete question calls it, "Delete this comment?" by default; a direct message says `message`.
 - `about` on a comment on a part of the page: a **QuotedLine** under the name, above the words.
 - `isNew`, `urgent`: the dot or the urgent mark, and a hairline, until it is read.
 
@@ -65,7 +66,7 @@ import { ConversationCard } from '@estiva-app/ui'
 | Shows its actions while pointed at, and holds them while a menu is open | hover state and an outside-click check |  |
 | Asks before it deletes | a confirm dialog |  |
 | Opens the Resolve dialog, and closes it once resolved | a dialog and its open state |  |
-| Says it is resolved, with who and the note, and folds it while its thread is closed | a resolved line or chip of your own |  |
+| Says it is resolved, with who and the note, and hides nothing of it | a resolved line or chip of your own |  |
 
 ## Props
 

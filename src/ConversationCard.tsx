@@ -76,11 +76,16 @@ export interface ConversationCardProps extends ConversationEntryProps {
   /** Reply: offered on the strip. */
   onReply?: () => void
   /**
-   * Resolved, by whom, with what note and when (`at`, in the app's words). Folded (Katerina, 1 November): "✓ Resolved"
-   * by the time, who and the note on hover; "Person two → the note · time" above the replies row. While its thread is
-   * closed, the words fold to their first line, without files or reactions; open, it is whole.
+   * Resolved, by whom, with what note and when (`at`, in the app's words): "✓ Resolved" by the time, who and the note on
+   * hover; "Person two → the note · time" above the replies row. Nothing of the comment is hidden: its words, cards,
+   * files and reactions stay (Katerina, 1 November: nothing folds, in any app).
    */
   resolved?: { by: string; note?: string; at?: string }
+  /**
+   * What the comment is called in the delete question: "Delete this comment?" by default. A direct message says
+   * `message` (Katerina, 1 November: "comment" reads wrong in a private chat).
+   */
+  noun?: string
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
   /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
@@ -129,7 +134,7 @@ function attentionOf(fresh: boolean, urgent: boolean, inThreadCard: boolean) {
 }
 
 /**
- * Folded (Katerina, 1 November): who resolved it and the note, "Person two → Keeping the first one. · 12:30 PM", in the
+ * Who resolved it and the note (Katerina, 1 November), "Person two → Keeping the first one. · 12:30 PM", in the
  * thread's own line (the dot in the faces' column). No "resolved": the check by the time says it.
  */
 function EndedLine({ by, note, at }: { by: string; note: string; at?: string }) {
@@ -165,18 +170,10 @@ function ResolvedCheck({ by, note, at }: { by: string; note?: string; at?: strin
   )
 }
 
-/**
- * Folded, the words' first line, whatever the app wraps them in (Peek's and Leaf's words come in a box of their own):
- * the cards and pictures among them held back, at either level, then one line, cut with … where the text allows.
- * Text blocks stay: paragraphs, lists, quotes, code.
- */
-const FOLDED_WORDS_CLASSES =
-  '[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden'
-
-/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. `oneLine`: folded, the first line only. */
-function Words({ children, oneLine = false }: { children: ReactNode; oneLine?: boolean }) {
+/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. */
+function Words({ children }: { children: ReactNode }) {
   return (
-    <div className={cn('relative w-full break-words pb-2 pl-8 pr-2 pt-1', oneLine && FOLDED_WORDS_CLASSES)}>
+    <div className="relative w-full break-words pb-2 pl-8 pr-2 pt-1">
       <div className="flex flex-col gap-2 text-body-2 text-text-secondary">{children}</div>
     </div>
   )
@@ -247,11 +244,11 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
 
 /**
  * One comment: who, when, the words, files, cards, reactions, and the way into its replies, with the strip on hover
- * and the ⋯ menu. Resolved, it folds while its thread is closed and says who resolved it and the note.
+ * and the ⋯ menu. Resolved, it says who resolved it and the note; nothing of it is hidden.
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -286,10 +283,6 @@ export function ConversationCard(props: ConversationCardProps) {
   const reply = onReply ?? item?.show
   const marked = selected ?? (item && !item.under ? item.open : undefined)
   const under = !!item?.under
-  // Closed: its thread is not open, under it or beside it (the layout's, or the app's own `selected`).
-  const closed = !inThreadCard && !marked
-  // Folded: resolved, its thread closed, the words' first line only (Katerina, 1 November).
-  const folded = !!resolved && closed
   const repliesRow = replies && replies.count > 0 && (
     <RepliesRow {...replies} onOpen={replies.onOpen ?? (under ? item?.toggle : undefined)} open={replies.open ?? (under && !!item?.open)} urgent={urgent} />
   )
@@ -343,15 +336,15 @@ export function ConversationCard(props: ConversationCardProps) {
                   // Under the name, above the words (Katerina, 1 November).
                   <div className="relative w-full pl-8 pr-2 pt-0.5">{about}</div>
                 )}
-                <Words oneLine={folded}>
+                <Words>
                   {children}
                 </Words>
               </>
             )}
-            {!deleted && files && !folded && (
+            {!deleted && files && (
               <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">{files}</div>
             )}
-            {!folded && <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />}
+            <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />
             {resolved?.note && (
               // Who resolved it and the note, above the way into the replies; the check by the time says "Resolved" (Katerina, 1 November).
               <div className="relative w-full pb-1">
@@ -409,7 +402,7 @@ export function ConversationCard(props: ConversationCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title="Delete this comment?" confirmLabel="Delete comment" destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
+        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
           <p>{deleteNote ?? 'It is deleted for everyone.'}</p>
           {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
         </ConfirmDialog>

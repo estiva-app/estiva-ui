@@ -24,7 +24,7 @@ type Story = StoryObj<typeof meta>
 /** Two paragraphs in RichText's own box, as an app's words come. */
 const RICH = [
   { type: 'paragraph' as const, inline: [{ text: WORDS, marks: [] }] },
-  { type: 'paragraph' as const, inline: [{ text: 'A second paragraph, held back while it is folded.', marks: [] }] },
+  { type: 'paragraph' as const, inline: [{ text: 'A second paragraph: a resolved comment shows all of it.', marks: [] }] },
 ]
 
 /** A card that answers: its reactions, resolve, edit and delete change it, as an app's would. */
@@ -91,10 +91,10 @@ export const Urgent: Story = { render: (args) => <Live {...args} isNew urgent re
 /** A person named in the words, and a link. */
 export const WithMentions: Story = { name: 'Mentions', render: (args) => <Live {...args}><Mentions /></Live> }
 
-/** Resolved, folded: "Resolved" by the time, who and the note above its replies; closed, its words in one line, its reactions and files held back. */
+/** Resolved: "Resolved" by the time, who and the note above its replies; its words, reactions and files all stay. */
 export const Resolved: Story = { render: (args) => <Live {...args} start={SOME} resolvedAt={{ by: 'Person two', note: 'Keeping the first one.' }} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} /> }
 
-/** Resolved, its words in a box of their own, as the apps draw them (RichText here): folded, still their first line. */
+/** Resolved, its words in a box of their own, as the apps draw them (RichText here): all of them shown. */
 export const ResolvedInABox: Story = {
   name: 'Resolved, words in a box',
   render: (args) => (

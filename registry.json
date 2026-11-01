@@ -2662,7 +2662,13 @@
           "name": "resolved",
           "takes": "{ by: string; note?: string; at?: string }",
           "required": false,
-          "note": "Resolved, by whom, with what note and when (`at`, in the app's words)."
+          "note": "Resolved, by whom, with what note and when (`at`, in the app's words): \"✓ Resolved\" by the time, who and the note on hover; \"Person two → the note · time\" above the replies row."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the comment is called in the delete question: \"Delete this comment?\" by default."
         },
         {
           "name": "onResolve",
@@ -2823,9 +2829,7 @@
       "storyId": "conversation-conversationcard--comment",
       "docPage": "src/ConversationCard.mdx",
       "app": null,
-      "looks": [
-        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
-      ]
+      "looks": []
     },
     {
       "name": "ConversationLayout",
@@ -8644,9 +8648,7 @@
       "storyId": "conversation-replycard--reply",
       "docPage": "src/ReplyCard.mdx",
       "app": null,
-      "looks": [
-        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
-      ]
+      "looks": []
     },
     {
       "name": "ResolveDialog",

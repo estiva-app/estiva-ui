@@ -71,7 +71,7 @@ describe('ConversationCard', () => {
     expect(onResolve).toHaveBeenCalledWith('Going with the first one')
   })
 
-  it('folds when resolved: the check by the time, who and the note above its replies, its reactions held back, and still opens its thread on a press', async () => {
+  it('resolved: the check by the time, who and the note above its replies, nothing of it hidden, and still opens its thread on a press', async () => {
     const user = userEvent.setup()
     const onClick = vi.fn()
     render(
@@ -79,13 +79,13 @@ describe('ConversationCard', () => {
         Words
       </ConversationCard>,
     )
-    // Folded (Katerina, 1 November): "✓ Resolved" by the time, and "Person two → Done." above its replies, with no "resolved";
-    // closed, its words in one line and its reactions wait.
+    // "✓ Resolved" by the time, and "Person two → Done." above its replies, with no "resolved"; its words and its reactions
+    // stay (Katerina, 1 November: nothing folds).
     expect(screen.getByText('Resolved')).toBeTruthy()
     expect(screen.getByText('Person two')).toBeTruthy()
     expect(screen.getByText('Done.')).toBeTruthy()
     expect(screen.queryByText(/Person two resolved/)).toBeNull()
-    expect(screen.queryByRole('button', { name: /👍/ })).toBeNull()
+    expect(screen.getByRole('button', { name: /👍/ })).toBeTruthy()
     await user.click(screen.getByText('Words'))
     expect(onClick).toHaveBeenCalledOnce()
   })
