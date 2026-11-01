@@ -25,3 +25,6 @@ export const Cut: Story = { args: { omitted: 0, cut: true } }
 
 /** Both. */
 export const Both: Story = { args: { cut: true } }
+
+/** While older comments are still read: nothing to say yet, and the line's room kept, unseen, so nothing moves when the rest lands. */
+export const KeepsRoom: Story = { name: 'Keeps its room', args: { omitted: 0, keepRoom: true } }

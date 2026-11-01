@@ -12,6 +12,7 @@ The line that says reactions are read only so far back, and how many older comme
 ## When
 
 - Under a long conversation, when the app stopped reading reactions before the oldest comment.
+- `keepRoom`, while only the newest comments are read and the whole read will need the line: its room is kept, unseen, so the comments do not move up when the rest lands.
 
 ## When not
 
@@ -27,6 +28,7 @@ import { ReactionHorizon } from '@estiva-app/ui'
 
 - `limit`, `omitted` and `cut` are the app's to count.
 - `noun` is what the app calls what is said, in the plural: "messages" in Peek. "comments" by default.
+- `keepRoom` is the app's to know: more is coming and it will be past `limit`. Nothing to draw a second, invisible line for.
 
 ## What it owns
 
