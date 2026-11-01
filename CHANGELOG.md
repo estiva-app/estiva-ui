@@ -1,5 +1,151 @@
 # Changelog
 
+## 0.99.0 — 2026-11-02
+
+What Peek still built by hand, moved into the kit for every app (Katerina, 2 November, on the audit "What Peek still
+makes by hand": B1, B8, B10, B14 and C1–C19). An app that passes nothing new sees nothing change, except: every
+editor paints the words you select (Ship and Leaf showed the browser's own colour), and Cancel waits while a dialog
+that sends a form is sending.
+
+### Added
+
+- **Where a conversation scrolls is the kit's** (two columns, `ConversationLayout threads="beside"`). It opens at the
+  newest comment, follows what arrives only while the reader is at the bottom (within 80px), goes down to the
+  reader's own comment as it is sent from the layout's `box` (a refusal leaves them where they are), and holds still
+  while cards and pictures fill in. Peek's, moved: an app keeps no place of its own in `bodyRef` any more.
+- **`ConversationLayout`'s `rememberAs`**: the conversation's own name (its address). Going back to it in this tab lands
+  where it was left: at the newest if it was left there, else on the same comment. **`useLeftAt(name)`** says when the
+  reader left it away from the newest, for the app's "New" line in `before`.
+- **A thread opens at its newest reply** (`Thread`, beside), goes to each new `ReplyCard` drawn in it, and stays at
+  the bottom while its cards fill in. A line of the app's own among the replies takes it nowhere.
+- **`useSeenOnScreen(key)`**, handed to `ConversationLayout`'s or `Thread`'s **`seen`**: which comments or replies
+  have been on screen a moment (half the card, or 120px of a taller one, for 1.5 seconds, in a tab that is not
+  hidden). What reads them. Peek's, moved.
+- **`showInConversation(id)`** and **`showInConversationWhenDrawn(id)`**: a link to a reply or to a thread's comment
+  scrolls it to the middle and flashes it in the accent's wash, fading over 1.8s (Peek's cited flash, moved, held
+  still for a reader who asks for less motion). `false` when it is not drawn; the second waits for it, every 50ms, up
+  to 3 seconds. `{ comments: true }` looks among a layout's comments too.
+- **`ReplyCard`'s `id`**: on the card as `data-reply-id`, what a link shows and what `Thread` watches. An app draws no
+  wrapper of its own round a reply to carry it.
+- **`at`** on `ConversationCard`, `ReplyCard` and `PinnedComment` (a `Thread`'s `start.at`): its moment, in ms. The
+  time then says the exact date and time under the pointer, in the reader's own way. A time that is a link says it,
+  then the link's words ("… · Link to this").
+- **`ConversationLayout`'s `aside`**: what the 384px column holds while no thread is open, the page's own panel (an
+  overview). The column now catches what throws in it ("Something went wrong in the thread panel."), and the comments
+  stay.
+- **A comment's `thread` may be a function**, called only while it is the open one: for an app that builds only the
+  open thread.
+- **`ReactionHorizon`'s `keepRoom`**: while older comments are still read and the whole read will need the line, its
+  room is kept, unseen, so nothing moves when the rest lands.
+- **`useRememberedOpen(storageKey, fallback)`**: open or closed as this
+  browser remembers it, the memory `CollapsibleSection`'s `storageKey` keeps,
+  in the same words, known on the first draw. For a fold whose rows are read
+  only once it opens (Peek's Folders): hand the pair to `open` and
+  `onOpenChange`. `fallback` decides until the reader does, and stays live;
+  only the reader's choice is remembered. `CollapsibleSection` keeps its
+  memory through it, unchanged.
+- **`NavTree`'s `selectedGroup`**: the group a link led to, a folder's own
+  link. Each time it names a new group, the group opens, closed by hand too,
+  and the column scrolls to it at once. It marks nothing. Groups the app draws
+  itself take `openFor` on their `NavTreeSection`; the scroll is the tree's.
+- **`NavItem`'s `onPlainClick`**: a row the app opens its own way, beside the
+  list or in place, runs it on a plain click only; the link is not followed,
+  and `navigate` is not called. Ctrl, Cmd, Shift, Alt and the middle button
+  stay the link's, a new tab.
+- **`isPlainClick(event)`**: the test every link part makes before it keeps a
+  click in the app (the main button, no Ctrl, Cmd, Shift or Alt), for an app
+  that still handles a link's click itself.
+- **`EmptyState`'s `scope="rows"`**: the section line in place of a sidebar's
+  rows, in a row's inset (8px in, 4px over and under), so it starts where a
+  row does. `NavTree` says its own lines with it, pixel for pixel as before.
+- **`NAV_TREE_PENDING_MS`** (2s), how long a pending group waits.
+- **`FormDialog`**: a dialog that sends a form. The words and fields you give
+  it, then Cancel and the button that sends it (`submitLabel`, `busyLabel`
+  while it sends, `ready` for when there is enough to send). While it sends,
+  the fields and both buttons wait; a send that went through closes it, and an
+  answer of `false` (or a throw) keeps it open. What Peek's Archive, New
+  folder, Move and Start a topic each wired by hand, with their look.
+- **`MoveDialog`**: Peek's Move, in the kit. The Folder first, then what it
+  goes under there, read when the Folder is picked (`placesIn`), once; only
+  moves that do something are offered, and nothing is chosen for the person
+  but the top, when asked (`startAtTop`). The app passes its words
+  (`description`, and `heading`, `folderLabel`, `noFolder`, `topLabel` where
+  they differ) so Leaf's and Ship's moves can use it too.
+- **`ArchiveDialog`**: Peek's Archive question, in the kit. What goes with it,
+  counted, what stays visible elsewhere, and an optional resolution. The app
+  passes the apps it goes out of (`apps`) and its last line (`getBack`).
+- **`ConfirmDialog`'s `alternative`**: a third, safer answer — "Archive
+  instead" — drawn after the words under its sentence, as Peek's delete
+  question has it. It waits while the confirm runs, as Cancel does.
+- **`EditableText`'s `manner="buttons"`**: the text with a button beside it
+  ("Rename", or `addLabel` with a plus while it is empty), then a field with
+  Save and Cancel, and what happened said under it. `onCommit` may answer an
+  outcome (`{ kind: 'error' | 'warning', message }`); `required`, `clean`,
+  `draftNote`, `fieldPlaceholder` and `defaultEditing` are for it. Escape
+  abandons the edit and nothing else. Peek's Details, drawn exactly.
+- **`ChipInput`'s `single`**: a field that holds one, an owner, say. A later
+  pick replaces the chosen one rather than adding a second.
+- **`EmptyState`'s `action` on a `section`**: the one thing to do about it, at
+  the end of the line, the package's Button, muted. A part that could not be
+  read says so as the empty line beside it does, with its Try again.
+- **`ConversationPlace`**: above a conversation shown away from where it was
+  said, how it is related and where — a neutral `Chip` with the app's words
+  (`relation`, "Mentioned in") and the place's name beside it (`place`, cut to
+  the column), the card under them as `children`, 4px below. A place not
+  named yet is drawn as nothing, never a placeholder. Peek's Activity row,
+  moved as Peek draws it: pixel for pixel the same in Signal. Ship keeps its
+  own "Mentioned in" line until it takes this.
+- **`DocumentField`** (`@estiva-app/ui/editor`): a document written in a form —
+  a description filed from a form. `DocumentEditor`'s blocks, marks, `[`, `@`
+  and `/` (no Table, no upload) in a field's box, the same fill, edge, corners,
+  hover, focus and height as a `Textarea` of three rows beside it. It is the
+  form's: every edit goes to `onChange` as it is typed (`''` once emptied),
+  nothing is saved on leaving, and Ctrl/Cmd+Enter sends the form around it. A
+  value from outside (a prefill) loads as the document it is; its own edits
+  coming back late are never loaded over newer typing. Peek's `ProseField`,
+  moved, on the kit's grammar and the kit's field look.
+- **`Card`'s `onPress`**: a card that opens what it stands for on a press —
+  anywhere on it but on a button, link or field inside it, never on a menu it
+  opened (outside it in the page), a double click or picked words — and from
+  the keyboard: Tab stops on it, Enter or Space opens it. `ConversationCard`'s
+  press, now every card's; `ConversationCard` uses it, unchanged.
+- **`AttachedCard`'s `remember`** (`{ memory, id }`, the app's
+  `cardShapeMemory` and the card's address): the card measures itself, notes
+  its shape and height (again 500ms after a resize settles; a card measured at
+  0, not on screen, keeps the height it had), and while it loads next time
+  holds that height and draws its placeholder in that shape, so nothing around
+  it moves. Peek's and Ship's `MessageCard` did this by hand, with these
+  timings. Without `remember`, nothing changes.
+
+### Changed
+
+- **A two-column conversation opens at its newest comment, and a thread at its newest reply**, in every app. Before,
+  the kit opened both at their oldest and left the rest to the app (only Peek uses them, and did it by hand).
+- **`ConversationLayout`'s two-column `bodyRef` and `onBodyScroll`** only read the box now: the layout owns where it scrolls.
+- **A `NavTreeSection` still `pending` after 2 seconds opens on the skeleton**
+  by itself, until its rows are in (Peek's Folders' own timer, moved in). Only
+  Peek passes `pending`; Ship and Leaf see nothing change.
+- **Cancel waits while a form dialog sends** (decided once, for every form
+  dialog). Nothing can stop a send under way, so a Cancel then would close
+  over a write still running, and its answer would have nowhere to land.
+  `ResolveDialog` waits so now; `ConfirmDialog` and Peek's Archive already did.
+- **`ResolveDialog` is a `FormDialog`**: a resolve that went through closes it
+  (through `onCancel`), and Cancel waits while it resolves. It looks the same.
+- **Every editor paints the words you select in the selected colour**
+  (`bg-selected`): `CommentBox`, `DocumentEditor` and `InlineText`, as the
+  selection strip's kept selection paints them. Peek painted it itself (its
+  `.tiptap ::selection` rule), so nothing changes there. **Ship and Leaf**
+  showed the browser's own selection colour in their editors: when they bump,
+  selected words take their theme's `bg-selected` — Ship's accent at 16%, Leaf's
+  light grey `#e5e5e6`.
+
+### Fixed
+
+- **A comment box closed from the start builds no editor** to say why
+  nothing can be written: the lock line alone, drawn exactly as before. A box
+  that was open and is closed keeps its editor, and what was written in it, for
+  when it opens again.
+
 ## 0.98.1 — 2026-11-01
 
 Two things an independent review of Peek's adoption found (Katerina, 1
