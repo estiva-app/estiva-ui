@@ -72,9 +72,30 @@ describe('EmptyState', () => {
     expect(clicked).toBe(1)
   })
 
-  it('a section takes no action', () => {
-    render(<EmptyState scope="section" message="Nothing here yet." action={{ label: 'Add', onClick: () => {} }} />)
-    expect(screen.queryByRole('button')).toBeNull()
+  it('a section carries its action at the end of its line, as the package Button, muted (Katerina, 2 November)', () => {
+    let clicked = 0
+    const { container } = render(
+      <EmptyState scope="section" message="Steer could not be read." action={{ label: 'Try again', onClick: () => (clicked += 1) }} />,
+    )
+    const line = screen.getByText('Steer could not be read.')
+    const button = screen.getByRole('button', { name: 'Try again' })
+    // The line keeps its quiet look, so a failure reads as the empty line beside it does.
+    expect(line.className.split(' ')).toEqual(expect.arrayContaining(['text-caption', 'text-text-muted']))
+    // One row: the line, then the button at its end, centred on each other.
+    const row = container.firstElementChild!
+    expect(row.className.split(' ')).toEqual(expect.arrayContaining(['flex', 'items-center', 'justify-between', 'gap-2']))
+    expect(line.parentElement).toBe(row)
+    expect(line.nextElementSibling).toBe(button)
+    // Muted, the default size: the quiet button a section's line sits beside, not a page's outlined one.
+    expect(button.className).not.toContain('border-border-default')
+    expect(button.className).toContain('h-8')
+    fireEvent.click(button)
+    expect(clicked).toBe(1)
+  })
+
+  it('a section with an action takes the caller’s placement on its row', () => {
+    const { container } = render(<EmptyState scope="section" className="mt-1" message="Steer could not be read." action={{ label: 'Try again', onClick: () => {} }} />)
+    expect(container.firstElementChild!.className).toContain('mt-1')
   })
 })
 

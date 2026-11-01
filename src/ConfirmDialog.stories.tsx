@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
+import { userEvent, within } from 'storybook/test'
 import { Button } from './Button'
 import { ConfirmDialog } from './ConfirmDialog'
 
@@ -72,4 +73,30 @@ export const DeleteAComment: Story = {
 export const DeleteAReply: Story = {
   name: 'Delete a reply',
   args: { title: 'Delete this reply?', confirmLabel: 'Delete reply', children: 'It goes from the thread for everyone.' },
+}
+
+const ARCHIVE_INSTEAD = {
+  label: 'Archive instead',
+  sentence: 'To take it out of every list and keep it readable, archive it instead.',
+  onClick: () => {},
+}
+
+/** A third, safer answer under the words: archive it rather than lose it. The question it opens takes this one's place. */
+export const WithAnAlternative: Story = {
+  name: 'With an alternative',
+  args: {
+    title: 'Delete?',
+    confirmLabel: 'Delete',
+    children: 'It goes from every list for everyone, and cannot be brought back.',
+    alternative: ARCHIVE_INSTEAD,
+  },
+}
+
+/** Delete pressed and still running: all three answers wait, the safer one too. */
+export const AlternativeWaits: Story = {
+  name: 'Alternative waits while it deletes',
+  args: { ...WithAnAlternative.args, onConfirm: () => new Promise<void>(() => {}) },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement.ownerDocument.body).getByRole('button', { name: 'Delete' }))
+  },
 }

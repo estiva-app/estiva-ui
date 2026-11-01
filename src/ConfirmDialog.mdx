@@ -15,6 +15,10 @@ back. Built on DialogShell; the body is plain sentences in `body-2`.
 - Before a deletion, an archive, a handover — anything hard to undo. The
   confirm button is `destructive` when the action is.
 - A non-destructive but consequential step confirms with `primary`.
+- A safer way out than the confirm — archive rather than delete → give it as
+  `alternative`: its sentence and an outlined button after the words.
+
+<Canvas of={ConfirmDialogStories.WithAnAlternative} />
 
 ## When not
 
@@ -41,7 +45,24 @@ import { ConfirmDialog } from '@estiva-app/ui'
 )}
 ```
 
-- While `onConfirm` runs, both buttons wait. Resolving `false` keeps the
+- `alternative` is `{ label, sentence, onClick }`. Its button sits under its
+  sentence, after your words, and waits while the confirm runs, as Cancel does.
+  It closes nothing: open what it leads to, and that takes this one's place.
+
+```tsx
+<ConfirmDialog
+  title="Delete?"
+  confirmLabel="Delete"
+  destructive
+  alternative={{ label: 'Archive instead', sentence: 'To take it out of every list and keep it readable, archive it instead.', onClick: openArchive }}
+  onConfirm={() => remove()}
+  onClose={close}
+>
+  <p>It goes for everyone.</p>
+</ConfirmDialog>
+```
+
+- While `onConfirm` runs, every answer waits. Resolving `false` keeps the
   dialog open — your surface has said why; a resolved `void`/`true`
   closes it.
 - **Escape cancels; a press on the backdrop does not.** This is Base UI's

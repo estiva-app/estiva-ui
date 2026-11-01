@@ -20,14 +20,19 @@ edit is never silently lost.
   form.
 - A reader who cannot write gets `readOnly` — the value without the edit
   affordance, because an action appears only where it can succeed.
+- **An edit to confirm, in a dialog** — a file's name or summary in its
+  Details → `manner="buttons"`: the text with a button beside it ("Rename"),
+  then a field with Save and Cancel, and what happened said under it.
+
+<Canvas of={EditableTextStories.ButtonsName} />
 
 ## When not
 
 - A field in a form or dialog → **TextInput** / **Textarea** in a
   **Field**.
 - Composing something new → the field, not an edit-in-place of nothing.
-- An edit that publishes something, like a message → **Textarea** with Save
-  and Cancel. EditableText saves when you leave it.
+- An edit that publishes something, like a message → **CommentBox**, which
+  edits in place with its own Save and Cancel.
 
 ## How
 
@@ -62,6 +67,44 @@ import { EditableText } from '@estiva-app/ui'
 
 - **Planned:** rich text edited where it is shown (UIG-30).
 
+### `manner="buttons"`
+
+```tsx
+<EditableText
+  manner="buttons"
+  label="Name"
+  value={title}
+  placeholder="Untitled"
+  editLabel="Rename"
+  required
+  onCommit={async (next) => (await rename(next)) ?? true}
+/>
+```
+
+- Leaving the field saves nothing: Save does, and Enter in a one-line field;
+  in a `multiline` one Enter is a new line and Ctrl+Enter saves. Escape, or
+  Cancel, abandons the edit — and only the edit: a dialog around it stays for a
+  second Escape.
+- `onCommit` answers `true` (saved), `false` (refused, you have said why), or
+  an outcome: `{ kind: 'error', message }` keeps the field open with the text
+  and says why under it; `{ kind: 'warning', message }` saved, and says so under
+  the text. A throw is an `error` in its own words. Changing a refused text
+  takes the reason away, and a refused text can be sent again as it is.
+- One line: the field, Save and Cancel in one row. `multiline`: Save and Cancel
+  under the field, and `draftNote` between them — a count past a limit.
+- `editLabel` is the button's words ("Edit" when absent); `addLabel` its words
+  while the value is empty, with a plus. `fieldPlaceholder` is the field's own;
+  `placeholder` is what shows, muted, when there is nothing.
+- `required`: an empty value cannot be saved. `clean`: what a draft becomes
+  before it is compared and saved, trimmed when absent — one line for a summary.
+- `defaultEditing` opens it as the field, holding the value: a menu's Rename.
+- **Its size is its own here**, body-2, the size of the field beside it; `className`
+  places the whole.
+
+<Canvas of={EditableTextStories.ButtonsSummary} />
+
+<Canvas of={EditableTextStories.ButtonsRefused} />
+
 ## What it owns
 
 It does these by itself. Write none of them around it.
@@ -70,6 +113,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Opens its field on a click, with the value selected | an edit mode of your own |  |
 | Enter and leaving the field save; Escape cancels and puts the value back (`multiline`: Shift+Enter is a new line) | key or blur handlers |  |
+| `buttons`: Save, Enter (Ctrl+Enter when `multiline`) save; Escape and Cancel abandon the edit without closing the dialog around it; it waits while it saves and says what happened under it | key handlers, a busy state, or an outcome line |  |
 
 ## Keys
 
@@ -79,6 +123,9 @@ It does these by itself. Write none of them around it.
 | Enter | commits (`multiline`: Shift+Enter is a new line) |
 | Escape | cancels, restores the value |
 | blur | commits |
+| `buttons`: Enter | saves (`multiline`: a new line; Ctrl+Enter saves) |
+| `buttons`: Escape | abandons the edit; the dialog around it stays |
+| `buttons`: blur | nothing |
 
 ## Props
 

@@ -49,6 +49,13 @@ export const WithAction: Story = {
   decorators: [inBox],
 }
 
+/** A section that could not be read: the same quiet line, with the one thing to do about it at its end. */
+export const SectionWithAction: Story = {
+  args: { scope: 'section', message: 'Steer could not be read.', action: { label: 'Try again', onClick: () => {} } },
+  decorators: [inBox],
+  parameters: sectionContrastDeferred,
+}
+
 /** One box, written once, holding the rows or the empty state: its padding places both, so the line starts where the first row does. */
 export const InsideTheRowsBox: Story = {
   args: { scope: 'section' },

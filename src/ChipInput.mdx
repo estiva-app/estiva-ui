@@ -16,6 +16,10 @@ leading slots.
 
 - Choosing several entries from a directory: members for a group,
   recipients, tags.
+- **One** entry from a directory too large to list, found by typing — an
+  owner, an assignee: `single`. A later pick replaces the chosen one.
+
+<Canvas of={ChipInputStories.OnePerson} />
 - **InputChip** is exported on its own for the display-only case — chosen
   things shown somewhere no editing happens.
 
@@ -23,7 +27,7 @@ leading slots.
 
 ## When not
 
-- One value → **Select**.
+- One value from a list short enough to read through → **Select**.
 - Free text that becomes an entry — it only picks from `options`; if
   typing must create things, that is your surface's logic around it.
 
@@ -51,6 +55,8 @@ const directory: { id: string; label: string; picture?: string }[] = people
 - `chipLeading` is 16px in a chip; `rowLeading` is 32px in a suggestion
   row. The chip's padding follows its contents — a face sits 2px from the
   edge, a bare label gets 8px.
+- `single` holds one: a pick replaces the chip already there, and `onChange`
+  hands back a list of one (or none, after Backspace or the ✕).
 - Suggestions appear **only once the user types** — focusing must not drop
   the whole directory over the surface below.
 - It is a **combobox over a listbox**: focus stays in the text while the
