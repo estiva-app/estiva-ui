@@ -41,7 +41,7 @@ export interface ConversationLayoutProps {
   items: readonly ConversationItem[]
   /** The id of the comment whose thread is open. */
   open?: string
-  /** Two columns: what the 384px column holds while no thread is open, the page's own panel beside its comments (Peek's Overview). Nothing: no column. */
+  /** Two columns: what the 384px column holds while no thread is open, the page's own panel beside its comments (an overview). Nothing: no column. */
   aside?: ReactNode
   /**
    * A comment asks to open or close its thread: a press anywhere on its card, its replies row, or Reply. In one column
