@@ -48,7 +48,7 @@ const WRITTEN = JSON.stringify({
 function Held({ start = '', ...props }: Partial<DocumentFieldProps> & { start?: string }) {
   const [held, setHeld] = useState({ value: start, format: 'blocks' })
   return (
-    <div className="flex w-[420px] flex-col gap-3">
+    <div className="flex w-96 flex-col gap-3">
       <Field label="Label">
         <DocumentField
           value={held.value}
@@ -81,7 +81,7 @@ export const InAForm: Story = {
     const [notes, setNotes] = useState('')
     const [body, setBody] = useState({ value: '', format: 'blocks' })
     return (
-      <Form onSubmit={() => setSent((n) => n + 1)} className="w-[420px]">
+      <Form onSubmit={() => setSent((n) => n + 1)} className="w-96">
         <Field label="Label">
           <TextInput value={title} onChange={(event) => setTitle(event.target.value)} placeholder="One line" />
         </Field>
