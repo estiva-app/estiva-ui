@@ -4,7 +4,6 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { ArchivedNotice } from './ArchivedNotice'
-import { Divider } from './Divider'
 import { Panel } from './Panel'
 import { ReactionHorizon } from './ReactionHorizon'
 import { QuotedLine } from './QuotedLine'
@@ -110,8 +109,7 @@ export const TwoColumns: Story = {
 
 /**
  * Two columns, as Peek's file page and DMs: each day's comments under a line naming it, which stays at the top while
- * its stretch scrolls; the "New" line over the first comment not read; the reactions note under the comments. Few
- * comments sit on the box, as a chat does.
+ * its stretch scrolls; the reactions note under the comments. Few comments sit on the box, as a chat does.
  */
 export const TwoColumnsDays: Story = {
   name: 'Two columns, days',
@@ -124,8 +122,8 @@ export const TwoColumnsDays: Story = {
     const items: ConversationItem[] = [
       { id: 'd1', day: 'Monday', card: card(ONE, '9:14 AM', WORDS) },
       { id: 'd2', day: 'Monday', card: card(TWO, '9:40 AM', 'A second comment that Monday.') },
-      { id: 'd3', day: 'Today', card: card(ONE, '8:02 AM', 'The first comment today, read.') },
-      { id: 'd4', day: 'Today', before: <Divider label="New" tone="warning" />, card: card(TWO, '10:21 AM', 'The first comment not read yet.') },
+      { id: 'd3', day: 'Today', card: card(ONE, '8:02 AM', 'The first comment today.') },
+      { id: 'd4', day: 'Today', card: card(TWO, '10:21 AM', 'A second comment today.') },
     ]
     return <ConversationLayout threads="beside" items={items} below={<ReactionHorizon limit={100} omitted={3} />} box={<WriteBox label="Comment" />} />
   },
