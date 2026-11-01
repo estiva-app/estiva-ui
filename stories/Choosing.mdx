@@ -81,7 +81,8 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | Add or delete a table's rows and columns in a document being edited | **EditorTableControls**, from `@estiva-app/ui/editor`, inside the EditorBlockHandle |
 | Offer a link or a comment on one block of a document being read | **BlockHandle** — your rows only, and no Tiptap loaded |
 | Anything with a title, body and footer | **DialogShell** |
-| "Are you sure?" | **ConfirmDialog** |
+| "Are you sure?" | **ConfirmDialog** — a safer third answer as its `alternative` |
+| A dialog that asks for something and then does it: a name, a place | **FormDialog** — Cancel and the sending button wait together, and it closes when the send went through |
 | A picture full screen, from a thumbnail | **Lightbox** — an **AttachmentCard** opens one by itself |
 
 ## A conversation

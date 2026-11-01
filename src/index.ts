@@ -61,6 +61,7 @@ export { Tooltip, TooltipProvider, WithTooltip, type TooltipProps, type TooltipP
 export { Field, FieldLine, type FieldLineProps, type FieldLineTone, type FieldProps } from './Field'
 export { FilePicker, type FilePickerProps } from './FilePicker'
 export { Form, type FormProps } from './Form'
+export { FormDialog, type FormDialogProps } from './FormDialog'
 export { Select, type SelectOption, type SelectProps } from './Select'
 export { TextInput, type TextInputProps } from './TextInput'
 export { Textarea, type TextareaProps } from './Textarea'
