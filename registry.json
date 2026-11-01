@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.95.0",
-    "exports": 210,
-    "typeExports": 213,
+    "packageVersion": "0.96.0",
+    "exports": 229,
+    "typeExports": 234,
     "files": null
   },
   "storybook": {
@@ -207,7 +207,7 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The top bar's menu button, in an app whose navigation collapses."
+          "note": "The top bar's menu button, in place of the fold `onNavOpenChange` draws."
         },
         {
           "name": "logo",
@@ -255,7 +255,7 @@
           "name": "navOpen",
           "takes": "true/false",
           "required": false,
-          "note": "Whether the navigation is shown, in the solid and inset manners."
+          "note": "Whether the navigation is shown. With `onNavOpenChange`, the frame draws the fold as the top bar's menu button (unless `menu` is given), in every manner, and folding narrows and fades the navigation to the content's own margin (LED-3, Katerina, 28 October: the sidebar fold top left, on the top bar's menu button; one fold in every app, with Peek's motion, 31 October)."
         },
         {
           "name": "onNavOpenChange",
@@ -288,6 +288,9 @@
       "docPage": "src/AppShell.mdx",
       "app": null,
       "looks": [
+        "transition-[grid-template-columns] duration-300 ease-in-out motion-reduce:transition-none",
+        "overflow-hidden transition-[opacity,visibility] duration-300 ease-in-out motion-reduce:transition-none visible opacity-100",
+        "overflow-hidden transition-[opacity,visibility] duration-300 ease-in-out motion-reduce:transition-none invisible opacity-0",
         "overflow-hidden rounded-2xl bg-bg-surface signal:border signal:border-border-subtle signal:shadow-highlight-inset"
       ]
     },
@@ -307,6 +310,68 @@
       "docsId": null,
       "storyId": null,
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ArchivedNotice",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ArchivedNotice.tsx",
+      "purpose": "The card an archived file shows: who archived it and when, the resolution they gave, and the way back.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "by",
+          "takes": "text",
+          "required": true,
+          "note": "Who archived it, in the app's words: \"You\", a name."
+        },
+        {
+          "name": "when",
+          "takes": "text",
+          "required": true,
+          "note": "When, in the app's words, with its day: \"Today\", \"Tue, Oct 28\"."
+        },
+        {
+          "name": "resolution",
+          "takes": "text",
+          "required": false,
+          "note": "What they wrote when they archived it."
+        },
+        {
+          "name": "withWhat",
+          "takes": "text",
+          "required": false,
+          "note": "Archived with the closest archived one above it: what that is, \"project\", \"page\", \"Folder\"."
+        },
+        {
+          "name": "withTitle",
+          "takes": "text",
+          "required": false,
+          "note": "The title of the one it is archived with, named in quotes."
+        },
+        {
+          "name": "onUnarchive",
+          "takes": "a handler",
+          "required": false,
+          "note": "Restore it; the button waits for it. Absent when it is archived with one above it, or cannot be restored here."
+        },
+        {
+          "name": "onOpenParent",
+          "takes": "a handler",
+          "required": false,
+          "note": "Open the one it is archived with. Absent while that is still being read."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "status-feedback-archivednotice--docs",
+      "storyId": "status-feedback-archivednotice--archived",
+      "docPage": "src/ArchivedNotice.mdx",
       "app": null,
       "looks": []
     },
@@ -931,7 +996,7 @@
         "rounded-md transition-colors font-sans font-medium",
         "bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold",
         "border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer",
-        "signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors"
+        "border border-border-default bg-transparent text-text-primary shadow-none transition-colors hover:border-success-outline hover:bg-success-muted hover:text-success-default"
       ]
     },
     {
@@ -1105,14 +1170,14 @@
         "rounded-lg border bg-bg-surface border-border-default overflow-hidden",
         "rounded-lg border bg-bg-surface border-border-default border-dashed",
         "rounded-lg border bg-bg-surface border-border-default border-dashed overflow-hidden",
-        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted",
-        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted overflow-hidden",
-        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted border-dashed",
-        "rounded-lg border bg-bg-surface border-border-default border-accent-muted hover:border-accent-muted border-dashed overflow-hidden",
-        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted",
-        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted overflow-hidden",
-        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed",
-        "rounded-lg border bg-bg-surface border-border-default border-warning-muted hover:border-warning-muted border-dashed overflow-hidden"
+        "rounded-lg border bg-bg-surface border-border-default border-accent-outline hover:border-accent-outline",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-outline hover:border-accent-outline overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-outline hover:border-accent-outline border-dashed",
+        "rounded-lg border bg-bg-surface border-border-default border-accent-outline hover:border-accent-outline border-dashed overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-outline hover:border-warning-outline",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-outline hover:border-warning-outline overflow-hidden",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-outline hover:border-warning-outline border-dashed",
+        "rounded-lg border bg-bg-surface border-border-default border-warning-outline hover:border-warning-outline border-dashed overflow-hidden"
       ]
     },
     {
@@ -1122,6 +1187,25 @@
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/linked.ts",
       "purpose": "The device's memory of the shapes its cards drew at, under the app's own `storageKey`, keeping the newest `limit`.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "caretOnOpen",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/threadCard.ts",
+      "purpose": "Counts the times a thread has opened in a ConversationLayout.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
@@ -2468,6 +2552,471 @@
       ]
     },
     {
+      "name": "ConversationActions",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationActions.tsx",
+      "purpose": "The strip on a comment or a reply while it is pointed at: React, Reply, Resolve or Reopen, and ⋯, each drawn only when offered.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "options",
+          "takes": "readonly ReactionOption[]",
+          "required": false,
+          "note": "The reactions on offer: with `onReact`, \"React\" opens them over the strip."
+        },
+        {
+          "name": "onReact",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onReply",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "resolved",
+          "takes": "true/false",
+          "required": false,
+          "note": "Resolved: the strip offers Reopen in place of Resolve."
+        },
+        {
+          "name": "onResolve",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onReopen",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onPickerOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": "Told when the reactions open and close, so a card can keep its strip while they are up."
+        },
+        {
+          "name": "more",
+          "takes": "anything",
+          "required": false,
+          "note": "The ⋯ menu: a `ConversationMenu` whose trigger is a `ToolbarButton`, so the strip stays one Tab stop."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only: `absolute right-1 top-1`."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationactions--docs",
+      "storyId": "conversation-conversationactions--comment",
+      "docPage": "src/ConversationActions.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ConversationCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationCard.tsx",
+      "purpose": "One comment, the same in every app: who, when, the words, files, cards, reactions and the way into its replies, with the actions on hover and the ⋯ menu.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "deleted",
+          "takes": "true/false",
+          "required": false,
+          "note": "Deleted: \"This comment was deleted.\", and its replies stay."
+        },
+        {
+          "name": "replies",
+          "takes": "Omit<RepliesRowProps, 'urgent'>",
+          "required": false,
+          "note": "Its thread: how many replied, their faces, the last time, and whether one is new."
+        },
+        {
+          "name": "onReply",
+          "takes": "a handler",
+          "required": false,
+          "note": "Reply: offered on the strip."
+        },
+        {
+          "name": "resolved",
+          "takes": "{ by: string; note?: string; at?: string }",
+          "required": false,
+          "note": "Resolved, by whom, with what note and when (`at`, in the app's words)."
+        },
+        {
+          "name": "onResolve",
+          "takes": "a handler",
+          "required": false,
+          "note": "Resolve, with the note written in the dialog the card opens."
+        },
+        {
+          "name": "resolveRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`)."
+        },
+        {
+          "name": "onReopen",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "selected",
+          "takes": "true/false",
+          "required": false,
+          "note": "The one open beside its thread."
+        },
+        {
+          "name": "onClick",
+          "takes": "a handler",
+          "required": false,
+          "note": "A press on the card: its thread opens."
+        },
+        {
+          "name": "author",
+          "takes": "ConversationPerson",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "time",
+          "takes": "anything",
+          "required": true,
+          "note": "When it was written, in the app's words (\"11:08 AM\")."
+        },
+        {
+          "name": "timeHref",
+          "takes": "text",
+          "required": false,
+          "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
+        },
+        {
+          "name": "edited",
+          "takes": "text",
+          "required": false,
+          "note": "When it was last edited, in the app's words for the tooltip (\"Edited 11:20 AM\"): draws \"(edited)\"."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The words, as the app draws them: text, mentions, links, attached cards, quoted blocks."
+        },
+        {
+          "name": "about",
+          "takes": "anything",
+          "required": false,
+          "note": "What it is about, a `QuotedLine` for a comment on a part of the page: under the name, above the words."
+        },
+        {
+          "name": "files",
+          "takes": "anything",
+          "required": false,
+          "note": "Pictures and files: `AttachmentCard`s, laid out under the words."
+        },
+        {
+          "name": "reactions",
+          "takes": "ReactionRowProps",
+          "required": false,
+          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too."
+        },
+        {
+          "name": "reactionRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last reaction was refused, in plain words: said under the reactions."
+        },
+        {
+          "name": "isNew",
+          "takes": "true/false",
+          "required": false,
+          "note": "Not read yet: the dot, or the urgent mark with `urgent`, and the card's edge in the theme's colour."
+        },
+        {
+          "name": "urgent",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "own",
+          "takes": "true/false",
+          "required": false,
+          "note": "It is yours: the menu offers Edit (with `editor`) and Delete (with `onDelete`)."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Nothing can be changed (an archived page): no strip, reactions only shown."
+        },
+        {
+          "name": "editor",
+          "takes": "a handler",
+          "required": false,
+          "note": "The box it is edited in, the app's `CommentBox` edit form; call `done` when it saves or cancels."
+        },
+        {
+          "name": "editing",
+          "takes": "true/false",
+          "required": false,
+          "note": "Being edited, when the app holds it (an edit that was refused opens again)."
+        },
+        {
+          "name": "onEditingChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onDelete",
+          "takes": "a handler",
+          "required": false,
+          "note": "Delete, after the card has asked."
+        },
+        {
+          "name": "deleteNote",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's sentence in the delete question, what deleting does there."
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationcard--docs",
+      "storyId": "conversation-conversationcard--comment",
+      "docPage": "src/ConversationCard.mdx",
+      "app": null,
+      "looks": [
+        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
+      ]
+    },
+    {
+      "name": "ConversationLayout",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationLayout.tsx",
+      "purpose": "Where a conversation's cards sit: two columns, or one 384px column beside the page.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "threads",
+          "takes": "beside | under",
+          "required": true,
+          "note": "Where an open thread stands. `beside`, two columns: the comments fill the page, the thread stands in the 384px column beside them."
+        },
+        {
+          "name": "items",
+          "takes": "readonly ConversationItem[]",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "open",
+          "takes": "text",
+          "required": false,
+          "note": "The id of the comment whose thread is open."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": "A comment asks to open or close its thread: a press anywhere on its card, its replies row, or Reply."
+        },
+        {
+          "name": "box",
+          "takes": "anything",
+          "required": false,
+          "note": "The box a new comment is written in, under the comments."
+        },
+        {
+          "name": "above",
+          "takes": "anything",
+          "required": false,
+          "note": "Above the comments, inside their list: a `ReactionHorizon`, a note."
+        },
+        {
+          "name": "loading",
+          "takes": "true/false",
+          "required": false,
+          "note": "Still reading the comments."
+        },
+        {
+          "name": "empty",
+          "takes": "text",
+          "required": false,
+          "note": "What an empty conversation says."
+        },
+        {
+          "name": "header",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: the comments' own header, a `PageHeader`, over their column only, so the thread beside them runs the page's full height (Peek's way)."
+        },
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": false,
+          "note": "One column: its name, in its header."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "One column: its header's actions, as a `Panel`'s."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "threads",
+          "values": [
+            "beside",
+            "under"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationlayout--docs",
+      "storyId": "conversation-conversationlayout--two-columns",
+      "docPage": "src/ConversationLayout.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ConversationMenu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationMenu.tsx",
+      "purpose": "The ⋯ menu of a comment or a reply: Resolve or Reopen, the app's own rows, then Edit and Delete on your own.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "resolved",
+          "takes": "true/false",
+          "required": false,
+          "note": "Resolved: the menu offers Reopen in place of Resolve."
+        },
+        {
+          "name": "onResolve",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onReopen",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows, between Resolve and Edit: `MenuItem`s."
+        },
+        {
+          "name": "onEdit",
+          "takes": "a handler",
+          "required": false,
+          "note": "Offered on your own only."
+        },
+        {
+          "name": "onDelete",
+          "takes": "a handler",
+          "required": false,
+          "note": "Offered on your own only; the card asks before it deletes."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "trigger",
+          "takes": "anything",
+          "required": false,
+          "note": "The button that opens it: a `ToolbarButton` inside `ConversationActions`."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationmenu--docs",
+      "storyId": "conversation-conversationmenu--yours",
+      "docPage": "src/ConversationMenu.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "deleteBlock",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -2646,9 +3195,21 @@
         },
         {
           "name": "label",
-          "takes": "text",
+          "takes": "anything",
           "required": false,
           "note": "Words in the middle of the line — \"New since you last read this\", a date."
+        },
+        {
+          "name": "look",
+          "takes": "caption | section",
+          "required": false,
+          "note": "How the words in the middle are drawn."
+        },
+        {
+          "name": "sticky",
+          "takes": "true/false",
+          "required": false,
+          "note": "Stays at the top of the list that scrolls under it until the next one takes its place: `sticky top-0` on the surface's fill, as Peek's date lines are."
         },
         {
           "name": "tone",
@@ -2669,6 +3230,13 @@
           "values": [
             "horizontal",
             "vertical"
+          ]
+        },
+        {
+          "prop": "look",
+          "values": [
+            "caption",
+            "section"
           ]
         },
         {
@@ -2966,6 +3534,32 @@
         "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-muted",
         "rounded-md border border-transparent text-left transition-colors hover:border-border-default"
       ]
+    },
+    {
+      "name": "EditedMarker",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/EditedMarker.tsx",
+      "purpose": "\"(edited)\" beside a time, with when it was edited on hover.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "edited",
+          "takes": "text",
+          "required": false,
+          "note": "When it was edited, in the app's words for the tooltip (\"Edited 11:20 AM\")."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-editedmarker--docs",
+      "storyId": "conversation-editedmarker--edited",
+      "docPage": "src/EditedMarker.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "EditorBlockHandle",
@@ -3677,7 +4271,8 @@
       "docPage": "src/IconButton.mdx",
       "app": null,
       "looks": [
-        "border border-border-default hover:bg-bg-hover text-text-secondary"
+        "border border-border-default hover:bg-bg-hover text-text-secondary",
+        "bg-bg-disabled text-text-disabled leaf:bg-transparent leaf:text-text-muted"
       ]
     },
     {
@@ -4835,6 +5430,12 @@
           "takes": "true/false",
           "required": false,
           "note": "Draws the values as words even where they could be changed: the hover preview."
+        },
+        {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why they cannot be changed right now (an archived file): the pickers stay, shut, saying it on hover."
         }
       ],
       "variants": [],
@@ -5819,6 +6420,65 @@
       "looks": []
     },
     {
+      "name": "MetaText",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/MetaText.tsx",
+      "purpose": "The small figure beside a name: a time, a resolve line's time, a count.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "keyof typeof TONE_CLASSES",
+          "required": false,
+          "note": "`muted` for a time; `secondary` and `success` for counts of open and resolved."
+        },
+        {
+          "name": "size",
+          "takes": "caption | chip",
+          "required": false,
+          "note": "`chip` beside a small name, as in a thread's resolve line."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only: `shrink-0`, `contents`."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "size",
+          "values": [
+            "caption",
+            "chip"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-metatext--docs",
+      "storyId": "conversation-metatext--time",
+      "docPage": "src/MetaText.mdx",
+      "app": null,
+      "looks": [
+        "text-chip font-normal text-text-muted whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "text-chip font-normal text-text-secondary whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "text-chip font-normal text-success-default whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "text-caption text-text-muted whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "text-caption text-text-secondary whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "text-caption text-success-default whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums"
+      ]
+    },
+    {
       "name": "moveBlock",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -6193,6 +6853,82 @@
       "looks": []
     },
     {
+      "name": "PageHeader",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PageHeader.tsx",
+      "purpose": "The bar at the top of a page: what the page is, and what acts on all of it, each in its own place.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": true,
+          "note": "The page's name. A string is one line in `body-2-strong`, cut short with an ellipsis when there is no room."
+        },
+        {
+          "name": "leading",
+          "takes": "anything",
+          "required": false,
+          "note": "Before the title, 16px: an icon at stroke 1.5, or a face (`Avatar size={16}`)."
+        },
+        {
+          "name": "private",
+          "takes": "true/false",
+          "required": false,
+          "note": "A lock before the title: only its members can open this page."
+        },
+        {
+          "name": "after",
+          "takes": "anything",
+          "required": false,
+          "note": "Right after the title, 8px from it, and never cut short: a small `Button`, a `Chip`."
+        },
+        {
+          "name": "meta",
+          "takes": "(string | PageHeaderMeta)[]",
+          "required": false,
+          "note": "Quiet words at the right, before the members: counts."
+        },
+        {
+          "name": "time",
+          "takes": "{ label: string; exact: string }",
+          "required": false,
+          "note": "When it last changed, in words — \"Edited 2 minutes ago\" — 12px italic, with the exact time in a tooltip."
+        },
+        {
+          "name": "members",
+          "takes": "anything",
+          "required": false,
+          "note": "Who is in it: a `MembersPill`."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "The page's own buttons, at the right edge: a `Toolbar` with `surface={false}` of `ToolbarButton`s, or one `IconButton`."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-pageheader--docs",
+      "storyId": "page-structure-pageheader--title",
+      "docPage": "src/PageHeader.mdx",
+      "app": null,
+      "looks": [
+        "whitespace-nowrap text-caption italic text-text-muted"
+      ]
+    },
+    {
       "name": "Panel",
       "repo": "estiva-ui",
       "kind": "component",
@@ -6218,6 +6954,12 @@
           "takes": "anything",
           "required": false,
           "note": "The panel's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`."
+        },
+        {
+          "name": "header",
+          "takes": "anything",
+          "required": false,
+          "note": "A page's own bar, in place of the one `title`, `chevron` and `actions` draw: a `PageHeader`, where the panel is the page (Peek's file pages, Leaf's documents), so the page's bar and its scrolling body are one panel."
         },
         {
           "name": "children",
@@ -6606,6 +7348,50 @@
         "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover",
         "text-body-2 text-text-primary cursor-pointer rounded-md transition-colors hover:bg-bg-hover bg-bg-hover"
       ]
+    },
+    {
+      "name": "PinnedComment",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PinnedComment.tsx",
+      "purpose": "The comment a thread answers, pinned at the top of the replies column: who, when, and its first line.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "author",
+          "takes": "ConversationPerson",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "time",
+          "takes": "anything",
+          "required": true,
+          "note": "When it was written, in the app's words, with its day: no day line stands above it here."
+        },
+        {
+          "name": "words",
+          "takes": "anything",
+          "required": true,
+          "note": "Its words, cut to one line: plain words read best."
+        },
+        {
+          "name": "deleted",
+          "takes": "true/false",
+          "required": false,
+          "note": "It was deleted; its replies stay."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-pinnedcomment--docs",
+      "storyId": "conversation-pinnedcomment--pinned",
+      "docPage": "src/PinnedComment.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "Popover",
@@ -7001,6 +7787,58 @@
       ]
     },
     {
+      "name": "QuotedLine",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/QuotedLine.tsx",
+      "purpose": "On a comment on a part of the page: the words it is on, in the page's own highlight, under the name and above the comment's words.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "words",
+          "takes": "text",
+          "required": false,
+          "note": "The words the comment is on, as they were quoted."
+        },
+        {
+          "name": "state",
+          "takes": "here | reworded | gone",
+          "required": false,
+          "note": "`here`: still in the text. `reworded`: changed since."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "A part with no words, a picture or a whole block: what it is, in the app's words (\"Picture: plan.png\")."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "state",
+          "values": [
+            "here",
+            "reworded",
+            "gone"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-quotedline--docs",
+      "storyId": "conversation-quotedline--words",
+      "docPage": "src/QuotedLine.mdx",
+      "app": null,
+      "looks": [
+        "rounded-sm text-text-primary [box-decoration-break:clone] bg-warning-muted",
+        "rounded-sm text-text-primary [box-decoration-break:clone] bg-warning-muted line-through",
+        "rounded-sm text-text-primary [box-decoration-break:clone] bg-bg-inset text-text-secondary",
+        "rounded-sm text-text-primary [box-decoration-break:clone] bg-bg-inset text-text-secondary line-through"
+      ]
+    },
+    {
       "name": "quoteText",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -7190,6 +8028,44 @@
         "border-border-default bg-bg-inset text-text-primary hover:border-border-strong hover:bg-bg-hover",
         "text-chip signal:font-mono signal:text-small signal:font-semibold signal:tabular-nums"
       ]
+    },
+    {
+      "name": "ReactionHorizon",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ReactionHorizon.tsx",
+      "purpose": "The line that says reactions are read only so far back, and how many older comments were not checked.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "limit",
+          "takes": "number",
+          "required": true,
+          "note": "How many comments and replies back reactions are read for."
+        },
+        {
+          "name": "omitted",
+          "takes": "number",
+          "required": true,
+          "note": "How many older ones were not checked."
+        },
+        {
+          "name": "cut",
+          "takes": "true/false",
+          "required": false,
+          "note": "Some reactions may be missing: the read was cut short."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-reactionhorizon--docs",
+      "storyId": "conversation-reactionhorizon--older",
+      "docPage": "src/ReactionHorizon.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "ReactionPicker",
@@ -7542,6 +8418,274 @@
       "docsId": "writing-selectiontoolbar--docs",
       "storyId": "writing-selectiontoolbar--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "RepliesRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/RepliesRow.tsx",
+      "purpose": "The way into a thread, under its comment: who replied, \"2 replies\", the last reply's time, and \"1 new\" until it is read.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "count",
+          "takes": "number",
+          "required": true,
+          "note": "How many replies."
+        },
+        {
+          "name": "faces",
+          "takes": "readonly { name: string; picture?: string }[]",
+          "required": false,
+          "note": "Who replied: their faces."
+        },
+        {
+          "name": "last",
+          "takes": "text",
+          "required": false,
+          "note": "The last reply's time, in the app's words."
+        },
+        {
+          "name": "isNew",
+          "takes": "true/false",
+          "required": false,
+          "note": "\"1 new\": a reply you have not read."
+        },
+        {
+          "name": "urgent",
+          "takes": "true/false",
+          "required": false,
+          "note": "The \"1 new\" chip in the warning colour, for an urgent thread."
+        },
+        {
+          "name": "onOpen",
+          "takes": "a handler",
+          "required": false,
+          "note": "Opens the thread. Absent, the row only says how many (the card around it opens the thread)."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "Its thread is open under it, in one column: the chevron turns down and the row stays marked; a press closes it (Katerina, 31 October)."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-repliesrow--docs",
+      "storyId": "conversation-repliesrow--several",
+      "docPage": "src/RepliesRow.mdx",
+      "app": null,
+      "looks": [
+        "rounded-lg border border-transparent transition-colors hover:border-accent-outline hover:bg-accent-wash",
+        "text-chip font-medium text-text-interactive transition-colors",
+        "text-small leading-3 text-text-muted whitespace-nowrap signal:font-mono signal:text-small signal:tracking-wide signal:tabular-nums",
+        "rounded-lg border border-transparent transition-colors hover:border-accent-outline hover:bg-accent-wash border-accent-outline bg-accent-wash"
+      ]
+    },
+    {
+      "name": "ReplyCard",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationCard.tsx",
+      "purpose": "One reply in a thread: the same pieces as a comment, without replies of its own or Resolve.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "author",
+          "takes": "ConversationPerson",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "time",
+          "takes": "anything",
+          "required": true,
+          "note": "When it was written, in the app's words (\"11:08 AM\")."
+        },
+        {
+          "name": "timeHref",
+          "takes": "text",
+          "required": false,
+          "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
+        },
+        {
+          "name": "edited",
+          "takes": "text",
+          "required": false,
+          "note": "When it was last edited, in the app's words for the tooltip (\"Edited 11:20 AM\"): draws \"(edited)\"."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The words, as the app draws them: text, mentions, links, attached cards, quoted blocks."
+        },
+        {
+          "name": "about",
+          "takes": "anything",
+          "required": false,
+          "note": "What it is about, a `QuotedLine` for a comment on a part of the page: under the name, above the words."
+        },
+        {
+          "name": "files",
+          "takes": "anything",
+          "required": false,
+          "note": "Pictures and files: `AttachmentCard`s, laid out under the words."
+        },
+        {
+          "name": "reactions",
+          "takes": "ReactionRowProps",
+          "required": false,
+          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too."
+        },
+        {
+          "name": "reactionRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last reaction was refused, in plain words: said under the reactions."
+        },
+        {
+          "name": "isNew",
+          "takes": "true/false",
+          "required": false,
+          "note": "Not read yet: the dot, or the urgent mark with `urgent`, and the card's edge in the theme's colour."
+        },
+        {
+          "name": "urgent",
+          "takes": "true/false",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "own",
+          "takes": "true/false",
+          "required": false,
+          "note": "It is yours: the menu offers Edit (with `editor`) and Delete (with `onDelete`)."
+        },
+        {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Nothing can be changed (an archived page): no strip, reactions only shown."
+        },
+        {
+          "name": "editor",
+          "takes": "a handler",
+          "required": false,
+          "note": "The box it is edited in, the app's `CommentBox` edit form; call `done` when it saves or cancels."
+        },
+        {
+          "name": "editing",
+          "takes": "true/false",
+          "required": false,
+          "note": "Being edited, when the app holds it (an edit that was refused opens again)."
+        },
+        {
+          "name": "onEditingChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "onDelete",
+          "takes": "a handler",
+          "required": false,
+          "note": "Delete, after the card has asked."
+        },
+        {
+          "name": "deleteNote",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's sentence in the delete question, what deleting does there."
+        },
+        {
+          "name": "menu",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-replycard--docs",
+      "storyId": "conversation-replycard--reply",
+      "docPage": "src/ReplyCard.mdx",
+      "app": null,
+      "looks": [
+        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
+      ]
+    },
+    {
+      "name": "ResolveDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ResolveDialog.tsx",
+      "purpose": "Resolve, with an optional note: the same dialog in every app.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "onResolve",
+          "takes": "a handler",
+          "required": true,
+          "note": "Resolve, with what was written (an empty string for none)."
+        },
+        {
+          "name": "onCancel",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "refused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last resolve was refused, in plain words."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-resolvedialog--docs",
+      "storyId": "conversation-resolvedialog--resolve",
+      "docPage": "src/ResolveDialog.mdx",
       "app": null,
       "looks": []
     },
@@ -8425,6 +9569,32 @@
       "looks": []
     },
     {
+      "name": "SkeletonConversation",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Skeleton.tsx",
+      "purpose": "Comments still coming: three placeholders shaped like `ConversationCard`, revealed after 150ms.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "status-feedback-skeleton--docs",
+      "storyId": "status-feedback-skeleton--list",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "SkeletonList",
       "repo": "estiva-ui",
       "kind": "component",
@@ -8919,6 +10089,106 @@
       "docsId": "links-references-kindicon--docs",
       "storyId": "links-references-kindicon--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "Thread",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/Thread.tsx",
+      "purpose": "A comment's replies, with the box to write one: in the right column under its own header, or under its comment.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "place",
+          "takes": "beside | under",
+          "required": false,
+          "note": "`beside`: in the right column, beside the comments, under its own header."
+        },
+        {
+          "name": "start",
+          "takes": "ThreadStart",
+          "required": false,
+          "note": "The comment it answers, pinned at the top of the column."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Its replies, in time order: `ReplyCard`s."
+        },
+        {
+          "name": "loading",
+          "takes": "true/false",
+          "required": false,
+          "note": "Still reading the replies: placeholders in their place."
+        },
+        {
+          "name": "resolved",
+          "takes": "true/false",
+          "required": false,
+          "note": "Resolved: \"Resolved\" at the top of the column, in green."
+        },
+        {
+          "name": "box",
+          "takes": "anything",
+          "required": false,
+          "note": "The box a reply is written in: the app's `CommentBox`."
+        },
+        {
+          "name": "notice",
+          "takes": "anything",
+          "required": false,
+          "note": "Said in place of the box: why no reply can be written (an archived page, a deleted comment)."
+        },
+        {
+          "name": "actions",
+          "takes": "anything",
+          "required": false,
+          "note": "The column's own actions, before Close: a `MembersPill`, an `IconButton` to where it was first said."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": false,
+          "note": "Closes the column."
+        },
+        {
+          "name": "title",
+          "takes": "anything",
+          "required": false,
+          "note": "The column's name."
+        },
+        {
+          "name": "bodyRef",
+          "takes": "Ref<HTMLDivElement>",
+          "required": false,
+          "note": "The column's scrolling box, for opening at the newest reply."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "place",
+          "values": [
+            "beside",
+            "under"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-thread--docs",
+      "storyId": "conversation-thread--column",
+      "docPage": "src/Thread.mdx",
       "app": null,
       "looks": []
     },
@@ -9576,7 +10846,7 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "Far left: the menu button, in an app whose navigation collapses."
+          "note": "Far left: the menu button, in an app whose navigation folds."
         },
         {
           "name": "logo",
@@ -9791,6 +11061,25 @@
       "looks": []
     },
     {
+      "name": "UrgentMark",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/UrgentMark.tsx",
+      "purpose": "Urgent and new: a small warning mark on its tint, in the unread dot's 24px slot.",
+      "purposeFrom": "page",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-urgentmark--docs",
+      "storyId": "conversation-urgentmark--urgent",
+      "docPage": "src/UrgentMark.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "UrgentPersonMention",
       "repo": "estiva-ui",
       "kind": "component",
@@ -9850,6 +11139,44 @@
       "migrationStage": null,
       "docsId": "links-references-linkpreview--docs",
       "storyId": "links-references-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useSidebarFold",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AppShell.tsx",
+      "purpose": "Whether the sidebar is shown, and the setter that remembers it, for `AppShell`'s `navOpen` and `onNavOpenChange`: folded stays folded on this browser, across pages and reloads, until unfolded (Ship's and Leaf's since LED-3, Miky, 28 October; every app's, Katerina, 31 October).",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "storageKey",
+          "takes": "text",
+          "required": true,
+          "note": "Where this browser keeps a folded sidebar: the app's own key, such as `ship.sidebarFolded`."
+        },
+        {
+          "name": "isFile",
+          "takes": "a handler",
+          "required": false,
+          "note": "Whether the page open now is a file. A file opened from a link — another app's card, a link in a message — shows where it lives, so a folded sidebar unfolds for it, as its button would, and stays unfolded (Katerina, 30 October)."
+        },
+        {
+          "name": "foldWhen",
+          "takes": "text",
+          "required": false,
+          "note": "A media query: a window that matches it opens folded, whatever was kept, with no room beside the page (Leaf's, `(max-width: 1023px)`)."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "app-frame-appshell--docs",
+      "storyId": "app-frame-appshell--solid",
       "docPage": null,
       "app": null,
       "looks": []

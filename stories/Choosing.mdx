@@ -84,12 +84,31 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | "Are you sure?" | **ConfirmDialog** |
 | A picture full screen, from a thumbnail | **Lightbox** — an **AttachmentCard** opens one by itself |
 
+## A conversation
+
+The same conversation in every app; only its colours are each app's.
+
+| You need | Reach for |
+|---|---|
+| Where the comments sit, and where a thread opens | **ConversationLayout** — two columns, the thread beside them; or one 384px column, the thread under its comment |
+| One comment | **ConversationCard** — the words, files, cards, reactions, replies row, the actions on hover and the ⋯ menu |
+| One reply in a thread | **ReplyCard** — a comment's pieces, without replies of its own or Resolve |
+| A comment's replies and the box to write one | **Thread** — in the right column under its header, or under its comment |
+| The way into a thread | **RepliesRow** — faces, "2 replies", the last time and "1 new" |
+| Resolving, with a note | **ResolveDialog**; the comment then says who resolved it and the note, and folds: **ConversationCard** `resolved` |
+| The words a comment on a part is about | **QuotedLine** — above its name, and what changed since |
+| The comment a thread answers, at the top of its replies column | **PinnedComment** — Thread draws it from its `start` |
+| The strip on a pointed-at comment, and its ⋯ menu | **ConversationActions** and **ConversationMenu** — the cards draw both |
+| A time beside a name, "(edited)", urgent and new | **MetaText**, **EditedMarker**, **UrgentMark** |
+| How far back reactions were read | **ReactionHorizon** — draws nothing when every one was |
+
 ## Structure and wayfinding
 
 | You need | Reach for |
 |---|---|
 | Label–value rows (a details rail) | **Property** — `row` and `stacked` |
 | The bar across the top of a column: its title, and the buttons that act on the whole column | **ContainerHeader** — inside the package's columns; in an app, the header comes with **Panel** or **ListColumn** |
+| The bar at the top of a page: its name with an icon, a face or a lock, quiet counts, when it last changed, the members and the page's buttons | **PageHeader** — ContainerHeader's 48px bar with a place for each; a **Breadcrumb** in the title's place for a trail |
 | A box that can hold more than fits — a list that grows with its data counts, even when today's data fits | **ScrollArea** — its bar is drawn over the content and takes no width |
 | Text that can run long above things the reader needs, cut behind a fade | **ShowMore** — measures; what fits has no button |
 | A status, a count or a category, in a small pill | **Chip** — six colour types; the colour is the message, the label makes it legible |
@@ -98,7 +117,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | A section heading, chevron, hover actions, a count beside the title | **SectionHeader** |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |
 | The uppercase micro-label | **SectionLabel** |
-| A hairline | **Divider** |
+| A hairline, or a line with words in the middle | **Divider** — `label`; `look="section"` between stretches of a list, `sticky` while it scrolls |
 | Where am I, and the way back up | **Breadcrumb** |
 | A link — in text, on a title, beside a note, or a whole box | **Link** — `text`, `quiet`, `underlined`, `plain`; `external` for a new tab |
 | A document or an image attached to something, posted or waiting to be sent | **AttachmentCard** — the file decides the shape; `pending` in a composer |
@@ -131,6 +150,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 | It happened, briefly | **Toast**, via `useToast` inside a `ToastProvider` |
 | It happened, and must not be missed | **Toast** with `durationMs: 0` and an action — it floats and stays until dismissed (D21) |
 | The whole surface has something to say | **Banner** — the strip under the top bar, full width; `onDismiss` if the reader closes it rather than the app |
+| The file is archived | **ArchivedNotice** — the grey card at the top of its page and in the comment box's place: who, when, the resolution, and Unarchive |
 | A part that breaks without taking the page with it | **ErrorBoundary** — around each column, panel or conversation, and once around the app; `label` says what it holds |
 
 ## The frame

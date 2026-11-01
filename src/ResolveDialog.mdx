@@ -1,0 +1,44 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ResolveDialog.stories'
+
+<Meta of={Stories} />
+
+# ResolveDialog
+
+Resolve, with an optional note: the same dialog in every app.
+
+<Canvas of={Stories.Resolve} />
+
+## When
+
+- When someone resolves a thread: **ConversationCard** opens it for you from Resolve.
+
+<Canvas of={Stories.Refused} />
+
+## When not
+
+- A question before something is deleted → **ConfirmDialog**.
+- Any other dialog → **DialogShell**.
+
+## How
+
+```tsx
+import { ResolveDialog } from '@estiva-app/ui'
+
+<ResolveDialog onResolve={(note) => resolve(thread, note)} onCancel={close} refused={why} />
+```
+
+- Ctrl+Enter resolves from the note; Enter there is a new line.
+- Answer `false` from `onResolve` when it was refused, and pass why in `refused`.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Resolves on Ctrl+Enter from the note | a key handler |  |
+| Switches everything off while it waits for the answer | a busy state |  |
+| Says why a resolve was refused, under the note | an error line |  |
+
+## Props
+
+<Controls />

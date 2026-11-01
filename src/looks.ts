@@ -68,6 +68,15 @@ export const MUTED_CONTROL_CLASSES = 'text-text-secondary hover:bg-bg-hover hove
 export const MENU_TRIGGER_CLASSES = 'cursor-pointer rounded-md transition-colors hover:bg-bg-hover data-[popup-open]:bg-bg-hover'
 
 /**
+ * A column that folds sideways, as Peek's rail did (Katerina, 31 October: one fold in every app): 300ms, none under
+ * prefers-reduced-motion. Folded, it fades and is then hidden, so nothing in it can be seen once it has gone; with
+ * the `transition-[…]` naming `opacity` and `visibility`. AppShell's navigation, and ListColumn closing with it.
+ */
+export const FOLD_MOTION_CLASSES = 'duration-300 ease-in-out motion-reduce:transition-none'
+export const FOLDED_CLASSES = 'invisible opacity-0'
+export const UNFOLDED_CLASSES = 'visible opacity-100'
+
+/**
  * A panel that slides open and shut on Base UI's Collapsible: Base UI measures
  * it and writes its height to a variable, `auto` again once the slide ends, and
  * the panel is 0 high on its opening and closing frames. None under
@@ -80,11 +89,18 @@ export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] ov
  * `looks.ts`, Katerina 24 September), moved with the comment box. Inset, a hairline,
  * 12px in, 16px between the text and the row under it; the focus ring in Signal.
  */
-export const WRITING_BOX_CLASSES =
-  'relative bg-bg-inset border border-border-default rounded-lg p-3 flex flex-col gap-4 signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring'
+// A field's fill and edge, as every field has (Katerina, 31 October: the comment box is a field, and every field has its fill).
+export const WRITING_BOX_CLASSES = 'relative bg-bg-field border border-border-field rounded-lg p-3 flex flex-col gap-4'
+
+/** The keys under the send box, in words: "Enter to send · Shift+Enter new line". One line, cut when the room runs out; no key caps. The edit box writes none (Katerina, 1 November). */
+export const BOX_HINT_CLASSES = 'min-w-0 truncate select-none text-caption text-text-muted signal:font-mono signal:text-menu signal:font-normal signal:tracking-wider'
+
+/** Signal's focus ring (the glow) on the send box, as on every field. The edit box has no glow and no accent edge (Katerina, 31 October, 1 November). */
+export const WRITING_RING_CLASSES = 'signal:transition-shadow signal:focus-within:border-border-focus signal:focus-within:shadow-focus-ring'
 
 /** The 36px tile a file's type sits in: AttachmentCard's, and a link's kind in LinkRow, LinkCard and PartCard (Katerina, 29 Oct). */
 export const TYPE_TILE_CLASSES = 'size-9 rounded-md bg-bg-active flex items-center justify-center shrink-0 text-text-secondary'
+
 
 /** The bar down a quoted part's left edge: PartCard's blocks, and (proposal) a card's latest conversation. */
 export const QUOTE_BAR_CLASSES = 'border-l-2 border-border-default pl-3'

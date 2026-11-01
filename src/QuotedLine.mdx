@@ -1,0 +1,44 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './QuotedLine.stories'
+
+<Meta of={Stories} />
+
+# QuotedLine
+
+On a comment on a part of the page: the words it is on, in the page's own highlight, under the name and above the comment's words.
+
+<Canvas of={Stories.Words} />
+
+## When
+
+- On a **ConversationCard** about a part of the page, in its `about`.
+
+<Canvas of={Stories.Reworded} />
+
+<Canvas of={Stories.Gone} />
+
+## When not
+
+- A whole block quoted in the words → **PartCard**.
+
+## How
+
+```tsx
+import { ConversationCard, QuotedLine } from '@estiva-app/ui'
+
+<ConversationCard author={author} time={time} about={<QuotedLine words={quote} state="reworded" />}>
+  {words}
+</ConversationCard>
+```
+
+- Two lines at most; the whole words are in the tooltip.
+- A part with no words, a picture or a block: `label`, its name in your words.
+- Made for the card's `about`: the card puts it under the name, where the words start.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

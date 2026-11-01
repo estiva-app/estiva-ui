@@ -80,7 +80,7 @@ describe('Card', () => {
     cleanup()
     const active = classesOf(card(<Card hover="fill" active attention="accent">Item one</Card>))
     expect(active).toContain('border-accent-primary')
-    expect(active).not.toContain('border-accent-muted')
+    expect(active).not.toContain('border-accent-outline')
     expect(active.some((c) => c.startsWith('hover:'))).toBe(false)
   })
 
@@ -115,7 +115,7 @@ describe('Card', () => {
     cleanup()
     const urgent = classesOf(card(<Card hover="fill" quietUntilHover hovered attention="warning">Item one</Card>))
     expect(urgent).toContain('bg-bg-hover')
-    expect(urgent).toContain('border-warning-muted')
+    expect(urgent).toContain('border-warning-outline')
     expect(urgent).not.toContain('border-border-default')
   })
 
@@ -127,8 +127,8 @@ describe('Card', () => {
 
   it('attention recolours the hairline, at rest and on hover', () => {
     const classes = classesOf(card(<Card hover="fill" quietUntilHover attention="warning">Item one</Card>))
-    expect(classes).toContain('border-warning-muted')
-    expect(classes).toContain('hover:border-warning-muted')
+    expect(classes).toContain('border-warning-outline')
+    expect(classes).toContain('hover:border-warning-outline')
     expect(classes).not.toContain('border-transparent')
   })
 

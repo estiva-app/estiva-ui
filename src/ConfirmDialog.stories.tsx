@@ -61,3 +61,15 @@ export const RefusalKeepsItOpen: Story = {
     )
   },
 }
+
+/** Before a comment is deleted: its replies stay. The question a `ConversationCard` asks. */
+export const DeleteAComment: Story = {
+  name: 'Delete a comment',
+  args: { title: 'Delete this comment?', confirmLabel: 'Delete comment', children: 'Its 2 replies stay.' },
+}
+
+/** Before a reply is deleted. The question a `ReplyCard` asks. */
+export const DeleteAReply: Story = {
+  name: 'Delete a reply',
+  args: { title: 'Delete this reply?', confirmLabel: 'Delete reply', children: 'It goes from the thread for everyone.' },
+}

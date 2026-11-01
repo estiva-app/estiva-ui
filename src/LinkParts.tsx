@@ -154,6 +154,8 @@ export interface LinkPickersProps {
   ownerLabel?: string
   /** Draws the values as words even where they could be changed: the hover preview. */
   readOnly?: boolean
+  /** Why they cannot be changed right now (an archived file): the pickers stay, shut, saying it on hover. */
+  disabledReason?: string
 }
 
 /** The face for an owner option: nobody (value `''`, "Unassigned") is the silhouette, never a letter (Katerina, 30 Oct). */
@@ -167,7 +169,7 @@ function OwnerFace({ option }: { option: { value: string; label: string; picture
  * picker whose app passed no `onChange` reads as words in the same place: the
  * reader may not change it. The hover preview is always words.
  */
-export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = false }: LinkPickersProps) {
+export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = false, disabledReason }: LinkPickersProps) {
   const statusNow = chosenOf(status)
   const ownerNow = chosenOf(owner)
   const statusWords = status && (readOnly || !status.onChange)
@@ -190,6 +192,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
             value={status.value ?? ''}
             onChange={(value) => status.onChange?.(value)}
             ariaLabel="Status"
+            disabledReason={disabledReason}
             options={status.options.map((option) => ({ value: option.value, label: option.label, leading: option.colour && <StatusIcon colour={option.colour} /> }))}
           />
         ))}
@@ -208,6 +211,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
             placeholder="Unassigned"
             onChange={(value) => owner.onChange?.(value)}
             ariaLabel={ownerLabel}
+            disabledReason={disabledReason}
             options={owner.options.map((option) => ({ value: option.value, label: option.label, leading: <OwnerFace option={option} /> }))}
           />
         ))}

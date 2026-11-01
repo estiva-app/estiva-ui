@@ -1,0 +1,36 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './EditedMarker.stories'
+
+<Meta of={Stories} />
+
+# EditedMarker
+
+"(edited)" beside a time, with when it was edited on hover. Nothing is drawn when it was never edited.
+
+<Canvas of={Stories.Edited} />
+
+## When
+
+- Beside the time of anything people wrote and can edit: the cards draw it from `edited`.
+
+## When not
+
+- A time on its own → **MetaText**.
+
+## How
+
+```tsx
+import { EditedMarker } from '@estiva-app/ui'
+
+<EditedMarker edited={editedWords} />
+```
+
+- The words in `edited` are the app's: its own way of saying a time.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

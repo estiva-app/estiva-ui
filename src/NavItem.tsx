@@ -1,6 +1,7 @@
 import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
-import { IconAlertSquareRounded, IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
+import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
+import { UrgentMark } from './UrgentMark'
 import { useInAppClick } from './AppProvider'
 import { cn } from './cn'
 import { useOpenFor } from './CollapsibleSection'
@@ -296,13 +297,3 @@ export function NavItem({
   )
 }
 
-/** Urgent and unread: a 12px warning mark on its tint, in the dot's 24px slot. */
-function UrgentMark() {
-  return (
-    <div className="flex h-6 w-6 shrink-0 items-center justify-center" data-urgent>
-      <div className="flex items-center rounded-full bg-warning-muted p-0.5 signal:shadow-glow-warning">
-        <IconAlertSquareRounded size={12} stroke={2.5} className="text-warning-default" />
-      </div>
-    </div>
-  )
-}

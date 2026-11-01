@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconDotsVertical } from '@tabler/icons-react'
+import { IconDotsVertical, IconX } from '@tabler/icons-react'
+import { Chip } from './Chip'
 import { IconButton } from './IconButton'
+import { PageHeader } from './PageHeader'
 import { Panel } from './Panel'
 
 /**
@@ -13,11 +15,12 @@ const meta = {
   component: Panel,
   parameters: { layout: 'fullscreen' },
   args: { title: 'Details', children: null, bodyClassName: 'flex flex-col gap-3 px-4 pt-3 pb-4' },
-  argTypes: { children: { control: false }, actions: { control: false }, footer: { control: false } },
-  // A side column of the frame: 380px wide and a fixed height, where a panel sits beside a page.
+  argTypes: { children: { control: false }, actions: { control: false }, header: { control: false }, footer: { control: false } },
+  // A side column of the frame: 380px wide and a fixed height, where a panel sits beside a page;
+  // 384px, the right column's width in every app (Katerina, 31 October), where a story says so.
   decorators: [
-    (Story) => (
-      <div className="flex h-[560px] w-[380px] flex-col border-l border-border-subtle bg-bg-surface">
+    (Story, { parameters }) => (
+      <div className={parameters.rightColumn ? 'flex h-[560px] w-[384px] flex-col border-l border-border-subtle bg-bg-surface' : 'flex h-[560px] w-[380px] flex-col border-l border-border-subtle bg-bg-surface'}>
         {Story()}
       </div>
     ),
@@ -68,6 +71,45 @@ export const WithAFooter: Story = {
       {paragraphs(12)}
     </Panel>
   ),
+}
+
+/** A chip before the close button, saying the state of what the panel shows; the right column's width, 384px. */
+export const WithAChip: Story = {
+  parameters: { rightColumn: true },
+  args: {
+    actions: (
+      <>
+        <Chip type="success" label="Label" />
+        <IconButton tooltip="Close" aria-label="Close">
+          <IconX size={16} stroke={1.5} />
+        </IconButton>
+      </>
+    ),
+  },
+  render: (args) => <Panel {...args}>{paragraphs(3)}</Panel>,
+}
+
+/** A page's own bar in place of the panel's: a PageHeader, where the panel is the page. The body still scrolls under it. */
+export const WithAPageHeader: Story = {
+  name: 'With a page header',
+  args: {
+    header: (
+      <PageHeader
+        title="Item one"
+        time={{ label: 'Edited 2 minutes ago', exact: '1 November 2026, 14:02' }}
+        actions={
+          <IconButton tooltip="More" aria-label="More">
+            <IconDotsVertical size={16} stroke={1.5} />
+          </IconButton>
+        }
+      />
+    ),
+    children: Array.from({ length: 24 }, (_, i) => (
+      <p key={i} className="text-body-2 text-text-secondary">
+        A line of the page, number {i + 1}.
+      </p>
+    )),
+  },
 }
 
 /** Two panels in one column: the first capped at three fifths, each scrolls in its own room. */

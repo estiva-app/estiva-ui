@@ -26,6 +26,23 @@ orientation for assistive tech.
 
 <Canvas of={DividerStories.Warning} />
 
+- `look="section"` between stretches of a list, in the list's own voice: a
+  date, where the answers to the first item begin. The words are
+  `SectionLabel`'s muted voice and are cut short with an ellipsis where there
+  is no room; the lines run edge to edge, 8px in, and the whole line is 24px
+  tall. A node may stand for the words; it names the line by them. It is
+  always muted: where what is new begins is the caption look's `warning`,
+  in the same list.
+
+<Canvas of={DividerStories.ADate} />
+
+<Canvas of={DividerStories.New} />
+
+- `sticky` keeps it at the top of its list while its stretch scrolls under
+  it, until the next one takes its place.
+
+<Canvas of={DividerStories.Sticky} />
+
 ## When not
 
 - Between groups in a menu → **MenuSeparator**: this line with its own 4px
@@ -44,12 +61,28 @@ import { Divider } from '@estiva-app/ui'
 <Divider orientation="vertical" />
 <Divider label="Today" />
 <Divider label="New since you last read this" tone="warning" />
+
+<Divider look="section" label="Replies" />
+
+// Each line first in the box that holds its stretch.
+{days.map((day) => (
+  <div key={day.id} className="flex flex-col">
+    <Divider look="section" label={day.label} sticky />
+    {day.rows}
+  </div>
+))}
 ```
 
 - **Inside a `Menu` or a `Popover` it has no inset**: the hairline runs the
   width of the rows. The panel tells it so; nothing is passed in.
 
-- The line is 1px; the room around it is yours.
+- The line is 1px; the room around it is yours. The section look brings its
+  own: 8px at each side, 6px above and below; a `className` such as
+  `px-4 py-2` changes it.
+- **`sticky` sticks to the nearest box that scrolls**, and only while the box
+  that holds it is in view: put each line first in the box that holds its
+  stretch, as above. It is drawn on the surface's fill (`bg-surface`), so the
+  rows pass under it unseen; a list on another fill is not covered yet.
 
 ## What it owns
 
@@ -59,6 +92,8 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Says what it is to assistive technology: a separator | `role="separator"` | ✓ |
 | Keeps its 1px line in a scrolling column | `shrink-0` |  |
+| Cuts a long label short with an ellipsis, in the section look | `min-w-0 truncate` around the words |  |
+| Stays at the top of its list while its stretch scrolls, with `sticky` | `sticky top-0 z-10 bg-bg-surface` |  |
 
 ## Props
 

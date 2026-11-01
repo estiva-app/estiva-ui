@@ -22,9 +22,9 @@ export type IconButtonVariant = 'muted' | 'outlined' | 'primary' | 'current' | '
 export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
   /**
    * `current` takes the colour of what it sits in — the ✕ on a `Banner` wears
-   * the banner's tone. `resolve` is `muted` that turns green when pointed at in
-   * Signal, Peek's Resolve (UIG-9, 17 September; before, each app passed these
-   * as classes).
+   * the banner's tone. `resolve` is `muted` that turns green when pointed at, in
+   * every theme: Peek's Resolve (UIG-9, 17 September; before, each app passed
+   * these as classes), Signal's look in Ship and Leaf too (Katerina, 31 October).
    */
   variant?: IconButtonVariant
   /** On, like a Bold button while the selection is bold: the active fill, and `aria-pressed`. */
@@ -89,12 +89,15 @@ export function IconButton({
       !off && (variant === 'muted' || variant === 'resolve') && MUTED_CONTROL_CLASSES,
       !off && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-secondary',
       !off && variant === 'current' && 'hover:bg-bg-hover',
-      off && variant === 'primary' && 'bg-bg-disabled text-text-disabled',
+      // Not yet usable, as the comment box's Send while the box is empty: the disabled fill, as every app shows it
+      // (Katerina, 1 November). In Leaf, a quiet icon with no fill, in the muted words' colour, so it still reads on
+      // the box's grey (31 October: the disabled fill and colour were 1.06 and 1.29 : 1 there).
+      off && variant === 'primary' && 'bg-bg-disabled text-text-disabled leaf:bg-transparent leaf:text-text-muted',
       off && (variant === 'muted' || variant === 'resolve') && 'text-text-disabled',
       off && variant === 'outlined' && 'border border-border-default text-text-disabled',
       // Always, disabled too: the colour of where it sits, and Resolve's green.
       variant === 'current' && 'text-current',
-      variant === 'resolve' && 'signal:hover:bg-success-muted signal:hover:text-success-default',
+      variant === 'resolve' && 'hover:bg-success-muted hover:text-success-default',
       pressed && 'bg-bg-active text-text-primary',
       glow && 'signal:shadow-glow-accent',
       // `pointer-events-none` only where the button is truly out of reach:

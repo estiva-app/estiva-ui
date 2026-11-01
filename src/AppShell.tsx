@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
+import { useCallback, useState, type ReactNode } from 'react'
 import { IconLayoutSidebarLeftCollapse, IconLayoutSidebarLeftExpand } from '@tabler/icons-react'
 import { cn } from './cn'
 import { Card } from './Card'
 import { IconButton } from './IconButton'
+import { FOLDED_CLASSES, FOLD_MOTION_CLASSES, UNFOLDED_CLASSES } from './looks'
 import { ScrollArea } from './ScrollArea'
 import { SidebarOnGround } from './Sidebar'
 import { TopBar } from './TopBar'
@@ -18,7 +19,7 @@ import { TopBar } from './TopBar'
  * - `floating` — the floating frame: the TopBar floats over the top
  *   edge, the rail stands on the app background, and the content lives
  *   in the rounded card beside it (2026-09-02, the floating app's frame
- *   geometry; its collapse animation and launcher stay in the app).
+ *   geometry; its launcher stays in the app).
  * - `inset` — the structured frame, the other way round: the TopBar and
  *   the Sidebar stand on the ground, and the content is a lighter card
  *   beside them (Katerina, 28 September: Linear's layout, in any theme).
@@ -32,7 +33,7 @@ import { TopBar } from './TopBar'
  */
 export interface AppShellProps {
   variant?: 'solid' | 'floating' | 'inset'
-  /** The top bar's menu button, in an app whose navigation collapses. */
+  /** The top bar's menu button, in place of the fold `onNavOpenChange` draws. */
   menu?: ReactNode
   /** The top bar's left: the app's logo mark, or its name as text. */
   logo?: ReactNode
@@ -49,10 +50,10 @@ export interface AppShellProps {
   /** The navigation: a `Sidebar` in the solid manner, a `Rail` in the floating one. */
   nav: ReactNode
   /**
-   * Whether the navigation is shown, in the solid and inset manners. With `onNavOpenChange`, the frame draws the
-   * fold as the top bar's menu button (unless `menu` is given) and, folded, leaves only the content's own margin
-   * (LED-3, Katerina, 28 October: the sidebar fold top left, on the top bar's menu button). Where it is kept is
-   * the caller's.
+   * Whether the navigation is shown. With `onNavOpenChange`, the frame draws the fold as the top bar's menu button
+   * (unless `menu` is given), in every manner, and folding narrows and fades the navigation to the content's own
+   * margin (LED-3, Katerina, 28 October: the sidebar fold top left, on the top bar's menu button; one fold in every
+   * app, with Peek's motion, 31 October). Where it is kept is the caller's: `useSidebarFold` remembers it.
    */
   navOpen?: boolean
   onNavOpenChange?: (open: boolean) => void
@@ -60,8 +61,7 @@ export interface AppShellProps {
 }
 
 export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, navOpen = true, onNavOpenChange, children }: AppShellProps) {
-  // The floating manner's rail does not fold here: its collapse stays the app's.
-  const fold = onNavOpenChange && variant !== 'floating' && (
+  const fold = onNavOpenChange && (
     <IconButton
       tooltip={navOpen ? 'Hide the sidebar' : 'Show the sidebar'}
       tooltipPlacement="bottom"
@@ -75,6 +75,30 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
   const bar = <TopBar variant={variant} menu={menu ?? fold} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} right={identity} />
   const inset = variant === 'inset'
 
+  /* Folding, in every manner, as Peek's rail did (Katerina, 31 October): the navigation narrows and fades in 300ms,
+     to the content's own margin — none in the solid manner, 16px in the others, as wide as the right one. The
+     narrowing is a grid track going from `1fr` to `0fr`: the navigation keeps its own width and the track clips it,
+     so nothing here measures it. Folded, it stays mounted and comes back as it was left (its scroll, its open
+     rows), and nothing in it can be reached: inert at once, hidden once it has faded. */
+  const margin = variant === 'solid' ? 0 : 16
+  const folding = (
+    <div
+      className={cn('grid shrink-0 transition-[grid-template-columns]', FOLD_MOTION_CLASSES)}
+      style={{ gridTemplateColumns: navOpen ? '0px 1fr' : `${margin}px 0fr` }}
+    >
+      <div
+        inert={!navOpen}
+        className={cn(
+          'col-start-2 flex min-w-0 overflow-hidden transition-[opacity,visibility]',
+          FOLD_MOTION_CLASSES,
+          navOpen ? UNFOLDED_CLASSES : FOLDED_CLASSES,
+        )}
+      >
+        <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
+      </div>
+    </div>
+  )
+
   if (variant === 'floating') {
     return (
       // `signal-canvas`: in the Signal theme, the preset draws the control-room dot
@@ -83,7 +107,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
       <div className="signal-canvas relative h-full min-h-0 overflow-hidden bg-bg-base">
         {bar}
         <div className="flex h-full pb-4 pr-4 pt-[52px]">
-          {nav}
+          {folding}
           <div
             className={cn(
               'flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-bg-surface',
@@ -135,14 +159,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-bg-base text-text-primary">
       {bar}
       <div className="flex min-h-0 flex-1">
-        {/* Folded, the navigation stays mounted and hidden, so it comes back as it was left (its scroll, its open
-            rows); open, `contents` keeps it a direct flex child of the row. Hidden by the class as well as the
-            attribute: in a Tailwind 3 app `[hidden]` loses to `.contents`, and the sidebar stayed drawn (0.90.0). */}
-        <div className={navOpen ? 'contents' : 'hidden'} hidden={!navOpen}>
-          <SidebarOnGround.Provider value={inset}>{nav}</SidebarOnGround.Provider>
-        </div>
-        {/* Folded: the inset card keeps a left margin as wide as its right one. */}
-        {!navOpen && inset && <div className="w-4 flex-none" />}
+        {folding}
         {/* `inset`: the content is a card on the ground, the Card's own surface look,
             16px from the right and bottom as the floating card is, 8px corners (Katerina,
             28 September). */}
@@ -156,4 +173,77 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
       </div>
     </div>
   )
+}
+
+export interface SidebarFoldOptions {
+  /** Where this browser keeps a folded sidebar: the app's own key, such as `ship.sidebarFolded`. */
+  storageKey: string
+  /**
+   * Whether the page open now is a file. A file opened from a link — another app's card, a link in a message —
+   * shows where it lives, so a folded sidebar unfolds for it, as its button would, and stays unfolded (Katerina,
+   * 30 October). Not on a reload, which keeps the sidebar as the person left it.
+   */
+  isFile?: () => boolean
+  /** A media query: a window that matches it opens folded, whatever was kept, with no room beside the page (Leaf's, `(max-width: 1023px)`). */
+  foldWhen?: string
+}
+
+const FOLDED = '1'
+
+function keptFolded(key: string): boolean {
+  try {
+    return window.localStorage.getItem(key) === FOLDED
+  } catch {
+    return false
+  }
+}
+
+function keepFolded(key: string, folded: boolean) {
+  try {
+    if (folded) window.localStorage.setItem(key, FOLDED)
+    else window.localStorage.removeItem(key)
+  } catch {
+    // Storage refused (private mode, full): it folds for this visit only.
+  }
+}
+
+function reloaded(): boolean {
+  const [entry] = (typeof performance.getEntriesByType === 'function' ? performance.getEntriesByType('navigation') : []) as PerformanceNavigationTiming[]
+  return entry?.type === 'reload'
+}
+
+/**
+ * Each sidebar as it stands since this page loaded, by its key: a frame drawn again — a page that draws its own —
+ * finds it as it was left. The arrival and the window's width are read once, when the page loads, as Leaf's were.
+ */
+const shown = new Map<string, boolean>()
+
+function onLoad({ storageKey, isFile, foldWhen }: SidebarFoldOptions): boolean {
+  if (foldWhen && typeof window.matchMedia === 'function' && window.matchMedia(foldWhen).matches) return false
+  if (!keptFolded(storageKey)) return true
+  if (!isFile?.() || reloaded()) return false
+  keepFolded(storageKey, false)
+  return true
+}
+
+/**
+ * Whether the sidebar is shown, and the setter that remembers it, for `AppShell`'s `navOpen` and
+ * `onNavOpenChange`: folded stays folded on this browser, across pages and reloads, until unfolded (Ship's and
+ * Leaf's since LED-3, Miky, 28 October; every app's, Katerina, 31 October).
+ */
+export function useSidebarFold(options: SidebarFoldOptions): [open: boolean, setOpen: (open: boolean) => void] {
+  const { storageKey } = options
+  const [open, setOpen] = useState(() => {
+    if (!shown.has(storageKey)) shown.set(storageKey, onLoad(options))
+    return shown.get(storageKey) as boolean
+  })
+  const change = useCallback(
+    (next: boolean) => {
+      setOpen(next)
+      shown.set(storageKey, next)
+      keepFolded(storageKey, !next)
+    },
+    [storageKey],
+  )
+  return [open, change]
 }

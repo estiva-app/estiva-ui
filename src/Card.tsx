@@ -55,9 +55,13 @@ const HAIRLINE_HELD_CLASSES: Record<CardFill, string> = {
   none: 'border-border-default',
 }
 
+/**
+ * Each theme's own edge colours, the accent and the warning at 30% (Katerina, 31 October): the `-muted` fills read
+ * near black in Signal and not at all in Ship, whose accent-muted is its inset fill.
+ */
 const ATTENTION_CLASSES: Record<CardAttention, string> = {
-  accent: 'border-accent-muted hover:border-accent-muted',
-  warning: 'border-warning-muted hover:border-warning-muted',
+  accent: 'border-accent-outline hover:border-accent-outline',
+  warning: 'border-warning-outline hover:border-warning-outline',
 }
 
 export interface CardProps extends ComponentPropsWithRef<'div'> {

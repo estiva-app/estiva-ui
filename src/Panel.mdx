@@ -56,6 +56,18 @@ import { Panel, IconButton } from '@estiva-app/ui'
   ContainerHeader's: 48px, a hairline under it.
 - A panel that follows its scroll (a thread that opens at its newest reply)
   reads it with `bodyRef` and `onBodyScroll`.
+- A **Chip** in `actions`, before the close button, says the state of what
+  the panel shows. The bar sets its actions 4px apart, so the chip sits 4px
+  from the button. Here at 384px, the right column's width in every app.
+
+<Canvas of={PanelStories.WithAChip} />
+
+- A panel that is the page — a file's or a document's — takes the page's
+  own bar in `header`: a **PageHeader**, drawn in place of the panel's.
+  `title` still names the panel if it breaks.
+
+<Canvas of={PanelStories.WithAPageHeader} />
+
 - **A crash stays inside it.** If its body, its actions or its footer break,
   it keeps its title and shows "Something went wrong in the panel… try again"
   in the room the body had. It is **ErrorBoundary**'s.

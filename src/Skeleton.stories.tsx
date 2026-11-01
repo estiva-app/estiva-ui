@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { SkeletonBar, SkeletonList, SkeletonRow } from './Skeleton'
+import { SkeletonBar, SkeletonConversation, SkeletonList, SkeletonRow } from './Skeleton'
 
 const meta = {
   title: 'Status & feedback/Skeleton',
@@ -31,3 +31,6 @@ export const Bar: Story = {
     </div>
   ),
 }
+
+/** Comments still coming, in a 384px column: three placeholders shaped like a comment. */
+export const Conversation: Story = { decorators: [(Story) => <div className="w-[384px]"><Story /></div>], render: () => <SkeletonConversation /> }

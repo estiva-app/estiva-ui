@@ -1,0 +1,72 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ConversationCard.stories'
+
+<Meta of={Stories} />
+
+# ConversationCard
+
+One comment, the same in every app: who, when, the words, files, cards, reactions and the way into its replies, with the actions on hover and the ⋯ menu.
+
+<Canvas of={Stories.Comment} />
+
+## When
+
+- **A comment** in any conversation: in the comments beside a page, or filling the page with its thread beside it (**ConversationLayout**).
+- `own` on yours: Edit (with `editor`) and Delete (with `onDelete`) in its menu. The card asks before it deletes.
+- `resolved`: folded. "✓ Resolved" by the time, with who, when and the note on hover; "Person two → the note · time" above its replies row. While its thread is closed, the words fold to their first line, without files or reactions; open, it is whole.
+- `about` on a comment on a part of the page: a **QuotedLine** under the name, above the words.
+- `isNew`, `urgent`: the dot or the urgent mark, and a hairline, until it is read.
+
+<Canvas of={Stories.Replies} />
+
+<Canvas of={Stories.Resolved} />
+
+<Canvas of={Stories.OnAPart} />
+
+## When not
+
+- A reply in a thread → **ReplyCard**: no replies of its own, no Resolve.
+- A link to something, alone → **LinkCard**; a card someone attached sits in the words as an **AttachedCard**.
+- A row in a list of places → **NavItem**.
+
+## How
+
+```tsx
+import { ConversationCard } from '@estiva-app/ui'
+
+<ConversationCard
+  author={author}
+  time={timeOf(comment)}
+  edited={editedWords}
+  reactions={{ reactions: reactions, options: options, nameOf: nameOf, viewer: me, onToggle: (emoji: string) => react(comment, emoji) }}
+  replies={{ count: replyCount, faces: faces, last: lastTime, isNew: hasNew }}
+  resolved={resolution}
+  onResolve={(note) => resolve(comment, note)}
+  onReopen={() => reopen(comment)}
+  own={isMine}
+  editor={(done) => editBoxFor(comment, done)}
+  onDelete={() => remove(comment)}
+  onClick={() => openThread(comment)}
+>
+  {wordsOf(comment)}
+</ConversationCard>
+```
+
+- **The words are yours to draw**: text, people named, links, attached cards and quoted blocks, with **RichText** and the link parts. The card gives them their size and colour.
+- **Edit opens your box**: `editor` draws your **CommentBox** edit form; call `done` when it saves or cancels. To open it again after a refused save, hold `editing` yourself.
+- **Resolve opens the dialog**: **ResolveDialog**, then `onResolve(note)`. Answer `false` when it was refused; the dialog stays.
+- A press on the card is `onClick` (its thread opens); a press on a button, a link or anything marked `data-interactive` inside it is not.
+- The strip shows while the card is pointed at or has focus, and holds while its reactions or its menu are open.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Shows its actions while pointed at, and holds them while a menu is open | hover state and an outside-click check |  |
+| Asks before it deletes | a confirm dialog |  |
+| Opens the Resolve dialog, and closes it once resolved | a dialog and its open state |  |
+| Says it is resolved, with who and the note, and folds it while its thread is closed | a resolved line or chip of your own |  |
+
+## Props
+
+<Controls />

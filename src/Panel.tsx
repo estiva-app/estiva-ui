@@ -35,6 +35,12 @@ export interface PanelProps {
   chevron?: boolean
   /** The panel's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`. */
   actions?: ReactNode
+  /**
+   * A page's own bar, in place of the one `title`, `chevron` and `actions` draw: a `PageHeader`, where the panel is
+   * the page (Peek's file pages, Leaf's documents), so the page's bar and its scrolling body are one panel. `title`
+   * still names the panel if it breaks.
+   */
+  header?: ReactNode
   /** The body. It scrolls when it is taller than the panel. */
   children: ReactNode
   /** A row fixed under the body that never scrolls — a reply box. */
@@ -49,10 +55,10 @@ export interface PanelProps {
   className?: string
 }
 
-function Frame({ title, chevron = false, actions, children, footer, bodyClassName, bodyRef, onBodyScroll, className, broken = false }: PanelProps & { broken?: boolean }) {
+function Frame({ title, chevron = false, actions, header, children, footer, bodyClassName, bodyRef, onBodyScroll, className, broken = false }: PanelProps & { broken?: boolean }) {
   return (
     <div className={cn('flex h-full min-h-0 flex-1 flex-col', className)}>
-      <ContainerHeader title={title} chevron={chevron} actions={actions} />
+      {header ?? <ContainerHeader title={title} chevron={chevron} actions={actions} />}
       {broken ? (
         // The message takes the room the body had and centres itself in it.
         <div className="flex min-h-0 flex-1 flex-col px-4">{children}</div>

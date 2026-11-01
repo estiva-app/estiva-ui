@@ -24,9 +24,10 @@ bar ignores the pointer so the content underneath stays reachable.
 - **`floating`** — an app whose content runs to the top edge; the bar
   floats over it and only its clusters catch clicks (AppShell's
   `floating` variant).
-- `menu` is the menu button, in an app whose navigation collapses — the
-  collapsing itself stays the caller's. `logo` sits beside it: the app's
-  name as text, or a mark.
+- `menu` is the menu button, in an app whose navigation folds. Inside an
+  **AppShell** it is the frame's fold ("Hide the sidebar" / "Show the
+  sidebar"), the same button in every app (Katerina, 31 October): pass
+  nothing. `logo` sits beside it: the app's name as text, or a mark.
 - `onSearch` is what searching opens — your command launcher. With it the
   bar draws the search field itself: **SearchInput**'s look, 290px, as a
   button showing `searchPlaceholder` ("Search…") and the shortcut. A click on
@@ -61,7 +62,8 @@ import { TopBar, IdentityMenu } from '@estiva-app/ui'
 ```
 
 - Geometry is fixed: 52px, `pl-5 pr-[26px]`, right cluster `gap-[6px]` —
-  don't restyle it per app.
+  don't restyle it per app. With a menu button in the solid or inset bar it
+  starts at `pl-3.5`, so the button's icon lines up with the Sidebar's.
 - `onSearch` is called on every Ctrl+K, open or not: to close the launcher
   on a second Ctrl+K, toggle in your handler.
 - A click on the field leaves focus where it was, so a launcher can act on the
@@ -69,8 +71,8 @@ import { TopBar, IdentityMenu } from '@estiva-app/ui'
 - The frame is desktop-only for now — there is no narrow-screen
   behaviour; the menu button collapses panels, it does not open a drawer.
 
-- The bar is 52px tall, 20px in on the left and 26px on the right, 16px between
-  its slots.
+- The bar is 52px tall, 20px in on the left (14px with a menu button over a
+  Sidebar) and 26px on the right, 16px between its slots.
 
 ## What it owns
 

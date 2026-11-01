@@ -20,7 +20,8 @@ import { shortcutLabel } from './shortcuts'
  *   (Katerina, 28 September).
  *
  * Geometry both apps agreed on before extraction: 52px tall, `pl-5
- * pr-[26px]`, right cluster `gap-[6px]`. The left region is two slots
+ * pr-[26px]`, right cluster `gap-[6px]`; with a menu button over a
+ * Sidebar (solid, inset), `pl-3.5`, so its icon lines up with the rows'. The left region is two slots
  * side by side — `menu` (the menu button, in an app whose navigation
  * collapses) and `logo` (the mark or name beside it; Katerina,
  * 2026-09-02). This component does not know who you are or what is being
@@ -40,7 +41,7 @@ import { shortcutLabel } from './shortcuts'
  */
 export interface TopBarProps {
   variant?: 'solid' | 'floating' | 'inset'
-  /** Far left: the menu button, in an app whose navigation collapses. Stays the caller's — the bar only places it. */
+  /** Far left: the menu button, in an app whose navigation folds. Inside an `AppShell`, the frame's own fold. */
   menu?: ReactNode
   /** Beside the menu button: the app's logo mark, or its name as text. */
   logo?: ReactNode
@@ -83,10 +84,14 @@ export function TopBar({ variant = 'solid', menu, logo, search, onSearch, search
         <Kbd>{shortcutLabel('Mod-K')}</Kbd>
       </BaseButton>
     ))
+  /* The menu button's icon stands over the navigation's icons (Katerina, 31 October: the fold's left padding was too
+     much, out of line with the rows below). A Sidebar's icon is 18px in (its 10px and the row's 8px), the button's 4px
+     inside it, so the bar starts 14px in; a Rail centres its icons on 24px, which the bar's own 20px already meets. */
   return (
     <header
       className={cn(
-        'flex h-[52px] items-center pl-5 pr-[26px]',
+        'flex h-[52px] items-center pr-[26px]',
+        menu && !floating ? 'pl-3.5' : 'pl-5',
         floating
           ? 'pointer-events-none absolute left-0 right-0 top-0 z-10'
           : cn('shrink-0 gap-4', variant === 'solid' && 'border-b border-border-default bg-bg-surface'),
