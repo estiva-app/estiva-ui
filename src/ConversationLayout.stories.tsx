@@ -126,15 +126,7 @@ export const TwoColumnsAside: Story = {
         items={items}
         open={open}
         onOpenChange={setOpen}
-        aside={
-          <Panel title="Item one">
-            <div className="flex flex-col gap-3 p-4">
-              <SkeletonBar className="h-3 w-[90%]" />
-              <SkeletonBar className="h-3 w-[70%]" />
-              <SkeletonBar className="h-3 w-[85%]" />
-            </div>
-          </Panel>
-        }
+        aside={<Page />}
         box={<WriteBox label="Comment" />}
       />
     )
