@@ -8,6 +8,7 @@ import { Panel } from './Panel'
 import { ReactionHorizon } from './ReactionHorizon'
 import { QuotedLine } from './QuotedLine'
 import { SkeletonBar } from './Skeleton'
+import { useSeenOnScreen } from './seenOnScreen'
 import { Thread } from './Thread'
 
 /**
@@ -126,6 +127,27 @@ export const TwoColumnsDays: Story = {
       { id: 'd4', day: 'Today', card: card(TWO, '10:21 AM', 'A second comment today.') },
     ]
     return <ConversationLayout threads="beside" items={items} below={<ReactionHorizon limit={100} omitted={3} />} box={<WriteBox label="Comment" />} />
+  },
+}
+
+/**
+ * Two columns, read by being seen: each comment new to the reader keeps its dot until it has been on screen a moment
+ * (`useSeenOnScreen`, handed to `seen`). Scroll, and the ones that show lose it after 1.5 seconds.
+ */
+export const TwoColumnsSeen: Story = {
+  name: 'Two columns, new until seen',
+  render: function Render() {
+    const seen = useSeenOnScreen('story')
+    const words = [WORDS, 'A second comment.', 'A third comment, further down.', 'A fourth comment.', 'A fifth comment.', 'A sixth comment.', 'The newest comment.']
+    const items: ConversationItem[] = words.map((said, i) => ({
+      id: `n${i}`,
+      card: (
+        <ConversationCard author={i % 2 ? TWO : ONE} time={`${9 + i}:00 AM`} isNew={i >= 3 && !seen.ids.has(`n${i}`)}>
+          {said}
+        </ConversationCard>
+      ),
+    }))
+    return <ConversationLayout threads="beside" seen={seen} items={items} box={<WriteBox label="Comment" />} />
   },
 }
 

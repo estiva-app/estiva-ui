@@ -52,6 +52,13 @@ import { ConversationLayout } from '@estiva-app/ui'
   line); `below` is under the comments (a **ReactionHorizon**); `top` stands at the top however few the comments are
   (an **ArchivedNotice**). Few comments sit on the box, as a chat does. `empty` may be the app's own **EmptyState**,
   or `null` for nothing.
+- A comment is read by being seen: `useSeenOnScreen(key)` for the conversation, handed to `seen`, holds the ids of the
+  comments that have been on screen a moment (half of the card, or 120px of a taller one, for 1.5 seconds, in a tab
+  that is not hidden). Draw `isNew` from it; mark the conversation read from it. `key` `null` watches nothing, until you
+  have judged what is new. Never an observer of your own.
+
+<Canvas of={Stories.TwoColumnsSeen} />
+
 - The box at the foot of a thread that opens takes the caret, at its end, without scrolling: the layout tells it with
   `caretOnOpen`, which **CommentBox** reads. Nothing to pass; a box outside a layout never takes it this way.
 
@@ -66,6 +73,7 @@ import { ConversationLayout } from '@estiva-app/ui'
 | One column: resolved comments and comments on deleted blocks closed under their names at the end, opened for the thread open in them | the groups, their counts, opening one |  |
 | Puts the caret in the box of a thread that opens, without scrolling | a focus call |  |
 | Placeholders while reading, and a line when there are none | a loading and an empty state |  |
+| Says which comments have been on screen a moment, with `seen` | an IntersectionObserver and a timer per card |  |
 | The right column at 384px, in every app | a width |  |
 
 ## Props

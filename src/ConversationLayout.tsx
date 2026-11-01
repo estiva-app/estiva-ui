@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref, type UIEventHandler } from 'react'
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref, type UIEventHandler } from 'react'
 import { Card } from './Card'
 import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
@@ -9,6 +9,7 @@ import { EmptyState } from './EmptyState'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Panel } from './Panel'
 import { ScrollArea } from './ScrollArea'
+import { useWatchSeen, type SeenOnScreen } from './seenOnScreen'
 import { SkeletonConversation } from './Skeleton'
 import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, SHOWN_CLASSES, useFaceLine, type ConversationItemState } from './threadCard'
 
@@ -57,6 +58,8 @@ export interface ConversationLayoutProps {
   bodyRef?: Ref<HTMLDivElement>
   /** Two columns: the comments' box scrolled. */
   onBodyScroll?: UIEventHandler<HTMLDivElement>
+  /** What `useSeenOnScreen` made for this conversation: the layout watches its comments, and says in it which were seen. */
+  seen?: SeenOnScreen
   /** Two columns: the comments' own header, a `PageHeader`, over their column only, so the thread beside them runs the page's full height (Peek's way). */
   header?: ReactNode
   /** Its name: one column's, in its header. Two columns, said with the message if the column breaks (the page's own bar is `header`). */
@@ -231,12 +234,24 @@ export function ConversationLayout({
   actions,
   bodyRef,
   onBodyScroll,
+  seen,
   className,
 }: ConversationLayoutProps) {
   // One column: the pressed comment stays where it was on screen. Opening one thread closes the other, and when that
   // one stood above it, everything under it would rise by its height (Katerina, 31 October). Where it was is noted at
   // the press; once the change is drawn, before it is painted, the column scrolls by however far it went.
   const body = useRef<HTMLDivElement>(null)
+  // The comments' box is the layout's, and lent to the app as `bodyRef`.
+  const setBody = useCallback(
+    (el: HTMLDivElement | null) => {
+      body.current = el
+      if (typeof bodyRef === 'function') bodyRef(el)
+      else if (bodyRef) bodyRef.current = el
+    },
+    [bodyRef],
+  )
+  // A comment is read by being seen (Peek's way, Katerina, 30 October): each one in the list is watched.
+  useWatchSeen(seen, body, 'data-conversation-item')
   const pressed = useRef<{ id: string; top: number } | null>(null)
   const itemAt = (id: string) => body.current?.querySelector<HTMLElement>(`[data-conversation-item="${CSS.escape(id)}"]`) ?? null
   // A thread that opens puts the caret in its box (Katerina, 31 October); the one open when the page is drawn does not.
@@ -268,7 +283,7 @@ export function ConversationLayout({
   }, [open])
   if (threads === 'under') {
     return (
-      <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={body} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
+      <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={setBody} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
         <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} />
       </Panel>
     )
@@ -288,7 +303,7 @@ export function ConversationLayout({
       >
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {header}
-          <ScrollArea className="min-h-0 flex-1" viewportRef={bodyRef} onScroll={onBodyScroll} contentClassName="flex min-h-full flex-col">
+          <ScrollArea className="min-h-0 flex-1" viewportRef={setBody} onScroll={onBodyScroll} contentClassName="flex min-h-full flex-col">
             {top != null && top !== false && top !== '' && <div className="shrink-0 px-4 pt-4">{top}</div>}
             {/* A short conversation sits on its box, as a chat does: the newest comment by the box (Peek's way). */}
             <div className="min-h-0 flex-1" />

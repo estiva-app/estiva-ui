@@ -1,4 +1,4 @@
-import { Children, type ReactNode, type Ref } from 'react'
+import { Children, useCallback, useRef, type ReactNode, type Ref } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { cn } from './cn'
@@ -7,6 +7,7 @@ import { EmptyState } from './EmptyState'
 import { IconButton } from './IconButton'
 import { Panel } from './Panel'
 import { PinnedComment, type PinnedCommentProps } from './PinnedComment'
+import { useWatchSeen, type SeenOnScreen } from './seenOnScreen'
 import { SkeletonConversation } from './Skeleton'
 import { useContext } from 'react'
 import { caretOnOpen, LineByLayout, SHOWN_CLASSES } from './threadCard'
@@ -44,6 +45,8 @@ export interface ThreadProps {
   title?: ReactNode
   /** The column's scrolling box, for opening at the newest reply. */
   bodyRef?: Ref<HTMLDivElement>
+  /** Beside: what `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), and says in it which were seen. */
+  seen?: SeenOnScreen
   /** Placement only. */
   className?: string
 }
@@ -77,8 +80,21 @@ export function Thread({
   empty = 'No replies yet.',
   title = 'Replies',
   bodyRef,
+  seen,
   className,
 }: ThreadProps) {
+  const body = useRef<HTMLDivElement>(null)
+  // The column's box is the thread's, and lent to the app as `bodyRef`.
+  const setBody = useCallback(
+    (el: HTMLDivElement | null) => {
+      body.current = el
+      if (typeof bodyRef === 'function') bodyRef(el)
+      else if (bodyRef) bodyRef.current = el
+    },
+    [bodyRef],
+  )
+  // A reply is read by being seen in its thread (Peek's PEE-44): each one is watched.
+  useWatchSeen(seen, body, 'data-reply-id')
   const foot = notice ?? box
   // In a ConversationLayout the layout draws the line, from the comment's face to the last reply, as one bar.
   const layoutLine = useContext(LineByLayout)
@@ -103,7 +119,7 @@ export function Thread({
   return (
     <Panel
       className={className}
-      bodyRef={bodyRef}
+      bodyRef={setBody}
       bodyClassName="flex flex-col"
       title={title}
       actions={

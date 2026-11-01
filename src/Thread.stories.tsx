@@ -6,6 +6,7 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { MembersPill } from './MembersPill'
+import { useSeenOnScreen } from './seenOnScreen'
 import { showInConversation } from './showInConversation'
 import { Thread } from './Thread'
 
@@ -68,6 +69,26 @@ export const Shown: Story = {
   ),
   play: () => {
     showInConversation('r2')
+  },
+}
+
+/** Read by being seen: a new reply keeps its edge until it has been on screen a moment (`useSeenOnScreen`, handed to `seen`). */
+export const Seen: Story = {
+  name: 'New until seen',
+  render: function Render() {
+    const seen = useSeenOnScreen('story')
+    return (
+      <Side>
+        <Thread start={START} onClose={() => {}} box={<WriteBox />} seen={seen}>
+          <ReplyCard id="n1" author={TWO} time="11:40 AM" isNew={!seen.ids.has('n1')}>
+            {SHORT}
+          </ReplyCard>
+          <ReplyCard id="n2" author={THREE} time="11:52 AM" isNew={!seen.ids.has('n2')}>
+            A second reply, new too.
+          </ReplyCard>
+        </Thread>
+      </Side>
+    )
   },
 }
 
