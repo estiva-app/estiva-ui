@@ -37,6 +37,12 @@ export const caretOnOpen = createContext(0)
  */
 export const LineByLayout = createContext(false)
 
+/**
+ * A comment's exact date and time, from its moment (ms), in the reader's own way: what its time says under the pointer
+ * (Peek's words for it: `dateStyle: 'long'`, `timeStyle: 'short'`).
+ */
+export const exactTime = (at: number) => new Date(at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })
+
 /** The room between a face and the line under it. */
 const FACE_GAP = 4
 

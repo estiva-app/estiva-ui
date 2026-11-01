@@ -13,7 +13,7 @@ import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
-import { InConversationItem, InThreadCard, useFaceLine } from './threadCard'
+import { exactTime, InConversationItem, InThreadCard, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -32,6 +32,8 @@ export interface ConversationEntryProps {
   author: ConversationPerson
   /** When it was written, in the app's words ("11:08 AM"). */
   time: ReactNode
+  /** When it was written, as a moment (ms since 1970): the time then says the exact date and time under the pointer. */
+  at?: number
   /** A link to it: the time is then the link, "Link to this", as a reply's is. */
   timeHref?: string
   /** The time's tooltip when it is a link, in the app's words: "Link to this" by default; Peek's "Link to this message". */
@@ -112,8 +114,31 @@ export interface ConversationCardProps extends ConversationEntryProps {
 
 export type ReplyCardProps = ConversationEntryProps
 
+/**
+ * When it was written: the app's words, and with its moment the exact date and time under the pointer (B10: as Peek's
+ * rows of another app's comments always said it, now on every comment and reply). A time that is a link says the exact
+ * time, then where the link goes.
+ */
+function When({ time, at, timeHref, timeLabel = 'Link to this' }: Pick<ConversationEntryProps, 'time' | 'at' | 'timeHref' | 'timeLabel'>) {
+  const exact = at === undefined ? undefined : exactTime(at)
+  const said = at === undefined ? time : <time dateTime={new Date(at).toISOString()}>{time}</time>
+  if (timeHref) {
+    return (
+      <WithTooltip label={exact ? `${exact} · ${timeLabel}` : timeLabel} wrapperClassName="shrink-0">
+        <MetaText className="contents">
+          <Link href={timeHref} variant="quiet" data-interactive>
+            {said}
+          </Link>
+        </MetaText>
+      </WithTooltip>
+    )
+  }
+  // Drawn as Peek's rows of another app's comments drew it: the tooltip's own box round the time, inside its words' look.
+  return <MetaText className="shrink-0">{exact ? <WithTooltip label={exact}>{said}</WithTooltip> : time}</MetaText>
+}
+
 /** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
   return (
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -121,17 +146,7 @@ function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNe
           <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
         </span>
         <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
-        {timeHref ? (
-          <WithTooltip label={timeLabel} wrapperClassName="shrink-0">
-            <MetaText className="contents">
-              <Link href={timeHref} variant="quiet" data-interactive>
-                {time}
-              </Link>
-            </MetaText>
-          </WithTooltip>
-        ) : (
-          <MetaText className="shrink-0">{time}</MetaText>
-        )}
+        <When time={time} at={at} timeHref={timeHref} timeLabel={timeLabel} />
         <EditedMarker edited={edited} />
         {meta}
       </div>
@@ -352,6 +367,7 @@ export function ConversationCard(props: ConversationCardProps) {
                 <Head
                   author={author}
                   time={props.time}
+                  at={props.at}
                   timeHref={props.timeHref}
                   timeLabel={props.timeLabel}
                   edited={props.edited}
@@ -504,7 +520,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>

@@ -197,3 +197,60 @@ describe('ConversationCard, by the keyboard (Peek’s review, 1 November)', () =
     expect(container.querySelector('[tabindex="0"]')).toBeNull()
   })
 })
+
+/**
+ * The exact time on hover (B10, the audit of 2 November): Peek's words for it, the whole date and the time
+ * (`toLocaleString`, `dateStyle: 'long'`, `timeStyle: 'short'`), on every comment and reply, as Peek's rows of another
+ * app's comments always said it and as PageHeader's time does. Before, only those rows did, by hand.
+ */
+describe('ConversationCard and ReplyCard, the exact time', () => {
+  const AT = Date.UTC(2026, 10, 2, 11, 8)
+  const exact = new Date(AT).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })
+
+  it('a comment’s time says the exact date and time under the pointer, and is a time the page can read', async () => {
+    const user = userEvent.setup()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" at={AT}>
+        Words
+      </ConversationCard>,
+    )
+    const time = screen.getByText('11:08 AM')
+    expect(time.tagName).toBe('TIME')
+    expect(time.getAttribute('datetime')).toBe(new Date(AT).toISOString())
+    await user.hover(time)
+    expect((await screen.findByRole('tooltip')).textContent).toBe(exact)
+  })
+
+  it('a reply’s too', async () => {
+    const user = userEvent.setup()
+    render(
+      <ReplyCard author={ONE} time="11:08 AM" at={AT}>
+        Words
+      </ReplyCard>,
+    )
+    await user.hover(screen.getByText('11:08 AM'))
+    expect((await screen.findByRole('tooltip')).textContent).toBe(exact)
+  })
+
+  it('a time that is a link says the exact time, then where the link goes', async () => {
+    const user = userEvent.setup()
+    render(
+      <ReplyCard author={ONE} time="11:08 AM" at={AT} timeHref="#reply" timeLabel="Link to this one">
+        Words
+      </ReplyCard>,
+    )
+    await user.hover(screen.getByRole('link', { name: '11:08 AM' }))
+    expect((await screen.findByRole('tooltip')).textContent).toBe(`${exact} · Link to this one`)
+  })
+
+  it('with no moment, the time is the app’s words alone, as before', async () => {
+    const user = userEvent.setup()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM">
+        Words
+      </ConversationCard>,
+    )
+    await user.hover(screen.getByText('11:08 AM'))
+    expect(screen.queryByRole('tooltip')).toBeNull()
+  })
+})

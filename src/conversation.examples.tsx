@@ -28,6 +28,9 @@ export const TWO = { name: 'Person two' }
 export const THREE = { name: 'Person three' }
 export const YOU = { name: 'You' }
 
+/** A moment for a time's exact date under the pointer: 11:08 AM, on a placeholder day. */
+export const AT = new Date(2026, 9, 31, 11, 8).getTime()
+
 export const WORDS = 'A comment says what its author wrote. Its replies sit in the thread under it, and anyone here can react.'
 export const SHORT = 'A reply answers the comment above it.'
 export const LONG =

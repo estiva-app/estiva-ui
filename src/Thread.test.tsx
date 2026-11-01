@@ -98,3 +98,14 @@ describe('Thread, under its comment (one column)', () => {
     expect(container.querySelector('[data-thread-replies]')).toBeNull()
   })
 })
+
+describe('Thread, the pinned comment’s exact time (B10)', () => {
+  it('says the exact date and time under the pointer, as every comment’s time does', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+    const at = Date.UTC(2026, 10, 2, 11, 8)
+    render(<Thread start={{ ...START, at }} />)
+    await user.hover(screen.getByText('11:08 AM'))
+    expect((await screen.findByRole('tooltip')).textContent).toBe(new Date(at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' }))
+  })
+})
