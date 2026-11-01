@@ -358,6 +358,31 @@ describe('read-only', () => {
     expect(document.querySelector('.ProseMirror')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
   })
+
+  it('closed from the start, it builds no editor to say it: none is handed to the app', () => {
+    const onEditor = vi.fn()
+    render(<Box closed={{ reason: 'Archived. It takes no new comments.' }} onEditor={onEditor} />)
+    expect(screen.getByText('Archived. It takes no new comments.')).toBeTruthy()
+    expect(onEditor.mock.calls.filter(([editor]) => editor !== null)).toHaveLength(0)
+  })
+
+  it('opened later, it builds its editor then, and can be written in', async () => {
+    const onEditor = vi.fn()
+    const { rerender } = render(<Box closed={{ reason: 'Signed out.' }} onEditor={onEditor} />)
+    rerender(<Box onEditor={onEditor} />)
+    expect(onEditor.mock.calls.filter(([editor]) => editor !== null)).toHaveLength(1)
+    await type('Hello')
+    expect(editorOf().getText()).toBe('Hello')
+  })
+
+  it('closed while something is written, and opened again, it still holds the words', async () => {
+    const { rerender } = render(<Box />)
+    await type('Kept through the close')
+    rerender(<Box closed={{ reason: 'Signed out.' }} />)
+    expect(document.querySelector('.ProseMirror')).toBeNull()
+    rerender(<Box />)
+    expect(editorOf().getText()).toBe('Kept through the close')
+  })
 })
 
 describe('under the box: the one card, with ✕, and the live parts', () => {
