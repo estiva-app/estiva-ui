@@ -15,6 +15,7 @@ export { AttachmentCard, type AttachmentCardProps, type AttachmentCardState } fr
 export { Avatar, hueFor, initialsFor, type AvatarProps } from './Avatar'
 export { AvatarGroup, type AvatarGroupMember, type AvatarGroupProps } from './AvatarGroup'
 export { MembersPill, type MembersPillProps } from './MembersPill'
+export { MoveDialog, type MoveChoice, type MoveDialogProps, type MoveFolder, type MovePlace } from './MoveDialog'
 export { MembersDialog, type MembersDialogCandidate, type MembersDialogMember, type MembersDialogProps, type MembersDialogSelfAction } from './MembersDialog'
 export { Banner, type BannerProps, type BannerTone } from './Banner'
 export { BlockHandle, blockAtY, type BlockHandleProps, type BlockHandleEditing, type HandleBlock } from './BlockHandle'
