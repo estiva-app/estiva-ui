@@ -284,10 +284,50 @@ describe('ConversationLayout, two columns, what an app with its own list keeps (
     const top = screen.getByText('Archived').parentElement!
     const room = top.nextElementSibling as HTMLElement
     expect(room.className).toContain('flex-1')
+    // The room grows only because the scroll content is at least as tall as the column.
+    expect(top.parentElement?.className).toContain('min-h-full')
     expect(room.nextElementSibling?.textContent).toContain('Today one')
     // The note is under the comments, in their list.
     const words = ['Today one', 'Reactions note'].map((w) => screen.getByText(w))
     expect(words[0].compareDocumentPosition(words[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('redraws no comment when older ones arrive at the top, a day of their own above (PEE-7)', () => {
+    const later: ConversationItem[] = [
+      { id: 'b', card: card('Monday one'), day: 'Monday' },
+      { id: 'c', card: card('Today one'), day: 'Today' },
+    ]
+    const { rerender } = render(<ConversationLayout threads="beside" items={later} />)
+    const before = ['b', 'c'].map((id) => document.querySelector(`[data-conversation-item="${id}"]`))
+    rerender(<ConversationLayout threads="beside" items={[{ id: 'a', card: card('Sunday one'), day: 'Sunday' }, ...later]} />)
+    // The same elements, not equal ones: a redrawn card would lose an open menu or dialog.
+    ;['b', 'c'].forEach((id, i) => expect(document.querySelector(`[data-conversation-item="${id}"]`)).toBe(before[i]))
+  })
+
+  it('draws nothing for a `top` of false, and no `below` while reading', () => {
+    const { container } = render(<ConversationLayout threads="beside" items={dayItems} top={false} />)
+    expect(container.querySelector('.pt-4.px-4')).toBeNull()
+    cleanup()
+    render(<ConversationLayout threads="beside" items={[]} loading below={<p>Reactions note</p>} />)
+    expect(screen.queryByText('Reactions note')).toBeNull()
+  })
+
+  it('keeps its name with the message when the column throws, and the thread beside it stays', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Throws(): never {
+      throw new Error('a card that throws')
+    }
+    render(
+      <ConversationLayout
+        threads="beside"
+        title="A DM with Person one"
+        items={[{ id: 'x', card: <Throws />, thread: <p>The thread</p> }]}
+        open="x"
+      />,
+    )
+    expect(screen.getByText('A DM with Person one')).toBeTruthy()
+    expect(screen.getByText('The thread')).toBeTruthy()
+    quiet.mockRestore()
   })
 
   it('says an empty conversation in the app’s own words, or nothing', () => {

@@ -45,7 +45,7 @@ export interface ConversationLayoutProps {
   box?: ReactNode
   /** Above the comments, inside their list: placeholders while older comments are read, a note. */
   above?: ReactNode
-  /** Two columns: under the comments, inside their list: a `ReactionHorizon`. */
+  /** Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`. Not while the comments are read. */
   below?: ReactNode
   /** Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`. */
   top?: ReactNode
@@ -59,7 +59,7 @@ export interface ConversationLayoutProps {
   onBodyScroll?: UIEventHandler<HTMLDivElement>
   /** Two columns: the comments' own header, a `PageHeader`, over their column only, so the thread beside them runs the page's full height (Peek's way). */
   header?: ReactNode
-  /** One column: its name, in its header. */
+  /** Its name: one column's, in its header. Two columns, said with the message if the column breaks (the page's own bar is `header`). */
   title?: ReactNode
   /** One column: its header's actions, as a `Panel`'s. */
   actions?: ReactNode
@@ -110,20 +110,29 @@ function List({ items, open, under, above, loading, empty, change, caret }: List
   if (!under) {
     // Two columns: a day's comments are one stretch under its line, so the line stays at the top only while its own
     // stretch scrolls under it, and the next day's pushes it away (Peek's day lines).
-    const stretches: { day?: string; items: ConversationItem[] }[] = []
+    // Keyed by its day, not its place, so older comments arriving at the top redraw nothing under them; a day that
+    // comes back further down (an app's own order) is that day's second stretch.
+    const stretches: { key: string; day?: string; items: ConversationItem[] }[] = []
+    const seen = new Map<string, number>()
     for (const item of items) {
       const last = stretches[stretches.length - 1]
-      if (last && last.day === item.day) last.items.push(item)
-      else stretches.push({ day: item.day, items: [item] })
+      if (last && last.day === item.day) {
+        last.items.push(item)
+        continue
+      }
+      const name = item.day ?? ''
+      const count = (seen.get(name) ?? 0) + 1
+      seen.set(name, count)
+      stretches.push({ key: `${item.day === undefined ? 'no-day' : `day:${name}`}#${count}`, day: item.day, items: [item] })
     }
     return (
       <>
         {above}
-        {stretches.map((stretch, i) =>
+        {stretches.map((stretch) =>
           stretch.day === undefined ? (
-            <Fragment key={`stretch-${i}`}>{stretch.items.map(draw)}</Fragment>
+            <Fragment key={stretch.key}>{stretch.items.map(draw)}</Fragment>
           ) : (
-            <div key={`${stretch.day}-${i}`} className="flex flex-col gap-2">
+            <div key={stretch.key} className="flex flex-col gap-2">
               <Divider look="section" label={stretch.day} sticky />
               {stretch.items.map(draw)}
             </div>
@@ -280,12 +289,12 @@ export function ConversationLayout({
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {header}
           <ScrollArea className="min-h-0 flex-1" viewportRef={bodyRef} onScroll={onBodyScroll} contentClassName="flex min-h-full flex-col">
-            {top != null && <div className="shrink-0 px-4 pt-4">{top}</div>}
+            {top != null && top !== false && top !== '' && <div className="shrink-0 px-4 pt-4">{top}</div>}
             {/* A short conversation sits on its box, as a chat does: the newest comment by the box (Peek's way). */}
             <div className="min-h-0 flex-1" />
             <div className="flex shrink-0 flex-col gap-2 p-4">
               <List items={items} open={open} under={false} above={above} loading={loading} empty={empty} change={change} caret={caret} />
-              {below}
+              {!loading && below}
             </div>
           </ScrollArea>
           {/* Peek's composer room: 12px all round (useFileConversationView's `p-3`), under the list's 16px. */}

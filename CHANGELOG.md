@@ -16,6 +16,11 @@ reader, and one fix she asked for in every app: nothing folds.
   two → the note" above its replies. Ship and Leaf see it when they bump.
 - **`ConversationMenu`**: Delete stands apart from Edit, after a line, as a
   destructive row does.
+- **`deleteNote`** on `ConversationCard` and `ReplyCard` now replaces all the
+  kit's words under the delete question, "It is deleted for everyone." and
+  how many replies stay, so an app that says its own (Peek: "Its 2 replies
+  are separate events and stay.") is not followed by the kit's. `null` says
+  nothing there. No app passed it before.
 - **`ConversationLayout`, two columns** (only Peek's file page and DMs use
   them): a short conversation sits on its box, as a chat does, the room it
   leaves above it. If the column throws, its name stays with the message, as
@@ -28,12 +33,11 @@ reader, and one fix she asked for in every app: nothing folds.
   message); `menuLabel`, a heading over the ⋯ menu's rows; `resolveHint`, the
   key that resolves from the app's box; `editLabel`, Edit's word; `menuAfter`,
   the app's own rows after Edit; `timeLabel`, the tooltip on a time that is a
-  link ("Link to this message"); `deleteNote` now replaces the kit's words
-  under the delete question. `ConversationMenu` takes `label`, `resolveHint`,
-  `editLabel` and `after` the same way.
-- **`Thread`**: `empty` (what an empty thread says; `null` for nothing, for an
-  app whose thread stood silent, so it never flashes "No replies yet." while
-  it reads), `closeLabel` (Close's name for a screen reader, "Close thread";
+  link ("Link to this message"). `ConversationMenu` takes `label`,
+  `resolveHint`, `editLabel` and `after` the same way.
+- **`Thread`**: `empty` (what an empty thread beside says, words or the app's
+  own `EmptyState`; `null` for nothing, for an app whose thread stood silent,
+  so it never flashes "No replies yet." while it reads), `closeLabel` (Close's name for a screen reader, "Close thread";
   its tooltip still says "Close") and `start.id`, put on the pinned comment as
   `data-thread-start` for a link that names it.
 - **`ConversationLayout`, two columns, for an app that keeps its own list**:
@@ -41,9 +45,10 @@ reader, and one fix she asked for in every app: nothing folds.
   its own place in it (where it was left, its "New" line, following what
   arrives); a comment's `day`, a line naming each day's stretch that stays at
   the top while its stretch scrolls; a comment's `before`, a line just above
-  it (the app's "New" line); `below` (a `ReactionHorizon`) and `top` (an
-  `ArchivedNotice`, at the top however few the comments); `empty` takes the
-  app's own `EmptyState` or `null`. Storybook: Conversation/ConversationLayout,
+  it (the app's "New" line); `below` (a `ReactionHorizon`, not while the
+  comments are read) and `top` (an `ArchivedNotice`, at the top however few
+  the comments); `empty` takes the app's own `EmptyState` or `null`; `title`
+  names the column in the message if it breaks. Storybook: Conversation/ConversationLayout,
   "Two columns, days" and "Two columns, archived".
 
 ### Fixed

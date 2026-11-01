@@ -200,7 +200,8 @@ describe('when it changed, and who made it', () => {
 
   it('draws an agent who made it as the robot, from its profile (Katerina, 1 November)', () => {
     const card = render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options({ directory: { ...PEOPLE, [OTHER]: { displayName: 'Claude (steered by Person one)', bot: true } } }))} />)
-    expect(within(card.container).queryByText('CS')).toBeNull()
+    // A person named so would be "C"; the agent is the robot instead.
+    expect(within(card.container).queryByText('C')).toBeNull()
     expect(card.container.querySelectorAll('svg path[d^="M13.5 2C13.5 2.44425"]').length).toBe(1)
   })
 

@@ -38,8 +38,8 @@ export interface ThreadProps {
   onClose?: () => void
   /** Close's name for a screen reader, in the app's words ("Close thread"). Its tooltip still says "Close". */
   closeLabel?: string
-  /** What an empty thread says. `null`: nothing, for an app whose thread stood empty and silent. */
-  empty?: string | null
+  /** Beside: what an empty thread says, words or the app's own `EmptyState`. `null`: nothing, for an app whose thread stood empty and silent. Under its comment an empty thread is only its box. */
+  empty?: ReactNode
   /** The column's name. */
   title?: ReactNode
   /** The column's scrolling box, for opening at the newest reply. */
@@ -51,9 +51,9 @@ export interface ThreadProps {
 /** Whether there are replies: an app's `replies.map(…)` with none is an empty list, which is not nothing to React but is to the reader. */
 const anyIn = (children: ReactNode) => Children.toArray(children).length > 0
 
-function Replies({ children, loading, empty }: { children?: ReactNode; loading: boolean; empty: string | null }) {
+function Replies({ children, loading, empty }: { children?: ReactNode; loading: boolean; empty: ReactNode }) {
   if (loading) return <SkeletonConversation />
-  if (!anyIn(children)) return empty === null ? null : <EmptyState scope="section" message={empty} />
+  if (!anyIn(children)) return typeof empty === 'string' ? <EmptyState scope="section" message={empty} /> : <>{empty}</>
   return <>{children}</>
 }
 

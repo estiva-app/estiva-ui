@@ -2910,7 +2910,7 @@
           "name": "below",
           "takes": "anything",
           "required": false,
-          "note": "Two columns: under the comments, inside their list: a `ReactionHorizon`."
+          "note": "Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`."
         },
         {
           "name": "top",
@@ -2952,7 +2952,7 @@
           "name": "title",
           "takes": "anything",
           "required": false,
-          "note": "One column: its name, in its header."
+          "note": "Its name: one column's, in its header. Two columns, said with the message if the column breaks (the page's own bar is `header`)."
         },
         {
           "name": "actions",
@@ -10285,9 +10285,9 @@
         },
         {
           "name": "empty",
-          "takes": "string | null",
+          "takes": "anything",
           "required": false,
-          "note": "What an empty thread says. `null`: nothing, for an app whose thread stood empty and silent."
+          "note": "Beside: what an empty thread says, words or the app's own `EmptyState`."
         },
         {
           "name": "title",
