@@ -46,6 +46,27 @@ describe('ResolveDialog', () => {
     expect(onResolve).not.toHaveBeenCalled()
   })
 
+  it('Cancel waits while it resolves, as in every form dialog', async () => {
+    const user = userEvent.setup()
+    render(<ResolveDialog onResolve={() => new Promise<void>(() => {})} onCancel={() => {}} />)
+    await user.click(screen.getByRole('button', { name: 'Resolve' }))
+    expect((screen.getByRole('button', { name: 'Cancel' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('button', { name: 'Resolve' }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('closes itself once a resolve is not refused, and stays when it is', async () => {
+    const user = userEvent.setup()
+    const onCancel = vi.fn()
+    const { unmount } = render(<ResolveDialog onResolve={async () => false} onCancel={onCancel} />)
+    await user.click(screen.getByRole('button', { name: 'Resolve' }))
+    await vi.waitFor(() => expect((screen.getByRole('button', { name: 'Resolve' }) as HTMLButtonElement).disabled).toBe(false))
+    expect(onCancel).not.toHaveBeenCalled()
+    unmount()
+    render(<ResolveDialog onResolve={async () => true} onCancel={onCancel} />)
+    await user.click(screen.getByRole('button', { name: 'Resolve' }))
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce())
+  })
+
   it('says why the last resolve was refused, under the note', () => {
     render(<ResolveDialog onResolve={() => false} onCancel={() => {}} refused="The file is archived" />)
     expect(screen.getByText(/The file is archived/)).toBeTruthy()
