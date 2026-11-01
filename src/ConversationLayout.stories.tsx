@@ -3,7 +3,10 @@ import { useState } from 'react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
+import { ArchivedNotice } from './ArchivedNotice'
+import { Divider } from './Divider'
 import { Panel } from './Panel'
+import { ReactionHorizon } from './ReactionHorizon'
 import { QuotedLine } from './QuotedLine'
 import { SkeletonBar } from './Skeleton'
 import { Thread } from './Thread'
@@ -103,6 +106,52 @@ export const TwoColumns: Story = {
     const [open, setOpen] = useState<string | undefined>('c1')
     return <ConversationLayout threads="beside" items={useItems('beside', open, setOpen, false)} open={open} onOpenChange={setOpen} box={<WriteBox label="Comment" />} />
   },
+}
+
+/**
+ * Two columns, as Peek's file page and DMs: each day's comments under a line naming it, which stays at the top while
+ * its stretch scrolls; the "New" line over the first comment not read; the reactions note under the comments. Few
+ * comments sit on the box, as a chat does.
+ */
+export const TwoColumnsDays: Story = {
+  name: 'Two columns, days',
+  render: () => {
+    const card = (who: typeof ONE, time: string, words: string) => (
+      <ConversationCard author={who} time={time}>
+        {words}
+      </ConversationCard>
+    )
+    const items: ConversationItem[] = [
+      { id: 'd1', day: 'Monday', card: card(ONE, '9:14 AM', WORDS) },
+      { id: 'd2', day: 'Monday', card: card(TWO, '9:40 AM', 'A second comment that Monday.') },
+      { id: 'd3', day: 'Today', card: card(ONE, '8:02 AM', 'The first comment today, read.') },
+      { id: 'd4', day: 'Today', before: <Divider label="New" tone="warning" />, card: card(TWO, '10:21 AM', 'The first comment not read yet.') },
+    ]
+    return <ConversationLayout threads="beside" items={items} below={<ReactionHorizon limit={100} omitted={3} />} box={<WriteBox label="Comment" />} />
+  },
+}
+
+/** Two columns, an archived file: its card at the top however few the comments, the box's line saying why nothing can be written. */
+export const TwoColumnsArchived: Story = {
+  name: 'Two columns, archived',
+  render: () => (
+    <ConversationLayout
+      threads="beside"
+      top={<ArchivedNotice by="Person one" when="Monday" resolution="Shipped. What was left moved to the next file." />}
+      items={[
+        {
+          id: 'a1',
+          day: 'Monday',
+          card: (
+            <ConversationCard author={ONE} time="9:14 AM" readOnly>
+              {WORDS}
+            </ConversationCard>
+          ),
+        },
+      ]}
+      box={<WriteBox closed="Archived. Unarchive it to comment." />}
+    />
+  ),
 }
 
 /** One column beside the page: a thread opens under its comment. */

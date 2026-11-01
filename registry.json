@@ -2904,7 +2904,19 @@
           "name": "above",
           "takes": "anything",
           "required": false,
-          "note": "Above the comments, inside their list: a `ReactionHorizon`, a note."
+          "note": "Above the comments, inside their list: placeholders while older comments are read, a note."
+        },
+        {
+          "name": "below",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: under the comments, inside their list: a `ReactionHorizon`."
+        },
+        {
+          "name": "top",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`."
         },
         {
           "name": "loading",
@@ -2914,9 +2926,21 @@
         },
         {
           "name": "empty",
-          "takes": "text",
+          "takes": "anything",
           "required": false,
-          "note": "What an empty conversation says."
+          "note": "What an empty conversation says: words, or the app's own `EmptyState` (a read that failed says so)."
+        },
+        {
+          "name": "bodyRef",
+          "takes": "Ref<HTMLDivElement>",
+          "required": false,
+          "note": "Two columns: the comments' scrolling box, for an app that keeps its own place in it (where it was left, its \"New\" line, following what arrives)."
+        },
+        {
+          "name": "onBodyScroll",
+          "takes": "UIEventHandler<HTMLDivElement>",
+          "required": false,
+          "note": "Two columns: the comments' box scrolled."
         },
         {
           "name": "header",
