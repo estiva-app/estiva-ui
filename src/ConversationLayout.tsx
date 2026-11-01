@@ -10,7 +10,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { Panel } from './Panel'
 import { ScrollArea } from './ScrollArea'
 import { SkeletonConversation } from './Skeleton'
-import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, useFaceLine, type ConversationItemState } from './threadCard'
+import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, SHOWN_CLASSES, useFaceLine, type ConversationItemState } from './threadCard'
 
 /** One comment in the list, and its thread when it is open. */
 export interface ConversationItem {
@@ -99,7 +99,7 @@ function List({ items, open, under, above, loading, empty, change, caret }: List
       return (
         <Fragment key={item.id}>
           {item.before}
-          <div data-conversation-item={item.id} className="flex flex-col">
+          <div data-conversation-item={item.id} className={cn('flex flex-col', SHOWN_CLASSES)}>
             <InConversationItem.Provider value={stateOf(item)}>{item.card}</InConversationItem.Provider>
           </div>
         </Fragment>
@@ -189,7 +189,7 @@ function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isO
       hover="hairline"
       hovered={isOpen}
       quietUntilHover={!isOpen}
-      className={cn('relative flex flex-col', isOpen && 'pb-2')}
+      className={cn('relative flex flex-col', isOpen && 'pb-2', SHOWN_CLASSES)}
     >
       <InConversationItem.Provider value={state}>
         <InThreadCard.Provider value={isOpen}>

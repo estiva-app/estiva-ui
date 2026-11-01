@@ -13,7 +13,7 @@ import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
-import { exactTime, InConversationItem, InThreadCard, useFaceLine } from './threadCard'
+import { exactTime, InConversationItem, InThreadCard, SHOWN_CLASSES, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -112,7 +112,10 @@ export interface ConversationCardProps extends ConversationEntryProps {
   onClick?: () => void
 }
 
-export type ReplyCardProps = ConversationEntryProps
+export interface ReplyCardProps extends ConversationEntryProps {
+  /** Its id, on the card as `data-reply-id`: what a link to it shows (`showInConversation`), and what `Thread` watches to say it was seen. */
+  id?: string
+}
 
 /**
  * When it was written: the app's words, and with its moment the exact date and time under the pointer (B10: as Peek's
@@ -480,7 +483,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
+  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -504,7 +507,8 @@ export function ReplyCard(props: ReplyCardProps) {
         active={isEditing}
         // A reply is marked inside its thread card too.
         attention={attentionOf(isNew, urgent, false)}
-        className={cn('relative', className)}
+        data-reply-id={id}
+        className={cn('relative', SHOWN_CLASSES, className)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return

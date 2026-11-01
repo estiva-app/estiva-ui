@@ -9,7 +9,7 @@ import { Panel } from './Panel'
 import { PinnedComment, type PinnedCommentProps } from './PinnedComment'
 import { SkeletonConversation } from './Skeleton'
 import { useContext } from 'react'
-import { caretOnOpen, LineByLayout } from './threadCard'
+import { caretOnOpen, LineByLayout, SHOWN_CLASSES } from './threadCard'
 
 /** The comment a thread answers, pinned at the top of its column. */
 export interface ThreadStart extends PinnedCommentProps {
@@ -120,7 +120,7 @@ export function Thread({
       footer={foot && <div className="p-3">{foot}</div>}
     >
       {start && (
-        <div className="px-4 pb-2 pt-4" data-thread-start={start.id}>
+        <div className={cn('px-4 pb-2 pt-4', SHOWN_CLASSES)} data-thread-start={start.id}>
           <PinnedComment author={start.author} time={start.time} at={start.at} words={start.words} deleted={start.deleted} />
         </div>
       )}

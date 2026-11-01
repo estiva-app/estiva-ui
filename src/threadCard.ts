@@ -43,6 +43,13 @@ export const LineByLayout = createContext(false)
  */
 export const exactTime = (at: number) => new Date(at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })
 
+/**
+ * The flash on a comment or reply a link just showed (`data-shown`, set by `showInConversation`): the accent's wash,
+ * fading over 1.8s, in 8px corners; held still, without the fade, for a reader who asks for less motion. Peek's
+ * cited-flash, moved (INT-3). On every element the kit marks with an id a link can name.
+ */
+export const SHOWN_CLASSES = 'data-[shown]:animate-shown data-[shown]:rounded-lg motion-reduce:data-[shown]:animate-none motion-reduce:data-[shown]:bg-accent-wash'
+
 /** The room between a face and the line under it. */
 const FACE_GAP = 4
 

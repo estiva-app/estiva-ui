@@ -6,6 +6,7 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { MembersPill } from './MembersPill'
+import { showInConversation } from './showInConversation'
 import { Thread } from './Thread'
 
 /** A comment's replies, with the box to write one: in the right column, or under its comment. */
@@ -27,17 +28,17 @@ function Side({ children }: { children: ReactNode }) {
   )
 }
 
-const START = { author: ONE, time: '11:08 AM', words: WORDS }
+const START = { id: 'c1', author: ONE, time: '11:08 AM', words: WORDS }
 
 function Replies({ readOnly = false }: { readOnly?: boolean }) {
   const one = useReactions(SOME)
   const two = useReactions()
   return (
     <>
-      <ReplyCard author={TWO} time="11:40 AM" reactions={one} readOnly={readOnly}>
+      <ReplyCard id="r1" author={TWO} time="11:40 AM" reactions={one} readOnly={readOnly}>
         {SHORT}
       </ReplyCard>
-      <ReplyCard author={THREE} time="11:52 AM" reactions={two} readOnly={readOnly}>
+      <ReplyCard id="r2" author={THREE} time="11:52 AM" reactions={two} readOnly={readOnly}>
         A second reply, under the first, in the order they were written.
       </ReplyCard>
     </>
@@ -53,6 +54,21 @@ export const Column: Story = {
       </Thread>
     </Side>
   ),
+}
+
+/** A link to a reply showed it (`showInConversation`): scrolled to the middle of the column and flashed in the accent's wash, fading. The story shows the second reply. */
+export const Shown: Story = {
+  name: 'A reply shown',
+  render: () => (
+    <Side>
+      <Thread start={START} onClose={() => {}} box={<WriteBox />}>
+        <Replies />
+      </Thread>
+    </Side>
+  ),
+  play: () => {
+    showInConversation('r2')
+  },
 }
 
 /** Resolved: "Resolved" at the top. Who resolved it, and the note, are said on the comment, not among the replies. */
