@@ -138,6 +138,7 @@ export { ConversationLayout, type ConversationItem, type ConversationLayoutProps
 // The box at a thread's foot takes the caret when a ConversationLayout opens it: one context, shared with the editor's CommentBox.
 export { caretOnOpen } from './threadCard'
 export { ConversationMenu, type ConversationMenuProps } from './ConversationMenu'
+export { ConversationPlace, type ConversationPlaceProps } from './ConversationPlace'
 export { EditedMarker, type EditedMarkerProps } from './EditedMarker'
 export { MetaText, type MetaTextProps } from './MetaText'
 export { QuotedLine, type QuotedLineProps } from './QuotedLine'
