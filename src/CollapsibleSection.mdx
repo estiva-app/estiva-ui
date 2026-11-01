@@ -92,7 +92,7 @@ import { CollapsibleSection, NavItem } from '@estiva-app/ui'
 ```tsx
 const [open, setOpen] = useRememberedOpen(`app.sidebar.folder.${id}`, holdsCurrent)
 <CollapsibleSection title={name} open={open} onOpenChange={setOpen}>
-  {open && <Rows folder={id} />}
+  {open && <NavItem href={`/folder/${id}`} label="Read only once open" />}
 </CollapsibleSection>
 ```
 - A browser that blocks storage still gets a working section; it forgets.
