@@ -5,14 +5,17 @@ import * as Stories from './ConversationMenu.stories'
 
 # ConversationMenu
 
-The ⋯ menu of a comment or a reply: Resolve or Reopen, the app's own rows, then Edit and Delete on your own.
+The ⋯ menu of a comment or a reply: Resolve or Reopen and the app's own rows; then Edit on your own; then Delete on your own, apart.
 
 <Canvas of={Stories.Yours} />
 
 ## When
 
 - Inside **ConversationCard** and **ReplyCard**, which draw it for you.
-- Its `children` are the app's own rows.
+- Its `children` are the app's own rows, after Resolve; `after`, its rows after Edit.
+- In the app's own words: `label` heads the first rows, `resolveHint` stands beside Resolve, `editLabel` is Edit's word. Peek's menu reads as it did with them (Katerina, 1 November).
+
+<Canvas of={Stories.InAnAppsWords} />
 
 <Canvas of={Stories.Theirs} />
 

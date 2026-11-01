@@ -1,17 +1,25 @@
 import type { ReactElement, ReactNode } from 'react'
 import { IconCircleCheck, IconCircleDashed, IconDotsVertical } from '@tabler/icons-react'
 import { IconButton } from './IconButton'
-import { Menu, MenuItem, MenuSeparator } from './Menu'
+import { Menu, MenuItem, MenuSection, MenuSeparator } from './Menu'
 
 export interface ConversationMenuProps {
   /** Resolved: the menu offers Reopen in place of Resolve. */
   resolved?: boolean
   onResolve?: () => void
   onReopen?: () => void
-  /** The app's own rows, between Resolve and Edit: `MenuItem`s. */
+  /** Beside Resolve, how the app's box resolves too, as its key hint: Peek's "->". */
+  resolveHint?: string
+  /** The app's own rows, after Resolve: `MenuItem`s. */
   children?: ReactNode
+  /** A heading over Resolve and the app's rows, in the app's words: Peek's "Utilities". */
+  label?: string
   /** Offered on your own only. */
   onEdit?: () => void
+  /** Edit's words: "Edit" by default; Peek's "Edit message". */
+  editLabel?: string
+  /** The app's own rows after Edit, before Delete: Peek's "View details". */
+  after?: ReactNode
   /** Offered on your own only; the card asks before it deletes. */
   onDelete?: () => void
   open?: boolean
@@ -21,12 +29,30 @@ export interface ConversationMenuProps {
 }
 
 /**
- * The ⋯ menu of a comment or a reply: Resolve or Reopen and the app's own rows, then Edit and Delete on your own.
- * A card offers it only when it has a row to show.
- * Peek's, moved with the conversation; its "Utilities" heading went, as the kit names no app's furniture.
+ * The ⋯ menu of a comment or a reply, in up to three groups: Resolve or Reopen and the app's rows; Edit on your own
+ * and the app's rows after it; Delete on your own, apart, as it is destructive. A card offers it only when it has a
+ * row to show. Peek's, moved with the conversation; what is Peek's own (its heading, its hint, its words, its rows)
+ * Peek passes in, so its menu reads as it did (Katerina, 1 November).
  */
-export function ConversationMenu({ resolved = false, onResolve, onReopen, children, onEdit, onDelete, open, onOpenChange, trigger }: ConversationMenuProps) {
+export function ConversationMenu({ resolved = false, onResolve, onReopen, resolveHint, children, label, onEdit, editLabel = 'Edit', after, onDelete, open, onOpenChange, trigger }: ConversationMenuProps) {
   const resolves = resolved ? onReopen : onResolve
+  const first = (resolves || children) && (
+    <>
+      {resolves &&
+        (resolved ? (
+          <MenuItem leading={<IconCircleDashed size={16} stroke={1.5} className="text-text-secondary" />} label="Reopen" onClick={onReopen} />
+        ) : (
+          <MenuItem leading={<IconCircleCheck size={16} stroke={1.5} className="text-text-secondary" />} label="Resolve" shortcut={resolveHint} onClick={onResolve} />
+        ))}
+      {children}
+    </>
+  )
+  const middle = (onEdit || after) && (
+    <>
+      {onEdit && <MenuItem label={editLabel} onClick={onEdit} />}
+      {after}
+    </>
+  )
   return (
     <Menu
       trigger={
@@ -41,16 +67,11 @@ export function ConversationMenu({ resolved = false, onResolve, onReopen, childr
       onOpenChange={onOpenChange}
       className="w-[244px]"
     >
-      {resolves &&
-        (resolved ? (
-          <MenuItem leading={<IconCircleDashed size={16} stroke={1.5} className="text-text-secondary" />} label="Reopen" onClick={onReopen} />
-        ) : (
-          <MenuItem leading={<IconCircleCheck size={16} stroke={1.5} className="text-text-secondary" />} label="Resolve" onClick={onResolve} />
-        ))}
-      {children}
-      {/* Edit and Delete are one group, as in Peek; the line only between two groups that are both there. */}
-      {(resolves || children) && (onEdit || onDelete) && <MenuSeparator />}
-      {onEdit && <MenuItem label="Edit" onClick={onEdit} />}
+      {first && (label ? <MenuSection label={label}>{first}</MenuSection> : first)}
+      {/* A line only between two groups that are both there. */}
+      {first && middle && <MenuSeparator />}
+      {middle}
+      {onDelete && (first || middle) && <MenuSeparator />}
       {onDelete && <MenuItem label="Delete" destructive onClick={onDelete} />}
     </Menu>
   )

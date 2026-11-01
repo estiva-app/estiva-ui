@@ -2671,6 +2671,12 @@
           "note": "What the comment is called in the delete question: \"Delete this comment?\" by default."
         },
         {
+          "name": "resolveHint",
+          "takes": "text",
+          "required": false,
+          "note": "Beside Resolve in the ⋯ menu, how the app's box resolves too, as its key hint: Peek's \"->\"."
+        },
+        {
           "name": "onResolve",
           "takes": "a handler",
           "required": false,
@@ -2812,7 +2818,25 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+          "note": "The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "menuAfter",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu after Edit, before Delete: Peek's \"View details\"."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over the menu's first rows, in the app's words: Peek's \"Utilities\"."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
         },
         {
           "name": "className",
@@ -2937,7 +2961,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/ConversationMenu.tsx",
-      "purpose": "The ⋯ menu of a comment or a reply: Resolve or Reopen, the app's own rows, then Edit and Delete on your own.",
+      "purpose": "The ⋯ menu of a comment or a reply: Resolve or Reopen and the app's own rows; then Edit on your own; then Delete on your own, apart.",
       "purposeFrom": "page",
       "props": [
         {
@@ -2959,16 +2983,40 @@
           "note": null
         },
         {
+          "name": "resolveHint",
+          "takes": "text",
+          "required": false,
+          "note": "Beside Resolve, how the app's box resolves too, as its key hint: Peek's \"->\"."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows, between Resolve and Edit: `MenuItem`s."
+          "note": "The app's own rows, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over Resolve and the app's rows, in the app's words: Peek's \"Utilities\"."
         },
         {
           "name": "onEdit",
           "takes": "a handler",
           "required": false,
           "note": "Offered on your own only."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words: \"Edit\" by default; Peek's \"Edit message\"."
+        },
+        {
+          "name": "after",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows after Edit, before Delete: Peek's \"View details\"."
         },
         {
           "name": "onDelete",
@@ -8631,7 +8679,25 @@
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+          "note": "The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "menuAfter",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu after Edit, before Delete: Peek's \"View details\"."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over the menu's first rows, in the app's words: Peek's \"Utilities\"."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
         },
         {
           "name": "className",

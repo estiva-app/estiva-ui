@@ -62,8 +62,14 @@ export interface ConversationEntryProps {
   onDelete?: () => Promise<boolean | void> | boolean | void
   /** The app's sentence in the delete question, what deleting does there. Absent: "It is deleted for everyone." */
   deleteNote?: ReactNode
-  /** The app's own rows in the ⋯ menu: `MenuItem`s. */
+  /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
+  /** The app's own rows in the ⋯ menu after Edit, before Delete: Peek's "View details". */
+  menuAfter?: ReactNode
+  /** A heading over the menu's first rows, in the app's words: Peek's "Utilities". */
+  menuLabel?: string
+  /** Edit's words in the ⋯ menu: "Edit" by default; Peek's "Edit message". */
+  editLabel?: string
   /** Placement only. */
   className?: string
 }
@@ -86,6 +92,8 @@ export interface ConversationCardProps extends ConversationEntryProps {
    * `message` (Katerina, 1 November: "comment" reads wrong in a private chat).
    */
   noun?: string
+  /** Beside Resolve in the ⋯ menu, how the app's box resolves too, as its key hint: Peek's "->". */
+  resolveHint?: string
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
   /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
@@ -248,7 +256,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -275,7 +283,7 @@ export function ConversationCard(props: ConversationCardProps) {
   // Once its picker or menu has closed: the strip only if the card is still pointed at.
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
-  const offersMenu = !!resolves || !!menu || (own && (!!editor || !!onDelete))
+  const offersMenu = !!resolves || !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
   const react = reactions?.onToggle
   // Read-only with no replies, there is nothing to open: no box to write in, no thread to read (Peek's way, Katerina, 1 November).
@@ -390,7 +398,11 @@ export function ConversationCard(props: ConversationCardProps) {
                     resolved={!!resolved}
                     onResolve={onResolve && (() => setResolving(true))}
                     onReopen={onReopen}
+                    resolveHint={resolveHint}
+                    label={menuLabel}
                     onEdit={own && editor ? () => setEditing(true) : undefined}
+                    editLabel={editLabel}
+                    after={menuAfter}
                     onDelete={own && onDelete ? () => setDeleting(true) : undefined}
                   >
                     {menu}
@@ -427,7 +439,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -435,7 +447,7 @@ export function ReplyCard(props: ReplyCardProps) {
   const [deleting, setDeleting] = useState(false)
   const [editing, setEditing] = useEditing(props.editing, props.onEditingChange)
   const isEditing = editing && !readOnly && !!editor
-  const offersMenu = !!menu || (own && (!!editor || !!onDelete))
+  const offersMenu = !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
@@ -497,7 +509,10 @@ export function ReplyCard(props: ReplyCardProps) {
                     setMenuOpen(next)
                     if (!next) settle()
                   }}
+                  label={menuLabel}
                   onEdit={own && editor ? () => setEditing(true) : undefined}
+                  editLabel={editLabel}
+                  after={menuAfter}
                   onDelete={own && onDelete ? () => setDeleting(true) : undefined}
                 >
                   {menu}
