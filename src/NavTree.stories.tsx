@@ -272,6 +272,30 @@ export const OpensOntoTheCurrentRow: Story = {
   },
 }
 
+/** A link to a group — a folder's own: it opens, closed by hand too, and the column scrolls to it at once. Close it: it stays closed until a link leads to it again. Nothing is marked. */
+export const OpensOntoAGroup: Story = {
+  args: { groups: SHUT_GROUPS, selected: undefined },
+  render: function Render(args) {
+    const [group, setGroup] = useState<string | undefined>(undefined)
+    // Each press is a new arrival, as a link followed again is.
+    const follow = (id: string) => {
+      setGroup(undefined)
+      setTimeout(() => setGroup(id))
+    }
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree {...args} selectedGroup={group} />
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => follow('s8')}>Follow a link to Group eight</Button>
+          <Button variant="outlined" size="small" onClick={() => follow('s2')}>Follow a link to Group two</Button>
+        </Page>
+      </div>
+    )
+  },
+}
+
 /** A new tab, where nothing is open yet: each button starts the column again, every group shut, and opens onto its row. */
 export const InANewTab: Story = {
   args: { groups: SHUT_GROUPS, selected: undefined },

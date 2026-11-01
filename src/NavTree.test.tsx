@@ -319,3 +319,94 @@ describe('NavTreeSection pending, then loading', () => {
     expect(screen.getByText('Item a').closest('[hidden]')).toBeNull()
   })
 })
+
+/**
+ * A link to a group — a folder's own link — lands on it open and in sight
+ * (Katerina, 5 October, Peek's Folders: a notification leading to a shut
+ * heading among 160 showed nothing at all). Once per arrival: closed again,
+ * it stays closed until a link leads to it again. Peek's own effect, moved in.
+ */
+describe('NavTree opens onto the group a link led to', () => {
+  it('selectedGroup opens its shut group, once per arrival', async () => {
+    const { rerender } = render(<NavTree groups={SHUT} />)
+    expect(hidden('Item e')).toBe(true)
+    rerender(<NavTree groups={SHUT} selectedGroup="g2" />)
+    expect(hidden('Item e')).toBe(false)
+    await userEvent.click(screen.getByRole('button', { name: 'Group two' }))
+    rerender(<NavTree groups={SHUT} selectedGroup="g2" />)
+    expect(hidden('Item e')).toBe(true)
+    rerender(<NavTree groups={SHUT} />)
+    rerender(<NavTree groups={SHUT} selectedGroup="g2" />)
+    expect(hidden('Item e')).toBe(false)
+  })
+
+  it('a group this browser remembers closed opens for it, and is remembered open, as a click would', () => {
+    window.localStorage.setItem('test.tree.g2', 'closed')
+    render(<NavTree groups={SHUT} selectedGroup="g2" storageKey="test.tree" />)
+    expect(hidden('Item e')).toBe(false)
+    expect(window.localStorage.getItem('test.tree.g2')).toBe('open')
+    window.localStorage.removeItem('test.tree.g2')
+  })
+
+  it('marks nothing, and opens no other group', () => {
+    render(<NavTree groups={SHUT} selectedGroup="g2" />)
+    expect(document.querySelector('[aria-current]')).toBeNull()
+    expect(hidden('Item a')).toBe(true)
+  })
+
+  describe('and scrolls the column to it', () => {
+    /** A 100px column scrolled to its top, and the group's heading 300px down it. */
+    function lay(column: HTMLElement, at: number) {
+      let top = 0
+      Object.defineProperty(column, 'scrollHeight', { configurable: true, get: () => 1000 })
+      Object.defineProperty(column, 'clientHeight', { configurable: true, get: () => 100 })
+      Object.defineProperty(column, 'scrollTop', { configurable: true, get: () => top, set: (next: number) => (top = next) })
+      const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        const box = (y: number, height: number) => ({ top: y, bottom: y + height, height, left: 0, right: 0, width: 0, x: 0, y, toJSON: () => ({}) }) as DOMRect
+        if (this === column) return box(0, 100)
+        if (this.dataset.navGroup === 'far') return box(at - top, 34)
+        return box(0, 32)
+      })
+      return { scrolled: () => top, restore: () => rect.mockRestore() }
+    }
+
+    function Column({ group }: { group?: string }) {
+      return (
+        <div data-testid="column" style={{ overflowY: 'auto' }}>
+          <NavTree selectedGroup={group}>
+            <NavTreeSection id="near" title="Near"><a href="#n">Item n</a></NavTreeSection>
+            <NavTreeSection id="far" title="Far" defaultOpen={false} openFor={group === 'far' ? 'far' : undefined}><a href="#f">Item f</a></NavTreeSection>
+          </NavTree>
+        </div>
+      )
+    }
+
+    it('brings the group a link led to into the column, at once', () => {
+      const { rerender } = render(<Column />)
+      const layout = lay(screen.getByTestId('column'), 300)
+      try {
+        rerender(<Column group="far" />)
+        // Its bottom edge at the column's: 300 + 34 − 100.
+        expect(layout.scrolled()).toBe(234)
+        expect(hidden('Item f')).toBe(false)
+      } finally {
+        layout.restore()
+      }
+    })
+
+    it('a group in sight stays put, and the column is not pulled back to it on a later draw', () => {
+      const { rerender } = render(<Column />)
+      const layout = lay(screen.getByTestId('column'), 40)
+      try {
+        rerender(<Column group="far" />)
+        expect(layout.scrolled()).toBe(0)
+        const column = screen.getByTestId('column')
+        column.scrollTop = 500
+        rerender(<Column group="far" />)
+        expect(layout.scrolled()).toBe(500)
+      } finally {
+        layout.restore()
+      }
+    })
+  })
+})
