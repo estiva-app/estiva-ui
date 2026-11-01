@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.98.0",
+    "packageVersion": "0.98.1",
     "exports": 229,
     "typeExports": 234,
     "files": null
@@ -8155,6 +8155,12 @@
           "takes": "true/false",
           "required": false,
           "note": "Some reactions may be missing: the read was cut short."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the app calls what is said, in the plural: \"messages\" in Peek."
         }
       ],
       "variants": [],

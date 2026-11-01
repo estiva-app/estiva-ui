@@ -317,6 +317,19 @@ export function ConversationCard(props: ConversationCardProps) {
         attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
         className={cn('relative', className)}
         onClick={press && !isEditing && !overlay ? (e) => pressed(e, press) : undefined}
+        // A card that opens on a press is reached by the keyboard too: Tab stops on it, which shows its strip, and Enter or
+        // Space opens it. Only the card's own focus: a key in a link, a button or a field inside it is theirs. Before, a
+        // comment with nothing focusable in it (no replies, no link) could not be opened without a pointer.
+        tabIndex={press && !isEditing ? 0 : undefined}
+        onKeyDown={
+          press && !isEditing && !overlay
+            ? (e) => {
+                if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return
+                e.preventDefault()
+                press()
+              }
+            : undefined
+        }
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return

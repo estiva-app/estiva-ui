@@ -157,3 +157,43 @@ describe('ReplyCard', () => {
     expect(onDelete).toHaveBeenCalledOnce()
   })
 })
+
+describe('ConversationCard, by the keyboard (Peek’s review, 1 November)', () => {
+  it('a card that opens on a press is a Tab stop: reaching it shows the strip, and Enter opens it', async () => {
+    const user = userEvent.setup()
+    const opened = vi.fn()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onClick={opened} onReply={() => {}}>
+        A comment with nothing focusable in it
+      </ConversationCard>,
+    )
+    await user.tab()
+    const card = document.activeElement as HTMLElement
+    expect(card.textContent).toContain('A comment with nothing focusable in it')
+    expect(screen.getByRole('button', { name: 'Reply' })).toBeTruthy()
+    fireEvent.keyDown(card, { key: 'Enter' })
+    expect(opened).toHaveBeenCalledOnce()
+    fireEvent.keyDown(card, { key: ' ' })
+    expect(opened).toHaveBeenCalledTimes(2)
+  })
+
+  it('a key in a link inside it is the link’s, not a press on the card', () => {
+    const opened = vi.fn()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onClick={opened}>
+        <a href="#somewhere">a link</a>
+      </ConversationCard>,
+    )
+    fireEvent.keyDown(screen.getByRole('link', { name: 'a link' }), { key: 'Enter' })
+    expect(opened).not.toHaveBeenCalled()
+  })
+
+  it('a card with nothing to open is no Tab stop', () => {
+    const { container } = render(
+      <ConversationCard author={ONE} time="11:08 AM" readOnly>
+        Nothing to open
+      </ConversationCard>,
+    )
+    expect(container.querySelector('[tabindex="0"]')).toBeNull()
+  })
+})

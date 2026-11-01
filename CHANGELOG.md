@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.98.1 — 2026-11-01
+
+Two things an independent review of Peek's adoption found (Katerina, 1
+November: fix both).
+
+### Fixed
+
+- **A comment that opens on a press is reached by the keyboard.** Tab stops on
+  the `ConversationCard`, which shows its strip (Reply, React), and Enter or
+  Space opens it. A key in a link, button or field inside it stays theirs.
+  Before, a comment with nothing focusable in it (no replies, no link) could
+  not be opened without a pointer; in Peek, another app's comment with no
+  replies, which had a "Reply" button before the kit's card. Every app's
+  pressable comment gains the Tab stop.
+
+### Added
+
+- **`ReactionHorizon`'s `noun`**: what the app calls what is said, in the
+  plural ("messages" in Peek). "comments" by default, as before.
+
 ## 0.98.0 — 2026-11-01
 
 Peek taking the one conversation (Katerina, 1 November: "keep what the apps
