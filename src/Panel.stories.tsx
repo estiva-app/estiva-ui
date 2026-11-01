@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconDotsVertical } from '@tabler/icons-react'
+import { IconDotsVertical, IconX } from '@tabler/icons-react'
+import { Chip } from './Chip'
 import { IconButton } from './IconButton'
 import { Panel } from './Panel'
 
@@ -14,10 +15,11 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: { title: 'Details', children: null, bodyClassName: 'flex flex-col gap-3 px-4 pt-3 pb-4' },
   argTypes: { children: { control: false }, actions: { control: false }, footer: { control: false } },
-  // A side column of the frame: 380px wide and a fixed height, where a panel sits beside a page.
+  // A side column of the frame: 380px wide and a fixed height, where a panel sits beside a page;
+  // 384px, the right column's width in every app (Katerina, 31 October), where a story says so.
   decorators: [
-    (Story) => (
-      <div className="flex h-[560px] w-[380px] flex-col border-l border-border-subtle bg-bg-surface">
+    (Story, { parameters }) => (
+      <div className={parameters.rightColumn ? 'flex h-[560px] w-[384px] flex-col border-l border-border-subtle bg-bg-surface' : 'flex h-[560px] w-[380px] flex-col border-l border-border-subtle bg-bg-surface'}>
         {Story()}
       </div>
     ),
@@ -68,6 +70,22 @@ export const WithAFooter: Story = {
       {paragraphs(12)}
     </Panel>
   ),
+}
+
+/** A chip before the close button, saying the state of what the panel shows; the right column's width, 384px. */
+export const WithAChip: Story = {
+  parameters: { rightColumn: true },
+  args: {
+    actions: (
+      <>
+        <Chip type="success" label="Label" />
+        <IconButton tooltip="Close" aria-label="Close">
+          <IconX size={16} stroke={1.5} />
+        </IconButton>
+      </>
+    ),
+  },
+  render: (args) => <Panel {...args}>{paragraphs(3)}</Panel>,
 }
 
 /** Two panels in one column: the first capped at three fifths, each scrolls in its own room. */

@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ConversationMenu.stories'
+
+<Meta of={Stories} />
+
+# ConversationMenu
+
+The ⋯ menu of a comment or a reply: Resolve or Reopen, the app's own rows, then Edit and Delete on your own.
+
+<Canvas of={Stories.Yours} />
+
+## When
+
+- Inside **ConversationCard** and **ReplyCard**, which draw it for you.
+- Its `children` are the app's own rows.
+
+<Canvas of={Stories.Theirs} />
+
+<Canvas of={Stories.MoreRows} />
+
+## When not
+
+- Any other menu → **Menu**.
+
+## How
+
+```tsx
+import { ConversationMenu, MenuItem } from '@estiva-app/ui'
+
+<ConversationMenu onResolve={resolve} onEdit={edit} onDelete={askToDelete}>
+  <MenuItem label="Item one" onClick={doSomething} />
+</ConversationMenu>
+```
+
+- Edit and Delete are offered on your own only: pass them only there.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Offers Reopen in place of Resolve once resolved | the swap |  |
+| Draws Edit and Delete only when handed them | a check for whose it is |  |
+| Puts the app's own rows between Resolve and Edit, with the lines between groups | separators |  |
+
+## Props
+
+<Controls />

@@ -143,7 +143,8 @@ describe('editing', () => {
     const onCancel = vi.fn()
     render(<Box edit={{ body, onSave, onCancel }} />)
     expect(editorOf().getText()).toBe('Said before')
-    expect(screen.getByText(/to cancel/).textContent).toBe('Esc to cancel · Enter to save')
+    // No keys written under it (Katerina, 1 November): Cancel and Save say it.
+    expect(screen.queryByText(/to cancel/)).toBeNull()
     await type(', and now')
     await press('Enter')
     expect(textOf(onSave.mock.calls[0][0])).toBe('Said before, and now')

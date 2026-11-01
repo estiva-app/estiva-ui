@@ -8,7 +8,7 @@ import { Toolbar } from './Toolbar'
 import { cn } from './cn'
 import { richTextClassName } from './RichText'
 import { ScrollArea } from './ScrollArea'
-import { WRITING_BOX_CLASSES } from './looks'
+import { BOX_HINT_CLASSES, WRITING_BOX_CLASSES, WRITING_RING_CLASSES } from './looks'
 import { SelectionToolbar, type SelectionToolbarProps } from './SelectionToolbar'
 import { isSuggestionActive } from './suggestionPopup'
 
@@ -102,14 +102,18 @@ export interface BoxFrameProps {
   attachments?: ReactNode
   /** The row under it all: the tools and Send, or the keys and Cancel/Save. */
   footer: ReactNode
+  /** Signal's focus ring. Off for the edit box, whose edge only darkens on focus, as in Ship. Default on. */
+  ring?: boolean
   /** On the box itself. */
   className?: string
 }
 
 /** The one frame both boxes draw: the bordered box, its text in a `ScrollArea`, what is attached, the footer. */
-export function BoxFrame({ editor, marked = false, selection, placeholder, empty = false, attachments, footer, className }: BoxFrameProps) {
+export function BoxFrame({ editor, marked = false, selection, placeholder, empty = false, attachments, footer, ring = true, className }: BoxFrameProps) {
   return (
-    <div className={cn(WRITING_BOX_CLASSES, 'focus-within:border-border-strong transition-colors', className)}>
+    // Focused, the edge darkens (the send box in Signal takes the accent and its glow instead). In Leaf, the edge every
+    // field takes, in the send box and the edit box alike (Katerina, 31 October); never the accent on Peek's edit box (1 November).
+    <div className={cn(WRITING_BOX_CLASSES, ring && WRITING_RING_CLASSES, 'focus-within:border-border-strong leaf:focus-within:border-border-focus transition-colors', className)}>
       <div data-composer-editor data-marked={marked || undefined} className={cn('relative min-h-[20px] transition-all', marked && 'border-l-4 border-border-strong pl-2')}>
         <ScrollArea className={COMPOSE_SCROLL_CLASSES.area} viewportClassName={COMPOSE_SCROLL_CLASSES.viewport} contentClassName={COMPOSE_SCROLL_CLASSES.content}>
           <EditorContent editor={editor} />
@@ -147,6 +151,8 @@ export interface SendBoxProps {
   marked?: boolean
   /** The selection strip's buttons: its marks, Link, and the app's own (`actions`). */
   selection?: Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>
+  /** Proposal (comments panel, round 2): one line, its tools and Send out of sight, until it is pressed or holds words. */
+  quiet?: boolean
   className?: string
 }
 
@@ -154,7 +160,8 @@ export interface SendBoxProps {
  * The send box: the frame with the selection strip over the text, the tools
  * and Send under it. Enter sends (`ComposeKeys`), and so does the button.
  */
-export function SendBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, className }: SendBoxProps) {
+export function SendBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, quiet = false, className }: SendBoxProps) {
+  const [inside, setInside] = useState(false)
   const [empty, setEmpty] = useState(true)
   const canSend = (!empty || ready) && !holding
 
@@ -187,8 +194,14 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
     }
   }, [editor])
 
+  // Quiet (proposal): the row of tools shows once the box is pressed, or while it holds words or files.
+  const rowShown = !quiet || inside || !empty || !!attachments
   return (
-    <div className={cn('relative', className)}>
+    <div
+      className={cn('relative', className)}
+      onFocus={quiet ? () => setInside(true) : undefined}
+      onBlur={quiet ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setInside(false) : undefined}
+    >
       <BoxFrame
         editor={editor}
         marked={marked}
@@ -197,6 +210,7 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
         empty={empty}
         attachments={attachments}
         footer={
+        rowShown && (
         // The tools are one strip — one Tab stop, arrows along it; Send, the answer rather than a tool, keeps its own.
         <div className="flex items-center justify-between">
           {tools ? (
@@ -207,7 +221,7 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
             <span />
           )}
           <div className="flex items-center gap-2.5">
-            <span className="hidden select-none font-mono text-menu font-normal tracking-wider text-text-muted signal:inline">Enter to send · Shift+Enter new line</span>
+            <span className={BOX_HINT_CLASSES}>Enter to send · Shift+Enter new line</span>
             {/* Focus stays in the text: the press sends on its way down. A keyboard press is the click (`detail` 0), so a click never sends twice. */}
             <IconButton
               variant="primary"
@@ -228,6 +242,7 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
             </IconButton>
           </div>
         </div>
+        )
         }
       />
     </div>

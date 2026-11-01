@@ -1,0 +1,47 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ConversationActions.stories'
+
+<Meta of={Stories} />
+
+# ConversationActions
+
+The strip on a comment or a reply while it is pointed at: React, Reply, Resolve or Reopen, and ⋯, each drawn only when offered.
+
+<Canvas of={Stories.Comment} />
+
+## When
+
+- Inside **ConversationCard** and **ReplyCard**, which draw it for you.
+- On its own only where a card of your own needs the same strip.
+
+<Canvas of={Stories.Resolved} />
+
+<Canvas of={Stories.Reply} />
+
+## When not
+
+- The ⋯ menu itself → **ConversationMenu**, passed as `more`.
+- A row of buttons anywhere else → **Toolbar**.
+
+## How
+
+```tsx
+import { ConversationActions, ConversationMenu } from '@estiva-app/ui'
+
+<ConversationActions options={options} onReact={react} onReply={reply} onResolve={resolve} more={<ConversationMenu onResolve={resolve} />} />
+```
+
+- One Tab stop: the arrow keys walk the buttons.
+- `onPickerOpenChange` tells a card the reactions are open, so it keeps the strip.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws only the buttons the card offers | a check per button |  |
+| Opens the reactions over the whole strip, and closes on a pick | a popover and its open state |  |
+| Offers Reopen in place of Resolve once resolved | the swap |  |
+
+## Props
+
+<Controls />

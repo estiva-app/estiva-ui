@@ -2,10 +2,10 @@ import type { CSSProperties } from 'react'
 import { cn } from './cn'
 
 /**
- * Peek's Skeleton (2026-08-28), the generic parts only: the bar, a row
- * shaped like a list row, and a list of them. Peek's placeholders shaped
- * like a conversation card or a huddle card know what those are and stay
- * in Peek, built from the bar.
+ * Peek's Skeleton (2026-08-28): the bar, a row shaped like a list row, a
+ * list of them, and the conversation's placeholder, moved with the
+ * conversation (Katerina, 31 October). Placeholders of an app's own cards
+ * stay in the app, built from the bar.
  *
  * A list reveals after 150ms (`animate-skeleton-in`, in the preset) so a
  * fast load never flashes a skeleton — Peek's rule.
@@ -39,6 +39,35 @@ export function SkeletonList({ rows = 8, className }: { rows?: number; className
       {Array.from({ length: rows }, (_, i) => (
         <SkeletonRow key={i} barWidth={ROW_BAR_WIDTHS[i % ROW_BAR_WIDTHS.length]} />
       ))}
+    </div>
+  )
+}
+
+/** One comment's placeholder: a face, a name and a time, and two lines of words. */
+function SkeletonCard({ secondLine }: { secondLine: number }) {
+  return (
+    <div className="rounded-lg px-2 pt-2">
+      <div className="flex w-full items-center gap-2">
+        <SkeletonBar className="h-6 w-6 shrink-0" />
+        <SkeletonBar className="h-3.5 w-[110px]" />
+        <SkeletonBar className="h-3 w-10" />
+      </div>
+      <div className="flex flex-col gap-2 pb-2 pl-8 pr-2 pt-2">
+        <SkeletonBar className="h-3.5 w-full" />
+        {/* Never wider than its row: in a 384px column the line ran past the edge. */}
+        <SkeletonBar className="h-3.5 max-w-full" style={{ width: secondLine }} />
+      </div>
+    </div>
+  )
+}
+
+/** Comments still coming: three placeholders shaped like `ConversationCard`, revealed after 150ms. Peek's, moved with the conversation. */
+export function SkeletonConversation({ className }: { className?: string }) {
+  return (
+    <div className={cn('flex flex-col gap-2 animate-skeleton-in', className)} aria-hidden>
+      <SkeletonCard secondLine={420} />
+      <SkeletonCard secondLine={300} />
+      <SkeletonCard secondLine={500} />
     </div>
   )
 }

@@ -1,0 +1,40 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './PinnedComment.stories'
+
+<Meta of={Stories} />
+
+# PinnedComment
+
+The comment a thread answers, pinned at the top of the replies column: who, when, and its first line.
+
+<Canvas of={Stories.Pinned} />
+
+## When
+
+- At the top of a **Thread** in the right column. Thread draws it from its `start`.
+
+<Canvas of={Stories.Deleted} />
+
+## When not
+
+- The comment itself, in the list → **ConversationCard**.
+
+## How
+
+```tsx
+import { Thread } from '@estiva-app/ui'
+
+<Thread start={{ author: author, time: time, words: words }} onClose={onClose} box={box}>
+  {replies}
+</Thread>
+```
+
+- Give `time` its day: no day line stands above it here.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

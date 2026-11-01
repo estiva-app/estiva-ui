@@ -1,0 +1,45 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './RepliesRow.stories'
+
+<Meta of={Stories} />
+
+# RepliesRow
+
+The way into a thread, under its comment: who replied, "2 replies", the last reply's time, and "1 new" until it is read.
+
+<Canvas of={Stories.Several} />
+
+## When
+
+- Under a comment with replies: **ConversationCard** draws it from its `replies`.
+- `onOpen` where the row itself opens the thread (one column, the thread under its comment); without it, the card around it does.
+- `open` while that thread is open under it: the chevron turns down and the row stays marked, and a press closes it. The whole card around it opens and closes the thread too.
+
+<Canvas of={Stories.New} />
+<Canvas of={Stories.Open} />
+
+## When not
+
+- A count on its own → **MetaText**.
+- Faces on their own → **AvatarGroup**.
+
+## How
+
+```tsx
+import { RepliesRow } from '@estiva-app/ui'
+
+<RepliesRow count={3} faces={faces} last="12:02 PM" isNew onOpen={() => openUnder(comment)} />
+```
+
+- Faces and the last time show in Signal; in the other themes the row is the icon and the count.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says "1 reply" or "2 replies" | the plural |  |
+| Shows "1 new" until it is read, in the warning colour when urgent | the chip and its colour |  |
+
+## Props
+
+<Controls />

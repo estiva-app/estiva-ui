@@ -26,9 +26,10 @@ import { TooltipTrigger } from './Tooltip'
  * hover. Ship wrote that wrapper by hand six times.
  */
 /**
- * `resolve` is `primary` in every theme but Signal, where it is outlined at rest
- * and green when pointed at — Peek's Resolve (UIG-9, 17 September; Peek passed
- * it as classes before). `IconButton` has the same look.
+ * `resolve` is outlined at rest and green when pointed at, in every theme —
+ * Peek's Resolve (UIG-9, 17 September; Peek passed it as classes before),
+ * Signal's look, and Ship's and Leaf's since Katerina's call (31 October): they
+ * drew it as the filled primary. `IconButton` has the same look.
  */
 export type ButtonVariant = 'primary' | 'outlined' | 'muted' | 'destructive' | 'resolve'
 export type ButtonSize = 'default' | 'small'
@@ -108,7 +109,8 @@ export function Button({
       // Extra right padding beside a leading icon, for optical balance.
       size === 'default' && (hasLeadingIcon ? 'pl-2 pr-3' : 'px-2'),
       size === 'small' && (hasLeadingIcon ? 'pl-1.5 pr-2' : 'px-1.5'),
-      !off && (variant === 'primary' || variant === 'resolve') && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+      !off && variant === 'primary' && 'bg-accent-primary hover:bg-accent-hover text-text-inverse cursor-pointer signal:font-semibold',
+      !off && variant === 'resolve' && 'cursor-pointer signal:font-semibold',
       // @estiva-escape(no-copied-look): W2 (Katerina, 24 September: leave alone): an outlined button shares four words with Reaction's pill by coincidence
       !off && variant === 'outlined' && 'border border-border-default hover:bg-bg-hover text-text-primary cursor-pointer',
       !off && variant === 'muted' && 'hover:bg-bg-hover text-text-primary cursor-pointer',
@@ -121,9 +123,9 @@ export function Button({
       // and a prevented `onClick`), so nothing else needs it.
       off && !disabledReason && 'pointer-events-none',
       off && variant === 'outlined' && 'border border-border-default',
-      // Disabled too, as it always drew.
+      // Disabled too, as it always drew; in every theme, as Signal drew it (Katerina, 31 October).
       variant === 'resolve' &&
-        'signal:bg-transparent signal:border signal:border-border-default signal:text-text-primary signal:shadow-none signal:hover:bg-success-muted signal:hover:border-success-outline signal:hover:text-success-default signal:transition-colors',
+        'border border-border-default bg-transparent text-text-primary shadow-none transition-colors hover:border-success-outline hover:bg-success-muted hover:text-success-default',
       className,
     )
   const button =

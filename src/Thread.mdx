@@ -1,0 +1,54 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './Thread.stories'
+
+<Meta of={Stories} />
+
+# Thread
+
+A comment's replies, with the box to write one: in the right column under its own header, or under its comment.
+
+<Canvas of={Stories.Column} />
+
+## When
+
+- `place="beside"`: in the right column, beside the comments (two columns). The comment is pinned at the top, then "Replies", then the replies; the box stays at the bottom.
+- `place="under"`: under its comment, in one column. The replies hang from a line under the comment's face, with no fill until pointed at, and the box is under them. **ConversationLayout** makes the comment and its thread one card.
+- `resolved`: "Resolved" at the top of the column, in green.
+- `notice` in place of the box: why no reply can be written.
+
+<Canvas of={Stories.Resolved} />
+
+<Canvas of={Stories.Under} />
+
+## When not
+
+- The comments and where their threads open → **ConversationLayout**.
+- Any other column → **Panel**.
+
+## How
+
+```tsx
+import { ReplyCard, ResolutionHistory, Thread } from '@estiva-app/ui'
+
+<Thread start={start} resolved={resolved} onClose={close} box={replyBox}>
+  <ReplyCard author={author} time={time}>
+    {words}
+  </ReplyCard>
+  <ResolutionHistory events={events} />
+</Thread>
+```
+
+- Its replies and resolve lines are yours to put in time order.
+- Still reading: `loading`. Nobody replied yet: nothing in `children`.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Pins the comment at the top, and keeps the box under the replies | a header and a fixed footer |  |
+| Placeholders while reading, and a line when nobody replied | a loading and an empty state |  |
+| "Resolved" in green at the top of the column | a chip |  |
+
+## Props
+
+<Controls />

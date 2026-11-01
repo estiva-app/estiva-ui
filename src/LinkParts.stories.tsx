@@ -32,6 +32,16 @@ export const PickersReadOnly: Story = {
   args: { status: { value: 'doing', options: STATUS_OPTIONS }, owner: { value: 'b', options: PEOPLE } },
 }
 
+/** Shut for now (an archived file): the pickers stay, and say why on hover. */
+export const PickersDisabled: Story = {
+  name: 'Pickers, disabled',
+  args: {
+    status: { value: 'doing', options: STATUS_OPTIONS, onChange: () => {} },
+    owner: { value: 'b', options: PEOPLE, onChange: () => {} },
+    disabledReason: 'Archived: unarchive it to change it.',
+  },
+}
+
 /** Nobody owns it yet, read only. */
 export const NoOwner: Story = {
   args: { status: { value: 'todo', options: STATUS_OPTIONS }, owner: { value: undefined, options: PEOPLE } },

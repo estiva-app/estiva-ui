@@ -1,0 +1,41 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './MetaText.stories'
+
+<Meta of={Stories} />
+
+# MetaText
+
+The small figure beside a name: a time, a resolve line's time, a count. In Signal the mono micro-type with even digits.
+
+<Canvas of={Stories.Time} />
+
+## When
+
+- A time beside a name.
+- `tone="secondary"` and `tone="success"` for counts of open and resolved.
+- `size="chip"` beside a small name.
+
+<Canvas of={Stories.Counts} />
+
+## When not
+
+- Words a person reads as a sentence → plain text in the caption size.
+- A status → **Chip**.
+
+## How
+
+```tsx
+import { MetaText } from '@estiva-app/ui'
+
+<MetaText>11:08 AM</MetaText>
+```
+
+- It never wraps.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

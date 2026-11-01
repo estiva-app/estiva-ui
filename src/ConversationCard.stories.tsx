@@ -1,0 +1,118 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { useState } from 'react'
+import { ConversationCard, type ConversationCardProps } from './ConversationCard'
+import { Column, EditBox, Files, LONG, Mentions, ONE, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions } from './conversation.examples'
+import { MenuItem } from './Menu'
+import type { ReactionCount } from './ReactionRow'
+import { QuotedLine } from './QuotedLine'
+
+/**
+ * One comment, live: point at it for the strip, react, resolve with a note, and on your own edit or delete it.
+ */
+const meta = {
+  title: 'Conversation/ConversationCard',
+  component: ConversationCard,
+  parameters: { layout: 'padded' },
+  args: { author: ONE, time: '11:08 AM', children: WORDS },
+  decorators: [(Story) => <Column>{Story()}</Column>],
+} satisfies Meta<typeof ConversationCard>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+/** A card that answers: its reactions, resolve, edit and delete change it, as an app's would. */
+function Live({ start, resolvedAt, deletable = true, ...props }: ConversationCardProps & { start?: readonly ReactionCount[]; resolvedAt?: { by: string; note?: string }; deletable?: boolean }) {
+  const reacting = useReactions(start)
+  const [resolved, setResolved] = useState(resolvedAt)
+  const [deleted, setDeleted] = useState(props.deleted ?? false)
+  return (
+    <ConversationCard
+      {...props}
+      deleted={deleted}
+      reactions={props.readOnly ? { ...reacting, onToggle: undefined } : reacting}
+      resolved={resolved}
+      onResolve={(note) => setResolved({ by: 'You', note: note || undefined })}
+      onReopen={() => setResolved(undefined)}
+      onDelete={deletable ? () => setDeleted(true) : undefined}
+      editor={props.own ? (done) => <EditBox text={typeof props.children === 'string' ? props.children : WORDS} done={done} /> : undefined}
+    />
+  )
+}
+
+/** Someone's comment. */
+export const Comment: Story = { render: (args) => <Live {...args} /> }
+
+/** Yours: Edit and Delete in its ⋯ menu. */
+export const Yours: Story = { render: (args) => <Live {...args} author={YOU} own /> }
+
+/** Edited since it was sent: "(edited)", its time on hover. */
+export const Edited: Story = { render: (args) => <Live {...args} edited="Edited 11:20 AM" /> }
+
+/** Deleted: its replies stay under it. */
+export const Deleted: Story = { render: (args) => <Live {...args} deleted replies={{ count: 2, faces: [TWO, THREE], last: '11:40 AM' }} /> }
+
+/** Pictures and files under the words. */
+export const WithFiles: Story = { name: 'Files', render: (args) => <Live {...args} files={<Files />} /> }
+
+/** A card its author attached. */
+export const Card: Story = { render: (args) => <Live {...args}><WithCard /></Live> }
+
+/** On a part of the page: the words it is on, above the name. */
+export const OnAPart: Story = { name: 'On a part', render: (args) => <Live {...args} about={<QuotedLine words="the words this comment is on" />} /> }
+
+/** The words changed since: the bar goes grey, and it says so. */
+export const PartChanged: Story = { name: 'Part changed', render: (args) => <Live {...args} about={<QuotedLine words="the words this comment was on" state="reworded" />} /> }
+
+/** A block quoted from something else. */
+export const QuotedBlock: Story = { name: 'Quoted block', render: (args) => <Live {...args}><WithBlock /></Live> }
+
+/** With reactions: press one to add yours or take it back. */
+export const Reactions: Story = { render: (args) => <Live {...args} start={SOME} /> }
+
+/** With replies: the row that opens its thread. */
+export const Replies: Story = { render: (args) => <Live {...args} replies={{ count: 3, faces: [TWO, THREE, YOU], last: '12:02 PM' }} onReply={() => {}} onClick={() => {}} /> }
+
+/** Not read yet. */
+export const New: Story = { render: (args) => <Live {...args} isNew /> }
+
+/** A reply under it not read yet. */
+export const NewReply: Story = { name: 'New reply', render: (args) => <Live {...args} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM', isNew: true }} onClick={() => {}} /> }
+
+/** Urgent and not read yet. */
+export const Urgent: Story = { render: (args) => <Live {...args} isNew urgent replies={{ count: 1, faces: [TWO], last: '12:02 PM', isNew: true }} /> }
+
+/** A person named in the words, and a link. */
+export const WithMentions: Story = { name: 'Mentions', render: (args) => <Live {...args}><Mentions /></Live> }
+
+/** Resolved: who resolved it and the note. Its reactions, files and replies stay. */
+export const Resolved: Story = { render: (args) => <Live {...args} start={SOME} resolvedAt={{ by: 'Person two', note: 'Keeping the first one.' }} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} /> }
+
+/** Resolved with a long note: cut at the end of the line, in the chip; whole on hover. */
+export const ResolvedLongNote: Story = { name: 'Resolved, long note', render: (args) => <Live {...args} resolvedAt={{ by: 'Person two', note: 'Agreed, going with the first one, and the second goes to the list of later ideas with its reasons written beside it.' }} /> }
+
+/** The one open beside its thread. */
+export const Selected: Story = { render: (args) => <Live {...args} selected replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} onClick={() => {}} /> }
+
+/** Being edited, in the kit's box. */
+export const Editing: Story = { render: (args) => <Live {...args} author={YOU} own editing /> }
+
+/** An edit that was refused: the box opens again, and says why. */
+export const EditRefused: Story = {
+  name: 'Edit refused',
+  render: (args) => <ConversationCard {...args} author={YOU} own editing editor={(done) => <EditBox text={WORDS} done={done} refuse />} />,
+}
+
+/** A reaction that was refused: said under the reactions. */
+export const ReactionRefused: Story = { name: 'Reaction refused', render: (args) => <Live {...args} start={SOME} reactionRefused="try again in a moment" /> }
+
+/** Nothing can be changed: no strip, reactions only shown. */
+export const ReadOnly: Story = { name: 'Read-only', render: (args) => <Live {...args} readOnly start={SOME} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} /> }
+
+/** A long comment, at its full height. */
+export const Long: Story = { render: (args) => <Live {...args}>{LONG}</Live> }
+
+/** The app's own rows in its ⋯ menu, between Resolve and Edit. */
+export const MoreRows: Story = {
+  name: 'More rows',
+  render: (args) => <Live {...args} author={YOU} own menu={<MenuItem label="Item one" onClick={() => {}} />} />,
+}

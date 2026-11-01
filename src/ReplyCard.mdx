@@ -1,0 +1,50 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ReplyCard.stories'
+
+<Meta of={Stories} />
+
+# ReplyCard
+
+One reply in a thread: the same pieces as a comment, without replies of its own or Resolve.
+
+<Canvas of={Stories.Reply} />
+
+## When
+
+- **A reply**, inside a **Thread**, in time order.
+- `timeHref`: its time is a link to it, "Link to this".
+- `own` on yours: Edit and Delete in its menu.
+
+<Canvas of={Stories.Yours} />
+
+<Canvas of={Stories.Linked} />
+
+## When not
+
+- A comment, with its replies and Resolve → **ConversationCard**.
+- Who resolved the thread and when → **ResolutionHistory**, among the replies.
+
+## How
+
+```tsx
+import { ReplyCard, Thread } from '@estiva-app/ui'
+
+<Thread start={start} box={box} onClose={close}>
+  <ReplyCard author={author} time={time} timeHref={linkToReply} own={isMine} onDelete={() => remove(reply)}>
+    {wordsOf(reply)}
+  </ReplyCard>
+</Thread>
+```
+
+- Everything a comment takes about its words, its files, its reactions and its editing, a reply takes the same way.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Shows its actions while pointed at, and holds them while a menu is open | hover state and an outside-click check |  |
+| Asks before it deletes | a confirm dialog |  |
+
+## Props
+
+<Controls />

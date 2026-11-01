@@ -1,0 +1,123 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as PageHeaderStories from './PageHeader.stories'
+
+<Meta of={PageHeaderStories} />
+
+# PageHeader
+
+The bar at the top of a page: what the page is, and what acts on all of it, each in its own place.
+
+<Canvas of={PageHeaderStories.Everything} />
+
+It is ContainerHeader's bar — 48px, a hairline under it, 16px in at each
+end — with a place for each thing a page's bar holds. At the left, 8px
+apart: an icon or a face, a lock, the title, something right after it. At the
+right, 12px apart: quiet counts, when it last changed, the members, then the
+page's buttons, 4px apart.
+
+## When
+
+- **The top of any page**: a page of one thing, opened from a list, with its
+  name and the buttons that act on the whole of it.
+- `leading`: what kind of page it is, or its state, as a 16px icon; a face
+  for a page that is one person's.
+
+<Canvas of={PageHeaderStories.WithAFace} />
+
+- `private`: a lock before the title, when only its members can open it.
+- `after`: something that belongs to the title, right after it — a small
+  `Button` that opens it elsewhere, a `Chip`.
+
+<Canvas of={PageHeaderStories.AfterTheTitle} />
+
+- `meta`: quiet counts at the right, a dot between them; `done: true`
+  for words about what is finished.
+
+<Canvas of={PageHeaderStories.Counts} />
+
+- `time`: when it last changed, in words, 12px italic; the exact time is in
+  a tooltip.
+
+<Canvas of={PageHeaderStories.EditedTime} />
+
+- `members`: who is in it — a **MembersPill**.
+- `actions`: the page's own buttons — a **Toolbar** of `ToolbarButton`s,
+  `surface={false}`. A button that shows and hides the right column is
+  one of them, its icon filled while the column is open.
+
+<Canvas of={PageHeaderStories.ColumnToggle} />
+
+- A **Breadcrumb** in the title's place, for a page reached down a trail.
+
+<Canvas of={PageHeaderStories.Breadcrumb} />
+
+## When not
+
+- The bar of a panel or a side column — details, a thread → **Panel**, which
+  draws its own bar from `title` and `actions`.
+- The bar of a list beside the page → **ListColumn**.
+- The bar across the whole frame, with the logo and the search field →
+  **TopBar**.
+- A heading for one part of the page → **SectionHeader**.
+
+## How
+
+```tsx
+import { MembersPill, PageHeader, Toolbar, ToolbarButton } from '@estiva-app/ui'
+
+<PageHeader
+  leading={<IconSquareRounded size={16} stroke={1.5} />}
+  title="Item one"
+  meta={['6 open', { label: '2 done', done: true }]}
+  time={{ label: 'Edited 2 minutes ago', exact: '31 October 2026, 14:02' }}
+  members={<MembersPill members={members} onClick={openMembers} />}
+  actions={
+    <Toolbar aria-label="Page actions" surface={false}>
+      <ToolbarButton tooltip="More" aria-label="More">
+        <IconDotsVertical size={16} stroke={1.5} />
+      </ToolbarButton>
+    </Toolbar>
+  }
+/>
+```
+
+- **It is the bar, and nothing under it.** The page under it is yours: a
+  `ScrollArea` that takes the rest of the column (`min-h-0 flex-1`). A
+  **Panel** draws its own bar and does not take this one yet.
+- A string `title` is one line and is cut short with an ellipsis when the
+  room runs out; everything at the right keeps its size. A node — a
+  `Breadcrumb`, an `InlineText` — is drawn as given, and cuts itself short.
+
+<Canvas of={PageHeaderStories.LongTitle} />
+
+- `leading` is 16px. A bare icon takes the secondary text colour; a face is
+  an `Avatar` at `size={16}`.
+- **The tooltips are under the pointer only.** The lock is named "Private"
+  to assistive technology as well; the exact time is not, and Tab does not
+  stop on the words. That is a known gap.
+- The quiet things keep 12px clear of the buttons by themselves: write no
+  padding between them.
+
+## What it owns
+
+It does these by itself. Write none of them around it.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Draws ContainerHeader's bar: 48px, the hairline under it, 16px in at each end | a header row of your own | ContainerHeader used on its own in an app |
+| Keeps the counts, the time and the members 12px apart, and 12px clear of the buttons | `gap-3`, `pr-2` of your own around them |  |
+| Cuts a long string title short and keeps everything else whole | `truncate`, `min-w-0`, `shrink-0` |  |
+| Draws the counts in `MetaText`, a dot between them | a dot or a count style of your own |  |
+| Draws the time 12px italic, with the exact time in a tooltip | `text-caption italic` and a `WithTooltip` of your own |  |
+| Names the lock "Private", in a tooltip and to assistive technology | an `aria-label` and a tooltip on an icon |  |
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| Tab | Moves through the bar in reading order: what is after the title, the members, then the buttons |
+| Arrow keys | Move along the `Toolbar` of buttons, which is one Tab stop — the Toolbar's own keys |
+
+## Props
+
+<Controls of={PageHeaderStories.Title} />

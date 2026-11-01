@@ -1,0 +1,46 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ArchivedNotice.stories'
+
+<Meta of={Stories} />
+
+# ArchivedNotice
+
+The card an archived file shows: who archived it and when, the resolution they gave, and the way back.
+
+<Canvas of={Stories.Archived} />
+
+## When
+
+- At the top of an archived file's page, under its title.
+- In the comment box's place on an archived file's page: there is nothing to write, and the card says why.
+- Archived with a file above it, it names that one and opens it, since it is restored there.
+
+<Canvas of={Stories.WithItsParent} />
+
+## When not
+
+- One line in a closed comment box → **CommentBox**'s `closed`, with **archivedLine**'s words.
+- News for the whole app, under the top bar → **Banner**.
+
+## How
+
+```tsx
+import { ArchivedNotice } from '@estiva-app/ui'
+
+<ArchivedNotice by={name} when={day} resolution={resolution} onUnarchive={unarchive} />
+<ArchivedNotice by={name} when={day} withWhat="project" withTitle={title} onOpenParent={openProject} />
+```
+
+- Give `when` its day, in the app's words: "Today", "Tue, Oct 28".
+- Leave out `onUnarchive` when the reader cannot restore it: the card offers nothing.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Waits for Unarchive's answer, and ignores a second press meanwhile | a busy state |  |
+| Says "Archived with its project “Title”" and offers Open project when it has one above it | the sentence and the button |  |
+
+## Props
+
+<Controls />

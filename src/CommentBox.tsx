@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
+import { Fragment, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, nodePasteRule, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
 import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
@@ -25,7 +25,6 @@ import {
 } from './ComposerTriggers'
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
-import { Kbd } from './Kbd'
 import { inTheBox } from './linked'
 import { LinkedIcon } from './LinkParts'
 import { linkedKindOfReference } from './LinkPlaces'
@@ -34,6 +33,7 @@ import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
+import { caretOnOpen } from './threadCard'
 
 /**
  * The one box every app writes a comment, a reply and a chat line in, from the
@@ -183,6 +183,8 @@ export interface CommentBoxProps {
   marked?: (editor: Editor) => boolean
   /** Called with the box's editor once it is drawn, and with `null` as it goes: an app's launcher inserts into the box last used. */
   onEditor?: (editor: Editor | null) => void
+  /** Proposal (comments panel, round 2): one line until it is pressed or holds words; a thread's box under its replies. */
+  quiet?: boolean
   className?: string
 }
 
@@ -452,6 +454,7 @@ export function CommentBox({
   onRefused,
   marked,
   onEditor,
+  quiet = false,
   className,
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
@@ -574,6 +577,14 @@ export function CommentBox({
     return () => cancelAnimationFrame(frame)
     // Once, as the box opens.
   }, [editor])
+
+  // At a thread's foot in a ConversationLayout: the caret, each time the thread opens, with no scroll to it.
+  const caret = useContext(caretOnOpen)
+  useEffect(() => {
+    if (!editor || !caret) return
+    const frame = requestAnimationFrame(() => editor.commands.focus('end', { scrollIntoView: false }))
+    return () => cancelAnimationFrame(frame)
+  }, [editor, caret])
 
   // `/` → File asks for a file the way the paperclip does.
   useEffect(() => {
@@ -748,14 +759,13 @@ export function CommentBox({
           marked={marking}
           // The same strip as the send box: writing and editing work the same way (Katerina, 21 Oct).
           selection={{ link: true }}
+          ring={false}
           attachments={attached}
           className={cn(sending && '[&_.ProseMirror]:text-text-muted')}
           footer={
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1 text-caption text-text-muted">
-                <Kbd>Esc</Kbd> to cancel · <Kbd>Enter</Kbd> to save
-              </span>
-              <div className="flex items-center gap-2">
+            // No keys written under the edit box: Cancel and Save say it (Katerina, 1 November).
+            <div className="flex items-center justify-end gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <Button variant="outlined" size="small" onClick={edit.onCancel}>
                   Cancel
                 </Button>
@@ -792,6 +802,7 @@ export function CommentBox({
         marked={marking}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
+        quiet={quiet}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}

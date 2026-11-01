@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Divider } from './Divider'
 import { MenuPanel } from './Menu'
 import { Card } from './Card'
+import { ScrollArea } from './ScrollArea'
 
 /** A hairline in `border-subtle`, inset 12px each side — or standing up between two columns. */
 const meta = {
@@ -67,5 +68,61 @@ export const Warning: Story = {
       <Divider label="New since you last read this" tone="warning" />
       <p className="px-3 pt-2">Same here, from Peek.</p>
     </div></Card>
+  ),
+}
+
+/** Between two stretches of a list, in the section-label voice: a date. Lines edge to edge, 8px in, 24px tall. */
+export const ADate: Story = {
+  render: () => (
+    <Card className="w-96 py-3"><div className="text-body-2 text-text-primary">
+      <p className="px-3 pb-2">The last item of one day.</p>
+      <Divider look="section" label="Wednesday, 29 October" />
+      <p className="px-3 pt-2">The first item of the next.</p>
+    </div></Card>
+  ),
+}
+
+/** Where what answers the first item begins. */
+export const Replies: Story = {
+  render: () => (
+    <Card className="w-96 py-3"><div className="text-body-2 text-text-primary">
+      <p className="px-3 pb-2">The item everything below answers.</p>
+      <Divider look="section" label="Replies" />
+      <p className="px-3 pt-2">The first answer.</p>
+    </div></Card>
+  ),
+}
+
+/** In a list with its date lines: where what is new to the reader begins, in the caption look and the warning colour, which asks for attention. */
+export const New: Story = {
+  render: () => (
+    <Card className="w-96 py-3"><div className="text-body-2 text-text-primary">
+      <Divider look="section" label="Wednesday, 29 October" />
+      <p className="px-3 py-2">The last item already read.</p>
+      <Divider label="New" tone="warning" />
+      <p className="px-3 pt-2">The first new one.</p>
+    </div></Card>
+  ),
+}
+
+/** Each line stays at the top of the list while its stretch scrolls under it, until the next one takes its place. Scroll the box. */
+export const Sticky: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Card clip className="h-64 w-96">
+      <ScrollArea className="h-full">
+        {['Tuesday, 28 October', 'Wednesday, 29 October'].map((day) => (
+          // The line first in the box that holds its stretch: it stays while the box is in view.
+          <div key={day} className="flex flex-col">
+            <Divider look="section" label={day} sticky />
+            {Array.from({ length: 6 }, (_, i) => (
+              <p key={i} className="px-4 py-3 text-body-2 text-text-secondary">
+                Item {i + 1} of {day}
+              </p>
+            ))}
+          </div>
+        ))}
+      </ScrollArea>
+    </Card>
   ),
 }

@@ -1,6 +1,6 @@
 import { IconCheck, IconChevronDown } from '@tabler/icons-react'
 import { Select as BaseSelect } from '@base-ui/react/select'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
 import { MenuPanel, menuItemClassName } from './Menu'
@@ -79,6 +79,7 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
   // With a reason it is held shut rather than disabled: a disabled trigger is
   // a native `disabled` button, which Tab skips and a tooltip cannot open on.
   const held = Boolean(disabledReason)
+  const [open, setOpen] = useState(false)
   const trigger = (
       // @estiva-escape(no-copied-look): N1 (Katerina, 24 September: record only): Select's box drops the hover while held, so it cannot take FIELD_SHELL_CLASSES as it is
       <BaseSelect.Trigger
@@ -129,7 +130,12 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
       onValueChange={(next) => {
         if (!held) onChange(next as string)
       }}
-      {...(held ? { open: false, onOpenChange: () => {} } : {})}
+      // Always controlled: held, it stays shut; let go, it opens again. Passing `open` only while held switched Base UI
+      // between controlled and uncontrolled the moment a reason went (an unarchive), and it warned.
+      open={held ? false : open}
+      onOpenChange={(next) => {
+        if (!held) setOpen(next)
+      }}
       disabled={disabled && !held}
       // Non-modal, as it has always been: the page behind stays scrollable and
       // keeps its scrollbar, so opening a select never shifts the layout.

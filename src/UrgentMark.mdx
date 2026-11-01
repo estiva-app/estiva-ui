@@ -1,0 +1,37 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './UrgentMark.stories'
+
+<Meta of={Stories} />
+
+# UrgentMark
+
+Urgent and new: a small warning mark on its tint, in the unread dot's 24px slot.
+
+<Canvas of={Stories.Urgent} />
+
+## When
+
+- In place of **UnreadDot** on something urgent and not read yet: a comment, a reply, a row of the navigation.
+
+## When not
+
+- New and not urgent → **UnreadDot**.
+- A count of urgent things → **Chip**.
+
+## How
+
+```tsx
+import { UnreadDot, UrgentMark } from '@estiva-app/ui'
+
+<>{isNew && (urgent ? <UrgentMark /> : <UnreadDot />)}</>
+```
+
+- It says nothing to a screen reader: say "urgent" in the row's own words.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

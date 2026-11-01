@@ -1,0 +1,36 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ReactionHorizon.stories'
+
+<Meta of={Stories} />
+
+# ReactionHorizon
+
+The line that says reactions are read only so far back, and how many older comments were not checked.
+
+<Canvas of={Stories.Older} />
+
+## When
+
+- Under a long conversation, when the app stopped reading reactions before the oldest comment.
+
+## When not
+
+No alternative: when every reaction was read, it draws nothing, so it can always be placed.
+
+## How
+
+```tsx
+import { ReactionHorizon } from '@estiva-app/ui'
+
+<ReactionHorizon limit={200} omitted={14} cut={false} />
+```
+
+- `limit`, `omitted` and `cut` are the app's to count.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />
