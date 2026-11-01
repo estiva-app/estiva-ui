@@ -34,6 +34,8 @@ export interface ConversationEntryProps {
   time: ReactNode
   /** A link to it: the time is then the link, "Link to this", as a reply's is. */
   timeHref?: string
+  /** The time's tooltip when it is a link, in the app's words: "Link to this" by default; Peek's "Link to this message". */
+  timeLabel?: string
   /** When it was last edited, in the app's words for the tooltip ("Edited 11:20 AM"): draws "(edited)". */
   edited?: string
   /** The words, as the app draws them: text, mentions, links, attached cards, quoted blocks. */
@@ -60,10 +62,19 @@ export interface ConversationEntryProps {
   onEditingChange?: (editing: boolean) => void
   /** Delete, after the card has asked. */
   onDelete?: () => Promise<boolean | void> | boolean | void
-  /** The app's sentence in the delete question, what deleting does there. Absent: "It is deleted for everyone." */
+  /**
+   * The app's own words under the delete question, what deleting does there, in place of the kit's: "It is deleted for
+   * everyone.", and on a comment how many replies stay. A string is one paragraph; a node is drawn as given.
+   */
   deleteNote?: ReactNode
-  /** The app's own rows in the ⋯ menu: `MenuItem`s. */
+  /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
+  /** The app's own rows in the ⋯ menu after Edit, before Delete: Peek's "View details". */
+  menuAfter?: ReactNode
+  /** A heading over the menu's first rows, in the app's words: Peek's "Utilities". */
+  menuLabel?: string
+  /** Edit's words in the ⋯ menu: "Edit" by default; Peek's "Edit message". */
+  editLabel?: string
   /** Placement only. */
   className?: string
 }
@@ -76,11 +87,18 @@ export interface ConversationCardProps extends ConversationEntryProps {
   /** Reply: offered on the strip. */
   onReply?: () => void
   /**
-   * Resolved, by whom, with what note and when (`at`, in the app's words). Folded (Katerina, 1 November): "✓ Resolved"
-   * by the time, who and the note on hover; "Person two → the note · time" above the replies row. While its thread is
-   * closed, the words fold to their first line, without files or reactions; open, it is whole.
+   * Resolved, by whom, with what note and when (`at`, in the app's words): "✓ Resolved" by the time, who and the note on
+   * hover; "Person two → the note · time" above the replies row. Nothing of the comment is hidden: its words, cards,
+   * files and reactions stay (Katerina, 1 November: nothing folds, in any app).
    */
   resolved?: { by: string; note?: string; at?: string }
+  /**
+   * What the comment is called in the delete question: "Delete this comment?" by default. A direct message says
+   * `message` (Katerina, 1 November: "comment" reads wrong in a private chat).
+   */
+  noun?: string
+  /** Beside Resolve in the ⋯ menu, how the app's box resolves too, as its key hint: Peek's "->". */
+  resolveHint?: string
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
   /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
@@ -95,7 +113,7 @@ export interface ConversationCardProps extends ConversationEntryProps {
 export type ReplyCardProps = ConversationEntryProps
 
 /** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
   return (
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -104,7 +122,7 @@ function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<Conv
         </span>
         <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
         {timeHref ? (
-          <WithTooltip label="Link to this" wrapperClassName="shrink-0">
+          <WithTooltip label={timeLabel} wrapperClassName="shrink-0">
             <MetaText className="contents">
               <Link href={timeHref} variant="quiet" data-interactive>
                 {time}
@@ -129,7 +147,7 @@ function attentionOf(fresh: boolean, urgent: boolean, inThreadCard: boolean) {
 }
 
 /**
- * Folded (Katerina, 1 November): who resolved it and the note, "Person two → Keeping the first one. · 12:30 PM", in the
+ * Who resolved it and the note (Katerina, 1 November), "Person two → Keeping the first one. · 12:30 PM", in the
  * thread's own line (the dot in the faces' column). No "resolved": the check by the time says it.
  */
 function EndedLine({ by, note, at }: { by: string; note: string; at?: string }) {
@@ -165,18 +183,10 @@ function ResolvedCheck({ by, note, at }: { by: string; note?: string; at?: strin
   )
 }
 
-/**
- * Folded, the words' first line, whatever the app wraps them in (Peek's and Leaf's words come in a box of their own):
- * the cards and pictures among them held back, at either level, then one line, cut with … where the text allows.
- * Text blocks stay: paragraphs, lists, quotes, code.
- */
-const FOLDED_WORDS_CLASSES =
-  '[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden'
-
-/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. `oneLine`: folded, the first line only. */
-function Words({ children, oneLine = false }: { children: ReactNode; oneLine?: boolean }) {
+/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. */
+function Words({ children }: { children: ReactNode }) {
   return (
-    <div className={cn('relative w-full break-words pb-2 pl-8 pr-2 pt-1', oneLine && FOLDED_WORDS_CLASSES)}>
+    <div className="relative w-full break-words pb-2 pl-8 pr-2 pt-1">
       <div className="flex flex-col gap-2 text-body-2 text-text-secondary">{children}</div>
     </div>
   )
@@ -247,11 +257,11 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
 
 /**
  * One comment: who, when, the words, files, cards, reactions, and the way into its replies, with the strip on hover
- * and the ⋯ menu. Resolved, it folds while its thread is closed and says who resolved it and the note.
+ * and the ⋯ menu. Resolved, it says who resolved it and the note; nothing of it is hidden.
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -278,7 +288,7 @@ export function ConversationCard(props: ConversationCardProps) {
   // Once its picker or menu has closed: the strip only if the card is still pointed at.
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
-  const offersMenu = !!resolves || !!menu || (own && (!!editor || !!onDelete))
+  const offersMenu = !!resolves || !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
   const react = reactions?.onToggle
   // Read-only with no replies, there is nothing to open: no box to write in, no thread to read (Peek's way, Katerina, 1 November).
@@ -286,10 +296,6 @@ export function ConversationCard(props: ConversationCardProps) {
   const reply = onReply ?? item?.show
   const marked = selected ?? (item && !item.under ? item.open : undefined)
   const under = !!item?.under
-  // Closed: its thread is not open, under it or beside it (the layout's, or the app's own `selected`).
-  const closed = !inThreadCard && !marked
-  // Folded: resolved, its thread closed, the words' first line only (Katerina, 1 November).
-  const folded = !!resolved && closed
   const repliesRow = replies && replies.count > 0 && (
     <RepliesRow {...replies} onOpen={replies.onOpen ?? (under ? item?.toggle : undefined)} open={replies.open ?? (under && !!item?.open)} urgent={urgent} />
   )
@@ -334,6 +340,7 @@ export function ConversationCard(props: ConversationCardProps) {
                   author={author}
                   time={props.time}
                   timeHref={props.timeHref}
+                  timeLabel={props.timeLabel}
                   edited={props.edited}
                   isNew={isNew}
                   urgent={urgent}
@@ -343,15 +350,15 @@ export function ConversationCard(props: ConversationCardProps) {
                   // Under the name, above the words (Katerina, 1 November).
                   <div className="relative w-full pl-8 pr-2 pt-0.5">{about}</div>
                 )}
-                <Words oneLine={folded}>
+                <Words>
                   {children}
                 </Words>
               </>
             )}
-            {!deleted && files && !folded && (
+            {!deleted && files && (
               <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">{files}</div>
             )}
-            {!folded && <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />}
+            <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />
             {resolved?.note && (
               // Who resolved it and the note, above the way into the replies; the check by the time says "Resolved" (Katerina, 1 November).
               <div className="relative w-full pb-1">
@@ -397,7 +404,11 @@ export function ConversationCard(props: ConversationCardProps) {
                     resolved={!!resolved}
                     onResolve={onResolve && (() => setResolving(true))}
                     onReopen={onReopen}
+                    resolveHint={resolveHint}
+                    label={menuLabel}
                     onEdit={own && editor ? () => setEditing(true) : undefined}
+                    editLabel={editLabel}
+                    after={menuAfter}
                     onDelete={own && onDelete ? () => setDeleting(true) : undefined}
                   >
                     {menu}
@@ -409,9 +420,15 @@ export function ConversationCard(props: ConversationCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title="Delete this comment?" confirmLabel="Delete comment" destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
-          <p>{deleteNote ?? 'It is deleted for everyone.'}</p>
-          {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
+        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
+          {deleteNote !== undefined ? (
+            typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote
+          ) : (
+            <>
+              <p>It is deleted for everyone.</p>
+              {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
+            </>
+          )}
         </ConfirmDialog>
       )}
       {resolving && onResolve && (
@@ -434,7 +451,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -442,7 +459,7 @@ export function ReplyCard(props: ReplyCardProps) {
   const [deleting, setDeleting] = useState(false)
   const [editing, setEditing] = useEditing(props.editing, props.onEditingChange)
   const isEditing = editing && !readOnly && !!editor
-  const offersMenu = !!menu || (own && (!!editor || !!onDelete))
+  const offersMenu = !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
@@ -474,7 +491,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} timeHref={props.timeHref} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>
@@ -504,7 +521,10 @@ export function ReplyCard(props: ReplyCardProps) {
                     setMenuOpen(next)
                     if (!next) settle()
                   }}
+                  label={menuLabel}
                   onEdit={own && editor ? () => setEditing(true) : undefined}
+                  editLabel={editLabel}
+                  after={menuAfter}
                   onDelete={own && onDelete ? () => setDeleting(true) : undefined}
                 >
                   {menu}
@@ -516,7 +536,7 @@ export function ReplyCard(props: ReplyCardProps) {
       </Card>
       {deleting && onDelete && (
         <ConfirmDialog title="Delete this reply?" confirmLabel="Delete reply" destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
-          <p>{deleteNote ?? 'It is deleted for everyone.'}</p>
+          {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
         </ConfirmDialog>
       )}
     </>

@@ -238,3 +238,103 @@ describe('ConversationLayout, read-only (an archived file)', () => {
     expect(asked).toHaveBeenLastCalledWith('a')
   })
 })
+
+describe('ConversationLayout, two columns, what an app with its own list keeps (Peek, 1 November)', () => {
+  const card = (words: string) => (
+    <ConversationCard author={ONE} time="11:08 AM">
+      {words}
+    </ConversationCard>
+  )
+  const dayItems: ConversationItem[] = [
+    { id: 'a', card: card('Monday one'), day: 'Monday' },
+    { id: 'b', card: card('Monday two'), day: 'Monday', before: <p>New</p> },
+    { id: 'c', card: card('Today one'), day: 'Today' },
+  ]
+
+  it('names each day once, over its own stretch of comments, the line staying at the top while its stretch scrolls', () => {
+    render(<ConversationLayout threads="beside" items={dayItems} />)
+    const monday = screen.getByRole('separator', { name: 'Monday' })
+    const today = screen.getByRole('separator', { name: 'Today' })
+    expect(screen.getAllByRole('separator', { name: 'Monday' }).length).toBe(1)
+    expect(monday.className).toContain('sticky')
+    // Each line is held by its own day's stretch, so the next day's line pushes it away.
+    expect(monday.parentElement?.textContent).toContain('Monday two')
+    expect(monday.parentElement?.textContent).not.toContain('Today one')
+    expect(today.parentElement?.textContent).toContain('Today one')
+  })
+
+  it('draws a comment’s `before` just above it, outside its card', () => {
+    render(<ConversationLayout threads="beside" items={dayItems} />)
+    const line = screen.getByText('New')
+    const item = document.querySelector('[data-conversation-item="b"]')!
+    expect(line.nextElementSibling).toBe(item)
+  })
+
+  it('gives the app its scrolling box and says when it scrolled', () => {
+    const ref = { current: null as HTMLDivElement | null }
+    const scrolled = vi.fn()
+    render(<ConversationLayout threads="beside" items={dayItems} bodyRef={ref} onBodyScroll={scrolled} />)
+    expect(ref.current?.contains(document.querySelector('[data-conversation-item="a"]'))).toBe(true)
+    fireEvent.scroll(ref.current!)
+    expect(scrolled).toHaveBeenCalled()
+  })
+
+  it('sits a short conversation on its box: the room it leaves is above it, under `top`', () => {
+    render(<ConversationLayout threads="beside" items={dayItems} top={<p>Archived</p>} below={<p>Reactions note</p>} box={<p>The box</p>} />)
+    const top = screen.getByText('Archived').parentElement!
+    const room = top.nextElementSibling as HTMLElement
+    expect(room.className).toContain('flex-1')
+    // The room grows only because the scroll content is at least as tall as the column.
+    expect(top.parentElement?.className).toContain('min-h-full')
+    expect(room.nextElementSibling?.textContent).toContain('Today one')
+    // The note is under the comments, in their list.
+    const words = ['Today one', 'Reactions note'].map((w) => screen.getByText(w))
+    expect(words[0].compareDocumentPosition(words[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('redraws no comment when older ones arrive at the top, a day of their own above (PEE-7)', () => {
+    const later: ConversationItem[] = [
+      { id: 'b', card: card('Monday one'), day: 'Monday' },
+      { id: 'c', card: card('Today one'), day: 'Today' },
+    ]
+    const { rerender } = render(<ConversationLayout threads="beside" items={later} />)
+    const before = ['b', 'c'].map((id) => document.querySelector(`[data-conversation-item="${id}"]`))
+    rerender(<ConversationLayout threads="beside" items={[{ id: 'a', card: card('Sunday one'), day: 'Sunday' }, ...later]} />)
+    // The same elements, not equal ones: a redrawn card would lose an open menu or dialog.
+    ;['b', 'c'].forEach((id, i) => expect(document.querySelector(`[data-conversation-item="${id}"]`)).toBe(before[i]))
+  })
+
+  it('draws nothing for a `top` of false, and no `below` while reading', () => {
+    const { container } = render(<ConversationLayout threads="beside" items={dayItems} top={false} />)
+    expect(container.querySelector('.pt-4.px-4')).toBeNull()
+    cleanup()
+    render(<ConversationLayout threads="beside" items={[]} loading below={<p>Reactions note</p>} />)
+    expect(screen.queryByText('Reactions note')).toBeNull()
+  })
+
+  it('keeps its name with the message when the column throws, and the thread beside it stays', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Throws(): never {
+      throw new Error('a card that throws')
+    }
+    render(
+      <ConversationLayout
+        threads="beside"
+        title="A DM with Person one"
+        items={[{ id: 'x', card: <Throws />, thread: <p>The thread</p> }]}
+        open="x"
+      />,
+    )
+    expect(screen.getByText('A DM with Person one')).toBeTruthy()
+    expect(screen.getByText('The thread')).toBeTruthy()
+    quiet.mockRestore()
+  })
+
+  it('says an empty conversation in the app’s own words, or nothing', () => {
+    render(<ConversationLayout threads="beside" items={[]} empty={<p>The relay could not be reached.</p>} />)
+    expect(screen.getByText('The relay could not be reached.')).toBeTruthy()
+    cleanup()
+    render(<ConversationLayout threads="beside" items={[]} empty={null} />)
+    expect(screen.queryByText('No comments yet.')).toBeNull()
+  })
+})

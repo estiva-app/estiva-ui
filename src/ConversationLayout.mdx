@@ -14,6 +14,12 @@ Where a conversation's cards sit: two columns, or one 384px column beside the pa
 - `threads="beside"`, two columns: the comments fill the page; an open thread stands beside them, 384px.
 - `threads="under"`, one column: the comments are the 384px column beside the page; a thread opens under its comment, and the two become one card.
 - With two columns, `header` puts the comments' own **PageHeader** over their column only, and the thread runs the page's full height beside it.
+- With two columns, each comment's `day` names its stretch with a line that stays at the top while the stretch scrolls (Peek's day lines).
+
+<Canvas of={Stories.TwoColumnsDays} />
+
+<Canvas of={Stories.TwoColumnsArchived} />
+
 - With one column, an item that is `resolved` waits closed under "Resolved" at the end, and one whose part was deleted (`gone`) under "On deleted blocks" before it, each with how many. A group opens by itself for the thread open in it. With two columns they stay in their place.
 
 <Canvas of={Stories.OneColumn} />
@@ -40,6 +46,12 @@ import { ConversationLayout } from '@estiva-app/ui'
 - Write nothing on the cards for opening: no `onClick`, `selected`, `onReply`, or the replies row's `onOpen` and
   `open`. The layout gives each **ConversationCard** its place, and the card opens its thread from it. What a card is
   given still wins.
+- Two columns, an app that keeps its own place in the comments (where they were left, a "New" line, following what
+  arrives) has their scrolling box with `bodyRef` and `onBodyScroll`. Each comment's `day` draws the app's day lines,
+  each staying at the top while its own day scrolls under it; `before` is a line just above one comment (a "New"
+  line); `below` is under the comments (a **ReactionHorizon**); `top` stands at the top however few the comments are
+  (an **ArchivedNotice**). Few comments sit on the box, as a chat does. `empty` may be the app's own **EmptyState**,
+  or `null` for nothing.
 - The box at the foot of a thread that opens takes the caret, at its end, without scrolling: the layout tells it with
   `caretOnOpen`, which **CommentBox** reads. Nothing to pass; a box outside a layout never takes it this way.
 

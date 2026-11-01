@@ -227,7 +227,7 @@ function ownerOf(object: LinkedSource, options: Pick<LinkedFromOptions, 'directo
           { value: '', label: 'Unassigned' },
           ...Object.entries(known)
             // The em dash for an unnameable person, never the key (FEE-1).
-            .map(([pubkey, profile]) => ({ value: pubkey, label: profile.displayName ?? '—', picture: profile.picture }))
+            .map(([pubkey, profile]) => ({ value: pubkey, label: profile.displayName ?? '—', picture: profile.picture, ...(profile.bot ? { bot: true } : {}) }))
             .sort((a, b) => a.label.localeCompare(b.label)),
         ],
         ...(onAct ? { onChange: (value: string) => onAct(action.id, value) } : {}),
@@ -255,7 +255,7 @@ function authorOf(object: LinkedSource, directory: LinkedFromOptions['directory'
   if (!pubkey || !/^[0-9a-f]{64}$/.test(pubkey)) return undefined
   const profile = object.people?.[pubkey] ?? directory?.[pubkey]
   if (!profile?.displayName) return undefined
-  return { name: profile.displayName, ...(profile.picture ? { picture: profile.picture } : {}) }
+  return { name: profile.displayName, ...(profile.picture ? { picture: profile.picture } : {}), ...(profile.bot ? { bot: true } : {}) }
 }
 
 /** The file a reference names, as the kit's chip, row and card draw it. */

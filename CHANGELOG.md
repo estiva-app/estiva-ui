@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.98.0 — 2026-11-01
+
+Peek taking the one conversation (Katerina, 1 November: "keep what the apps
+show; only the highlights go"). Everything Peek needed to draw its messages,
+replies, threads and pages with the kit's parts and change nothing for its
+reader, and one fix she asked for in every app: nothing folds.
+
+### Changed
+
+- **Nothing folds, in any app.** A resolved comment whose thread was closed
+  folded to its first line, without its cards, files or reactions; where an
+  app draws its words in a box of its own (Peek), the words went too. Now a
+  resolved comment keeps everything, with "Resolved" by the time and "Person
+  two → the note" above its replies. Ship and Leaf see it when they bump.
+- **`ConversationMenu`**: Delete stands apart from Edit, after a line, as a
+  destructive row does.
+- **`deleteNote`** on `ConversationCard` and `ReplyCard` now replaces all the
+  kit's words under the delete question, "It is deleted for everyone." and
+  how many replies stay, so an app that says its own (Peek: "Its 2 replies
+  are separate events and stay.") is not followed by the kit's. `null` says
+  nothing there. No app passed it before.
+- **`ConversationLayout`, two columns** (only Peek's file page and DMs use
+  them): a short conversation sits on its box, as a chat does, the room it
+  leaves above it. If the column throws, its name stays with the message, as
+  a Panel's does, and the thread beside it stays.
+
+### Added
+
+- **A card's words, the app's own** (all optional; without them the card reads
+  as before): `ConversationCard`'s `noun` ("Delete this message?" in a direct
+  message); `menuLabel`, a heading over the ⋯ menu's rows; `resolveHint`, the
+  key that resolves from the app's box; `editLabel`, Edit's word; `menuAfter`,
+  the app's own rows after Edit; `timeLabel`, the tooltip on a time that is a
+  link ("Link to this message"). `ConversationMenu` takes `label`,
+  `resolveHint`, `editLabel` and `after` the same way.
+- **`Thread`**: `empty` (what an empty thread beside says, words or the app's
+  own `EmptyState`; `null` for nothing, for an app whose thread stood silent,
+  so it never flashes "No replies yet." while it reads), `closeLabel` (Close's name for a screen reader, "Close thread";
+  its tooltip still says "Close") and `start.id`, put on the pinned comment as
+  `data-thread-start` for a link that names it.
+- **`ConversationLayout`, two columns, for an app that keeps its own list**:
+  `bodyRef` and `onBodyScroll`, the comments' scrolling box, so the app keeps
+  its own place in it (where it was left, its "New" line, following what
+  arrives); a comment's `day`, a line naming each day's stretch that stays at
+  the top while its stretch scrolls; a comment's `before`, a line just above
+  it (the app's "New" line); `below` (a `ReactionHorizon`, not while the
+  comments are read) and `top` (an `ArchivedNotice`, at the top however few
+  the comments); `empty` takes the app's own `EmptyState` or `null`; `title`
+  names the column in the message if it breaks. Storybook: Conversation/ConversationLayout,
+  "Two columns, days" and "Two columns, archived".
+
+### Fixed
+
+- **An agent's face on a link card**: the face of whoever made the file
+  ("Updated 3d ago" on a document's card) and the people in an owner picker,
+  so an agent picked as owner, showed initials; they are the robot now, from
+  the profile's `bot` (0.97.0 missed these two).
+
 ## 0.97.0 — 2026-11-01
 
 Katerina, 1 November: an agent's face. Agents answer in every app, and each

@@ -13,7 +13,7 @@ const meta = {
   component: ConversationMenu,
   parameters: { layout: 'padded' },
   args: { trigger: <Button variant="outlined">Open the menu</Button> },
-  argTypes: { trigger: { control: false }, children: { control: false } },
+  argTypes: { trigger: { control: false }, children: { control: false }, after: { control: false } },
   decorators: [(Story) => <div className="flex min-h-[220px] items-start pl-[200px] pt-2">{Story()}</div>],
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: 'Open the menu' }))
@@ -39,4 +39,22 @@ export const Reply: Story = { args: { onEdit: () => {}, onDelete: () => {} } }
 export const MoreRows: Story = {
   name: 'More rows',
   args: { onResolve: () => {}, onEdit: () => {}, onDelete: () => {}, children: <MenuItem label="Item one" onClick={() => {}} /> },
+}
+
+/**
+ * In an app's own words, as Peek's menu reads (Katerina, 1 November): a heading over the first rows, the key that
+ * resolves from its box beside Resolve, its word for Edit, and a row of its own after Edit. Delete stays apart.
+ */
+export const InAnAppsWords: Story = {
+  name: "In an app's words",
+  args: {
+    label: 'Heading',
+    resolveHint: '->',
+    onResolve: () => {},
+    onEdit: () => {},
+    editLabel: 'Edit message',
+    after: <MenuItem label="Item two" onClick={() => {}} />,
+    onDelete: () => {},
+    children: <MenuItem label="Item one" onClick={() => {}} />,
+  },
 }

@@ -37,6 +37,23 @@ describe('Thread, beside (the right column)', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
+  it('says nothing in an empty thread when the app asks for silence (empty={null})', () => {
+    render(<Thread start={START} empty={null} />)
+    expect(screen.queryByText('No replies yet.')).toBeNull()
+  })
+
+  it('carries the comment’s id on the pinned comment, for a link that names it', () => {
+    const { container } = render(<Thread start={{ ...START, id: 'c1' }} />)
+    expect(container.querySelector('[data-thread-start="c1"]')?.textContent).toContain('The comment it answers')
+  })
+
+  it('names Close in the app’s words for a screen reader, its tooltip still "Close"', () => {
+    const onClose = vi.fn()
+    render(<Thread start={START} onClose={onClose} closeLabel="Close thread" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Close thread' }))
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
   it('says why no reply can be written in place of the box', () => {
     render(<Thread start={START} box={<p>The box</p>} notice={<p>This file is archived.</p>} />)
     expect(screen.getByText('This file is archived.')).toBeTruthy()

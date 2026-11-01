@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.97.0",
+    "packageVersion": "0.98.0",
     "exports": 229,
     "typeExports": 234,
     "files": null
@@ -2662,7 +2662,19 @@
           "name": "resolved",
           "takes": "{ by: string; note?: string; at?: string }",
           "required": false,
-          "note": "Resolved, by whom, with what note and when (`at`, in the app's words)."
+          "note": "Resolved, by whom, with what note and when (`at`, in the app's words): \"✓ Resolved\" by the time, who and the note on hover; \"Person two → the note · time\" above the replies row."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the comment is called in the delete question: \"Delete this comment?\" by default."
+        },
+        {
+          "name": "resolveHint",
+          "takes": "text",
+          "required": false,
+          "note": "Beside Resolve in the ⋯ menu, how the app's box resolves too, as its key hint: Peek's \"->\"."
         },
         {
           "name": "onResolve",
@@ -2711,6 +2723,12 @@
           "takes": "text",
           "required": false,
           "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
+        },
+        {
+          "name": "timeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The time's tooltip when it is a link, in the app's words: \"Link to this\" by default; Peek's \"Link to this message\"."
         },
         {
           "name": "edited",
@@ -2800,13 +2818,31 @@
           "name": "deleteNote",
           "takes": "anything",
           "required": false,
-          "note": "The app's sentence in the delete question, what deleting does there."
+          "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
         },
         {
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+          "note": "The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "menuAfter",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu after Edit, before Delete: Peek's \"View details\"."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over the menu's first rows, in the app's words: Peek's \"Utilities\"."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
         },
         {
           "name": "className",
@@ -2823,9 +2859,7 @@
       "storyId": "conversation-conversationcard--comment",
       "docPage": "src/ConversationCard.mdx",
       "app": null,
-      "looks": [
-        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
-      ]
+      "looks": []
     },
     {
       "name": "ConversationLayout",
@@ -2870,7 +2904,19 @@
           "name": "above",
           "takes": "anything",
           "required": false,
-          "note": "Above the comments, inside their list: a `ReactionHorizon`, a note."
+          "note": "Above the comments, inside their list: placeholders while older comments are read, a note."
+        },
+        {
+          "name": "below",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`."
+        },
+        {
+          "name": "top",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`."
         },
         {
           "name": "loading",
@@ -2880,9 +2926,21 @@
         },
         {
           "name": "empty",
-          "takes": "text",
+          "takes": "anything",
           "required": false,
-          "note": "What an empty conversation says."
+          "note": "What an empty conversation says: words, or the app's own `EmptyState` (a read that failed says so)."
+        },
+        {
+          "name": "bodyRef",
+          "takes": "Ref<HTMLDivElement>",
+          "required": false,
+          "note": "Two columns: the comments' scrolling box, for an app that keeps its own place in it (where it was left, its \"New\" line, following what arrives)."
+        },
+        {
+          "name": "onBodyScroll",
+          "takes": "UIEventHandler<HTMLDivElement>",
+          "required": false,
+          "note": "Two columns: the comments' box scrolled."
         },
         {
           "name": "header",
@@ -2894,7 +2952,7 @@
           "name": "title",
           "takes": "anything",
           "required": false,
-          "note": "One column: its name, in its header."
+          "note": "Its name: one column's, in its header. Two columns, said with the message if the column breaks (the page's own bar is `header`)."
         },
         {
           "name": "actions",
@@ -2933,7 +2991,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/ConversationMenu.tsx",
-      "purpose": "The ⋯ menu of a comment or a reply: Resolve or Reopen, the app's own rows, then Edit and Delete on your own.",
+      "purpose": "The ⋯ menu of a comment or a reply: Resolve or Reopen and the app's own rows; then Edit on your own; then Delete on your own, apart.",
       "purposeFrom": "page",
       "props": [
         {
@@ -2955,16 +3013,40 @@
           "note": null
         },
         {
+          "name": "resolveHint",
+          "takes": "text",
+          "required": false,
+          "note": "Beside Resolve, how the app's box resolves too, as its key hint: Peek's \"->\"."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows, between Resolve and Edit: `MenuItem`s."
+          "note": "The app's own rows, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over Resolve and the app's rows, in the app's words: Peek's \"Utilities\"."
         },
         {
           "name": "onEdit",
           "takes": "a handler",
           "required": false,
           "note": "Offered on your own only."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words: \"Edit\" by default; Peek's \"Edit message\"."
+        },
+        {
+          "name": "after",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows after Edit, before Delete: Peek's \"View details\"."
         },
         {
           "name": "onDelete",
@@ -8534,6 +8616,12 @@
           "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
         },
         {
+          "name": "timeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The time's tooltip when it is a link, in the app's words: \"Link to this\" by default; Peek's \"Link to this message\"."
+        },
+        {
           "name": "edited",
           "takes": "text",
           "required": false,
@@ -8621,13 +8709,31 @@
           "name": "deleteNote",
           "takes": "anything",
           "required": false,
-          "note": "The app's sentence in the delete question, what deleting does there."
+          "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
         },
         {
           "name": "menu",
           "takes": "anything",
           "required": false,
-          "note": "The app's own rows in the ⋯ menu: `MenuItem`s."
+          "note": "The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s."
+        },
+        {
+          "name": "menuAfter",
+          "takes": "anything",
+          "required": false,
+          "note": "The app's own rows in the ⋯ menu after Edit, before Delete: Peek's \"View details\"."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "A heading over the menu's first rows, in the app's words: Peek's \"Utilities\"."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
         },
         {
           "name": "className",
@@ -8644,9 +8750,7 @@
       "storyId": "conversation-replycard--reply",
       "docPage": "src/ReplyCard.mdx",
       "app": null,
-      "looks": [
-        "[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden"
-      ]
+      "looks": []
     },
     {
       "name": "ResolveDialog",
@@ -10172,6 +10276,18 @@
           "takes": "a handler",
           "required": false,
           "note": "Closes the column."
+        },
+        {
+          "name": "closeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Close's name for a screen reader, in the app's words (\"Close thread\")."
+        },
+        {
+          "name": "empty",
+          "takes": "anything",
+          "required": false,
+          "note": "Beside: what an empty thread says, words or the app's own `EmptyState`."
         },
         {
           "name": "title",

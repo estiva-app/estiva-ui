@@ -15,7 +15,7 @@ async function open() {
 const names = () => screen.getAllByRole('menuitem').map((row) => row.textContent)
 
 describe('ConversationMenu', () => {
-  it('offers Resolve, then the app’s rows, then Edit and Delete, the last two apart', async () => {
+  it('offers Resolve and the app’s rows, then Edit, then Delete apart: three groups', async () => {
     const onResolve = vi.fn()
     render(
       <ConversationMenu onResolve={onResolve} onEdit={() => {}} onDelete={() => {}}>
@@ -24,7 +24,7 @@ describe('ConversationMenu', () => {
     )
     await open()
     expect(names()).toEqual(['Resolve', 'Open work', 'Edit', 'Delete'])
-    expect(screen.getAllByRole('separator').length).toBe(1)
+    expect(screen.getAllByRole('separator').length).toBe(2)
     fireEvent.click(screen.getByRole('menuitem', { name: 'Resolve' }))
     expect(onResolve).toHaveBeenCalledOnce()
   })
@@ -38,10 +38,23 @@ describe('ConversationMenu', () => {
     expect(onReopen).toHaveBeenCalledOnce()
   })
 
-  it('offers Edit and Delete only when given, with no line before them alone', async () => {
+  it('offers Edit and Delete only when given, Delete apart, and no line before the first group', async () => {
     render(<ConversationMenu onEdit={() => {}} onDelete={() => {}} />)
     await open()
     expect(names()).toEqual(['Edit', 'Delete'])
-    expect(screen.queryByRole('separator')).toBeNull()
+    expect(screen.getAllByRole('separator').length).toBe(1)
+  })
+
+  it('reads as Peek’s did, with Peek’s words passed in: a heading, the Resolve hint, "Edit message", "View details" (Katerina, 1 November)', async () => {
+    render(
+      <ConversationMenu label="Utilities" resolveHint="->" onResolve={() => {}} onEdit={() => {}} editLabel="Edit message" after={<MenuItem label="View details" onClick={() => {}} />} onDelete={() => {}}>
+        <MenuItem label="Open work" onClick={() => {}} />
+      </ConversationMenu>,
+    )
+    await open()
+    expect(names().map((n) => n?.replace('->', '').trim())).toEqual(['Resolve', 'Open work', 'Edit message', 'View details', 'Delete'])
+    expect(screen.getByText('Utilities')).toBeTruthy()
+    expect(screen.getByText('->')).toBeTruthy()
+    expect(screen.getAllByRole('separator').length).toBe(2)
   })
 })

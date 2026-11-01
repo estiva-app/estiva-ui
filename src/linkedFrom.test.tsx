@@ -134,6 +134,17 @@ describe('a card built from interop’s projection', () => {
     expect(onAct).toHaveBeenCalledWith('set-lead', OTHER)
   })
 
+  it('draws an agent picked as the lead as the robot, in the picker and its list', async () => {
+    const user = userEvent.setup()
+    const agent = { ...PEOPLE, [OWNER]: { displayName: 'Claude (steered by Person two)', bot: true } }
+    render(<LinkCard link={linkStateFrom({ ...GROUP, people: agent }, UNREAD, options({ onAct: vi.fn(), directory: agent }))} />)
+    const robot = 'svg path[d^="M13.5 2C13.5 2.44425"]'
+    const lead = screen.getByRole('combobox', { name: 'Lead' })
+    expect(lead.querySelectorAll(robot).length).toBe(1)
+    await user.click(lead)
+    expect((await screen.findByRole('option', { name: /Claude/ })).querySelectorAll(robot).length).toBe(1)
+  })
+
   it('shows an archived file’s status and lead as words, even to a reader who could change them', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, archived: { by: OWNER, at: 1 } }, UNREAD, options({ onAct: vi.fn() }))} />)
     expect(screen.queryByRole('combobox')).toBeNull()
@@ -185,6 +196,13 @@ describe('when it changed, and who made it', () => {
     cleanup()
     render(<LinkCard link={linkStateFrom({ ...PAGE, kind: 39000, address: `39000:${OTHER}:topic` }, UNREAD, options())} />)
     expect(screen.getByText('Updated 2h ago')).toBeTruthy()
+  })
+
+  it('draws an agent who made it as the robot, from its profile (Katerina, 1 November)', () => {
+    const card = render(<LinkCard link={linkStateFrom(PAGE, UNREAD, options({ directory: { ...PEOPLE, [OTHER]: { displayName: 'Claude (steered by Person one)', bot: true } } }))} />)
+    // A person named so would be "C"; the agent is the robot instead.
+    expect(within(card.container).queryByText('C')).toBeNull()
+    expect(card.container.querySelectorAll('svg path[d^="M13.5 2C13.5 2.44425"]').length).toBe(1)
   })
 
   it('leaves the person to the owner picker on a file that has one', () => {

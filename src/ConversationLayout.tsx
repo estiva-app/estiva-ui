@@ -1,9 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref, type UIEventHandler } from 'react'
 import { Card } from './Card'
 import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
 import { cn } from './cn'
+import { ContainerHeader } from './ContainerHeader'
+import { Divider } from './Divider'
 import { EmptyState } from './EmptyState'
+import { ErrorBoundary } from './ErrorBoundary'
 import { Panel } from './Panel'
 import { ScrollArea } from './ScrollArea'
 import { SkeletonConversation } from './Skeleton'
@@ -20,6 +23,10 @@ export interface ConversationItem {
   resolved?: boolean
   /** What it was on was deleted from the page. In one column it waits under "On deleted blocks", closed, before "Resolved"; a resolved one is under "Resolved". */
   gone?: boolean
+  /** Two columns: the day it was written, in the app's words ("Today", "Monday"). Comments of one day are one stretch under a line naming it, which stays at the top while its stretch scrolls under it. */
+  day?: string
+  /** Two columns: drawn just above it, 8px off, inside its day: the app's "New" line over the first comment not read. */
+  before?: ReactNode
 }
 
 export interface ConversationLayoutProps {
@@ -36,15 +43,23 @@ export interface ConversationLayoutProps {
   onOpenChange?: (id: string | undefined) => void
   /** The box a new comment is written in, under the comments. */
   box?: ReactNode
-  /** Above the comments, inside their list: a `ReactionHorizon`, a note. */
+  /** Above the comments, inside their list: placeholders while older comments are read, a note. */
   above?: ReactNode
+  /** Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`. Not while the comments are read. */
+  below?: ReactNode
+  /** Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`. */
+  top?: ReactNode
   /** Still reading the comments. */
   loading?: boolean
-  /** What an empty conversation says. */
-  empty?: string
+  /** What an empty conversation says: words, or the app's own `EmptyState` (a read that failed says so). `null`: nothing. */
+  empty?: ReactNode
+  /** Two columns: the comments' scrolling box, for an app that keeps its own place in it (where it was left, its "New" line, following what arrives). */
+  bodyRef?: Ref<HTMLDivElement>
+  /** Two columns: the comments' box scrolled. */
+  onBodyScroll?: UIEventHandler<HTMLDivElement>
   /** Two columns: the comments' own header, a `PageHeader`, over their column only, so the thread beside them runs the page's full height (Peek's way). */
   header?: ReactNode
-  /** One column: its name, in its header. */
+  /** Its name: one column's, in its header. Two columns, said with the message if the column breaks (the page's own bar is `header`). */
   title?: ReactNode
   /** One column: its header's actions, as a `Panel`'s. */
   actions?: ReactNode
@@ -58,7 +73,7 @@ interface ListProps {
   under: boolean
   above?: ReactNode
   loading: boolean
-  empty: string
+  empty: ReactNode
   /** Asked to open or close: `id` is the comment pressed, `next` what is open after; `reply`, asked by Reply. */
   change?: (id: string, next: string | undefined, reply?: boolean) => void
   /** How many times a thread has opened: its box takes the caret each time. */
@@ -68,7 +83,7 @@ interface ListProps {
 /** The list's own room: placeholders, the empty line, or the comments 8px apart. */
 function List({ items, open, under, above, loading, empty, change, caret }: ListProps) {
   if (loading) return <SkeletonConversation />
-  if (items.length === 0) return <EmptyState scope="section" message={empty} />
+  if (items.length === 0) return typeof empty === 'string' ? <EmptyState scope="section" message={empty} /> : <>{empty}</>
   // How each card opens its thread: only one that has a thread, and only when the app keeps `open`.
   const stateOf = (item: ConversationItem): ConversationItemState | null =>
     change && item.thread
@@ -82,18 +97,47 @@ function List({ items, open, under, above, loading, empty, change, caret }: List
   const draw = (item: ConversationItem) => {
     if (!under) {
       return (
-        <div key={item.id} data-conversation-item={item.id} className="flex flex-col">
-          <InConversationItem.Provider value={stateOf(item)}>{item.card}</InConversationItem.Provider>
-        </div>
+        <Fragment key={item.id}>
+          {item.before}
+          <div data-conversation-item={item.id} className="flex flex-col">
+            <InConversationItem.Provider value={stateOf(item)}>{item.card}</InConversationItem.Provider>
+          </div>
+        </Fragment>
       )
     }
     return <UnderItem key={item.id} item={item} isOpen={open === item.id && !!item.thread} state={stateOf(item)} caret={caret} />
   }
   if (!under) {
+    // Two columns: a day's comments are one stretch under its line, so the line stays at the top only while its own
+    // stretch scrolls under it, and the next day's pushes it away (Peek's day lines).
+    // Keyed by its day, not its place, so older comments arriving at the top redraw nothing under them; a day that
+    // comes back further down (an app's own order) is that day's second stretch.
+    const stretches: { key: string; day?: string; items: ConversationItem[] }[] = []
+    const seen = new Map<string, number>()
+    for (const item of items) {
+      const last = stretches[stretches.length - 1]
+      if (last && last.day === item.day) {
+        last.items.push(item)
+        continue
+      }
+      const name = item.day ?? ''
+      const count = (seen.get(name) ?? 0) + 1
+      seen.set(name, count)
+      stretches.push({ key: `${item.day === undefined ? 'no-day' : `day:${name}`}#${count}`, day: item.day, items: [item] })
+    }
     return (
       <>
         {above}
-        {items.map(draw)}
+        {stretches.map((stretch) =>
+          stretch.day === undefined ? (
+            <Fragment key={stretch.key}>{stretch.items.map(draw)}</Fragment>
+          ) : (
+            <div key={stretch.key} className="flex flex-col gap-2">
+              <Divider look="section" label={stretch.day} sticky />
+              {stretch.items.map(draw)}
+            </div>
+          ),
+        )}
       </>
     )
   }
@@ -171,7 +215,24 @@ function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isO
  * comments are the 384px column beside the page, and a thread opens under its comment, the two one card. The right column is 384px in
  * every app (Katerina, 31 October). With two columns the thread runs the full height, beside the comments' header.
  */
-export function ConversationLayout({ threads, items, open, onOpenChange, box, above, loading = false, empty = 'No comments yet.', header, title = 'Comments', actions, className }: ConversationLayoutProps) {
+export function ConversationLayout({
+  threads,
+  items,
+  open,
+  onOpenChange,
+  box,
+  above,
+  below,
+  top,
+  loading = false,
+  empty = 'No comments yet.',
+  header,
+  title = 'Comments',
+  actions,
+  bodyRef,
+  onBodyScroll,
+  className,
+}: ConversationLayoutProps) {
   // One column: the pressed comment stays where it was on screen. Opening one thread closes the other, and when that
   // one stood above it, everything under it would rise by its height (Katerina, 31 October). Where it was is noted at
   // the press; once the change is drawn, before it is painted, the column scrolls by however far it went.
@@ -215,14 +276,31 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
   const opened = items.find((item) => item.id === open)?.thread
   return (
     <div className={cn('flex min-h-0 min-w-0 flex-1', className)}>
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        {header}
-        <ScrollArea className="min-h-0 flex-1" contentClassName="flex flex-col gap-2 p-4">
-          <List items={items} open={open} under={false} above={above} loading={loading} empty={empty} change={change} caret={caret} />
-        </ScrollArea>
-        {/* Peek's composer room: 12px all round (useFileConversationView's `p-3`), under the list's 16px. */}
-        {box && <div className="shrink-0 p-3">{box}</div>}
-      </div>
+      {/* If the column throws, its name stays with the message, as a Panel's does; the thread beside it stays. */}
+      <ErrorBoundary
+        label="conversation"
+        frame={(message) => (
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <ContainerHeader title={title} />
+            <div className="flex min-h-0 flex-1 flex-col px-4">{message}</div>
+          </div>
+        )}
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          {header}
+          <ScrollArea className="min-h-0 flex-1" viewportRef={bodyRef} onScroll={onBodyScroll} contentClassName="flex min-h-full flex-col">
+            {top != null && top !== false && top !== '' && <div className="shrink-0 px-4 pt-4">{top}</div>}
+            {/* A short conversation sits on its box, as a chat does: the newest comment by the box (Peek's way). */}
+            <div className="min-h-0 flex-1" />
+            <div className="flex shrink-0 flex-col gap-2 p-4">
+              <List items={items} open={open} under={false} above={above} loading={loading} empty={empty} change={change} caret={caret} />
+              {!loading && below}
+            </div>
+          </ScrollArea>
+          {/* Peek's composer room: 12px all round (useFileConversationView's `p-3`), under the list's 16px. */}
+          {box && <div className="shrink-0 p-3">{box}</div>}
+        </div>
+      </ErrorBoundary>
       {opened && (
         <div className="flex w-[384px] shrink-0 flex-col border-l border-border-subtle">
           <caretOnOpen.Provider value={caret}>{opened}</caretOnOpen.Provider>

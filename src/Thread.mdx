@@ -39,6 +39,8 @@ import { ReplyCard, Thread } from '@estiva-app/ui'
 
 - Its replies are yours to put in time order. Who resolved it is said on the comment, not among them.
 - Still reading: `loading`. Nobody replied yet: nothing in `children`.
+- An app whose empty thread said nothing keeps its silence with `empty={null}`; `closeLabel` names Close in its words for a screen reader.
+- `start.id` is put on the pinned comment as `data-thread-start`, for a link that names the comment, as ConversationLayout's comments carry `data-conversation-item`.
 
 ## What it owns
 
