@@ -3,6 +3,7 @@ import { Extension, Node } from '@tiptap/core'
 import { history, redo, undo } from '@tiptap/pm/history'
 import { EditorContent, useEditor } from '@tiptap/react'
 import { cn } from './cn'
+import { EDITOR_SELECTION_CLASSES } from './looks'
 
 /**
  * A line of plain text on a page that you edit where it stands, as in a
@@ -132,7 +133,7 @@ export function InlineText({ value, placeholder, label, onCommit, onText, onEnte
         'aria-multiline': 'false',
         'aria-placeholder': placeholder,
         ...(readOnly ? { 'aria-readonly': 'true' } : {}),
-        class: 'outline-none',
+        class: cn('outline-none', EDITOR_SELECTION_CLASSES),
       },
       handleKeyDown: (view, event) => {
         if (event.key === 'Enter') {

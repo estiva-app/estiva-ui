@@ -92,6 +92,13 @@ export const COLLAPSIBLE_PANEL_CLASSES = 'h-[var(--collapsible-panel-height)] ov
 // A field's fill and edge, as every field has (Katerina, 31 October: the comment box is a field, and every field has its fill).
 export const WRITING_BOX_CLASSES = 'relative bg-bg-field border border-border-field rounded-lg p-3 flex flex-col gap-4'
 
+/**
+ * Selected words in an editor: the selected thing's fill, the colour the selection strip's kept selection paints
+ * while its link field has the focus (`KeptSelection`), so the words look the same selected and kept. Peek's
+ * composer rule (PEE-19), moved into every editor: the comment box, the document editor and InlineText.
+ */
+export const EDITOR_SELECTION_CLASSES = 'selection:bg-bg-selected'
+
 /** The keys under the send box, in words: "Enter to send · Shift+Enter new line". One line, cut when the room runs out; no key caps. The edit box writes none (Katerina, 1 November). */
 export const BOX_HINT_CLASSES = 'min-w-0 truncate select-none text-caption text-text-muted signal:font-mono signal:text-menu signal:font-normal signal:tracking-wider'
 

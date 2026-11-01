@@ -7,6 +7,7 @@ import { IconMessagePlus } from '@tabler/icons-react'
 import type { HandleBlock } from './BlockHandle'
 import { AttachmentNode, BlockId, Callout, Checklist, ReferenceNode, UnknownBlock, isChecklistTick, type AttachmentViewProps, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
+import { cn } from './cn'
 import { CodeBlockColours } from './CodeBlockColours'
 import { CommentHighlights, anchorOfSelection, type SelectionAnchor } from './CommentHighlights'
 import { PersonReference, ReferenceTrigger, SlashCommands, formatSection, typeTrigger, type MentionPerson, type ReferenceSection, type SlashCommand, type SlashSection } from './ComposerTriggers'
@@ -19,6 +20,7 @@ import { BareLinks, DocumentKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './
 import { PastedImages } from './PastedImages'
 import { PastedMarkdown } from './PastedMarkdown'
 import { LinkPlaces } from './LinkPlaces'
+import { EDITOR_SELECTION_CLASSES } from './looks'
 import { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen } from './ReferenceMenu'
 import { richTextClassName } from './RichText'
 import { KeptSelection, SelectionToolbar } from './SelectionToolbar'
@@ -420,7 +422,7 @@ export function DocumentEditor({
           tabindex: '0',
           // A row or a card is its whole line (`LinkPlaces`), drawn on that line: a block inside it would push the
           // separator and trailing break ProseMirror puts beside it onto empty lines of their own (code review).
-          class: richTextClassName('default', 'outline-none [&_[data-link-place]]:inline-block [&_[data-link-place]]:w-full [&_[data-link-place]]:align-top'),
+          class: richTextClassName('default', cn('outline-none [&_[data-link-place]]:inline-block [&_[data-link-place]]:w-full [&_[data-link-place]]:align-top', EDITOR_SELECTION_CLASSES)),
         },
         handleKeyDown: (view, event) => {
           if (event.key !== 'Escape') return false
