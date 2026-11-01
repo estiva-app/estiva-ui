@@ -30,6 +30,8 @@ import { ResolveDialog } from '@estiva-app/ui'
 
 - Ctrl+Enter resolves from the note; Enter there is a new line.
 - Answer `false` from `onResolve` when it was refused, and pass why in `refused`.
+  Any other answer closes it, through `onCancel`.
+- It is a **FormDialog**: while it resolves, the note and both buttons wait.
 
 ## What it owns
 
