@@ -13,7 +13,7 @@ import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
-import { InConversationItem, InThreadCard, LineByLayout, useFaceLine } from './threadCard'
+import { InConversationItem, InThreadCard, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -81,6 +81,8 @@ export interface ConversationCardProps extends ConversationEntryProps {
   resolved?: { by: string; note?: string; at?: string }
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
+  /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
+  resolveRefused?: string
   onReopen?: () => void
   /** The one open beside its thread. */
   selected?: boolean
@@ -162,29 +164,26 @@ function ResolvedCheck({ by, note, at }: { by: string; note?: string; at?: strin
 }
 
 /**
- * A row's piece of the 2px line under the 24px face, open under in one column with no ConversationLayout to draw it
- * whole (Katerina, 1 November: the line from the face, thicker, the same in an open comment and its thread).
+ * Folded, the words' first line, whatever the app wraps them in (Peek's and Leaf's words come in a box of their own):
+ * the cards and pictures among them held back, at either level, then one line, cut with … where the text allows.
+ * Text blocks stay: paragraphs, lists, quotes, code.
  */
-function Stem() {
-  // 19px in, as the thread's own line: the card's 8px and the face's centre.
-  return <span aria-hidden className="absolute bottom-0 left-[11px] top-0 w-0.5 bg-border-default" />
-}
+const FOLDED_WORDS_CLASSES =
+  '[&>div]:line-clamp-1 [&>div]:max-h-[1lh] [&>div>*:not(p):not(ul):not(ol):not(blockquote):not(pre):not(div:only-child)]:hidden [&>div>div:only-child>*:not(p):not(ul):not(ol):not(blockquote):not(pre)]:hidden'
 
 /** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. `oneLine`: folded, the first line only. */
-function Words({ children, stem = false, oneLine = false }: { children: ReactNode; stem?: boolean; oneLine?: boolean }) {
+function Words({ children, oneLine = false }: { children: ReactNode; oneLine?: boolean }) {
   return (
-    <div className={cn('relative w-full break-words pb-2 pl-8 pr-2 pt-1', oneLine && '[&>div>*:not(p)]:hidden [&>div]:line-clamp-1')}>
-      {stem && <Stem />}
+    <div className={cn('relative w-full break-words pb-2 pl-8 pr-2 pt-1', oneLine && FOLDED_WORDS_CLASSES)}>
       <div className="flex flex-col gap-2 text-body-2 text-text-secondary">{children}</div>
     </div>
   )
 }
 
-function Reactions({ reactions, refused, readOnly, stem = false }: { reactions?: ReactionRowProps; refused?: string; readOnly: boolean; stem?: boolean }) {
+function Reactions({ reactions, refused, readOnly }: { reactions?: ReactionRowProps; refused?: string; readOnly: boolean }) {
   if ((!reactions || reactions.reactions.length === 0) && !refused) return null
   return (
     <div className="relative flex w-full flex-col gap-1 pb-2 pl-8 pt-1">
-      {stem && <Stem />}
       {reactions && <ReactionRow {...reactions} onToggle={readOnly ? undefined : reactions.onToggle} />}
       {refused && <FieldLine tone="error">Not reacted: {refused}.</FieldLine>}
     </div>
@@ -212,8 +211,25 @@ function Editing({ author, children }: { author: ConversationPerson; children: R
 function pressed(e: MouseEvent<HTMLDivElement>, press: () => void) {
   const target = e.target as HTMLElement
   if (!e.currentTarget.contains(target)) return
+  // A double click picks a word and a drag picks words: neither is a press, or the thread would open and close under the reader.
+  if (e.detail > 1) return
+  const picked = typeof window === 'undefined' ? null : window.getSelection()
+  if (picked && !picked.isCollapsed && picked.anchorNode && e.currentTarget.contains(picked.anchorNode)) return
   if (target.closest('button, a, input, textarea, [contenteditable="true"], [role="button"], [role="toolbar"], [data-interactive]')) return
   press()
+}
+
+/**
+ * After its picker or its menu closes, a card keeps its strip only while it is still pointed at, or reached by the
+ * keyboard. A pointer that left while they were open sent the card no leave, and the strip stayed (the review, 1 November).
+ */
+function stillHere(root: HTMLElement | null) {
+  if (!root) return false
+  try {
+    return root.matches(':hover') || root.querySelector(':focus-visible') !== null
+  } catch {
+    return root.matches(':hover')
+  }
 }
 
 /** The editing state, held by the card or by the app. */
@@ -233,7 +249,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -255,10 +271,10 @@ export function ConversationCard(props: ConversationCardProps) {
   // bar measured from the face to the dot. Open in a ConversationLayout, the layout draws the whole line, face to the
   // thread's last reply, so the card draws no pieces of it; elsewhere (a card on its own) the pieces stay.
   const toDot = !lined && !!resolved?.note && !isEditing
-  const layoutLine = useContext(LineByLayout)
-  const stemmed = lined && !layoutLine
   const root = useRef<HTMLDivElement>(null)
   const dotLine = useFaceLine(root, toDot, true)
+  // Once its picker or menu has closed: the strip only if the card is still pointed at.
+  const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
   const offersMenu = !!resolves || !!menu || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
@@ -268,7 +284,8 @@ export function ConversationCard(props: ConversationCardProps) {
   const reply = onReply ?? item?.show
   const marked = selected ?? (item && !item.under ? item.open : undefined)
   const under = !!item?.under
-  const closed = !inThreadCard && !(item && !item.under && item.open)
+  // Closed: its thread is not open, under it or beside it (the layout's, or the app's own `selected`).
+  const closed = !inThreadCard && !marked
   // Folded: resolved, its thread closed, the words' first line only (Katerina, 1 November).
   const folded = !!resolved && closed
   const repliesRow = replies && replies.count > 0 && (
@@ -322,38 +339,26 @@ export function ConversationCard(props: ConversationCardProps) {
                 />
                 {aboutShown && (
                   // Under the name, above the words (Katerina, 1 November).
-                  <div className="relative w-full pl-8 pr-2 pt-0.5">
-                    {stemmed && <Stem />}
-                    {about}
-                  </div>
+                  <div className="relative w-full pl-8 pr-2 pt-0.5">{about}</div>
                 )}
-                <Words stem={stemmed} oneLine={folded}>
+                <Words oneLine={folded}>
                   {children}
                 </Words>
               </>
             )}
             {!deleted && files && !folded && (
-              <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">
-                {stemmed && <Stem />}
-                {files}
-              </div>
+              <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">{files}</div>
             )}
-            {!folded && <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} stem={stemmed} />}
+            {!folded && <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />}
             {resolved?.note && (
               // Who resolved it and the note, above the way into the replies; the check by the time says "Resolved" (Katerina, 1 November).
               <div className="relative w-full pb-1">
-                {stemmed && <Stem />}
                 <div className="-ml-2 w-[calc(100%+8px)]">
                   <EndedLine by={resolved.by} note={resolved.note} at={resolved.at} />
                 </div>
               </div>
             )}
-            {repliesRow && (
-              <div className="relative w-full">
-                {stemmed && <Stem />}
-                {repliesRow}
-              </div>
-            )}
+            {repliesRow && <div className="relative w-full">{repliesRow}</div>}
           </div>
         )}
         {dotLine && (
@@ -366,7 +371,10 @@ export function ConversationCard(props: ConversationCardProps) {
             <ConversationActions
               options={reactions?.options}
               onReact={react}
-              onPickerOpenChange={setPicking}
+              onPickerOpenChange={(open) => {
+                setPicking(open)
+                if (!open) settle()
+              }}
               onReply={reply}
               resolved={!!resolved}
               onResolve={onResolve && (() => setResolving(true))}
@@ -380,7 +388,10 @@ export function ConversationCard(props: ConversationCardProps) {
                       </ToolbarButton>
                     }
                     open={menuOpen}
-                    onOpenChange={setMenuOpen}
+                    onOpenChange={(open) => {
+                      setMenuOpen(open)
+                      if (!open) settle()
+                    }}
                     resolved={!!resolved}
                     onResolve={onResolve && (() => setResolving(true))}
                     onReopen={onReopen}
@@ -403,6 +414,7 @@ export function ConversationCard(props: ConversationCardProps) {
       )}
       {resolving && onResolve && (
         <ResolveDialog
+          refused={resolveRefused}
           onCancel={() => setResolving(false)}
           onResolve={async (note) => {
             const ok = await onResolve(note)
@@ -430,9 +442,12 @@ export function ReplyCard(props: ReplyCardProps) {
   const isEditing = editing && !readOnly && !!editor
   const offersMenu = !!menu || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
+  const root = useRef<HTMLDivElement>(null)
+  const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   return (
     <>
       <Card
+        ref={root}
         // As a comment: no fill of its own at rest (Katerina, 1 November).
         fill="none"
         hover={readOnly ? 'none' : 'fill'}
@@ -470,7 +485,10 @@ export function ReplyCard(props: ReplyCardProps) {
             className="absolute right-1 top-1 z-10"
             options={reactions?.options}
             onReact={reactions?.onToggle}
-            onPickerOpenChange={setPicking}
+            onPickerOpenChange={(open) => {
+              setPicking(open)
+              if (!open) settle()
+            }}
             more={
               offersMenu && (
                 <ConversationMenu
@@ -482,7 +500,7 @@ export function ReplyCard(props: ReplyCardProps) {
                   open={menuOpen}
                   onOpenChange={(next) => {
                     setMenuOpen(next)
-                    if (!next) setHovered(false)
+                    if (!next) settle()
                   }}
                   onEdit={own && editor ? () => setEditing(true) : undefined}
                   onDelete={own && onDelete ? () => setDeleting(true) : undefined}

@@ -41,8 +41,9 @@ export const LineByLayout = createContext(false)
 const FACE_GAP = 4
 
 /**
- * The line from a face down, as ONE bar measured in `root`: from 4px under the first `[data-face]` (it never touches the
- * face; Katerina, 1 November) to the end. It ends at the thread's replies (`[data-thread-replies]`), or, with none yet, at
+ * The line from a face down, as ONE bar measured in `root`: from 4px under the comment's face (`[data-face]` in
+ * `[data-comment-body]`: never a reply's, when the comment is deleted or being edited and shows none) — it never touches the
+ * face; Katerina, 1 November — to the end. It ends at the thread's replies (`[data-thread-replies]`), or, with none yet, at
  * the comment's own foot (`[data-comment-body]`); with `toDot`, at the centre of the resolved line's dot (`[data-dot]`). Pieces drawn in separate
  * boxes met a pixel apart at some zooms, a step where the thread began (Katerina, 1 November: "the line breaks in the
  * middle"); one bar cannot. Measured again whenever `root` changes size. `null` until measured, or when `active` is false.
@@ -56,7 +57,7 @@ export function useFaceLine(root: RefObject<HTMLElement | null>, active: boolean
       return
     }
     const measure = () => {
-      const face = el.querySelector('[data-face]')
+      const face = el.querySelector('[data-comment-body] [data-face]')
       const target =
         toDot
           ? el.querySelector('[data-dot]')

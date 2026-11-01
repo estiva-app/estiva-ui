@@ -57,7 +57,10 @@ export function ArchivedNotice({ by, when, resolution, withWhat, withTitle, onUn
               onClick={() => {
                 // One unarchive at a time: a second press while the first is written would write it twice.
                 setUnarchiving(true)
-                void Promise.resolve(onUnarchive()).finally(() => setUnarchiving(false))
+                // A press that throws at once counts as done too: the button never stays shut (the review, 1 November).
+                void Promise.resolve()
+                  .then(onUnarchive)
+                  .finally(() => setUnarchiving(false))
               }}
             >
               Unarchive

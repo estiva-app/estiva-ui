@@ -14,7 +14,7 @@ export interface ConversationItem {
   id: string
   /** The comment: a `ConversationCard`. */
   card: ReactNode
-  /** Its thread: a `Thread` with the same `place` as the layout's `threads`. Drawn while it is the open one. */
+  /** Its thread: a `Thread` with the same `place` as the layout's `threads`, drawn while it is the open one. Give every comment one, even with no replies yet: a card without one cannot be opened. */
   thread?: ReactNode
   /** Resolved. In one column it waits under "Resolved", closed, at the end; in two columns it stays in its place. */
   resolved?: boolean
@@ -59,8 +59,8 @@ interface ListProps {
   above?: ReactNode
   loading: boolean
   empty: string
-  /** Asked to open or close: `id` is the comment pressed, `next` what is open after. */
-  change?: (id: string, next: string | undefined) => void
+  /** Asked to open or close: `id` is the comment pressed, `next` what is open after; `reply`, asked by Reply. */
+  change?: (id: string, next: string | undefined, reply?: boolean) => void
   /** How many times a thread has opened: its box takes the caret each time. */
   caret: number
 }
@@ -76,7 +76,7 @@ function List({ items, open, under, above, loading, empty, change, caret }: List
           under,
           open: open === item.id,
           toggle: () => change(item.id, under && open === item.id ? undefined : item.id),
-          show: () => change(item.id, item.id),
+          show: () => change(item.id, item.id, true),
         }
       : null
   const draw = (item: ConversationItem) => {
@@ -178,8 +178,15 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
   const body = useRef<HTMLDivElement>(null)
   const pressed = useRef<{ id: string; top: number } | null>(null)
   const itemAt = (id: string) => body.current?.querySelector<HTMLElement>(`[data-conversation-item="${CSS.escape(id)}"]`) ?? null
+  // A thread that opens puts the caret in its box (Katerina, 31 October); the one open when the page is drawn does not.
+  const [caret, setCaret] = useState(0)
   const change = onOpenChange
-    ? (id: string, next: string | undefined) => {
+    ? (id: string, next: string | undefined, reply = false) => {
+        if (next !== undefined && next === open) {
+          // Already open: nothing moves. Reply on it puts the caret in its box again; nothing else is asked of the app.
+          if (reply) setCaret((n) => n + 1)
+          return
+        }
         const item = threads === 'under' ? itemAt(id) : null
         pressed.current = item ? { id, top: item.getBoundingClientRect().top } : null
         onOpenChange(next)
@@ -193,8 +200,6 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
     const moved = item.getBoundingClientRect().top - at.top
     if (moved !== 0) body.current.scrollTop += moved
   }, [open])
-  // A thread that opens puts the caret in its box (Katerina, 31 October); the one open when the page is drawn does not.
-  const [caret, setCaret] = useState(0)
   const was = useRef(open)
   useEffect(() => {
     if (open !== undefined && open !== was.current) setCaret((n) => n + 1)
@@ -202,7 +207,7 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
   }, [open])
   if (threads === 'under') {
     return (
-      <Panel className={cn('w-[384px] shrink-0', className)} title={title} actions={actions} bodyRef={body} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
+      <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={body} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
         <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} />
       </Panel>
     )

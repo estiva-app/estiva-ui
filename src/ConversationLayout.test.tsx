@@ -4,12 +4,13 @@
  * a second press closes it; the replies row says it is open; a comment with no replies opens to its box; and the
  * comment is never redrawn as it opens and closes, so it cannot blink or move.
  */
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ConversationCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { Thread } from './Thread'
+import { caretOnOpen } from './threadCard'
 
 afterEach(cleanup)
 
@@ -151,6 +152,34 @@ describe('ConversationLayout, one column, its groups', () => {
     render(<ConversationLayout threads="beside" items={grouped()} />)
     expect(screen.queryByRole('button', { name: /^Resolved/ })).toBeNull()
     expect(screen.getByText('Done with').closest('[hidden]')).toBeNull()
+  })
+})
+
+/** A box that says how many times it was asked to take the caret. */
+function CaretBox() {
+  return <p>Caret {useContext(caretOnOpen)}</p>
+}
+
+describe('ConversationLayout, Reply on the open comment (the review, 1 November)', () => {
+  it('asks the app for nothing, and puts the caret in its box again', () => {
+    const asked = vi.fn()
+    const items: ConversationItem[] = [
+      {
+        id: 'a',
+        card: (
+          <ConversationCard author={ONE} time="11:08 AM">
+            Open one
+          </ConversationCard>
+        ),
+        thread: <Thread place="under" box={<CaretBox />} />,
+      },
+    ]
+    render(<ConversationLayout threads="under" items={items} open="a" onOpenChange={asked} />)
+    expect(screen.getByText('Caret 0')).toBeTruthy()
+    fireEvent.mouseEnter(screen.getByText('Open one'))
+    fireEvent.click(screen.getByRole('button', { name: 'Reply' }))
+    expect(asked).not.toHaveBeenCalled()
+    expect(screen.getByText('Caret 1')).toBeTruthy()
   })
 })
 

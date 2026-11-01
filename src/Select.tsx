@@ -1,6 +1,6 @@
 import { IconCheck, IconChevronDown } from '@tabler/icons-react'
 import { Select as BaseSelect } from '@base-ui/react/select'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
 import { MenuPanel, menuItemClassName } from './Menu'
@@ -80,6 +80,10 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
   // a native `disabled` button, which Tab skips and a tooltip cannot open on.
   const held = Boolean(disabledReason)
   const [open, setOpen] = useState(false)
+  // Held while open (an archive arriving): it shuts, and stays shut once let go, until it is pressed again.
+  useEffect(() => {
+    if (held) setOpen(false)
+  }, [held])
   const trigger = (
       // @estiva-escape(no-copied-look): N1 (Katerina, 24 September: record only): Select's box drops the hover while held, so it cannot take FIELD_SHELL_CLASSES as it is
       <BaseSelect.Trigger

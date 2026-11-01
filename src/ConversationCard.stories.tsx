@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { ConversationCard, type ConversationCardProps } from './ConversationCard'
 import { Column, EditBox, Files, LONG, Mentions, ONE, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions } from './conversation.examples'
+import { RichText } from './RichText'
 import { MenuItem } from './Menu'
 import type { ReactionCount } from './ReactionRow'
 import { QuotedLine } from './QuotedLine'
@@ -19,6 +20,12 @@ const meta = {
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+/** Two paragraphs in RichText's own box, as an app's words come. */
+const RICH = [
+  { type: 'paragraph' as const, inline: [{ text: WORDS, marks: [] }] },
+  { type: 'paragraph' as const, inline: [{ text: 'A second paragraph, held back while it is folded.', marks: [] }] },
+]
 
 /** A card that answers: its reactions, resolve, edit and delete change it, as an app's would. */
 function Live({ start, resolvedAt, deletable = true, ...props }: ConversationCardProps & { start?: readonly ReactionCount[]; resolvedAt?: { by: string; note?: string }; deletable?: boolean }) {
@@ -57,7 +64,7 @@ export const WithFiles: Story = { name: 'Files', render: (args) => <Live {...arg
 /** A card its author attached. */
 export const Card: Story = { render: (args) => <Live {...args}><WithCard /></Live> }
 
-/** On a part of the page: the words it is on, above the name. */
+/** On a part of the page: the words it is on, under the name and above its words. */
 export const OnAPart: Story = { name: 'On a part', render: (args) => <Live {...args} about={<QuotedLine words="the words this comment is on" />} /> }
 
 /** The words changed since: the bar goes grey, and it says so. */
@@ -84,10 +91,20 @@ export const Urgent: Story = { render: (args) => <Live {...args} isNew urgent re
 /** A person named in the words, and a link. */
 export const WithMentions: Story = { name: 'Mentions', render: (args) => <Live {...args}><Mentions /></Live> }
 
-/** Resolved: who resolved it and the note. Its reactions, files and replies stay. */
+/** Resolved, folded: "Resolved" by the time, who and the note above its replies; closed, its words in one line, its reactions and files held back. */
 export const Resolved: Story = { render: (args) => <Live {...args} start={SOME} resolvedAt={{ by: 'Person two', note: 'Keeping the first one.' }} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} /> }
 
-/** Resolved with a long note: cut at the end of the line, in the chip; whole on hover. */
+/** Resolved, its words in a box of their own, as the apps draw them (RichText here): folded, still their first line. */
+export const ResolvedInABox: Story = {
+  name: 'Resolved, words in a box',
+  render: (args) => (
+    <Live {...args} resolvedAt={{ by: 'Person two', note: 'Keeping the first one.' }}>
+      <RichText blocks={RICH} />
+    </Live>
+  ),
+}
+
+/** Resolved with a long note: the whole note, on its line above the replies. */
 export const ResolvedLongNote: Story = { name: 'Resolved, long note', render: (args) => <Live {...args} resolvedAt={{ by: 'Person two', note: 'Agreed, going with the first one, and the second goes to the list of later ideas with its reasons written beside it.' }} /> }
 
 /** The one open beside its thread. */

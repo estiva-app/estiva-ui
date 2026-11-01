@@ -229,6 +229,64 @@ describe('new and urgent (Peek: ConversationCard.urgent, the card’s part)', ()
   })
 })
 
+describe('what the review found (1 November)', () => {
+  it('says why a resolve was refused, under the note, while the dialog stays', async () => {
+    const user = userEvent.setup()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onResolve={() => false} resolveRefused="The file is archived">
+        Words
+      </ConversationCard>,
+    )
+    point('Words')
+    fireEvent.click(screen.getByRole('button', { name: 'Resolve' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.click(screen.getByRole('button', { name: 'Resolve' }))
+    expect(dialog.isConnected).toBe(true)
+    expect(screen.getByText(/The file is archived/)).toBeTruthy()
+  })
+
+  it('a double click picks a word: it is not a second press', () => {
+    const onClick = vi.fn()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onClick={onClick}>
+        Words
+      </ConversationCard>,
+    )
+    fireEvent.click(screen.getByText('Words'), { detail: 1 })
+    fireEvent.click(screen.getByText('Words'), { detail: 2 })
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('words picked by a drag are not a press', () => {
+    const onClick = vi.fn()
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onClick={onClick}>
+        Words to pick
+      </ConversationCard>,
+    )
+    const words = screen.getByText('Words to pick')
+    const range = document.createRange()
+    range.setStart(words.firstChild!, 0)
+    range.setEnd(words.firstChild!, 5)
+    window.getSelection()!.removeAllRanges()
+    window.getSelection()!.addRange(range)
+    fireEvent.click(words, { detail: 1 })
+    expect(onClick).not.toHaveBeenCalled()
+    window.getSelection()!.removeAllRanges()
+    fireEvent.click(words, { detail: 1 })
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('open beside by the app’s own `selected`, a resolved comment is whole: its files show', () => {
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" selected resolved={{ by: 'Person two' }} files={<span>plan.png</span>}>
+        Words
+      </ConversationCard>,
+    )
+    expect(screen.getByText('plan.png')).toBeTruthy()
+  })
+})
+
 describe('its files, what it is about, and how it was resolved', () => {
   it('draws its files under the words, and holds them back while it is folded', () => {
     render(

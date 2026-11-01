@@ -44,6 +44,22 @@ describe('Thread, beside (the right column)', () => {
   })
 })
 
+describe('Thread, with an empty list of replies (an app’s replies.map with none)', () => {
+  it('beside: says nobody replied yet', () => {
+    render(<Thread start={START}>{[]}</Thread>)
+    expect(screen.getByText('No replies yet.')).toBeTruthy()
+  })
+
+  it('under: draws no empty line of replies, only the box', () => {
+    const { container } = render(
+      <Thread place="under" box={<p>The box</p>}>
+        {[]}
+      </Thread>,
+    )
+    expect(container.querySelector('[data-thread-replies]')).toBeNull()
+  })
+})
+
 describe('Thread, under its comment (one column)', () => {
   it('draws no header, no Close and no pinned comment: its replies, then the box', () => {
     render(

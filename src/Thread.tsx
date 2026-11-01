@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from 'react'
+import { Children, type ReactNode, type Ref } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { cn } from './cn'
@@ -9,7 +9,7 @@ import { Panel } from './Panel'
 import { PinnedComment, type PinnedCommentProps } from './PinnedComment'
 import { SkeletonConversation } from './Skeleton'
 import { useContext } from 'react'
-import { caretOnOpen, InThreadCard, LineByLayout } from './threadCard'
+import { caretOnOpen, LineByLayout } from './threadCard'
 
 /** The comment a thread answers, pinned at the top of its column. */
 export type ThreadStart = PinnedCommentProps
@@ -41,9 +41,12 @@ export interface ThreadProps {
   className?: string
 }
 
+/** Whether there are replies: an app's `replies.map(…)` with none is an empty list, which is not nothing to React but is to the reader. */
+const anyIn = (children: ReactNode) => Children.toArray(children).length > 0
+
 function Replies({ children, loading }: { children?: ReactNode; loading: boolean }) {
   if (loading) return <SkeletonConversation />
-  if (!children) return <EmptyState scope="section" message="No replies yet." />
+  if (!anyIn(children)) return <EmptyState scope="section" message="No replies yet." />
   return <>{children}</>
 }
 
@@ -59,9 +62,8 @@ export function Thread({ place = 'beside', start, children, loading = false, res
   const layoutLine = useContext(LineByLayout)
   if (place === 'under') {
     return (
-      <InThreadCard.Provider value>
-        <div data-thread="under" className={cn('flex flex-col', className)}>
-          {(loading || children) && (
+      <div data-thread="under" className={cn('flex flex-col', className)}>
+          {(loading || anyIn(children)) && (
             // The replies hang from a line under the comment's face (20px in: its 8px and half its 24px), one step in (Ship's way).
             // 8px from the one card's right edge too, as the box under them: a hovered reply never touches it (Katerina, 31 October).
             // 2px, as the line from the comment's face that runs into it (Katerina, 1 November), and drawn the same way, a
@@ -73,8 +75,7 @@ export function Thread({ place = 'beside', start, children, loading = false, res
             </div>
           )}
           {foot && <div className="px-2 pt-2">{foot}</div>}
-        </div>
-      </InThreadCard.Provider>
+      </div>
     )
   }
   return (
