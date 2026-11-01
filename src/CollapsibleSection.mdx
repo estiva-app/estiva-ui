@@ -20,6 +20,15 @@ toggle, and the rows under it, sliding shut and open.
   reloads: this browser remembers, under that key. The app prefixes the
   key (`app.sidebar.starred`).
 - `open` + `onOpenChange` when the app owns the state.
+- `useRememberedOpen(storageKey, fallback)` when the app must know whether
+  it is open before it draws the rows — rows read only once it opens: it
+  gives `open` and `onOpenChange` the memory `storageKey` keeps, in the same
+  words, known on the first draw. `fallback` decides until the reader does,
+  and stays live (open while it holds the current item); only the reader's
+  choice is remembered.
+
+<Canvas of={CollapsibleSectionStories.RememberedByTheApp} />
+
 - `pending` when the rows are read as it opens and usually arrive quickly:
   the title turns open at once (and says `aria-busy`), the panel stays shut
   until `pending` is false, then opens once with every row. A skeleton that
@@ -53,6 +62,9 @@ composition lives:
 - Several panels where opening one closes the others → not here; that is
   an accordion, and no app has asked for one.
 - Content that appears on demand from a control elsewhere → **Popover**.
+- A memory of the app's own beside `open` (`localStorage` read and written by
+  hand) → `useRememberedOpen`; or just `storageKey`, when nothing has to know
+  before the reader opens it.
 
 ## How
 
@@ -75,7 +87,14 @@ import { CollapsibleSection, NavItem } from '@estiva-app/ui'
   is the box the rows sit in: the gap between them.
 - A closed section stays closed whatever is selected inside it — the
   reader closed it. An app that wants it to spring open owns the state
-  with `open`.
+  with `open`; `useRememberedOpen` keeps that state remembered.
+
+```tsx
+const [open, setOpen] = useRememberedOpen(`app.sidebar.folder.${id}`, holdsCurrent)
+<CollapsibleSection title={name} open={open} onOpenChange={setOpen}>
+  {open && <NavItem href={`/folder/${id}`} label="Read only once open" />}
+</CollapsibleSection>
+```
 - A browser that blocks storage still gets a working section; it forgets.
 
 ## What it owns

@@ -6,9 +6,9 @@
  * (measured 2026-09-09).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { CollapsibleSection } from './CollapsibleSection'
+import { CollapsibleSection, useRememberedOpen } from './CollapsibleSection'
 import { MenuItem } from './Menu'
 
 afterEach(cleanup)
@@ -131,5 +131,88 @@ describe('CollapsibleSection, its header', () => {
     const icon = screen.getByTestId('icon')
     expect(title().contains(icon)).toBe(true)
     expect(icon.compareDocumentPosition(screen.getByText('Section')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+})
+
+/**
+ * The fold this browser remembers, for an app that must know it before it
+ * draws what is inside (Peek's Folders, FOL-21: a Folder's rows are a read,
+ * made only for a Folder that is open). Peek's own `useRememberedOpen`, moved
+ * in: its rules and its tests' cases.
+ */
+describe('useRememberedOpen', () => {
+  it('with nothing remembered it is the fallback, and follows it until the person chooses', () => {
+    const { result, rerender } = renderHook(({ fallback }) => useRememberedOpen('test.fold', fallback), { initialProps: { fallback: false } })
+    expect(result.current[0]).toBe(false)
+    rerender({ fallback: true })
+    expect(result.current[0]).toBe(true)
+    rerender({ fallback: false })
+    expect(result.current[0]).toBe(false)
+  })
+
+  it('a default is never written down: only a choice is remembered', () => {
+    const { rerender } = renderHook(({ fallback }) => useRememberedOpen('test.fold', fallback), { initialProps: { fallback: true } })
+    rerender({ fallback: false })
+    expect(window.localStorage.getItem('test.fold')).toBeNull()
+  })
+
+  it('a choice beats the fallback from then on, and is remembered as a section remembers it', () => {
+    const { result, rerender } = renderHook(({ fallback }) => useRememberedOpen('test.fold', fallback), { initialProps: { fallback: true } })
+    act(() => result.current[1](false))
+    expect(result.current[0]).toBe(false)
+    expect(window.localStorage.getItem('test.fold')).toBe('closed')
+    rerender({ fallback: true })
+    expect(result.current[0]).toBe(false)
+    act(() => result.current[1](true))
+    expect(window.localStorage.getItem('test.fold')).toBe('open')
+  })
+
+  it('what this browser remembers is known on the first draw, whatever the fallback', () => {
+    window.localStorage.setItem('test.open', 'open')
+    window.localStorage.setItem('test.closed', 'closed')
+    const seen: boolean[] = []
+    renderHook(() => {
+      const [open] = useRememberedOpen('test.open', false)
+      const [closed] = useRememberedOpen('test.closed', true)
+      seen.push(open, closed)
+    })
+    expect(seen.slice(0, 2)).toEqual([true, false])
+  })
+
+  it('reads what a CollapsibleSection under the same key remembers, and the section reads what it writes', async () => {
+    const { unmount } = render(<CollapsibleSection title="Section" storageKey="test.shared">{rows}</CollapsibleSection>)
+    await userEvent.click(title())
+    unmount()
+    const { result } = renderHook(() => useRememberedOpen('test.shared', true))
+    expect(result.current[0]).toBe(false)
+    act(() => result.current[1](true))
+    render(<CollapsibleSection title="Section" storageKey="test.shared" defaultOpen={false}>{rows}</CollapsibleSection>)
+    expect(title().getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('with no key the choice is kept while mounted, and nothing is written', () => {
+    const { result, rerender } = renderHook(({ fallback }) => useRememberedOpen(undefined, fallback), { initialProps: { fallback: false } })
+    act(() => result.current[1](true))
+    rerender({ fallback: false })
+    expect(result.current[0]).toBe(true)
+    expect(window.localStorage.length).toBe(0)
+  })
+
+  it('a browser that blocks storage still gets a working fold; it forgets', () => {
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    try {
+      const { result } = renderHook(() => useRememberedOpen('test.blocked', true))
+      expect(result.current[0]).toBe(true)
+      act(() => result.current[1](false))
+      expect(result.current[0]).toBe(false)
+    } finally {
+      get.mockRestore()
+      set.mockRestore()
+    }
   })
 })

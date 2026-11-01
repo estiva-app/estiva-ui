@@ -77,3 +77,43 @@ describe('EmptyState', () => {
     expect(screen.queryByRole('button')).toBeNull()
   })
 })
+
+/**
+ * The line in place of rows that pad themselves — a sidebar's, NavItem's 8px —
+ * so it starts where a row does (Katerina, 14 September). NavTree drew it
+ * itself and kept it private; Peek copied the box six times (`px-2 py-1`
+ * round a section line). `rows` is that box, given by the part.
+ */
+describe('EmptyState in place of rows', () => {
+  const peeks = (message: string) => (
+    <div className="px-2 py-1">
+      <EmptyState scope="section" message={message} />
+    </div>
+  )
+
+  it('is the section line in a row’s inset: 8px in, 4px over and under', () => {
+    const { container } = render(<EmptyState scope="rows" message="Nothing in this yet." />)
+    const line = screen.getByText('Nothing in this yet.')
+    expect(line.tagName).toBe('P')
+    expect(line.className.split(' ')).toEqual(['text-caption', 'text-text-muted'])
+    expect(container.firstElementChild!.className.split(' ')).toEqual(['px-2', 'py-1'])
+    expect(container.querySelector('svg')).toBeNull()
+  })
+
+  it('draws exactly the box the apps wrote round a section line', () => {
+    const drawn = render(<EmptyState scope="rows" message="Nothing of yours here." />).container.innerHTML
+    cleanup()
+    expect(drawn).toBe(render(peeks('Nothing of yours here.')).container.innerHTML)
+  })
+
+  it('a caller’s class goes on the box, and the line keeps its quiet look', () => {
+    const { container } = render(<EmptyState scope="rows" className="mt-1" message="Nothing in this yet." />)
+    expect(container.firstElementChild!.className.split(' ')).toEqual(expect.arrayContaining(['px-2', 'py-1', 'mt-1']))
+    expect(screen.getByText('Nothing in this yet.').className.split(' ')).toEqual(['text-caption', 'text-text-muted'])
+  })
+
+  it('takes no action', () => {
+    render(<EmptyState scope="rows" message="Nothing in this yet." action={{ label: 'Create', onClick: () => {} }} />)
+    expect(screen.queryByRole('button')).toBeNull()
+  })
+})

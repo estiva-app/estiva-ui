@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { CollapsibleSection } from './CollapsibleSection'
 import { EmptyState } from './EmptyState'
 import { NavItem } from './NavItem'
@@ -97,6 +97,14 @@ export interface NavTreeProps {
    * read, and marks nothing for it.
    */
   selectedParent?: string
+  /**
+   * The group a link led to — a folder's own link: each time it names a new
+   * group, the group opens, as `selected` opens a row's — closed by hand too,
+   * once, remembered open as a click would be — and the column scrolls to it
+   * at once. It marks nothing. Groups the app draws itself take `openFor` (the
+   * group's id, while it is this) for the opening; the scroll is the tree's.
+   */
+  selectedGroup?: string
   /** A row was clicked. A router app prevents the default and navigates. */
   onSelect?: (node: NavTreeNode, event: MouseEvent<HTMLAnchorElement>) => void
   /** What to say when `groups` is empty. The words are the caller's; absent, nothing is said. */
@@ -110,6 +118,9 @@ export const NAV_TREE_INTENT_MS = 150
 
 /** How long the column waits to scroll to the current row: the rows above it slide open in 150ms. */
 export const NAV_TREE_REVEAL_MS = 200
+
+/** How long a `pending` group waits shut for its rows before it opens on the skeleton (Peek's Folders, OPT-11: a cold read is ~0.9s). */
+export const NAV_TREE_PENDING_MS = 2000
 
 function holds(nodes: NavTreeNode[] | null, id: string | undefined): boolean {
   return !!nodes && id !== undefined && nodes.some((node) => node.id === id || holds(node.children ?? null, id))
@@ -149,6 +160,8 @@ function openingFor(groups: NavTreeGroup[], selected: string | undefined, select
 /**
  * Scroll the column the row is in, and only that box — never the page, nor a
  * drawer that is shut — so the row is in sight. A row in sight stays put.
+ * A group taller than the column keeps its top in sight, as the browser's
+ * `block: 'nearest'` does (a row is never that tall).
  */
 function scrollToRow(row: HTMLElement) {
   let box = row.parentElement
@@ -157,19 +170,21 @@ function scrollToRow(row: HTMLElement) {
   const at = row.getBoundingClientRect()
   const view = box.getBoundingClientRect()
   if (at.top < view.top) box.scrollTop -= view.top - at.top
-  else if (at.bottom > view.bottom) box.scrollTop += at.bottom - view.bottom
+  else if (at.bottom > view.bottom) box.scrollTop += Math.min(at.bottom - view.bottom, at.top - view.top)
 }
 
-/** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September). */
+/** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September) — `EmptyState`'s `rows`, as an app draws it under its own rows. */
 function Line({ message }: { message: string }) {
-  return (
-    <div className="px-2 py-1">
-      <EmptyState scope="section" message={message} />
-    </div>
-  )
+  return <EmptyState scope="rows" message={message} />
 }
 
 type Drawn = Pick<NavTreeProps, 'selected' | 'onSelect'> & { opening: Opening | null }
+
+/** The group `selectedGroup` names, drawn and shown: its box, or nothing yet. */
+function groupBox(box: HTMLElement | null, id: string): HTMLElement | undefined {
+  const group = [...(box?.querySelectorAll<HTMLElement>('[data-nav-group]') ?? [])].find((one) => one.dataset.navGroup === id)
+  return group && group.getBoundingClientRect().height > 0 ? group : undefined
+}
 
 function Row({ node, selected, onSelect, opening }: { node: NavTreeNode } & Drawn) {
   const under =
@@ -203,7 +218,7 @@ function Row({ node, selected, onSelect, opening }: { node: NavTreeNode } & Draw
   )
 }
 
-function Group({ group, selected, onSelect, opening, storageKey }: { group: NavTreeGroup } & Drawn & Pick<NavTreeProps, 'storageKey'>) {
+function Group({ group, selected, selectedGroup, onSelect, opening, storageKey }: { group: NavTreeGroup } & Drawn & Pick<NavTreeProps, 'selectedGroup' | 'storageKey'>) {
   return (
     <NavTreeSection
       id={group.id}
@@ -218,7 +233,7 @@ function Group({ group, selected, onSelect, opening, storageKey }: { group: NavT
       open={group.open}
       onOpenChange={group.onOpenChange}
       storageKey={storageKey ? `${storageKey}.${group.id}` : undefined}
-      openFor={opening?.group === group.id ? opening.item : undefined}
+      openFor={opening?.group === group.id ? opening.item : selectedGroup === group.id ? group.id : undefined}
       onIntent={group.onIntent}
     >
       {group.nodes?.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} opening={opening} />)}
@@ -228,7 +243,7 @@ function Group({ group, selected, onSelect, opening, storageKey }: { group: NavT
 
 export interface NavTreeSectionProps {
   title: string
-  /** Marks the group's box as `data-nav-group`, for tests and photo runs to find it. */
+  /** Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup`, and tests and photo runs do. */
   id?: string
   /** Said in the rows' place, level with them. The caller's words. */
   message?: string
@@ -252,7 +267,8 @@ export interface NavTreeSectionProps {
   /**
    * Opened, and its rows are being read: the arrow turns and the group stays
    * shut until they are in, then opens once — `CollapsibleSection`'s. For a
-   * read that is usually quick; a slow one is `loading`'s skeleton.
+   * read that is usually quick: one still out after `NAV_TREE_PENDING_MS`
+   * (2s) opens the group on `loading`'s skeleton after all, until they are in.
    */
   pending?: boolean
   /** Remember it open or closed in this browser, under this key. */
@@ -270,9 +286,17 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, pending, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, pending = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
+  // Pending for too long: a slow read, drawn as `loading` is (OPT-11). Each new wait starts the time again.
+  const [slow, setSlow] = useState(false)
+  if (!pending && slow) setSlow(false)
+  useEffect(() => {
+    if (!pending) return
+    const wait = setTimeout(() => setSlow(true), NAV_TREE_PENDING_MS)
+    return () => clearTimeout(wait)
+  }, [pending])
   const intent = onIntent
   return (
     <div
@@ -296,7 +320,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
         defaultOpen={defaultOpen}
         open={open}
         onOpenChange={onOpenChange}
-        pending={pending}
+        pending={pending && !slow}
         storageKey={storageKey}
         openFor={openFor}
         trailing={trailing}
@@ -307,7 +331,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
         // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
         contentClassName="gap-0.5"
       >
-        {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
+        {message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}
       </CollapsibleSection>
     </div>
   )
@@ -329,7 +353,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
  * and the column scrolls to it. Groups the app draws itself take `openFor`
  * for that; the scroll is the tree's either way.
  */
-export function NavTree({ title, titleActions, groups, children, selected, selectedParent, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
+export function NavTree({ title, titleActions, groups, children, selected, selectedParent, selectedGroup, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
   const opening = groups ? openingFor(groups, selected, selectedParent) : null
   // Once per current row, when it is drawn and shown: a later draw, or a read landing, does not pull the column back to it.
   const box = useRef<HTMLDivElement>(null)
@@ -348,6 +372,19 @@ export function NavTree({ title, titleActions, groups, children, selected, selec
     }, NAV_TREE_REVEAL_MS)
   })
   useEffect(() => () => clearTimeout(waiting.current), [])
+  // Once per arrival, as soon as the group is drawn: its heading does not move as it opens, so nothing is waited for.
+  const groupScrolled = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (selectedGroup === undefined) {
+      groupScrolled.current = undefined
+      return
+    }
+    if (groupScrolled.current === selectedGroup) return
+    const group = groupBox(box.current, selectedGroup)
+    if (!group) return
+    groupScrolled.current = selectedGroup
+    scrollToRow(group)
+  })
   return (
     // `contents`: a box to find the current row in, that lays nothing out — the groups stay the column's own.
     <div ref={box} className="contents">
@@ -360,7 +397,7 @@ export function NavTree({ title, titleActions, groups, children, selected, selec
         // No words, no line: an app that says nothing when it has no groups.
         emptyMessage ? <Line message={emptyMessage} /> : null
       ) : (
-        groups.map((group) => <Group key={group.id} group={group} selected={selected} onSelect={onSelect} opening={opening} storageKey={storageKey} />)
+        groups.map((group) => <Group key={group.id} group={group} selected={selected} selectedGroup={selectedGroup} onSelect={onSelect} opening={opening} storageKey={storageKey} />)
       )}
     </div>
   )

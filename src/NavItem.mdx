@@ -66,11 +66,21 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.Unread} />
 
+- A row the app opens its own way, with what it already knows — beside the
+  list, in place — is `onPlainClick`: it runs on a plain click only, and the
+  link is not followed. Ctrl, Cmd, Shift, Alt and the middle button are still
+  the link's, a new tab, so the row keeps a real `href`.
+
+<Canvas of={NavItemStories.OpensInPlace} />
+
 ## When not
 
 - An icon rail's tile → **RailItem**.
 - Switching views inside a page → **Tabs**.
 - A row in a popover → **MenuItem**.
+- A plain-click check written in the row's `onClick` (`event.button`,
+  `metaKey`, `ctrlKey`…) → `onPlainClick`; anywhere else a link's click is
+  handled by hand, `isPlainClick(event)` (**AppProvider**'s page).
 
 ## How
 
@@ -105,6 +115,10 @@ import { NavItem } from '@estiva-app/ui'
   and takes its 24px slot only while it shows.
 - `active` is `bg-nav-active`, the current row in a sidebar, which each theme
   sets for itself.
+- `onPlainClick` runs after `onClick`, so a click `onClick` already handled
+  (`preventDefault`) is left alone. Under **AppProvider** it takes `navigate`'s
+  place for that row; another site's address, a `target` and a `download` stay
+  the browser's.
 
 - A row is 32px tall, 8px in on each side, 8px between the icon and the label,
   the label 14px regular (medium when unread), 8px corners as a **MenuItem**'s.
@@ -122,6 +136,7 @@ It does these by itself. Write none of them around it.
 | Tells assistive technology whether its rows are open | `aria-expanded`, `aria-controls` |  |
 | Shows `hint` only while pointed at or focused, and makes the label give way | a positioned chip over the row, `group-hover` reveals |  |
 | Draws the dot or the badge for `unread` and `urgent`, and brightens the row | an **UnreadDot** placed by hand, a weight or colour passed in |  |
+| Tells a plain click from one for a new tab, for `onPlainClick` | `event.button`, `event.metaKey`, `event.ctrlKey`… read by hand in an `onClick` |  |
 
 ## Keys
 

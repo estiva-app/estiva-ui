@@ -1,6 +1,8 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite'
-import { IconLock, IconMessagePlus } from '@tabler/icons-react'
+import { IconLock, IconMessagePlus, IconSquareRounded } from '@tabler/icons-react'
+import { CollapsibleSection } from './CollapsibleSection'
 import { EmptyState } from './EmptyState'
+import { NavItem } from './NavItem'
 
 // A box with a hairline, so where the state sits inside its room can be seen: a page's in the middle both ways, a section's at the top left.
 const inBox: Decorator = (Story) => <div className="flex h-[280px] w-[480px] flex-col rounded-lg border border-border-default p-4">{Story()}</div>
@@ -23,6 +25,22 @@ const sectionContrastDeferred = { a11y: { config: { rules: [{ id: 'color-contras
 
 /** The `section` manner: the words alone, left-aligned, in the quiet caption — one line in a page that has other things on it. */
 export const Section: Story = { args: { scope: 'section' }, decorators: [inBox], parameters: sectionContrastDeferred }
+/** The `rows` manner: in place of rows that pad themselves — a sidebar's — the section line starts where a row does, 8px in. */
+export const Rows: Story = {
+  args: { scope: 'rows', message: 'Nothing in this yet.' },
+  parameters: sectionContrastDeferred,
+  render: (args) => (
+    <div className="flex w-60 flex-col gap-1">
+      <CollapsibleSection title="Group one" contentClassName="gap-0.5">
+        <NavItem href="#" label="Item one" icon={<IconSquareRounded size={16} stroke={1.5} />} />
+        <NavItem href="#" label="Item two" icon={<IconSquareRounded size={16} stroke={1.5} />} />
+      </CollapsibleSection>
+      <CollapsibleSection title="Group two" contentClassName="gap-0.5">
+        <EmptyState {...args} />
+      </CollapsibleSection>
+    </div>
+  ),
+}
 export const LongerMessage: Story = { args: { message: 'No items yet. Add one from any list.' }, decorators: [inBox] }
 export const CustomIcon: Story = { args: { icon: <IconLock size={16} stroke={1.5} />, message: 'Nothing you can read here yet.' }, decorators: [inBox] }
 /** The one thing to do about it, under the line: the package's Button, outlined. */

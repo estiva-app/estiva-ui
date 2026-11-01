@@ -101,13 +101,13 @@ export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: 
   }, [openFor])
 }
 
-function readStored(key: string | undefined): boolean | undefined {
-  if (!key) return undefined
+function readStored(key: string | undefined): boolean | null {
+  if (!key) return null
   try {
     const value = window.localStorage.getItem(key)
-    return value === OPEN ? true : value === CLOSED ? false : undefined
+    return value === OPEN ? true : value === CLOSED ? false : null
   } catch {
-    return undefined
+    return null
   }
 }
 
@@ -120,12 +120,33 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
+/**
+ * Open or closed as this browser remembers it under `storageKey`, else `fallback`, for an app that must know before it draws what is inside — a fold whose rows are read only once it is open (Peek's Folders, FOL-21).
+ *
+ * The same memory as `CollapsibleSection`'s `storageKey`, in the same words,
+ * read once when it mounts: hand the pair to a section's `open` and
+ * `onOpenChange`. `fallback` decides until the person does, and stays live —
+ * a fold can spring open while it holds the current item and close again when
+ * it stops — and only a choice is written down, so a default never becomes a
+ * memory. No key: the choice is kept while mounted. A browser that blocks
+ * storage still gets a working fold; it forgets.
+ */
+export function useRememberedOpen(storageKey: string | undefined, fallback: boolean): [open: boolean, setOpen: (next: boolean) => void] {
+  const [choice, setChoice] = useState<boolean | null>(() => readStored(storageKey))
+  const setOpen = (next: boolean) => {
+    setChoice(next)
+    writeStored(storageKey, next)
+  }
+  return [choice ?? fallback, setOpen]
+}
+
 export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, openFor, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
-  const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
+  // The section's default is the one it was drawn with: a later `defaultOpen` does not move it.
+  const [initial] = useState(defaultOpen)
+  const [openState, remember] = useRememberedOpen(storageKey, initial)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
-    setOpenState(next)
-    writeStored(storageKey, next)
+    remember(next)
     onOpenChange?.(next)
   }
   useOpenFor(openFor, open, setOpen)
