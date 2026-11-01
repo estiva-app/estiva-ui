@@ -56,16 +56,25 @@ import { EmptyState } from '@estiva-app/ui'
 <EmptyState scope="section" message="No comments yet." />
 ```
 
-**When there is one thing to do about it, give it as `action`.** It is drawn
-16px under the line as the package's Button, outlined — the same look wherever
-it appears. Never put a Button beside an EmptyState in a
-box of your own: the box places it, and no two boxes place it alike. A `page`
-only; a section's line takes no action.
+**When there is one thing to do about it, give it as `action`.** On a `page`
+it is drawn 16px under the line as the package's Button, outlined. Never put a
+Button beside an EmptyState in a box of your own: the box places it, and no two
+boxes place it alike.
 
 <Canvas of={EmptyStateStories.WithAction} />
 
 ```tsx
 <EmptyState icon={<IconMessagePlus size={16} stroke={1.5} />} message="Nothing here yet." action={{ label: 'Create', onClick: create }} />
+```
+
+On a `section` it sits at the end of the line, the package's Button, muted. A
+part that could not be read says so this way, with its Try again, so it reads
+as the empty line beside it does.
+
+<Canvas of={EmptyStateStories.SectionWithAction} />
+
+```tsx
+<EmptyState scope="section" message={`${folder} could not be read.`} action={{ label: 'Try again', onClick: retry }} />
 ```
 
 **Put a section's empty state inside the box its rows live in, and give it no
@@ -96,7 +105,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | As a `page`, fills the room it is given and centres itself in it | centring, or padding around it | a box of its own that centres or pads a `page`, and a `page` inside a `ScrollArea`, where it cannot centre (`estiva/no-handmade-empty-state`) |
 | Says a list is empty, in place of its rows | a paragraph or span of your own saying so | `estiva/no-handmade-empty-state` |
-| Draws its one action, an outlined Button, under the line when you pass `action` | a button of your own under the line |  |
+| Draws its one action when you pass `action`: an outlined Button under a page's line, a muted one at the end of a section's | a button of your own beside the line |  |
 
 ## Props
 

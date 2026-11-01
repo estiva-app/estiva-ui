@@ -31,8 +31,9 @@ export interface EmptyStateProps {
   scope?: 'page' | 'section'
   /**
    * The one thing to do about it — "New topic", "Try again" — drawn 16px under
-   * the line as the package's Button, outlined (Katerina, 2026-09-18). A `page`
-   * only: a section's empty line is one line among others, not a stage.
+   * the line as the package's Button, outlined (Katerina, 2026-09-18). A
+   * `section` carries it at the end of its line, muted: a failure read as the
+   * empty line beside it does, with its Try again (Katerina, 2 November).
    */
   action?: ButtonAction
   className?: string
@@ -40,7 +41,17 @@ export interface EmptyStateProps {
 
 export function EmptyState({ icon, message, scope = 'page', action, className }: EmptyStateProps) {
   if (scope === 'section') {
-    return <p className={cn('text-caption text-text-muted', className)}>{message}</p>
+    const line = <p className={cn('text-caption text-text-muted', !action && className)}>{message}</p>
+    if (!action) return line
+    // One row: the line, and its button at the end, as Peek's Move drew "could not be read" beside Try again.
+    return (
+      <div className={cn('flex items-center justify-between gap-2', className)}>
+        {line}
+        <Button variant="muted" onClick={action.onClick}>
+          {action.label}
+        </Button>
+      </div>
+    )
   }
   return (
     <div className={cn('flex flex-1 flex-col items-center justify-center gap-2', className)}>
