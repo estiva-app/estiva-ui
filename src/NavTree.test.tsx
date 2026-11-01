@@ -410,3 +410,23 @@ describe('NavTree opens onto the group a link led to', () => {
     })
   })
 })
+
+/** The tree's three lines are the one `EmptyState scope="rows"` an app draws in place of its own rows: the same box, to the class. */
+describe('NavTree says its lines as an app does', () => {
+  const box = (message: string) => `<div class="px-2 py-1"><p class="text-caption text-text-muted">${message}</p></div>`
+
+  it('a group’s message, a row’s childrenMessage and emptyMessage', () => {
+    const { container } = render(
+      <NavTree
+        groups={[
+          { id: 'a', title: 'Group a', nodes: [], message: 'Nothing in this yet.' },
+          { id: 'b', title: 'Group b', nodes: [{ id: 'x', label: 'Item x', href: '#x', hasChildren: true, childrenMessage: 'This could not be read.' }] },
+        ]}
+      />,
+    )
+    expect(container.innerHTML).toContain(box('Nothing in this yet.'))
+    expect(container.innerHTML).toContain(box('This could not be read.'))
+    cleanup()
+    expect(render(<NavTree groups={[]} emptyMessage="Nothing here yet." />).container.innerHTML).toContain(box('Nothing here yet.'))
+  })
+})

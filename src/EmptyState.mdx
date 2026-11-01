@@ -5,9 +5,10 @@ import * as EmptyStateStories from './EmptyState.stories'
 
 # EmptyState
 
-The place where content will be once there is some, in two manners: a
+The place where content will be once there is some, in three manners: a
 16px icon over a centred line when the whole page is empty, the line
-alone and left-aligned when one section of a page is.
+alone and left-aligned when one section of a page is, and that line in a
+row's inset in place of a sidebar's rows.
 
 <Canvas of={EmptyStateStories.Page} />
 
@@ -23,6 +24,14 @@ alone and left-aligned when one section of a page is.
   one line among the page's content, not a stage of its own.
 
 <Canvas of={EmptyStateStories.Section} />
+
+- **`rows`** — a list of rows that pad themselves is empty, or could not be
+  read: a sidebar's **NavItem**s in a **CollapsibleSection** or under a row.
+  The `section` line in their place, in a row's inset — 8px in, 4px over and
+  under — so it starts where a row does. **NavTree** says its own lines this
+  way.
+
+<Canvas of={EmptyStateStories.Rows} />
 
 The page decides, not the size of the box: a whole page with one short
 message is still a `page`; a tall section with nothing in it is still a
@@ -43,6 +52,8 @@ need a height from the caller (`className="h-full"`).
 - Something went wrong → say what failed, in words. An EmptyState can carry
   it, in its usual look — never red. An empty state that hides a failure
   misleads.
+- A box of your own giving a `section` line a row's inset (`px-2 py-1`) →
+  `rows`, which is that box.
 
 ## How
 
@@ -54,6 +65,11 @@ import { EmptyState } from '@estiva-app/ui'
 
 // one section of a page
 <EmptyState scope="section" message="No comments yet." />
+
+// in place of a sidebar's rows
+<CollapsibleSection title="Starred">
+  {starred.length ? starred.map((row) => <NavItem key={row.id} {...row} />) : <EmptyState scope="rows" message="Nothing starred yet." />}
+</CollapsibleSection>
 ```
 
 **When there is one thing to do about it, give it as `action`.** It is drawn

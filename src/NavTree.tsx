@@ -173,13 +173,9 @@ function scrollToRow(row: HTMLElement) {
   else if (at.bottom > view.bottom) box.scrollTop += Math.min(at.bottom - view.bottom, at.top - view.top)
 }
 
-/** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September). */
+/** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September) — `EmptyState`'s `rows`, as an app draws it under its own rows. */
 function Line({ message }: { message: string }) {
-  return (
-    <div className="px-2 py-1">
-      <EmptyState scope="section" message={message} />
-    </div>
-  )
+  return <EmptyState scope="rows" message={message} />
 }
 
 type Drawn = Pick<NavTreeProps, 'selected' | 'onSelect'> & { opening: Opening | null }
