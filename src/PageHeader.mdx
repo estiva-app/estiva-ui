@@ -53,8 +53,8 @@ page's buttons, 4px apart.
 
 ## When not
 
-- The bar of a panel or a side column — details, a thread → **Panel**, which
-  draws its own bar from `title` and `actions`.
+- The bar of a side column — details, a thread → **Panel**, which draws its
+  own bar from `title` and `actions`.
 - The bar of a list beside the page → **ListColumn**.
 - The bar across the whole frame, with the logo and the search field →
   **TopBar**.
@@ -82,8 +82,8 @@ import { MembersPill, PageHeader, Toolbar, ToolbarButton } from '@estiva-app/ui'
 ```
 
 - **It is the bar, and nothing under it.** The page under it is yours: a
-  `ScrollArea` that takes the rest of the column (`min-h-0 flex-1`). A
-  **Panel** draws its own bar and does not take this one yet.
+  `ScrollArea` that takes the rest of the column (`min-h-0 flex-1`), or a
+  **Panel** that takes it in `header`, in place of its own bar.
 - A string `title` is one line and is cut short with an ellipsis when the
   room runs out; everything at the right keeps its size. A node — a
   `Breadcrumb`, an `InlineText` — is drawn as given, and cuts itself short.

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconDotsVertical, IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { IconButton } from './IconButton'
+import { PageHeader } from './PageHeader'
 import { Panel } from './Panel'
 
 /**
@@ -14,7 +15,7 @@ const meta = {
   component: Panel,
   parameters: { layout: 'fullscreen' },
   args: { title: 'Details', children: null, bodyClassName: 'flex flex-col gap-3 px-4 pt-3 pb-4' },
-  argTypes: { children: { control: false }, actions: { control: false }, footer: { control: false } },
+  argTypes: { children: { control: false }, actions: { control: false }, header: { control: false }, footer: { control: false } },
   // A side column of the frame: 380px wide and a fixed height, where a panel sits beside a page;
   // 384px, the right column's width in every app (Katerina, 31 October), where a story says so.
   decorators: [
@@ -86,6 +87,29 @@ export const WithAChip: Story = {
     ),
   },
   render: (args) => <Panel {...args}>{paragraphs(3)}</Panel>,
+}
+
+/** A page's own bar in place of the panel's: a PageHeader, where the panel is the page. The body still scrolls under it. */
+export const WithAPageHeader: Story = {
+  name: 'With a page header',
+  args: {
+    header: (
+      <PageHeader
+        title="Item one"
+        time={{ label: 'Edited 2 minutes ago', exact: '1 November 2026, 14:02' }}
+        actions={
+          <IconButton tooltip="More" aria-label="More">
+            <IconDotsVertical size={16} stroke={1.5} />
+          </IconButton>
+        }
+      />
+    ),
+    children: Array.from({ length: 24 }, (_, i) => (
+      <p key={i} className="text-body-2 text-text-secondary">
+        A line of the page, number {i + 1}.
+      </p>
+    )),
+  },
 }
 
 /** Two panels in one column: the first capped at three fifths, each scrolls in its own room. */

@@ -61,6 +61,13 @@ import { Panel, IconButton } from '@estiva-app/ui'
   from the button. Here at 384px, the right column's width in every app.
 
 <Canvas of={PanelStories.WithAChip} />
+
+- A panel that is the page — a file's or a document's — takes the page's
+  own bar in `header`: a **PageHeader**, drawn in place of the panel's.
+  `title` still names the panel if it breaks.
+
+<Canvas of={PanelStories.WithAPageHeader} />
+
 - **A crash stays inside it.** If its body, its actions or its footer break,
   it keeps its title and shows "Something went wrong in the panel… try again"
   in the room the body had. It is **ErrorBoundary**'s.

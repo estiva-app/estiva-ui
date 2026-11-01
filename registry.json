@@ -6948,6 +6948,12 @@
           "note": "The panel's own actions, at the header's right — a `Toolbar` of `ToolbarButton`s, or one `IconButton`."
         },
         {
+          "name": "header",
+          "takes": "anything",
+          "required": false,
+          "note": "A page's own bar, in place of the one `title`, `chevron` and `actions` draw: a `PageHeader`, where the panel is the page (Peek's file pages, Leaf's documents), so the page's bar and its scrolling body are one panel."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
