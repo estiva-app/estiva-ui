@@ -44,10 +44,16 @@ export function usePictureFor(): AppSetup['pictureFor'] {
   return useContext(Setup).pictureFor
 }
 
+/** Whether a click is a plain one, the browser's to follow in this tab: the main button, with no Ctrl, Cmd, Shift or Alt — what every link part checks before it keeps a click in the app. */
+export function isPlainClick(event: Pick<MouseEvent, 'button' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'>): boolean {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+}
+
 /**
  * A link's click, kept inside the app: the caller's own `onClick` first, then,
  * on a plain left click to this app's own address, the app's `navigate` in
- * place of a page load.
+ * place of a page load — or `inPlace`, when the caller opens it its own way
+ * (`NavItem`'s `onPlainClick`), with or without a provider.
  *
  * A plain left click to another site's address — another app's file — opens
  * it in a new tab that cannot reach back into this one, as "Open in …" does
@@ -59,12 +65,12 @@ export function usePictureFor(): AppSetup['pictureFor'] {
  * another scheme (`folder:`, `mailto:`). So an app that still passes its own
  * router `onClick`, as Ship's `linkTo` does, is unchanged.
  */
-export function useInAppClick<E extends HTMLElement>(href: string | undefined, onClick?: MouseEventHandler<E>): MouseEventHandler<E> | undefined {
+export function useInAppClick<E extends HTMLElement>(href: string | undefined, onClick?: MouseEventHandler<E>, inPlace?: MouseEventHandler<E>): MouseEventHandler<E> | undefined {
   const navigate = useContext(Setup).navigate
-  if (!navigate || href === undefined) return onClick
+  if ((!navigate && !inPlace) || href === undefined) return onClick
   return (event: MouseEvent<E>) => {
     onClick?.(event)
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (event.defaultPrevented || !isPlainClick(event)) return
     const link = event.currentTarget
     const target = link.getAttribute('target')
     if ((target && target !== '_self') || link.hasAttribute('download')) return
@@ -75,14 +81,19 @@ export function useInAppClick<E extends HTMLElement>(href: string | undefined, o
       return
     }
     if (url.origin !== window.location.origin) {
-      if (url.protocol !== 'https:' && url.protocol !== 'http:') return
+      // Without a provider another site's address is the browser's, as it always was.
+      if (!navigate || (url.protocol !== 'https:' && url.protocol !== 'http:')) return
       event.preventDefault()
       window.open(url.href, '_blank', 'noopener,noreferrer')
       return
     }
     event.preventDefault()
+    if (inPlace) {
+      inPlace(event)
+      return
+    }
     // The path, never the whole address: a router reads `https://…` as a path
     // under the current page and lands nowhere (Peek's message link, 8 October).
-    navigate(`${url.pathname}${url.search}${url.hash}`)
+    navigate?.(`${url.pathname}${url.search}${url.hash}`)
   }
 }

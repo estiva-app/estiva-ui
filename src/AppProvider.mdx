@@ -65,6 +65,10 @@ function Root({ children }) {
   another scheme (`folder:`, `mailto:`).
 - A link's own `onClick` runs first, so an app that still passes its router
   click per link keeps working while it moves over.
+- A row the app opens its own way is **NavItem**'s `onPlainClick`. Where an app
+  still handles a link's click itself — one delegated to a box of links —
+  `isPlainClick(event)` is the same test every part makes: the main button,
+  with no Ctrl, Cmd, Shift or Alt. Never write it out.
 - `active` is still the caller's: say which row is the current page where you
   place it.
 

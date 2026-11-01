@@ -1,4 +1,4 @@
-import { useId, useState, type ComponentPropsWithoutRef, type ReactNode } from 'react'
+import { useId, useState, type ComponentPropsWithoutRef, type MouseEvent, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { UrgentMark } from './UrgentMark'
@@ -93,6 +93,13 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
    * hand, it stays closed until another opens. `NavTree` passes it.
    */
   openFor?: string
+  /**
+   * A plain click on the row — the main button, no Ctrl, Cmd, Shift or Alt, to
+   * this app's own address: the app opens it its own way, with what it knows,
+   * in place of following the link (the row prevents it, and `navigate` is not
+   * called). Any other click is still the link's: a new tab. After `onClick`.
+   */
+  onPlainClick?: (event: MouseEvent<HTMLAnchorElement>) => void
   className?: string
 }
 
@@ -115,11 +122,12 @@ export function NavItem({
   open: openProp,
   onOpenChange,
   openFor,
+  onPlainClick,
   className,
   onClick,
   ...props
 }: NavItemProps) {
-  const inApp = useInAppClick(href, onClick)
+  const inApp = useInAppClick(href, onClick, onPlainClick)
   const [openState, setOpenState] = useState(defaultOpen)
   const panelId = useId()
   const hasRows = children != null && children !== false

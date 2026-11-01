@@ -6,8 +6,9 @@
  * The reveal on hover and the slide are Chrome's to show.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AppProvider } from './AppProvider'
 import { NavItem } from './NavItem'
 
 afterEach(cleanup)
@@ -214,5 +215,67 @@ describe('NavItem with a tooltip', () => {
     render(<NavItem href="#" label="Item one" tooltip="A sentence about item one." action={{ icon: <span>x</span>, tooltip: 'Remove from list', onClick: () => {} }} />)
     await user.hover(screen.getByRole('button', { name: 'Remove from list: Item one' }))
     expect((await screen.findByRole('tooltip')).textContent).toBe('Remove from list')
+  })
+})
+
+/**
+ * A row the app opens its own way, with what it knows, in place of following
+ * its link — Peek's Desk opens a file or a DM beside the list, its People page
+ * selects a person. Only a plain click: Ctrl, Cmd, Shift, Alt or the middle
+ * button is still the link's, a new tab. Peek wrote this check by hand on each
+ * row (`inPlace`, PersonItem); its tests' cases, moved in.
+ */
+describe('NavItem onPlainClick', () => {
+  const link = () => screen.getByRole('link', { name: 'Item one' })
+
+  it('a plain click runs it in place of the link: the page does not go anywhere', () => {
+    const open = vi.fn()
+    render(<NavItem href="/app/desk?open=x" label="Item one" onPlainClick={open} />)
+    const followed = fireEvent.click(link())
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(followed).toBe(false)
+  })
+
+  it('a click with Ctrl, Cmd, Shift or Alt, or the middle button, is the link’s: nothing runs here', () => {
+    const open = vi.fn()
+    render(<NavItem href="/app/desk?open=x" label="Item one" onPlainClick={open} />)
+    for (const keys of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }]) {
+      expect(fireEvent.click(link(), keys)).toBe(true)
+    }
+    expect(open).not.toHaveBeenCalled()
+  })
+
+  it('under AppProvider’s navigate it takes navigate’s place: the app stays on its page', () => {
+    const open = vi.fn()
+    const navigate = vi.fn()
+    render(
+      <AppProvider navigate={navigate}>
+        <NavItem href="/app/people/dm-1" label="Item one" onPlainClick={open} />
+      </AppProvider>,
+    )
+    fireEvent.click(link())
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(navigate).not.toHaveBeenCalled()
+    fireEvent.click(link(), { metaKey: true })
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it('the row’s own onClick runs first, and a click it handled is left alone', () => {
+    const open = vi.fn()
+    render(<NavItem href="/app/desk" label="Item one" onClick={(event) => event.preventDefault()} onPlainClick={open} />)
+    fireEvent.click(link())
+    expect(open).not.toHaveBeenCalled()
+  })
+
+  it('another site’s address, a link that opens elsewhere, or one that downloads is not opened here', () => {
+    const open = vi.fn()
+    const { rerender } = render(<NavItem href="https://elsewhere.test/file" label="Item one" onPlainClick={open} />)
+    expect(fireEvent.click(link())).toBe(true)
+    rerender(<NavItem href="/app/desk" target="_blank" label="Item one" onPlainClick={open} />)
+    expect(fireEvent.click(link())).toBe(true)
+    rerender(<NavItem href="/app/file.pdf" download label="Item one" onPlainClick={open} />)
+    expect(fireEvent.click(link())).toBe(true)
+    expect(open).not.toHaveBeenCalled()
   })
 })
