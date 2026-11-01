@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { useContext, useRef, useState, type ReactNode } from 'react'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
@@ -215,23 +215,6 @@ function Editing({ author, children }: { author: ConversationPerson; children: R
 }
 
 /**
- * A press on the card opens its thread, wherever it lands on the card, but for what acts by itself: a button, a
- * link, the strip, a field. A press in a picker or a menu the card opened lands here too, through React's tree, from
- * outside the card: that is not a press on it. (Before, the whole reactions row and the strip stopped every press,
- * so a press beside the reactions did nothing: Katerina, 31 October.)
- */
-function pressed(e: MouseEvent<HTMLDivElement>, press: () => void) {
-  const target = e.target as HTMLElement
-  if (!e.currentTarget.contains(target)) return
-  // A double click picks a word and a drag picks words: neither is a press, or the thread would open and close under the reader.
-  if (e.detail > 1) return
-  const picked = typeof window === 'undefined' ? null : window.getSelection()
-  if (picked && !picked.isCollapsed && picked.anchorNode && e.currentTarget.contains(picked.anchorNode)) return
-  if (target.closest('button, a, input, textarea, [contenteditable="true"], [role="button"], [role="toolbar"], [data-interactive]')) return
-  press()
-}
-
-/**
  * After its picker or its menu closes, a card keeps its strip only while it is still pointed at, or reached by the
  * keyboard. A pointer that left while they were open sent the card no leave, and the strip stayed (the review, 1 November).
  */
@@ -316,20 +299,14 @@ export function ConversationCard(props: ConversationCardProps) {
         active={isEditing}
         attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
         className={cn('relative', className)}
-        onClick={press && !isEditing && !overlay ? (e) => pressed(e, press) : undefined}
-        // A card that opens on a press is reached by the keyboard too: Tab stops on it, which shows its strip, and Enter or
-        // Space opens it. Only the card's own focus: a key in a link, a button or a field inside it is theirs. Before, a
-        // comment with nothing focusable in it (no replies, no link) could not be opened without a pointer.
+        // A press opens its thread, wherever it lands on the card but for what acts by itself (Card's `onPress`). Before,
+        // the whole reactions row and the strip stopped every press, so a press beside the reactions did nothing
+        // (Katerina, 31 October). Not while its menu or picker is open: a press there is theirs.
+        onPress={press && !isEditing && !overlay ? press : undefined}
+        // Tab stops on it, which shows its strip, and Enter or Space opens it — and it stays a Tab stop while its menu is
+        // open, so focus has somewhere to come back to. Before, a comment with nothing focusable in it (no replies, no
+        // link) could not be opened without a pointer.
         tabIndex={press && !isEditing ? 0 : undefined}
-        onKeyDown={
-          press && !isEditing && !overlay
-            ? (e) => {
-                if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return
-                e.preventDefault()
-                press()
-              }
-            : undefined
-        }
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return

@@ -8,7 +8,8 @@
  * dashed; and the caller's className — placement, padding, layout — lands last.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { createPortal } from 'react-dom'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Card } from './Card'
 
@@ -143,5 +144,90 @@ describe('Card', () => {
     expect(classes).toContain('flex')
     expect(classes).not.toContain('block')
     expect(classes).toContain('p-3')
+  })
+})
+
+/*
+  A card that opens what it stands for on a press (`onPress`): ConversationCard's press, which every card now has. A
+  press on what acts by itself inside it is that control's; so is a press in a menu the card opened, which lands
+  outside it in the page but reaches it through React's tree (Peek's Screener row, which worked this out by hand).
+*/
+describe('Card, pressed', () => {
+  it('opens on a press anywhere on it', () => {
+    const onPress = vi.fn()
+    render(<Card hover="fill" onPress={onPress}><p>Item one</p></Card>)
+    fireEvent.click(screen.getByText('Item one'))
+    expect(onPress).toHaveBeenCalledTimes(1)
+  })
+
+  it('a press on a button, a link or a field inside it is theirs, not the card’s', () => {
+    const onPress = vi.fn()
+    const onAct = vi.fn()
+    render(
+      <Card hover="fill" onPress={onPress}>
+        <p>Item one</p>
+        <button type="button" onClick={onAct}>Act</button>
+        <a href="#somewhere">Go</a>
+        <input aria-label="Field" />
+        <span role="button" tabIndex={0}>Also acts</span>
+        <span data-interactive="">Its own</span>
+      </Card>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Act' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Go' }))
+    fireEvent.click(screen.getByRole('textbox', { name: 'Field' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Also acts' }))
+    fireEvent.click(screen.getByText('Its own'))
+    expect(onAct).toHaveBeenCalledTimes(1)
+    expect(onPress).not.toHaveBeenCalled()
+  })
+
+  it('a press in a menu it opened, outside it in the page, is not a press on it', () => {
+    const onPress = vi.fn()
+    render(
+      <Card hover="fill" onPress={onPress}>
+        <p>Item one</p>
+        {createPortal(<div role="menu"><span>Later today</span></div>, document.body)}
+      </Card>,
+    )
+    fireEvent.click(screen.getByText('Later today'))
+    expect(onPress).not.toHaveBeenCalled()
+  })
+
+  it('a double click, or words picked on it, is not a press', () => {
+    const onPress = vi.fn()
+    render(<Card hover="fill" onPress={onPress}><p>Item one</p></Card>)
+    fireEvent.click(screen.getByText('Item one'), { detail: 2 })
+    const words = document.createRange()
+    words.selectNodeContents(screen.getByText('Item one'))
+    window.getSelection()?.removeAllRanges()
+    window.getSelection()?.addRange(words)
+    fireEvent.click(screen.getByText('Item one'), { detail: 1 })
+    window.getSelection()?.removeAllRanges()
+    expect(onPress).not.toHaveBeenCalled()
+  })
+
+  it('Tab stops on it, and Enter or Space opens it; a key on a control inside it is the control’s', async () => {
+    const onPress = vi.fn()
+    render(
+      <Card hover="fill" onPress={onPress}>
+        <p>Item one</p>
+        <button type="button">Act</button>
+      </Card>,
+    )
+    await userEvent.tab()
+    const pressable = screen.getByText('Item one').closest('div')!
+    expect(document.activeElement).toBe(pressable)
+    fireEvent.keyDown(pressable, { key: 'Enter' })
+    fireEvent.keyDown(pressable, { key: ' ' })
+    expect(onPress).toHaveBeenCalledTimes(2)
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Act' }), { key: 'Enter' })
+    expect(onPress).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows it can be pressed, and a card with nothing to press is no Tab stop', () => {
+    expect(classesOf(card(<Card hover="fill" onPress={() => {}}>Item one</Card>))).toContain('cursor-pointer')
+    cleanup()
+    expect(card(<Card hover="fill">Item one</Card>).getAttribute('tabindex')).toBeNull()
   })
 })

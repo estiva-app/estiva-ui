@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { fn } from 'storybook/test'
+import { Button } from './Button'
 import { Card } from './Card'
 
 const Body = ({ title = 'Item one', line = 'A line about the item.' }: { title?: string; line?: string }) => (
@@ -73,6 +75,24 @@ export const InAFeed: Story = {
       </Card>
     </div>
   ),
+}
+
+/** It opens on a press: anywhere on it but on its own button, and by Enter or Space once Tab reaches it. */
+export const OpensOnAPress: Story = {
+  args: {
+    hover: 'fill',
+    quietUntilHover: true,
+    onPress: fn(),
+    className: 'flex w-[280px] flex-col items-start gap-3 p-3',
+    children: (
+      <>
+        <Body />
+        <Button variant="outlined" size="small">
+          Action
+        </Button>
+      </>
+    ),
+  },
 }
 
 /** Its menu is open: the pointer is on the menu, outside the card, and the card stays lit under it. */
