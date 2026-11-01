@@ -125,7 +125,10 @@ import { NavTree, Sidebar } from '@estiva-app/ui'
 - `storageKey` remembers each group open or closed in this browser, under
   the key and the group's id — a group opened for the current row is
   remembered open, as a click would be. The rows under a row are not
-  remembered yet.
+  remembered yet. Groups and rows the app draws itself, whose rows are read
+  only once open, take `useRememberedOpen` on their `open` and
+  `onOpenChange`: the same memory, known before anything is read
+  (**CollapsibleSection**'s page).
 - Groups the app draws itself open for the current row through `openFor` on
   each **NavTreeSection** and **NavItem** that holds it; the scroll is the
   tree's either way, given `selected`.
