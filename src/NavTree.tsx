@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { CollapsibleSection } from './CollapsibleSection'
 import { EmptyState } from './EmptyState'
 import { NavItem } from './NavItem'
@@ -110,6 +110,9 @@ export const NAV_TREE_INTENT_MS = 150
 
 /** How long the column waits to scroll to the current row: the rows above it slide open in 150ms. */
 export const NAV_TREE_REVEAL_MS = 200
+
+/** How long a `pending` group waits shut for its rows before it opens on the skeleton (Peek's Folders, OPT-11: a cold read is ~0.9s). */
+export const NAV_TREE_PENDING_MS = 2000
 
 function holds(nodes: NavTreeNode[] | null, id: string | undefined): boolean {
   return !!nodes && id !== undefined && nodes.some((node) => node.id === id || holds(node.children ?? null, id))
@@ -252,7 +255,8 @@ export interface NavTreeSectionProps {
   /**
    * Opened, and its rows are being read: the arrow turns and the group stays
    * shut until they are in, then opens once — `CollapsibleSection`'s. For a
-   * read that is usually quick; a slow one is `loading`'s skeleton.
+   * read that is usually quick: one still out after `NAV_TREE_PENDING_MS`
+   * (2s) opens the group on `loading`'s skeleton after all, until they are in.
    */
   pending?: boolean
   /** Remember it open or closed in this browser, under this key. */
@@ -270,9 +274,17 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, pending, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, pending = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
+  // Pending for too long: a slow read, drawn as `loading` is (OPT-11). Each new wait starts the time again.
+  const [slow, setSlow] = useState(false)
+  if (!pending && slow) setSlow(false)
+  useEffect(() => {
+    if (!pending) return
+    const wait = setTimeout(() => setSlow(true), NAV_TREE_PENDING_MS)
+    return () => clearTimeout(wait)
+  }, [pending])
   const intent = onIntent
   return (
     <div
@@ -296,7 +308,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
         defaultOpen={defaultOpen}
         open={open}
         onOpenChange={onOpenChange}
-        pending={pending}
+        pending={pending && !slow}
         storageKey={storageKey}
         openFor={openFor}
         trailing={trailing}
@@ -307,7 +319,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending, t
         // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
         contentClassName="gap-0.5"
       >
-        {message !== undefined ? <Line message={message} /> : loading ? <SkeletonList rows={3} /> : children}
+        {message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}
       </CollapsibleSection>
     </div>
   )

@@ -187,6 +187,41 @@ export const AppDrawnGroups: Story = {
   },
 }
 
+/** A group the app draws, its rows read when it opens: pending while the read is out, and once it has taken `NAV_TREE_PENDING_MS` the skeleton. */
+function ReadOnOpen({ title, ms }: { title: string; ms: number }) {
+  const [open, setOpen] = useState(false)
+  const [rows, setRows] = useState<'out' | 'reading' | 'in'>('out')
+  const toggle = (next: boolean) => {
+    setOpen(next)
+    if (!next || rows !== 'out') return
+    setRows('reading')
+    setTimeout(() => setRows('in'), ms)
+  }
+  return (
+    <NavTreeSection title={title} icon={folder} open={open} onOpenChange={toggle} pending={open && rows === 'reading'}>
+      <NavItem href="#" label="Item one" icon={placeholder} />
+      <NavItem href="#" label="Item two" icon={placeholder} />
+    </NavTreeSection>
+  )
+}
+
+/** Open each group: the first's rows take 0.8s, and it opens once with them; the second's take 5s, and after 2s it opens on the skeleton until they are in. Reload to read again. */
+export const PendingThenLoading: Story = {
+  args: { groups: undefined },
+  render: function Render(args) {
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree title={args.title}>
+            <ReadOnOpen title="A quick read" ms={800} />
+            <ReadOnOpen title="A slow read" ms={5000} />
+          </NavTree>
+        </Sidebar>
+      </div>
+    )
+  },
+}
+
 /*
   Opening a row shows where it lives (Katerina, 30 October): its group and the
   rows above it open, the row is marked, and the column scrolls to it.

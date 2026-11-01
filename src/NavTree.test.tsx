@@ -5,10 +5,10 @@
  * a click reaches onSelect with its node; loading and empty say so.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MenuItem } from './Menu'
-import { NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
+import { NAV_TREE_PENDING_MS, NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
 
 afterEach(cleanup)
 
@@ -240,5 +240,82 @@ describe('NavTree opens onto the current row (Katerina, 30 October)', () => {
     expect(hidden('Item a')).toBe(true)
     rerender(<NavTreeSection title="Group a" defaultOpen={false} openFor="a"><a href="#a">Item a</a></NavTreeSection>)
     expect(hidden('Item a')).toBe(false)
+  })
+})
+
+/**
+ * A group opened while its rows are read waits shut, its arrow turned, and
+ * opens once with every row; a read still out after `NAV_TREE_PENDING_MS`
+ * opens it on the skeleton after all — a rate-limit retry can take seconds
+ * (Peek's Folders, OPT-11: its own timer, moved in, with its tests' cases).
+ */
+describe('NavTreeSection pending, then loading', () => {
+  const skeleton = (container: HTMLElement) => container.querySelector('.animate-skeleton-in')
+  const heading = () => screen.getByRole('button', { name: 'Group a' })
+  const rows = <a href="#a">Item a</a>
+
+  it('a read still out after NAV_TREE_PENDING_MS opens on the skeleton', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<NavTreeSection title="Group a" open pending>{rows}</NavTreeSection>)
+      expect(heading().getAttribute('aria-busy')).toBe('true')
+      act(() => vi.advanceTimersByTime(NAV_TREE_PENDING_MS))
+      expect(NAV_TREE_PENDING_MS).toBe(2000)
+      expect(heading().getAttribute('aria-expanded')).toBe('true')
+      expect(heading().getAttribute('aria-busy')).toBeNull()
+      expect(skeleton(container)).not.toBeNull()
+      expect(skeleton(container)!.closest('[hidden]')).toBeNull()
+      expect(screen.queryByText('Item a')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a moment short of it, the group is still shut and busy, with no skeleton', () => {
+    vi.useFakeTimers()
+    try {
+      const { container } = render(<NavTreeSection title="Group a" open pending>{rows}</NavTreeSection>)
+      act(() => vi.advanceTimersByTime(NAV_TREE_PENDING_MS - 1))
+      expect(heading().getAttribute('aria-busy')).toBe('true')
+      expect(screen.getByText('Item a').closest('[hidden]')).not.toBeNull()
+      expect(skeleton(container)).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('rows that land in time open it on the rows; pending again waits the whole time again', () => {
+    vi.useFakeTimers()
+    try {
+      const { container, rerender } = render(<NavTreeSection title="Group a" open pending>{rows}</NavTreeSection>)
+      act(() => vi.advanceTimersByTime(NAV_TREE_PENDING_MS / 2))
+      rerender(<NavTreeSection title="Group a" open>{rows}</NavTreeSection>)
+      expect(screen.getByText('Item a').closest('[hidden]')).toBeNull()
+      rerender(<NavTreeSection title="Group a" open pending>{rows}</NavTreeSection>)
+      act(() => vi.advanceTimersByTime(NAV_TREE_PENDING_MS - 1))
+      expect(heading().getAttribute('aria-busy')).toBe('true')
+      expect(skeleton(container)).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('rows that land after the skeleton replace it', () => {
+    vi.useFakeTimers()
+    try {
+      const { container, rerender } = render(<NavTreeSection title="Group a" open pending>{rows}</NavTreeSection>)
+      act(() => vi.advanceTimersByTime(NAV_TREE_PENDING_MS))
+      rerender(<NavTreeSection title="Group a" open>{rows}</NavTreeSection>)
+      expect(skeleton(container)).toBeNull()
+      expect(screen.getByText('Item a').closest('[hidden]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a group whose rows are in opens at once, never busy', () => {
+    render(<NavTreeSection title="Group a" open>{rows}</NavTreeSection>)
+    expect(heading().getAttribute('aria-busy')).toBeNull()
+    expect(screen.getByText('Item a').closest('[hidden]')).toBeNull()
   })
 })
