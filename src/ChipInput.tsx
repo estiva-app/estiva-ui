@@ -5,7 +5,7 @@ import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
 import { MenuItem, MenuPanel } from './Menu'
 import { ScrollArea } from './ScrollArea'
-import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES } from './looks'
+import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES, FIELD_SHELL_FOCUS_CLASSES } from './looks'
 
 /* The chip's own look, written once: `InputChip` draws it for a caller who
    wants a chip on its own, and `ChipInput` gives the same classes to Base UI's
@@ -246,7 +246,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
     >
       {/* The box the chips and the input share. `Combobox.Chips` is what makes
           the two one control for the keyboard; the look is what it always was. */}
-      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, 'focus-within:border-border-focus focus-within:hover:border-border-focus group-hover/field:focus-within:border-border-focus px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring')}>
+      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, FIELD_SHELL_FOCUS_CLASSES, 'px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text')}>
         {value.map((option) => (
           <Combobox.Chip key={option.id} className={cn(CHIP_BOX, chipPadding(!!chipLeading, true))}>
             {chipLeading && <span className="flex shrink-0 items-center">{chipLeading(option)}</span>}

@@ -34,6 +34,9 @@ export const FIELD_SIZE_CLASSES = {
 /** The box around an input that sits inside it, before its focus look: SearchInput and ChipInput. */
 export const FIELD_SHELL_CLASSES = 'bg-bg-field border border-border-field shadow-field hover:border-border-strong group-hover/field:border-border-strong rounded-lg transition-colors'
 
+/** That box focused, while what is typed in it has the focus: the focus border, held under the pointer, and Signal's ring. ChipInput and DocumentField. */
+export const FIELD_SHELL_FOCUS_CLASSES = 'focus-within:border-border-focus focus-within:hover:border-border-focus group-hover/field:focus-within:border-border-focus signal:transition-shadow signal:focus-within:shadow-focus-ring'
+
 /** A panel that floats over the page: Menu's panel and Tooltip. */
 export const FLOATING_SURFACE_CLASSES = 'rounded-lg border border-border-default bg-bg-elevated shadow-lg'
 
