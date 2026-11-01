@@ -112,6 +112,48 @@ describe('ConversationLayout, one column', () => {
   })
 })
 
+describe('ConversationLayout, one column, its groups', () => {
+  const grouped = (): ConversationItem[] => [
+    { id: 'a', card: <ConversationCard author={ONE} time="11:08 AM">Still open</ConversationCard>, thread: <Thread place="under" /> },
+    { id: 'b', resolved: true, card: <ConversationCard author={ONE} time="11:30 AM" resolved={{ by: 'Person two' }}>Done with</ConversationCard>, thread: <Thread place="under" /> },
+    { id: 'c', gone: true, card: <ConversationCard author={ONE} time="11:40 AM">On deleted words</ConversationCard>, thread: <Thread place="under" /> },
+    { id: 'd', gone: true, resolved: true, card: <ConversationCard author={ONE} time="11:50 AM" resolved={{ by: 'Person two' }}>Both</ConversationCard>, thread: <Thread place="under" /> },
+  ]
+
+  it('puts the resolved and those on a deleted part closed under their names at the end, with how many; resolved wins', () => {
+    render(<ConversationLayout threads="under" items={grouped()} />)
+    const deleted = screen.getByRole('button', { name: /^On deleted blocks/ })
+    const resolved = screen.getByRole('button', { name: /^Resolved/ })
+    expect(deleted.getAttribute('aria-expanded')).toBe('false')
+    expect(resolved.getAttribute('aria-expanded')).toBe('false')
+    // How many, beside each name: 1 after "On deleted blocks", 2 after "Resolved".
+    const after = (a: Node, b: Node) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+    const one = screen.getByText('1')
+    const two = screen.getByText('2')
+    expect(after(deleted, one) && after(one, resolved) && after(resolved, two)).toBe(true)
+    expect(screen.getByText('Still open').closest('[hidden]')).toBeNull()
+    for (const words of ['Done with', 'On deleted words', 'Both']) expect(screen.getByText(words).closest('[hidden]')).not.toBeNull()
+    // In this order: the open ones, then the deleted, then the resolved.
+    const [open, onDeleted, done] = ['Still open', 'On deleted words', 'Done with'].map((w) => screen.getByText(w))
+    expect(after(open, onDeleted) && after(onDeleted, done)).toBe(true)
+  })
+
+  it('opens a group for the thread open in it', () => {
+    render(<ConversationLayout threads="under" items={grouped()} open="b" onOpenChange={() => {}} />)
+    expect(screen.getByRole('button', { name: /^Resolved/ }).getAttribute('aria-expanded')).toBe('true')
+    expect(screen.getByRole('button', { name: /^On deleted blocks/ }).getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('draws no group when nothing is resolved or on a deleted part, and none in two columns', () => {
+    render(<ConversationLayout threads="under" items={grouped().slice(0, 1)} />)
+    expect(screen.queryByRole('button', { name: /^Resolved/ })).toBeNull()
+    cleanup()
+    render(<ConversationLayout threads="beside" items={grouped()} />)
+    expect(screen.queryByRole('button', { name: /^Resolved/ })).toBeNull()
+    expect(screen.getByText('Done with').closest('[hidden]')).toBeNull()
+  })
+})
+
 describe('ConversationLayout, two columns', () => {
   it('opens a thread beside from a press on its card, and a second press keeps it open', () => {
     const asked = vi.fn()

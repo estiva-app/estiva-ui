@@ -14,8 +14,11 @@ Where a conversation's cards sit: two columns, or one 384px column beside the pa
 - `threads="beside"`, two columns: the comments fill the page; an open thread stands beside them, 384px.
 - `threads="under"`, one column: the comments are the 384px column beside the page; a thread opens under its comment, and the two become one card.
 - With two columns, `header` puts the comments' own **PageHeader** over their column only, and the thread runs the page's full height beside it.
+- With one column, an item that is `resolved` waits closed under "Resolved" at the end, and one whose part was deleted (`gone`) under "On deleted blocks" before it, each with how many. A group opens by itself for the thread open in it. With two columns they stay in their place.
 
 <Canvas of={Stories.OneColumn} />
+
+<Canvas of={Stories.Apart} />
 
 ## When not
 
@@ -48,6 +51,7 @@ import { ConversationLayout } from '@estiva-app/ui'
 | A press anywhere on a card, its replies row or Reply opens its thread; in one column a second press closes it | an `onClick` on each card |  |
 | Marks the open comment: beside, its card selected; under, its replies row turned open | `selected`, the row's `open` |  |
 | Opens and closes in place: the comment is never redrawn and does not move, open or closed | a wrapper that changes when it opens |  |
+| One column: resolved comments and comments on deleted blocks closed under their names at the end, opened for the thread open in them | the groups, their counts, opening one |  |
 | Puts the caret in the box of a thread that opens, without scrolling | a focus call |  |
 | Placeholders while reading, and a line when there are none | a loading and an empty state |  |
 | The right column at 384px, in every app | a width |  |

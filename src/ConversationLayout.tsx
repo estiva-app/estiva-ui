@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Card } from './Card'
+import { Chip } from './Chip'
+import { CollapsibleSection } from './CollapsibleSection'
 import { cn } from './cn'
 import { EmptyState } from './EmptyState'
 import { Panel } from './Panel'
@@ -14,6 +16,10 @@ export interface ConversationItem {
   card: ReactNode
   /** Its thread: a `Thread` with the same `place` as the layout's `threads`. Drawn while it is the open one. */
   thread?: ReactNode
+  /** Resolved. In one column it waits under "Resolved", closed, at the end; in two columns it stays in its place. */
+  resolved?: boolean
+  /** What it was on was deleted from the page. In one column it waits under "On deleted blocks", closed, before "Resolved"; a resolved one is under "Resolved". */
+  gone?: boolean
 }
 
 export interface ConversationLayoutProps {
@@ -83,20 +89,42 @@ function List({ items, open, under, above, loading, empty, change, caret }: List
     }
     return <UnderItem key={item.id} item={item} isOpen={open === item.id && !!item.thread} state={stateOf(item)} caret={caret} />
   }
+  if (!under) {
+    return (
+      <>
+        {above}
+        {items.map(draw)}
+      </>
+    )
+  }
+  // One column: the comments on a deleted part, then the resolved ones, each closed under its name at the end, with
+  // how many (Leaf's column; Katerina, 1 November: kept for every one-column app). A group opens by itself for the
+  // thread open in it, as one opened from a link.
+  const resolved = items.filter((item) => item.resolved)
+  const gone = items.filter((item) => item.gone && !item.resolved)
+  const group = (title: string, list: readonly ConversationItem[]) =>
+    list.length > 0 && (
+      <CollapsibleSection
+        title={title}
+        trailing={<Chip type="neutral" label={String(list.length)} />}
+        defaultOpen={false}
+        openFor={list.some((item) => item.id === open) ? open : undefined}
+        className="shrink-0"
+        contentClassName="flex flex-col gap-2"
+      >
+        {list.map(draw)}
+      </CollapsibleSection>
+    )
   return (
     <>
       {above}
-      {items.map(draw)}
+      {items.filter((item) => !item.resolved && !item.gone).map(draw)}
+      {group('On deleted blocks', gone)}
+      {group('Resolved', resolved)}
     </>
   )
 }
 
-/**
- * Where a conversation's cards sit, in one of two ways every app picks from (where it sits is the app's, the record
- * says). Two columns: the comments fill the page and an open thread stands beside them, 384px. One column: the
- * comments are the 384px column beside the page, and a thread opens under its comment, the two one card. The right column is 384px in
- * every app (Katerina, 31 October). With two columns the thread runs the full height, beside the comments' header.
- */
 /**
  * One comment in one column, and its thread when open. Every comment stands in the same card, open or closed, so
  * opening never rebuilds it (no blink, no jump; Katerina, 31 October). Closed, the card is invisible round it; open, it
@@ -137,6 +165,12 @@ function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isO
   )
 }
 
+/**
+ * Where a conversation's cards sit, in one of two ways every app picks from (where it sits is the app's, the record
+ * says). Two columns: the comments fill the page and an open thread stands beside them, 384px. One column: the
+ * comments are the 384px column beside the page, and a thread opens under its comment, the two one card. The right column is 384px in
+ * every app (Katerina, 31 October). With two columns the thread runs the full height, beside the comments' header.
+ */
 export function ConversationLayout({ threads, items, open, onOpenChange, box, above, loading = false, empty = 'No comments yet.', header, title = 'Comments', actions, className }: ConversationLayoutProps) {
   // One column: the pressed comment stays where it was on screen. Opening one thread closes the other, and when that
   // one stood above it, everything under it would rise by its height (Katerina, 31 October). Where it was is noted at

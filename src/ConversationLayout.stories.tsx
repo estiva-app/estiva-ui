@@ -28,6 +28,9 @@ const COMMENTS = [
   { id: 'c3', author: THREE, time: '12:15 PM', words: 'A third comment, resolved.', replies: 1, resolved: { by: 'You', note: 'Done.' } },
 ]
 
+/** A comment whose words were deleted from the page since: only where the groups are shown. */
+const GONE = { id: 'c4', author: TWO, time: '12:40 PM', words: 'A comment on words that were deleted since.', replies: 0, quoted: 'words since deleted from the page', resolved: undefined }
+
 function Replies() {
   const one = useReactions(SOME)
   return (
@@ -43,17 +46,20 @@ function Replies() {
 }
 
 /** The cards, each opening its thread, in either layout. */
-function useItems(place: 'beside' | 'under', open: string | undefined, setOpen: (id: string | undefined) => void, quoted: boolean): ConversationItem[] {
+function useItems(place: 'beside' | 'under', open: string | undefined, setOpen: (id: string | undefined) => void, quoted: boolean, apart = false): ConversationItem[] {
   const reacting = useReactions(SOME)
   const [resolved, setResolved] = useState<Record<string, { by: string; note?: string } | undefined>>(() => Object.fromEntries(COMMENTS.map((c) => [c.id, c.resolved])))
   // Opening is the layout's: a press anywhere on a card, its replies row or Reply; the app keeps `open` (onOpenChange).
-  return COMMENTS.map((c) => ({
+  const comments = apart ? [...COMMENTS, GONE] : COMMENTS
+  return comments.map((c) => ({
     id: c.id,
+    resolved: apart && !!resolved[c.id],
+    gone: apart && c.id === GONE.id,
     card: (
       <ConversationCard
         author={c.author}
         time={c.time}
-        about={quoted && c.quoted ? <QuotedLine words={c.quoted} /> : undefined}
+        about={quoted && c.quoted ? <QuotedLine words={c.quoted} state={c.id === GONE.id ? 'gone' : 'here'} /> : undefined}
         reactions={reacting}
         resolved={resolved[c.id]}
         onResolve={(note) => setResolved((r) => ({ ...r, [c.id]: { by: 'You', note: note || undefined } }))}
@@ -111,6 +117,24 @@ export const OneColumn: Story = {
         </div>
         <div className="flex border-l border-border-subtle">
           <ConversationLayout threads="under" items={useItems('under', open, setOpen, true)} open={open} onOpenChange={setOpen} box={<WriteBox label="Comment" />} />
+        </div>
+      </>
+    )
+  },
+}
+
+/** One column: the resolved comments and those on a deleted part wait closed under their names at the end. Resolve one: it moves there. */
+export const Apart: Story = {
+  name: 'One column, resolved and deleted apart',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>(undefined)
+    return (
+      <>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Page />
+        </div>
+        <div className="flex border-l border-border-subtle">
+          <ConversationLayout threads="under" items={useItems('under', open, setOpen, true, true)} open={open} onOpenChange={setOpen} box={<WriteBox label="Comment" />} />
         </div>
       </>
     )
