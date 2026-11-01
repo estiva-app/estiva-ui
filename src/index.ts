@@ -137,6 +137,8 @@ export { ConversationCard, ReplyCard, type ConversationCardProps, type Conversat
 export { ConversationLayout, type ConversationItem, type ConversationLayoutProps } from './ConversationLayout'
 // The box at a thread's foot takes the caret when a ConversationLayout opens it: one context, shared with the editor's CommentBox.
 export { caretOnOpen } from './threadCard'
+// Where a two-column conversation was left, for the app's "New" line; and the layout's word to its box that the reader's own comment is on its way (CommentBox reads it, from the editor's bundle).
+export { useLeftAt, sendsInLayout } from './conversationScroll'
 export { ConversationMenu, type ConversationMenuProps } from './ConversationMenu'
 export { EditedMarker, type EditedMarkerProps } from './EditedMarker'
 export { MetaText, type MetaTextProps } from './MetaText'

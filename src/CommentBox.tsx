@@ -34,6 +34,7 @@ import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
 import { caretOnOpen } from './threadCard'
+import { sendsInLayout } from './conversationScroll'
 
 /**
  * The one box every app writes a comment, a reply and a chat line in, from the
@@ -597,8 +598,11 @@ export function CommentBox({
   const failed = files.filter((f) => f.state === 'failed').length
   const ready = files.some((f) => f.state === 'ready')
 
+  // In a ConversationLayout's box: the reader's own comment brings the comments down to it as it is drawn.
+  const layout = useContext(sendsInLayout)
   const go = useCallback(
     (ed: Editor): boolean => {
+      layout?.sending()
       const body = ed.getJSON()
       const sent = files.filter((f) => f.state === 'ready')
       const sentUnder = underOf(body)
@@ -613,6 +617,7 @@ export function CommentBox({
         onSent?.(body, sent, sentUnder)
         void answered(send(body, sent, sentUnder)).then((answer) => {
           if (answer.accepted) return
+          layout?.refused()
           onRefused?.()
           if (ed.isDestroyed) {
             // The box went away before the answer: the words wait in its draft.
@@ -633,6 +638,7 @@ export function CommentBox({
       void answered(send(body, sent, sentUnder)).then((answer) => {
         setSending(false)
         if (!answer.accepted) {
+          layout?.refused()
           setRefused(answer.reason)
           return
         }
@@ -644,7 +650,7 @@ export function CommentBox({
       })
       return false
     },
-    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused],
+    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused, layout],
   )
 
   save.current = () => {

@@ -1,7 +1,8 @@
-import { Children, useCallback, useRef, type ReactNode, type Ref } from 'react'
+import { Children, useCallback, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { cn } from './cn'
+import { repliesDrawn, useSteadyScroll } from './conversationScroll'
 import { Divider } from './Divider'
 import { EmptyState } from './EmptyState'
 import { IconButton } from './IconButton'
@@ -10,6 +11,9 @@ import { PinnedComment, type PinnedCommentProps } from './PinnedComment'
 import { useWatchSeen, type SeenOnScreen } from './seenOnScreen'
 import { SkeletonConversation } from './Skeleton'
 import { useContext } from 'react'
+
+/** A thread is placed as it opens, at its newest: the keeper may act from the first change of size. */
+const always = () => true
 import { caretOnOpen, LineByLayout, SHOWN_CLASSES } from './threadCard'
 
 /** The comment a thread answers, pinned at the top of its column. */
@@ -43,7 +47,7 @@ export interface ThreadProps {
   empty?: ReactNode
   /** The column's name. */
   title?: ReactNode
-  /** The column's scrolling box, for opening at the newest reply. */
+  /** Beside: the column's scrolling box. Where it scrolls is the thread's: it opens at the newest reply and goes to each new one. */
   bodyRef?: Ref<HTMLDivElement>
   /** Beside: what `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), and says in it which were seen. */
   seen?: SeenOnScreen
@@ -95,6 +99,24 @@ export function Thread({
   )
   // A reply is read by being seen in its thread (Peek's PEE-44): each one is watched.
   useWatchSeen(seen, body, 'data-reply-id')
+  /*
+    Beside: it opens at its newest reply, before the paint, so it never shows its top for a frame and then jumps; and
+    it goes to the newest each time a reply is added, or another thread is drawn in it (Peek's OPT-9). Each ReplyCard
+    drawn in it counts itself: a line of the app's own among them (a resolve history) takes it nowhere.
+  */
+  const [drawn] = useState(() => ({ n: 0 }))
+  const last = useRef<{ n: number; start?: string } | null>(null)
+  const steady = useSteadyScroll(body, undefined, always, start?.id, place === 'beside')
+  useLayoutEffect(() => {
+    const el = body.current
+    if (place !== 'beside' || !el) return
+    const now = { n: drawn.n, start: start?.id }
+    if (last.current && last.current.n === now.n && last.current.start === now.start) return
+    last.current = now
+    el.scrollTop = el.scrollHeight
+    // And it stays there while the replies' cards, chips and pictures fill in (OPT-10).
+    steady.rebase()
+  })
   const foot = notice ?? box
   // In a ConversationLayout the layout draws the line, from the comment's face to the last reply, as one bar.
   const layoutLine = useContext(LineByLayout)
@@ -143,9 +165,11 @@ export function Thread({
       <Divider look="section" label="Replies" className="px-4 py-2" />
       <div className="flex flex-col gap-2 px-4 pb-4">
         <caretOnOpen.Provider value={0}>
-          <Replies loading={loading} empty={empty}>
-            {children}
-          </Replies>
+          <repliesDrawn.Provider value={drawn}>
+            <Replies loading={loading} empty={empty}>
+              {children}
+            </Replies>
+          </repliesDrawn.Provider>
         </caretOnOpen.Provider>
       </div>
     </Panel>

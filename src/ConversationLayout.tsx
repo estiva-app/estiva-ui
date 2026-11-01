@@ -1,9 +1,10 @@
-import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref, type UIEventHandler } from 'react'
+import { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref, type UIEvent, type UIEventHandler } from 'react'
 import { Card } from './Card'
 import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
 import { cn } from './cn'
 import { ContainerHeader } from './ContainerHeader'
+import { anchorIn, cardIn, isNearBottom, places, sendsInLayout, useSteadyScroll } from './conversationScroll'
 import { Divider } from './Divider'
 import { EmptyState } from './EmptyState'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -54,7 +55,13 @@ export interface ConversationLayoutProps {
   loading?: boolean
   /** What an empty conversation says: words, or the app's own `EmptyState` (a read that failed says so). `null`: nothing. */
   empty?: ReactNode
-  /** Two columns: the comments' scrolling box, for an app that keeps its own place in it (where it was left, its "New" line, following what arrives). */
+  /**
+   * Two columns: the conversation's own name in the app (its address). Where the reader left it is remembered by it in
+   * this tab, and going back to it lands there: at the newest if it was left there, else on the same comment. Without
+   * it, it opens at the newest each time it is drawn. `useLeftAt` with the same name says when it was left, for a "New" line.
+   */
+  rememberAs?: string
+  /** Two columns: the comments' scrolling box. Where it scrolls is the layout's: an app reads it, and keeps no place of its own in it. */
   bodyRef?: Ref<HTMLDivElement>
   /** Two columns: the comments' box scrolled. */
   onBodyScroll?: UIEventHandler<HTMLDivElement>
@@ -212,6 +219,9 @@ function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isO
   )
 }
 
+/** The place of a conversation with no name: placed once each time it is drawn, and not remembered. */
+const FRESH: object = {}
+
 /**
  * Where a conversation's cards sit, in one of two ways every app picks from (where it sits is the app's, the record
  * says). Two columns: the comments fill the page and an open thread stands beside them, 384px. One column: the
@@ -232,11 +242,13 @@ export function ConversationLayout({
   header,
   title = 'Comments',
   actions,
+  rememberAs,
   bodyRef,
   onBodyScroll,
   seen,
   className,
 }: ConversationLayoutProps) {
+  const beside = threads === 'beside'
   // One column: the pressed comment stays where it was on screen. Opening one thread closes the other, and when that
   // one stood above it, everything under it would rise by its height (Katerina, 31 October). Where it was is noted at
   // the press; once the change is drawn, before it is painted, the column scrolls by however far it went.
@@ -281,6 +293,71 @@ export function ConversationLayout({
     if (open !== undefined && open !== was.current) setCaret((n) => n + 1)
     was.current = open
   }, [open])
+
+  /*
+    Two columns: where the comments scroll, Peek's way (C1 of the audit of 2 November). Was the reader at the live edge
+    when something arrived? Only then does it follow: a comment that arrives follows only a reader already at the bottom.
+  */
+  const nearBottom = useRef(true)
+  // The conversation placed last: once per name (once per drawing, without one), and once its comments are read.
+  const placedFor = useRef<string | object | null>(null)
+  const placeKey = rememberAs ?? FRESH
+  const scrolled = (event: UIEvent<HTMLDivElement>) => {
+    const el = body.current
+    if (beside && el) {
+      nearBottom.current = isNearBottom(el)
+      if (rememberAs && placedFor.current === rememberAs) places.set(rememberAs, { atBottom: nearBottom.current, offset: el.scrollTop, anchor: anchorIn(el), leftAt: Date.now() })
+    }
+    onBodyScroll?.(event)
+  }
+  // Opening lands at the newest, before the paint. Going back to one lands where it was left (Peek's OPT-3): at the
+  // newest if it was left there, so what arrived meanwhile is in view; else on the comment that was at the top.
+  useLayoutEffect(() => {
+    if (!beside || loading || placedFor.current === placeKey) return
+    const el = body.current
+    if (!el) return
+    const left = rememberAs ? places.get(rememberAs) : undefined
+    if (left && !left.atBottom) {
+      // That comment back at the same height, not the same offset: what is above it can change height while the
+      // reader is away (a "new reply" mark cleared once read, a reactions line).
+      el.scrollTop = left.offset
+      const card = left.anchor && cardIn(el, left.anchor.id)
+      if (card && left.anchor) el.scrollTop += card.getBoundingClientRect().top - el.getBoundingClientRect().top - left.anchor.top
+      nearBottom.current = false
+    } else {
+      el.scrollTop = el.scrollHeight
+      nearBottom.current = true
+      if (rememberAs) places.set(rememberAs, { atBottom: true, offset: el.scrollTop, leftAt: Date.now() })
+    }
+    placedFor.current = placeKey
+  }, [beside, placeKey, rememberAs, loading])
+  // From there, it stays where the reader is while its cards, chips and pictures fill in (Peek's OPT-10).
+  const placed = useCallback(() => placedFor.current === placeKey, [placeKey])
+  useSteadyScroll(body, nearBottom, placed, loading, beside)
+  // Leaving: the moment it was left is when "New" starts on the way back.
+  useEffect(() => {
+    if (!beside || !rememberAs) return
+    return () => {
+      const left = places.get(rememberAs)
+      if (left) places.set(rememberAs, { ...left, leftAt: Date.now() })
+    }
+  }, [beside, rememberAs])
+  // A comment arrives: follow only a reader who was watching the live edge.
+  useLayoutEffect(() => {
+    if (!beside || loading || !nearBottom.current) return
+    const el = body.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [beside, items.length, loading])
+  // The reader's own comment, sent from the box, brings them down to it as it is drawn (Peek's OPT-6); a refusal leaves
+  // where they actually are to decide what follows next.
+  const [sends] = useState(() => ({
+    sending: () => {
+      nearBottom.current = true
+    },
+    refused: () => {
+      if (body.current) nearBottom.current = isNearBottom(body.current)
+    },
+  }))
   if (threads === 'under') {
     return (
       <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={setBody} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
@@ -303,7 +380,7 @@ export function ConversationLayout({
       >
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {header}
-          <ScrollArea className="min-h-0 flex-1" viewportRef={setBody} onScroll={onBodyScroll} contentClassName="flex min-h-full flex-col">
+          <ScrollArea className="min-h-0 flex-1" viewportRef={setBody} onScroll={scrolled} contentClassName="flex min-h-full flex-col">
             {top != null && top !== false && top !== '' && <div className="shrink-0 px-4 pt-4">{top}</div>}
             {/* A short conversation sits on its box, as a chat does: the newest comment by the box (Peek's way). */}
             <div className="min-h-0 flex-1" />
@@ -313,7 +390,11 @@ export function ConversationLayout({
             </div>
           </ScrollArea>
           {/* Peek's composer room: 12px all round (useFileConversationView's `p-3`), under the list's 16px. */}
-          {box && <div className="shrink-0 p-3">{box}</div>}
+          {box && (
+            <div className="shrink-0 p-3">
+              <sendsInLayout.Provider value={sends}>{box}</sendsInLayout.Provider>
+            </div>
+          )}
         </div>
       </ErrorBoundary>
       {opened && (

@@ -92,6 +92,21 @@ export const Seen: Story = {
   },
 }
 
+/** A long thread: it opens at its newest reply, and goes to each new one. */
+export const Long: Story = {
+  render: () => (
+    <Side>
+      <Thread start={START} onClose={() => {}} box={<WriteBox />}>
+        {Array.from({ length: 9 }, (_, i) => (
+          <ReplyCard key={i} id={`l${i}`} author={[TWO, THREE, YOU][i % 3]} time={`11:${10 + i * 4} AM`}>
+            {i % 3 === 0 ? SHORT : `Reply ${i + 1}, in the order they were written.`}
+          </ReplyCard>
+        ))}
+      </Thread>
+    </Side>
+  ),
+}
+
 /** Resolved: "Resolved" at the top. Who resolved it, and the note, are said on the comment, not among the replies. */
 export const Resolved: Story = {
   render: () => (

@@ -131,6 +131,37 @@ export const TwoColumnsDays: Story = {
 }
 
 /**
+ * Two columns, a long conversation: it opens at the newest comment; scrolled up, it stays where the reader is while
+ * comments arrive; at the bottom, it follows them. Write one: it goes down to it as it is drawn, scrolled up or not.
+ * Its place is remembered by `rememberAs`: open another story and come back, and it is where it was left.
+ */
+export const TwoColumnsLong: Story = {
+  name: 'Two columns, long',
+  render: function Render() {
+    const [said, setSaid] = useState<{ who: typeof ONE; words: string }[]>(() =>
+      Array.from({ length: 14 }, (_, i) => ({ who: [ONE, TWO, THREE][i % 3], words: i % 4 === 0 ? WORDS : `Comment ${i + 1} of a long conversation.` })),
+    )
+    const items: ConversationItem[] = said.map((c, i) => ({
+      id: `l${i}`,
+      day: i < 7 ? 'Monday' : 'Today',
+      card: (
+        <ConversationCard author={c.who} time={`${8 + (i % 7)}:${i % 2 ? '30' : '05'} AM`}>
+          {c.words}
+        </ConversationCard>
+      ),
+    }))
+    return (
+      <ConversationLayout
+        threads="beside"
+        rememberAs="story-long"
+        items={items}
+        box={<WriteBox label="Comment" onSend={(words) => setSaid((now) => [...now, { who: YOU, words: words || 'Your comment.' }])} />}
+      />
+    )
+  },
+}
+
+/**
  * Two columns, read by being seen: each comment new to the reader keeps its dot until it has been on screen a moment
  * (`useSeenOnScreen`, handed to `seen`). Scroll, and the ones that show lose it after 1.5 seconds.
  */
