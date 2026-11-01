@@ -19,11 +19,6 @@ export type ChipType = 'neutral' | 'brand' | 'info' | 'warning' | 'success' | 'e
 export interface ChipProps {
   type?: ChipType
   label?: string
-  /**
-   * Words after the label, inside the chip, in the text's own colour: what it is about ("Resolved by Person two ·
-   * Keeping the first one."). Cut with an ellipsis before the label is, when the chip is capped.
-   */
-  detail?: string
   leadingIcon?: ReactNode
   trailingIcon?: ReactNode
   /**
@@ -46,7 +41,7 @@ const typeStyles: Record<ChipType, string> = {
   error: 'bg-error-muted text-error-default signal:border signal:border-error-outline',
 }
 
-export function Chip({ type = 'neutral', label, detail, leadingIcon, trailingIcon, href, onClick, className }: ChipProps) {
+export function Chip({ type = 'neutral', label, leadingIcon, trailingIcon, href, onClick, className }: ChipProps) {
   const inApp = useInAppClick(href, onClick)
   const classes = cn('inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full max-h-[20px] px-2 py-1', typeStyles[type], className)
   const inside = (
@@ -61,15 +56,7 @@ export function Chip({ type = 'neutral', label, detail, leadingIcon, trailingIco
         // the screenshot diff caught every descender cut off. `clip` is the
         // one overflow that leaves the other axis visible. A chip with no cap
         // draws exactly as before.
-        <span className={cn('min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide', detail && 'shrink-0', CHIP_TEXT_CLASSES)}>{label}</span>
-      )}
-      {detail && (
-        <span className={cn('min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-text-primary signal:tracking-wide', CHIP_TEXT_CLASSES)}>
-          <span aria-hidden className="pr-1.5 text-text-muted">
-            ·
-          </span>
-          {detail}
-        </span>
+        <span className={cn('min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap signal:tracking-wide', CHIP_TEXT_CLASSES)}>{label}</span>
       )}
       {trailingIcon && <span className="flex size-3 shrink-0 items-center justify-center">{trailingIcon}</span>}
     </>

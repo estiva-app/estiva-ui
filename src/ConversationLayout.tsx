@@ -1,14 +1,11 @@
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Card } from './Card'
-import { Chip } from './Chip'
-import { CollapsibleSection } from './CollapsibleSection'
 import { cn } from './cn'
-import { Divider } from './Divider'
 import { EmptyState } from './EmptyState'
 import { Panel } from './Panel'
 import { ScrollArea } from './ScrollArea'
 import { SkeletonConversation } from './Skeleton'
-import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, ProposalLooks, useFaceLine, type ConversationItemState } from './threadCard'
+import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, useFaceLine, type ConversationItemState } from './threadCard'
 
 /** One comment in the list, and its thread when it is open. */
 export interface ConversationItem {
@@ -17,8 +14,6 @@ export interface ConversationItem {
   card: ReactNode
   /** Its thread: a `Thread` with the same `place` as the layout's `threads`. Drawn while it is the open one. */
   thread?: ReactNode
-  /** It is resolved: with `resolvedApart`, it waits under "Resolved" at the end. */
-  resolved?: boolean
 }
 
 export interface ConversationLayoutProps {
@@ -47,10 +42,6 @@ export interface ConversationLayoutProps {
   title?: ReactNode
   /** One column: its header's actions, as a `Panel`'s. */
   actions?: ReactNode
-  /** Proposal (comments panel, 1 November): one column, a hairline between the comments, which then draw no fill of their own (`subdued`). */
-  divided?: boolean
-  /** Proposal (comments panel, 1 November): one column, the resolved comments closed under "Resolved" at the end, as Leaf's column has them. */
-  resolvedApart?: boolean
   /** Placement only. */
   className?: string
 }
@@ -66,15 +57,10 @@ interface ListProps {
   change?: (id: string, next: string | undefined) => void
   /** How many times a thread has opened: its box takes the caret each time. */
   caret: number
-  divided: boolean
-  resolvedApart: boolean
 }
 
 /** The list's own room: placeholders, the empty line, or the comments 8px apart. */
-function List({ items, open, under, above, loading, empty, change, caret, divided, resolvedApart }: ListProps) {
-  // Proposal (round 3): a quieter card in one column. `air`, `lines` and `rail` draw no frame, open or closed; `outline`
-  // outlines the open thread with no fill; `lines` puts a hairline between comments; `rail` a line down the left on hover.
-  const cardLook = useContext(ProposalLooks).cardLook ?? 'now'
+function List({ items, open, under, above, loading, empty, change, caret }: ListProps) {
   if (loading) return <SkeletonConversation />
   if (items.length === 0) return <EmptyState scope="section" message={empty} />
   // How each card opens its thread: only one that has a thread, and only when the app keeps `open`.
@@ -88,46 +74,22 @@ function List({ items, open, under, above, loading, empty, change, caret, divide
         }
       : null
   const draw = (item: ConversationItem) => {
-        if (!under) {
-          return (
-            <div key={item.id} data-conversation-item={item.id} className="flex flex-col">
-              <InConversationItem.Provider value={stateOf(item)}>{item.card}</InConversationItem.Provider>
-            </div>
-          )
-        }
-        const isOpen = open === item.id && !!item.thread
-        return <UnderItem key={item.id} item={item} isOpen={isOpen} cardLook={cardLook} state={stateOf(item)} caret={caret} />
+    if (!under) {
+      return (
+        <div key={item.id} data-conversation-item={item.id} className="flex flex-col">
+          <InConversationItem.Provider value={stateOf(item)}>{item.card}</InConversationItem.Provider>
+        </div>
+      )
+    }
+    return <UnderItem key={item.id} item={item} isOpen={open === item.id && !!item.thread} state={stateOf(item)} caret={caret} />
   }
-  // Proposal (comments panel, 1 November): a hairline between comments; the resolved ones closed under "Resolved", at the end.
-  const lines = divided || cardLook === 'lines'
-  const lined = (list: readonly ConversationItem[]) => list.flatMap((item, i) => (lines && under && i > 0 ? [<Divider key={`line-${item.id}`} className="mx-0" />, draw(item)] : [draw(item)]))
-  const apart = under && resolvedApart
-  const current = apart ? items.filter((item) => !item.resolved) : items
-  const done = apart ? items.filter((item) => item.resolved) : []
   return (
     <>
       {above}
-      {lined(current)}
-      {done.length > 0 && (
-        <>
-          {lines && current.length > 0 && <Divider className="mx-0" />}
-          <CollapsibleSection
-            title="Resolved"
-            trailing={<Chip type="neutral" label={String(done.length)} />}
-            defaultOpen={false}
-            openFor={done.some((item) => item.id === open) ? open : undefined}
-            className="shrink-0"
-            contentClassName="flex flex-col gap-2"
-          >
-            {lined(done)}
-          </CollapsibleSection>
-        </>
-      )}
+      {items.map(draw)}
     </>
   )
 }
-
-
 
 /**
  * Where a conversation's cards sit, in one of two ways every app picks from (where it sits is the app's, the record
@@ -141,11 +103,10 @@ function List({ items, open, under, above, loading, empty, change, caret, divide
  * is the one card round the comment and its thread, the comment's own card quiet inside it (Ship's way), and it draws
  * the line from the comment's face to the last reply as one measured bar (Katerina, 1 November: one straight line).
  */
-function UnderItem({ item, isOpen, cardLook, state, caret }: { item: ConversationItem; isOpen: boolean; cardLook: string; state: ConversationItemState | null; caret: number }) {
+function UnderItem({ item, isOpen, state, caret }: { item: ConversationItem; isOpen: boolean; state: ConversationItemState | null; caret: number }) {
   const root = useRef<HTMLDivElement>(null)
   const line = useFaceLine(root, isOpen)
   return (
-    // @estiva-escape(no-restyled-part): proposal 5 · Tab (round 3, 31 October), a resolved comment's tab and green edge on the one card round it and its thread, until Katerina picks; it goes with the losing looks
     <Card
       ref={root}
       data-conversation-item={item.id}
@@ -154,16 +115,13 @@ function UnderItem({ item, isOpen, cardLook, state, caret }: { item: Conversatio
       // edge the surface fill had, held by `hovered`.
       fill="none"
       hover="hairline"
-      hovered={isOpen && cardLook === 'now'}
-      quietUntilHover={!isOpen || (cardLook !== 'now' && cardLook !== 'outline')}
-      className={cn('relative flex flex-col', cardLook === 'rail' && 'group/item', isOpen && 'pb-2 has-[[data-resolved=tab]]:mt-2.5 has-[[data-resolved=tab]]:border-success-outline')}
+      hovered={isOpen}
+      quietUntilHover={!isOpen}
+      className={cn('relative flex flex-col', isOpen && 'pb-2')}
     >
       <InConversationItem.Provider value={state}>
         <InThreadCard.Provider value={isOpen}>
           <LineByLayout.Provider value>
-            {cardLook === 'rail' && (
-              <span aria-hidden className={cn('pointer-events-none absolute bottom-2 left-0 top-2 w-0.5 rounded-full bg-border-strong transition-opacity', isOpen ? 'opacity-100' : 'opacity-0 group-hover/item:opacity-100')} />
-            )}
             {/* Over this card's edge, 1px out each way: the comment keeps its place and width, open or closed. */}
             <div className="-m-px flex flex-col">{item.card}</div>
             {isOpen && <caretOnOpen.Provider value={caret}>{item.thread}</caretOnOpen.Provider>}
@@ -179,10 +137,7 @@ function UnderItem({ item, isOpen, cardLook, state, caret }: { item: Conversatio
   )
 }
 
-/** Proposal (round 3): the room between comments in one column, for each quieter card. With no box round them, more air. */
-const ROOM: Record<string, string> = { now: 'gap-2', air: 'gap-4', lines: 'gap-2', outline: 'gap-3', rail: 'gap-4' }
-
-export function ConversationLayout({ threads, items, open, onOpenChange, box, above, loading = false, empty = 'No comments yet.', header, title = 'Comments', actions, divided = false, resolvedApart = false, className }: ConversationLayoutProps) {
+export function ConversationLayout({ threads, items, open, onOpenChange, box, above, loading = false, empty = 'No comments yet.', header, title = 'Comments', actions, className }: ConversationLayoutProps) {
   // One column: the pressed comment stays where it was on screen. Opening one thread closes the other, and when that
   // one stood above it, everything under it would rise by its height (Katerina, 31 October). Where it was is noted at
   // the press; once the change is drawn, before it is painted, the column scrolls by however far it went.
@@ -206,7 +161,6 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
   }, [open])
   // A thread that opens puts the caret in its box (Katerina, 31 October); the one open when the page is drawn does not.
   const [caret, setCaret] = useState(0)
-  const cardLook = useContext(ProposalLooks).cardLook ?? 'now'
   const was = useRef(open)
   useEffect(() => {
     if (open !== undefined && open !== was.current) setCaret((n) => n + 1)
@@ -214,8 +168,8 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
   }, [open])
   if (threads === 'under') {
     return (
-      <Panel className={cn('w-[384px] shrink-0', className)} title={title} actions={actions} bodyRef={body} bodyClassName={cn('flex flex-col p-3', ROOM[cardLook] ?? 'gap-2')} footer={box && <div className="p-3">{box}</div>}>
-        <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} divided={divided} resolvedApart={resolvedApart} />
+      <Panel className={cn('w-[384px] shrink-0', className)} title={title} actions={actions} bodyRef={body} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
+        <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} />
       </Panel>
     )
   }
@@ -225,7 +179,7 @@ export function ConversationLayout({ threads, items, open, onOpenChange, box, ab
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {header}
         <ScrollArea className="min-h-0 flex-1" contentClassName="flex flex-col gap-2 p-4">
-          <List items={items} open={open} under={false} above={above} loading={loading} empty={empty} change={change} caret={caret} divided={false} resolvedApart={false} />
+          <List items={items} open={open} under={false} above={above} loading={loading} empty={empty} change={change} caret={caret} />
         </ScrollArea>
         {/* Peek's composer room: 12px all round (useFileConversationView's `p-3`), under the list's 16px. */}
         {box && <div className="shrink-0 p-3">{box}</div>}

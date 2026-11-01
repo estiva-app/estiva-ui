@@ -28,17 +28,16 @@ A comment's replies, with the box to write one: in the right column under its ow
 ## How
 
 ```tsx
-import { ReplyCard, ResolutionHistory, Thread } from '@estiva-app/ui'
+import { ReplyCard, Thread } from '@estiva-app/ui'
 
 <Thread start={start} resolved={resolved} onClose={close} box={replyBox}>
   <ReplyCard author={author} time={time}>
     {words}
   </ReplyCard>
-  <ResolutionHistory events={events} />
 </Thread>
 ```
 
-- Its replies and resolve lines are yours to put in time order.
+- Its replies are yours to put in time order. Who resolved it is said on the comment, not among them.
 - Still reading: `loading`. Nobody replied yet: nothing in `children`.
 
 ## What it owns

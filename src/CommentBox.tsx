@@ -183,8 +183,6 @@ export interface CommentBoxProps {
   marked?: (editor: Editor) => boolean
   /** Called with the box's editor once it is drawn, and with `null` as it goes: an app's launcher inserts into the box last used. */
   onEditor?: (editor: Editor | null) => void
-  /** Proposal (comments panel, round 2): one line until it is pressed or holds words; a thread's box under its replies. */
-  quiet?: boolean
   className?: string
 }
 
@@ -454,7 +452,6 @@ export function CommentBox({
   onRefused,
   marked,
   onEditor,
-  quiet = false,
   className,
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
@@ -802,7 +799,6 @@ export function CommentBox({
         marked={marking}
         holding={uploading || failed > 0 || sending}
         selection={{ link: true }}
-        quiet={quiet}
         className={cn(sending && '[&_[data-composer-editor]]:text-text-muted')}
       />
       {upload && <FilePicker ref={picker} multiple accept={accept} onPick={attachFiles} />}

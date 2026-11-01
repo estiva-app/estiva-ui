@@ -94,12 +94,10 @@ export interface ReactionRowProps {
   viewer?: string
   /** Your reaction on or off. Absent, the row only shows (read-only, signed out). */
   onToggle?: (emoji: string) => void
-  /** React (☺+) after the pills, with `onToggle`. Off: a card that shows it only while pointed at (proposal, 1 November). Default on. */
-  add?: boolean
   className?: string
 }
 
-export function ReactionRow({ reactions, options, nameOf, viewer, onToggle, add = true, className }: ReactionRowProps) {
+export function ReactionRow({ reactions, options, nameOf, viewer, onToggle, className }: ReactionRowProps) {
   const shown = reactions.filter((r) => r.by.length > 0)
   if (shown.length === 0) return null
   return (
@@ -116,7 +114,7 @@ export function ReactionRow({ reactions, options, nameOf, viewer, onToggle, add 
           />
         </WithTooltip>
       ))}
-      {onToggle && add && <AddReactionButton options={options} onPick={onToggle} />}
+      {onToggle && <AddReactionButton options={options} onPick={onToggle} />}
     </div>
   )
 }

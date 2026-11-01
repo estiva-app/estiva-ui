@@ -27,9 +27,6 @@ export const WithLeadingIcon: Story = { args: { type: 'info', label: 'Replies', 
 export const WithTrailingIcon: Story = { args: { type: 'success', label: 'Sorted', trailingIcon: <IconArrowUp className="size-3" stroke={1.5} /> } }
 /** A count alone. */
 export const CountOnly: Story = { args: { type: 'neutral', label: '2' } }
-
-/** Words after the label, in the text's colour, cut first when the chip is capped: a resolved comment's tab. */
-export const WithDetail: Story = { args: { type: 'success', label: 'Resolved by Person two', detail: 'Keeping the first one, as it reads better in a narrow column.', className: 'max-w-[320px]' } }
 /** A link to the thing it names. Tab to it: the ring is round, like the chip. */
 export const AsLink: Story = { args: { type: 'neutral', label: 'Group', href: '#' } }
 

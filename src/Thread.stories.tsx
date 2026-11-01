@@ -6,7 +6,6 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { MembersPill } from './MembersPill'
-import { ResolutionHistory } from './Resolution'
 import { Thread } from './Thread'
 
 /** A comment's replies, with the box to write one: in the right column, or under its comment. */
@@ -56,13 +55,12 @@ export const Column: Story = {
   ),
 }
 
-/** Resolved: "Resolved" at the top, and the line where it was resolved among the replies. */
+/** Resolved: "Resolved" at the top. Who resolved it, and the note, are said on the comment, not among the replies. */
 export const Resolved: Story = {
   render: () => (
     <Side>
       <Thread start={START} resolved onClose={() => {}} box={<WriteBox />}>
         <Replies />
-        <ResolutionHistory events={[{ by: 'Person two', note: 'Agreed, going with the first one.', at: '12:10 PM' }]} />
       </Thread>
     </Side>
   ),

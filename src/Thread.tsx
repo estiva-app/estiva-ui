@@ -19,10 +19,8 @@ export interface ThreadProps {
   place?: 'beside' | 'under'
   /** The comment it answers, pinned at the top of the column. Under its comment it is not repeated. */
   start?: ThreadStart
-  /** Its replies and its resolve lines, in time order: `ReplyCard`s and `ResolutionHistory`s. */
+  /** Its replies, in time order: `ReplyCard`s. How it was resolved is said on its comment, not among them (Katerina, 1 November). */
   children?: ReactNode
-  /** Under its comment: what ends the line, on it, after the replies. Proposal (round 3, 31 October): 3B's resolved node. */
-  end?: ReactNode
   /** Still reading the replies: placeholders in their place. */
   loading?: boolean
   /** Resolved: "Resolved" at the top of the column, in green. */
@@ -55,7 +53,7 @@ function Replies({ children, loading }: { children?: ReactNode; loading: boolean
  * column: Ship's and Leaf's), the replies hung from a line, quiet, and the box under them, all one card with the
  * comment (Ship's way). Peek's replies column, moved with the conversation.
  */
-export function Thread({ place = 'beside', start, children, end, loading = false, resolved = false, box, notice, actions, onClose, title = 'Replies', bodyRef, className }: ThreadProps) {
+export function Thread({ place = 'beside', start, children, loading = false, resolved = false, box, notice, actions, onClose, title = 'Replies', bodyRef, className }: ThreadProps) {
   const foot = notice ?? box
   // In a ConversationLayout the layout draws the line, from the comment's face to the last reply, as one bar.
   const layoutLine = useContext(LineByLayout)
@@ -74,9 +72,6 @@ export function Thread({ place = 'beside', start, children, end, loading = false
               <caretOnOpen.Provider value={0}>{loading ? <SkeletonConversation /> : children}</caretOnOpen.Provider>
             </div>
           )}
-          {/* Where the line ends, on the line: proposal 3B's node (round 3, 31 October). */}
-          {/* 8.5px in: the node's stub and its dot's centre stand on the line above (21px in, with the card's edge). */}
-          {end && <div className="pl-[8.5px] pr-2">{end}</div>}
           {foot && <div className="px-2 pt-2">{foot}</div>}
         </div>
       </InThreadCard.Provider>

@@ -1,22 +1,19 @@
-import { createContext, useContext, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { useContext, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
-import { Chip } from './Chip'
 import { cn } from './cn'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ConversationActions } from './ConversationActions'
 import { ConversationMenu } from './ConversationMenu'
-import { Divider } from './Divider'
 import { EditedMarker } from './EditedMarker'
 import { FieldLine } from './Field'
 import { Link } from './Link'
 import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
-import { ResolutionHistory, ResolutionNote, ResolvedAnswer, ResolvedBadge, ResolvedFoot, ResolvedMark, ResolvedMeta, ResolvedNode, ResolvedOutcome, ResolvedOutcomePill, ResolvedReaction, ResolvedTab } from './Resolution'
 import { ResolveDialog } from './ResolveDialog'
-import { InConversationItem, InThreadCard, LineByLayout, ProposalLooks, useFaceLine } from './threadCard'
+import { InConversationItem, InThreadCard, LineByLayout, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -39,7 +36,7 @@ export interface ConversationEntryProps {
   edited?: string
   /** The words, as the app draws them: text, mentions, links, attached cards, quoted blocks. */
   children: ReactNode
-  /** Above the name: what it is about, a `QuotedLine` for a comment on a part of the page. */
+  /** What it is about, a `QuotedLine` for a comment on a part of the page: under the name, above the words. */
   about?: ReactNode
   /** Pictures and files: `AttachmentCard`s, laid out under the words. */
   files?: ReactNode
@@ -47,7 +44,7 @@ export interface ConversationEntryProps {
   reactions?: ReactionRowProps
   /** Why the last reaction was refused, in plain words: said under the reactions. */
   reactionRefused?: string
-  /** Not read yet: the dot, or the urgent mark with `urgent`, and a hairline. */
+  /** Not read yet: the dot, or the urgent mark with `urgent`, and the card's edge in the theme's colour. */
   isNew?: boolean
   urgent?: boolean
   /** It is yours: the menu offers Edit (with `editor`) and Delete (with `onDelete`). */
@@ -65,10 +62,6 @@ export interface ConversationEntryProps {
   deleteNote?: ReactNode
   /** The app's own rows in the ⋯ menu: `MenuItem`s. */
   menu?: ReactNode
-  /** Quieter: no fill or edge of its own, as where it is shown again in another list. Inside a thread drawn as one card it is so by itself. */
-  subdued?: boolean
-  /** Proposal (comments panel, 1 November): React (☺+) after the reactions only while the card is pointed at, as Slack's. */
-  reactOnHover?: boolean
   /** Placement only. */
   className?: string
 }
@@ -81,21 +74,11 @@ export interface ConversationCardProps extends ConversationEntryProps {
   /** Reply: offered on the strip. */
   onReply?: () => void
   /**
-   * Resolved, by whom and with what note: the kit's green Chip on the card's top edge, "Resolved by Person two · the
-   * note", the note in white, cut at the end of the line and whole on hover with when (5B, Katerina's pick, 31 October).
-   * Nothing of the comment is hidden.
+   * Resolved, by whom, with what note and when (`at`, in the app's words). Folded (Katerina, 1 November): "✓ Resolved"
+   * by the time, who and the note on hover; "Person two → the note · time" above the replies row. While its thread is
+   * closed, the words fold to their first line, without files or reactions; open, it is whole.
    */
-  /** `at`: when, in the app's words, said with who. */
   resolved?: { by: string; note?: string; at?: string }
-  /**
-   * Proposal (31 October, round 2), until one is picked: how "resolved" is said. `bar` (today), `face`, `chip` and
-   * `faded` above the name (`faded`: the words recede too), `band` across the card's top, `name` in the name row with
-   * the note under the words. Round 3 (31 October), 3 and 5 in one and two columns: `joined` (3 · one line: open
-   * under in one column, the line runs on into the thread and the node ends it), `short` (3 · the node under the words),
-   * `tabsays` (5 · the note in the tab), `tabfoot` (5 · a green foot), `tabnode` (5 · 3's node at the foot).
-   * Default `tabsays`: 5B, Katerina's pick (31 October); the others stay for the proposal boards.
-   */
-  resolvedLook?: 'bar' | 'face' | 'chip' | 'band' | 'name' | 'faded' | 'outcome' | 'answer' | 'node' | 'seal' | 'tab' | 'quiet' | 'reaction' | 'joined' | 'short' | 'tabsays' | 'tabfoot' | 'tabnode' | 'foot' | 'check' | 'folded' | 'fadedfoot'
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
   onReopen?: () => void
@@ -103,23 +86,19 @@ export interface ConversationCardProps extends ConversationEntryProps {
   selected?: boolean
   /** A press on the card: its thread opens. */
   onClick?: () => void
-  /** Proposal (comments panel, round 2): its latest reply, said in one line while closed, with the `preview` look. */
-  latestReply?: { by: ConversationPerson; words: string }
 }
 
 export type ReplyCardProps = ConversationEntryProps
 
-/** The face, the name, the time and "(edited)", with the new mark at the far right. */
-function Head({ author, time, timeHref, edited, isNew, urgent, trailing, badge, meta, faded = false }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'edited' | 'isNew' | 'urgent'> & { trailing?: ReactNode; badge?: ReactNode; meta?: ReactNode; faded?: boolean }) {
-  const { newLook, compact } = useContext(ProposalLooks)
+/** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
+function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
   return (
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <span data-face className={cn('relative flex shrink-0 transition-opacity', faded && 'opacity-50 grayscale')}>
-          <Avatar size={compact ? 20 : 24} src={author.picture} alt={author.name} />
-          {badge}
+        <span data-face className="relative flex shrink-0">
+          <Avatar size={24} src={author.picture} alt={author.name} />
         </span>
-        <span className={cn('min-w-0 truncate text-body-2-strong', faded ? 'text-text-secondary' : 'text-text-primary')}>{author.name}</span>
+        <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
         {timeHref ? (
           <WithTooltip label="Link to this" wrapperClassName="shrink-0">
             <MetaText className="contents">
@@ -134,26 +113,15 @@ function Head({ author, time, timeHref, edited, isNew, urgent, trailing, badge, 
         <EditedMarker edited={edited} />
         {meta}
       </div>
-      {trailing}
-      {/* Proposal (round 2): `label` says it in words, the chip the replies row already uses for "1 new". */}
-      {isNew && (newLook === 'label' ? <Chip type={urgent ? 'warning' : 'brand'} label={urgent ? 'Urgent' : 'New'} /> : urgent ? <UrgentMark /> : <UnreadDot />)}
+      {isNew && (urgent ? <UrgentMark /> : <UnreadDot />)}
     </div>
   )
 }
 
-/** Proposal (round 2): how a new or urgent card is marked, beyond the dot. `edge` is today's. */
-function freshLook(newLook: string | undefined, fresh: boolean, urgent: boolean, inThreadCard: boolean) {
-  const look = newLook ?? 'edge'
-  const tone = urgent ? 'warning' : 'accent'
-  return {
-    attention: fresh && !inThreadCard && (look === 'edge' || look === 'measured') ? (tone as 'warning' | 'accent') : undefined,
-    // Ship's and Leaf's 30% edge measured 1.3:1 and 1.5:1, no stronger than a plain hairline (1.4:1); at full strength, 3.1:1 and 4.5:1.
-    className: cn(
-      fresh && !inThreadCard && look === 'measured' && (urgent ? 'ship:border-warning-default leaf:border-warning-default' : 'ship:border-accent-primary leaf:border-accent-primary'),
-      fresh && !inThreadCard && look === 'wash' && (urgent ? 'bg-warning-muted' : 'bg-accent-wash'),
-    ),
-    bar: fresh && look === 'bar' && !inThreadCard ? <span aria-hidden className={cn('absolute bottom-2 left-0 top-2 w-0.5 rounded-full', urgent ? 'bg-warning-default' : 'bg-accent-primary')} /> : null,
-  }
+/** New or urgent: the card's edge in the theme's accent or warning outline. Inside a thread card, the outer card is the edge, and the dot alone says it. */
+function attentionOf(fresh: boolean, urgent: boolean, inThreadCard: boolean) {
+  if (!fresh || inThreadCard) return undefined
+  return urgent ? ('warning' as const) : ('accent' as const)
 }
 
 /**
@@ -180,7 +148,7 @@ function EndedLine({ by, note, at }: { by: string; note: string; at?: string }) 
   )
 }
 
-/** Proposal (round 2, check and folded): after the time, a green check and "Resolved"; who, when and the note on hover. */
+/** After the time: a green check and "Resolved"; who, when and the note on hover. */
 function ResolvedCheck({ by, note, at }: { by: string; note?: string; at?: string }) {
   const said = `Resolved by ${by}${at ? `, ${at}` : ''}${note ? `: ${note}` : ''}`
   return (
@@ -193,56 +161,31 @@ function ResolvedCheck({ by, note, at }: { by: string; note?: string; at?: strin
   )
 }
 
-/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. */
-/** Proposal (node): a row's piece of the line from the face down to where it was resolved. */
-/** Where the line from the face stands. Open under in one column (the card over the one card's edge): on the thread's own line, 0.5px right, so the two are one. */
-const StemOnThreadLine = createContext(false)
-
 /**
- * 2px, centred under the 24px face (Katerina, 1 November: the line from the face down to the resolved dot, thicker,
- * and the same in an open comment and its thread). `toDot`: it stops at the resolved line's dot, a closed comment's end.
+ * A row's piece of the 2px line under the 24px face, open under in one column with no ConversationLayout to draw it
+ * whole (Katerina, 1 November: the line from the face, thicker, the same in an open comment and its thread).
  */
-function Stem({ toDot = false }: { toDot?: boolean }) {
-  // Open or closed, the same place: the thread's 2px line stands 19px in, under the face's centre (measured, 1 November).
-  return <span aria-hidden className={cn('absolute left-[11px] w-0.5 bg-border-default', toDot ? 'top-0 h-3' : 'bottom-0 top-0')} />
+function Stem() {
+  // 19px in, as the thread's own line: the card's 8px and the face's centre.
+  return <span aria-hidden className="absolute bottom-0 left-[11px] top-0 w-0.5 bg-border-default" />
 }
 
-function Words({ children, faded = false, stem = false, oneLine = false }: { children: ReactNode; faded?: boolean; stem?: boolean; oneLine?: boolean }) {
-  const { compact } = useContext(ProposalLooks)
+/** The words' own look: Peek's message body, 14px secondary, blocks 8px apart. `oneLine`: folded, the first line only. */
+function Words({ children, stem = false, oneLine = false }: { children: ReactNode; stem?: boolean; oneLine?: boolean }) {
   return (
-    <div className={cn('relative w-full break-words pb-2 pr-2 pt-1', compact ? 'pl-7' : 'pl-8', oneLine && '[&>div>*:not(p)]:hidden [&>div]:line-clamp-1')}>
+    <div className={cn('relative w-full break-words pb-2 pl-8 pr-2 pt-1', oneLine && '[&>div>*:not(p)]:hidden [&>div]:line-clamp-1')}>
       {stem && <Stem />}
-      <div className={cn('flex flex-col gap-2 text-body-2', faded ? 'text-text-muted' : 'text-text-secondary')}>{children}</div>
+      <div className="flex flex-col gap-2 text-body-2 text-text-secondary">{children}</div>
     </div>
   )
 }
 
-function Reactions({ reactions, refused, readOnly, lead, stem = false, add = true, trailing }: { reactions?: ReactionRowProps; refused?: string; readOnly: boolean; lead?: ReactNode; stem?: boolean; add?: boolean; trailing?: ReactNode }) {
-  const { compact } = useContext(ProposalLooks)
-  const shown = !!reactions && reactions.reactions.length > 0
-  if (!shown && !refused && !lead && !trailing) return null
-  if (trailing) {
-    // Proposal (round 2, compact): the reactions and the way into the replies on one row.
-    return (
-      <div className={cn('relative flex w-full flex-wrap items-center gap-x-2 gap-y-1 pb-2 pr-2 pt-1', compact ? 'pl-7' : 'pl-8')}>
-        {stem && <Stem />}
-        {shown && reactions && <ReactionRow {...reactions} onToggle={readOnly ? undefined : reactions.onToggle} add={add} />}
-        <span className="flex">{trailing}</span>
-        {refused && <FieldLine tone="error">Not reacted: {refused}.</FieldLine>}
-      </div>
-    )
-  }
+function Reactions({ reactions, refused, readOnly, stem = false }: { reactions?: ReactionRowProps; refused?: string; readOnly: boolean; stem?: boolean }) {
+  if ((!reactions || reactions.reactions.length === 0) && !refused) return null
   return (
-    <div className={cn('relative flex w-full flex-col gap-1 pb-2 pt-1', compact ? 'pl-7' : 'pl-8')}>
+    <div className="relative flex w-full flex-col gap-1 pb-2 pl-8 pt-1">
       {stem && <Stem />}
-      {lead ? (
-        <div className="flex flex-wrap items-center gap-1">
-          {lead}
-          {reactions && <ReactionRow {...reactions} onToggle={readOnly ? undefined : reactions.onToggle} add={add} />}
-        </div>
-      ) : (
-        reactions && <ReactionRow {...reactions} onToggle={readOnly ? undefined : reactions.onToggle} add={add} />
-      )}
+      {reactions && <ReactionRow {...reactions} onToggle={readOnly ? undefined : reactions.onToggle} />}
       {refused && <FieldLine tone="error">Not reacted: {refused}.</FieldLine>}
     </div>
   )
@@ -250,11 +193,10 @@ function Reactions({ reactions, refused, readOnly, lead, stem = false, add = tru
 
 /** Being edited: the face beside the app's box, which holds the words, the files and the cards. */
 function Editing({ author, children }: { author: ConversationPerson; children: ReactNode }) {
-  const { compact } = useContext(ProposalLooks)
   return (
     <div className="p-2">
       <div className="flex items-start gap-2">
-        <Avatar size={compact ? 20 : 24} src={author.picture} alt={author.name} className="mt-1 shrink-0" />
+        <Avatar size={24} src={author.picture} alt={author.name} className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
@@ -287,22 +229,17 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
 
 /**
  * One comment: who, when, the words, files, cards, reactions, and the way into its replies, with the strip on hover
- * and the ⋯ menu. Resolved, it says who resolved it and the note; nothing of it is hidden.
+ * and the ⋯ menu. Resolved, it folds while its thread is closed and says who resolved it and the note.
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, onReopen, selected, onClick, onDelete, deleteNote, menu, reactOnHover = false, latestReply, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, onResolve, onReopen, selected, onClick, onDelete, deleteNote, menu, className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
-  const proposal = useContext(ProposalLooks)
-  // Katerina's picks (1 November): resolved folds, with how it ended above its replies row; the quoted words in the page's highlight, above the words.
-  const resolvedLook = props.resolvedLook ?? (proposal.resolvedLook as ConversationCardProps['resolvedLook']) ?? 'folded'
-  const quoteLook = proposal.quoteLook ?? 'mark'
 
   // In a ConversationLayout: a press opens its thread (in one column, a second closes it), Reply opens it, its replies
   // row says it is open, and beside it is marked. What the app passes wins.
   const item = useContext(InConversationItem)
-  const subdued = props.subdued ?? inThreadCard
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [picking, setPicking] = useState(false)
@@ -312,25 +249,16 @@ export function ConversationCard(props: ConversationCardProps) {
   const isEditing = editing && !readOnly && !!editor
   const overlay = menuOpen || picking || resolving || deleting
   const resolves = resolved ? onReopen : onResolve
-  const above = resolvedLook === 'bar' || resolvedLook === 'face' || resolvedLook === 'chip' || resolvedLook === 'faded'
-  const look = resolved ? resolvedLook : undefined
-  // Round 3: the tab's family marks the card; the line's family runs a line from the face. Open under in one column,
-  // the tab and the green edge go on the one card round the comment and its thread (ConversationLayout).
-  const tabbed = look === 'tab' || look === 'tabsays' || look === 'tabfoot' || look === 'tabnode'
-  // Open under in one column, the line runs from the face into the thread, whatever the look (Katerina, 31 October).
   // Open under in one column, the face's line runs down to its thread, with replies or with only the box (Katerina, 1 November).
-  const lined = look === 'node' || look === 'joined' || inThreadCard
-  // Folded with a note: the face's line runs down to the resolved line's dot, closed too (Katerina, 1 November), one
+  const lined = inThreadCard
+  // Resolved with a note: the face's line runs down to the resolved line's dot, closed too (Katerina, 1 November), one
   // bar measured from the face to the dot. Open in a ConversationLayout, the layout draws the whole line, face to the
   // thread's last reply, so the card draws no pieces of it; elsewhere (a card on its own) the pieces stay.
-  const toDot = !lined && look === 'folded' && !!resolved?.note && !isEditing
+  const toDot = !lined && !!resolved?.note && !isEditing
   const layoutLine = useContext(LineByLayout)
   const stemmed = lined && !layoutLine
   const root = useRef<HTMLDivElement>(null)
   const dotLine = useFaceLine(root, toDot, true)
-  const nodeAtFoot = look === 'node' || (look === 'joined' && !inThreadCard) || look === 'tabnode'
-  // Quiet: the card steps back until it is pointed at.
-  const quiet = look === 'quiet' && !hovered && !(selected ?? (!!item && !item.under && item.open))
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
   const offersMenu = !!resolves || !!menu || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
@@ -340,51 +268,29 @@ export function ConversationCard(props: ConversationCardProps) {
   const reply = onReply ?? item?.show
   const marked = selected ?? (item && !item.under ? item.open : undefined)
   const under = !!item?.under
-  // Proposal (round 3): a quieter card in one column; anything but `now` draws no fill and no fill on hover.
-  const delicate = under && !!proposal.cardLook && proposal.cardLook !== 'now'
-  // Proposal (round 2): the new mark, the resolved looks that need no edge, where the quoted words go.
-  const fresh = freshLook(proposal.newLook, isNew || !!replies?.isNew, urgent, inThreadCard)
   const closed = !inThreadCard && !(item && !item.under && item.open)
-  const foldedNow = look === 'folded' && closed
-  const footLine = (look === 'foot' || look === 'fadedfoot') && !inThreadCard
-  // Folded: "✓ Resolved" by the time, and the note above the replies row, "Person two → the note", open or closed, in one
-  // column or two; the thread no longer says it among the replies (Katerina, 1 November).
-  const endedAbove = look === 'folded'
-  const checked = look === 'check' || look === 'folded'
-  // Compact puts the replies on the reactions' row; a folded card keeps its own row, under the line.
-  const merge = !!proposal.compact && !endedAbove
+  // Folded: resolved, its thread closed, the words' first line only (Katerina, 1 November).
+  const folded = !!resolved && closed
   const repliesRow = replies && replies.count > 0 && (
-    <RepliesRow
-      {...replies}
-      // Compact, on the reactions' row: no time, so both fit in the 384px column.
-      last={merge ? undefined : replies.last}
-      onOpen={replies.onOpen ?? (under ? item?.toggle : undefined)}
-      open={replies.open ?? (under && !!item?.open)}
-      urgent={urgent}
-      bare={merge}
-    />
+    <RepliesRow {...replies} onOpen={replies.onOpen ?? (under ? item?.toggle : undefined)} open={replies.open ?? (under && !!item?.open)} urgent={urgent} />
   )
   const aboutShown = !!about && !deleted
   return (
     <>
-      {/* @estiva-escape(no-restyled-part): proposal 5 · Tab (31 October), a green edge on a resolved card until Katerina picks; it goes with the losing looks */}
       <Card
         ref={root}
         // No fill of its own at rest, in any theme: it sits on its column's colour and lights up on hover. Peek's and
         // Leaf's columns are their surface, so nothing changes there; Ship's is its page base, where the surface fill
         // showed as a box round every comment (Katerina, 1 November: no background in Ship).
         fill="none"
-        // Read-only with nothing to open: nothing on hover. Round 3's quieter card: no fill on hover either.
-        hover={(readOnly && !press) || delicate ? 'none' : 'fill'}
+        // Read-only with nothing to open: nothing on hover.
+        hover={readOnly && !press ? 'none' : 'fill'}
         quietUntilHover
         hovered={hovered}
         selected={marked}
         active={isEditing}
-        // Open in a thread card, the outer card is its edge: the dot alone says it is new.
-        attention={fresh.attention}
-        // The tab's green edge: its own when closed; open in one column, the one card's, and green on hover as when
-        // closed, so nothing changes colour as it opens and closes (Katerina, 31 October).
-        className={cn('relative', tabbed && !inThreadCard && 'mt-2.5 border-success-outline', tabbed && 'hover:border-success-outline', delicate && press && 'cursor-pointer', fresh.className, className)}
+        attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
+        className={cn('relative', className)}
         onClick={press && !isEditing && !overlay ? (e) => pressed(e, press) : undefined}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
@@ -397,29 +303,10 @@ export function ConversationCard(props: ConversationCardProps) {
           setHovered(false)
         }}
       >
-        {fresh.bar}
-        {aboutShown && quoteLook === 'band' && !isEditing && about}
-        {resolved && resolvedLook === 'band' && !isEditing && <ResolutionNote by={resolved.by} note={resolved.note} look="band" />}
-        {resolved && tabbed && <ResolvedTab by={resolved.by} at={resolved.at} note={resolved.note} says={look === 'tabsays'} />}
         {isEditing ? (
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
-          <StemOnThreadLine.Provider value={inThreadCard && lined}>
-          <div data-comment-body className={cn('flex flex-col items-start px-2', tabbed ? 'pt-4' : 'pt-2')}>
-            {resolved && above && (
-              <div className="w-full pb-1.5 pr-2">
-                <ResolutionNote by={resolved.by} note={resolved.note} look={resolvedLook === 'faded' ? 'face' : (resolvedLook as 'bar' | 'face' | 'chip')} />
-              </div>
-            )}
-            {resolved && look === 'outcome' && (
-              <div className="w-full pr-2">
-                <ResolvedOutcome by={resolved.by} note={resolved.note} at={resolved.at} />
-                <div className="py-2 pl-8">
-                  <Divider />
-                </div>
-              </div>
-            )}
-            {aboutShown && (quoteLook === 'bar' || quoteLook === 'block') && <div className={cn('w-full', quoteLook === 'block' ? 'pb-2' : 'pb-1.5 pr-2')}>{about}</div>}
+          <div data-comment-body className="flex flex-col items-start px-2 pt-2">
             {deleted ? (
               <p className="w-full pb-2 pl-8 pr-2 text-caption italic text-text-muted">This comment was deleted.</p>
             ) : (
@@ -431,76 +318,28 @@ export function ConversationCard(props: ConversationCardProps) {
                   edited={props.edited}
                   isNew={isNew}
                   urgent={urgent}
-                  trailing={resolved && resolvedLook === 'name' && <ResolvedMark by={resolved.by} />}
-                  badge={resolved && look === 'seal' && <ResolvedBadge by={resolved.by} at={resolved.at} />}
-                  meta={
-                    <>
-                      {resolved && look === 'seal' && <ResolvedMeta by={resolved.by} at={resolved.at} />}
-                      {resolved && checked && <ResolvedCheck by={resolved.by} note={resolved.note} at={resolved.at} />}
-                      {aboutShown && quoteLook === 'icon' && about}
-                    </>
-                  }
-                  faded={quiet}
+                  meta={resolved && <ResolvedCheck by={resolved.by} note={resolved.note} at={resolved.at} />}
                 />
-                {aboutShown && quoteLook === 'mark' && (
-                  <div className={cn('relative w-full pr-2 pt-0.5', proposal.compact ? 'pl-7' : 'pl-8')}>
+                {aboutShown && (
+                  // Under the name, above the words (Katerina, 1 November).
+                  <div className="relative w-full pl-8 pr-2 pt-0.5">
                     {stemmed && <Stem />}
                     {about}
                   </div>
                 )}
-                {resolved && look === 'quiet' && (
-                  <div className="flex w-full pb-1 pl-8 pr-2 pt-1.5">
-                    <ResolvedOutcomePill by={resolved.by} note={resolved.note} at={resolved.at} />
-                  </div>
-                )}
-                <Words faded={(!!resolved && (resolvedLook === 'faded' || resolvedLook === 'outcome' || resolvedLook === 'fadedfoot')) || quiet} stem={stemmed || look === 'short'} oneLine={foldedNow}>
+                <Words stem={stemmed} oneLine={folded}>
                   {children}
                 </Words>
-                {resolved && look === 'short' && <ResolvedNode by={resolved.by} note={resolved.note} at={resolved.at} through={inThreadCard && lined} />}
-                {resolved && look === 'answer' && (
-                  <div className="w-full pb-2 pl-8 pr-2">
-                    <ResolvedAnswer by={resolved.by} note={resolved.note} at={resolved.at} onReopen={readOnly ? undefined : onReopen} />
-                  </div>
-                )}
-                {resolved?.note && (look === 'seal' || look === 'tab') && (
-                  <div className="w-full pb-2 pl-8 pr-2">
-                    <ResolutionNote by={resolved.by} note={resolved.note} look="under" />
-                  </div>
-                )}
-                {resolved?.note && resolvedLook === 'name' && (
-                  <div className="w-full pb-2 pl-8 pr-2">
-                    <ResolutionNote by={resolved.by} note={resolved.note} look="under" />
-                  </div>
-                )}
               </>
             )}
-            {!deleted && files && !foldedNow && (
-              <div className={cn('relative flex w-full flex-wrap items-start gap-2 pb-2 pr-2', proposal.compact ? 'pl-7' : 'pl-8')}>
+            {!deleted && files && !folded && (
+              <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">
                 {stemmed && <Stem />}
                 {files}
               </div>
             )}
-            {!foldedNow && (
-              <Reactions
-                reactions={reactions}
-                refused={reactionRefused}
-                readOnly={readOnly}
-                lead={resolved && look === 'reaction' && <ResolvedReaction by={resolved.by} note={resolved.note} at={resolved.at} onReopen={readOnly ? undefined : onReopen} />}
-                stem={stemmed}
-                add={!reactOnHover || hovered}
-                trailing={merge ? repliesRow : undefined}
-              />
-            )}
-            {/* Proposal (round 2, preview): the latest reply in one line, while the thread is closed. */}
-            {proposal.preview && latestReply && closed && !foldedNow && (
-              <div className={cn('flex w-full min-w-0 items-center gap-1.5 pb-1.5 pr-2', proposal.compact ? 'pl-7' : 'pl-8')}>
-                <Avatar size={16} src={latestReply.by.picture} alt={latestReply.by.name} className="shrink-0" />
-                <p className="min-w-0 truncate text-caption text-text-secondary">
-                  <span className="font-medium text-text-primary">{latestReply.by.name}</span> {latestReply.words}
-                </p>
-              </div>
-            )}
-            {resolved?.note && endedAbove && (
+            {!folded && <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} stem={stemmed} />}
+            {resolved?.note && (
               // Who resolved it and the note, above the way into the replies; the check by the time says "Resolved" (Katerina, 1 November).
               <div className="relative w-full pb-1">
                 {stemmed && <Stem />}
@@ -509,31 +348,21 @@ export function ConversationCard(props: ConversationCardProps) {
                 </div>
               </div>
             )}
-            {repliesRow && !merge && (
+            {repliesRow && (
               <div className="relative w-full">
                 {stemmed && <Stem />}
                 {repliesRow}
               </div>
             )}
-            {resolved && footLine && (
-              // Proposal (round 2, foot): how it ended, in the thread's own words and look, under the comment.
-              <div className="-ml-2 w-[calc(100%+8px)] pb-1">
-                <ResolutionHistory events={[{ id: 'foot', by: resolved.by, note: resolved.note, at: resolved.at }]} />
-              </div>
-            )}
-            {resolved && nodeAtFoot && <ResolvedNode by={resolved.by} note={resolved.note} at={resolved.at} line={look !== 'tabnode'} through={inThreadCard && lined} />}
           </div>
-          </StemOnThreadLine.Provider>
         )}
-        {resolved && look === 'tabfoot' && !isEditing && <ResolvedFoot by={resolved.by} note={resolved.note} at={resolved.at} />}
         {dotLine && (
           // One bar from the face to the dot, measured (useFaceLine): 2px, centred under the 24px face, 8px in.
           // Its top and height come from the measure: where the face ends and the dot stands are not known ahead.
           <span aria-hidden className="pointer-events-none absolute left-[19px] w-0.5 bg-border-default" style={{ top: dotLine.top, height: dotLine.height }} />
         )}
         {showStrip && (
-          // Above everything on the card, a resolved tab included (Katerina, 31 October). Proposal (round 2, compact): on the card's top edge, off the words.
-          <div className={cn('absolute z-10', proposal.compact ? '-top-3.5 right-2' : 'right-1 top-1')}>
+          <div className="absolute right-1 top-1 z-10">
             <ConversationActions
               options={reactions?.options}
               onReact={react}
@@ -591,13 +420,8 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, reactOnHover = false, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, className, children } = props
   const readOnly = props.readOnly ?? false
-  const inThreadCard = useContext(InThreadCard)
-  const proposal = useContext(ProposalLooks)
-  // A reply is marked inside its thread card too, as today's edge is there.
-  const fresh = freshLook(proposal.newLook, isNew, urgent, false)
-  const subdued = props.subdued ?? inThreadCard
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [picking, setPicking] = useState(false)
@@ -611,12 +435,13 @@ export function ReplyCard(props: ReplyCardProps) {
       <Card
         // As a comment: no fill of its own at rest (Katerina, 1 November).
         fill="none"
-        hover={readOnly || (!!proposal.cardLook && proposal.cardLook !== 'now') ? 'none' : 'fill'}
+        hover={readOnly ? 'none' : 'fill'}
         quietUntilHover
         hovered={hovered}
         active={isEditing}
-        attention={fresh.attention}
-        className={cn('relative', fresh.className, className)}
+        // A reply is marked inside its thread card too.
+        attention={attentionOf(isNew, urgent, false)}
+        className={cn('relative', className)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return
@@ -628,21 +453,21 @@ export function ReplyCard(props: ReplyCardProps) {
           setHovered(false)
         }}
       >
-        {fresh.bar}
         {isEditing ? (
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            {about && <div className="w-full pb-1.5 pr-2">{about}</div>}
             <Head author={author} time={props.time} timeHref={props.timeHref} edited={props.edited} isNew={isNew} urgent={urgent} />
+            {/* As on a comment: under the name, above the words. */}
+            {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>
-            {files && <div className={cn('flex w-full flex-wrap items-start gap-2 pb-2 pr-2', proposal.compact ? 'pl-7' : 'pl-8')}>{files}</div>}
-            <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} add={!reactOnHover || hovered} />
+            {files && <div className="flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">{files}</div>}
+            <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />
           </div>
         )}
         {showStrip && (
           <ConversationActions
-            className={cn('absolute z-10', proposal.compact ? '-top-3.5 right-2' : 'right-1 top-1')}
+            className="absolute right-1 top-1 z-10"
             options={reactions?.options}
             onReact={reactions?.onToggle}
             onPickerOpenChange={setPicking}

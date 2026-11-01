@@ -151,8 +151,6 @@ export interface SendBoxProps {
   marked?: boolean
   /** The selection strip's buttons: its marks, Link, and the app's own (`actions`). */
   selection?: Pick<SelectionToolbarProps, 'marks' | 'link' | 'actions'>
-  /** Proposal (comments panel, round 2): one line, its tools and Send out of sight, until it is pressed or holds words. */
-  quiet?: boolean
   className?: string
 }
 
@@ -160,8 +158,7 @@ export interface SendBoxProps {
  * The send box: the frame with the selection strip over the text, the tools
  * and Send under it. Enter sends (`ComposeKeys`), and so does the button.
  */
-export function SendBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, quiet = false, className }: SendBoxProps) {
-  const [inside, setInside] = useState(false)
+export function SendBox({ editor, onSend, placeholder, tools, attachments, ready = false, holding = false, marked = false, selection, className }: SendBoxProps) {
   const [empty, setEmpty] = useState(true)
   const canSend = (!empty || ready) && !holding
 
@@ -194,14 +191,8 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
     }
   }, [editor])
 
-  // Quiet (proposal): the row of tools shows once the box is pressed, or while it holds words or files.
-  const rowShown = !quiet || inside || !empty || !!attachments
   return (
-    <div
-      className={cn('relative', className)}
-      onFocus={quiet ? () => setInside(true) : undefined}
-      onBlur={quiet ? (e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setInside(false) : undefined}
-    >
+    <div className={cn('relative', className)}>
       <BoxFrame
         editor={editor}
         marked={marked}
@@ -210,7 +201,6 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
         empty={empty}
         attachments={attachments}
         footer={
-        rowShown && (
         // The tools are one strip — one Tab stop, arrows along it; Send, the answer rather than a tool, keeps its own.
         <div className="flex items-center justify-between">
           {tools ? (
@@ -242,7 +232,6 @@ export function SendBox({ editor, onSend, placeholder, tools, attachments, ready
             </IconButton>
           </div>
         </div>
-        )
         }
       />
     </div>

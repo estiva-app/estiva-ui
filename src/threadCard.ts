@@ -1,8 +1,8 @@
 import { createContext, useLayoutEffect, useState, type RefObject } from 'react'
 
 /**
- * Inside a thread drawn as one card (a comment open in one column, its replies under it): its cards have no fill or
- * edge of their own, as `subdued`. Set by ConversationLayout and Thread; read by ConversationCard and ReplyCard.
+ * Inside a thread drawn as one card (a comment open in one column, its replies under it): its cards draw no new edge
+ * of their own, the one card is their edge. Set by ConversationLayout and Thread; read by ConversationCard and ReplyCard.
  */
 export const InThreadCard = createContext(false)
 
@@ -30,29 +30,6 @@ export const InConversationItem = createContext<ConversationItemState | null>(nu
  * October). 0, as outside a layout or for the thread open when the page is drawn: the box waits to be pressed.
  */
 export const caretOnOpen = createContext(0)
-
-/**
- * Proposal (comments panel, round 2, 1 November): the looks under test, set by a story round the conversation and read
- * by ConversationCard, ReplyCard, QuotedLine and RepliesRow. Plain strings, not unions (the registry reads interfaces).
- * It goes when Katerina picks; the winners become the parts' own look.
- *
- * - `newLook`: `edge` (today, 30%), `measured` (Ship and Leaf at full strength), `bar`, `wash`, `label`.
- * - `quoteLook`: `bar` (today), `mark`, `block`, `band`, `icon`.
- * - `resolvedLook`: a ConversationCard `resolvedLook`, for every card: `tabsays` (today), `foot`, `check`, `folded`, `faded`.
- * - `compact`: a 20px face, the words under the name, reactions and replies on one row, the strip on the card's edge.
- * - `preview`: a closed comment shows its latest reply in one line.
- */
-export interface ConversationProposal {
-  newLook?: string
-  quoteLook?: string
-  resolvedLook?: string
-  compact?: boolean
-  preview?: boolean
-  /** Round 3, one column: `now`, `air` (no boxes, more room), `lines` (hairlines), `outline` (an open thread outlined), `rail` (a line on hover). */
-  cardLook?: string
-}
-
-export const ProposalLooks = createContext<ConversationProposal>({})
 
 /**
  * Set by ConversationLayout round each comment in one column: it draws an open comment's line itself, one bar from the

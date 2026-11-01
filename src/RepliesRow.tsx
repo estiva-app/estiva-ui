@@ -1,10 +1,8 @@
 import { IconChevronRight, IconMessage2 } from '@tabler/icons-react'
 import { AvatarGroup } from './AvatarGroup'
 import { Chip } from './Chip'
-import { useContext } from 'react'
 import { cn } from './cn'
 import { TIME_CLASSES } from './looks'
-import { ProposalLooks } from './threadCard'
 
 export interface RepliesRowProps {
   /** How many replies. */
@@ -21,14 +19,11 @@ export interface RepliesRowProps {
   onOpen?: () => void
   /** Its thread is open under it, in one column: the chevron turns down and the row stays marked; a press closes it (Katerina, 31 October). */
   open?: boolean
-  /** Proposal (comments panel, round 2, compact): no row of its own, to stand on the reactions' row. */
-  bare?: boolean
 }
 
 const ROW_CLASSES = 'flex w-full items-center gap-2 pb-1.5 pl-8 pr-2'
 /** Open: the row keeps the look a pointer gives it, so it reads as the thread's open way in. */
 const OPEN_CLASSES = 'border-accent-outline bg-accent-wash'
-const QUIET_BOX_CLASSES = 'group/replies flex shrink-0 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors'
 const BOX_CLASSES =
   'group/replies flex shrink-0 items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-accent-outline hover:bg-accent-wash'
 
@@ -37,12 +32,7 @@ const BOX_CLASSES =
  * read. Peek's, moved with the conversation; in every app the row a thread opens from, the same in every theme
  * (Katerina, 31 October), each in its own colours.
  */
-export function RepliesRow({ count, faces, last, isNew = false, urgent = false, onOpen, open = false, bare = false }: RepliesRowProps) {
-  const row = bare ? 'flex items-center gap-2' : ROW_CLASSES
-  // Round 3's quieter card: no edge or wash on hover or open; the words and the chevron say it.
-  const cardLook = useContext(ProposalLooks).cardLook
-  const quiet = !!cardLook && cardLook !== 'now'
-  const box = quiet ? QUIET_BOX_CLASSES : BOX_CLASSES
+export function RepliesRow({ count, faces, last, isNew = false, urgent = false, onOpen, open = false }: RepliesRowProps) {
   const withFaces = !!faces && faces.length > 0
   const label = `${count} ${count === 1 ? 'reply' : 'replies'}`
   const inner = (
@@ -80,16 +70,16 @@ export function RepliesRow({ count, faces, last, isNew = false, urgent = false, 
   )
   if (!onOpen) {
     return (
-      <div className={row}>
-        <div className={box}>{inner}</div>
+      <div className={ROW_CLASSES}>
+        <div className={BOX_CLASSES}>{inner}</div>
         {chip}
       </div>
     )
   }
   return (
     // @estiva-escape(no-raw-element): the row is the thread's way in, Peek's replies row; no kit button takes a face stack, a count, a time and the new chip in one press
-    <button type="button" className={cn(row, 'cursor-pointer text-left')} onClick={onOpen} aria-expanded={open} aria-label={`${label}, ${open ? 'close' : 'open'} the thread`} data-interactive>
-      <span className={cn(box, open && !quiet && OPEN_CLASSES)}>{inner}</span>
+    <button type="button" className={cn(ROW_CLASSES, 'cursor-pointer text-left')} onClick={onOpen} aria-expanded={open} aria-label={`${label}, ${open ? 'close' : 'open'} the thread`} data-interactive>
+      <span className={cn(BOX_CLASSES, open && OPEN_CLASSES)}>{inner}</span>
       {chip}
     </button>
   )

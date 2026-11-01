@@ -5,7 +5,7 @@ import * as Stories from './QuotedLine.stories'
 
 # QuotedLine
 
-Above a comment on a part of the page: the words it is on, set off by a bar in the document's highlight colour, under the face below.
+On a comment on a part of the page: the words it is on, in the page's own highlight, under the name and above the comment's words.
 
 <Canvas of={Stories.Words} />
 
@@ -32,8 +32,8 @@ import { ConversationCard, QuotedLine } from '@estiva-app/ui'
 ```
 
 - Two lines at most; the whole words are in the tooltip.
-- A part with no words, a picture or a block: `label` and its kind's `icon`.
-- Made for the card's `about`: the bar lines up with the 24px face under it.
+- A part with no words, a picture or a block: `label`, its name in your words.
+- Made for the card's `about`: the card puts it under the name, where the words start.
 
 ## What it owns
 

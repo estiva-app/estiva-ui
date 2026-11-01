@@ -90,16 +90,6 @@ describe('ConversationCard', () => {
     expect(onClick).toHaveBeenCalledOnce()
   })
 
-  it('says who resolved it on a tab with the look before, 5B, and hides nothing', () => {
-    render(
-      <ConversationCard author={ONE} time="11:08 AM" resolved={{ by: 'Person two', note: 'Done.' }} resolvedLook="tabsays" reactions={{ reactions: [{ emoji: '👍', by: ['a'] }], options: [], nameOf: (id) => id }}>
-        Words
-      </ConversationCard>,
-    )
-    expect(screen.getByText('Resolved by Person two')).toBeTruthy()
-    expect(screen.getByRole('button', { name: /👍/ })).toBeTruthy()
-  })
-
   it('opens its thread on a press anywhere on it, beside its reactions too, but not on a reaction', () => {
     const onClick = vi.fn()
     render(
