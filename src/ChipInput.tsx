@@ -144,6 +144,8 @@ export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
   'aria-label'?: string
   /** The id of what names the field on the page — a visible "To:", say. */
   'aria-labelledby'?: string
+  /** It holds one — an owner, an assignee: a later pick replaces the chosen one rather than adding a second. */
+  single?: boolean
 }
 
 export function ChipInput<T extends ChipInputOption = ChipInputOption>({
@@ -155,6 +157,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
   excludeIds = [],
   chipLeading,
   rowLeading,
+  single = false,
   ...aria
 }: ChipInputProps<T>) {
   const [query, setQuery] = useState('')
@@ -233,7 +236,8 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
       items={available}
       value={value}
       onValueChange={(next) => {
-        onChange(next as T[])
+        // One held: the pick just made is the last, and it replaces the one before.
+        onChange(single ? (next as T[]).slice(-1) : (next as T[]))
         setQuery('')
       }}
       inputValue={query}

@@ -66,6 +66,15 @@ export const WithChips: Story = {
   },
 }
 
+/** `single`: one person — an owner. Type another name and pick it: it replaces the chip rather than joining it. */
+export const OnePerson: Story = {
+  parameters: { controls: { disable: true } },
+  render: (args) => {
+    const [value, setValue] = useState<ChipInputOption[]>([PEOPLE[0]])
+    return <ChipInput {...args} {...personLeading} single value={value} onChange={setValue} placeholder="Search people…" />
+  },
+}
+
 /** `excludeIds` keeps someone out of the suggestions — the current user, say. */
 export const ExcludingSomeone: Story = {
   parameters: { controls: { disable: true } },
