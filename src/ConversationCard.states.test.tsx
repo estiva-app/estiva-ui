@@ -291,6 +291,22 @@ describe('what the review found (1 November)', () => {
   })
 })
 
+describe('an app’s own words (Katerina, 1 November: Peek reads as it did)', () => {
+  it('says the app’s words under the delete question, in place of the kit’s, the replies’ line too', async () => {
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" own onDelete={() => {}} replies={{ count: 2 }} deleteNote={<p>The app’s own words about what deleting does, and the replies.</p>}>
+        Words
+      </ConversationCard>,
+    )
+    point('Words')
+    fireEvent.click(screen.getByRole('button', { name: 'More actions' }))
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    expect(await screen.findByText('The app’s own words about what deleting does, and the replies.')).toBeTruthy()
+    expect(screen.queryByText('It is deleted for everyone.')).toBeNull()
+    expect(screen.queryByText('Its 2 replies stay.')).toBeNull()
+  })
+})
+
 describe('its files, what it is about, and how it was resolved', () => {
   it('draws its files under the words, and keeps them once resolved: nothing folds (Katerina, 1 November)', () => {
     render(

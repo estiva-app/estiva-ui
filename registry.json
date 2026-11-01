@@ -2725,6 +2725,12 @@
           "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
         },
         {
+          "name": "timeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The time's tooltip when it is a link, in the app's words: \"Link to this\" by default; Peek's \"Link to this message\"."
+        },
+        {
           "name": "edited",
           "takes": "text",
           "required": false,
@@ -2812,7 +2818,7 @@
           "name": "deleteNote",
           "takes": "anything",
           "required": false,
-          "note": "The app's sentence in the delete question, what deleting does there."
+          "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
         },
         {
           "name": "menu",
@@ -8586,6 +8592,12 @@
           "note": "A link to it: the time is then the link, \"Link to this\", as a reply's is."
         },
         {
+          "name": "timeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The time's tooltip when it is a link, in the app's words: \"Link to this\" by default; Peek's \"Link to this message\"."
+        },
+        {
           "name": "edited",
           "takes": "text",
           "required": false,
@@ -8673,7 +8685,7 @@
           "name": "deleteNote",
           "takes": "anything",
           "required": false,
-          "note": "The app's sentence in the delete question, what deleting does there."
+          "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
         },
         {
           "name": "menu",

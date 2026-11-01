@@ -34,6 +34,8 @@ export interface ConversationEntryProps {
   time: ReactNode
   /** A link to it: the time is then the link, "Link to this", as a reply's is. */
   timeHref?: string
+  /** The time's tooltip when it is a link, in the app's words: "Link to this" by default; Peek's "Link to this message". */
+  timeLabel?: string
   /** When it was last edited, in the app's words for the tooltip ("Edited 11:20 AM"): draws "(edited)". */
   edited?: string
   /** The words, as the app draws them: text, mentions, links, attached cards, quoted blocks. */
@@ -60,7 +62,10 @@ export interface ConversationEntryProps {
   onEditingChange?: (editing: boolean) => void
   /** Delete, after the card has asked. */
   onDelete?: () => Promise<boolean | void> | boolean | void
-  /** The app's sentence in the delete question, what deleting does there. Absent: "It is deleted for everyone." */
+  /**
+   * The app's own words under the delete question, what deleting does there, in place of the kit's: "It is deleted for
+   * everyone.", and on a comment how many replies stay. A string is one paragraph; a node is drawn as given.
+   */
   deleteNote?: ReactNode
   /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
@@ -108,7 +113,7 @@ export interface ConversationCardProps extends ConversationEntryProps {
 export type ReplyCardProps = ConversationEntryProps
 
 /** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
   return (
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -117,7 +122,7 @@ function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<Conv
         </span>
         <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
         {timeHref ? (
-          <WithTooltip label="Link to this" wrapperClassName="shrink-0">
+          <WithTooltip label={timeLabel} wrapperClassName="shrink-0">
             <MetaText className="contents">
               <Link href={timeHref} variant="quiet" data-interactive>
                 {time}
@@ -335,6 +340,7 @@ export function ConversationCard(props: ConversationCardProps) {
                   author={author}
                   time={props.time}
                   timeHref={props.timeHref}
+                  timeLabel={props.timeLabel}
                   edited={props.edited}
                   isNew={isNew}
                   urgent={urgent}
@@ -415,8 +421,14 @@ export function ConversationCard(props: ConversationCardProps) {
       </Card>
       {deleting && onDelete && (
         <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
-          <p>{deleteNote ?? 'It is deleted for everyone.'}</p>
-          {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
+          {deleteNote !== undefined ? (
+            typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote
+          ) : (
+            <>
+              <p>It is deleted for everyone.</p>
+              {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
+            </>
+          )}
         </ConfirmDialog>
       )}
       {resolving && onResolve && (
@@ -479,7 +491,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} timeHref={props.timeHref} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>
@@ -524,7 +536,7 @@ export function ReplyCard(props: ReplyCardProps) {
       </Card>
       {deleting && onDelete && (
         <ConfirmDialog title="Delete this reply?" confirmLabel="Delete reply" destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
-          <p>{deleteNote ?? 'It is deleted for everyone.'}</p>
+          {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
         </ConfirmDialog>
       )}
     </>
