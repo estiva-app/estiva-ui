@@ -10254,6 +10254,18 @@
           "note": "Closes the column."
         },
         {
+          "name": "closeLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Close's name for a screen reader, in the app's words (\"Close thread\")."
+        },
+        {
+          "name": "empty",
+          "takes": "string | null",
+          "required": false,
+          "note": "What an empty thread says. `null`: nothing, for an app whose thread stood empty and silent."
+        },
+        {
           "name": "title",
           "takes": "anything",
           "required": false,

@@ -12,7 +12,10 @@ import { useContext } from 'react'
 import { caretOnOpen, LineByLayout } from './threadCard'
 
 /** The comment a thread answers, pinned at the top of its column. */
-export type ThreadStart = PinnedCommentProps
+export interface ThreadStart extends PinnedCommentProps {
+  /** Its id, on the pinned comment as `data-thread-start`, as each comment of a ConversationLayout carries `data-conversation-item`: what an app scrolls to when a link names the comment. */
+  id?: string
+}
 
 export interface ThreadProps {
   /** `beside`: in the right column, beside the comments, under its own header. `under`: open under its comment, in a one-column conversation: its replies hang from a line, quiet, and the box is under them; ConversationLayout makes the comment and its thread one card. */
@@ -33,6 +36,10 @@ export interface ThreadProps {
   actions?: ReactNode
   /** Closes the column. */
   onClose?: () => void
+  /** Close's name for a screen reader, in the app's words ("Close thread"). Its tooltip still says "Close". */
+  closeLabel?: string
+  /** What an empty thread says. `null`: nothing, for an app whose thread stood empty and silent. */
+  empty?: string | null
   /** The column's name. */
   title?: ReactNode
   /** The column's scrolling box, for opening at the newest reply. */
@@ -44,9 +51,9 @@ export interface ThreadProps {
 /** Whether there are replies: an app's `replies.map(…)` with none is an empty list, which is not nothing to React but is to the reader. */
 const anyIn = (children: ReactNode) => Children.toArray(children).length > 0
 
-function Replies({ children, loading }: { children?: ReactNode; loading: boolean }) {
+function Replies({ children, loading, empty }: { children?: ReactNode; loading: boolean; empty: string | null }) {
   if (loading) return <SkeletonConversation />
-  if (!anyIn(children)) return <EmptyState scope="section" message="No replies yet." />
+  if (!anyIn(children)) return empty === null ? null : <EmptyState scope="section" message={empty} />
   return <>{children}</>
 }
 
@@ -56,7 +63,22 @@ function Replies({ children, loading }: { children?: ReactNode; loading: boolean
  * column: Ship's and Leaf's), the replies hung from a line, quiet, and the box under them, all one card with the
  * comment (Ship's way). Peek's replies column, moved with the conversation.
  */
-export function Thread({ place = 'beside', start, children, loading = false, resolved = false, box, notice, actions, onClose, title = 'Replies', bodyRef, className }: ThreadProps) {
+export function Thread({
+  place = 'beside',
+  start,
+  children,
+  loading = false,
+  resolved = false,
+  box,
+  notice,
+  actions,
+  onClose,
+  closeLabel = 'Close',
+  empty = 'No replies yet.',
+  title = 'Replies',
+  bodyRef,
+  className,
+}: ThreadProps) {
   const foot = notice ?? box
   // In a ConversationLayout the layout draws the line, from the comment's face to the last reply, as one bar.
   const layoutLine = useContext(LineByLayout)
@@ -89,7 +111,7 @@ export function Thread({ place = 'beside', start, children, loading = false, res
           {resolved && <Chip type="success" label="Resolved" />}
           {actions}
           {onClose && (
-            <IconButton tooltip="Close" aria-label="Close" onClick={onClose}>
+            <IconButton tooltip="Close" aria-label={closeLabel} onClick={onClose}>
               <IconX size={16} stroke={1.5} />
             </IconButton>
           )}
@@ -98,14 +120,16 @@ export function Thread({ place = 'beside', start, children, loading = false, res
       footer={foot && <div className="p-3">{foot}</div>}
     >
       {start && (
-        <div className="px-4 pb-2 pt-4">
-          <PinnedComment {...start} />
+        <div className="px-4 pb-2 pt-4" data-thread-start={start.id}>
+          <PinnedComment author={start.author} time={start.time} words={start.words} deleted={start.deleted} />
         </div>
       )}
       <Divider look="section" label="Replies" className="px-4 py-2" />
       <div className="flex flex-col gap-2 px-4 pb-4">
         <caretOnOpen.Provider value={0}>
-          <Replies loading={loading}>{children}</Replies>
+          <Replies loading={loading} empty={empty}>
+            {children}
+          </Replies>
         </caretOnOpen.Provider>
       </div>
     </Panel>
