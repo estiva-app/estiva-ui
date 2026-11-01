@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { AttachedCard } from './AttachedCard'
 import { Button } from './Button'
-import { ITEM, LOADING, ready, SAID, UNAVAILABLE } from './linked.examples'
+import { cardShapeMemory, loadingShapeOf } from './linked'
+import { ITEM, ITEM_NO_SUMMARY, LOADING, ready, SAID, UNAVAILABLE } from './linked.examples'
 
 const meta = {
   title: 'Links & references/AttachedCard',
@@ -34,3 +35,10 @@ export const Loading: Story = { args: { link: LOADING }, render: (args) => <Atta
 
 /** Deleted, or not this reader's to see. */
 export const NotAvailable: Story = { args: { link: UNAVAILABLE }, render: (args) => <AttachedCard {...args} onRemove={() => {}} /> }
+
+/** This device drew it last time with no summary, at 120px: loading again, it holds that shape and that height. */
+const DRAWN_BEFORE = cardShapeMemory('story.attached-card')
+DRAWN_BEFORE.note('item-two', { ...loadingShapeOf(ITEM_NO_SUMMARY), height: 120 })
+
+/** Loading, at the shape and height it last drew at on this device (`remember`), so nothing around it moves. */
+export const LoadingAtItsLastHeight: Story = { args: { link: LOADING, remember: { memory: DRAWN_BEFORE, id: 'item-two' } } }
