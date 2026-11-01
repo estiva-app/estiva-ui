@@ -23,6 +23,8 @@ import { UrgentMark } from './UrgentMark'
 export interface ConversationPerson {
   name: string
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 /** What a comment and a reply share. */
@@ -98,7 +100,7 @@ function Head({ author, time, timeHref, edited, isNew, urgent, meta }: Pick<Conv
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span data-face className="relative flex shrink-0">
-          <Avatar size={24} src={author.picture} alt={author.name} />
+          <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
         </span>
         <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
         {timeHref ? (
@@ -195,7 +197,7 @@ function Editing({ author, children }: { author: ConversationPerson; children: R
   return (
     <div className="p-2">
       <div className="flex items-start gap-2">
-        <Avatar size={24} src={author.picture} alt={author.name} className="mt-1 shrink-0" />
+        <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>

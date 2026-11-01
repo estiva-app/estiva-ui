@@ -20,6 +20,8 @@ export interface AvatarGroupMember {
   name: string
   /** Resolved by the caller. Absent draws the initials. */
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 export interface AvatarGroupProps {
@@ -67,7 +69,7 @@ export function AvatarGroup({ members, size = 24, on = 'surface' }: AvatarGroupP
           {/* Each face says whose it is: a stack stands on its own, with no
               name beside it to borrow. It read as its initials before —
               "AD BC CD" — which is the drawing, not the person. */}
-          <Avatar size={size} name={member.name} src={member.picture} label={member.name} />
+          <Avatar size={size} name={member.name} src={member.picture} bot={member.bot} label={member.name} />
         </span>
       ))}
     </div>

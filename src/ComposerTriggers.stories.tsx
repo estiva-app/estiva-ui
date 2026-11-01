@@ -36,6 +36,8 @@ const PEOPLE: MentionPerson[] = ['one', 'two', 'three', 'four', 'five', 'six', '
   description: i % 2 === 0 ? 'Label' : undefined,
   pubkey: null,
 }))
+// An agent among them, second, so `@` shows its robot face at once.
+PEOPLE.splice(1, 0, { id: 'agent', name: 'Agent (steered by Person one)', description: 'Agent', pubkey: null, bot: true })
 
 const ITEMS: CaptionedItem[] = ['one', 'two', 'three'].map((n) => ({
   id: `item-${n}`,

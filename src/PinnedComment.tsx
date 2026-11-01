@@ -26,7 +26,7 @@ export function PinnedComment({ author, time, words, deleted = false }: PinnedCo
       ) : (
         <div className="flex flex-col p-2">
           <div className="flex items-center gap-2">
-            <Avatar size={24} src={author.picture} alt={author.name} />
+            <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
             <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
             <MetaText className="shrink-0">{time}</MetaText>
           </div>

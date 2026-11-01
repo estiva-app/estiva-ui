@@ -34,6 +34,8 @@ export interface LinkedStatus {
 export interface LinkedPerson {
   name: string
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 /** One choice a picker offers. */
@@ -44,6 +46,8 @@ export interface PickerOption {
   colour?: StatusColour
   /** A person's picture: the option draws their face. */
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
 }
 
 /**

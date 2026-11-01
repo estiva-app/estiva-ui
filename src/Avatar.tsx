@@ -6,6 +6,7 @@ import { cn } from './cn'
 /**
  * A person's face: their picture, or their initials on a colour that is
  * theirs, or — when there is no name to take initials from — a silhouette.
+ * An agent's is a robot on lime (`bot`), unless it has a picture.
  *
  * Peek's Avatar (2026-08-28), made self-contained: Peek's version found the
  * picture itself, by name, from Peek's data (an upload in Convex, else the
@@ -38,6 +39,9 @@ export const hueFor = (key: string) => {
   for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0
   return HUES[Math.abs(h) % HUES.length]
 }
+
+/** The tile's ground from its hue: lighter at the top left, darker at the foot. An agent's lime takes it too. */
+const groundFor = (hue: string) => `linear-gradient(160deg, color-mix(in srgb, ${hue} 92%, #fff) 0%, color-mix(in srgb, ${hue} 70%, #0b0d11) 100%)`
 
 /**
  * Peek's rule, sharpened: the first letter of the first two words — counting
@@ -72,10 +76,52 @@ export interface AvatarProps {
    * of a name, not text, and a screen reader was reading them as text.
    */
   label?: string
+  /**
+   * **An agent's face**: a robot in place of the initials, for a profile that says it is an agent (NIP-24's `bot`).
+   * Its picture still wins when it has one. Never worked out from the name: "steered by" is a name, not a marker.
+   */
+  bot?: boolean
   className?: string
 }
 
-export function Avatar({ src, name, alt = '', size = 36, label: spoken, className }: AvatarProps) {
+/**
+ * An agent's robot: Remix Icon's `robot-2-fill`, copied as its one path rather than a second icon package, because
+ * Tabler has no solid robot (Katerina, 1 November, from six drawings in four open sets).
+ * Remix Icon License v1.0, Copyright (c) 2017–2026 Remix Design: use in a product is allowed; not as a logo, and
+ * not resold as icons.
+ */
+const ROBOT_PATH =
+  'M13.5 2C13.5 2.44425 13.3069 2.84339 13 3.11805V5H18C19.6569 5 21 6.34315 21 8V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V8C3 6.34315 4.34315 5 6 5H11V3.11805C10.6931 2.84339 10.5 2.44425 10.5 2C10.5 1.17157 11.1716 0.5 12 0.5C12.8284 0.5 13.5 1.17157 13.5 2ZM0 10H2V16H0V10ZM24 10H22V16H24V10ZM9 14.5C9.82843 14.5 10.5 13.8284 10.5 13C10.5 12.1716 9.82843 11.5 9 11.5C8.17157 11.5 7.5 12.1716 7.5 13C7.5 13.8284 8.17157 14.5 9 14.5ZM16.5 13C16.5 12.1716 15.8284 11.5 15 11.5C14.1716 11.5 13.5 12.1716 13.5 13C13.5 13.8284 14.1716 14.5 15 14.5C15.8284 14.5 16.5 13.8284 16.5 13Z'
+
+/**
+ * An agent's colour: lime, the same in every theme and on the initials' light and shade (Katerina, 1 November). No
+ * person's hue is near it, so an agent never reads as a person, nor as the yellow urgent mark.
+ */
+const AGENT_HUE = '#d4ee4a'
+
+/** An agent's face: the robot, larger than the silhouette (5/8 of the tile), so it still reads at 16px. */
+function AgentFace({ size }: { size: number }) {
+  const glyph = Math.round(size * 0.625)
+  return (
+    <BaseAvatar.Fallback
+      render={<div />}
+      className="w-full h-full flex items-center justify-center"
+      style={{
+        /* eslint-disable no-restricted-syntax -- @estiva-escape: one colour in every theme, on the initials' light
+           and shade, and their ink: a palette, as HUES, so none of it can be a token. */
+        background: groundFor(AGENT_HUE),
+        color: '#08121c',
+        /* eslint-enable no-restricted-syntax */
+      }}
+    >
+      <svg width={glyph} height={glyph} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+        <path d={ROBOT_PATH} />
+      </svg>
+    </BaseAvatar.Fallback>
+  )
+}
+
+export function Avatar({ src, name, alt = '', size = 36, label: spoken, bot = false, className }: AvatarProps) {
   const label = name || alt
   // No picture handed in: the app's own, when it has said where pictures live (`AppProvider`).
   const pictureFor = usePictureFor()
@@ -107,7 +153,9 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
           className="w-full h-full object-cover data-[error]:hidden"
         />
       )}
-      {label ? (
+      {bot ? (
+        <AgentFace size={size} />
+      ) : label ? (
         <BaseAvatar.Fallback
           render={<div />}
           /*
@@ -133,7 +181,7 @@ export function Avatar({ src, name, alt = '', size = 36, label: spoken, classNam
             // ink cannot be a token either.
             color: '#08121c',
             fontSize: Math.round(size * 0.36),
-            background: `linear-gradient(160deg, color-mix(in srgb, ${hueFor(label)} 92%, #fff) 0%, color-mix(in srgb, ${hueFor(label)} 70%, #0b0d11) 100%)`,
+            background: groundFor(hueFor(label)),
             /* eslint-enable no-restricted-syntax */
           }}
         >

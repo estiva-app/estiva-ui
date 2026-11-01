@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.96.0",
+    "packageVersion": "0.97.0",
     "exports": 229,
     "typeExports": 234,
     "files": null
@@ -614,6 +614,12 @@
           "takes": "text",
           "required": false,
           "note": "Say the person's name out loud, for a face that stands on its own — `PersonTrigger`'s compact shape, a stack of members."
+        },
+        {
+          "name": "bot",
+          "takes": "true/false",
+          "required": false,
+          "note": "An agent's face: a robot in place of the initials, for a profile that says it is an agent (NIP-24's `bot`)."
         },
         {
           "name": "className",
@@ -7211,6 +7217,12 @@
           "note": null
         },
         {
+          "name": "bot",
+          "takes": "true/false",
+          "required": false,
+          "note": "An agent: its face is a robot, as Avatar's `bot`."
+        },
+        {
           "name": "fallback",
           "takes": "text",
           "required": false,
@@ -7309,6 +7321,12 @@
           "takes": "text",
           "required": false,
           "note": null
+        },
+        {
+          "name": "bot",
+          "takes": "true/false",
+          "required": false,
+          "note": "An agent: its face is a robot, as Avatar's `bot`."
         },
         {
           "name": "fallback",
@@ -8438,7 +8456,7 @@
         },
         {
           "name": "faces",
-          "takes": "readonly { name: string; picture?: string }[]",
+          "takes": "readonly { name: string; picture?: string; bot?: boolean }[]",
           "required": false,
           "note": "Who replied: their faces."
         },

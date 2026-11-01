@@ -20,19 +20,21 @@ import { Avatar } from './Avatar'
 export interface PersonProps {
   name?: string
   picture?: string
+  /** An agent: its face is a robot, as Avatar's `bot`. */
+  bot?: boolean
   /** Shown in place of a missing name. */
   fallback?: string
   size?: number
   className?: string
 }
 
-export function Person({ name, picture, fallback = '—', size = 20, className }: PersonProps) {
+export function Person({ name, picture, bot, fallback = '—', size = 20, className }: PersonProps) {
   return (
     // gap-2: the face-to-name distance is one rule (8px) wherever a person
     // appears — Katerina, 2026-09-01, set on Person so PersonTrigger and every
     // row agree by construction.
     <span className={cn('flex min-w-0 items-center gap-2', className)}>
-      <Avatar name={name} src={picture} size={size} />
+      <Avatar name={name} src={picture} bot={bot} size={size} />
       <span className={cn('truncate', !name && 'text-text-muted')}>{name ?? fallback}</span>
     </span>
   )
