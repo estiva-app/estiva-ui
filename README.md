@@ -236,7 +236,9 @@ An action appears only where it works. A control that cannot succeed right
 now is disabled *with its reason*, and a control someone may never use is
 absent, not disabled. `Button` and `IconButton` carry it as
 `disabledReason="Sign in first"`: disabled, still reachable by Tab, the
-reason shown as a tooltip. Never a button that fails.
+reason shown as a tooltip. A row of a menu too: `MenuItem`'s
+`disabledReason`, shut, reached by the arrow keys, the reason on hover.
+Never a button that fails.
 
 ## Themes
 
