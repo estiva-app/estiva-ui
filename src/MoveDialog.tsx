@@ -36,15 +36,18 @@ export interface MoveChoice {
  * chose.
  *
  * A file that nests under nothing (no `placesIn`) is asked only for the
- * Folder, and the one it is in is not offered. A Folder that could not be
- * read says so as the section's empty line does, with its Try again (B8).
+ * Folder, and the one it is in is not offered. One that is not in exactly one
+ * Folder passes `from` empty, and no Folder is held back: listed in none, or
+ * in two after a move that half-worked, where moving into either takes it out
+ * of the other and Move again is the retry (Ship's rule). A Folder that could
+ * not be read says so as the section's empty line does, with its Try again (B8).
  */
 export interface MoveDialogProps {
   /** The file's name, said above the choice. */
   title: string
   /** The sentence under the name, in the app's words: "Everyone who can read it now still can." */
   description: string
-  /** The Folder it is in now. */
+  /** The Folder it is in now, not offered to a file that nests under nothing. `''` when it is not in exactly one: then no Folder is held back. */
   from: string
   /** The Folders it may go to. Undefined while they are still read: the list says "Reading…". */
   folders: readonly MoveFolder[] | undefined

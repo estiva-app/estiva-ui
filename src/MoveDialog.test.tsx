@@ -201,3 +201,39 @@ describe('MoveDialog, the kit’s', () => {
     expect((screen.getByRole('button', { name: 'Cancel' }) as HTMLButtonElement).disabled).toBe(true)
   })
 })
+
+describe('MoveDialog, a file not listed in exactly one Folder (`from` empty; Ship’s move, 2 November)', () => {
+  const THIRD = { id: 'third', name: 'Third' }
+  const flat = { places: undefined, placesIn: undefined, from: '' }
+
+  it('holds no Folder back: listed in two after a move that half-worked, or in none, every Folder is offered', async () => {
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} />)
+    expect(await optionsOf('Folder')).toEqual(['Estiva HQ', 'Steer', 'Third'])
+  })
+
+  it('chooses nothing for the person even so: Move waits for a pick, or it opens on startIn', async () => {
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} />)
+    expect((screen.getByRole('button', { name: 'Move' }) as HTMLButtonElement).disabled).toBe(true)
+    cleanup()
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} startIn="third" />)
+    expect(screen.getByRole('combobox', { name: 'Folder' }).textContent).toContain('Third')
+  })
+
+  it('stays open on a refusal, and Move again is the retry, to the same Folder', async () => {
+    const onMove = vi.fn(async () => false)
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} onMove={onMove} />)
+    await pick('Folder', 'Steer')
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Move' }) as HTMLButtonElement).disabled).toBe(false))
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledTimes(2))
+    expect(onMove).toHaveBeenLastCalledWith({ folder: 'steer' })
+  })
+
+  it('listed in one again (`from` named), the one it is in is held back once more', async () => {
+    const { rerender } = render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} />)
+    rerender(<Fixture {...flat} from="hq" folders={[HQ, STEER, THIRD]} />)
+    expect(await optionsOf('Folder')).toEqual(['Steer', 'Third'])
+  })
+})
