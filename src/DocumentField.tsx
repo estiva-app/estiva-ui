@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type MouseEvent, type ReactNode } from 'react'
-import type { AnyExtension } from '@tiptap/core'
+import type { AnyExtension, Editor } from '@tiptap/core'
 import { EditorContent, useEditor, useEditorState, type JSONContent } from '@tiptap/react'
 import type { AttachmentViewProps, ReferenceViewProps } from './BlockNodes'
 import { cn } from './cn'
@@ -19,7 +19,7 @@ export interface DocumentFieldProps {
   format: string
   /** How the app's text and the editor's document turn into each other: `DocumentEditor`'s. */
   codec: DocumentCodec
-  /** Every edit, as it is typed: the text and its format, or `''` once it is emptied. Nothing is saved: the form around it sends. */
+  /** Every edit, as it is typed: the text and its format, or `''` once it is emptied or holds only spaces and blank lines. Nothing is saved: the form around it sends. */
   onChange: (value: string, contentFormat: string | undefined) => void
   /** The editor's accessible name: the label of the `Field` around it. */
   label: string
@@ -45,6 +45,16 @@ export interface DocumentFieldProps {
 
 const NONE: readonly AnyExtension[] = []
 const nothing = () => {}
+
+/** Nothing but spaces and blank lines: no word, and no link, card or picture (any part of it that is not text or a line break). */
+const isBlank = (editor: Editor) => {
+  let blank = true
+  editor.state.doc.descendants((node) => {
+    if (node.isText ? /\S/.test(node.text ?? '') : node.isLeaf && node.type.name !== 'hardBreak') blank = false
+    return blank
+  })
+  return blank
+}
 
 /**
  * A form's field that holds a document: a description written in the form that files it. The document editor's
@@ -131,8 +141,8 @@ export function DocumentField({
         },
       },
       onUpdate: ({ editor: ed }) => {
-        // Emptied, it holds nothing: `''`, so a required field is missing again.
-        const next = ed.isEmpty ? { value: '' } : latest.current.codec.write(ed.getJSON())
+        // Emptied, or only spaces and blank lines, it holds nothing: `''`, so a required field is missing again (Peek's ProseField).
+        const next = isBlank(ed) ? { value: '' } : latest.current.codec.write(ed.getJSON())
         inFlight.current.push(next.value)
         latest.current.onChange(next.value, next.contentFormat)
       },

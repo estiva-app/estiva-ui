@@ -121,7 +121,9 @@ that sends a form is sending.
   Peek's `ProseField`, moved, on the kit's grammar and the kit's field look.
   It reads the form through **`useFormBusy()`**, now exported from the main
   entry for the editor's bundle: the kit's own wiring, which an app never
-  needs.
+  needs. A document of nothing but spaces and blank lines is handed back as
+  `''` too, so a required field is missing, as Peek's `ProseField` had it; a
+  link or a picture among the spaces is something.
 - **`Card`'s `onPress`**: a card that opens what it stands for on a press —
   anywhere on it but on a button, link or field inside it, never on a menu it
   opened (outside it in the page), a double click or picked words — and from

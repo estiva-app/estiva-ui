@@ -106,6 +106,34 @@ describe('every edit goes back as it is typed', () => {
     })
     expect(onChange).toHaveBeenLastCalledWith('', undefined)
   })
+
+  it('holding only spaces or blank lines, it hands back nothing, so a required field is missing (Peek’s ProseField)', async () => {
+    const onChange = vi.fn<DocumentFieldProps['onChange']>()
+    render(<Described onChange={onChange} />)
+    await type('   ')
+    expect(onChange).toHaveBeenLastCalledWith('', undefined)
+    act(() => {
+      editorOf().commands.setContent(
+        { type: 'doc', content: [{ type: 'paragraph', content: [run('   ')] }, { type: 'paragraph' }, { type: 'paragraph', content: [run('  '), { type: 'hardBreak' }] }] },
+        { emitUpdate: true },
+      )
+    })
+    expect(editorOf().state.doc.childCount).toBe(3)
+    expect(onChange).toHaveBeenLastCalledWith('', undefined)
+    // The spaces stay where they were typed: only what is handed back is empty.
+    expect(editorOf().getText()).toMatch(/^\s+$/)
+    await type('Hello')
+    expect(onChange.mock.lastCall?.[0]).not.toBe('')
+  })
+
+  it('a link alone among spaces is something: it is handed back', async () => {
+    const onChange = vi.fn<DocumentFieldProps['onChange']>()
+    render(<Described onChange={onChange} />)
+    act(() => {
+      editorOf().chain().focus('end').insertContent([{ type: 'text', text: ' ' }, { type: 'reference', attrs: { uri: 'nostr:naddr1itemone' } }, { type: 'text', text: ' ' }]).run()
+    })
+    expect(onChange.mock.lastCall?.[0]).not.toBe('')
+  })
 })
 
 describe('a value from outside', () => {

@@ -47,7 +47,7 @@ import { DocumentField } from '@estiva-app/ui/editor'
 </Form>
 ```
 
-- It is the form's, controlled: every edit goes to `onChange` as it is typed, with the format it is in, and `''` once it is emptied, so a required field is missing again. Nothing is saved on leaving: the form sends.
+- It is the form's, controlled: every edit goes to `onChange` as it is typed, with the format it is in, and `''` once it is emptied or holds only spaces and blank lines, so a required field is missing again. Nothing is saved on leaving: the form sends.
 - `codec` and `format` are **DocumentEditor**'s: how your text and the editor's document turn into each other.
 - A new `value` from outside (a prefill, the form coming back) loads into it as the document it is. Its own edits coming back, late or not, are never loaded over newer typing.
 - Ctrl/Cmd+Enter sends the form around it; Enter is a new paragraph and Shift+Enter a line break.
@@ -61,7 +61,7 @@ It does these by itself. Write none of them around it.
 
 | It does | So you never write |
 |---|---|
-| Every edit handed back as it is typed; `''` when emptied | an update listener, a serializer call, an empty check |
+| Every edit handed back as it is typed; `''` when emptied, or only spaces and blank lines | an update listener, a serializer call, an empty check |
 | A value from outside loaded; its own edits, however late, never loaded over newer typing | a queue of edits in flight, a compare |
 | The field's box and its hover and focus, as a Textarea's | a box of your own around an editor |
 | The placeholder while it is empty | an overlay |
