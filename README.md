@@ -106,7 +106,7 @@ instead. There are seven — six block, one warns:
   A look written once as an exported `…_CLASSES` constant counts as a look too.
 - `estiva/no-field-outside-a-form` refuses a `Field`, `TextInput` or
   `Textarea` with no `Form` around it in its file (the palette's
-  `CommandPaletteForm` is one), and names `Form`: without it nothing owns
+  `CommandPaletteForm` is one, and `FormDialog`), and names `Form`: without it nothing owns
   sending the field. In a dialog that is `DialogShell` with a `Form`, never a
   field inside `ConfirmDialog`. `EditableText` and `SearchInput` pass; a
   component that draws fields for its caller's form says so with an escape.

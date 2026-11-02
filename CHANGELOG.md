@@ -147,6 +147,8 @@ that sends a form is sending.
   `ResolveDialog` waits so now; `ConfirmDialog` and Peek's Archive already did.
 - **`ResolveDialog` is a `FormDialog`**: a resolve that went through closes it
   (through `onCancel`), and Cancel waits while it resolves. It looks the same.
+- **`estiva/no-field-outside-a-form` counts `FormDialog` as a form**, as it
+  counts `Form` and `CommandPaletteForm`: a field drawn in one needs no escape.
 - **Every editor paints the words you select in the selected colour**
   (`bg-selected`): `CommentBox`, `DocumentEditor` and `InlineText`, as the
   selection strip's kept selection paints them. Peek painted it itself (its
