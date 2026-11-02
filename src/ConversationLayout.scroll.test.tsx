@@ -11,7 +11,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
-import { isNearBottom, NEAR_BOTTOM_PX, sendsInLayout, useLeftAt } from './conversationScroll'
+import { isNearBottom, NEAR_BOTTOM_PX, places, sendsInLayout, useLeftAt } from './conversationScroll'
 import { Thread } from './Thread'
 
 const ONE = { name: 'Person one' }
@@ -227,6 +227,22 @@ describe('useLeftAt: when the reader left a conversation, for its "New" line', (
     expect(screen.getByTestId('left').textContent).toBe('1800000060000')
     back.unmount()
     render(<LeftAt at="read-up" items={many(9)} boxRef={box} />)
+    expect(screen.getByTestId('left').textContent).toBe('none')
+  })
+
+  it('takes it again on the next visit when nothing was shown between, not the last visit’s', () => {
+    function Left({ at }: { at: string | null }) {
+      const left = useLeftAt(at)
+      return <output data-testid="left">{left === null ? 'none' : String(left)}</output>
+    }
+    places.set('between', { atBottom: false, offset: 10, leftAt: 111 })
+    const page = render(<Left at="between" />)
+    expect(screen.getByTestId('left').textContent).toBe('111')
+    page.rerender(<Left at={null} />)
+    expect(screen.getByTestId('left').textContent).toBe('none')
+    // Meanwhile the reader read it to the newest and left it there.
+    places.set('between', { atBottom: true, offset: 900, leftAt: 222 })
+    page.rerender(<Left at="between" />)
     expect(screen.getByTestId('left').textContent).toBe('none')
   })
 })

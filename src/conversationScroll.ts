@@ -131,6 +131,8 @@ export const places = new Map<string, { atBottom: boolean; offset: number; ancho
  */
 export function useLeftAt(key: string | null | undefined): number | null {
   const [taken, setTaken] = useState<{ key: string; at: number | null }>()
+  // Nothing shown: the visit is over, and the next one, to the same conversation too, takes it again.
+  if (!key && taken) setTaken(undefined)
   if (key && taken?.key !== key) {
     const left = places.get(key)
     const at = left && !left.atBottom ? left.leftAt : null
