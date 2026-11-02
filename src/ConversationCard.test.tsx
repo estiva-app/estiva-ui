@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConversationCard, ReplyCard } from './ConversationCard'
+import { PinnedComment } from './PinnedComment'
 
 afterEach(cleanup)
 
@@ -241,6 +242,24 @@ describe('ConversationCard and ReplyCard, the exact time', () => {
     )
     await user.hover(screen.getByRole('link', { name: '11:08 AM' }))
     expect((await screen.findByRole('tooltip')).textContent).toBe(`${exact} · Link to this one`)
+  })
+
+  it('a moment that is not one (not a number, endless) draws the time as with none, and breaks nothing', () => {
+    for (const at of [NaN, Infinity]) {
+      render(
+        <>
+          <ConversationCard author={ONE} time="11:08 AM" at={at}>
+            A comment
+          </ConversationCard>
+          <ReplyCard author={ONE} time="11:30 AM" at={at}>
+            A reply
+          </ReplyCard>
+          <PinnedComment author={ONE} time="Today at 11:08 AM" at={at} words="The comment" />
+        </>,
+      )
+      for (const time of ['11:08 AM', '11:30 AM', 'Today at 11:08 AM']) expect(screen.getByText(time).tagName).not.toBe('TIME')
+      cleanup()
+    }
   })
 
   it('with no moment, the time is the app’s words alone, as before', async () => {

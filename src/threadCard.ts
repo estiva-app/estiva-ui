@@ -43,6 +43,9 @@ export const LineByLayout = createContext(false)
  */
 export const exactTime = (at: number) => new Date(at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })
 
+/** A comment's moment when it is one, else none: a moment that is not a number (a bad date read) draws the time as with none, rather than throwing. */
+export const momentOf = (at: number | undefined) => (at !== undefined && Number.isFinite(at) ? at : undefined)
+
 /**
  * The flash on a comment or reply a link just showed (`data-shown`, set by `showInConversation`): the accent's wash,
  * fading over 1.8s, in 8px corners; held still, without the fade, for a reader who asks for less motion. Peek's

@@ -3,7 +3,7 @@ import { Avatar } from './Avatar'
 import { Card } from './Card'
 import type { ConversationPerson } from './ConversationCard'
 import { MetaText } from './MetaText'
-import { exactTime } from './threadCard'
+import { exactTime, momentOf } from './threadCard'
 import { WithTooltip } from './Tooltip'
 
 export interface PinnedCommentProps {
@@ -22,7 +22,8 @@ export interface PinnedCommentProps {
  * The comment a thread answers, pinned at the top of the replies column: who, when, and its first line, on a raised
  * card. Peek's pinned message, moved with the conversation.
  */
-export function PinnedComment({ author, time, at, words, deleted = false }: PinnedCommentProps) {
+export function PinnedComment({ author, time, at: given, words, deleted = false }: PinnedCommentProps) {
+  const at = momentOf(given)
   return (
     <Card fill="elevated" clip>
       {deleted ? (

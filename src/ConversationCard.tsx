@@ -14,7 +14,7 @@ import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
-import { exactTime, InConversationItem, InThreadCard, SHOWN_CLASSES, useFaceLine } from './threadCard'
+import { exactTime, InConversationItem, InThreadCard, momentOf, SHOWN_CLASSES, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -123,7 +123,8 @@ export interface ReplyCardProps extends ConversationEntryProps {
  * rows of another app's comments always said it, now on every comment and reply). A time that is a link says the exact
  * time, then where the link goes.
  */
-function When({ time, at, timeHref, timeLabel = 'Link to this' }: Pick<ConversationEntryProps, 'time' | 'at' | 'timeHref' | 'timeLabel'>) {
+function When({ time, at: given, timeHref, timeLabel = 'Link to this' }: Pick<ConversationEntryProps, 'time' | 'at' | 'timeHref' | 'timeLabel'>) {
+  const at = momentOf(given)
   const exact = at === undefined ? undefined : exactTime(at)
   const said = at === undefined ? time : <time dateTime={new Date(at).toISOString()}>{time}</time>
   if (timeHref) {
