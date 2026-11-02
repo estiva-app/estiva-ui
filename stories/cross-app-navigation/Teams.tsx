@@ -1,6 +1,9 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import {
   IconCheck,
+  IconCircle,
+  IconCircleDashed,
+  IconCircleDashedPlus,
   IconDotsVertical,
   IconLayoutDashboard,
   IconLock,
@@ -312,11 +315,21 @@ function IconUsersSolid() {
   )
 }
 
-/** One people icon, drawn by how you follow (Miky, 2 Nov): outline Important, solid All, a plus when not following. */
-function LevelIcon({ level }: { level: Level | undefined }) {
-  if (level === 'all') return <IconUsersSolid />
-  if (level === 'important') return <IconUsers {...icon16} aria-hidden />
-  return <IconUsersPlus {...icon16} aria-hidden className="text-text-muted" />
+/**
+ * One icon per place, drawn by how you follow (Miky, 2 Nov). A team's chat is
+ * the team, so people: outline Important, solid All, a plus when not following.
+ * Spaces and topics keep the circles: dashed Important, full All, dashed with a
+ * plus when not following.
+ */
+function LevelIcon({ level, team = false }: { level: Level | undefined; team?: boolean }) {
+  if (team) {
+    if (level === 'all') return <IconUsersSolid />
+    if (level === 'important') return <IconUsers {...icon16} aria-hidden />
+    return <IconUsersPlus {...icon16} aria-hidden className="text-text-muted" />
+  }
+  if (level === 'all') return <IconCircle {...icon16} aria-hidden />
+  if (level === 'important') return <IconCircleDashed {...icon16} aria-hidden />
+  return <IconCircleDashedPlus {...icon16} aria-hidden className="text-text-muted" />
 }
 
 /** The one switch on a place: Not following, Important or All, and back to the team's default when one applies. */
@@ -326,6 +339,7 @@ function FollowSwitch({ place }: { place: Place }) {
   const choice = w.choices[viewer]?.[place.id]
   const given = teamDefault(w, viewer, place)
   const team = teamIn(w, place.team)
+  const chat = place.kind === 'chat'
   const item = (c: Choice, label: string, what: string, icon: ReactNode) => {
     const on = c === 'off' ? !level : level === c
     return <MenuItem leading={icon} label={label} description={what} selected={on} trailing={on ? <IconCheck {...icon16} /> : undefined} onClick={() => act.choose(place.id, c)} />
@@ -338,14 +352,14 @@ function FollowSwitch({ place }: { place: Place }) {
           aria-label={`${level ? `You follow ${LEVEL_WORDS[level].label}` : 'Not following'}: change how you follow ${place.title}`}
           className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary hover:bg-bg-hover hover:text-text-primary"
         >
-          <LevelIcon level={level} />
+          <LevelIcon level={level} team={chat} />
         </button>
       }
     >
       <MenuSection label="How you follow it">
-        {item('off', 'Not following', place.kind === 'topic' ? 'You are not in it; it stays listed in its team' : 'Nothing here lights for you', <LevelIcon level={undefined} />)}
-        {item('important', LEVEL_WORDS.important.label, LEVEL_WORDS.important.what, <LevelIcon level="important" />)}
-        {item('all', LEVEL_WORDS.all.label, LEVEL_WORDS.all.what, <LevelIcon level="all" />)}
+        {item('off', 'Not following', place.kind === 'topic' ? 'You are not in it; it stays listed in its team' : 'Nothing here lights for you', <LevelIcon level={undefined} team={chat} />)}
+        {item('important', LEVEL_WORDS.important.label, LEVEL_WORDS.important.what, <LevelIcon level="important" team={chat} />)}
+        {item('all', LEVEL_WORDS.all.label, LEVEL_WORDS.all.what, <LevelIcon level="all" team={chat} />)}
       </MenuSection>
       {given && choice && (
         <MenuSection label={`${team.name} gives you Important`}>
@@ -356,10 +370,10 @@ function FollowSwitch({ place }: { place: Place }) {
   )
 }
 
-/** A place's icon in a list says how you follow it, chat, space and topic alike. */
+/** A place's icon in a list says how you follow it: people for a team's chat, circles for the rest. */
 function PlaceIcon({ place }: { place: Place }) {
   const { w, viewer } = useWorld()
-  return <LevelIcon level={levelOf(w, viewer, place)} />
+  return <LevelIcon level={levelOf(w, viewer, place)} team={place.kind === 'chat'} />
 }
 
 /** A place is called by its title alone: no # (Miky, 2 Nov). */
@@ -397,25 +411,33 @@ function listedOn(w: World, viewer: PersonId, place: Place): Listed[] {
 
 const nameOf = (p: PersonId, viewer: PersonId) => (p === viewer ? `${PEOPLE[p].name} (you)` : PEOPLE[p].name)
 
-function PersonRow({ who, viewer, caption }: { who: PersonId; viewer: PersonId; caption?: string }) {
+function PersonRow({ who, viewer, caption, trailing }: { who: PersonId; viewer: PersonId; caption?: string; trailing?: ReactNode }) {
   return (
     <div className="flex items-center gap-3 px-1 py-1.5">
       <Avatar name={PEOPLE[who].name} size={28} />
-      <div className="flex min-w-0 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center gap-2 text-body-2 text-text-primary">
           {nameOf(who, viewer)}
           {isAgent(who) && <Chip label="Agent" leadingIcon={<IconRobot size={12} stroke={1.5} />} />}
         </span>
         {caption && <span className="text-caption text-text-muted">{caption}</span>}
       </div>
+      {trailing}
     </div>
   )
 }
 
+/**
+ * Who follows a place, and where you add someone: there is no Add button of its
+ * own (Miky, 2 Nov); the avatars and ⋮ → Add someone both open this. Add puts
+ * the person in at Important; their own choice still wins, and they leave with
+ * the same switch.
+ */
 function WhoFollowsDialog({ place, onClose }: { place: Place; onClose: () => void }) {
-  const { w, viewer } = useWorld()
+  const { w, viewer, act } = useWorld()
   const listed = listedOn(w, viewer, place)
   const team = teamIn(w, place.team)
+  const out = place.kind === 'chat' ? [] : (Object.keys(PEOPLE) as PersonId[]).filter((p) => p !== viewer && !levelOf(w, p, place))
   const group = (level: Level) => {
     const rows = listed.filter((l) => l.level === level)
     return (
@@ -430,26 +452,27 @@ function WhoFollowsDialog({ place, onClose }: { place: Place; onClose: () => voi
       <div className="flex flex-col">
         {group('all')}
         {group('important')}
+        {out.length > 0 && (
+          <div className="flex flex-col pb-3">
+            <SectionLabel tone="muted">Add someone</SectionLabel>
+            {out.map((p) => (
+              <PersonRow
+                key={p}
+                who={p}
+                viewer={viewer}
+                caption="Joins at Important; they can leave"
+                trailing={
+                  <Button variant="muted" size="small" leadingIcon={<IconUserPlus {...icon16} />} onClick={() => act.add(place.id, p)} aria-label={`Add ${PEOPLE[p].name}`}>
+                    Add
+                  </Button>
+                }
+              />
+            ))}
+          </div>
+        )}
         {place.kind !== 'chat' && <p className="text-caption text-text-muted">{`People who follow ${team.name} without being in it are not named until they choose a level here.`}</p>}
       </div>
     </DialogShell>
-  )
-}
-
-/** Add on a place: puts the person in it at Important. Their own choice still wins; they leave with the same switch. */
-function AddMenu({ place }: { place: Place }) {
-  const { w, viewer, act } = useWorld()
-  const out = (Object.keys(PEOPLE) as PersonId[]).filter((p) => p !== viewer && !levelOf(w, p, place))
-  return (
-    <Menu align="right" trigger={<Button variant="muted" size="small" leadingIcon={<IconUserPlus {...icon16} />}>Add</Button>}>
-      <MenuSection label={`Add to ${placeLabel(place)}`}>
-        {out.length === 0 ? (
-          <MenuItem label="Everyone is in" description="Someone who left can be added back" disabled />
-        ) : (
-          out.map((p) => <MenuItem key={p} leading={<Avatar name={PEOPLE[p].name} size={20} />} label={PEOPLE[p].name} description="Joins at Important; they can leave" onClick={() => act.add(place.id, p)} />)
-        )}
-      </MenuSection>
-    </Menu>
   )
 }
 
@@ -638,7 +661,6 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
                 {listed.length}
               </span>
             </Button>
-            {place.kind !== 'chat' && <AddMenu place={place} />}
             {place.kind !== 'chat' && (
               <Menu
                 align="right"
@@ -648,6 +670,7 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
                   </IconButton>
                 }
               >
+                <MenuItem label="Add someone…" onClick={() => setDialog('who')} />
                 <MenuItem label="Move to another team…" onClick={() => setDialog('move')} />
                 {member &&
                   (place.kind === 'space' ? (

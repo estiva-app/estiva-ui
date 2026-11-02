@@ -4,8 +4,9 @@ import { Teams } from './Teams'
 /**
  * PROTOTYPE (concept/cross-app-navigation): Teams and following, from Miky's
  * answers of 2 November. A team's chat, its spaces and the topics it leads;
- * its members, with agents apart; the one switch before a place's title, one
- * people icon drawn three ways (Not following, Important outline, All solid); Add; who follows a place; and the Move dialog's
+ * its members, with agents apart; the one switch before a place's title, its
+ * only icon, drawn three ways (Not following, Important, All): people for a
+ * team's chat, circles for spaces and topics; Add; who follows a place; and the Move dialog's
  * "Keep it a space". Switch who you are from the person menu, top right; the
  * bar under a conversation says something as someone else, to see what lights.
  */
