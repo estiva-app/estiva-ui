@@ -406,6 +406,27 @@ describe('MenuItem, shown but shut, saying why (disabledReason; Ship, 2 November
     expect((await screen.findByRole('tooltip')).textContent).toBe('Archived with its project: unarchive the project.')
   })
 
+  it('never takes the fill, under the pointer or the arrow keys (Katerina, 2 November); an open row keeps it', async () => {
+    const user = userEvent.setup()
+    render(<Shut onClick={() => {}} />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    const fills = (row: HTMLElement) => row.className.split(/\s+/).filter((c) => c.endsWith('bg-bg-hover'))
+    const shut = await screen.findByRole('menuitem', { name: 'Archive' })
+    expect(fills(shut)).toEqual([])
+    expect(fills(screen.getByRole('menuitem', { name: 'Rename' })).length).toBeGreaterThan(0)
+    await user.hover(shut)
+    expect(fills(shut)).toEqual([])
+  })
+
+  it('on a bare MenuPanel, no fill either', () => {
+    render(
+      <MenuPanel>
+        <MenuItem label="Archive" disabledReason="Archived with its project." onClick={() => {}} />
+      </MenuPanel>,
+    )
+    expect(screen.getByRole('button', { name: 'Archive' }).className.split(/\s+/).filter((c) => c.endsWith('bg-bg-hover'))).toEqual([])
+  })
+
   it('on a bare MenuPanel too: shut, and a press runs nothing', async () => {
     const user = userEvent.setup()
     const onClick = vi.fn()

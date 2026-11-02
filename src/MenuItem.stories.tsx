@@ -100,7 +100,7 @@ export const Destructive: Story = {
   args: { label: 'Delete', destructive: true, leading: <IconTrash size={16} stroke={1.5} className="text-error-default" /> },
 }
 
-/** Shown but shut, with why: its words and its icon in the disabled colour, and the reason under the pointer. The story points at it. */
+/** Shown but shut, with why: its words and its icon in the disabled colour, no fill, and the reason under the pointer. The story points at it. */
 export const Shut: Story = {
   name: 'Shut, saying why',
   args: {

@@ -386,8 +386,8 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   /** The row the menu currently points at (a submenu's chosen value). */
   selected?: boolean
   /**
-   * Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, and says why under the pointer
-   * and when the arrow keys reach it, as `Button`'s does. A press runs nothing and the menu stays open.
+   * Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, with no fill, and says why under
+   * the pointer and when the arrow keys reach it, as `Button`'s does. A press runs nothing and the menu stays open.
    */
   disabledReason?: string
 }
@@ -420,7 +420,9 @@ export function menuItemClassName({ size, selected, shut = false, className }: {
     // hint flickering in and out. Both are instant now: they still change
     // on exactly the same :hover, so they cannot come apart, and a row
     // lights and unlights crisply as the pointer crosses it.
-    'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
+    'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none',
+    // The fill under the pointer and the arrow keys: never on a shut row (Katerina, 2 November), whose reason shows instead.
+    !shut && 'hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
     // Both sizes are as tall as their content and never shorter than a
     // floor: 36px for a default row (Katerina, 2026-09-11), 40px for a
     // tall one (Katerina, 2026-09-01). A single-line action row sits at
@@ -431,7 +433,7 @@ export function menuItemClassName({ size, selected, shut = false, className }: {
     size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'min-h-9 gap-2 px-2 py-1.5',
     selected && 'bg-bg-hover',
     // Shut, with its reason: the arrow, not the hand, and its icon in the disabled colour as its words are, as a
-    // disabled IconButton draws its own. It keeps the fill where the pointer or the arrow keys are: its reason hangs there.
+    // disabled IconButton draws its own. No fill under the pointer or the arrow keys: its reason is what shows there.
     shut && 'cursor-default [&_svg]:text-text-disabled',
     className,
   )
