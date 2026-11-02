@@ -348,6 +348,48 @@ describe('NavTree opens onto the group a link led to', () => {
     window.localStorage.removeItem('test.tree.g2')
   })
 
+  it('a group a link led to that was open already is remembered open too, as a click would: it stays open when the reader goes on to a row in another group', () => {
+    try {
+      const OPEN_G2 = [SHUT[0], { ...SHUT[1], defaultOpen: true }]
+      const link = render(<NavTree groups={OPEN_G2} selectedGroup="g2" storageKey="test.linked" />)
+      expect(hidden('Item e')).toBe(false)
+      expect(window.localStorage.getItem('test.linked.g2')).toBe('open')
+      link.unmount()
+      render(<NavTree groups={SHUT} selected="a" storageKey="test.linked" />)
+      expect(hidden('Item e')).toBe(false)
+    } finally {
+      window.localStorage.removeItem('test.linked.g2')
+    }
+  })
+
+  it('a group the app draws and holds, open already, is told to open by the link, so the app remembers it as a click', () => {
+    const onOpenChange = vi.fn()
+    render(
+      <NavTree selectedGroup="mine">
+        <NavTreeSection id="mine" title="Mine" open onOpenChange={onOpenChange}>
+          <a href="#m">Item m</a>
+        </NavTreeSection>
+        <NavTreeSection id="other" title="Other" open onOpenChange={onOpenChange}>
+          <a href="#o">Item o</a>
+        </NavTreeSection>
+      </NavTree>,
+    )
+    expect(onOpenChange.mock.calls).toEqual([[true]])
+  })
+
+  it('a group open only because its current row is in it is not written down: it closes again once the row goes', () => {
+    try {
+      const first = render(<NavTree groups={SHUT} selected="e" storageKey="test.passing" />)
+      expect(hidden('Item e')).toBe(false)
+      expect(window.localStorage.getItem('test.passing.g2')).toBeNull()
+      first.unmount()
+      render(<NavTree groups={SHUT} selected="a" storageKey="test.passing" />)
+      expect(hidden('Item e')).toBe(true)
+    } finally {
+      window.localStorage.removeItem('test.passing.g2')
+    }
+  })
+
   it('marks nothing, and opens no other group', () => {
     render(<NavTree groups={SHUT} selectedGroup="g2" />)
     expect(document.querySelector('[aria-current]')).toBeNull()

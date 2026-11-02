@@ -31,7 +31,11 @@ rows to any depth.
   when the tree is drawn.
 - `selectedGroup` is the group a link led to — a folder's own link: each
   time it names a new group, the group opens, closed by hand too, and the
-  column scrolls to it at once. Once per arrival, and it marks nothing.
+  column scrolls to it at once. Once per arrival, and it marks nothing. It is
+  remembered open as a click would be, open already or not, so it stays open
+  when the reader goes on to a row in another group. A group open only
+  because the current row is in it is never written down: it closes again
+  once the row goes.
 
 <Canvas of={NavTreeStories.InANewTab} />
 
@@ -141,10 +145,10 @@ import { NavTree, Sidebar } from '@estiva-app/ui'
   (**CollapsibleSection**'s page).
 - Groups the app draws itself open for the current row through `openFor` on
   each **NavTreeSection** and **NavItem** that holds it; the scroll is the
-  tree's either way, given `selected`. The same for a group a link led to:
-  its **NavTreeSection** takes `openFor` (its own id, while it is
-  `selectedGroup`), and the tree scrolls to it, given `selectedGroup` and the
-  section's `id`.
+  tree's either way, given `selected`. A group a link led to needs nothing
+  more than its **NavTreeSection**'s `id`: given `selectedGroup`, the tree
+  opens it, remembers it open (through `onOpenChange` when you hold it) and
+  scrolls to it.
 - The words in `emptyMessage` are the caller's.
 
 ## What it owns

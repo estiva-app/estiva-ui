@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
-import { CollapsibleSection } from './CollapsibleSection'
+import { createContext, useContext, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { CollapsibleSection, sectionLinked } from './CollapsibleSection'
 import { EmptyState } from './EmptyState'
 import { NavItem } from './NavItem'
 import { SectionHeader, type SectionAction } from './SectionHeader'
@@ -100,9 +100,11 @@ export interface NavTreeProps {
   /**
    * The group a link led to — a folder's own link: each time it names a new
    * group, the group opens, as `selected` opens a row's — closed by hand too,
-   * once, remembered open as a click would be — and the column scrolls to it
-   * at once. It marks nothing. Groups the app draws itself take `openFor` (the
-   * group's id, while it is this) for the opening; the scroll is the tree's.
+   * once — and is remembered open as a click would be, open already or not,
+   * so it stays open when the reader goes on to a row in another group; and
+   * the column scrolls to it at once. It marks nothing. A group the app draws
+   * itself is found by its `id`, and opened the same way: told through
+   * `onOpenChange` when the app holds it.
    */
   selectedGroup?: string
   /** A row was clicked. A router app prevents the default and navigates. */
@@ -180,6 +182,9 @@ function Line({ message }: { message: string }) {
 
 type Drawn = Pick<NavTreeProps, 'selected' | 'onSelect'> & { opening: Opening | null }
 
+/** Set by a NavTree round its groups, its own and the app's: the group a link led to (`selectedGroup`), found by its `id`. */
+const groupLinked = createContext<string | undefined>(undefined)
+
 /** The group `selectedGroup` names, drawn and shown: its box, or nothing yet. */
 function groupBox(box: HTMLElement | null, id: string): HTMLElement | undefined {
   const group = [...(box?.querySelectorAll<HTMLElement>('[data-nav-group]') ?? [])].find((one) => one.dataset.navGroup === id)
@@ -218,7 +223,7 @@ function Row({ node, selected, onSelect, opening }: { node: NavTreeNode } & Draw
   )
 }
 
-function Group({ group, selected, selectedGroup, onSelect, opening, storageKey }: { group: NavTreeGroup } & Drawn & Pick<NavTreeProps, 'selectedGroup' | 'storageKey'>) {
+function Group({ group, selected, onSelect, opening, storageKey }: { group: NavTreeGroup } & Drawn & Pick<NavTreeProps, 'storageKey'>) {
   return (
     <NavTreeSection
       id={group.id}
@@ -233,7 +238,7 @@ function Group({ group, selected, selectedGroup, onSelect, opening, storageKey }
       open={group.open}
       onOpenChange={group.onOpenChange}
       storageKey={storageKey ? `${storageKey}.${group.id}` : undefined}
-      openFor={opening?.group === group.id ? opening.item : selectedGroup === group.id ? group.id : undefined}
+      openFor={opening?.group === group.id ? opening.item : undefined}
       onIntent={group.onIntent}
     >
       {group.nodes?.map((node) => <Row key={node.id} node={node} selected={selected} onSelect={onSelect} opening={opening} />)}
@@ -243,7 +248,7 @@ function Group({ group, selected, selectedGroup, onSelect, opening, storageKey }
 
 export interface NavTreeSectionProps {
   title: string
-  /** Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup`, and tests and photo runs do. */
+  /** Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup` (opens it, remembers it open, scrolls to it), and tests and photo runs do. */
   id?: string
   /** Said in the rows' place, level with them. The caller's words. */
   message?: string
@@ -298,6 +303,9 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
     return () => clearTimeout(wait)
   }, [pending])
   const intent = onIntent
+  // The group a link led to: opened and remembered open, as a click would, even when it was open already.
+  const linkedTo = useContext(groupLinked)
+  const linked = id !== undefined && linkedTo === id ? id : undefined
   return (
     <div
       // 4px between groups, none above the first: a folded group's heading
@@ -314,25 +322,28 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
       onPointerLeave={intent ? () => clearTimeout(timer.current) : undefined}
       onFocus={intent}
     >
-      <CollapsibleSection
-        title={title}
-        indent
-        defaultOpen={defaultOpen}
-        open={open}
-        onOpenChange={onOpenChange}
-        pending={pending && !slow}
-        storageKey={storageKey}
-        openFor={openFor}
-        trailing={trailing}
-        actions={actions}
-        menu={menu}
-        icon={icon}
-        className="shrink-0"
-        // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
-        contentClassName="gap-0.5"
-      >
-        {message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}
-      </CollapsibleSection>
+      <sectionLinked.Provider value={linked}>
+        <CollapsibleSection
+          title={title}
+          indent
+          defaultOpen={defaultOpen}
+          open={open}
+          onOpenChange={onOpenChange}
+          pending={pending && !slow}
+          storageKey={storageKey}
+          openFor={openFor}
+          trailing={trailing}
+          actions={actions}
+          menu={menu}
+          icon={icon}
+          className="shrink-0"
+          // 2px between rows, as a list column's and a menu's (Katerina, 5 October).
+          contentClassName="gap-0.5"
+        >
+          {/* The link is this section's alone: nothing folding inside its rows takes it. */}
+          <sectionLinked.Provider value={undefined}>{message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}</sectionLinked.Provider>
+        </CollapsibleSection>
+      </sectionLinked.Provider>
     </div>
   )
 }
@@ -388,17 +399,19 @@ export function NavTree({ title, titleActions, groups, children, selected, selec
   return (
     // `contents`: a box to find the current row in, that lays nothing out — the groups stay the column's own.
     <div ref={box} className="contents">
-      {title && <SectionHeader title={title} look="quiet" showActions="always" actions={titleActions} className="mt-4 shrink-0" />}
-      {groups === undefined ? (
-        children
-      ) : groups === null ? (
-        <SkeletonList rows={5} />
-      ) : groups.length === 0 ? (
-        // No words, no line: an app that says nothing when it has no groups.
-        emptyMessage ? <Line message={emptyMessage} /> : null
-      ) : (
-        groups.map((group) => <Group key={group.id} group={group} selected={selected} selectedGroup={selectedGroup} onSelect={onSelect} opening={opening} storageKey={storageKey} />)
-      )}
+      <groupLinked.Provider value={selectedGroup}>
+        {title && <SectionHeader title={title} look="quiet" showActions="always" actions={titleActions} className="mt-4 shrink-0" />}
+        {groups === undefined ? (
+          children
+        ) : groups === null ? (
+          <SkeletonList rows={5} />
+        ) : groups.length === 0 ? (
+          // No words, no line: an app that says nothing when it has no groups.
+          emptyMessage ? <Line message={emptyMessage} /> : null
+        ) : (
+          groups.map((group) => <Group key={group.id} group={group} selected={selected} onSelect={onSelect} opening={opening} storageKey={storageKey} />)
+        )}
+      </groupLinked.Provider>
     </div>
   )
 }

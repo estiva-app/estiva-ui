@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from './cn'
 import { SectionHeader, type SectionAction } from './SectionHeader'
@@ -48,7 +48,8 @@ export interface CollapsibleSectionProps {
    * The current item, when it sits in here: the section opens each time this
    * names a new one, as a click would — remembered under `storageKey`, told to
    * `onOpenChange`. Closed again by hand, it stays closed until another item
-   * opens. `NavTree` passes it.
+   * opens. Open already, by its default, it is left as it is: a default is
+   * never written down. `NavTree` passes it.
    */
   openFor?: string
   /** 16px, before the title; the arrow takes its place on hover — `SectionHeader`'s. */
@@ -90,16 +91,33 @@ const CLOSED = 'closed'
  * would, each time it names a new item. An effect, not a render: opening tells
  * the caller (`onOpenChange`), and a parent is never set while a child draws.
  * Gone and back — the item opened, another elsewhere, then it again — is new.
+ *
+ * Only a shut one is opened: one open by its default stays a default, never
+ * written down, so it closes again once the item goes. `link` is different: a
+ * link to the section itself (`NavTree`'s `selectedGroup`), each new one
+ * opening it as a click would, open already or not — remembered open, told to
+ * the caller — so it stays open when the reader goes on elsewhere.
  */
-export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: (open: boolean) => void) {
+export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: (open: boolean) => void, link?: string) {
   const seen = useRef<string | undefined>(undefined)
+  const linked = useRef<string | undefined>(undefined)
   useEffect(() => {
-    if (openFor === seen.current) return
+    const newItem = openFor !== seen.current
+    const newLink = link !== linked.current
     seen.current = openFor
-    if (openFor !== undefined && !open) setOpen(true)
-    // Only a new item opens it: the reader's own toggles in between are theirs.
-  }, [openFor])
+    linked.current = link
+    if (newLink && link !== undefined) setOpen(true)
+    else if (newItem && openFor !== undefined && !open) setOpen(true)
+    // Only a new item or a new link opens it: the reader's own toggles in between are theirs.
+  }, [openFor, link])
 }
+
+/**
+ * Set by a `NavTreeSection` round its section while `NavTree`'s `selectedGroup`
+ * names it: the link that led to it, which opens it and is remembered (`useOpenFor`'s
+ * `link`). The kit's wiring between the two, not for an app.
+ */
+export const sectionLinked = createContext<string | undefined>(undefined)
 
 function readStored(key: string | undefined): boolean | null {
   if (!key) return null
@@ -149,7 +167,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
     remember(next)
     onOpenChange?.(next)
   }
-  useOpenFor(openFor, open, setOpen)
+  useOpenFor(openFor, open, setOpen, useContext(sectionLinked))
   // Pending, Base UI holds the panel shut and so would open it on a click: the click is the title's, and the title says open.
   // Only a click: find-in-page reaching into the shut panel asks to open it, and it is open.
   const shown = open && !pending
