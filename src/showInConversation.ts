@@ -20,6 +20,12 @@ const POLL_MS = 50
  */
 const owed = new WeakMap<HTMLElement, number>()
 
+/**
+ * Counts the shows asked for. Each wait keeps the count it started at, and stops once a newer show is asked for: a
+ * link pressed while an earlier one still waits is the one that lands, and the earlier never takes the view back.
+ */
+let asked = 0
+
 export interface ShowOptions {
   /** Look in the comments of a `ConversationLayout` too, after the open thread's pinned comment and replies. */
   comments?: boolean
@@ -44,6 +50,12 @@ function find(id: string, { comments = false }: ShowOptions): HTMLElement | null
  * nothing, so the caller says it, or opens its thread and waits with `showInConversationWhenDrawn`.
  */
 export function showInConversation(id: string, options: ShowOptions = {}): boolean {
+  asked += 1
+  return show(id, options)
+}
+
+/** The show itself, for a show already counted: a wait's every look is one show, not a newer one. */
+function show(id: string, options: ShowOptions): boolean {
   const el = find(id, options)
   if (!el) return false
   el.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -63,13 +75,16 @@ export function showInConversation(id: string, options: ShowOptions = {}): boole
 /**
  * The same, for one that may not be drawn yet: its thread was just asked to open, and the page draws it a moment
  * later. Looks every 50ms, for 3 seconds (`wait`), and answers whether it was shown: `false` must be said, since
- * waiting forever and never working look the same to the person who pressed.
+ * waiting forever and never working look the same to the person who pressed. A newer show, of any comment, stops the
+ * wait (`false` too): the reader's last link is the one that lands.
  */
 export function showInConversationWhenDrawn(id: string, { wait = WAIT_MS, ...options }: ShowWhenDrawnOptions = {}): Promise<boolean> {
+  const mine = ++asked
   return new Promise((resolve) => {
     const deadline = Date.now() + wait
     const attempt = () => {
-      if (showInConversation(id, options)) return resolve(true)
+      if (mine !== asked) return resolve(false)
+      if (show(id, options)) return resolve(true)
       if (Date.now() >= deadline) return resolve(false)
       window.setTimeout(attempt, POLL_MS)
     }

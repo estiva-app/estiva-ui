@@ -108,6 +108,26 @@ describe('showInConversationWhenDrawn (INT-8)', () => {
     expect(answer).toBe(false)
   })
 
+  it('a newer show stops an older wait: the reader’s last link is the one that lands', async () => {
+    // A link to one not drawn yet, then a link to one that is: the first, drawn later, must not take the view back.
+    const first = showInConversationWhenDrawn('r-late')
+    expect(showInConversation('r1')).toBe(true)
+    document.body.insertAdjacentHTML('beforeend', '<div data-reply-id="r-late">late</div>')
+    await vi.advanceTimersByTimeAsync(100)
+    await expect(first).resolves.toBe(false)
+    expect(scrollIntoView).toHaveBeenCalledOnce()
+    expect(marked('[data-reply-id="r-late"]')).toBeNull()
+    // And a newer wait stops an older one the same way.
+    const older = showInConversationWhenDrawn('r-older')
+    const newer = showInConversationWhenDrawn('r-newer')
+    document.body.insertAdjacentHTML('beforeend', '<div data-reply-id="r-older">older</div><div data-reply-id="r-newer">newer</div>')
+    await vi.advanceTimersByTimeAsync(100)
+    await expect(older).resolves.toBe(false)
+    await expect(newer).resolves.toBe(true)
+    expect(marked('[data-reply-id="r-older"]')).toBeNull()
+    expect(marked('[data-reply-id="r-newer"]')).toBe('true')
+  })
+
   it('marks the one it eventually lands on', async () => {
     const pending = showInConversationWhenDrawn('r-late')
     document.body.insertAdjacentHTML('beforeend', '<div data-reply-id="r-late">late</div>')

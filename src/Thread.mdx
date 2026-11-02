@@ -54,7 +54,7 @@ import { ReplyCard, Thread } from '@estiva-app/ui'
 - Still reading: `loading`. Nobody replied yet: nothing in `children`.
 - An app whose empty thread said nothing keeps its silence with `empty={null}`; `closeLabel` names Close in its words for a screen reader.
 - `start.id` is put on the pinned comment as `data-thread-start`, and each **ReplyCard**'s `id` on it as `data-reply-id`, as ConversationLayout's comments carry `data-conversation-item`. Give every reply its `id`.
-- A link to a reply or to the comment shows it: `showInConversation(id)` scrolls it to the middle of the column and flashes it, and answers `false` when it is not drawn; `showInConversationWhenDrawn(id)` waits for a thread just asked to open, up to 3 seconds. Never a wrapper of your own round a reply to carry its id, and never a flash of your own.
+- A link to a reply or to the comment shows it: `showInConversation(id)` scrolls it to the middle of the column and flashes it, and answers `false` when it is not drawn; `showInConversationWhenDrawn(id)` waits for a thread just asked to open, up to 3 seconds, and stops when a newer link is pressed. Never a wrapper of your own round a reply to carry its id, and never a flash of your own.
 
 ## What it owns
 
