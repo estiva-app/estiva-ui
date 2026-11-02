@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import {
   IconCheck,
-  IconCircle,
-  IconCircleDashed,
-  IconCircleDashedPlus,
+  IconDots,
   IconLayoutDashboard,
   IconLock,
   IconRobot,
@@ -11,7 +9,7 @@ import {
   IconUser,
   IconUserPlus,
   IconUsers,
-  IconUsersGroup,
+  IconUsersPlus,
 } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Avatar } from '../../src/Avatar'
@@ -22,6 +20,7 @@ import { Checkbox } from '../../src/Checkbox'
 import { Chip } from '../../src/Chip'
 import { DialogShell } from '../../src/DialogShell'
 import { EmptyState } from '../../src/EmptyState'
+import { IconButton } from '../../src/IconButton'
 import { ListColumn } from '../../src/ListColumn'
 import { Menu, MenuItem, MenuSection } from '../../src/Menu'
 import { NavItem } from '../../src/NavItem'
@@ -301,11 +300,23 @@ const LEVEL_WORDS: Record<Level, { label: string; what: string }> = {
   all: { label: 'All', what: 'Every new conversation and every reply' },
 }
 
-/** Dashed circle Important, full circle All (Navigation, 29 Oct); not following, a dashed circle with a plus. */
+/** Tabler has no filled people: IconUsers' two people, drawn solid. */
+function IconUsersSolid() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <circle cx="9" cy="7" r="4" />
+      <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2z" />
+      <circle cx="17.5" cy="7.5" r="3" />
+      <path d="M16.6 15h0.9a3.5 3.5 0 0 1 3.5 3.5v2.5h-4.4v-2a5.6 5.6 0 0 0 -1.6 -4z" />
+    </svg>
+  )
+}
+
+/** One people icon, drawn by how you follow (Miky, 2 Nov): outline Important, solid All, a plus when not following. */
 function LevelIcon({ level }: { level: Level | undefined }) {
-  if (level === 'all') return <IconCircle {...icon16} aria-hidden />
-  if (level === 'important') return <IconCircleDashed {...icon16} aria-hidden />
-  return <IconCircleDashedPlus {...icon16} aria-hidden className="text-text-muted" />
+  if (level === 'all') return <IconUsersSolid />
+  if (level === 'important') return <IconUsers {...icon16} aria-hidden />
+  return <IconUsersPlus {...icon16} aria-hidden className="text-text-muted" />
 }
 
 /** The one switch on a place: Not following, Important or All, and back to the team's default when one applies. */
@@ -345,14 +356,14 @@ function FollowSwitch({ place }: { place: Place }) {
   )
 }
 
-/** A place's icon in a list: a team's chat is the team, three people; every other place says how you follow it. */
+/** A place's icon in a list says how you follow it, chat, space and topic alike. */
 function PlaceIcon({ place }: { place: Place }) {
   const { w, viewer } = useWorld()
-  if (place.kind === 'chat') return <IconUsersGroup {...icon16} />
   return <LevelIcon level={levelOf(w, viewer, place)} />
 }
 
-const placeLabel = (place: Place) => (place.kind === 'chat' || place.kind === 'space' ? `#${place.title}` : place.title)
+/** A place is called by its title alone: no # (Miky, 2 Nov). */
+const placeLabel = (place: Place) => place.title
 
 // ── Who follows a place ──────────────────────────────────────────────────
 
@@ -536,38 +547,42 @@ function teamMenu(team: Team, viewer: PersonId, act: Actions, onOpen: (o: Open) 
 
 function TeamsColumn({ open, onOpen }: { open: Open; onOpen: (o: Open) => void }) {
   const { w, viewer, act } = useWorld()
-  const mine = w.teams.filter((t) => t.members.includes(viewer) || t.followers.includes(viewer))
-  const others = w.teams.filter((t) => !mine.includes(t))
+  const mine = w.teams.filter((t) => t.members.includes(viewer))
+  const followed = w.teams.filter((t) => !t.members.includes(viewer) && t.followers.includes(viewer))
+  const others = w.teams.filter((t) => !mine.includes(t) && !followed.includes(t))
+  // A team's section: its chat, spaces, then the topics it leads, with no label between them (Miky, 2 Nov).
+  const section = (team: Team) => {
+    const places = w.places.filter((p) => p.team === team.id && showsInSection(w, viewer, p))
+    const order: Kind[] = ['chat', 'space', 'topic']
+    const rows = order.flatMap((k) => places.filter((p) => p.kind === k))
+    return (
+      <div key={team.id} className="flex flex-col gap-0.5 pb-2">
+        <SectionHeader title={team.name} look="quiet" menu={teamMenu(team, viewer, act, onOpen)} />
+        {rows.map((p) => <PlaceRow key={p.id} place={p} open={open} onOpen={onOpen} />)}
+        {rows.every((p) => p.kind === 'chat') && <span className="px-2 py-1 text-caption text-text-muted">No spaces or topics yet</span>}
+      </div>
+    )
+  }
+  // Teams you are in and teams you follow live apart, so following never reads as being in one (Miky, 2 Nov).
+  const group = (title: string, body: ReactNode) => (
+    <div className="flex flex-col pb-2">
+      <SectionHeader title={title} />
+      {body}
+    </div>
+  )
   return (
     <>
-      {mine.map((team) => {
-        const places = w.places.filter((p) => p.team === team.id && showsInSection(w, viewer, p))
-        const chat = places.filter((p) => p.kind === 'chat')
-        const spaces = places.filter((p) => p.kind === 'space')
-        const topics = places.filter((p) => p.kind === 'topic')
-        return (
-          <div key={team.id} className="flex flex-col gap-0.5 pb-3">
-            <SectionHeader
-              title={team.name}
-              look="quiet"
-              trailing={!team.members.includes(viewer) ? <Chip label="Following" /> : undefined}
-              menu={teamMenu(team, viewer, act, onOpen)}
-            />
-            {[...chat, ...spaces].map((p) => <PlaceRow key={p.id} place={p} open={open} onOpen={onOpen} />)}
-            {topics.length > 0 && <span className="px-2 pb-0.5 pt-1.5 text-caption text-text-muted">Topics</span>}
-            {topics.map((p) => <PlaceRow key={p.id} place={p} open={open} onOpen={onOpen} />)}
-            {spaces.length + topics.length === 0 && <span className="px-2 py-1 text-caption text-text-muted">No spaces or topics yet</span>}
-          </div>
-        )
-      })}
-      {others.length > 0 && (
-        <div className="flex flex-col gap-0.5 pb-3">
-          <SectionHeader title="Other teams" look="quiet" />
-          {others.map((t) => (
-            <NavItem key={t.id} href="#" label={t.name} tooltip="You are not in it and don’t follow it" icon={<IconUsers {...icon16} />} active={open.type === 'team' && open.id === t.id} onClick={go(() => onOpen({ type: 'team', id: t.id }))} />
-          ))}
-        </div>
-      )}
+      {mine.length > 0 && group('My teams', mine.map(section))}
+      {followed.length > 0 && group('Following', followed.map(section))}
+      {others.length > 0 &&
+        group(
+          'Other teams',
+          <div className="flex flex-col gap-0.5">
+            {others.map((t) => (
+              <NavItem key={t.id} href="#" label={t.name} tooltip="You are not in it and don’t follow it" icon={<Avatar name={t.name} size={16} />} active={open.type === 'team' && open.id === t.id} onClick={go(() => onOpen({ type: 'team', id: t.id }))} />
+            ))}
+          </div>,
+        )}
     </>
   )
 }
@@ -598,28 +613,23 @@ function Message({ s, viewer }: { s: Said; viewer: PersonId }) {
   )
 }
 
-function PlacePage({ place, onOpen }: { place: Place; onOpen: (o: Open) => void }) {
+/**
+ * A place: the switch, its title, who follows it, Add and the ⋯ menu. No kind
+ * label and no line explaining the level (Miky, 2 Nov); the team is named only
+ * when the sidebar is not already showing its section.
+ */
+function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Open) => void; teamShown: boolean }) {
   const { w, viewer, act } = useWorld()
   const [dialog, setDialog] = useState<'who' | 'move' | null>(null)
   const [moved, setMoved] = useState<TeamId | null>(null)
   const team = teamIn(w, place.team)
-  const level = levelOf(w, viewer, place)
   const listed = listedOn(w, viewer, place)
   const member = team.members.includes(viewer)
   const someoneElse = (Object.keys(PEOPLE) as PersonId[]).find((p) => p !== viewer && !isAgent(p)) ?? 'agent'
-  const why = reasonIn(w, viewer, place)
-  const choice = w.choices[viewer]?.[place.id]
-  const state = !level
-    ? place.kind === 'topic'
-      ? `You are not in it. Choose Important or All to join, or keep it listed in ${team.name}.`
-      : 'Not following: nothing here lights for you.'
-    : `${LEVEL_WORDS[level].label}: ${LEVEL_WORDS[level].what.toLowerCase()}.` +
-      (choice ? ' You chose it.' : why === 'added' ? ` ${PEOPLE[w.added[place.id]![viewer]!].name} added you.` : why === 'author' ? ' You started it.' : ` ${team.name}’s default.`)
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Header
         title={placeLabel(place)}
-        icon={place.kind === 'chat' ? <IconUsersGroup {...icon16} className="text-text-secondary" /> : undefined}
         right={
           <>
             <Button variant="muted" size="small" onClick={() => setDialog('who')} aria-label={`Who follows ${placeLabel(place)}: ${listed.length}`}>
@@ -630,7 +640,14 @@ function PlacePage({ place, onOpen }: { place: Place; onOpen: (o: Open) => void 
             </Button>
             {place.kind !== 'chat' && <AddMenu place={place} />}
             {place.kind !== 'chat' && (
-              <Menu align="right" trigger={<Button variant="muted" size="small">More</Button>}>
+              <Menu
+                align="right"
+                trigger={
+                  <IconButton aria-label="More" tooltip="More">
+                    <IconDots {...icon16} />
+                  </IconButton>
+                }
+              >
                 <MenuItem label="Move to another team…" onClick={() => setDialog('move')} />
                 {member &&
                   (place.kind === 'space' ? (
@@ -647,18 +664,18 @@ function PlacePage({ place, onOpen }: { place: Place; onOpen: (o: Open) => void 
         <span className="order-first">
           <FollowSwitch place={place} />
         </span>
-        <button type="button" onClick={() => onOpen({ type: 'team', id: team.id })} className="flex items-center gap-1.5 text-body-2 text-text-secondary hover:text-text-primary">
-          <Avatar name={team.name} size={20} />
-          {team.name}
-        </button>
-        {place.kind !== 'topic' && <Chip label={place.kind === 'chat' ? 'Chat' : 'Space'} />}
+        {!teamShown && (
+          <button type="button" onClick={() => onOpen({ type: 'team', id: team.id })} className="flex items-center gap-1.5 text-body-2 text-text-secondary hover:text-text-primary">
+            <Avatar name={team.name} size={20} />
+            {team.name}
+          </button>
+        )}
       </Header>
       {moved && (
         <Banner tone="ok" onDismiss={() => setMoved(null)}>
           {`Moved to ${teamIn(w, moved).name}${place.kind === 'space' ? ', as one of its spaces' : ', as a topic it leads'}.`}
         </Banner>
       )}
-      <div className="border-b border-border-subtle px-4 py-2 text-caption text-text-muted">{state}</div>
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col px-4 py-2">
           {(w.said[place.id] ?? []).map((s) => <Message key={s.id} s={s} viewer={viewer} />)}
@@ -840,7 +857,7 @@ export function Teams({ viewer: firstViewer = 'miky', start = { type: 'place', i
     ) : open.type === 'team' ? (
       <TeamPage id={open.id} onOpen={onOpen} />
     ) : place ? (
-      <PlacePage key={place.id} place={place} onOpen={onOpen} />
+      <PlacePage key={place.id} place={place} onOpen={onOpen} teamShown={rail === 'teams'} />
     ) : (
       <NoAccess />
     )
