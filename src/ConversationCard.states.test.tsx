@@ -358,3 +358,60 @@ describe('its files, what it is about, and how it was resolved', () => {
     expect(container.querySelector('[data-resolved="line"]')).toBeNull()
   })
 })
+
+describe('an app’s own words and counts (Ship, 2 November: Ship takes the one conversation with its own words)', () => {
+  it('asks about a reply in the app’s noun, "Delete this message?", and as a reply by default', async () => {
+    render(
+      <ReplyCard author={ONE} time="11:40 AM" own onDelete={() => {}} noun="message">
+        A reply
+      </ReplyCard>,
+    )
+    point('A reply')
+    fireEvent.click(screen.getByRole('button', { name: 'More actions' }))
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    expect(await screen.findByText('Delete this message?')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Delete message' })).toBeTruthy()
+    cleanup()
+    render(
+      <ReplyCard author={ONE} time="11:40 AM" own onDelete={() => {}}>
+        A reply
+      </ReplyCard>,
+    )
+    point('A reply')
+    fireEvent.click(screen.getByRole('button', { name: 'More actions' }))
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    expect(await screen.findByText('Delete this reply?')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Delete reply' })).toBeTruthy()
+  })
+
+  it('names the ⋯ and its Delete row in the app’s words, "Message actions" and "Delete message", on a comment and a reply', async () => {
+    for (const Part of [ConversationCard, ReplyCard]) {
+      const onDelete = vi.fn()
+      render(
+        <Part author={ONE} time="11:08 AM" own onDelete={onDelete} noun="message" moreLabel="Message actions" deleteLabel="Delete message">
+          Words
+        </Part>,
+      )
+      point('Words')
+      expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: 'Message actions' }))
+      fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete message' }))
+      expect(await screen.findByText('Delete this message?')).toBeTruthy()
+      fireEvent.click(screen.getByRole('button', { name: 'Delete message' }))
+      await vi.waitFor(() => expect(onDelete).toHaveBeenCalledOnce())
+      cleanup()
+    }
+  })
+
+  it('says the ⋯ button’s name as its tooltip too', async () => {
+    const user = userEvent.setup()
+    render(
+      <ReplyCard author={ONE} time="11:40 AM" own onDelete={() => {}} moreLabel="Message actions">
+        A reply
+      </ReplyCard>,
+    )
+    point('A reply')
+    await user.hover(screen.getByRole('button', { name: 'Message actions' }))
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Message actions')
+  })
+})

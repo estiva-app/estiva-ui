@@ -141,6 +141,19 @@ export const ReadOnly: Story = { name: 'Read-only', render: (args) => <Live {...
 /** A long comment, at its full height. */
 export const Long: Story = { render: (args) => <Live {...args}>{LONG}</Live> }
 
+/**
+ * Yours, in an app's own words: the ⋯ named "Message actions", its Delete row "Delete message", and the question
+ * asking about a message (`noun`). The story points at it and opens the menu.
+ */
+export const InAnAppsWords: Story = {
+  name: "In an app's words",
+  render: (args) => <Live {...args} author={YOU} own noun="message" deleteLabel="Delete message" moreLabel="Message actions" />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText(WORDS))
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Message actions' }))
+  },
+}
+
 /** The app's own rows in its ⋯ menu, between Resolve and Edit. */
 export const MoreRows: Story = {
   name: 'More rows',
