@@ -4,6 +4,7 @@ import { Input } from '@base-ui/react/input'
 import { IconPencil, IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 import { cn } from './cn'
+import { EmptyState } from './EmptyState'
 import { FieldLine, type FieldLineTone } from './Field'
 import { Form } from './Form'
 import { Textarea } from './Textarea'
@@ -40,7 +41,7 @@ const saved = (answer: EditableTextAnswer | undefined) => answer === true || (ty
  */
 export interface EditableTextProps {
   value: string
-  /** What shows, muted, while the value is empty. */
+  /** What shows, muted, while the value is empty; in `buttons`, as the kit's empty line for one part of a page (12px). */
   placeholder: string
   /**
    * Resolve `true` when saved; `false` (or throw) keeps the field open with
@@ -341,14 +342,16 @@ function WithButtons({
   }
 
   const shown = display ?? value
-  const words = shown ? (displayNode ?? shown) : placeholder
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div className={cn('flex gap-2', multiline ? 'items-start' : 'items-center')}>
-        {multiline ? (
-          <p className={cn('min-w-0 flex-1 text-body-2', shown ? 'break-words text-text-primary' : 'text-text-muted')}>{words}</p>
+        {!shown ? (
+          // Nothing yet: the kit's empty line for one part of a page, 12px and muted, as Peek's "No summary yet." (2 November).
+          <EmptyState scope="section" message={placeholder} className="min-w-0 flex-1" />
+        ) : multiline ? (
+          <p className="min-w-0 flex-1 break-words text-body-2 text-text-primary">{displayNode ?? shown}</p>
         ) : (
-          <span className={cn('min-w-0 flex-1 truncate text-body-2', shown ? 'text-text-primary' : 'text-text-muted')}>{words}</span>
+          <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{displayNode ?? shown}</span>
         )}
         {/* Absent, not disabled, for a reader who cannot write. */}
         {!readOnly && (

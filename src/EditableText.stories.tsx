@@ -133,7 +133,7 @@ export const ButtonsSummary: Story = {
   decorators: [inADialogsWidth],
 }
 
-/** `buttons`, empty: the placeholder, muted, and the add words with a plus. */
+/** `buttons`, empty: the placeholder as the kit's empty line (12px, muted), and the add words with a plus. */
 export const ButtonsEmpty: Story = {
   name: 'Buttons: empty',
   args: { ...SUMMARY, value: '' },

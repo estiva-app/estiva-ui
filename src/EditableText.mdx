@@ -94,12 +94,13 @@ import { EditableText } from '@estiva-app/ui'
   under the field, and `draftNote` between them — a count past a limit.
 - `editLabel` is the button's words ("Edit" when absent); `addLabel` its words
   while the value is empty, with a plus. `fieldPlaceholder` is the field's own;
-  `placeholder` is what shows, muted, when there is nothing.
+  `placeholder` is what shows when there is nothing, as the kit's empty line
+  for one part of a page (`EmptyState scope="section"`: 12px, muted).
 - `required`: an empty value cannot be saved. `clean`: what a draft becomes
   before it is compared and saved, trimmed when absent — one line for a summary.
 - `defaultEditing` opens it as the field, holding the value: a menu's Rename.
-- **Its size is its own here**, body-2, the size of the field beside it; `className`
-  places the whole.
+- **Its size is its own here**, body-2, the size of the field beside it (its empty
+  line 12px); `className` places the whole.
 
 <Canvas of={EditableTextStories.ButtonsSummary} />
 

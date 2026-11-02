@@ -94,7 +94,9 @@ that sends a form is sending.
   Save and Cancel, and what happened said under it. `onCommit` may answer an
   outcome (`{ kind: 'error' | 'warning', message }`); `required`, `clean`,
   `draftNote`, `fieldPlaceholder` and `defaultEditing` are for it. Escape
-  abandons the edit and nothing else. Peek's Details, drawn exactly.
+  abandons the edit and nothing else. Peek's Details, drawn exactly: an empty
+  value shows its `placeholder` as the kit's empty line for one part of a page
+  (`EmptyState scope="section"`, 12px, muted), Peek's "No summary yet.".
 - **`ChipInput`'s `single`**: a field that holds one, an owner, say. A later
   pick replaces the chosen one rather than adding a second.
 - **`EmptyState`'s `action` on a `section`**: the one thing to do about it, at

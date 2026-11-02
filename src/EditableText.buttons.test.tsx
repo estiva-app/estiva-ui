@@ -214,6 +214,23 @@ describe('EditableText, buttons: a summary (Peek’s Details, SPEC §6.12)', () 
     expect(button('Edit')).toBeTruthy()
   })
 
+  it('draws its placeholder, when empty, as the kit’s empty line for one part of a page (12px caption, muted), as Peek’s "No summary yet." was', () => {
+    render(<Summary />)
+    const empty = screen.getByText('No summary yet.')
+    expect(empty.className).toContain('text-caption')
+    expect(empty.className).toContain('text-text-muted')
+    expect(empty.className).not.toContain('text-body-2')
+    // It still takes the row's room, the button at its end.
+    expect(empty.className).toContain('flex-1')
+  })
+
+  it('a one-line value, when empty, draws the same empty line', () => {
+    render(<Name value="" />)
+    const empty = screen.getByText('Untitled')
+    expect(empty.className).toContain('text-caption')
+    expect(empty.className).not.toContain('text-body-2')
+  })
+
   it('edits the whole value it was given', async () => {
     const user = userEvent.setup()
     render(<Summary value={'x'.repeat(300)} />)
