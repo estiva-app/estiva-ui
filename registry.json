@@ -3717,7 +3717,7 @@
           "name": "onChange",
           "takes": "a handler",
           "required": true,
-          "note": "Every edit, as it is typed: the text and its format, or `''` once it is emptied."
+          "note": "Every edit, as it is typed: the text and its format, or `''` once it is emptied or holds only spaces and blank lines."
         },
         {
           "name": "label",
@@ -3830,7 +3830,7 @@
           "name": "placeholder",
           "takes": "text",
           "required": true,
-          "note": "What shows, muted, while the value is empty."
+          "note": "What shows, muted, while the value is empty; in `buttons`, as the kit's empty line for one part of a page (12px)."
         },
         {
           "name": "onCommit",
