@@ -99,3 +99,15 @@ The **Peek** story keeps the column, to compare.
 - **Activity, yours alone** (Miky, same day): above the listed files, newest first, the topic's mentions of you, highlights others marked, and reactions to your messages (a reaction has no time of its own here, so it shows the message's). Each row opens its thread. It is divided by day as a conversation is (Today, Yesterday, the weekday), and each row is headed by its time (Miky, same day). It never changes what Main shows anyone. As Katerina it holds only what she can open.
 - **Files, as the package's `LinkCard`** (Miky, same day; was the row widget), with no app label, since the card says what it is: a project's card shows its summary, or its summary and issues, never the latest conversation (Miky, same day); a document's its summary; each says how much was said here; a click shows the file's conversation in the topic. Activity shows about three rows and scrolls inside, and has no "Only you see this" line.
 - **The sender's line is read by everyone who reads the topic**, also people who can't open the file, and the form says so. **Someone who can't open the file** sees the sender and their line, and a locked line in place of the thread: view as Katerina, who is not in Engineering, on any of the three.
+
+## Ship topics (stage 1)
+
+The first build stage of per-app navigation (project "Ship's Topics navigation", decided 2 November): what Ship's sidebar, Home, Topics and a topic's page look like with only what Ship can do today. It has its own data, shaped like Miky's workspace, because here a topic lists issues as well as projects and things get archived.
+
+- **The sidebar**: Home, Topics, Projects and Issues, then each Folder folding to its own Topics, Projects and Issues. No Views and no Starred, and no "Not in a Folder". It still says Folders; Teams arrive with "Teams and following". Opening a project or issue opens its Folder and marks its Projects or Issues entry.
+- **Topics**: Your topics, then Other topics, each A–Z with the projects and issues it lists, and Archived at the end. A topic that lists no project or issue (*Naming the protocol*) is not there, a space (*#bugs*) never is, and one whose work is all archived (*Public launch*) is under Archived.
+- **A topic**: its projects and issues with their status, its documents opening in Leaf, the archived behind a link, and Conversation in Peek.
+- **Home**, where Ship now opens: your topics, your projects (you lead or are in), and the open issues assigned to you.
+- **States**, one story each: no topics, loading, a read that fails, and as Katerina.
+
+Not drawn: a project's or issue's page past its "Topics: …" line, the Folder's page, and phone width (the shell keeps its sidebar, as every story here does).
