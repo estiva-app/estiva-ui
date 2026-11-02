@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type ComponentType, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type MouseEvent, type ReactNode } from 'react'
 import type { AnyExtension } from '@tiptap/core'
 import { EditorContent, useEditor, useEditorState, type JSONContent } from '@tiptap/react'
 import type { AttachmentViewProps, ReferenceViewProps } from './BlockNodes'
 import { cn } from './cn'
 import { documentExtensions, type DocumentCodec, type DocumentMentions, type DocumentReferences } from './DocumentEditor'
+import { useFormBusy } from './formBusy'
 import type { LinkChipsOptions } from './LinkChips'
 import { EDITOR_SELECTION_CLASSES, FIELD_SHELL_CLASSES, FIELD_SHELL_FOCUS_CLASSES } from './looks'
 import { ReferenceMenuView } from './ReferenceMenu'
@@ -48,7 +49,8 @@ const nothing = () => {}
 /**
  * A form's field that holds a document: a description written in the form that files it. The document editor's
  * grammar (`DocumentEditor`'s blocks, marks, `[`, `@` and `/`) in a field's box, as a Textarea's beside it. It is the
- * form's: every edit goes back as it is typed, nothing is saved on leaving, and Ctrl/Cmd+Enter sends the form.
+ * form's: every edit goes back as it is typed, nothing is saved on leaving, Ctrl/Cmd+Enter sends the form, and while
+ * the form sends nothing can be written in it.
  *
  * **Told apart by everything it has handed back, not only the last** (Peek's `ProseField`, RIC-13). Keys pressed faster
  * than React renders reach the editor before the value from the previous one comes back. Compared with the last edit
@@ -151,6 +153,15 @@ export function DocumentField({
     // `read` takes the latest codec and format, set by the effect above, which runs first.
     editor.commands.setContent(read(value), { emitUpdate: false })
   }, [editor, value])
+
+  /*
+    While its form sends it waits, as the fields beside it do. The form's disabled fieldset switches off every native
+    control in it, and a document's box is not one: it is told here, before the paint, with no edit handed back.
+  */
+  const busy = useFormBusy()
+  useLayoutEffect(() => {
+    if (editor && !editor.isDestroyed && editor.isEditable === busy) editor.setEditable(!busy, false)
+  }, [editor, busy])
 
   const empty = useEditorState({ editor, selector: ({ editor: ed }) => !ed || ed.isEmpty })
 

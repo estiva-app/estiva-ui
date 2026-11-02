@@ -62,6 +62,8 @@ export { Tooltip, TooltipProvider, WithTooltip, type TooltipProps, type TooltipP
 export { Field, FieldLine, type FieldLineProps, type FieldLineTone, type FieldProps } from './Field'
 export { FilePicker, type FilePickerProps } from './FilePicker'
 export { Form, type FormProps } from './Form'
+// Whether a Form around it is sending: the kit's own wiring, read by the editor's DocumentField from this entry (one context).
+export { useFormBusy } from './formBusy'
 export { FormDialog, type FormDialogProps } from './FormDialog'
 export { Select, type SelectOption, type SelectProps } from './Select'
 export { TextInput, type TextInputProps } from './TextInput'

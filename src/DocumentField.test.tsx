@@ -202,6 +202,26 @@ describe('in a form', () => {
     expect(around).toHaveBeenCalledWith('Escape')
   })
 
+  it('waits while its form sends, as the fields beside it do: nothing can be written in it until the answer comes', () => {
+    const onChange = vi.fn()
+    const { rerender } = render(
+      <Form busy onSubmit={() => {}}>
+        <Described onChange={onChange} />
+      </Form>,
+    )
+    expect(editorOf().isEditable).toBe(false)
+    expect(box().getAttribute('contenteditable')).toBe('false')
+    rerender(
+      <Form onSubmit={() => {}}>
+        <Described onChange={onChange} />
+      </Form>,
+    )
+    expect(editorOf().isEditable).toBe(true)
+    expect(box().getAttribute('contenteditable')).toBe('true')
+    // Going off and on again is not an edit.
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('a required field says so to a screen reader', () => {
     render(
       <Field label="Description" required>
