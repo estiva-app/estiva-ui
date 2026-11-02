@@ -1,4 +1,4 @@
-import { Children, useCallback, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react'
+import { Children, useCallback, useContext, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react'
 import { IconX } from '@tabler/icons-react'
 import { Chip } from './Chip'
 import { cn } from './cn'
@@ -10,11 +10,10 @@ import { Panel } from './Panel'
 import { PinnedComment, type PinnedCommentProps } from './PinnedComment'
 import { useWatchSeen, type SeenOnScreen } from './seenOnScreen'
 import { SkeletonConversation } from './Skeleton'
-import { useContext } from 'react'
+import { caretOnOpen, LineByLayout, SHOWN_CLASSES } from './threadCard'
 
 /** A thread is placed as it opens, at its newest: the keeper may act from the first change of size. */
 const always = () => true
-import { caretOnOpen, LineByLayout, SHOWN_CLASSES } from './threadCard'
 
 /** The comment a thread answers, pinned at the top of its column. */
 export interface ThreadStart extends PinnedCommentProps {
