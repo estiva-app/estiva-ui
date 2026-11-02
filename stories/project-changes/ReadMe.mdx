@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Project changes/Read me" />
+
+# Project changes: every place
+
+A prototype, on the `concept/load-stays-the-same-size` branch only (project *A load stays the same size as edits pile up*, milestone 1). It draws what you see when someone changed a project's text before you, and where a deleted project is, in Ship, Leaf and Peek, from Miky's calls of 2 November.
+
+Nothing here is wired to anything, and none of it ships from this branch. Once Miky approves it, the build issues in milestone 3 match these stories, and Katerina polishes v1 later.
+
+## How to read it
+
+Each story is one moment: rows are the places it draws, columns the cases. The theme in the toolbar themes the whole sheet. The buttons work: Use mine, Copy, Dismiss and Restore each show what happens next.
+
+- **A block you both changed:** their words in the text, marked at the edge; yours beside it with Use mine, Copy and Dismiss. At phone width, yours sits under the block.
+- **A tab opened before the switch:** the same shape, under "This page changed since you opened it".
+- **A deleted project:** a link to it in Ship and Leaf, its card in Peek, its Activity entry. Restore only for someone who may edit it.
+- **Deleted, in the Archived view:** Ship's Archived tab and Peek's Archive gain an Archived / Deleted filter. Leaf has no Archived view.
+- **No access:** "You can't open this project", with no title.
+
+## The rules every drawing follows (Miky, 2 Nov)
+
+| | |
+| --- | --- |
+| Different blocks changed | Nothing shows. Their words just appear. |
+| The same field set twice, such as status | The later one stands, both show in Activity. Nothing to draw. |
+| A block you both changed | Their words stay in the text; yours sit beside that block until you choose. Nobody else sees a half-state. |
+| A tab opened before the switch | Refused, and shown the same way, under "This page changed since you opened it". |
+| A deleted project | Gone from lists and search. A link, a card or an Activity entry shows "Deleted by … · date · Restore". |
+| No access | "You can't open this project", no title. |
+
+## Drawn here, for Miky to judge on the link
+
+- A link to a deleted project keeps its title above the line and leaves out its text.
+- The block both changed is marked by a bar in the accent colour at its edge; "Your version" is the only label on the card beside it.
+- Copy keeps your version beside the block, so you can paste it and still choose.
