@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.101.0 — 2026-11-03
+
+A dot on an icon button, for Ship's "Show comments" while its comments column is hidden and holds something new
+(Katerina, 3 November: on the icon's corner, not beside it). Optional: an app that passes nothing new sees nothing
+change.
+
+### Added
+
+- **`IconButton`'s `unread`**, so `ToolbarButton`'s too: the `UnreadDot`'s 6px disc centred on the 16px icon's
+  top-right corner, so it reads as this button's and not its neighbour's, and ", new" after its `aria-label`, since a
+  disc says nothing to a screen reader. The `UnreadDot` in its own 24px slot beside the button sat as near the next
+  button as its own. The disc carries `data-unread-dot`, not `data-unread`, so a `SectionHeader` does not move the
+  button into its dot's place.
+
 ## 0.100.0 — 2026-11-02
 
 What Ship needs to take the one conversation and keep its own words and behaviour (Katerina, 2 November: yes to
