@@ -35,8 +35,10 @@ import { SectionHeader } from '../../src/SectionHeader'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Select } from '../../src/Select'
 import { SkeletonBar, SkeletonList } from '../../src/Skeleton'
-import { PEOPLE, type PersonId } from './fixtures'
+import { LinkCard } from '../../src/LinkCard'
+import { PEOPLE, fileOf, type Message as PeekMessage, type PersonId } from './fixtures'
 import { Header, go, icon16 } from './Lens'
+import { ActivityDot, NewDot, cardOf, hasNewActivity } from './PeekConversation'
 
 /**
  * Teams and following: Miky's answers of 2 November, as Peek would draw them.
@@ -74,6 +76,8 @@ interface Place {
   kind: Kind
   /** Who started a topic: in it at Important from its first record. */
   author?: PersonId
+  /** The files it lists, in the column beside it. */
+  files?: string[]
 }
 
 /** Something said in a place: a new conversation, or a reply in one the people in `in` are part of. */
@@ -83,6 +87,9 @@ interface Said {
   at: string
   body: string
   reply?: { to: string; in: PersonId[] }
+  /** Per app's Activity: someone named, and reactions to the writer's message. */
+  mentions?: PersonId
+  reactions?: { emoji: string; by: PersonId[] }[]
 }
 
 const AGENTS: PersonId[] = ['agent']
@@ -98,23 +105,23 @@ const FIRST_TEAMS: Team[] = [
 
 const FIRST_PLACES: Place[] = [
   { id: 'general', title: 'general', team: 'company', kind: 'chat' },
-  { id: 'suits', title: 'suits-updates', team: 'company', kind: 'space' },
-  { id: 'widgets', title: 'Widgets', team: 'company', kind: 'topic', author: 'miky' },
-  { id: 'grants', title: 'Grants', team: 'company', kind: 'topic', author: 'miky' },
+  { id: 'suits', title: 'suits-updates', team: 'company', kind: 'space', files: ['d-weekly'] },
+  { id: 'widgets', title: 'Widgets', team: 'company', kind: 'topic', author: 'miky', files: ['p-widgets-1', 'p-widgets-2', 'd-testing-widgets'] },
+  { id: 'grants', title: 'Grants', team: 'company', kind: 'topic', author: 'miky', files: ['d-grant-research', 'd-grant-reusable', 'd-grant-application'] },
 
   { id: 'eng-chat', title: 'engineering', team: 'eng', kind: 'chat' },
-  { id: 'bug', title: 'bug', team: 'eng', kind: 'space' },
+  { id: 'bug', title: 'bug', team: 'eng', kind: 'space', files: ['p-bugs', 'p-peek-bugs'] },
   { id: 'releases', title: 'releases', team: 'eng', kind: 'space' },
-  { id: 'fast', title: 'Peek, Ship and Leaf are fast', team: 'eng', kind: 'topic', author: 'miky' },
+  { id: 'fast', title: 'Peek, Ship and Leaf are fast', team: 'eng', kind: 'topic', author: 'miky', files: ['p-peek-fast', 'p-ship-instant', 'd-speed'] },
   { id: 'teams-release', title: 'Teams release', team: 'eng', kind: 'topic', author: 'agent' },
 
   { id: 'design-chat', title: 'design', team: 'design', kind: 'chat' },
-  { id: 'design-review', title: 'design-review', team: 'design', kind: 'space' },
-  { id: 'navigation', title: 'Navigation', team: 'design', kind: 'topic', author: 'katerina' },
+  { id: 'design-review', title: 'design-review', team: 'design', kind: 'space', files: ['p-one-conversation'] },
+  { id: 'navigation', title: 'Navigation', team: 'design', kind: 'topic', author: 'katerina', files: ['p-navigation', 'd-navigation'] },
 
   { id: 'steer-chat', title: 'steer', team: 'steer', kind: 'chat' },
-  { id: 'agent-feedback', title: 'agent-feedback', team: 'steer', kind: 'space' },
-  { id: 'records', title: 'Decision records', team: 'steer', kind: 'topic', author: 'agent' },
+  { id: 'agent-feedback', title: 'agent-feedback', team: 'steer', kind: 'space', files: ['p-agent-feedback'] },
+  { id: 'records', title: 'Decision records', team: 'steer', kind: 'topic', author: 'agent', files: ['p-records-2'] },
 
   { id: 'marketing-chat', title: 'marketing', team: 'marketing', kind: 'chat' },
 ]
@@ -143,13 +150,18 @@ const SAID: Record<string, Said[]> = {
   bug: [
     { id: 'b1', by: 'katerina', at: 'Fri 12:30', body: 'The Move dialog closes before the team list loads.' },
     { id: 'b2', by: 'agent', at: 'Fri 12:41', body: 'Reproduced on Ship; fix in review.', reply: { to: 'b1', in: ['katerina', 'agent'] } },
+    { id: 'b3', by: 'katerina', at: 'Fri 12:55', body: 'Miky, can it wait for Monday’s release?', mentions: 'miky' },
   ],
   releases: [{ id: 'r1', by: 'agent', at: 'Thu 17:00', body: 'interop 0.61 is out: a team is the Folder, called a team.' }],
-  fast: [{ id: 'f1', by: 'agent', at: 'Fri 08:40', body: 'Ship opens in 0.6 s on Miky’s workspace.' }],
+  fast: [
+    { id: 'f1', by: 'agent', at: 'Fri 08:40', body: 'Ship opens in 0.6 s on Miky’s workspace.' },
+    // Activity alone for Miky: read, yet Katerina reacted after he last looked (the orange dot).
+    { id: 'f2', by: 'miky', at: 'Fri 12:20', body: 'Next: Peek on my workspace, the same way.', reactions: [{ emoji: '👍', by: ['katerina'] }] },
+  ],
   'teams-release': [{ id: 't1', by: 'agent', at: 'Fri 13:00', body: 'Order: SPEC, relay rule, shared fold, then Peek.' }],
   'design-chat': [{ id: 'd1', by: 'katerina', at: 'Thu 10:00', body: 'New icons are in the kit.' }],
   'design-review': [{ id: 'dr1', by: 'katerina', at: 'Fri 14:00', body: 'Review of the Teams sidebar on Monday.' }],
-  navigation: [{ id: 'n1', by: 'katerina', at: 'Fri 15:30', body: 'Teams first, then Topics, in the rail.' }],
+  navigation: [{ id: 'n1', by: 'katerina', at: 'Fri 15:30', body: 'Teams first, then Topics, in the rail. Miky, does that order work?', mentions: 'miky' }],
   'steer-chat': [{ id: 'st1', by: 'miky', at: 'Wed 09:00', body: 'Handoffs carry the paste-ready prompt from today.' }],
   'agent-feedback': [{ id: 'af1', by: 'miky', at: 'Tue 16:00', body: 'The agent asked a naming question as a protocol one again.' }],
   records: [{ id: 'rc1', by: 'agent', at: 'Mon 12:00', body: 'Eight records from 2 Nov wait on Miky’s merge.' }],
@@ -228,6 +240,12 @@ function isUnread(w: World, p: PersonId, place: Place) {
   const level = levelOf(w, p, place)
   return (w.said[place.id] ?? []).slice(w.read[p]?.[place.id] ?? 0).some((s) => lights(level, p, s))
 }
+
+/** A place's messages in Per app's shape, so its Activity is Per app's: the same dot, list and rules (Miky, 2 Nov). */
+const messagesIn = (w: World, place: Place): PeekMessage[] => (w.said[place.id] ?? []).map(({ id, by, at, body, mentions, reactions }) => ({ id, by, at, body, mentions, reactions }))
+
+/** Activity about you since you last looked, and nothing new to read: the orange dot. */
+const activityOnly = (w: World, p: PersonId, place: Place) => !isUnread(w, p, place) && hasNewActivity(p, place.id, messagesIn(w, place))
 
 /** A topic a team leads shows in its section only for people in or following the team. */
 const showsInSection = (w: World, p: PersonId, place: Place) =>
@@ -532,7 +550,7 @@ type RailId = 'desk' | 'topics' | 'teams' | 'people'
 function PlaceRow({ place, open, onOpen }: { place: Place; open: Open; onOpen: (o: Open) => void }) {
   const { w, viewer } = useWorld()
   const level = levelOf(w, viewer, place)
-  return (
+  const row = (
     <NavItem
       href="#"
       label={placeLabel(place)}
@@ -543,33 +561,20 @@ function PlaceRow({ place, open, onOpen }: { place: Place; open: Open; onOpen: (
       onClick={go(() => onOpen({ type: 'place', id: place.id }))}
     />
   )
-}
-
-/** A team's menu in the sidebar: Join or Leave, Follow or Unfollow, and Add someone for members. */
-function teamMenu(team: Team, viewer: PersonId, act: Actions, onOpen: (o: Open) => void) {
-  const member = team.members.includes(viewer)
-  const follower = team.followers.includes(viewer)
+  if (!activityOnly(w, viewer, place)) return row
+  // Per app's row: orange in the blue dot's place for new activity alone (Miky, 29 Oct).
   return (
-    <>
-      <MenuItem label="Open team" description="Its places and its people" onClick={() => onOpen({ type: 'team', id: team.id })} />
-      {member ? (
-        <MenuItem label={`Leave ${team.name}`} onClick={() => act.leave(team.id)} />
-      ) : (
-        <>
-          <MenuItem label={`Join ${team.name}`} description="Be part of it: its chat and spaces at Important" onClick={() => act.join(team.id)} />
-          {follower ? (
-            <MenuItem label="Unfollow" onClick={() => act.unfollow(team.id)} />
-          ) : (
-            <MenuItem label="Follow" description="See its spaces at Important without joining" onClick={() => act.follow(team.id)} />
-          )}
-        </>
-      )}
-    </>
+    <div className="relative [&>:first-child]:pr-8">
+      {row}
+      <span className="pointer-events-none absolute right-1 top-0 flex h-full w-6 items-center justify-center">
+        <NewDot tone="activity" />
+      </span>
+    </div>
   )
 }
 
 function TeamsColumn({ open, onOpen }: { open: Open; onOpen: (o: Open) => void }) {
-  const { w, viewer, act } = useWorld()
+  const { w, viewer } = useWorld()
   const mine = w.teams.filter((t) => t.members.includes(viewer))
   const followed = w.teams.filter((t) => !t.members.includes(viewer) && t.followers.includes(viewer))
   const others = w.teams.filter((t) => !mine.includes(t) && !followed.includes(t))
@@ -580,7 +585,12 @@ function TeamsColumn({ open, onOpen }: { open: Open; onOpen: (o: Open) => void }
     const rows = order.flatMap((k) => places.filter((p) => p.kind === k))
     return (
       <div key={team.id} className="flex flex-col gap-0.5 pb-2">
-        <SectionHeader title={team.name} look="quiet" menu={teamMenu(team, viewer, act, onOpen)} />
+        {/* The team's name opens the team, where Join, Follow, Leave and Add are; no ⋮ here (Miky, 2 Nov). */}
+        <SectionHeader
+          title={team.name}
+          look="quiet"
+          render={<button type="button" aria-label={`Open ${team.name}`} onClick={() => onOpen({ type: 'team', id: team.id })} className="cursor-pointer hover:[&_span]:text-text-primary" />}
+        />
         {rows.map((p) => <PlaceRow key={p.id} place={p} open={open} onOpen={onOpen} />)}
         {rows.every((p) => p.kind === 'chat') && <span className="px-2 py-1 text-caption text-text-muted">No spaces or topics yet</span>}
       </div>
@@ -602,7 +612,7 @@ function TeamsColumn({ open, onOpen }: { open: Open; onOpen: (o: Open) => void }
           'Other teams',
           <div className="flex flex-col gap-0.5">
             {others.map((t) => (
-              <NavItem key={t.id} href="#" label={t.name} tooltip="You are not in it and don’t follow it" icon={<Avatar name={t.name} size={16} />} active={open.type === 'team' && open.id === t.id} onClick={go(() => onOpen({ type: 'team', id: t.id }))} />
+              <NavItem key={t.id} href="#" label={t.name} tooltip="You are not in it and don’t follow it" active={open.type === 'team' && open.id === t.id} onClick={go(() => onOpen({ type: 'team', id: t.id }))} />
             ))}
           </div>,
         )}
@@ -622,7 +632,7 @@ function TopicsColumn({ open, onOpen }: { open: Open; onOpen: (o: Open) => void 
 
 function Message({ s, viewer }: { s: Said; viewer: PersonId }) {
   return (
-    <div className={s.reply ? 'flex gap-3 py-2 pl-10' : 'flex gap-3 py-2'}>
+    <div id={`said-${s.id}`} className={s.reply ? 'flex gap-3 py-2 pl-10' : 'flex gap-3 py-2'}>
       <Avatar name={PEOPLE[s.by].name} size={s.reply ? 20 : 28} />
       <div className="flex min-w-0 flex-col">
         <span className="flex items-baseline gap-2">
@@ -636,10 +646,30 @@ function Message({ s, viewer }: { s: Said; viewer: PersonId }) {
   )
 }
 
+/** The files a space or topic lists, beside it, as in Per app's dot variant: Activity is behind the dot, so the column is only the files. */
+function FilesColumn({ place }: { place: Place }) {
+  const files = (place.files ?? []).map(fileOf)
+  return (
+    <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
+      <SectionLabel tone="muted">Files</SectionLabel>
+      {files.length === 0 ? (
+        <p className="text-body-2 text-text-muted">None yet. A place can be only a conversation.</p>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {files.map((f) => (
+            <LinkCard key={f.id} link={cardOf(f, '')} />
+          ))}
+        </div>
+      )}
+    </aside>
+  )
+}
+
 /**
- * A place: the switch, its title, who follows it, Add and the ⋯ menu. No kind
- * label and no line explaining the level (Miky, 2 Nov); the team is named only
- * when the sidebar is not already showing its section.
+ * A place: the switch, its title, the Activity dot, who follows it and the ⋮
+ * menu; its files beside it. No kind label and no line explaining the level
+ * (Miky, 2 Nov); the team is named only when the sidebar is not already
+ * showing its section. A team's chat lists no files, so it has no column.
  */
 function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Open) => void; teamShown: boolean }) {
   const { w, viewer, act } = useWorld()
@@ -649,8 +679,11 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
   const listed = listedOn(w, viewer, place)
   const member = team.members.includes(viewer)
   const someoneElse = (Object.keys(PEOPLE) as PersonId[]).find((p) => p !== viewer && !isAgent(p)) ?? 'agent'
+  const messages = messagesIn(w, place)
+  const jump = (id: string) => document.getElementById(`said-${id}`)?.scrollIntoView({ block: 'center' })
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0">
+    <div className="flex min-w-0 flex-1 flex-col">
       <Header
         title={placeLabel(place)}
         right={
@@ -687,6 +720,8 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
         <span className="order-first">
           <FollowSwitch place={place} />
         </span>
+        {/* Per app's Activity dot, right after the title (Miky, 2 Nov): blue new messages, orange new activity, a ring with neither. */}
+        <ActivityDot viewer={viewer} messages={messages} unread={isUnread(w, viewer, place)} onOpen={jump} onJump={jump} />
         {!teamShown && (
           <button type="button" onClick={() => onOpen({ type: 'team', id: team.id })} className="flex items-center gap-1.5 text-body-2 text-text-secondary hover:text-text-primary">
             <Avatar name={team.name} size={20} />
@@ -722,6 +757,8 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
           }}
         />
       )}
+    </div>
+    {place.kind !== 'chat' && <FilesColumn place={place} />}
     </div>
   )
 }

@@ -55,6 +55,12 @@ export const WhoFollows: Story = {
   render: () => <Teams start={{ type: 'place', id: 'bug' }} />,
 }
 
+/** Per app's Activity dot after the title, and the place's files beside it. Katerina reacted to Miky's message here: orange in the sidebar and on the dot; hover it. */
+export const Activity: Story = {
+  name: 'Activity and files',
+  render: () => <Teams start={{ type: 'place', id: 'fast' }} />,
+}
+
 /** Navigation shows on Topics and in Design's section: read it in one row, and the dot clears in both. */
 export const TwoRows: Story = {
   name: 'A topic in two rows, one dot',
