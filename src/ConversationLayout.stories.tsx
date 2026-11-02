@@ -267,8 +267,8 @@ export const Apart: Story = {
 }
 
 /**
- * One column, a note under the comments (`below`): after the groups, inside the column that scrolls, above the box,
- * here a `ReactionHorizon`.
+ * One column, a note under the comments (`below`), here a `ReactionHorizon`: after the groups, at the column's foot, so
+ * with few comments it sits on the box. The comments stay at the top.
  */
 export const OneColumnBelow: Story = {
   name: 'One column, a note under the comments',

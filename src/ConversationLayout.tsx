@@ -53,7 +53,7 @@ export interface ConversationLayoutProps {
   box?: ReactNode
   /** Above the comments, inside their list: placeholders while older comments are read, a note. */
   above?: ReactNode
-  /** Under the comments, inside their list, or under the empty line: a `ReactionHorizon`, or the app's own note. One column: after "Resolved" too, above the box. Not while the comments are read. */
+  /** Under the comments, inside their list, or under the empty line: a `ReactionHorizon`, or the app's own note. One column: after "Resolved" too, at the column's foot, so with few comments it sits on the box. Not while the comments are read. */
   below?: ReactNode
   /** Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`. */
   top?: ReactNode
@@ -378,9 +378,12 @@ export function ConversationLayout({
   }))
   if (threads === 'under') {
     return (
-      <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={setBody} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
+      // The body at least the column's height: the comments start at its top, and the note under them (`below`) is pushed
+      // to its foot, so with few comments it sits on the box, as a short conversation's last line does in Peek's two
+      // columns (Katerina, 2 November); with many it comes after them, and scrolls with them.
+      <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={setBody} bodyClassName="flex min-h-full flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
         <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} />
-        {!loading && below}
+        {!loading && below != null && below !== false && below !== '' && <div className="mt-auto flex flex-col gap-2">{below}</div>}
       </Panel>
     )
   }

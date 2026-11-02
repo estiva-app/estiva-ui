@@ -448,3 +448,26 @@ describe('ConversationLayout, one column, under the comments (below; Ship, 2 Nov
     expect(screen.queryByText('Reactions note')).toBeNull()
   })
 })
+
+describe('ConversationLayout, one column, the note sits on the box (Katerina, 2 November: as in Peek)', () => {
+  it('pushes `below` to the foot of a column at least as tall as its room, the comments staying at the top', () => {
+    render(<ConversationLayout threads="under" items={items('under')} below={<p>Reactions note</p>} box={<p>The box</p>} />)
+    const pushed = screen.getByText('Reactions note').closest('.mt-auto')
+    expect(pushed).not.toBeNull()
+    const body = pushed!.parentElement!
+    // The scrolling box's content is at least the column's height, so the room a short conversation leaves is above the note.
+    expect(body.className.split(/\s+/)).toContain('min-h-full')
+    // Only the note moves: the comments are the body's first children, and none is pushed.
+    const first = document.querySelector('[data-conversation-item="a"]')!
+    expect(body.firstElementChild).toBe(first)
+    expect(document.querySelectorAll('[data-conversation-item].mt-auto, [data-conversation-item] .mt-auto').length).toBe(0)
+  })
+
+  it('pushes nothing while the comments are read, and with no note', () => {
+    const { container } = render(<ConversationLayout threads="under" items={[]} loading below={<p>Reactions note</p>} />)
+    expect(container.querySelector('.mt-auto')).toBeNull()
+    cleanup()
+    const again = render(<ConversationLayout threads="under" items={items('under')} />)
+    expect(again.container.querySelector('.mt-auto')).toBeNull()
+  })
+})
