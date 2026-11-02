@@ -5,7 +5,7 @@ import * as Stories from './RepliesRow.stories'
 
 # RepliesRow
 
-The way into a thread, under its comment: who replied, "2 replies", the last reply's time, and "1 new" until it is read.
+The way into a thread, under its comment: who replied, "2 replies", the last reply's time, and how many are new ("2 new") until they are read.
 
 <Canvas of={Stories.Several} />
 
@@ -14,7 +14,10 @@ The way into a thread, under its comment: who replied, "2 replies", the last rep
 - Under a comment with replies: **ConversationCard** draws it from its `replies`.
 - `onOpen` where the row itself opens the thread (one column, the thread under its comment); without it, the card around it does.
 - `open` while that thread is open under it: the chevron turns down and the row stays marked, and a press closes it. The whole card around it opens and closes the thread too.
+- `newCount`, how many replies are new: "2 new", and the row's name says it too ("3 replies, 2 new, open the thread"). Given, it decides; 0 says nothing new.
+- `isNew` alone, for an app that knows only that one is new: "1 new", and the row's name stays the count.
 
+<Canvas of={Stories.NewSeveral} />
 <Canvas of={Stories.New} />
 <Canvas of={Stories.Open} />
 
@@ -28,7 +31,7 @@ The way into a thread, under its comment: who replied, "2 replies", the last rep
 ```tsx
 import { RepliesRow } from '@estiva-app/ui'
 
-<RepliesRow count={3} faces={faces} last="12:02 PM" isNew onOpen={() => openUnder(comment)} />
+<RepliesRow count={3} faces={faces} last="12:02 PM" newCount={2} onOpen={() => openUnder(comment)} />
 ```
 
 - Faces and the last time show in Signal; in the other themes the row is the icon and the count.
@@ -38,7 +41,7 @@ import { RepliesRow } from '@estiva-app/ui'
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Says "1 reply" or "2 replies" | the plural |  |
-| Shows "1 new" until it is read, in the warning colour when urgent | the chip and its colour |  |
+| Shows how many are new until they are read ("2 new"; "1 new" for `isNew`), in the warning colour when urgent | the chip and its colour |  |
 
 ## Props
 

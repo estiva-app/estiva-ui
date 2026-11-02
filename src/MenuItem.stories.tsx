@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconHash, IconPin, IconTrash } from '@tabler/icons-react'
+import { IconArchive, IconCopy, IconHash, IconPin, IconTrash } from '@tabler/icons-react'
+import { userEvent, within } from 'storybook/test'
 import { Avatar } from './Avatar'
 import { useRef, useState } from 'react'
 import { Button } from './Button'
@@ -97,6 +98,43 @@ export const Selected: Story = {
 
 export const Destructive: Story = {
   args: { label: 'Delete', destructive: true, leading: <IconTrash size={16} stroke={1.5} className="text-error-default" /> },
+}
+
+/** Shown but shut, with why: its words and its icon in the disabled colour, no fill, and the reason under the pointer. The story points at it. */
+export const Shut: Story = {
+  name: 'Shut, saying why',
+  args: {
+    label: 'Archive',
+    leading: <IconArchive size={16} stroke={1.5} className="text-text-secondary" />,
+    disabledReason: 'Shut for now, and this says why, in the app’s words.',
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByRole('button', { name: 'Archive' }))
+  },
+}
+
+/**
+ * Shut in a live menu: the arrow keys still reach it, its reason shows there as under the pointer, and a press runs
+ * nothing and leaves the menu open. The story opens the menu and points at the shut row.
+ */
+export const ShutInAMenu: Story = {
+  name: 'Shut, in a menu',
+  parameters: { controls: { disable: true } },
+  decorators: [(Story) => <Story />],
+  render: () => (
+    <div className="flex min-h-[220px] w-full items-start justify-center pt-12">
+      <Menu trigger={<Button variant="outlined">Open the menu</Button>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuItem label="Archive" leading={<IconArchive size={16} stroke={1.5} className="text-text-secondary" />} disabledReason="Shut for now, and this says why, in the app’s words." onClick={() => {}} />
+        <Divider className="my-1" />
+        <MenuItem label="Delete" destructive onClick={() => {}} />
+      </Menu>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Open the menu' }))
+    await userEvent.hover(await within(canvasElement.ownerDocument.body).findByRole('menuitem', { name: 'Archive' }))
+  },
 }
 
 /** Every shape on one canvas. */

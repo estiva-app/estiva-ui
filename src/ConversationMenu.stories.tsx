@@ -42,6 +42,18 @@ export const MoreRows: Story = {
 }
 
 /**
+ * Its own ⋯ button and its Delete row in an app's own words: the button named "Message actions", its tooltip too, and
+ * "Delete message". With no `trigger`, the menu draws its own ⋯; the story presses it.
+ */
+export const OwnButtonInAnAppsWords: Story = {
+  name: "Its own button, in an app's words",
+  args: { trigger: undefined, moreLabel: 'Message actions', onEdit: () => {}, editLabel: 'Edit message', onDelete: () => {}, deleteLabel: 'Delete message' },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Message actions' }))
+  },
+}
+
+/**
  * In an app's own words, as Peek's menu reads (Katerina, 1 November): a heading over the first rows, the key that
  * resolves from its box beside Resolve, its word for Edit, and a row of its own after Edit. Delete stays apart.
  */

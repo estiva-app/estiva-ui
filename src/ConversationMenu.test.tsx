@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ConversationMenu } from './ConversationMenu'
 import { MenuItem } from './Menu'
 
@@ -56,5 +57,21 @@ describe('ConversationMenu', () => {
     expect(screen.getByText('Utilities')).toBeTruthy()
     expect(screen.getByText('->')).toBeTruthy()
     expect(screen.getAllByRole('separator').length).toBe(2)
+  })
+})
+
+describe('ConversationMenu, in an app’s words (Ship, 2 November)', () => {
+  it('says Delete in the app’s words, and names its own ⋯ button so, its tooltip too', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    render(<ConversationMenu onEdit={() => {}} editLabel="Edit message" onDelete={onDelete} deleteLabel="Delete message" moreLabel="Message actions" />)
+    const more = screen.getByRole('button', { name: 'Message actions' })
+    await user.hover(more)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Message actions')
+    fireEvent.click(more)
+    await screen.findByRole('menu')
+    expect(names()).toEqual(['Edit message', 'Delete message'])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete message' }))
+    expect(onDelete).toHaveBeenCalledOnce()
   })
 })

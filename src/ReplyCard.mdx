@@ -16,8 +16,13 @@ One reply in a thread: the same pieces as a comment, without replies of its own 
 - `at`, its moment: the time says the exact date and time under the pointer; a time that is a link says it, then "Link to this".
 - `own` on yours: Edit and Delete in its menu.
 - `id` on every reply: on the card as `data-reply-id`, what a link to it shows (`showInConversation`) and what **Thread** watches to say it was seen.
+- In the app's own words: `noun`, what the delete question calls it ("Delete this reply?" by default, "Delete this message?" with `message`, its button "Delete message"); `deleteLabel`, the Delete row's words; `moreLabel`, the ⋯ button's name and tooltip ("More actions" by default). With `menuLabel` and `editLabel`, as a comment takes them.
 
 <Canvas of={Stories.Yours} />
+
+<Canvas of={Stories.InAnAppsWords} />
+
+<Canvas of={Stories.DeleteInAnAppsWords} />
 
 <Canvas of={Stories.Linked} />
 

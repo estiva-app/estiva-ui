@@ -82,5 +82,31 @@ export const LinkedExactTime: Story = {
   },
 }
 
+/** Points at the reply and opens its ⋯ by the name it is given. */
+async function openMenu(canvasElement: HTMLElement, name: string) {
+  await userEvent.hover(within(canvasElement).getByText(SHORT))
+  await userEvent.click(within(canvasElement).getByRole('button', { name }))
+}
+
+/**
+ * Yours, in an app's own words: the ⋯ named "Message actions", its Delete row "Delete message", and the question
+ * asking about a message. The story points at it and opens the menu.
+ */
+export const InAnAppsWords: Story = {
+  name: "In an app's words",
+  render: (args) => <Live {...args} author={YOU} own noun="message" deleteLabel="Delete message" moreLabel="Message actions" />,
+  play: async ({ canvasElement }) => openMenu(canvasElement, 'Message actions'),
+}
+
+/** The delete question in the app's noun: "Delete this message?", answered by "Delete message". The story asks it. */
+export const DeleteInAnAppsWords: Story = {
+  name: "In an app's words, deleting",
+  render: (args) => <Live {...args} author={YOU} own noun="message" deleteLabel="Delete message" moreLabel="Message actions" />,
+  play: async ({ canvasElement }) => {
+    await openMenu(canvasElement, 'Message actions')
+    await userEvent.click(await within(canvasElement.ownerDocument.body).findByRole('menuitem', { name: 'Delete message' }))
+  },
+}
+
 /** Nothing can be changed: no strip, reactions only shown. */
 export const ReadOnly: Story = { name: 'Read-only', render: (args) => <Live {...args} readOnly start={SOME} /> }

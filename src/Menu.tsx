@@ -5,6 +5,7 @@ import { cn } from './cn'
 import { Divider, DividerInPanel } from './Divider'
 import { triggerDisabled } from './triggerDisabled'
 import { ScrollArea } from './ScrollArea'
+import { TooltipTrigger } from './Tooltip'
 import { Kbd } from './Kbd'
 import { SectionLabel } from './SectionLabel'
 import { FLOATING_SURFACE_CLASSES } from './looks'
@@ -384,6 +385,11 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   destructive?: boolean
   /** The row the menu currently points at (a submenu's chosen value). */
   selected?: boolean
+  /**
+   * Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, with no fill, and says why under
+   * the pointer and when the arrow keys reach it, as `Button`'s does. A press runs nothing and the menu stays open.
+   */
+  disabledReason?: string
 }
 
 /**
@@ -398,7 +404,7 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
  *  `Select` puts it on Base UI's `Select.Item`, whose parts (`ItemText`,
  *  `ItemIndicator`) have to stay the element's own. One row, two parts. Not
  *  exported from the package's index. */
-export function menuItemClassName({ size, selected, className }: { size: 'default' | 'tall'; selected?: boolean; className?: string }) {
+export function menuItemClassName({ size, selected, shut = false, className }: { size: 'default' | 'tall'; selected?: boolean; shut?: boolean; className?: string }) {
   return cn(
     // shrink-0: a menu is a flex column that scrolls at its max height,
     // and a flex child shrinks before its container does — so every row
@@ -414,7 +420,9 @@ export function menuItemClassName({ size, selected, className }: { size: 'defaul
     // hint flickering in and out. Both are instant now: they still change
     // on exactly the same :hover, so they cannot come apart, and a row
     // lights and unlights crisply as the pointer crosses it.
-    'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
+    'group flex w-full shrink-0 cursor-pointer items-center rounded-lg text-left outline-none',
+    // The fill under the pointer and the arrow keys: never on a shut row (Katerina, 2 November), whose reason shows instead.
+    !shut && 'hover:bg-bg-hover data-[highlighted]:bg-bg-hover',
     // Both sizes are as tall as their content and never shorter than a
     // floor: 36px for a default row (Katerina, 2026-09-11), 40px for a
     // tall one (Katerina, 2026-09-01). A single-line action row sits at
@@ -424,6 +432,9 @@ export function menuItemClassName({ size, selected, className }: { size: 'defaul
     // this 36px and was the only menu in either app out of step.
     size === 'tall' ? 'min-h-10 gap-3 px-3 py-1.5' : 'min-h-9 gap-2 px-2 py-1.5',
     selected && 'bg-bg-hover',
+    // Shut, with its reason: the arrow, not the hand, and its icon in the disabled colour as its words are, as a
+    // disabled IconButton draws its own. No fill under the pointer or the arrow keys: its reason is what shows there.
+    shut && 'cursor-default [&_svg]:text-text-disabled',
     className,
   )
 }
@@ -431,7 +442,9 @@ export function menuItemClassName({ size, selected, className }: { size: 'defaul
 /** Everything inside the row — written once, for the same reason. Shared
  *  inside the package like `menuItemClassName`: `CommandPalette` draws it
  *  inside Base UI's `Autocomplete.Item`. Not exported from the index. */
-export function MenuItemBody({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'>) {
+export function MenuItemBody({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, shut = false }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'> & { shut?: boolean }) {
+  // Shut, its words in the disabled colour, a destructive one's too.
+  const labelColour = shut ? 'text-text-disabled' : destructive ? 'text-error-default' : 'text-text-primary'
   const edge =
     trailing ??
     (shortcut ? (
@@ -449,15 +462,15 @@ export function MenuItemBody({ label, children, size = 'default', description, a
         <span className={cn('flex min-w-0 flex-1 flex-col', size === 'tall' && 'gap-[2px]')}>
           {aside ? (
             <span className="flex min-w-0 items-baseline gap-2">
-              <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>{label}</span>
-              <span className="shrink-0 text-caption text-text-muted">{aside}</span>
+              <span className={cn('truncate text-body-2', labelColour)}>{label}</span>
+              <span className={cn('shrink-0 text-caption', shut ? 'text-text-disabled' : 'text-text-muted')}>{aside}</span>
             </span>
           ) : (
-            <span className={cn('truncate text-body-2', destructive ? 'text-error-default' : 'text-text-primary')}>
+            <span className={cn('truncate text-body-2', labelColour)}>
               {label}
             </span>
           )}
-          {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
+          {description && <span className={cn('truncate text-caption', shut ? 'text-text-disabled' : 'text-text-secondary')}>{description}</span>}
         </span>
       )}
       {(edge || hint) && (
@@ -482,7 +495,8 @@ export function MenuItemBody({ label, children, size = 'default', description, a
   )
 }
 
-export function MenuItem({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, className, ...props }: MenuItemProps) {
+export function MenuItem({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, disabledReason, className, ...props }: MenuItemProps) {
+  const shut = !!disabledReason
   const body = (
     <MenuItemBody
       label={label}
@@ -496,11 +510,14 @@ export function MenuItem({ label, children, size = 'default', description, aside
       submenu={submenu}
       destructive={destructive}
       selected={selected}
+      shut={shut}
     >
       {children}
     </MenuItemBody>
   )
-  const rowClassName = menuItemClassName({ size, selected, className })
+  const rowClassName = menuItemClassName({ size, selected, shut, className })
+  // Shut with its reason, the row is the reason's trigger, as Button is.
+  const withReason = (row: ReactElement) => (shut ? <TooltipTrigger label={disabledReason ?? ''}>{row}</TooltipTrigger> : row)
 
   /*
    * Inside a `Menu` the row is Base UI's `Menu.Item`: it joins the roving
@@ -521,13 +538,14 @@ export function MenuItem({ label, children, size = 'default', description, aside
    * than claiming none.
    */
   if (!useContext(MenuContext)) {
-    return (
-      <button type="button" className={rowClassName} {...props}>
+    // Shut: still a button the pointer and Tab reach, for its reason, but a press runs nothing.
+    return withReason(
+      <button type="button" className={rowClassName} {...props} {...(shut ? { 'aria-disabled': true, onClick: undefined } : {})}>
         {body}
-      </button>
+      </button>,
     )
   }
-  return (
+  return withReason(
     <BaseMenu.Item
       nativeButton
       render={<button type="button" />}
@@ -539,9 +557,12 @@ export function MenuItem({ label, children, size = 'default', description, aside
          handler facing a div signature. The element underneath is a
          `<button>`, which `Menu.test.tsx` pins. */
       {...(props as ComponentPropsWithRef<'div'>)}
+      /* Base UI's own disabled: the row stays where the arrow keys go (focusable when disabled), says
+         `aria-disabled`, and a press neither runs it nor closes the menu. */
+      disabled={props.disabled || shut}
     >
       {body}
-    </BaseMenu.Item>
+    </BaseMenu.Item>,
   )
 }
 

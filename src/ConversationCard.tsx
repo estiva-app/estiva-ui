@@ -78,6 +78,10 @@ export interface ConversationEntryProps {
   menuLabel?: string
   /** Edit's words in the ⋯ menu: "Edit" by default; Peek's "Edit message". */
   editLabel?: string
+  /** Delete's words in the ⋯ menu: "Delete" by default; Ship's "Delete message". The question's button says `noun`'s. */
+  deleteLabel?: string
+  /** The ⋯ button's name and tooltip: "More actions" by default; Ship's "Message actions". */
+  moreLabel?: string
   /** Placement only. */
   className?: string
 }
@@ -116,6 +120,8 @@ export interface ConversationCardProps extends ConversationEntryProps {
 export interface ReplyCardProps extends ConversationEntryProps {
   /** Its id, on the card as `data-reply-id`: what a link to it shows (`showInConversation`), and what `Thread` watches to say it was seen. */
   id?: string
+  /** What the reply is called in the delete question: "Delete this reply?" by default; Ship's `message`. */
+  noun?: string
 }
 
 /**
@@ -264,7 +270,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -317,7 +323,7 @@ export function ConversationCard(props: ConversationCardProps) {
         hovered={hovered}
         selected={marked}
         active={isEditing}
-        attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
+        attention={attentionOf(isNew || (replies?.newCount ?? (replies?.isNew ? 1 : 0)) > 0, urgent, inThreadCard)}
         className={cn('relative', className)}
         // A press opens its thread, wherever it lands on the card but for what acts by itself (Card's `onPress`). Before,
         // the whole reactions row and the strip stopped every press, so a press beside the reactions did nothing
@@ -403,7 +409,7 @@ export function ConversationCard(props: ConversationCardProps) {
                 offersMenu && (
                   <ConversationMenu
                     trigger={
-                      <ToolbarButton tooltip="More actions" aria-label="More actions">
+                      <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
                         <IconDotsVertical size={16} stroke={1.5} />
                       </ToolbarButton>
                     }
@@ -421,6 +427,7 @@ export function ConversationCard(props: ConversationCardProps) {
                     editLabel={editLabel}
                     after={menuAfter}
                     onDelete={own && onDelete ? () => setDeleting(true) : undefined}
+                    deleteLabel={deleteLabel}
                   >
                     {menu}
                   </ConversationMenu>
@@ -462,7 +469,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
+  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', noun = 'reply', className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -529,7 +536,7 @@ export function ReplyCard(props: ReplyCardProps) {
               offersMenu && (
                 <ConversationMenu
                   trigger={
-                    <ToolbarButton tooltip="More actions" aria-label="More actions">
+                    <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
                       <IconDotsVertical size={16} stroke={1.5} />
                     </ToolbarButton>
                   }
@@ -543,6 +550,7 @@ export function ReplyCard(props: ReplyCardProps) {
                   editLabel={editLabel}
                   after={menuAfter}
                   onDelete={own && onDelete ? () => setDeleting(true) : undefined}
+                  deleteLabel={deleteLabel}
                 >
                   {menu}
                 </ConversationMenu>
@@ -552,7 +560,7 @@ export function ReplyCard(props: ReplyCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title="Delete this reply?" confirmLabel="Delete reply" destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
+        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
           {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
         </ConfirmDialog>
       )}

@@ -107,6 +107,19 @@ export const AnotherAppsWords: Story = {
   },
 }
 
+/**
+ * A file listed in two Folders, after a move that half-worked: `from` is empty, so every Folder is offered, the ones
+ * it is in too, since moving into one takes it out of the other; Move again is the retry. Nothing is chosen for the
+ * person. The story opens the list.
+ */
+export const ListedTwice: Story = {
+  name: 'Listed in two Folders',
+  args: { title: 'Folders: navigation for the whole suite', from: '', places: undefined, placesIn: undefined },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement.ownerDocument.body).getByRole('combobox', { name: 'Folder' }))
+  },
+}
+
 /** Moving: the button says so, and everything waits for the answer. */
 export const Moving: Story = {
   args: { onMove: () => new Promise<boolean>(() => {}) },

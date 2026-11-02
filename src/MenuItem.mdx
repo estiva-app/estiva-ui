@@ -23,6 +23,17 @@ other two), `destructive` in the error colour, `selected` as the fill.
 
 <Canvas of={MenuItemStories.Tall} />
 
+- **`disabledReason`**: a row shown but shut, saying why, as `Button`'s
+  does. Its words and its icon take the disabled colour, and it takes no
+  fill under the pointer or the arrow keys; the reason shows there instead,
+  on hover and where the arrow keys reach it. A press runs
+  nothing, and the menu stays open. For an action the reader should see
+  but cannot take right now; one they may never take is not offered.
+
+<Canvas of={MenuItemStories.Shut} />
+
+<Canvas of={MenuItemStories.ShutInAMenu} />
+
 ## When not
 
 - A single action that is not a row in a list → **Button**. Outside a
@@ -62,6 +73,7 @@ It does these by itself. Write none of them around it.
 | Is a row of its Menu: the Menu highlights it, walks to it with the arrow keys, and closes when it is chosen | a highlight or a key handler on the row |  |
 | Opens its `submenu` with → and closes it with ← | a submenu of your own |  |
 | Keeps its row's height in a scrolling column | `shrink-0` |  |
+| Shut with `disabledReason`: says why under the pointer and on the arrow keys, runs nothing, keeps the menu open | a tooltip round a row, a check in `onClick` |  |
 
 ## Props
 

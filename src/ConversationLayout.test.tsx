@@ -417,3 +417,57 @@ describe('ConversationLayout, two columns, the right column', () => {
     expect(column()).toBeNull()
   })
 })
+
+describe('ConversationLayout, one column, under the comments (below; Ship, 2 November)', () => {
+  it('draws `below` under the comments, the groups too, inside the column that scrolls and above the box', () => {
+    const resolved: ConversationItem = {
+      id: 'r',
+      resolved: true,
+      card: (
+        <ConversationCard author={ONE} time="12:15 PM">
+          Resolved one
+        </ConversationCard>
+      ),
+    }
+    render(<ConversationLayout threads="under" items={[...items('under'), resolved]} below={<p>Reactions note</p>} box={<p>The box</p>} />)
+    const note = screen.getByText('Reactions note')
+    const follows = (a: Node, b: Node) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(follows(screen.getByText('No replies yet'), note)).toBe(true)
+    expect(follows(screen.getByRole('button', { name: /Resolved/ }), note)).toBe(true)
+    expect(follows(note, screen.getByText('The box'))).toBe(true)
+    // In the comments' own box, the one that scrolls: not in the footer with the box.
+    expect(note.closest('[data-conversation-item]')).toBeNull()
+    expect(screen.getByText('The box').parentElement?.contains(note)).toBe(false)
+  })
+
+  it('under the empty line too, and not while the comments are read', () => {
+    render(<ConversationLayout threads="under" items={[]} below={<p>Reactions note</p>} />)
+    expect(screen.getByText('Reactions note')).toBeTruthy()
+    cleanup()
+    render(<ConversationLayout threads="under" items={[]} loading below={<p>Reactions note</p>} />)
+    expect(screen.queryByText('Reactions note')).toBeNull()
+  })
+})
+
+describe('ConversationLayout, one column, the note sits on the box (Katerina, 2 November: as in Peek)', () => {
+  it('pushes `below` to the foot of a column at least as tall as its room, the comments staying at the top', () => {
+    render(<ConversationLayout threads="under" items={items('under')} below={<p>Reactions note</p>} box={<p>The box</p>} />)
+    const pushed = screen.getByText('Reactions note').closest('.mt-auto')
+    expect(pushed).not.toBeNull()
+    const body = pushed!.parentElement!
+    // The scrolling box's content is at least the column's height, so the room a short conversation leaves is above the note.
+    expect(body.className.split(/\s+/)).toContain('min-h-full')
+    // Only the note moves: the comments are the body's first children, and none is pushed.
+    const first = document.querySelector('[data-conversation-item="a"]')!
+    expect(body.firstElementChild).toBe(first)
+    expect(document.querySelectorAll('[data-conversation-item].mt-auto, [data-conversation-item] .mt-auto').length).toBe(0)
+  })
+
+  it('pushes nothing while the comments are read, and with no note', () => {
+    const { container } = render(<ConversationLayout threads="under" items={[]} loading below={<p>Reactions note</p>} />)
+    expect(container.querySelector('.mt-auto')).toBeNull()
+    cleanup()
+    const again = render(<ConversationLayout threads="under" items={items('under')} />)
+    expect(again.container.querySelector('.mt-auto')).toBeNull()
+  })
+})

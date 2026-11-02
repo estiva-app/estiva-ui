@@ -18,6 +18,12 @@ first, then what it goes under, read when the Folder is picked.
 - A file that may sit at the top of any Folder: `startAtTop`, so the top is
   chosen for the person. Otherwise Move waits for a pick: a preselected place is
   a move nobody chose.
+- A file not listed in exactly one Folder: `from=""`, and no Folder is held
+  back. Listed in none; or in two after a move that half-worked, where moving
+  into either takes it out of the other, so Move again is the retry. Nothing is
+  chosen for the person even so; `startIn` opens it on one.
+
+<Canvas of={MoveDialogStories.ListedTwice} />
 
 <Canvas of={MoveDialogStories.Project} />
 
@@ -53,7 +59,12 @@ import { MoveDialog } from '@estiva-app/ui'
   Answer `false` to keep it open once you have said why.
 - `folders` undefined while they are read: the list says "Reading…".
 - `heading`, `folderLabel`, `noFolder` and `topLabel` are for your app's words;
-  `startIn` opens it on another Folder than the one it is in.
+  `startIn` opens it on another Folder than the one it is in. An app that
+  chooses one for the person holds its `startIn` steady while the dialog is
+  open: a refusal that changes where the file is listed must not move it.
+- Pass only the Folders a move can land in: filter `folders` before, by your
+  app's own rules (a Folder that cannot take it). A move your app refuses when
+  it is made is answered with `false`, said why, and the dialog stays.
 
 <Canvas of={MoveDialogStories.FolderUnreadable} />
 

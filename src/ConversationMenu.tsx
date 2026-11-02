@@ -22,6 +22,10 @@ export interface ConversationMenuProps {
   after?: ReactNode
   /** Offered on your own only; the card asks before it deletes. */
   onDelete?: () => void
+  /** Delete's words: "Delete" by default; Ship's "Delete message". */
+  deleteLabel?: string
+  /** Its own ⋯ button's name and tooltip, with no `trigger`: "More actions" by default; Ship's "Message actions". */
+  moreLabel?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
   /** The button that opens it: a `ToolbarButton` inside `ConversationActions`. Absent: an `IconButton`. */
@@ -34,7 +38,7 @@ export interface ConversationMenuProps {
  * row to show. Peek's, moved with the conversation; what is Peek's own (its heading, its hint, its words, its rows)
  * Peek passes in, so its menu reads as it did (Katerina, 1 November).
  */
-export function ConversationMenu({ resolved = false, onResolve, onReopen, resolveHint, children, label, onEdit, editLabel = 'Edit', after, onDelete, open, onOpenChange, trigger }: ConversationMenuProps) {
+export function ConversationMenu({ resolved = false, onResolve, onReopen, resolveHint, children, label, onEdit, editLabel = 'Edit', after, onDelete, deleteLabel = 'Delete', moreLabel = 'More actions', open, onOpenChange, trigger }: ConversationMenuProps) {
   const resolves = resolved ? onReopen : onResolve
   const first = (resolves || children) && (
     <>
@@ -57,7 +61,7 @@ export function ConversationMenu({ resolved = false, onResolve, onReopen, resolv
     <Menu
       trigger={
         trigger ?? (
-          <IconButton tooltip="More actions" aria-label="More actions">
+          <IconButton tooltip={moreLabel} aria-label={moreLabel}>
             <IconDotsVertical size={16} stroke={1.5} />
           </IconButton>
         )
@@ -72,7 +76,7 @@ export function ConversationMenu({ resolved = false, onResolve, onReopen, resolv
       {first && middle && <MenuSeparator />}
       {middle}
       {onDelete && (first || middle) && <MenuSeparator />}
-      {onDelete && <MenuItem label="Delete" destructive onClick={onDelete} />}
+      {onDelete && <MenuItem label={deleteLabel} destructive onClick={onDelete} />}
     </Menu>
   )
 }

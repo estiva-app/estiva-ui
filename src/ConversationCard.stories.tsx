@@ -95,6 +95,9 @@ export const New: Story = { render: (args) => <Live {...args} isNew /> }
 /** A reply under it not read yet. */
 export const NewReply: Story = { name: 'New reply', render: (args) => <Live {...args} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM', isNew: true }} onClick={() => {}} /> }
 
+/** Replies under it not read yet, by count: the row says how many. */
+export const NewReplies: Story = { name: 'New replies, how many', render: (args) => <Live {...args} replies={{ count: 3, faces: [TWO, THREE, YOU], last: '12:02 PM', newCount: 2 }} onClick={() => {}} /> }
+
 /** Urgent and not read yet. */
 export const Urgent: Story = { render: (args) => <Live {...args} isNew urgent replies={{ count: 1, faces: [TWO], last: '12:02 PM', isNew: true }} /> }
 
@@ -137,6 +140,19 @@ export const ReadOnly: Story = { name: 'Read-only', render: (args) => <Live {...
 
 /** A long comment, at its full height. */
 export const Long: Story = { render: (args) => <Live {...args}>{LONG}</Live> }
+
+/**
+ * Yours, in an app's own words: the ⋯ named "Message actions", its Delete row "Delete message", and the question
+ * asking about a message (`noun`). The story points at it and opens the menu.
+ */
+export const InAnAppsWords: Story = {
+  name: "In an app's words",
+  render: (args) => <Live {...args} author={YOU} own noun="message" deleteLabel="Delete message" moreLabel="Message actions" />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText(WORDS))
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Message actions' }))
+  },
+}
 
 /** The app's own rows in its ⋯ menu, between Resolve and Edit. */
 export const MoreRows: Story = {

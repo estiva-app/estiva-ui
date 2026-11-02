@@ -13,6 +13,8 @@ export interface RepliesRowProps {
   last?: string
   /** "1 new": a reply you have not read. */
   isNew?: boolean
+  /** How many replies you have not read: "2 new", and the row's name says it too. Given, it decides over `isNew`; 0 is none. */
+  newCount?: number
   /** The "1 new" chip in the warning colour, for an urgent thread. */
   urgent?: boolean
   /** Opens the thread. Absent, the row only says how many (the card around it opens the thread). */
@@ -28,13 +30,17 @@ const BOX_CLASSES =
   'group/replies flex shrink-0 items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-accent-outline hover:bg-accent-wash'
 
 /**
- * The way into a thread, under its comment: who replied, "2 replies", the last reply's time, and "1 new" until it is
- * read. Peek's, moved with the conversation; in every app the row a thread opens from, the same in every theme
+ * The way into a thread, under its comment: who replied, "2 replies", the last reply's time, and how many are new
+ * ("2 new") until they are read. Peek's, moved with the conversation; in every app the row a thread opens from, the same in every theme
  * (Katerina, 31 October), each in its own colours.
  */
-export function RepliesRow({ count, faces, last, isNew = false, urgent = false, onOpen, open = false }: RepliesRowProps) {
+export function RepliesRow({ count, faces, last, isNew = false, newCount, urgent = false, onOpen, open = false }: RepliesRowProps) {
   const withFaces = !!faces && faces.length > 0
   const label = `${count} ${count === 1 ? 'reply' : 'replies'}`
+  // How many are new: the app's count, or one for `isNew` (all an app without a count can say).
+  const fresh = newCount ?? (isNew ? 1 : 0)
+  // Its name says how many are new only with the app's count: with `isNew` alone it stays as it was.
+  const name = newCount ? `${label}, ${newCount} new` : label
   const inner = (
     <>
       {withFaces && (
@@ -62,10 +68,10 @@ export function RepliesRow({ count, faces, last, isNew = false, urgent = false, 
       />
     </>
   )
-  const chip = isNew && (
+  const chip = fresh > 0 && (
     <>
       <span className="h-0.5 w-0.5 shrink-0 rounded-full bg-text-muted" />
-      <Chip type={urgent ? 'warning' : 'brand'} label="1 new" />
+      <Chip type={urgent ? 'warning' : 'brand'} label={`${fresh} new`} />
     </>
   )
   if (!onOpen) {
@@ -78,7 +84,7 @@ export function RepliesRow({ count, faces, last, isNew = false, urgent = false, 
   }
   return (
     // @estiva-escape(no-raw-element): the row is the thread's way in, Peek's replies row; no kit button takes a face stack, a count, a time and the new chip in one press
-    <button type="button" className={cn(ROW_CLASSES, 'cursor-pointer text-left')} onClick={onOpen} aria-expanded={open} aria-label={`${label}, ${open ? 'close' : 'open'} the thread`} data-interactive>
+    <button type="button" className={cn(ROW_CLASSES, 'cursor-pointer text-left')} onClick={onOpen} aria-expanded={open} aria-label={`${name}, ${open ? 'close' : 'open'} the thread`} data-interactive>
       <span className={cn(BOX_CLASSES, open && OPEN_CLASSES)}>{inner}</span>
       {chip}
     </button>
