@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconPlus } from '@tabler/icons-react'
 import { Chip } from './Chip'
-import { CollapsibleSection } from './CollapsibleSection'
+import { CollapsibleSection, useRememberedOpen } from './CollapsibleSection'
 import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
 
@@ -42,6 +42,24 @@ export const WithTrailing: Story = {
 
 /** Close it and reload the page: still closed. This browser remembers, under the key. */
 export const Remembered: Story = { args: { storageKey: 'estiva-ui.stories.collapsible-section' } }
+
+/** `useRememberedOpen`: the app knows whether the section is open before it draws the rows, which it draws only while open, and this browser remembers it as `storageKey` does. Close it and reload: still closed, no rows drawn. */
+export const RememberedByTheApp: Story = {
+  render: function Render(args) {
+    const [open, setOpen] = useRememberedOpen('estiva-ui.stories.collapsible-section.app', true)
+    return (
+      <CollapsibleSection {...args} open={open} onOpenChange={setOpen}>
+        {open && (
+          <>
+            <NavItem href="#" label="Item one" count={7} countLabel="7 open" />
+            <NavItem href="#" label="Item two" count={2} countLabel="2 open" />
+            <NavItem href="#" label="Item three" />
+          </>
+        )}
+      </CollapsibleSection>
+    )
+  },
+}
 
 
 /** `look="row"`: a fold that is a row among rows — a folder in a sidebar. The title at a row's weight, the rows indented under it, past the chevron. */

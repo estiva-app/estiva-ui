@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
+import { userEvent, within } from 'storybook/test'
 import { ConversationCard, type ConversationCardProps } from './ConversationCard'
-import { Column, EditBox, Files, LONG, Mentions, ONE, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions } from './conversation.examples'
+import { AT, Column, EditBox, Files, LONG, Mentions, ONE, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions } from './conversation.examples'
 import { RichText } from './RichText'
 import { MenuItem } from './Menu'
 import type { ReactionCount } from './ReactionRow'
@@ -48,6 +49,15 @@ function Live({ start, resolvedAt, deletable = true, ...props }: ConversationCar
 
 /** Someone's comment. */
 export const Comment: Story = { render: (args) => <Live {...args} /> }
+
+/** With its moment, `at`: the time says the exact date and time under the pointer. The story points at it. */
+export const ExactTime: Story = {
+  name: 'Exact time',
+  render: (args) => <Live {...args} at={AT} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText('11:08 AM'))
+  },
+}
 
 /** Yours: Edit and Delete in its ⋯ menu. */
 export const Yours: Story = { render: (args) => <Live {...args} author={YOU} own /> }

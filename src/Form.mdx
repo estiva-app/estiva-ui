@@ -47,7 +47,9 @@ import { Button, Field, Form, TextInput } from '@estiva-app/ui'
 - **`busy` switches off every field and button inside**, so they do not
   each need `disabled={busy}`. A button outside the form that sends it —
   a dialog's footer, with `form="<id>"` and the form's `id` — is outside,
-  and keeps its own `disabled`.
+  and keeps its own `disabled`. The kit's parts that are not native controls
+  (Button, IconButton, Checkbox, the editor's **DocumentField**) read it with
+  `useFormBusy()`, the kit's own wiring: an app never needs it.
 - **Focus waits on the form while it is busy.** A browser drops focus to the
   page the moment the focused field is switched off; the form holds it
   instead. When `busy` ends, focus goes to the first field showing an error,

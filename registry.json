@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.98.1",
-    "exports": 229,
-    "typeExports": 234,
+    "packageVersion": "0.99.0",
+    "exports": 243,
+    "typeExports": 249,
     "files": null
   },
   "storybook": {
@@ -293,6 +293,95 @@
         "overflow-hidden transition-[opacity,visibility] duration-300 ease-in-out motion-reduce:transition-none invisible opacity-0",
         "overflow-hidden rounded-2xl bg-bg-surface signal:border signal:border-border-subtle signal:shadow-highlight-inset"
       ]
+    },
+    {
+      "name": "ArchiveDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ArchiveDialog.tsx",
+      "purpose": "The question asked before archiving a file or a Folder: what goes out of the lists with it, counted, and an optional resolution.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "The file's name, for the title."
+        },
+        {
+          "name": "what",
+          "takes": "text",
+          "required": true,
+          "note": "What it is, in a word: \"topic\", \"project\", \"issue\", \"folder\"."
+        },
+        {
+          "name": "hides",
+          "takes": "readonly string[] | null",
+          "required": true,
+          "note": "What goes out of the lists with it, already counted and worded — \"14 issues\"."
+        },
+        {
+          "name": "staysVisible",
+          "takes": "readonly string[]",
+          "required": false,
+          "note": "What it lists that stays visible somewhere else, worded — \"2 files also in Steer\"."
+        },
+        {
+          "name": "apps",
+          "takes": "readonly string[]",
+          "required": true,
+          "note": "The apps whose lists it goes out of, in the order to name them: `['Peek', 'Ship']` reads \"in Peek and in Ship\"."
+        },
+        {
+          "name": "getBack",
+          "takes": "text",
+          "required": true,
+          "note": "The last line, in the app's words: that nothing is deleted, and how to get it back there."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onArchive",
+          "takes": "a handler",
+          "required": true,
+          "note": "With the resolution, trimmed (`''` for none)."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "menus-windows-archivedialog--docs",
+      "storyId": "menus-windows-archivedialog--a-project",
+      "docPage": "src/ArchiveDialog.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "archivedLine",
@@ -1132,6 +1221,12 @@
           "note": "What is inside is cut to the card's rounded corners: a strip or a picture that runs edge to edge (UIG-9, 17 September; the apps passed `overflow-hidden`)."
         },
         {
+          "name": "onPress",
+          "takes": "a handler",
+          "required": false,
+          "note": "Pressing the card opens what it stands for: a click anywhere on it but on what acts by itself inside it, and Enter or Space on the card itself, which is a Tab stop."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -1494,6 +1589,12 @@
           "takes": "text",
           "required": false,
           "note": "The id of what names the field on the page — a visible \"To:\", say."
+        },
+        {
+          "name": "single",
+          "takes": "true/false",
+          "required": false,
+          "note": "It holds one — an owner, an assignee: a later pick replaces the chosen one rather than adding a second."
         }
       ],
       "variants": [],
@@ -1539,7 +1640,7 @@
       "app": null,
       "looks": [
         "bg-bg-elevated border border-border-subtle rounded-md",
-        "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring",
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus signal:transition-shadow signal:focus-within:shadow-focus-ring cursor-text",
         "text-body-2 border-none bg-transparent text-text-primary placeholder:text-text-muted outline-none"
       ]
     },
@@ -2450,7 +2551,13 @@
           "name": "onClose",
           "takes": "a handler",
           "required": true,
-          "note": null
+          "note": "Cancel, Escape, the ✕, and an action that went through: once, when it was closed while the action ran."
+        },
+        {
+          "name": "alternative",
+          "takes": "ConfirmDialogAlternative",
+          "required": false,
+          "note": "A third, safer answer — \"Archive instead\" — drawn after the words, under its sentence, and switched off while the confirm runs (Peek's, 2 November)."
         }
       ],
       "variants": [],
@@ -2719,6 +2826,12 @@
           "note": "When it was written, in the app's words (\"11:08 AM\")."
         },
         {
+          "name": "at",
+          "takes": "number",
+          "required": false,
+          "note": "When it was written, as a moment (ms since 1970): the time then says the exact date and time under the pointer."
+        },
+        {
           "name": "timeHref",
           "takes": "text",
           "required": false,
@@ -2889,6 +3002,12 @@
           "note": "The id of the comment whose thread is open."
         },
         {
+          "name": "aside",
+          "takes": "anything",
+          "required": false,
+          "note": "Two columns: what the 384px column holds while no thread is open, the page's own panel beside its comments (an overview)."
+        },
+        {
           "name": "onOpenChange",
           "takes": "a handler",
           "required": false,
@@ -2931,16 +3050,28 @@
           "note": "What an empty conversation says: words, or the app's own `EmptyState` (a read that failed says so)."
         },
         {
+          "name": "rememberAs",
+          "takes": "text",
+          "required": false,
+          "note": "Two columns: the conversation's own name in the app (its address)."
+        },
+        {
           "name": "bodyRef",
           "takes": "Ref<HTMLDivElement>",
           "required": false,
-          "note": "Two columns: the comments' scrolling box, for an app that keeps its own place in it (where it was left, its \"New\" line, following what arrives)."
+          "note": "Two columns: the comments' scrolling box."
         },
         {
           "name": "onBodyScroll",
           "takes": "UIEventHandler<HTMLDivElement>",
           "required": false,
           "note": "Two columns: the comments' box scrolled."
+        },
+        {
+          "name": "seen",
+          "takes": "SeenOnScreen",
+          "required": false,
+          "note": "What `useSeenOnScreen` made for this conversation: the layout watches its comments, and says in it which were seen."
         },
         {
           "name": "header",
@@ -3101,6 +3232,44 @@
       "docsId": "conversation-conversationmenu--docs",
       "storyId": "conversation-conversationmenu--yours",
       "docPage": "src/ConversationMenu.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ConversationPlace",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationPlace.tsx",
+      "purpose": "Above a conversation shown away from where it was said: how it is related, and where it was said.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "relation",
+          "takes": "text",
+          "required": true,
+          "note": "How the conversation is related to the page it is shown on, in the app's words: \"Mentioned in\"."
+        },
+        {
+          "name": "place",
+          "takes": "text",
+          "required": false,
+          "note": "Where it was said: the place's name. Absent or empty while it resolves, and then nothing is drawn for it."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "The conversation, as the app draws it: its card."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationplace--docs",
+      "storyId": "conversation-conversationplace--mentioned-in",
+      "docPage": "src/ConversationPlace.mdx",
       "app": null,
       "looks": []
     },
@@ -3518,6 +3687,112 @@
       "looks": []
     },
     {
+      "name": "DocumentField",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui/editor",
+      "sourceFile": "src/DocumentField.tsx",
+      "purpose": "A form's field that holds a document: the document editor's blocks, marks, `[`, `@` and `/`, in a field's box.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "value",
+          "takes": "text",
+          "required": true,
+          "note": "What the field holds, in `format`; `''` when nothing is written."
+        },
+        {
+          "name": "format",
+          "takes": "text",
+          "required": true,
+          "note": "The format `value` is in, handed to `codec.read`."
+        },
+        {
+          "name": "codec",
+          "takes": "DocumentCodec",
+          "required": true,
+          "note": "How the app's text and the editor's document turn into each other: `DocumentEditor`'s."
+        },
+        {
+          "name": "onChange",
+          "takes": "a handler",
+          "required": true,
+          "note": "Every edit, as it is typed: the text and its format, or `''` once it is emptied or holds only spaces and blank lines."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The editor's accessible name: the label of the `Field` around it."
+        },
+        {
+          "name": "placeholder",
+          "takes": "anything",
+          "required": false,
+          "note": "Muted words in the empty field."
+        },
+        {
+          "name": "references",
+          "takes": "DocumentReferences",
+          "required": false,
+          "note": "`[` and `/` → File."
+        },
+        {
+          "name": "mentions",
+          "takes": "DocumentMentions",
+          "required": false,
+          "note": "`@` and `/` → Mention."
+        },
+        {
+          "name": "linkChips",
+          "takes": "LinkChipsOptions",
+          "required": false,
+          "note": "A pasted app URL drawn as the chip of what it names (`LinkChips`)."
+        },
+        {
+          "name": "readMarkdown",
+          "takes": "a handler",
+          "required": false,
+          "note": "Plain text pasted as the blocks it spells: the app's reader of markdown, as the editor's document."
+        },
+        {
+          "name": "referenceView",
+          "takes": "ComponentType<ReferenceViewProps>",
+          "required": false,
+          "note": "Draws a link: the app's own, which resolves what it names."
+        },
+        {
+          "name": "attachmentView",
+          "takes": "ComponentType<AttachmentViewProps>",
+          "required": false,
+          "note": "Draws a placed file: the app's own card."
+        },
+        {
+          "name": "extensions",
+          "takes": "readonly AnyExtension[]",
+          "required": false,
+          "note": "More of the app's own extensions."
+        },
+        {
+          "name": "aria-required",
+          "takes": "boolean | 'true' | 'false'",
+          "required": false,
+          "note": "Set by a required `Field` around it, for a screen reader."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "writing-documentfield--docs",
+      "storyId": "writing-documentfield--empty",
+      "docPage": "src/DocumentField.mdx",
+      "app": null,
+      "looks": [
+        "bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors focus-within:border-border-focus focus-within:hover:border-border-focus signal:transition-shadow signal:focus-within:shadow-focus-ring cursor-text"
+      ]
+    },
+    {
       "name": "duplicateBlock",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -3555,7 +3830,7 @@
           "name": "placeholder",
           "takes": "text",
           "required": true,
-          "note": null
+          "note": "What shows, muted, while the value is empty; in `buttons`, as the kit's empty line for one part of a page (12px)."
         },
         {
           "name": "onCommit",
@@ -3598,9 +3873,65 @@
           "takes": "true/false",
           "required": false,
           "note": "Show the value only — no edit affordance."
+        },
+        {
+          "name": "manner",
+          "takes": "inline | buttons",
+          "required": false,
+          "note": "How it is edited. `inline`, the default: the text is the button, and leaving the field saves."
+        },
+        {
+          "name": "editLabel",
+          "takes": "text",
+          "required": false,
+          "note": "`buttons`: the words on the button that opens the field — \"Rename\"."
+        },
+        {
+          "name": "addLabel",
+          "takes": "text",
+          "required": false,
+          "note": "`buttons`: its words while the value is empty, with a plus — \"Add a summary\"."
+        },
+        {
+          "name": "fieldPlaceholder",
+          "takes": "text",
+          "required": false,
+          "note": "`buttons`: the field's own placeholder, while it is edited."
+        },
+        {
+          "name": "required",
+          "takes": "true/false",
+          "required": false,
+          "note": "`buttons`: an empty value cannot be saved, as a name cannot."
+        },
+        {
+          "name": "clean",
+          "takes": "a handler",
+          "required": false,
+          "note": "`buttons`: what a draft becomes before it is compared and saved — one line, say."
+        },
+        {
+          "name": "draftNote",
+          "takes": "a handler",
+          "required": false,
+          "note": "`buttons`: said between the field and its buttons as it is typed — a count past a limit."
+        },
+        {
+          "name": "defaultEditing",
+          "takes": "true/false",
+          "required": false,
+          "note": "`buttons`: opens as the field, holding the value — a menu's Rename."
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "manner",
+          "values": [
+            "inline",
+            "buttons"
+          ]
+        }
+      ],
       "ownsBehaviours": [
         {
           "id": "base-ui",
@@ -3613,15 +3944,7 @@
       "storyId": "forms-fields-editabletext--title",
       "docPage": "src/EditableText.mdx",
       "app": null,
-      "looks": [
-        "rounded-md border border-border-strong bg-bg-inset text-text-primary outline-none",
-        "rounded-md border border-border-strong bg-bg-inset text-text-primary outline-none resize-none",
-        "rounded-md border border-transparent text-left transition-colors hover:border-border-default text-text-primary",
-        "rounded-md border border-transparent text-left transition-colors hover:border-border-default text-text-muted",
-        "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-primary",
-        "rounded-md border border-transparent text-left transition-colors hover:border-border-default whitespace-pre-wrap text-text-muted",
-        "rounded-md border border-transparent text-left transition-colors hover:border-border-default"
-      ]
+      "looks": []
     },
     {
       "name": "EditedMarker",
@@ -3746,7 +4069,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/EmptyState.tsx",
-      "purpose": "The place where content will be once there is some, in two manners: a 16px icon over a centred line when the whole page is empty, the line alone and left-aligned when one section of a page is.",
+      "purpose": "The place where content will be once there is some, in three manners: a 16px icon over a centred line when the whole page is empty, the line alone and left-aligned when one section of a page is, and that line in a row's inset in place of a sidebar's rows.",
       "purposeFrom": "page",
       "props": [
         {
@@ -3763,9 +4086,9 @@
         },
         {
           "name": "scope",
-          "takes": "page | section",
+          "takes": "page | section | rows",
           "required": false,
-          "note": "`page` when the whole page is empty; `section` when one part of it is."
+          "note": "`page` when the whole page is empty; `section` when one part of it is; `rows` in place of rows that pad themselves, a sidebar's."
         },
         {
           "name": "action",
@@ -3785,7 +4108,8 @@
           "prop": "scope",
           "values": [
             "page",
-            "section"
+            "section",
+            "rows"
           ]
         }
       ],
@@ -4233,6 +4557,103 @@
       "docsId": "writing-composertriggers--docs",
       "storyId": "writing-composertriggers--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "FormDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/FormDialog.tsx",
+      "purpose": "A dialog that sends a form: the words and fields you give it, then Cancel and the button that sends it, waiting together while it sends.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "The dialog's heading."
+        },
+        {
+          "name": "submitLabel",
+          "takes": "text",
+          "required": true,
+          "note": "The words on the button that sends the form: \"Move\", \"Create\"."
+        },
+        {
+          "name": "busyLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Its words while the form sends — \"Moving…\"."
+        },
+        {
+          "name": "submitVariant",
+          "takes": "primary | resolve",
+          "required": false,
+          "note": "How the sending button looks: `primary`, or `resolve` for a Resolve."
+        },
+        {
+          "name": "ready",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether there is enough to send. While it is not, the button is greyed and Enter sends nothing."
+        },
+        {
+          "name": "onSubmit",
+          "takes": "a handler",
+          "required": true,
+          "note": "Sends the form. Answer `false` to keep the dialog open (you have said why); anything else closes it."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": "Cancel, Escape, the ✕, a press outside, and a send that went through: once, when it was closed while it sent."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "What the form holds: the words before the fields, then the fields."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "submitVariant",
+          "values": [
+            "primary",
+            "resolve"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "menus-windows-formdialog--docs",
+      "storyId": "menus-windows-formdialog--new-folder",
+      "docPage": "src/FormDialog.mdx",
       "app": null,
       "looks": []
     },
@@ -4854,6 +5275,25 @@
       "migrationStage": null,
       "docsId": "writing-blocknodes--docs",
       "storyId": "writing-blocknodes--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "isPlainClick",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/AppProvider.tsx",
+      "purpose": "Whether a click is a plain one, the browser's to follow in this tab: the main button, with no Ctrl, Cmd, Shift or Alt — what every link part checks before it keeps a click in the app.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "app-frame-appprovider--docs",
+      "storyId": "app-frame-appprovider--pictures",
       "docPage": null,
       "app": null,
       "looks": []
@@ -6586,6 +7026,150 @@
       "looks": []
     },
     {
+      "name": "MoveDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/MoveDialog.tsx",
+      "purpose": "Move a file to another Folder, under another file there, or both: the Folder first, then what it goes under, read when the Folder is picked.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "The file's name, said above the choice."
+        },
+        {
+          "name": "description",
+          "takes": "text",
+          "required": true,
+          "note": "The sentence under the name, in the app's words: \"Everyone who can read it now still can.\""
+        },
+        {
+          "name": "from",
+          "takes": "text",
+          "required": true,
+          "note": "The Folder it is in now."
+        },
+        {
+          "name": "folders",
+          "takes": "readonly MoveFolder[] | undefined",
+          "required": true,
+          "note": "The Folders it may go to. Undefined while they are still read: the list says \"Reading…\"."
+        },
+        {
+          "name": "places",
+          "takes": "readonly MovePlace[]",
+          "required": false,
+          "note": "Where it may go in `from`, already read."
+        },
+        {
+          "name": "placesIn",
+          "takes": "a handler",
+          "required": false,
+          "note": "Where it may go in another Folder, read when that Folder is picked; a rejection is said beside a Try again."
+        },
+        {
+          "name": "startAtTop",
+          "takes": "true/false",
+          "required": false,
+          "note": "Choose the top for the person when a Folder offers it: where a file that may sit at any Folder's top lands."
+        },
+        {
+          "name": "topLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What the place with an empty `id` says. \"The top of\" the Folder when absent; \"None — under none of these\" for a file whose parent is one kind."
+        },
+        {
+          "name": "startIn",
+          "takes": "text",
+          "required": false,
+          "note": "The Folder it opens on, when that is not the one it is in."
+        },
+        {
+          "name": "heading",
+          "takes": "text",
+          "required": false,
+          "note": "The dialog's heading. \"Move\" when absent."
+        },
+        {
+          "name": "folderLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The Folder field's label. \"Folder\" when absent."
+        },
+        {
+          "name": "noFolder",
+          "takes": "text",
+          "required": false,
+          "note": "Said when no Folder is offered. \"There is no other folder it can be moved to.\" when absent."
+        },
+        {
+          "name": "onMove",
+          "takes": "a handler",
+          "required": true,
+          "note": "Answer `false` to keep the dialog open (you have said why); anything else closes it."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "menus-windows-movedialog--docs",
+      "storyId": "menus-windows-movedialog--topic",
+      "docPage": "src/MoveDialog.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "NAV_TREE_PENDING_MS",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/NavTree.tsx",
+      "purpose": "How long a `pending` group waits shut for its rows before it opens on the skeleton (Peek's Folders, OPT-11: a cold read is ~0.9s).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "app-frame-navtree--docs",
+      "storyId": "app-frame-navtree--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "NavItem",
       "repo": "estiva-ui",
       "kind": "component",
@@ -6703,6 +7287,12 @@
           "note": "With `children`: the current item, when it sits under this row."
         },
         {
+          "name": "onPlainClick",
+          "takes": "a handler",
+          "required": false,
+          "note": "A plain click on the row — the main button, no Ctrl, Cmd, Shift or Alt, to this app's own address: the app opens it its own way, with what it knows, in place of following the link (the row prevents it, and `navigate` is not called)."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -6777,6 +7367,12 @@
           "note": "The row the current one sits under, while the tree does not draw the current one: its rows are not read yet, or it is not a row here."
         },
         {
+          "name": "selectedGroup",
+          "takes": "text",
+          "required": false,
+          "note": "The group a link led to — a folder's own link: each time it names a new group, the group opens, as `selected` opens a row's — closed by hand too, once — and is remembered open as a click would be, open already or not, so it stays open when the reader goes on to a row in another group; and the column scrolls to it at once."
+        },
+        {
           "name": "onSelect",
           "takes": "a handler",
           "required": false,
@@ -6824,7 +7420,7 @@
           "name": "id",
           "takes": "text",
           "required": false,
-          "note": "Marks the group's box as `data-nav-group`, for tests and photo runs to find it."
+          "note": "Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup` (opens it, remembers it open, scrolls to it), and tests and photo runs do."
         },
         {
           "name": "message",
@@ -7469,6 +8065,12 @@
           "takes": "anything",
           "required": true,
           "note": "When it was written, in the app's words, with its day: no day line stands above it here."
+        },
+        {
+          "name": "at",
+          "takes": "number",
+          "required": false,
+          "note": "When it was written, as a moment (ms since 1970): the time then says the exact date and time under the pointer, as a comment's does."
         },
         {
           "name": "words",
@@ -8161,6 +8763,12 @@
           "takes": "text",
           "required": false,
           "note": "What the app calls what is said, in the plural: \"messages\" in Peek."
+        },
+        {
+          "name": "keepRoom",
+          "takes": "true/false",
+          "required": false,
+          "note": "Older comments are still being read and the whole read will need the line: its room is kept, unseen, so nothing moves when it lands."
         }
       ],
       "variants": [],
@@ -8604,6 +9212,12 @@
       "purposeFrom": "page",
       "props": [
         {
+          "name": "id",
+          "takes": "text",
+          "required": false,
+          "note": "Its id, on the card as `data-reply-id`: what a link to it shows (`showInConversation`), and what `Thread` watches to say it was seen."
+        },
+        {
           "name": "author",
           "takes": "ConversationPerson",
           "required": true,
@@ -8614,6 +9228,12 @@
           "takes": "anything",
           "required": true,
           "note": "When it was written, in the app's words (\"11:08 AM\")."
+        },
+        {
+          "name": "at",
+          "takes": "number",
+          "required": false,
+          "note": "When it was written, as a moment (ms since 1970): the time then says the exact date and time under the pointer."
         },
         {
           "name": "timeHref",
@@ -8777,7 +9397,7 @@
           "name": "onCancel",
           "takes": "a handler",
           "required": true,
-          "note": null
+          "note": "Cancel, Escape, the ✕ — and a resolve that was not refused, which closes it."
         },
         {
           "name": "refused",
@@ -9472,6 +10092,25 @@
       "looks": []
     },
     {
+      "name": "sendsInLayout",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/conversationScroll.ts",
+      "purpose": "Set by ConversationLayout round its own box, read by CommentBox: the reader's own comment brings them down to it as it is drawn, before the relay has answered (Peek's OPT-6), and a refusal leaves where they actually are to decide.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "setCommentAnchors",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -9535,6 +10174,44 @@
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/shortcuts.ts",
       "purpose": "`Mod-B` → `Cmd+B` on a Mac, `Ctrl+B` elsewhere.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "showInConversation",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/showInConversation.ts",
+      "purpose": "Scrolls a comment or reply drawn by the kit into the middle of the view and flashes it.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "showInConversationWhenDrawn",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/showInConversation.ts",
+      "purpose": "The same, for one that may not be drawn yet: its thread was just asked to open, and the page draws it a moment later.",
       "purposeFrom": "comment",
       "props": [],
       "variants": [],
@@ -10245,7 +10922,7 @@
           "name": "children",
           "takes": "anything",
           "required": false,
-          "note": "Its replies, in time order: `ReplyCard`s."
+          "note": "Its replies, in time order: `ReplyCard`s, each keyed by its own id."
         },
         {
           "name": "loading",
@@ -10305,7 +10982,13 @@
           "name": "bodyRef",
           "takes": "Ref<HTMLDivElement>",
           "required": false,
-          "note": "The column's scrolling box, for opening at the newest reply."
+          "note": "Beside: the column's scrolling box. Where it scrolls is the thread's: it opens at the newest reply and goes to each new one."
+        },
+        {
+          "name": "seen",
+          "takes": "SeenOnScreen",
+          "required": false,
+          "note": "Beside: what `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), and says in it which were seen."
         },
         {
           "name": "className",
@@ -11279,6 +11962,82 @@
       "migrationStage": null,
       "docsId": "links-references-linkpreview--docs",
       "storyId": "links-references-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useFormBusy",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/formBusy.ts",
+      "purpose": "Whether a `Form` around this is sending: its fields and buttons wait.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useLeftAt",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/conversationScroll.ts",
+      "purpose": "When the reader last left the conversation `key` (a `ConversationLayout`'s `rememberAs`) away from its newest comment, in ms since 1970: what an app draws its \"New\" line from, over the first comment written since.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useRememberedOpen",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CollapsibleSection.tsx",
+      "purpose": "Open or closed as this browser remembers it under `storageKey`, else `fallback`, for an app that must know before it draws what is inside — a fold whose rows are read only once it is open (Peek's Folders, FOL-21).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-collapsiblesection--docs",
+      "storyId": "page-structure-collapsiblesection--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useSeenOnScreen",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/seenOnScreen.ts",
+      "purpose": "The comments or replies that have been on screen for a moment: what reads them (Katerina, 30 October).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []

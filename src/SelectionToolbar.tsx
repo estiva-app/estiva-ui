@@ -20,8 +20,8 @@ import { shortcutLabel } from './shortcuts'
  * the field opened (measured 2026-09-07). Linear keeps it, and Katerina asked
  * for the same. The editor's own selection never moved — ProseMirror keeps it
  * while unfocused — so this only *draws* it: an inline decoration over the
- * range, in `bg-selected` — the token Peek's composer paints `::selection` in,
- * mapped through edits and cleared when the field closes.
+ * range, in `bg-selected` — the token every kit editor paints `::selection` in
+ * (`EDITOR_SELECTION_CLASSES`) — mapped through edits and cleared when the field closes.
  *
  * A decoration rather than a second selection, because a document has one
  * and the field needs it. Editor-internal by design (the editor owns its own

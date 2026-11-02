@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
@@ -8,6 +8,7 @@ import { Panel } from './Panel'
 import { ReactionHorizon } from './ReactionHorizon'
 import { QuotedLine } from './QuotedLine'
 import { SkeletonBar } from './Skeleton'
+import { useSeenOnScreen } from './seenOnScreen'
 import { Thread } from './Thread'
 
 /**
@@ -108,6 +109,31 @@ export const TwoColumns: Story = {
 }
 
 /**
+ * Two columns with the page's own panel: while no thread is open, the 384px column holds it (Peek's Overview); a
+ * thread opened takes its place, and closing it brings the panel back. Each thread is drawn only while it is open.
+ */
+export const TwoColumnsAside: Story = {
+  name: 'Two columns, with a panel',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>(undefined)
+    const items = useItems('beside', open, setOpen, false).map((item) => {
+      const thread = item.thread as ReactNode
+      return { ...item, thread: () => thread }
+    })
+    return (
+      <ConversationLayout
+        threads="beside"
+        items={items}
+        open={open}
+        onOpenChange={setOpen}
+        aside={<Page />}
+        box={<WriteBox label="Comment" />}
+      />
+    )
+  },
+}
+
+/**
  * Two columns, as Peek's file page and DMs: each day's comments under a line naming it, which stays at the top while
  * its stretch scrolls; the reactions note under the comments. Few comments sit on the box, as a chat does.
  */
@@ -126,6 +152,58 @@ export const TwoColumnsDays: Story = {
       { id: 'd4', day: 'Today', card: card(TWO, '10:21 AM', 'A second comment today.') },
     ]
     return <ConversationLayout threads="beside" items={items} below={<ReactionHorizon limit={100} omitted={3} />} box={<WriteBox label="Comment" />} />
+  },
+}
+
+/**
+ * Two columns, a long conversation: it opens at the newest comment; scrolled up, it stays where the reader is while
+ * comments arrive; at the bottom, it follows them. Write one: it goes down to it as it is drawn, scrolled up or not.
+ * Its place is remembered by `rememberAs`: open another story and come back, and it is where it was left.
+ */
+export const TwoColumnsLong: Story = {
+  name: 'Two columns, long',
+  render: function Render() {
+    const [said, setSaid] = useState<{ who: typeof ONE; words: string }[]>(() =>
+      Array.from({ length: 14 }, (_, i) => ({ who: [ONE, TWO, THREE][i % 3], words: i % 4 === 0 ? WORDS : `Comment ${i + 1} of a long conversation.` })),
+    )
+    const items: ConversationItem[] = said.map((c, i) => ({
+      id: `l${i}`,
+      day: i < 7 ? 'Monday' : 'Today',
+      card: (
+        <ConversationCard author={c.who} time={`${8 + (i % 7)}:${i % 2 ? '30' : '05'} AM`}>
+          {c.words}
+        </ConversationCard>
+      ),
+    }))
+    return (
+      <ConversationLayout
+        threads="beside"
+        rememberAs="story-long"
+        items={items}
+        box={<WriteBox label="Comment" onSend={(words) => setSaid((now) => [...now, { who: YOU, words: words || 'Your comment.' }])} />}
+      />
+    )
+  },
+}
+
+/**
+ * Two columns, read by being seen: each comment new to the reader keeps its dot until it has been on screen a moment
+ * (`useSeenOnScreen`, handed to `seen`). Scroll, and the ones that show lose it after 1.5 seconds.
+ */
+export const TwoColumnsSeen: Story = {
+  name: 'Two columns, new until seen',
+  render: function Render() {
+    const seen = useSeenOnScreen('story')
+    const words = [WORDS, 'A second comment.', 'A third comment, further down.', 'A fourth comment.', 'A fifth comment.', 'A sixth comment.', 'The newest comment.']
+    const items: ConversationItem[] = words.map((said, i) => ({
+      id: `n${i}`,
+      card: (
+        <ConversationCard author={i % 2 ? TWO : ONE} time={`${9 + i}:00 AM`} isNew={i >= 3 && !seen.ids.has(`n${i}`)}>
+          {said}
+        </ConversationCard>
+      ),
+    }))
+    return <ConversationLayout threads="beside" seen={seen} items={items} box={<WriteBox label="Comment" />} />
   },
 }
 

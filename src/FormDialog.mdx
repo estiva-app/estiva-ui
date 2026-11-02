@@ -1,0 +1,78 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as FormDialogStories from './FormDialog.stories'
+
+<Meta of={FormDialogStories} />
+
+# FormDialog
+
+A dialog that sends a form: the words and fields you give it, then Cancel and
+the button that sends it, waiting together while it sends.
+
+<Canvas of={FormDialogStories.NewFolder} />
+
+## When
+
+- A dialog that asks for something and then does it: a name, a destination, a
+  resolution. New folder, Rename folder, Start a topic, Move, Archive.
+- `ready` says when there is enough to send; until then the button is greyed and
+  Enter sends nothing.
+- Nothing to choose from: give a section's **EmptyState** as the only child and
+  `ready={false}`, so the dialog still says what it is for.
+
+<Canvas of={FormDialogStories.Sending} />
+
+## When not
+
+- A question with no fields, before something hard to undo → **ConfirmDialog**.
+- Resolving a comment → **ResolveDialog**, which is this with its words.
+- A dialog with no sending button: a roster, details with Close → **DialogShell**.
+- A form inside the launcher → **CommandPaletteForm**.
+
+## How
+
+```tsx
+import { FormDialog, Field, TextInput } from '@estiva-app/ui'
+
+{open && (
+  <FormDialog
+    title="New folder"
+    submitLabel="Create"
+    busyLabel="Creating…"
+    ready={!!name.trim()}
+    onSubmit={() => create(name.trim())}
+    onClose={() => setOpen(false)}
+  >
+    <p className="text-body-2 text-text-secondary">A place for files and conversations.</p>
+    <Field label="Folder name">
+      <TextInput value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+    </Field>
+  </FormDialog>
+)}
+```
+
+- `onSubmit` answers `false` to keep the dialog open, once you have said why;
+  anything else closes it, through `onClose`. A throw is a refusal too.
+- While it sends, the button shows `busyLabel`, and the fields and **both**
+  buttons wait. Cancel waits because nothing can stop a send already under way:
+  a Cancel then would close over a write still running. Escape and the ✕ still
+  close it, and `onClose` is not called again when that send goes through.
+- The words before the fields go inside it, as one block: the form puts 24px
+  between them and the first field.
+
+<Canvas of={FormDialogStories.Refused} />
+
+<Canvas of={FormDialogStories.NothingToChoose} />
+
+<Canvas of={FormDialogStories.ResolveLook} />
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Sends on Enter in a one-line field, and on Ctrl+Enter anywhere | a key handler, or a `form` id on the button |  |
+| Says it is sending on its button, and switches the fields and both buttons off until the answer | a busy state |  |
+| Closes when the send went through, and stays when it was refused | an `if (ok) onClose()` |  |
+
+## Props
+
+<Controls of={FormDialogStories.NewFolder} />

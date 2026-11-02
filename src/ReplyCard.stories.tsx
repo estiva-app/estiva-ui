@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { userEvent, within } from 'storybook/test'
 import { ReplyCard, type ReplyCardProps } from './ConversationCard'
-import { Column, EditBox, Files, ONE, SHORT, SOME, WithCard, YOU, useReactions } from './conversation.examples'
+import { AT, Column, EditBox, Files, ONE, SHORT, SOME, WithCard, YOU, useReactions } from './conversation.examples'
 import type { ReactionCount } from './ReactionRow'
 
 /** One reply, live: point at it to react, and on your own edit or delete it. */
@@ -59,6 +59,24 @@ export const Card: Story = { render: (args) => <Live {...args}><WithCard /></Liv
 export const Linked: Story = {
   name: 'Time is a link',
   render: (args) => <Live {...args} timeHref="#reply" />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByRole('link', { name: '11:40 AM' }))
+  },
+}
+
+/** With its moment, `at`: the time says the exact date and time under the pointer. The story points at it. */
+export const ExactTime: Story = {
+  name: 'Exact time',
+  render: (args) => <Live {...args} at={AT + 32 * 60_000} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText('11:40 AM'))
+  },
+}
+
+/** Its time a link, with its moment: the exact time, then where the link goes. The story points at it. */
+export const LinkedExactTime: Story = {
+  name: 'Time is a link, exact time',
+  render: (args) => <Live {...args} at={AT + 32 * 60_000} timeHref="#reply" />,
   play: async ({ canvasElement }) => {
     await userEvent.hover(within(canvasElement).getByRole('link', { name: '11:40 AM' }))
   },

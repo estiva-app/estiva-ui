@@ -5,7 +5,7 @@ import { IconX } from '@tabler/icons-react'
 import { cn } from './cn'
 import { MenuItem, MenuPanel } from './Menu'
 import { ScrollArea } from './ScrollArea'
-import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES } from './looks'
+import { BARE_INPUT_CLASSES, FIELD_SHELL_CLASSES, FIELD_SHELL_FOCUS_CLASSES } from './looks'
 
 /* The chip's own look, written once: `InputChip` draws it for a caller who
    wants a chip on its own, and `ChipInput` gives the same classes to Base UI's
@@ -144,6 +144,8 @@ export interface ChipInputProps<T extends ChipInputOption = ChipInputOption> {
   'aria-label'?: string
   /** The id of what names the field on the page — a visible "To:", say. */
   'aria-labelledby'?: string
+  /** It holds one — an owner, an assignee: a later pick replaces the chosen one rather than adding a second. */
+  single?: boolean
 }
 
 export function ChipInput<T extends ChipInputOption = ChipInputOption>({
@@ -155,6 +157,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
   excludeIds = [],
   chipLeading,
   rowLeading,
+  single = false,
   ...aria
 }: ChipInputProps<T>) {
   const [query, setQuery] = useState('')
@@ -233,7 +236,8 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
       items={available}
       value={value}
       onValueChange={(next) => {
-        onChange(next as T[])
+        // One held: the pick just made is the last, and it replaces the one before.
+        onChange(single ? (next as T[]).slice(-1) : (next as T[]))
         setQuery('')
       }}
       inputValue={query}
@@ -246,7 +250,7 @@ export function ChipInput<T extends ChipInputOption = ChipInputOption>({
     >
       {/* The box the chips and the input share. `Combobox.Chips` is what makes
           the two one control for the keyboard; the look is what it always was. */}
-      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, 'focus-within:border-border-focus focus-within:hover:border-border-focus group-hover/field:focus-within:border-border-focus px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text signal:transition-shadow signal:focus-within:shadow-focus-ring')}>
+      <Combobox.Chips ref={setBox} className={cn(FIELD_SHELL_CLASSES, FIELD_SHELL_FOCUS_CLASSES, 'px-3 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[38px] cursor-text')}>
         {value.map((option) => (
           <Combobox.Chip key={option.id} className={cn(CHIP_BOX, chipPadding(!!chipLeading, true))}>
             {chipLeading && <span className="flex shrink-0 items-center">{chipLeading(option)}</span>}

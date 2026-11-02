@@ -29,8 +29,17 @@ rows to any depth.
 
 - In a new tab, where nothing is open yet, the same: the row is in sight
   when the tree is drawn.
+- `selectedGroup` is the group a link led to — a folder's own link: each
+  time it names a new group, the group opens, closed by hand too, and the
+  column scrolls to it at once. Once per arrival, and it marks nothing. It is
+  remembered open as a click would be, open already or not, so it stays open
+  when the reader goes on to a row in another group. A group open only
+  because the current row is in it is never written down: it closes again
+  once the row goes.
 
 <Canvas of={NavTreeStories.InANewTab} />
+
+<Canvas of={NavTreeStories.OpensOntoAGroup} />
 
 - `selectedParent` is the row the current one sits under, while the tree
   does not draw the current one. Its rows are read only when it opens: the
@@ -80,10 +89,15 @@ rows to any depth.
   pointer rests on it or the keyboard reached it: read it then, so opening
   it draws rows. A `NavTreeSection` opened while its read is in flight takes
   `pending`: its arrow turns and it opens once the rows are in, in one move,
-  instead of a skeleton the rows then replace; keep `loading` for a read
-  that turns out slow.
+  instead of a skeleton the rows then replace. A read still out after 2
+  seconds (`NAV_TREE_PENDING_MS`) is a slow one: the group opens on
+  `loading`'s skeleton by itself, until the rows are in — no timer of the
+  app's own. Keep `loading` for a group whose rows are being read while it
+  is already open.
 
 <Canvas of={NavTreeStories.ReadAsItOpens} />
+
+<Canvas of={NavTreeStories.PendingThenLoading} />
 
 - An app whose groups and rows each read their own data draws the groups
   itself: leave out `groups` and pass **NavTreeSection**s as children, each
@@ -125,10 +139,16 @@ import { NavTree, Sidebar } from '@estiva-app/ui'
 - `storageKey` remembers each group open or closed in this browser, under
   the key and the group's id — a group opened for the current row is
   remembered open, as a click would be. The rows under a row are not
-  remembered yet.
+  remembered yet. Groups and rows the app draws itself, whose rows are read
+  only once open, take `useRememberedOpen` on their `open` and
+  `onOpenChange`: the same memory, known before anything is read
+  (**CollapsibleSection**'s page).
 - Groups the app draws itself open for the current row through `openFor` on
   each **NavTreeSection** and **NavItem** that holds it; the scroll is the
-  tree's either way, given `selected`.
+  tree's either way, given `selected`. A group a link led to needs nothing
+  more than its **NavTreeSection**'s `id`: given `selectedGroup`, the tree
+  opens it, remembers it open (through `onOpenChange` when you hold it) and
+  scrolls to it.
 - The words in `emptyMessage` are the caller's.
 
 ## What it owns
@@ -139,8 +159,10 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Draws every level from one list, rows under rows | a recursive render of **NavItem**s and **CollapsibleSection**s |  |
 | Opens the group and the rows above the current row, once per row, and scrolls to it | a search through the list for the current row, an effect that opens it, a scroll into view |  |
+| Opens the group a link led to, once per arrival, and scrolls to it | an effect that opens it, a `querySelector` and a scroll into view |  |
 | Says it is loading, or empty, in the rows' place | a skeleton or an **EmptyState** placed by hand |  |
 | Says when the pointer rests on a group, 150ms, and not while it sweeps past | a timer on pointer enter and leave |  |
+| Holds a `pending` group shut for 2s, then opens it on the skeleton | a timer from pending to loading, a skeleton of the app's own, a pulsing icon |  |
 
 ## Keys
 

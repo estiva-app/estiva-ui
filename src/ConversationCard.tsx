@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
@@ -6,6 +6,7 @@ import { cn } from './cn'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ConversationActions } from './ConversationActions'
 import { ConversationMenu } from './ConversationMenu'
+import { repliesDrawn } from './conversationScroll'
 import { EditedMarker } from './EditedMarker'
 import { FieldLine } from './Field'
 import { Link } from './Link'
@@ -13,7 +14,7 @@ import { MetaText } from './MetaText'
 import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
-import { InConversationItem, InThreadCard, useFaceLine } from './threadCard'
+import { exactTime, InConversationItem, InThreadCard, momentOf, SHOWN_CLASSES, useFaceLine } from './threadCard'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -32,6 +33,8 @@ export interface ConversationEntryProps {
   author: ConversationPerson
   /** When it was written, in the app's words ("11:08 AM"). */
   time: ReactNode
+  /** When it was written, as a moment (ms since 1970): the time then says the exact date and time under the pointer. */
+  at?: number
   /** A link to it: the time is then the link, "Link to this", as a reply's is. */
   timeHref?: string
   /** The time's tooltip when it is a link, in the app's words: "Link to this" by default; Peek's "Link to this message". */
@@ -110,10 +113,37 @@ export interface ConversationCardProps extends ConversationEntryProps {
   onClick?: () => void
 }
 
-export type ReplyCardProps = ConversationEntryProps
+export interface ReplyCardProps extends ConversationEntryProps {
+  /** Its id, on the card as `data-reply-id`: what a link to it shows (`showInConversation`), and what `Thread` watches to say it was seen. */
+  id?: string
+}
+
+/**
+ * When it was written: the app's words, and with its moment the exact date and time under the pointer (B10: as Peek's
+ * rows of another app's comments always said it, now on every comment and reply). A time that is a link says the exact
+ * time, then where the link goes.
+ */
+function When({ time, at: given, timeHref, timeLabel = 'Link to this' }: Pick<ConversationEntryProps, 'time' | 'at' | 'timeHref' | 'timeLabel'>) {
+  const at = momentOf(given)
+  const exact = at === undefined ? undefined : exactTime(at)
+  const said = at === undefined ? time : <time dateTime={new Date(at).toISOString()}>{time}</time>
+  if (timeHref) {
+    return (
+      <WithTooltip label={exact ? `${exact} · ${timeLabel}` : timeLabel} wrapperClassName="shrink-0">
+        <MetaText className="contents">
+          <Link href={timeHref} variant="quiet" data-interactive>
+            {said}
+          </Link>
+        </MetaText>
+      </WithTooltip>
+    )
+  }
+  // Drawn as Peek's rows of another app's comments drew it: the tooltip's own box round the time, inside its words' look.
+  return <MetaText className="shrink-0">{exact ? <WithTooltip label={exact}>{said}</WithTooltip> : time}</MetaText>
+}
 
 /** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
   return (
     <div className="flex w-full items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -121,17 +151,7 @@ function Head({ author, time, timeHref, timeLabel = 'Link to this', edited, isNe
           <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
         </span>
         <span className="min-w-0 truncate text-body-2-strong text-text-primary">{author.name}</span>
-        {timeHref ? (
-          <WithTooltip label={timeLabel} wrapperClassName="shrink-0">
-            <MetaText className="contents">
-              <Link href={timeHref} variant="quiet" data-interactive>
-                {time}
-              </Link>
-            </MetaText>
-          </WithTooltip>
-        ) : (
-          <MetaText className="shrink-0">{time}</MetaText>
-        )}
+        <When time={time} at={at} timeHref={timeHref} timeLabel={timeLabel} />
         <EditedMarker edited={edited} />
         {meta}
       </div>
@@ -212,23 +232,6 @@ function Editing({ author, children }: { author: ConversationPerson; children: R
       </div>
     </div>
   )
-}
-
-/**
- * A press on the card opens its thread, wherever it lands on the card, but for what acts by itself: a button, a
- * link, the strip, a field. A press in a picker or a menu the card opened lands here too, through React's tree, from
- * outside the card: that is not a press on it. (Before, the whole reactions row and the strip stopped every press,
- * so a press beside the reactions did nothing: Katerina, 31 October.)
- */
-function pressed(e: MouseEvent<HTMLDivElement>, press: () => void) {
-  const target = e.target as HTMLElement
-  if (!e.currentTarget.contains(target)) return
-  // A double click picks a word and a drag picks words: neither is a press, or the thread would open and close under the reader.
-  if (e.detail > 1) return
-  const picked = typeof window === 'undefined' ? null : window.getSelection()
-  if (picked && !picked.isCollapsed && picked.anchorNode && e.currentTarget.contains(picked.anchorNode)) return
-  if (target.closest('button, a, input, textarea, [contenteditable="true"], [role="button"], [role="toolbar"], [data-interactive]')) return
-  press()
 }
 
 /**
@@ -316,20 +319,14 @@ export function ConversationCard(props: ConversationCardProps) {
         active={isEditing}
         attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
         className={cn('relative', className)}
-        onClick={press && !isEditing && !overlay ? (e) => pressed(e, press) : undefined}
-        // A card that opens on a press is reached by the keyboard too: Tab stops on it, which shows its strip, and Enter or
-        // Space opens it. Only the card's own focus: a key in a link, a button or a field inside it is theirs. Before, a
-        // comment with nothing focusable in it (no replies, no link) could not be opened without a pointer.
+        // A press opens its thread, wherever it lands on the card but for what acts by itself (Card's `onPress`). Before,
+        // the whole reactions row and the strip stopped every press, so a press beside the reactions did nothing
+        // (Katerina, 31 October). Not while its menu or picker is open: a press there is theirs.
+        onPress={press && !isEditing && !overlay ? press : undefined}
+        // Tab stops on it, which shows its strip, and Enter or Space opens it — and it stays a Tab stop while its menu is
+        // open, so focus has somewhere to come back to. Before, a comment with nothing focusable in it (no replies, no
+        // link) could not be opened without a pointer.
         tabIndex={press && !isEditing ? 0 : undefined}
-        onKeyDown={
-          press && !isEditing && !overlay
-            ? (e) => {
-                if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return
-                e.preventDefault()
-                press()
-              }
-            : undefined
-        }
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return
@@ -352,6 +349,7 @@ export function ConversationCard(props: ConversationCardProps) {
                 <Head
                   author={author}
                   time={props.time}
+                  at={props.at}
                   timeHref={props.timeHref}
                   timeLabel={props.timeLabel}
                   edited={props.edited}
@@ -464,7 +462,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
+  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -476,6 +474,11 @@ export function ReplyCard(props: ReplyCardProps) {
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
+  // In a Thread beside, a reply counts itself as it is first drawn: a new one takes the thread to its newest.
+  const drawn = useContext(repliesDrawn)
+  useLayoutEffect(() => {
+    if (drawn) drawn.added += 1
+  }, [drawn])
   return (
     <>
       <Card
@@ -488,7 +491,8 @@ export function ReplyCard(props: ReplyCardProps) {
         active={isEditing}
         // A reply is marked inside its thread card too.
         attention={attentionOf(isNew, urgent, false)}
-        className={cn('relative', className)}
+        data-reply-id={id}
+        className={cn('relative', SHOWN_CLASSES, className)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => {
           if (picking || menuOpen) return
@@ -504,7 +508,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>

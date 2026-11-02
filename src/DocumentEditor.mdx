@@ -29,7 +29,7 @@ One document's text as one surface that is always an editor, the same in every a
 
 - Something sent, a comment or a line in a conversation → **CommentBox**. Nothing is sent from here; it saves.
 - One line, a title or the line under it → **InlineText**.
-- Text in a form → **TextInput** or **Textarea**.
+- Text in a form → **TextInput** or **Textarea**; a document written in a form, sent with it → **DocumentField**.
 
 ## How
 
@@ -97,6 +97,7 @@ It does these by itself. Write none of them around it.
 | Where each link sits — chip, row, or card in the row's place — kept current as you type, and its menu: Open, Show as Row or Card | a line rule, a card slot, a link menu |
 | A pasted picture uploaded and placed; the file dialog's blur is not leaving | an upload state |
 | Read only: no caret, no `/`, `[` or `@`, no format buttons; still focusable, so a selection's Comment shows | a reading view |
+| Selected words painted in the selected colour, the one the format buttons' link field keeps them in | a `::selection` rule |
 
 ## Keys
 

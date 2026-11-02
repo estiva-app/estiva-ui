@@ -1,0 +1,70 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ArchiveDialogStories from './ArchiveDialog.stories'
+
+<Meta of={ArchiveDialogStories} />
+
+# ArchiveDialog
+
+The question asked before archiving a file or a Folder: what goes out of the
+lists with it, counted, and an optional resolution.
+
+<Canvas of={ArchiveDialogStories.AProject} />
+
+## When
+
+- Before archiving anything whose manifest declares an archive action — a
+  topic, a project or an issue — or a Folder. Read the counts first, with
+  interop's `archiveImpact`, and word them: "14 issues", "2 files also in Steer".
+- Open it at once, with `hides={null}`, when the count is still on its way: it
+  says it is counting, and Archive waits for it.
+
+<Canvas of={ArchiveDialogStories.Counting} />
+
+## When not
+
+- For a deletion → **ConfirmDialog**; its `alternative` offers archiving instead.
+- For Unarchive: it only brings back what was there, so it runs on the click.
+- With counts you have not read. A warning that says it hides nothing because
+  the read failed is worse than no warning — refuse and say why instead.
+
+## How
+
+```tsx
+import { ArchiveDialog } from '@estiva-app/ui'
+
+<ArchiveDialog
+  title="Conversation standard"
+  what="project"
+  hides={['14 issues']}
+  staysVisible={['2 files also in Steer']}
+  apps={['Peek', 'Ship']}
+  getBack="Nothing is deleted: it waits under Archive, where Unarchive brings everything back as it was."
+  onArchive={(resolution) => archive(resolution || undefined)}
+  onClose={close}
+/>
+```
+
+- `apps` and `getBack` are your app's words: the apps whose lists it goes out
+  of, in the order to name them, and the last line, which says where an archived
+  file waits in your app.
+- `onArchive` gets the resolution trimmed; answer `false` to keep the dialog
+  open once you have said why.
+- It is a **FormDialog**: Ctrl+Enter archives from the resolution, and the field
+  and both buttons wait while it does. Archive hides and never deletes, so the
+  button is not destructive, and Escape or a press outside closes it.
+
+<Canvas of={ArchiveDialogStories.AFolder} />
+
+<Canvas of={ArchiveDialogStories.AnotherAppsWords} />
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Says what goes with it, counted, and what stays visible elsewhere, in one block of sentences | the archive's sentences |  |
+| Archives on Ctrl+Enter from the resolution, and waits for the answer with everything switched off | a key handler, or a busy state |  |
+| Says it is counting while `hides` is `null`, and keeps Archive greyed until the count is in | a counting state |  |
+
+## Props
+
+<Controls of={ArchiveDialogStories.AProject} />

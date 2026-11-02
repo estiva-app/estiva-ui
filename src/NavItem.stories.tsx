@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded, IconX } from '@tabler/icons-react'
+import { useState } from 'react'
 import { Chip } from './Chip'
 import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
@@ -135,4 +136,18 @@ export const WithActionAndHint: Story = {
 /** Unread, with a button: point at it and the button lands on the dot. */
 export const UnreadWithAction: Story = {
   args: { icon: placeholder, unread: true, action: REMOVE },
+}
+
+/** `onPlainClick`: a plain click opens the row here, the app's own way, and the page does not change; Cmd-click or Ctrl-click is still the link's, a new tab. */
+export const OpensInPlace: Story = {
+  render: function Render(args) {
+    const [opened, setOpened] = useState<string | null>(null)
+    return (
+      <>
+        <NavItem {...args} label="Item one" href="?opened=one" icon={placeholder} active={opened === 'Item one'} onPlainClick={() => setOpened('Item one')} />
+        <NavItem {...args} label="Item two" href="?opened=two" icon={placeholder} active={opened === 'Item two'} onPlainClick={() => setOpened('Item two')} />
+        <p className="px-2 pt-2 text-caption text-text-muted">{opened ? `Opened here: ${opened}` : 'Nothing opened here yet.'}</p>
+      </>
+    )
+  },
 }

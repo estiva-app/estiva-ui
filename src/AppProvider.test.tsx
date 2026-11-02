@@ -7,9 +7,9 @@
  */
 import { type ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AppProvider } from './AppProvider'
+import { AppProvider, isPlainClick } from './AppProvider'
 import { Avatar } from './Avatar'
 import { Chip } from './Chip'
 import { IconButton } from './IconButton'
@@ -170,4 +170,36 @@ describe('changing page', () => {
     expect(screen.getByRole('link').getAttribute('href')).toBe('/topics')
   })
 
+})
+
+/**
+ * The check every link part makes before it keeps a click inside the app, for
+ * an app that handles a link's click itself: Peek wrote it by hand four times
+ * (its Desk, its People rows, its message links and its mention chips).
+ */
+describe('isPlainClick', () => {
+  const click = (init: MouseEventInit = {}) => new MouseEvent('click', { button: 0, ...init })
+
+  it('is the main button with no Ctrl, Cmd, Shift or Alt', () => {
+    expect(isPlainClick(click())).toBe(true)
+  })
+
+  it.each([
+    ['Ctrl', { ctrlKey: true }],
+    ['Cmd', { metaKey: true }],
+    ['Shift', { shiftKey: true }],
+    ['Alt', { altKey: true }],
+    ['the middle button', { button: 1 }],
+    ['the second button', { button: 2 }],
+  ])('a click with %s is not plain: the browser’s, a new tab or a window', (_name, init) => {
+    expect(isPlainClick(click(init))).toBe(false)
+  })
+
+  it('reads a React click as it reads the browser’s', () => {
+    const seen: boolean[] = []
+    render(<a href="#x" onClick={(event) => seen.push(isPlainClick(event))}>Item</a>)
+    fireEvent.click(screen.getByRole('link'))
+    fireEvent.click(screen.getByRole('link'), { ctrlKey: true })
+    expect(seen).toEqual([true, false])
+  })
 })

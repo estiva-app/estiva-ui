@@ -132,6 +132,48 @@ describe('ChipInput', () => {
     expect(onChange).toHaveBeenLastCalledWith([PEOPLE[0]])
   })
 
+  describe('single: a field that holds one', () => {
+    function Single({ initial = [], onChange }: { initial?: ChipInputOption[]; onChange?: (v: ChipInputOption[]) => void }) {
+      const [value, setValue] = useState(initial)
+      return (
+        <ChipInput
+          single
+          value={value}
+          onChange={(next) => {
+            setValue(next)
+            onChange?.(next)
+          }}
+          options={PEOPLE}
+          placeholder="Search people"
+        />
+      )
+    }
+
+    it('a later pick replaces the one chosen, rather than adding a second', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Single initial={[PEOPLE[0]]} onChange={onChange} />)
+      await user.type(screen.getByRole('combobox'), 'grace')
+      await screen.findByRole('listbox')
+      await user.keyboard('{ArrowDown}{Enter}')
+      expect(onChange).toHaveBeenLastCalledWith([PEOPLE[1]])
+      expect(screen.queryByRole('button', { name: 'Remove Ada Lovelace' })).toBeNull()
+      expect(screen.getByRole('button', { name: 'Remove Grace Hopper' })).toBeTruthy()
+    })
+
+    it('the first pick is the one, and Backspace still takes it', async () => {
+      const user = userEvent.setup()
+      const onChange = vi.fn()
+      render(<Single onChange={onChange} />)
+      await user.type(screen.getByRole('combobox'), 'ada')
+      await screen.findByRole('listbox')
+      await user.keyboard('{ArrowDown}{Enter}')
+      expect(onChange).toHaveBeenLastCalledWith([PEOPLE[0]])
+      await user.keyboard('{Backspace}')
+      expect(onChange).toHaveBeenLastCalledWith([])
+    })
+  })
+
   it('a chip’s ✕ removes that chip', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()

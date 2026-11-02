@@ -14,6 +14,7 @@ The one card attached to a piece of text, and the ✕ that removes it.
 - **while writing** — `CommentBox` places it inside the box, with the files, on their fill, its values and its links as words, so a click on it never leaves the draft. Write nothing for that.
 - **after sending** — under the text, its values as pickers.
 - **no ✕** — no `onRemove`: to anyone but who wrote it.
+- **`remember`** — a card that loads where something is being read: it keeps its height while it loads, from the last time this device drew it.
 
 The ✕ is a file's: round, on the card's corner, shown when the pointer is over the card or the ✕ has focus, and always on a screen that cannot hover, so a tap reaches it.
 
@@ -35,6 +36,10 @@ import { AttachedCard } from '@estiva-app/ui'
 - `onRemove` is the app's: before sending it drops the card from what will be sent; after, it sends the edit that removes it.
 - It is at most 480px wide.
 - **An app that draws its sent cards itself** passes its card as `children` instead of `link`, so the card in a box and under a sent message are the same: `<AttachedCard onRemove={remove}>{appCard}</AttachedCard>`. `CommentBox` draws its card this way.
+- **It keeps its height while it loads** with `remember={{ memory: cardShapes, id: address }}`: `memory` is the app's one `cardShapeMemory` (cleared at sign-out), `id` the card's address. It measures the card it draws, again once a resize settles (500ms), and while it loads next time holds that height and draws the placeholder in that shape. A card measured at 0 (not on screen) keeps the height it had. A `shape` the app puts on the loading `link` wins over the remembered one.
+
+<Canvas of={AttachedCardStories.LoadingAtItsLastHeight} />
+
 - **One inside another draws only its card**, with the outer one's ✕: an app whose sent card is an `AttachedCard` hands the box that same card, and the box's ✕ is the one. There is never a card in a card.
 
 ## What it owns
@@ -43,6 +48,7 @@ import { AttachedCard } from '@estiva-app/ui'
 |---|---|
 | Places the ✕ on the card's corner, as a file's | a remove button of your own |
 | Reveals the ✕ on hover and focus, and always shows it on touch | a hover or touch check |
+| With `remember`: measures the drawn card, notes its shape and height once a resize settles, and holds them while it loads | a `ResizeObserver`, a timer, a `minHeight` |
 
 ## Keys
 

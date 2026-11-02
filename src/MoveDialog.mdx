@@ -1,0 +1,74 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as MoveDialogStories from './MoveDialog.stories'
+
+<Meta of={MoveDialogStories} />
+
+# MoveDialog
+
+Move a file to another Folder, under another file there, or both: the Folder
+first, then what it goes under, read when the Folder is picked.
+
+<Canvas of={MoveDialogStories.Topic} />
+
+## When
+
+- Moving any file, from its menu, its row or its Folder. A file that may sit
+  under another passes `placesIn`; one that nests under nothing passes none, and
+  is asked only for the Folder.
+- A file that may sit at the top of any Folder: `startAtTop`, so the top is
+  chosen for the person. Otherwise Move waits for a pick: a preselected place is
+  a move nobody chose.
+
+<Canvas of={MoveDialogStories.Project} />
+
+## When not
+
+- Renaming, or choosing a Folder for something new → **FormDialog** with a **Select**.
+- One value from a list on a page, not a move → **Select**.
+
+## How
+
+```tsx
+import { MoveDialog } from '@estiva-app/ui'
+
+<MoveDialog
+  title="Notes"
+  description="Everyone who can read it now still can."
+  from={folder}
+  folders={folders}
+  places={placesHere}
+  placesIn={(id) => readPlaces(id)}
+  startAtTop
+  onMove={({ folder, parent }) => move(folder, parent)}
+  onClose={close}
+/>
+```
+
+- A place is `{ id, path }`: `id` is what it goes under, its address, and `''`
+  for the top; `path` is its breadcrumb, drawn as "Brief › Notes".
+- `placesIn` is called once per Folder, when it is picked; a rejection is said as
+  the section's empty line, with **Try again**. `places` are the ones in `from`,
+  already read; without them the Folder it opens on is read at once.
+- `onMove` gets `{ folder }`, and `parent` too when it nests (`''` for the top).
+  Answer `false` to keep it open once you have said why.
+- `folders` undefined while they are read: the list says "Reading…".
+- `heading`, `folderLabel`, `noFolder` and `topLabel` are for your app's words;
+  `startIn` opens it on another Folder than the one it is in.
+
+<Canvas of={MoveDialogStories.FolderUnreadable} />
+
+<Canvas of={MoveDialogStories.NowhereHere} />
+
+<Canvas of={MoveDialogStories.UnderNone} />
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Reads a Folder's places when it is picked, once, and says when it could not, with Try again | a read state per Folder, or a retry row |  |
+| Offers only moves that do something, and chooses nothing for the person but the top when asked | a filter on the Folders, or a preselection |  |
+| Sends on Move, says it is moving, and closes when the move went through | a busy state, or an `if (ok) onClose()` |  |
+
+## Props
+
+<Controls of={MoveDialogStories.Topic} />

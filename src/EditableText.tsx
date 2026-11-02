@@ -1,7 +1,26 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
 import { Field as BaseField } from '@base-ui/react/field'
 import { Input } from '@base-ui/react/input'
+import { IconPencil, IconPlus } from '@tabler/icons-react'
+import { Button } from './Button'
 import { cn } from './cn'
+import { EmptyState } from './EmptyState'
+import { FieldLine, type FieldLineTone } from './Field'
+import { Form } from './Form'
+import { Textarea } from './Textarea'
+import { TextInput } from './TextInput'
+
+/** What happened to a save, to say under it: `error` keeps the field open, `warning` saved. Said in a `FieldLine` of that tone. */
+export interface EditableTextOutcome {
+  kind: Exclude<FieldLineTone, 'helper'>
+  message: string
+}
+
+/** A commit's answer: `true` saved, `false` refused (you have said why), or an outcome to say under it. */
+export type EditableTextAnswer = boolean | EditableTextOutcome
+
+/** Saved: `true`, or an outcome that is not a refusal. */
+const saved = (answer: EditableTextAnswer | undefined) => answer === true || (typeof answer === 'object' && answer.kind !== 'error')
 
 /**
  * Text you click to edit — Ship's EditableText (2026-09-01), verbatim. Its
@@ -22,11 +41,16 @@ import { cn } from './cn'
  */
 export interface EditableTextProps {
   value: string
+  /** What shows, muted, while the value is empty; in `buttons`, as the kit's empty line for one part of a page (12px). */
   placeholder: string
-  /** Resolve `true` when saved; `false` (or throw) keeps the field open with the text. */
-  onCommit: (value: string) => Promise<boolean> | boolean
+  /**
+   * Resolve `true` when saved; `false` (or throw) keeps the field open with
+   * the text. Or an outcome: `error` keeps it open, `warning` saved; `buttons`
+   * says either under it, and a throw's own words as an `error`.
+   */
+  onCommit: (value: string) => Promise<EditableTextAnswer> | EditableTextAnswer
   multiline?: boolean
-  /** Applied to both the text and the field, so they are the same size. */
+  /** Applied to both the text and the field, so they are the same size. In `buttons`, placement only: it goes on the whole. */
   className?: string
   /** The accessible name of the field — "Title", "Description". */
   label: string
@@ -61,9 +85,34 @@ export interface EditableTextProps {
   displayNode?: ReactNode
   /** Show the value only — no edit affordance. For a reader who cannot write. */
   readOnly?: boolean
+  /**
+   * How it is edited. `inline`, the default: the text is the button, and
+   * leaving the field saves. `buttons`: the text with a button beside it, a
+   * field with Save and Cancel, and what happened said under it — an edit to
+   * confirm, in a dialog (Peek's Details, 2 November).
+   */
+  manner?: 'inline' | 'buttons'
+  /** `buttons`: the words on the button that opens the field — "Rename". "Edit" when absent. */
+  editLabel?: string
+  /** `buttons`: its words while the value is empty, with a plus — "Add a summary". `editLabel` when absent. */
+  addLabel?: string
+  /** `buttons`: the field's own placeholder, while it is edited. */
+  fieldPlaceholder?: string
+  /** `buttons`: an empty value cannot be saved, as a name cannot. */
+  required?: boolean
+  /** `buttons`: what a draft becomes before it is compared and saved — one line, say. Trimmed when absent. */
+  clean?: (draft: string) => string
+  /** `buttons`: said between the field and its buttons as it is typed — a count past a limit. */
+  draftNote?: (draft: string) => ReactNode
+  /** `buttons`: opens as the field, holding the value — a menu's Rename. */
+  defaultEditing?: boolean
 }
 
-export function EditableText({ value, display, displayNode, placeholder, onCommit, multiline = false, className, label, readOnly = false }: EditableTextProps) {
+export function EditableText(props: EditableTextProps) {
+  return props.manner === 'buttons' ? <WithButtons {...props} /> : <Inline {...props} />
+}
+
+function Inline({ value, display, displayNode, placeholder, onCommit, multiline = false, className, label, readOnly = false }: EditableTextProps) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
   const [busy, setBusy] = useState(false)
@@ -96,7 +145,7 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
     setBusy(true)
     try {
       const ok = await onCommit(next)
-      if (ok) setEditing(false)
+      if (ok && saved(ok)) setEditing(false)
     } catch {
       /* the caller has shown why; keep the field open */
     } finally {
@@ -183,5 +232,140 @@ export function EditableText({ value, display, displayNode, placeholder, onCommi
     >
       {(display ?? value) ? (displayNode ?? (display ?? value)) : placeholder}
     </button>
+  )
+}
+
+/**
+ * The `buttons` manner, Peek's Details drawn exactly (C13, 2 November): the
+ * text and its button in one row; the field with Save and Cancel beside it on
+ * one line, under it when `multiline`; what happened said under the field
+ * (8px), or under the text once it closed (12px). Escape in the field abandons
+ * the edit and nothing else: the dialog around it stays.
+ */
+function WithButtons({
+  value,
+  display,
+  displayNode,
+  placeholder,
+  onCommit,
+  multiline = false,
+  className,
+  label,
+  readOnly = false,
+  editLabel = 'Edit',
+  addLabel,
+  fieldPlaceholder,
+  required = false,
+  clean = (draft: string) => draft.trim(),
+  draftNote,
+  defaultEditing = false,
+}: EditableTextProps) {
+  const [editing, setEditing] = useState(defaultEditing && !readOnly)
+  const [draft, setDraft] = useState(value)
+  const [outcome, setOutcome] = useState<EditableTextOutcome | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const cleaned = clean(draft)
+  // A refused text can be sent again as it is: the refusal may have been the moment's, not the text's.
+  const canSave = (!required || cleaned !== '') && (cleaned !== clean(value) || outcome?.kind === 'error')
+
+  const open = () => {
+    setDraft(value)
+    setEditing(true)
+  }
+  const cancel = () => {
+    setEditing(false)
+    setOutcome(null)
+  }
+  const save = async () => {
+    if (!canSave || busy) return
+    setBusy(true)
+    let answer: EditableTextAnswer
+    try {
+      answer = await onCommit(cleaned)
+    } catch (error) {
+      // Nothing may leave this stuck on "Saving…"; a throw with words says them.
+      answer = error instanceof Error && error.message ? { kind: 'error', message: error.message } : false
+    } finally {
+      setBusy(false)
+    }
+    setOutcome(typeof answer === 'object' ? answer : null)
+    // Only a refusal keeps the field open; the draft is kept on one.
+    if (saved(answer)) setEditing(false)
+  }
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (event.key !== 'Escape') return
+    // Escape abandons the edit, and only the edit: a dialog around it stays for a second Escape. Enter is the form's, and saves.
+    event.preventDefault()
+    event.stopPropagation()
+    cancel()
+  }
+  const type = (next: string) => {
+    setDraft(next)
+    // Changing a refused text is a new attempt: the old reason goes.
+    if (outcome?.kind === 'error') setOutcome(null)
+  }
+  const line = outcome && <FieldLine tone={outcome.kind}>{outcome.message}</FieldLine>
+
+  if (editing) {
+    const buttons = (
+      <>
+        <Button variant="primary" size="small" type="submit" disabled={!canSave || busy}>
+          {busy ? 'Saving…' : 'Save'}
+        </Button>
+        <Button variant="outlined" size="small" onClick={cancel}>
+          Cancel
+        </Button>
+      </>
+    )
+    return (
+      // The package Form: Enter in the one-line field saves, Ctrl+Enter from the text area; it locks while saving.
+      <Form busy={busy} onSubmit={save} layout="free" className={cn('flex flex-col gap-2', className)}>
+        {multiline ? (
+          <>
+            <Textarea autoFocus rows={4} value={draft} onChange={(event) => type(event.target.value)} aria-label={label} placeholder={fieldPlaceholder} onKeyDown={onKeyDown} />
+            {draftNote?.(draft)}
+            <div className="flex items-center gap-2">{buttons}</div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <TextInput autoFocus value={draft} onChange={(event) => type(event.target.value)} aria-label={label} placeholder={fieldPlaceholder} onKeyDown={onKeyDown} />
+              {buttons}
+            </div>
+            {draftNote?.(draft)}
+          </>
+        )}
+        {line}
+      </Form>
+    )
+  }
+
+  const shown = display ?? value
+  return (
+    <div className={cn('flex flex-col gap-3', className)}>
+      <div className={cn('flex gap-2', multiline ? 'items-start' : 'items-center')}>
+        {!shown ? (
+          // Nothing yet: the kit's empty line for one part of a page, 12px and muted, as Peek's "No summary yet." (2 November).
+          <EmptyState scope="section" message={placeholder} className="min-w-0 flex-1" />
+        ) : multiline ? (
+          <p className="min-w-0 flex-1 break-words text-body-2 text-text-primary">{displayNode ?? shown}</p>
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{displayNode ?? shown}</span>
+        )}
+        {/* Absent, not disabled, for a reader who cannot write. */}
+        {!readOnly && (
+          <Button
+            variant="outlined"
+            size="small"
+            leadingIcon={value || !addLabel ? <IconPencil size={14} stroke={1.5} /> : <IconPlus size={14} stroke={1.5} />}
+            onClick={open}
+          >
+            {value || !addLabel ? editLabel : addLabel}
+          </Button>
+        )}
+      </div>
+      {line}
+    </div>
   )
 }

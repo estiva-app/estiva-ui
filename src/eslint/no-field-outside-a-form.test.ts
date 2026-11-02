@@ -40,6 +40,10 @@ tester.run('no-field-outside-a-form', noFieldOutsideAForm, {
     { name: 'a one-line field with its button', code: component('<Form onSubmit={() => {}}><TextInput value={text} onChange={(e) => set(e.target.value)} /></Form>', ui('Form', 'TextInput')) },
     { name: 'fields drawn from a list, inside the form', code: component("<Form onSubmit={() => {}}>{['a', 'b'].map((k) => <Field key={k} label={k}><TextInput value={text} /></Field>)}</Form>", ui('Form', 'Field', 'TextInput')) },
     { name: "the palette's form level is a Form (UIG-29)", code: component('<CommandPaletteForm submitLabel="Create" onSubmit={() => {}}><Field label="Title"><TextInput value={text} /></Field></CommandPaletteForm>', ui('CommandPaletteForm', 'Field', 'TextInput')) },
+    {
+      name: "FormDialog is a Form: Peek's New folder dialog",
+      code: component('<FormDialog title="New folder" submitLabel="Create" onClose={() => {}} onSubmit={() => {}}>\n<Field label="Name"><TextInput value={text} onChange={(e) => set(e.target.value)} /></Field>\n</FormDialog>', ui('FormDialog', 'Field', 'TextInput')),
+    },
     { name: 'a field that saves itself as you leave it', code: component('<EditableText value={text} onCommit={set} />', ui('EditableText')) },
     { name: 'a field that filters a list', code: component('<SearchInput value={text} onChange={set} />', ui('SearchInput')) },
     {

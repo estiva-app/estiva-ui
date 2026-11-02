@@ -9,8 +9,8 @@ import { bindingOfTag, partsOfFile, type Node, type Parser, type PartBinding } f
  */
 export const FIELD_PARTS = ['Field', 'TextInput', 'Textarea'] as const
 
-/** The parts that are a `Form`: the package's own, and the palette's form level, which is one (UIG-29). */
-export const FORM_PARTS = ['Form', 'CommandPaletteForm'] as const
+/** The parts that are a `Form`: the package's own, the palette's form level (UIG-29), and `FormDialog`, a dialog that draws one. */
+export const FORM_PARTS = ['Form', 'CommandPaletteForm', 'FormDialog'] as const
 
 const child = (node: Node, key: string) => node[key] as Node | null | undefined
 const nameOf = (node: Node | null | undefined): string | undefined =>

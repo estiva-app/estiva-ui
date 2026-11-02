@@ -17,6 +17,7 @@ One comment, the same in every app: who, when, the words, files, cards, reaction
 - `noun`: what the delete question calls it, "Delete this comment?" by default; a direct message says `message`.
 - `about` on a comment on a part of the page: a **QuotedLine** under the name, above the words.
 - `isNew`, `urgent`: the dot or the urgent mark, and a hairline, until it is read.
+- `at`, its moment: the time says the exact date and time under the pointer, in the reader's own way. Give it on every comment.
 
 <Canvas of={Stories.Replies} />
 
@@ -56,6 +57,7 @@ import { ConversationCard } from '@estiva-app/ui'
 - **The words are yours to draw**: text, people named, links, attached cards and quoted blocks, with **RichText** and the link parts. The card gives them their size and colour.
 - **Edit opens your box**: `editor` draws your **CommentBox** edit form; call `done` when it saves or cancels. To open it again after a refused save, hold `editing` yourself.
 - **Resolve opens the dialog**: **ResolveDialog**, then `onResolve(note)`. Answer `false` when it was refused; the dialog stays.
+- `time` is your words for it ("11:08 AM"); `at` is the moment (ms), from which the card says the exact date and time on hover. Never a tooltip of your own round `time`.
 - A press on the card is `onClick` (its thread opens); a press on a button, a link or anything marked `data-interactive` inside it is not.
 - The strip shows while the card is pointed at or has focus, and holds while its reactions or its menu are open.
 
@@ -66,6 +68,7 @@ import { ConversationCard } from '@estiva-app/ui'
 | Shows its actions while pointed at, and holds them while a menu is open | hover state and an outside-click check |  |
 | A card that opens on a press is a Tab stop: reaching it shows its actions, Enter or Space opens it | a `tabIndex` and a key handler |  |
 | Asks before it deletes | a confirm dialog |  |
+| Says the exact date and time under the pointer, from `at` | a tooltip round the time |  |
 | Opens the Resolve dialog, and closes it once resolved | a dialog and its open state |  |
 | Says it is resolved, with who and the note, and hides nothing of it | a resolved line or chip of your own |  |
 

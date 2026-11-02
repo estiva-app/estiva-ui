@@ -338,3 +338,82 @@ describe('ConversationLayout, two columns, what an app with its own list keeps (
     expect(screen.queryByText('No comments yet.')).toBeNull()
   })
 })
+
+/**
+ * The right column holds what the page shows beside its comments when no thread is open (B1 of the audit of 2 November):
+ * Peek's Overview, which Peek drew in a 380px column of its own, with the thread put in it by hand. Now the layout's
+ * 384px column holds both.
+ */
+describe('ConversationLayout, two columns, the right column', () => {
+  const column = () => document.querySelector('.border-l') as HTMLElement | null
+
+  it('shows the app’s aside while no thread is open, and the thread in its place while one is', () => {
+    function Page() {
+      const [open, setOpen] = useState<string | undefined>()
+      return <ConversationLayout threads="beside" items={items('beside')} open={open} onOpenChange={setOpen} aside={<p>The overview</p>} />
+    }
+    render(<Page />)
+    expect(column()?.textContent).toBe('The overview')
+    expect(column()?.className).toContain('w-[384px]')
+    fireEvent.click(screen.getByText('With replies'))
+    expect(screen.queryByText('The overview')).toBeNull()
+    expect(column()?.textContent).toContain('A reply')
+  })
+
+  it('a thread the app draws only while it is open (a function) opens from its card, and is drawn only then', () => {
+    const drawn = vi.fn((words: string) => <Thread start={{ author: ONE, time: '11:08 AM', words }}><p>Replies to {words}</p></Thread>)
+    function Page() {
+      const [open, setOpen] = useState<string | undefined>()
+      const list: ConversationItem[] = ['First', 'Second'].map((words) => ({
+        id: words,
+        card: <ConversationCard author={ONE} time="11:08 AM">{words}</ConversationCard>,
+        thread: () => drawn(words),
+      }))
+      return <ConversationLayout threads="beside" items={list} open={open} onOpenChange={setOpen} />
+    }
+    render(<Page />)
+    expect(drawn).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByText('Second'))
+    expect(screen.getByText('Replies to Second')).toBeTruthy()
+    expect(drawn.mock.calls.every(([words]) => words === 'Second')).toBe(true)
+  })
+
+  it('keeps the comments when what is in the column throws: the column says so in its place', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Throws(): never {
+      throw new Error('an aside that throws')
+    }
+    render(<ConversationLayout threads="beside" items={items('beside')} aside={<Throws />} />)
+    expect(screen.getByText('With replies')).toBeTruthy()
+    expect(column()?.textContent).toContain('Something went wrong in the thread panel.')
+    quiet.mockRestore()
+  })
+
+  it('lets a thread that threw go: closing it draws the aside again, and another thread draws itself', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Throws(): never {
+      throw new Error('a thread that throws')
+    }
+    const list: ConversationItem[] = [
+      { id: 'c1', card: <ConversationCard author={ONE} time="11:08 AM">First</ConversationCard>, thread: <Throws /> },
+      { id: 'c2', card: <ConversationCard author={ONE} time="11:08 AM">Second</ConversationCard>, thread: <p>Thread two</p> },
+    ]
+    try {
+      const { rerender } = render(<ConversationLayout threads="beside" items={list} open="c1" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toContain('Something went wrong in the thread panel.')
+      rerender(<ConversationLayout threads="beside" items={list} aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toBe('The overview')
+      rerender(<ConversationLayout threads="beside" items={list} open="c1" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toContain('Something went wrong in the thread panel.')
+      rerender(<ConversationLayout threads="beside" items={list} open="c2" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toBe('Thread two')
+    } finally {
+      quiet.mockRestore()
+    }
+  })
+
+  it('draws no column with no aside and no thread open', () => {
+    render(<ConversationLayout threads="beside" items={items('beside')} />)
+    expect(column()).toBeNull()
+  })
+})

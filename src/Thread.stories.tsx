@@ -6,6 +6,8 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { MembersPill } from './MembersPill'
+import { useSeenOnScreen } from './seenOnScreen'
+import { showInConversation } from './showInConversation'
 import { Thread } from './Thread'
 
 /** A comment's replies, with the box to write one: in the right column, or under its comment. */
@@ -27,17 +29,17 @@ function Side({ children }: { children: ReactNode }) {
   )
 }
 
-const START = { author: ONE, time: '11:08 AM', words: WORDS }
+const START = { id: 'c1', author: ONE, time: '11:08 AM', words: WORDS }
 
 function Replies({ readOnly = false }: { readOnly?: boolean }) {
   const one = useReactions(SOME)
   const two = useReactions()
   return (
     <>
-      <ReplyCard author={TWO} time="11:40 AM" reactions={one} readOnly={readOnly}>
+      <ReplyCard id="r1" author={TWO} time="11:40 AM" reactions={one} readOnly={readOnly}>
         {SHORT}
       </ReplyCard>
-      <ReplyCard author={THREE} time="11:52 AM" reactions={two} readOnly={readOnly}>
+      <ReplyCard id="r2" author={THREE} time="11:52 AM" reactions={two} readOnly={readOnly}>
         A second reply, under the first, in the order they were written.
       </ReplyCard>
     </>
@@ -50,6 +52,56 @@ export const Column: Story = {
     <Side>
       <Thread start={START} onClose={() => {}} box={<WriteBox />}>
         <Replies />
+      </Thread>
+    </Side>
+  ),
+}
+
+/** A link to a reply showed it (`showInConversation`): scrolled to the middle of the column and flashed in the accent's wash, fading. The story shows the second reply. */
+export const Shown: Story = {
+  name: 'A reply shown',
+  render: () => (
+    <Side>
+      <Thread start={START} onClose={() => {}} box={<WriteBox />}>
+        <Replies />
+      </Thread>
+    </Side>
+  ),
+  play: () => {
+    showInConversation('r2')
+  },
+}
+
+/** Read by being seen: a new reply keeps its edge until it has been on screen a moment (`useSeenOnScreen`, handed to `seen`). */
+export const Seen: Story = {
+  name: 'New until seen',
+  render: function Render() {
+    const seen = useSeenOnScreen('story')
+    return (
+      <Side>
+        <Thread start={START} onClose={() => {}} box={<WriteBox />} seen={seen}>
+          <ReplyCard id="n1" author={TWO} time="11:40 AM" isNew={!seen.ids.has('n1')}>
+            {SHORT}
+          </ReplyCard>
+          <ReplyCard id="n2" author={THREE} time="11:52 AM" isNew={!seen.ids.has('n2')}>
+            A second reply, new too.
+          </ReplyCard>
+        </Thread>
+      </Side>
+    )
+  },
+}
+
+/** A long thread: it opens at its newest reply, and goes to each new one. */
+export const Long: Story = {
+  render: () => (
+    <Side>
+      <Thread start={START} onClose={() => {}} box={<WriteBox />}>
+        {Array.from({ length: 9 }, (_, i) => (
+          <ReplyCard key={i} id={`l${i}`} author={[TWO, THREE, YOU][i % 3]} time={`11:${10 + i * 4} AM`}>
+            {i % 3 === 0 ? SHORT : `Reply ${i + 1}, in the order they were written.`}
+          </ReplyCard>
+        ))}
       </Thread>
     </Side>
   ),

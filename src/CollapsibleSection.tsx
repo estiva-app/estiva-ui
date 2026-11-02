@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { cn } from './cn'
 import { SectionHeader, type SectionAction } from './SectionHeader'
@@ -48,7 +48,8 @@ export interface CollapsibleSectionProps {
    * The current item, when it sits in here: the section opens each time this
    * names a new one, as a click would — remembered under `storageKey`, told to
    * `onOpenChange`. Closed again by hand, it stays closed until another item
-   * opens. `NavTree` passes it.
+   * opens. Open already, by its default, it is left as it is: a default is
+   * never written down. `NavTree` passes it.
    */
   openFor?: string
   /** 16px, before the title; the arrow takes its place on hover — `SectionHeader`'s. */
@@ -90,24 +91,41 @@ const CLOSED = 'closed'
  * would, each time it names a new item. An effect, not a render: opening tells
  * the caller (`onOpenChange`), and a parent is never set while a child draws.
  * Gone and back — the item opened, another elsewhere, then it again — is new.
+ *
+ * Only a shut one is opened: one open by its default stays a default, never
+ * written down, so it closes again once the item goes. `link` is different: a
+ * link to the section itself (`NavTree`'s `selectedGroup`), each new one
+ * opening it as a click would, open already or not — remembered open, told to
+ * the caller — so it stays open when the reader goes on elsewhere.
  */
-export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: (open: boolean) => void) {
+export function useOpenFor(openFor: string | undefined, open: boolean, setOpen: (open: boolean) => void, link?: string) {
   const seen = useRef<string | undefined>(undefined)
+  const linked = useRef<string | undefined>(undefined)
   useEffect(() => {
-    if (openFor === seen.current) return
+    const newItem = openFor !== seen.current
+    const newLink = link !== linked.current
     seen.current = openFor
-    if (openFor !== undefined && !open) setOpen(true)
-    // Only a new item opens it: the reader's own toggles in between are theirs.
-  }, [openFor])
+    linked.current = link
+    if (newLink && link !== undefined) setOpen(true)
+    else if (newItem && openFor !== undefined && !open) setOpen(true)
+    // Only a new item or a new link opens it: the reader's own toggles in between are theirs.
+  }, [openFor, link])
 }
 
-function readStored(key: string | undefined): boolean | undefined {
-  if (!key) return undefined
+/**
+ * Set by a `NavTreeSection` round its section while `NavTree`'s `selectedGroup`
+ * names it: the link that led to it, which opens it and is remembered (`useOpenFor`'s
+ * `link`). The kit's wiring between the two, not for an app.
+ */
+export const sectionLinked = createContext<string | undefined>(undefined)
+
+function readStored(key: string | undefined): boolean | null {
+  if (!key) return null
   try {
     const value = window.localStorage.getItem(key)
-    return value === OPEN ? true : value === CLOSED ? false : undefined
+    return value === OPEN ? true : value === CLOSED ? false : null
   } catch {
-    return undefined
+    return null
   }
 }
 
@@ -120,15 +138,36 @@ function writeStored(key: string | undefined, open: boolean) {
   }
 }
 
+/**
+ * Open or closed as this browser remembers it under `storageKey`, else `fallback`, for an app that must know before it draws what is inside — a fold whose rows are read only once it is open (Peek's Folders, FOL-21).
+ *
+ * The same memory as `CollapsibleSection`'s `storageKey`, in the same words,
+ * read once when it mounts: hand the pair to a section's `open` and
+ * `onOpenChange`. `fallback` decides until the person does, and stays live —
+ * a fold can spring open while it holds the current item and close again when
+ * it stops — and only a choice is written down, so a default never becomes a
+ * memory. No key: the choice is kept while mounted. A browser that blocks
+ * storage still gets a working fold; it forgets.
+ */
+export function useRememberedOpen(storageKey: string | undefined, fallback: boolean): [open: boolean, setOpen: (next: boolean) => void] {
+  const [choice, setChoice] = useState<boolean | null>(() => readStored(storageKey))
+  const setOpen = (next: boolean) => {
+    setChoice(next)
+    writeStored(storageKey, next)
+  }
+  return [choice ?? fallback, setOpen]
+}
+
 export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, openFor, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
-  const [openState, setOpenState] = useState(() => readStored(storageKey) ?? defaultOpen)
+  // The section's default is the one it was drawn with: a later `defaultOpen` does not move it.
+  const [initial] = useState(defaultOpen)
+  const [openState, remember] = useRememberedOpen(storageKey, initial)
   const open = openProp ?? openState
   const setOpen = (next: boolean) => {
-    setOpenState(next)
-    writeStored(storageKey, next)
+    remember(next)
     onOpenChange?.(next)
   }
-  useOpenFor(openFor, open, setOpen)
+  useOpenFor(openFor, open, setOpen, useContext(sectionLinked))
   // Pending, Base UI holds the panel shut and so would open it on a click: the click is the title's, and the title says open.
   // Only a click: find-in-page reaching into the shut panel asks to open it, and it is open.
   const shown = open && !pending

@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react'
+import type { ComponentPropsWithRef, KeyboardEvent, MouseEvent, ReactNode } from 'react'
 import { cn } from './cn'
 import { Link } from './Link'
 
@@ -92,7 +92,30 @@ export interface CardProps extends ComponentPropsWithRef<'div'> {
    * runs edge to edge (UIG-9, 17 September; the apps passed `overflow-hidden`).
    */
   clip?: boolean
+  /**
+   * Pressing the card opens what it stands for: a click anywhere on it but on what acts by itself inside it, and Enter
+   * or Space on the card itself, which is a Tab stop. Without `href`.
+   */
+  onPress?: () => void
   children: ReactNode
+}
+
+/** What acts by itself inside a card: a press on it is its own, never the card's. */
+const ACTS_BY_ITSELF = 'button, a, input, textarea, [contenteditable="true"], [role="button"], [role="toolbar"], [data-interactive]'
+
+/**
+ * Whether a click is a press on the card: anywhere on it, but for what acts by itself (a button, a link, a field, a
+ * toolbar). A click in a picker or a menu the card opened lands here too, through React's tree, from outside the card:
+ * that is not a press on it. A double click picks a word and a drag picks words: neither is a press, or what the card
+ * opens would open and close under the reader. ConversationCard's press (Katerina, 31 October), for every card.
+ */
+function isPress(event: MouseEvent<HTMLElement>): boolean {
+  const target = event.target as HTMLElement
+  if (!event.currentTarget.contains(target)) return false
+  if (event.detail > 1) return false
+  const picked = typeof window === 'undefined' ? null : window.getSelection()
+  if (picked && !picked.isCollapsed && picked.anchorNode && event.currentTarget.contains(picked.anchorNode)) return false
+  return !target.closest(ACTS_BY_ITSELF)
 }
 
 export function Card({
@@ -106,6 +129,7 @@ export function Card({
   attention,
   unreadable = false,
   clip = false,
+  onPress,
   className,
   children,
   ...props
@@ -122,7 +146,7 @@ export function Card({
     !still && hovered && hover === 'hairline' && HAIRLINE_HELD_CLASSES[fill],
     !still && hovered && hover === 'fill' && 'bg-bg-hover border-border-default',
     // The one you are on can still be clicked (it opens again); the one being changed cannot.
-    !active && hover !== 'none' && !href && props.onClick && 'cursor-pointer',
+    !active && hover !== 'none' && !href && (props.onClick || onPress) && 'cursor-pointer',
     selected && 'bg-bg-selected border-border-subtle',
     active && 'bg-bg-selected border-accent-primary',
     !active && attention && ATTENTION_CLASSES[attention],
@@ -142,7 +166,31 @@ export function Card({
   }
   return (
     // @estiva-escape(no-copied-look): N6 (Katerina, 24 September: leave alone): a card that cuts its content to its corners shares four words with the palette's window by coincidence
-    <div className={classes} {...props}>
+    <div
+      className={classes}
+      // A card that opens on a press is reached by the keyboard too: Tab stops on it, and Enter or Space opens it. Only
+      // the card's own focus: a key in a link, a button or a field inside it is theirs.
+      {...props}
+      tabIndex={props.tabIndex ?? (onPress ? 0 : undefined)}
+      onClick={
+        onPress
+          ? (event: MouseEvent<HTMLDivElement>) => {
+              props.onClick?.(event)
+              if (isPress(event)) onPress()
+            }
+          : props.onClick
+      }
+      onKeyDown={
+        onPress
+          ? (event: KeyboardEvent<HTMLDivElement>) => {
+              props.onKeyDown?.(event)
+              if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return
+              event.preventDefault()
+              onPress()
+            }
+          : props.onKeyDown
+      }
+    >
       {children}
     </div>
   )

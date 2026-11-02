@@ -34,6 +34,7 @@ import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 import { ToolbarButton } from './Toolbar'
 import { caretOnOpen } from './threadCard'
+import { sendsInLayout } from './conversationScroll'
 
 /**
  * The one box every app writes a comment, a reply and a chat line in, from the
@@ -164,7 +165,7 @@ export interface CommentBoxProps {
   upload?: (file: File) => Promise<UploadAnswer>
   /** The file picker's `accept`. */
   accept?: string
-  /** The box cannot write here (an archived file, signed out): a line saying why takes its place. */
+  /** The box cannot write here (an archived file, signed out): a line saying why takes its place. Closed from the start, it builds no editor. */
   closed?: { reason: ReactNode }
   /**
    * How a link the box holds is drawn — a pasted one, a pasted `nostr:` address, and a `[` pick alike: the app's view
@@ -428,7 +429,29 @@ const holdsUrgent = (editor: Editor): boolean => {
 
 let fileCount = 0
 
-export function CommentBox({
+/** The line that takes the box's place where nothing can be written: a lock and why. */
+function ClosedLine({ reason, className }: { reason: ReactNode; className?: string }) {
+  return (
+    <Card fill="inset" className={cn('flex items-start gap-3 px-4 py-3', className)}>
+      <IconLock size={16} stroke={1.5} className="mt-0.5 shrink-0 text-text-muted" aria-hidden />
+      <p className="text-body-2 text-text-secondary">{reason}</p>
+    </Card>
+  )
+}
+
+export function CommentBox(props: CommentBoxProps) {
+  const { closed, className } = props
+  /*
+    Closed from the start (an archived file, signed out), nothing is written here: the line alone, and no editor is
+    built to say it. Once opened, the box keeps its editor through a close, so what was written comes back with it.
+  */
+  const [built, setBuilt] = useState(!closed)
+  if (!closed && !built) setBuilt(true)
+  if (closed && !built) return <ClosedLine reason={closed.reason} className={className} />
+  return <OpenCommentBox {...props} />
+}
+
+function OpenCommentBox({
   people,
   references,
   referencesChanged,
@@ -597,8 +620,11 @@ export function CommentBox({
   const failed = files.filter((f) => f.state === 'failed').length
   const ready = files.some((f) => f.state === 'ready')
 
+  // In a ConversationLayout's box: the reader's own comment brings the comments down to it as it is drawn.
+  const layout = useContext(sendsInLayout)
   const go = useCallback(
     (ed: Editor): boolean => {
+      layout?.sending()
       const body = ed.getJSON()
       const sent = files.filter((f) => f.state === 'ready')
       const sentUnder = underOf(body)
@@ -613,6 +639,7 @@ export function CommentBox({
         onSent?.(body, sent, sentUnder)
         void answered(send(body, sent, sentUnder)).then((answer) => {
           if (answer.accepted) return
+          layout?.refused()
           onRefused?.()
           if (ed.isDestroyed) {
             // The box went away before the answer: the words wait in its draft.
@@ -633,6 +660,7 @@ export function CommentBox({
       void answered(send(body, sent, sentUnder)).then((answer) => {
         setSending(false)
         if (!answer.accepted) {
+          layout?.refused()
           setRefused(answer.reason)
           return
         }
@@ -644,7 +672,7 @@ export function CommentBox({
       })
       return false
     },
-    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused],
+    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused, layout],
   )
 
   save.current = () => {
@@ -673,14 +701,7 @@ export function CommentBox({
     }
   }, [editor, edit])
 
-  if (closed) {
-    return (
-      <Card fill="inset" className={cn('flex items-start gap-3 px-4 py-3', className)}>
-        <IconLock size={16} stroke={1.5} className="mt-0.5 shrink-0 text-text-muted" aria-hidden />
-        <p className="text-body-2 text-text-secondary">{closed.reason}</p>
-      </Card>
-    )
-  }
+  if (closed) return <ClosedLine reason={closed.reason} className={className} />
 
   const fileCards =
     files.length > 0 ? (

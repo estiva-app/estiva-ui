@@ -18,6 +18,14 @@ A comment's replies, with the box to write one: in the right column under its ow
 
 <Canvas of={Stories.Resolved} />
 
+- A link to a reply shows it: `showInConversation`, scrolled to the middle and flashed.
+
+<Canvas of={Stories.Shown} />
+
+- `seen`: its replies are watched, and a new one keeps its look until it has been seen.
+
+<Canvas of={Stories.Seen} />
+
 <Canvas of={Stories.Under} />
 
 ## When not
@@ -37,18 +45,27 @@ import { ReplyCard, Thread } from '@estiva-app/ui'
 </Thread>
 ```
 
+- A reply is read by being seen in its thread: `useSeenOnScreen(key)` for the thread, handed to `seen`, holds the ids of the replies that have been on screen a moment. Draw each reply's `isNew` from it.
+- Beside, where it scrolls is the thread's: it opens at its newest reply, goes to each new **ReplyCard** drawn in it (a
+  line of your own among them takes it nowhere), and stays at the bottom while cards and pictures fill in. A reply
+  deleted moves nothing. Key each reply by its own id: another thread's replies are then drawn afresh, and it opens at
+  their newest, with or without a `start`.
 - Its replies are yours to put in time order. Who resolved it is said on the comment, not among them.
 - Still reading: `loading`. Nobody replied yet: nothing in `children`.
 - An app whose empty thread said nothing keeps its silence with `empty={null}`; `closeLabel` names Close in its words for a screen reader.
-- `start.id` is put on the pinned comment as `data-thread-start`, for a link that names the comment, as ConversationLayout's comments carry `data-conversation-item`.
+- `start.id` is put on the pinned comment as `data-thread-start`, and each **ReplyCard**'s `id` on it as `data-reply-id`, as ConversationLayout's comments carry `data-conversation-item`. Give every reply its `id`.
+- A link to a reply or to the comment shows it: `showInConversation(id)` scrolls it to the middle of the column and flashes it, and answers `false` when it is not drawn; `showInConversationWhenDrawn(id)` waits for a thread just asked to open, up to 3 seconds, and stops when a newer link is pressed. Never a wrapper of your own round a reply to carry its id, and never a flash of your own.
 
 ## What it owns
 
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Pins the comment at the top, and keeps the box under the replies | a header and a fixed footer |  |
+| Beside: opens at its newest reply, goes to each new one, holds still while cards load | a scroll to the bottom, a ResizeObserver |  |
 | Placeholders while reading, and a line when nobody replied | a loading and an empty state |  |
 | "Resolved" in green at the top of the column | a chip |  |
+| Says which replies have been on screen a moment, with `seen` | an IntersectionObserver and a timer per reply |  |
+| The id on each reply and on the pinned comment, and the flash when a link shows one | a wrapper with an id, a flash in your CSS |  |
 
 ## Props
 

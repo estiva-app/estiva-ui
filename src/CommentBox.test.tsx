@@ -5,7 +5,7 @@
  * mode, drafts, files and the read-only line.
  */
 import { act, Suspense, use } from 'react'
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { Extension, type Editor } from '@tiptap/core'
 import { Fragment, Slice } from '@tiptap/pm/model'
@@ -14,6 +14,8 @@ import { encodeNaddr, encodeNevent } from '@estiva-app/protocol'
 import type { ReferenceViewProps } from './BlockNodes'
 import { CommentBox, commentBoxRows, keepCommentBoxWarm, type BoxUnder, type CommentBoxDraft, type CommentBoxEdit, type CommentBoxProps, type SendAnswer, type UploadAnswer } from './CommentBox'
 import type { MentionPerson, ReferenceSection } from './ComposerTriggers'
+import { ConversationCard } from './ConversationCard'
+import { ConversationLayout } from './ConversationLayout'
 
 const PEOPLE: MentionPerson[] = [{ id: 'one', name: 'Person one', pubkey: 'b'.repeat(64) }]
 const INSERT = [commentBoxRows.file, commentBoxRows.mention, commentBoxRows.urgent, commentBoxRows.reference]
@@ -115,6 +117,59 @@ describe('sending, held until the relay answers', () => {
     await press('Enter')
     expect(send).not.toHaveBeenCalled()
   })
+})
+
+/**
+ * In a ConversationLayout's box (C1 of the audit of 2 November): the reader's own comment brings them down to it as it
+ * is drawn, before the relay has answered, scrolled up or not (Peek's OPT-6, which Peek wired by hand). jsdom has no
+ * layout: every box says the same heights, and only the comments' box's offset is read.
+ */
+describe('sending, in a ConversationLayout', () => {
+  const comments = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ id: `c${i}`, card: <ConversationCard author={{ name: 'Person one' }} time="11:08 AM">{`Comment ${i}`}</ConversationCard> }))
+  const heights = { scroll: 1000 }
+  const kept = (['scrollHeight', 'clientHeight'] as const).map((p) => [p, Object.getOwnPropertyDescriptor(HTMLElement.prototype, p)] as const)
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, get: () => heights.scroll })
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => 400 })
+  })
+  afterAll(() => {
+    for (const [p, d] of kept) if (d) Object.defineProperty(HTMLElement.prototype, p, d)
+  })
+
+  for (const showsAtOnce of [false, true]) {
+    it(`a send brings the reader down to their comment as it is drawn, ${showsAtOnce ? 'shown at once' : 'held'}; a refused one leaves them where they are`, async () => {
+      const answer = later<SendAnswer>()
+      const list = { current: null as HTMLDivElement | null }
+      const at = (n: number, send: CommentBoxProps['send']) => <ConversationLayout threads="beside" items={comments(n)} bodyRef={list} box={<Box showsAtOnce={showsAtOnce} send={send} />} />
+      const send = vi.fn<CommentBoxProps['send']>(() => answer.promise)
+      const { rerender } = render(at(8, send))
+      list.current!.scrollTop = 300
+      fireEvent.scroll(list.current!)
+      await type('Mine')
+      await press('Enter')
+      expect(send).toHaveBeenCalledTimes(1)
+      // Drawn before the relay answers, as the app draws it.
+      heights.scroll = 1200
+      rerender(at(9, send))
+      expect(list.current!.scrollTop).toBe(1200)
+      answer.answer({ accepted: true })
+      await settle()
+
+      // Scrolled up again; a send refused: what arrives next does not pull the reader down.
+      list.current!.scrollTop = 300
+      fireEvent.scroll(list.current!)
+      const refused = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: false, reason: 'rate-limited' }))
+      rerender(at(9, refused))
+      await type('Mine again')
+      await press('Enter')
+      await settle()
+      expect(refused).toHaveBeenCalledTimes(1)
+      heights.scroll = 1400
+      rerender(at(10, refused))
+      expect(list.current!.scrollTop).toBe(300)
+    })
+  }
 })
 
 describe('sending, shown at once', () => {
@@ -357,6 +412,31 @@ describe('read-only', () => {
     expect(screen.getByText('Archived. It takes no new comments.')).toBeTruthy()
     expect(document.querySelector('.ProseMirror')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+  })
+
+  it('closed from the start, it builds no editor to say it: none is handed to the app', () => {
+    const onEditor = vi.fn()
+    render(<Box closed={{ reason: 'Archived. It takes no new comments.' }} onEditor={onEditor} />)
+    expect(screen.getByText('Archived. It takes no new comments.')).toBeTruthy()
+    expect(onEditor.mock.calls.filter(([editor]) => editor !== null)).toHaveLength(0)
+  })
+
+  it('opened later, it builds its editor then, and can be written in', async () => {
+    const onEditor = vi.fn()
+    const { rerender } = render(<Box closed={{ reason: 'Signed out.' }} onEditor={onEditor} />)
+    rerender(<Box onEditor={onEditor} />)
+    expect(onEditor.mock.calls.filter(([editor]) => editor !== null)).toHaveLength(1)
+    await type('Hello')
+    expect(editorOf().getText()).toBe('Hello')
+  })
+
+  it('closed while something is written, and opened again, it still holds the words', async () => {
+    const { rerender } = render(<Box />)
+    await type('Kept through the close')
+    rerender(<Box closed={{ reason: 'Signed out.' }} />)
+    expect(document.querySelector('.ProseMirror')).toBeNull()
+    rerender(<Box />)
+    expect(editorOf().getText()).toBe('Kept through the close')
   })
 })
 

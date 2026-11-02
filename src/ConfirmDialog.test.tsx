@@ -8,9 +8,13 @@
  * (D20) — and none of them was held by anything.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { useState } from 'react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConfirmDialog } from './ConfirmDialog'
+import { readIndexExports } from './registry/build'
 
 afterEach(cleanup)
 
@@ -105,5 +109,87 @@ describe('ConfirmDialog', () => {
     expect((screen.getByRole('button', { name: 'Delete' }) as HTMLButtonElement).disabled).toBe(true)
     expect((screen.getByRole('button', { name: 'Cancel' }) as HTMLButtonElement).disabled).toBe(true)
     release(true)
+  })
+
+  it('closed with Escape while the action runs, it is closed once, not again when the action goes through', async () => {
+    const user = userEvent.setup()
+    let release: (value: boolean) => void = () => {}
+    const onClose = vi.fn()
+    function Page() {
+      const [open, setOpen] = useState(true)
+      return open ? (
+        <Fixture
+          onConfirm={() => new Promise<boolean>((resolve) => { release = resolve })}
+          onClose={() => {
+            onClose()
+            setOpen(false)
+          }}
+        />
+      ) : null
+    }
+    render(<Page />)
+    await user.click(await screen.findByRole('button', { name: 'Delete' }))
+    await user.keyboard('{Escape}')
+    expect(onClose).toHaveBeenCalledOnce()
+    await act(async () => release(true))
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  describe('alternative: a third, safer answer (Peek’s Archive instead)', () => {
+    const archiveInstead = (onClick = vi.fn()) => ({
+      label: 'Archive instead',
+      sentence: 'To take it out of every list and keep it readable, archive it instead.',
+      onClick,
+    })
+
+    it('is offered under the words, with its sentence, and runs on a press without confirming', async () => {
+      const user = userEvent.setup()
+      const onClick = vi.fn()
+      const onConfirm = vi.fn()
+      render(<Fixture onConfirm={onConfirm} alternative={archiveInstead(onClick)} />)
+      await user.click(await screen.findByRole('button', { name: 'Archive instead' }))
+      expect(onClick).toHaveBeenCalledOnce()
+      expect(onConfirm).not.toHaveBeenCalled()
+    })
+
+    it('sits after the words, its sentence 8px above it: Peek’s outlined small button, at the start of the line', async () => {
+      render(<Fixture alternative={archiveInstead()} />)
+      const button = await screen.findByRole('button', { name: 'Archive instead' })
+      const sentence = screen.getByText('To take it out of every list and keep it readable, archive it instead.')
+      const block = button.parentElement!
+      expect(sentence.parentElement).toBe(block)
+      expect(sentence.nextElementSibling).toBe(button)
+      expect(block.className.split(' ')).toEqual(expect.arrayContaining(['flex', 'flex-col', 'items-start', 'gap-2']))
+      // Inside the dialog's words, after what the caller wrote.
+      expect(block.parentElement!.textContent!.indexOf('This cannot be undone.')).toBe(0)
+      expect(block.previousSibling?.textContent).toBe('This cannot be undone.')
+      expect(button.className).toContain('border-border-default')
+      expect(button.className).toContain('h-6')
+    })
+
+    it('waits while the confirm runs, as the other two answers do', async () => {
+      const user = userEvent.setup()
+      let release: (value: boolean) => void = () => {}
+      const onClick = vi.fn()
+      render(<Fixture onConfirm={() => new Promise<boolean>((resolve) => { release = resolve })} alternative={archiveInstead(onClick)} />)
+      await user.click(await screen.findByRole('button', { name: 'Delete' }))
+      const button = screen.getByRole('button', { name: 'Archive instead' }) as HTMLButtonElement
+      expect(button.disabled).toBe(true)
+      await user.click(button)
+      expect(onClick).not.toHaveBeenCalled()
+      release(false)
+      await vi.waitFor(() => expect(button.disabled).toBe(false))
+    })
+
+    it('offers nothing more where there is none', async () => {
+      render(<Fixture />)
+      await screen.findByRole('alertdialog')
+      expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['', 'Cancel', 'Delete'])
+    })
+
+    it('its type is exported beside the dialog, for an app that builds one ahead', () => {
+      const exported = readIndexExports(readFileSync(join(process.cwd(), 'src', 'index.ts'), 'utf8'))
+      expect(exported).toContainEqual(expect.objectContaining({ name: 'ConfirmDialogAlternative', isType: true }))
+    })
   })
 })

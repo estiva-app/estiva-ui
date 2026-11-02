@@ -244,11 +244,18 @@ export default {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
+        // A comment or reply a link just showed (showInConversation): the accent's wash, held, then fading. Peek's
+        // cited-flash (INT-3), moved: it marks an arrival, and a mark that stayed would read as a state.
+        shown: {
+          '0%, 45%': { backgroundColor: 'var(--accent-wash)' },
+          '100%': { backgroundColor: 'transparent' },
+        },
       },
       animation: {
         // Delayed reveal for loading skeletons: invisible for the first 150ms
         // so fast loads never flash a skeleton (Peek's rule, 2026-07-08).
         'skeleton-in': 'skeleton-in 0.2s ease-out 0.15s both',
+        shown: 'shown 1.8s ease-out',
       },
     },
   },

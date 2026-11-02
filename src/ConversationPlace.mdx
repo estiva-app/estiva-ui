@@ -1,0 +1,53 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ConversationPlace.stories'
+
+<Meta of={Stories} />
+
+# ConversationPlace
+
+Above a conversation shown away from where it was said: how it is related, and where it was said.
+
+<Canvas of={Stories.MentionedIn} />
+
+## When
+
+- A list of conversations from elsewhere on a page's Activity: each card under the line saying how it is related to the page (`relation`, "Mentioned in") and the place's name (`place`).
+- Another relation, in your words: the same line, the same look.
+
+<Canvas of={Stories.OnAnItemUnderIt} />
+
+- The place's name has not come yet: leave `place` out. The relation is drawn alone, never a placeholder: "Loading…" beside a real comment reads worse than a line that has not said where it is from yet.
+
+<Canvas of={Stories.PlaceNotNamedYet} />
+
+<Canvas of={Stories.LongPlace} />
+
+## When not
+
+- The conversation is on this page: its card alone → **ConversationCard**.
+- A comment on a part of the page: what it is on goes inside the card, in its `about` → **QuotedLine**.
+
+## How
+
+```tsx
+import { ConversationCard, ConversationPlace } from '@estiva-app/ui'
+
+<ConversationPlace relation="Mentioned in" place={nameOf(address)} data-relation="mention">
+  <ConversationCard author={author} time={time} readOnly onClick={openWhereSaid}>
+    {words}
+  </ConversationCard>
+</ConversationPlace>
+```
+
+- The words are yours: `relation` is how the conversation is related, `place` the name your app gives the place.
+- The card is yours too: it goes in as `children`, under the line, 4px below it.
+- The place's name is cut to the column.
+- Anything else you pass (a `data-…` mark) lands on the row, so you can find it.
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />
