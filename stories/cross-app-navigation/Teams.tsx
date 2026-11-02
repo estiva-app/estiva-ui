@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import {
   IconCheck,
-  IconDots,
+  IconDotsVertical,
   IconLayoutDashboard,
   IconLock,
   IconRobot,
@@ -644,7 +644,7 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
                 align="right"
                 trigger={
                   <IconButton aria-label="More" tooltip="More">
-                    <IconDots {...icon16} />
+                    <IconDotsVertical {...icon16} />
                   </IconButton>
                 }
               >

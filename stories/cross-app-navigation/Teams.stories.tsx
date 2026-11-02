@@ -60,7 +60,7 @@ export const TwoRows: Story = {
   render: () => <Teams rail="topics" start={{ type: 'place', id: 'widgets' }} />,
 }
 
-/** Design review is a space of Design: ⋯ → Move to another team… "Keep it a space" is ticked. */
+/** Design review is a space of Design: ⋮ → Move to another team… "Keep it a space" is ticked. */
 export const Move: Story = {
   name: 'Move, keeping a space',
   render: () => <Teams start={{ type: 'place', id: 'design-review' }} />,
