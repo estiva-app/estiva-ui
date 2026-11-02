@@ -258,46 +258,39 @@ function TopicList({ topics, viewer, onOpen }: { topics: Topic[]; viewer: Person
   return <Rows>{topics.map((t) => <TopicRow key={t.id} topic={t} viewer={viewer} onOpen={onOpen} />)}</Rows>
 }
 
+type TopicTab = 'all' | 'yours' | 'others' | 'archived'
+const TOPIC_TABS: Record<TopicTab, string> = { all: 'All', yours: 'Your topics', others: 'Other topics', archived: 'Archived' }
+const TOPIC_EMPTY: Record<TopicTab, string> = { all: 'No topic lists a project or issue yet.', yours: 'You are in no topic yet.', others: 'No other topics.', archived: 'No archived topics.' }
+
+/** Tabs as Projects has them (Miky, 2 Nov): All, Your topics, Other topics, Archived, opening on Your topics. */
 function TopicsPage({ viewer, folder, archived = false, read, onRetry, onOpen }: { viewer: Person; folder?: FolderId; archived?: boolean; read: TopicsRead; onRetry: () => void; onOpen: (p: Place) => void }) {
+  const [tab, setTab] = useState<TopicTab>(archived ? 'archived' : 'yours')
   const inScope = read === 'none' ? [] : TOPICS.filter((t) => !folder || t.folder === folder).sort(byTitle)
-  const title = `${folder ? `${folderName(folder)} · ` : ''}${archived ? 'Archived topics' : 'Topics'}`
+  const title = `${folder ? `${folderName(folder)} · ` : ''}Topics`
   if (read === 'loading' || read === 'failed') return <Page title={title} icon={<IconTarget {...icon16} />}><ReadState read={read} scope="page" onRetry={onRetry} /></Page>
-  if (archived) {
-    const gone = inScope.filter(isArchivedTopic)
-    return (
-      <Page title={title} icon={<IconArchive {...icon16} />} right={<Link href="#" variant="quiet" onClick={go(() => onOpen({ type: 'topics', folder }))}>Topics</Link>}>
-        {gone.length === 0 ? <EmptyState scope="section" message="No archived topics." /> : <TopicList topics={gone} viewer={viewer} onOpen={onOpen} />}
-      </Page>
-    )
-  }
   const shown = inScope.filter(isShown)
-  const yours = shown.filter((t) => t.members.includes(viewer))
-  const others = shown.filter((t) => !t.members.includes(viewer))
-  const archivedCount = inScope.filter(isArchivedTopic).length
+  const lists: Record<TopicTab, Topic[]> = {
+    all: shown,
+    yours: shown.filter((t) => t.members.includes(viewer)),
+    others: shown.filter((t) => !t.members.includes(viewer)),
+    archived: inScope.filter(isArchivedTopic),
+  }
+  const tabs = (Object.keys(TOPIC_TABS) as TopicTab[]).map((id) => ({ id, label: TOPIC_TABS[id], count: lists[id].length }))
+  const list = lists[tab]
   return (
     <Page title={title} icon={<IconTarget {...icon16} />}>
-      {shown.length === 0 ? (
-        <EmptyState message="No topic lists a project or issue yet." />
+      <Tabs aria-label="Topics" tabs={tabs} active={tab} onChange={setTab} />
+      {list.length === 0 ? (
+        <EmptyState scope="section" message={shown.length === 0 && tab !== 'archived' ? TOPIC_EMPTY.all : TOPIC_EMPTY[tab]} />
       ) : (
-        <Columns>
-          <span className="flex-1 pl-7">Name</span>
-          <span className="w-16">Projects</span>
-          <span className="w-28">Conversations</span>
-        </Columns>
-      )}
-      {[['Your topics', yours] as const, ['Other topics', others] as const].map(
-        ([label, list]) =>
-          list.length > 0 && (
-            <Section key={label} label={label}>
-              <TopicList topics={list} viewer={viewer} onOpen={onOpen} />
-            </Section>
-          ),
-      )}
-      {archivedCount > 0 && (
-        <Link href="#" variant="quiet" className="flex items-center gap-1 self-start text-body-2 text-text-secondary" onClick={go(() => onOpen({ type: 'topics', folder, archived: true }))}>
-          <IconArchive {...icon16} />
-          Archived · {archivedCount}
-        </Link>
+        <div className="flex flex-col gap-2">
+          <Columns>
+            <span className="flex-1 pl-7">Name</span>
+            <span className="w-16">Projects</span>
+            <span className="w-28">Conversations</span>
+          </Columns>
+          <TopicList topics={list} viewer={viewer} onOpen={onOpen} />
+        </div>
       )}
     </Page>
   )
@@ -451,11 +444,25 @@ function ProjectsPage({ folder, firstTab, firstLayout, onOpen }: { folder?: Fold
   )
 }
 
-function IssuesPage({ folder, onOpen }: { folder?: FolderId; onOpen: (p: Place) => void }) {
-  const list = issues.filter((i) => isOpen(i) && (!folder || folderOf(i) === folder))
+type IssueTab = 'all' | 'mine'
+
+/** Open issues, in tabs as Projects has them (Miky, 2 Nov): All and Assigned to me, opening on Assigned to me. */
+function IssuesPage({ viewer, folder, onOpen }: { viewer: Person; folder?: FolderId; onOpen: (p: Place) => void }) {
+  const [tab, setTab] = useState<IssueTab>('mine')
+  const here = issues.filter((i) => isOpen(i) && (!folder || folderOf(i) === folder))
+  const lists: Record<IssueTab, Issue[]> = { all: here, mine: here.filter((i) => i.assignee === viewer) }
+  const tabs = [
+    { id: 'all' as const, label: 'All', count: lists.all.length },
+    { id: 'mine' as const, label: 'Assigned to me', count: lists.mine.length },
+  ]
   return (
     <Page title={folder ? `${folderName(folder)} · Issues` : 'Issues'} icon={<IconListCheck {...icon16} />}>
-      {list.length === 0 ? <EmptyState message="No open issues here." /> : <Rows>{list.map((i) => <WorkRow key={i.id} work={i} onOpen={onOpen} />)}</Rows>}
+      <Tabs aria-label="Issues" tabs={tabs} active={tab} onChange={setTab} />
+      {lists[tab].length === 0 ? (
+        <EmptyState scope="section" message={tab === 'mine' ? 'No open issue is assigned to you.' : 'No open issues here.'} />
+      ) : (
+        <Rows>{lists[tab].map((i) => <WorkRow key={i.id} work={i} onOpen={onOpen} />)}</Rows>
+      )}
     </Page>
   )
 }
@@ -487,11 +494,11 @@ interface ContentProps { place: Place; viewer: Person; read: TopicsRead; project
 function Content({ place, viewer, read, projectsTab, projectsAs, onRetry, onOpen }: ContentProps) {
   switch (place.type) {
     case 'topics':
-      return <TopicsPage viewer={viewer} folder={place.folder} archived={place.archived} read={read} onRetry={onRetry} onOpen={onOpen} />
+      return <TopicsPage key={`${place.folder ?? 'all'}-${!!place.archived}`} viewer={viewer} folder={place.folder} archived={place.archived} read={read} onRetry={onRetry} onOpen={onOpen} />
     case 'projects':
       return <ProjectsPage key={place.folder ?? 'all'} folder={place.folder} firstTab={projectsTab} firstLayout={projectsAs} onOpen={onOpen} />
     case 'issues':
-      return <IssuesPage folder={place.folder} onOpen={onOpen} />
+      return <IssuesPage key={place.folder ?? 'all'} viewer={viewer} folder={place.folder} onOpen={onOpen} />
     case 'folder':
       return <Page title={folderName(place.folder)} icon={<IconFolder {...icon16} />}><p className="text-caption text-text-muted">The Folder’s page, as today: its topics beside its projects.</p></Page>
     case 'topic':

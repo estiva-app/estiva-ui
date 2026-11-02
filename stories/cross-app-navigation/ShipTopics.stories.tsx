@@ -16,7 +16,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Each topic with its summary, its projects completed of all, its conversations and what is new for you; Your topics, then Other topics, Archived at the end. */
+/** Tabs All, Your topics, Other topics and Archived, opening on Your topics; each topic with its summary, its projects completed of all, its conversations and what is new for you. */
 export const Topics: Story = {
   render: () => <ShipTopics start={{ type: 'topics' }} />,
 }
@@ -38,7 +38,7 @@ export const ATopic: Story = {
   render: () => <ShipTopics start={{ type: 'topic', id: 'widgets' }} />,
 }
 
-/** A topic whose every project and issue is archived: it has moved under Archived. */
+/** A topic whose every project and issue is archived: it has moved to the Archived tab. */
 export const AllItsWorkArchived: Story = {
   name: 'All its work archived',
   render: () => <ShipTopics start={{ type: 'topics', archived: true }} />,
@@ -56,7 +56,7 @@ export const FromAnIssue: Story = {
   render: () => <ShipTopics start={{ type: 'work', id: 'i-widget-height' }} />,
 }
 
-/** As Katerina: the topics she is in come first, Miky's others under Other topics. */
+/** As Katerina: Your topics are the ones she is in, with her own "new" counts; Miky's others are under Other topics. */
 export const AsKaterina: Story = {
   name: 'As Katerina',
   render: () => <ShipTopics viewer="katerina" start={{ type: 'topics' }} />,
