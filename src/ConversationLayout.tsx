@@ -411,8 +411,12 @@ export function ConversationLayout({
       </ErrorBoundary>
       {side && (
         // Its own catch, as Peek's column had: a thread or a panel that throws says so in the column, and the comments stay.
+        // One catch per thread, and one for the aside: a thread that threw is let go once it is closed or another opens,
+        // as Peek's column, drawn only while a thread was open, let it go on closing. Each thread is drawn afresh.
         <div className="flex w-[384px] shrink-0 flex-col overflow-hidden border-l border-border-subtle">
-          <ErrorBoundary label="thread panel">{opened ? <caretOnOpen.Provider value={caret}>{opened}</caretOnOpen.Provider> : aside}</ErrorBoundary>
+          <ErrorBoundary key={opened ? `thread:${open}` : 'aside'} label="thread panel">
+            {opened ? <caretOnOpen.Provider value={caret}>{opened}</caretOnOpen.Provider> : aside}
+          </ErrorBoundary>
         </div>
       )}
     </div>

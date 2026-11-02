@@ -389,6 +389,29 @@ describe('ConversationLayout, two columns, the right column', () => {
     quiet.mockRestore()
   })
 
+  it('lets a thread that threw go: closing it draws the aside again, and another thread draws itself', () => {
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    function Throws(): never {
+      throw new Error('a thread that throws')
+    }
+    const list: ConversationItem[] = [
+      { id: 'c1', card: <ConversationCard author={ONE} time="11:08 AM">First</ConversationCard>, thread: <Throws /> },
+      { id: 'c2', card: <ConversationCard author={ONE} time="11:08 AM">Second</ConversationCard>, thread: <p>Thread two</p> },
+    ]
+    try {
+      const { rerender } = render(<ConversationLayout threads="beside" items={list} open="c1" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toContain('Something went wrong in the thread panel.')
+      rerender(<ConversationLayout threads="beside" items={list} aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toBe('The overview')
+      rerender(<ConversationLayout threads="beside" items={list} open="c1" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toContain('Something went wrong in the thread panel.')
+      rerender(<ConversationLayout threads="beside" items={list} open="c2" aside={<p>The overview</p>} />)
+      expect(column()?.textContent).toBe('Thread two')
+    } finally {
+      quiet.mockRestore()
+    }
+  })
+
   it('draws no column with no aside and no thread open', () => {
     render(<ConversationLayout threads="beside" items={items('beside')} />)
     expect(column()).toBeNull()
