@@ -266,6 +266,34 @@ export const Apart: Story = {
   },
 }
 
+/**
+ * One column, a note under the comments (`below`): after the groups, inside the column that scrolls, above the box,
+ * here a `ReactionHorizon`.
+ */
+export const OneColumnBelow: Story = {
+  name: 'One column, a note under the comments',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>(undefined)
+    return (
+      <>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Page />
+        </div>
+        <div className="flex border-l border-border-subtle">
+          <ConversationLayout
+            threads="under"
+            items={useItems('under', open, setOpen, true, true)}
+            open={open}
+            onOpenChange={setOpen}
+            below={<ReactionHorizon limit={100} omitted={3} />}
+            box={<WriteBox label="Comment" />}
+          />
+        </div>
+      </>
+    )
+  },
+}
+
 /** Nobody has commented yet. */
 export const Empty: Story = {
   render: () => (

@@ -53,7 +53,7 @@ export interface ConversationLayoutProps {
   box?: ReactNode
   /** Above the comments, inside their list: placeholders while older comments are read, a note. */
   above?: ReactNode
-  /** Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`. Not while the comments are read. */
+  /** Under the comments, inside their list, or under the empty line: a `ReactionHorizon`, or the app's own note. One column: after "Resolved" too, above the box. Not while the comments are read. */
   below?: ReactNode
   /** Two columns: at the top of the column however few the comments are, over the room a short conversation leaves: an `ArchivedNotice`. */
   top?: ReactNode
@@ -380,6 +380,7 @@ export function ConversationLayout({
     return (
       <Panel className={cn('w-[384px] flex-none', className)} title={title} actions={actions} bodyRef={setBody} bodyClassName="flex flex-col gap-2 p-3" footer={box && <div className="p-3">{box}</div>}>
         <List items={items} open={open} under above={above} loading={loading} empty={empty} change={change} caret={caret} />
+        {!loading && below}
       </Panel>
     )
   }
