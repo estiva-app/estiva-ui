@@ -364,3 +364,62 @@ describe('Menu, padding', () => {
     expect(classes).not.toContain('p-2')
   })
 })
+
+describe('MenuItem, shown but shut, saying why (disabledReason; Ship, 2 November)', () => {
+  function Shut({ onClick }: { onClick: () => void }) {
+    return (
+      <Menu trigger={<Button variant="outlined">Trigger</Button>}>
+        <MenuItem label="Rename" onClick={() => {}} />
+        <MenuItem label="Archive" disabledReason="Archived with its project: unarchive the project." onClick={onClick} />
+      </Menu>
+    )
+  }
+
+  it('is shown, shut: a press runs nothing and the menu stays open', async () => {
+    const user = userEvent.setup()
+    const onClick = vi.fn()
+    render(<Shut onClick={onClick} />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    const row = await screen.findByRole('menuitem', { name: 'Archive' })
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    await user.click(row)
+    expect(onClick).not.toHaveBeenCalled()
+    expect(screen.getByRole('menu')).toBeTruthy()
+  })
+
+  it('says why under the pointer', async () => {
+    const user = userEvent.setup()
+    render(<Shut onClick={() => {}} />)
+    await user.click(screen.getByRole('button', { name: 'Trigger' }))
+    await user.hover(await screen.findByRole('menuitem', { name: 'Archive' }))
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Archived with its project: unarchive the project.')
+  })
+
+  it('stays where the arrow keys go, so the keyboard reaches the reason too', async () => {
+    const user = userEvent.setup()
+    render(<Shut onClick={() => {}} />)
+    screen.getByRole('button', { name: 'Trigger' }).focus()
+    await user.keyboard('{Enter}')
+    await screen.findByRole('menu')
+    await user.keyboard('{ArrowDown}')
+    await waitFor(() => expect(document.activeElement?.textContent).toBe('Archive'))
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Archived with its project: unarchive the project.')
+  })
+
+  it('on a bare MenuPanel too: shut, and a press runs nothing', async () => {
+    const user = userEvent.setup()
+    const onClick = vi.fn()
+    render(
+      <MenuPanel>
+        <MenuItem label="Archive" disabledReason="Archived with its project." onClick={onClick} />
+      </MenuPanel>,
+    )
+    const row = screen.getByRole('button', { name: 'Archive' })
+    expect(row.getAttribute('aria-disabled')).toBe('true')
+    await user.hover(row)
+    expect((await screen.findByRole('tooltip')).textContent).toBe('Archived with its project.')
+    await user.click(row)
+    await user.keyboard('{Enter}')
+    expect(onClick).not.toHaveBeenCalled()
+  })
+})
