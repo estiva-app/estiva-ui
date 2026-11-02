@@ -14,25 +14,30 @@ that sends a form is sending.
   reader's own comment as it is sent from the layout's `box` (a refusal leaves them where they are), and holds still
   while cards and pictures fill in. Peek's, moved: an app keeps no place of its own in `bodyRef` any more.
 - **`ConversationLayout`'s `rememberAs`**: the conversation's own name (its address). Going back to it in this tab lands
-  where it was left: at the newest if it was left there, else on the same comment. **`useLeftAt(name)`** says when the
-  reader left it away from the newest, for the app's "New" line in `before`.
+  where it was left: at the newest if it was left there, else on the same comment, also when another conversation was
+  still being read between, or it is read again under the same name (where its placeholders pulled the box is never
+  taken for the reader's place). **`useLeftAt(name)`** says when the reader left it away from the newest, for the
+  app's "New" line in `before`; taken again on each visit, also after nothing was shown between.
 - **A thread opens at its newest reply** (`Thread`, beside), goes to each new `ReplyCard` drawn in it, and stays at
-  the bottom while its cards fill in. A line of the app's own among the replies takes it nowhere.
+  the bottom while its cards fill in. A line of the app's own among the replies takes it nowhere. Another thread opens
+  at its newest too, with or without a `start` id, its replies keyed by their own ids. A reply deleted moves nothing:
+  a reader scrolled up stays where they are (Peek's thread went to its bottom then).
 - **`useSeenOnScreen(key)`**, handed to `ConversationLayout`'s or `Thread`'s **`seen`**: which comments or replies
   have been on screen a moment (half the card, or 120px of a taller one, for 1.5 seconds, in a tab that is not
   hidden). What reads them. Peek's, moved.
 - **`showInConversation(id)`** and **`showInConversationWhenDrawn(id)`**: a link to a reply or to a thread's comment
   scrolls it to the middle and flashes it in the accent's wash, fading over 1.8s (Peek's cited flash, moved, held
   still for a reader who asks for less motion). `false` when it is not drawn; the second waits for it, every 50ms, up
-  to 3 seconds. `{ comments: true }` looks among a layout's comments too.
+  to 3 seconds, and stops (`false`) when a newer show is asked for: the reader's last link is the one that lands.
+  `{ comments: true }` looks among a layout's comments too.
 - **`ReplyCard`'s `id`**: on the card as `data-reply-id`, what a link shows and what `Thread` watches. An app draws no
   wrapper of its own round a reply to carry it.
 - **`at`** on `ConversationCard`, `ReplyCard` and `PinnedComment` (a `Thread`'s `start.at`): its moment, in ms. The
   time then says the exact date and time under the pointer, in the reader's own way. A time that is a link says it,
-  then the link's words ("… · Link to this").
+  then the link's words ("… · Link to this"). A moment that is not a number draws the time as with none.
 - **`ConversationLayout`'s `aside`**: what the 384px column holds while no thread is open, the page's own panel (an
   overview). The column now catches what throws in it ("Something went wrong in the thread panel."), and the comments
-  stay.
+  stay. A thread that threw is let go once it is closed or another opens: each thread is drawn afresh in the column.
 - **A comment's `thread` may be a function**, called only while it is the open one: for an app that builds only the
   open thread.
 - **`ReactionHorizon`'s `keepRoom`**: while older comments are still read and the whole read will need the line, its
@@ -46,8 +51,12 @@ that sends a form is sending.
   memory through it, unchanged.
 - **`NavTree`'s `selectedGroup`**: the group a link led to, a folder's own
   link. Each time it names a new group, the group opens, closed by hand too,
-  and the column scrolls to it at once. It marks nothing. Groups the app draws
-  itself take `openFor` on their `NavTreeSection`; the scroll is the tree's.
+  and the column scrolls to it at once. It marks nothing. It is remembered
+  open as a click would be, open already or not, so it stays open when the
+  reader goes on to a row in another group (Peek's own). A group the app draws
+  itself is found by its `NavTreeSection`'s `id`, and told through
+  `onOpenChange` when the app holds it: nothing more to pass. `openFor` is
+  unchanged: a group open only for its current row is never written down.
 - **`NavItem`'s `onPlainClick`**: a row the app opens its own way, beside the
   list or in place, runs it on a plain click only; the link is not followed,
   and `navigate` is not called. Ctrl, Cmd, Shift, Alt and the middle button
@@ -63,8 +72,10 @@ that sends a form is sending.
   it, then Cancel and the button that sends it (`submitLabel`, `busyLabel`
   while it sends, `ready` for when there is enough to send). While it sends,
   the fields and both buttons wait; a send that went through closes it, and an
-  answer of `false` (or a throw) keeps it open. What Peek's Archive, New
-  folder, Move and Start a topic each wired by hand, with their look.
+  answer of `false` (or a throw) keeps it open. Closed with Escape or the ✕
+  while it sends, `onClose` is not called again when the send goes through.
+  What Peek's Archive, New folder, Move and Start a topic each wired by hand,
+  with their look.
 - **`MoveDialog`**: Peek's Move, in the kit. The Folder first, then what it
   goes under there, read when the Folder is picked (`placesIn`), once; only
   moves that do something are offered, and nothing is chosen for the person
@@ -76,7 +87,8 @@ that sends a form is sending.
   passes the apps it goes out of (`apps`) and its last line (`getBack`).
 - **`ConfirmDialog`'s `alternative`**: a third, safer answer — "Archive
   instead" — drawn after the words under its sentence, as Peek's delete
-  question has it. It waits while the confirm runs, as Cancel does.
+  question has it. It waits while the confirm runs, as Cancel does. Its type,
+  `ConfirmDialogAlternative`, is exported.
 - **`EditableText`'s `manner="buttons"`**: the text with a button beside it
   ("Rename", or `addLabel` with a plus while it is empty), then a field with
   Save and Cancel, and what happened said under it. `onCommit` may answer an
@@ -102,8 +114,12 @@ that sends a form is sending.
   form's: every edit goes to `onChange` as it is typed (`''` once emptied),
   nothing is saved on leaving, and Ctrl/Cmd+Enter sends the form around it. A
   value from outside (a prefill) loads as the document it is; its own edits
-  coming back late are never loaded over newer typing. Peek's `ProseField`,
-  moved, on the kit's grammar and the kit's field look.
+  coming back late are never loaded over newer typing. While the form sends,
+  nothing can be written in it, as in the fields beside it (its look stays).
+  Peek's `ProseField`, moved, on the kit's grammar and the kit's field look.
+  It reads the form through **`useFormBusy()`**, now exported from the main
+  entry for the editor's bundle: the kit's own wiring, which an app never
+  needs.
 - **`Card`'s `onPress`**: a card that opens what it stands for on a press —
   anywhere on it but on a button, link or field inside it, never on a menu it
   opened (outside it in the page), a double click or picked words — and from
@@ -141,6 +157,8 @@ that sends a form is sending.
 
 ### Fixed
 
+- **`ConfirmDialog` closed with Escape or the ✕ while its action runs** calls
+  `onClose` once: before, it was called again when the action went through.
 - **A comment box closed from the start builds no editor** to say why
   nothing can be written: the lock line alone, drawn exactly as before. A box
   that was open and is closed keeps its editor, and what was written in it, for

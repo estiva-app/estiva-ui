@@ -5,8 +5,8 @@
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
     "packageVersion": "0.99.0",
-    "exports": 242,
-    "typeExports": 248,
+    "exports": 243,
+    "typeExports": 249,
     "files": null
   },
   "storybook": {
@@ -2551,7 +2551,7 @@
           "name": "onClose",
           "takes": "a handler",
           "required": true,
-          "note": null
+          "note": "Cancel, Escape, the ✕, and an action that went through: once, when it was closed while the action ran."
         },
         {
           "name": "alternative",
@@ -4609,7 +4609,7 @@
           "name": "onClose",
           "takes": "a handler",
           "required": true,
-          "note": "Cancel, Escape, the ✕, a press outside, and a send that went through."
+          "note": "Cancel, Escape, the ✕, a press outside, and a send that went through: once, when it was closed while it sent."
         },
         {
           "name": "children",
@@ -7370,7 +7370,7 @@
           "name": "selectedGroup",
           "takes": "text",
           "required": false,
-          "note": "The group a link led to — a folder's own link: each time it names a new group, the group opens, as `selected` opens a row's — closed by hand too, once, remembered open as a click would be — and the column scrolls to it at once."
+          "note": "The group a link led to — a folder's own link: each time it names a new group, the group opens, as `selected` opens a row's — closed by hand too, once — and is remembered open as a click would be, open already or not, so it stays open when the reader goes on to a row in another group; and the column scrolls to it at once."
         },
         {
           "name": "onSelect",
@@ -7420,7 +7420,7 @@
           "name": "id",
           "takes": "text",
           "required": false,
-          "note": "Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup`, and tests and photo runs do."
+          "note": "Marks the group's box as `data-nav-group`: the tree finds it by it for `selectedGroup` (opens it, remembers it open, scrolls to it), and tests and photo runs do."
         },
         {
           "name": "message",
@@ -10922,7 +10922,7 @@
           "name": "children",
           "takes": "anything",
           "required": false,
-          "note": "Its replies, in time order: `ReplyCard`s."
+          "note": "Its replies, in time order: `ReplyCard`s, each keyed by its own id."
         },
         {
           "name": "loading",
@@ -11962,6 +11962,25 @@
       "migrationStage": null,
       "docsId": "links-references-linkpreview--docs",
       "storyId": "links-references-linkpreview--on-hover",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "useFormBusy",
+      "repo": "estiva-ui",
+      "kind": "hook",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/formBusy.ts",
+      "purpose": "Whether a `Form` around this is sending: its fields and buttons wait.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": null,
+      "storyId": null,
       "docPage": null,
       "app": null,
       "looks": []
