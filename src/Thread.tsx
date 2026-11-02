@@ -48,7 +48,7 @@ export interface ThreadProps {
   title?: ReactNode
   /** Beside: the column's scrolling box. Where it scrolls is the thread's: it opens at the newest reply and goes to each new one. */
   bodyRef?: Ref<HTMLDivElement>
-  /** Beside: what `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), and says in it which were seen. */
+  /** What `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), beside or under its comment, and says in it which were seen. */
   seen?: SeenOnScreen
   /** Placement only. */
   className?: string
@@ -96,8 +96,10 @@ export function Thread({
     },
     [bodyRef],
   )
-  // A reply is read by being seen in its thread (Peek's PEE-44): each one is watched.
-  useWatchSeen(seen, body, 'data-reply-id')
+  // A reply is read by being seen in its thread (Peek's PEE-44): each one is watched, beside in the column's box, and
+  // under its comment in the thread's own (one column; Ship, 2 November). The app's `bodyRef` stays the column's only.
+  const under = useRef<HTMLDivElement>(null)
+  useWatchSeen(seen, place === 'under' ? under : body, 'data-reply-id')
   /*
     Beside: it opens at its newest reply, before the paint, so it never shows its top for a frame and then jumps; and
     it goes to the newest each time a reply is added, or another thread is drawn in it (Peek's OPT-9). Each ReplyCard
@@ -124,7 +126,7 @@ export function Thread({
   const layoutLine = useContext(LineByLayout)
   if (place === 'under') {
     return (
-      <div data-thread="under" className={cn('flex flex-col', className)}>
+      <div ref={under} data-thread="under" className={cn('flex flex-col', className)}>
           {(loading || anyIn(children)) && (
             // The replies hang from a line under the comment's face (20px in: its 8px and half its 24px), one step in (Ship's way).
             // 8px from the one card's right edge too, as the box under them: a hovered reply never touches it (Katerina, 31 October).

@@ -180,3 +180,62 @@ describe('useSeenOnScreen, where there is no IntersectionObserver (a test’s pa
     expect(seenNow()).toBe('a,b')
   })
 })
+
+describe('useSeenOnScreen, in a Thread under its comment (one column; Ship, 2 November)', () => {
+  function OneColumn({ ids }: { ids: string[] }) {
+    const seen = useSeenOnScreen('thread')
+    return (
+      <>
+        <ConversationLayout
+          threads="under"
+          open="c"
+          onOpenChange={() => {}}
+          items={[
+            {
+              id: 'c',
+              card: (
+                <ConversationCard author={ONE} time="11:08 AM" replies={{ count: ids.length }}>
+                  The comment
+                </ConversationCard>
+              ),
+              thread: (
+                <Thread place="under" seen={seen}>
+                  {ids.map((id) => (
+                    <ReplyCard key={id} id={id} author={ONE} time="11:30 AM">
+                      {id}
+                    </ReplyCard>
+                  ))}
+                </Thread>
+              ),
+            },
+          ]}
+        />
+        <output data-testid="seen">{[...seen.ids].sort().join(',')}</output>
+      </>
+    )
+  }
+
+  it('a reply on screen for the dwell is seen, as in the thread beside; one never shown is not', () => {
+    render(<OneColumn ids={['r1', 'r2']} />)
+    show('r2', 1)
+    wait(DWELL)
+    expect(seenNow()).toBe('r2')
+  })
+
+  it('scrolling past before the dwell reads nothing', () => {
+    render(<OneColumn ids={['r1']} />)
+    show('r1', 1)
+    wait(DWELL - 100)
+    show('r1', 0)
+    wait(DWELL)
+    expect(seenNow()).toBe('')
+  })
+
+  it('a reply drawn later is watched too', () => {
+    const { rerender } = render(<OneColumn ids={['r1']} />)
+    rerender(<OneColumn ids={['r1', 'r2']} />)
+    show('r2', 1)
+    wait(DWELL)
+    expect(seenNow()).toBe('r2')
+  })
+})

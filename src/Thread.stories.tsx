@@ -203,6 +203,45 @@ export const Under: Story = {
   },
 }
 
+/**
+ * Under its comment, read by being seen too: a new reply keeps its edge until it has been on screen a moment
+ * (`useSeenOnScreen` for the thread, handed to its `seen`), as in the column beside.
+ */
+export const UnderSeen: Story = {
+  name: 'Under its comment, new until seen',
+  render: function Render() {
+    const seen = useSeenOnScreen('story-under')
+    return (
+      <div className="flex h-[640px]">
+        <ConversationLayout
+          threads="under"
+          open="c1"
+          items={[
+            {
+              id: 'c1',
+              card: (
+                <ConversationCard author={ONE} time="11:08 AM" replies={{ count: 2, faces: [TWO, THREE], last: '11:52 AM' }}>
+                  {WORDS}
+                </ConversationCard>
+              ),
+              thread: (
+                <Thread place="under" box={<WriteBox />} seen={seen}>
+                  <ReplyCard id="u1" author={TWO} time="11:40 AM" isNew={!seen.ids.has('u1')}>
+                    {SHORT}
+                  </ReplyCard>
+                  <ReplyCard id="u2" author={THREE} time="11:52 AM" isNew={!seen.ids.has('u2')}>
+                    A second reply, new too.
+                  </ReplyCard>
+                </Thread>
+              ),
+            },
+          ]}
+        />
+      </div>
+    )
+  },
+}
+
 /** Your reply among them. */
 export const WithYours: Story = {
   name: 'With yours',
