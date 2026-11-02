@@ -27,7 +27,7 @@ export interface ThreadProps {
   place?: 'beside' | 'under'
   /** The comment it answers, pinned at the top of the column. Under its comment it is not repeated. */
   start?: ThreadStart
-  /** Its replies, in time order: `ReplyCard`s. How it was resolved is said on its comment, not among them (Katerina, 1 November). */
+  /** Its replies, in time order: `ReplyCard`s, each keyed by its own id. How it was resolved is said on its comment, not among them (Katerina, 1 November). */
   children?: ReactNode
   /** Still reading the replies: placeholders in their place. */
   loading?: boolean
@@ -102,16 +102,19 @@ export function Thread({
   /*
     Beside: it opens at its newest reply, before the paint, so it never shows its top for a frame and then jumps; and
     it goes to the newest each time a reply is added, or another thread is drawn in it (Peek's OPT-9). Each ReplyCard
-    drawn in it counts itself: a line of the app's own among them (a resolve history) takes it nowhere.
+    counts itself as it is first drawn in it: another thread's replies, keyed by their own ids, are drawn afresh and
+    take it to their newest whether or not it has a `start` and however many there are. A reply taken away (a delete)
+    is not counted, and the reader stays where they are (Peek's thread went to its bottom then). A line of the app's
+    own among them (a resolve history) takes it nowhere.
   */
-  const [drawn] = useState(() => ({ n: 0 }))
-  const last = useRef<{ n: number; start?: string } | null>(null)
+  const [drawn] = useState(() => ({ added: 0 }))
+  const last = useRef<{ added: number; start?: string } | null>(null)
   const steady = useSteadyScroll(body, undefined, always, start?.id, place === 'beside')
   useLayoutEffect(() => {
     const el = body.current
     if (place !== 'beside' || !el) return
-    const now = { n: drawn.n, start: start?.id }
-    if (last.current && last.current.n === now.n && last.current.start === now.start) return
+    const now = { added: drawn.added, start: start?.id }
+    if (last.current && last.current.added === now.added && last.current.start === now.start) return
     last.current = now
     el.scrollTop = el.scrollHeight
     // And it stays there while the replies' cards, chips and pictures fill in (OPT-10).

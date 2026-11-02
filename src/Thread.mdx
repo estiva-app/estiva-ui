@@ -47,7 +47,9 @@ import { ReplyCard, Thread } from '@estiva-app/ui'
 
 - A reply is read by being seen in its thread: `useSeenOnScreen(key)` for the thread, handed to `seen`, holds the ids of the replies that have been on screen a moment. Draw each reply's `isNew` from it.
 - Beside, where it scrolls is the thread's: it opens at its newest reply, goes to each new **ReplyCard** drawn in it (a
-  line of your own among them takes it nowhere), and stays at the bottom while cards and pictures fill in.
+  line of your own among them takes it nowhere), and stays at the bottom while cards and pictures fill in. A reply
+  deleted moves nothing. Key each reply by its own id: another thread's replies are then drawn afresh, and it opens at
+  their newest, with or without a `start`.
 - Its replies are yours to put in time order. Who resolved it is said on the comment, not among them.
 - Still reading: `loading`. Nobody replied yet: nothing in `children`.
 - An app whose empty thread said nothing keeps its silence with `empty={null}`; `closeLabel` names Close in its words for a screen reader.

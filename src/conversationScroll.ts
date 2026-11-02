@@ -148,5 +148,8 @@ export function useLeftAt(key: string | null | undefined): number | null {
  */
 export const sendsInLayout = createContext<{ sending: () => void; refused: () => void } | null>(null)
 
-/** Set by a Thread round its replies, counted by each ReplyCard drawn in it: a new one takes the thread to its newest. */
-export const repliesDrawn = createContext<{ n: number } | null>(null)
+/**
+ * Set by a Thread round its replies, counted by each ReplyCard as it is first drawn in it: a new reply, or another
+ * thread's replies, take the thread to its newest; a reply taken away (a delete) is never counted, and moves nothing.
+ */
+export const repliesDrawn = createContext<{ added: number } | null>(null)

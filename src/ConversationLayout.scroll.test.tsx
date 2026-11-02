@@ -247,22 +247,22 @@ describe('useLeftAt: when the reader left a conversation, for its "New" line', (
   })
 })
 
-describe('Thread, beside: where it scrolls', () => {
-  const START = { id: 't1', author: ONE, time: '11:08 AM', words: 'The comment' }
-  function Replies({ n, start = START, boxRef }: { n: number; start?: typeof START; boxRef: { current: HTMLDivElement | null } }) {
-    return (
-      <Thread start={start} bodyRef={boxRef}>
-        {Array.from({ length: n }, (_, i) => (
-          <ReplyCard key={i} id={`r${i}`} author={ONE} time="11:30 AM">
-            {`Reply ${i}`}
-          </ReplyCard>
-        ))}
-        {/* Not a reply: an app's own line among them (Peek's resolve history) takes it nowhere. */}
-        <p>A line of the app’s</p>
-      </Thread>
-    )
-  }
+const START = { id: 't1', author: ONE, time: '11:08 AM', words: 'The comment' }
+function Replies({ n, start = START, boxRef }: { n: number; start?: typeof START; boxRef: { current: HTMLDivElement | null } }) {
+  return (
+    <Thread start={start} bodyRef={boxRef}>
+      {Array.from({ length: n }, (_, i) => (
+        <ReplyCard key={i} id={`r${i}`} author={ONE} time="11:30 AM">
+          {`Reply ${i}`}
+        </ReplyCard>
+      ))}
+      {/* Not a reply: an app's own line among them (Peek's resolve history) takes it nowhere. */}
+      <p>A line of the app’s</p>
+    </Thread>
+  )
+}
 
+describe('Thread, beside: where it scrolls', () => {
   it('opens at its newest reply', () => {
     const box = { current: null as HTMLDivElement | null }
     render(<Replies n={4} boxRef={box} />)
@@ -292,6 +292,35 @@ describe('Thread, beside: where it scrolls', () => {
     const { rerender } = render(<Replies n={4} boxRef={box} />)
     scrollTo(box.current!, 100)
     rerender(<Replies n={4} start={{ ...START, id: 't2' }} boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(1000)
+  })
+
+  it('stays where the reader is when a reply is taken away (a delete)', () => {
+    const box = { current: null as HTMLDivElement | null }
+    const { rerender } = render(<Replies n={4} boxRef={box} />)
+    scrollTo(box.current!, 100)
+    heights.scroll = 800
+    rerender(<Replies n={3} boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(100)
+  })
+
+  it('opens another thread at its newest reply with no start id too, as many replies as it has', () => {
+    const box = { current: null as HTMLDivElement | null }
+    // Each reply keyed by its own id, as an app's list is.
+    function Other({ who }: { who: string }) {
+      return (
+        <Thread bodyRef={box}>
+          {Array.from({ length: 4 }, (_, i) => (
+            <ReplyCard key={`${who}${i}`} id={`${who}${i}`} author={ONE} time="11:30 AM">
+              {`Reply ${i} of ${who}`}
+            </ReplyCard>
+          ))}
+        </Thread>
+      )
+    }
+    const { rerender } = render(<Other who="a" />)
+    scrollTo(box.current!, 100)
+    rerender(<Other who="b" />)
     expect(box.current!.scrollTop).toBe(1000)
   })
 })

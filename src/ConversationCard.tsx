@@ -473,14 +473,10 @@ export function ReplyCard(props: ReplyCardProps) {
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
-  // In a Thread beside, a reply counts itself as it is drawn: a new one takes the thread to its newest.
+  // In a Thread beside, a reply counts itself as it is first drawn: a new one takes the thread to its newest.
   const drawn = useContext(repliesDrawn)
   useLayoutEffect(() => {
-    if (!drawn) return
-    drawn.n += 1
-    return () => {
-      drawn.n -= 1
-    }
+    if (drawn) drawn.added += 1
   }, [drawn])
   return (
     <>
