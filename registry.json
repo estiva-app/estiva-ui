@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.99.0",
+    "packageVersion": "0.100.0",
     "exports": 243,
     "typeExports": 249,
     "files": null
@@ -2958,6 +2958,18 @@
           "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
         },
         {
+          "name": "deleteLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Delete's words in the ⋯ menu: \"Delete\" by default; Ship's \"Delete message\"."
+        },
+        {
+          "name": "moreLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋯ button's name and tooltip: \"More actions\" by default; Ship's \"Message actions\"."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3029,7 +3041,7 @@
           "name": "below",
           "takes": "anything",
           "required": false,
-          "note": "Two columns: under the comments, inside their list, or under the empty line: a `ReactionHorizon`."
+          "note": "Under the comments, inside their list, or under the empty line: a `ReactionHorizon`, or the app's own note."
         },
         {
           "name": "top",
@@ -3184,6 +3196,18 @@
           "takes": "a handler",
           "required": false,
           "note": "Offered on your own only; the card asks before it deletes."
+        },
+        {
+          "name": "deleteLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Delete's words: \"Delete\" by default; Ship's \"Delete message\"."
+        },
+        {
+          "name": "moreLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Its own ⋯ button's name and tooltip, with no `trigger`: \"More actions\" by default; Ship's \"Message actions\"."
         },
         {
           "name": "open",
@@ -6733,6 +6757,12 @@
           "takes": "true/false",
           "required": false,
           "note": "The row the menu currently points at (a submenu's chosen value)."
+        },
+        {
+          "name": "disabledReason",
+          "takes": "text",
+          "required": false,
+          "note": "Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, and says why under the pointer and when the arrow keys reach it, as `Button`'s does."
         }
       ],
       "variants": [
@@ -7050,7 +7080,7 @@
           "name": "from",
           "takes": "text",
           "required": true,
-          "note": "The Folder it is in now."
+          "note": "The Folder it is in now, not offered to a file that nests under nothing."
         },
         {
           "name": "folders",
@@ -9141,7 +9171,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/RepliesRow.tsx",
-      "purpose": "The way into a thread, under its comment: who replied, \"2 replies\", the last reply's time, and \"1 new\" until it is read.",
+      "purpose": "The way into a thread, under its comment: who replied, \"2 replies\", the last reply's time, and how many are new (\"2 new\") until they are read.",
       "purposeFrom": "page",
       "props": [
         {
@@ -9167,6 +9197,12 @@
           "takes": "true/false",
           "required": false,
           "note": "\"1 new\": a reply you have not read."
+        },
+        {
+          "name": "newCount",
+          "takes": "number",
+          "required": false,
+          "note": "How many replies you have not read: \"2 new\", and the row's name says it too."
         },
         {
           "name": "urgent",
@@ -9216,6 +9252,12 @@
           "takes": "text",
           "required": false,
           "note": "Its id, on the card as `data-reply-id`: what a link to it shows (`showInConversation`), and what `Thread` watches to say it was seen."
+        },
+        {
+          "name": "noun",
+          "takes": "text",
+          "required": false,
+          "note": "What the reply is called in the delete question: \"Delete this reply?\" by default; Ship's `message`."
         },
         {
           "name": "author",
@@ -9360,6 +9402,18 @@
           "takes": "text",
           "required": false,
           "note": "Edit's words in the ⋯ menu: \"Edit\" by default; Peek's \"Edit message\"."
+        },
+        {
+          "name": "deleteLabel",
+          "takes": "text",
+          "required": false,
+          "note": "Delete's words in the ⋯ menu: \"Delete\" by default; Ship's \"Delete message\"."
+        },
+        {
+          "name": "moreLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋯ button's name and tooltip: \"More actions\" by default; Ship's \"Message actions\"."
         },
         {
           "name": "className",
@@ -10988,7 +11042,7 @@
           "name": "seen",
           "takes": "SeenOnScreen",
           "required": false,
-          "note": "Beside: what `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), and says in it which were seen."
+          "note": "What `useSeenOnScreen` made for this thread: it watches its replies (each `ReplyCard`'s `id`), beside or under its comment, and says in it which were seen."
         },
         {
           "name": "className",

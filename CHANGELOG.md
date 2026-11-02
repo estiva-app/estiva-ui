@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.100.0 — 2026-11-02
+
+What Ship needs to take the one conversation and keep its own words and behaviour (Katerina, 2 November: yes to
+these seven, for Ship's adoption). Six are small options; the seventh, a move for a file listed in more than one
+Folder, needed nothing new. Each is optional: an app that passes nothing new sees nothing change, Peek and Leaf
+included.
+
+### Added
+
+- **`RepliesRow`'s `newCount`**, and `ConversationCard`'s `replies.newCount`: how many replies are new. The chip says
+  "2 new", the row's name says it too for a screen reader ("3 replies, 2 new, open the thread"), and the comment takes
+  its new edge as with `isNew`. Given, it decides; 0 says nothing new. `isNew` alone still says "1 new", and the row's
+  name stays the count, as Peek has it.
+- **`ReplyCard`'s `noun`**: what the delete question calls a reply, as `ConversationCard`'s does. "Delete this
+  reply?" and "Delete reply" by default; Ship's `message` asks "Delete this message?", answered by "Delete message".
+- **`deleteLabel` and `moreLabel`** on `ConversationCard`, `ReplyCard` and `ConversationMenu`, beside 0.98.0's
+  `menuLabel` and `editLabel`: Delete's words in the ⋯ menu ("Delete" by default; Ship's "Delete message"), and the ⋯
+  button's name and tooltip ("More actions" by default; Ship's "Message actions"). On `ConversationMenu`,
+  `moreLabel` names its own ⋯, drawn when no `trigger` is given.
+- **`ConversationLayout`'s `below` in one column** (`threads="under"`), as two columns has it: under the comments,
+  after "On deleted blocks" and "Resolved", inside the column that scrolls and above the box; not while the comments
+  are read. Ship's reactions note goes there.
+- **`MenuItem`'s `disabledReason`**: a row shown but shut, saying why, as `Button`'s, `Select`'s and `LinkPickers`'
+  do. Its words and its icon take the disabled colour (the arrow, not the hand, over it); the reason shows under the
+  pointer, and where the arrow keys reach it, as Base UI keeps a disabled row among them. A press runs nothing and
+  the menu stays open. On a bare `MenuPanel` too. For Ship's Archive on an issue archived with its project.
+
+### Changed
+
+- **`MoveDialog`'s page says what an empty `from` does**, and tests pin it: a file not listed in exactly one Folder
+  (none, or two after a move that half-worked) has no Folder held back, the ones it is in included, since moving into
+  either takes it out of the other; a refusal keeps it open and Move again is the retry. Nothing is chosen for the
+  person even so; `startIn` opens it on one, held steady by the app. Ship's Move to Folder passes `from=""` then, and
+  filters its `folders` itself (only Folders with state); a private Folder stays offered and its refusal is said, as
+  today. No new prop: it always behaved so.
+
+### Fixed
+
+- **A `Thread` under its comment, in one column, watches its replies for `seen`**, as the thread beside does: a reply
+  is read once it has been on screen 1.5 seconds, half of it or 120px of a taller one, in a tab that is not hidden.
+  Before, a one-column thread's `seen` watched nothing, and no reply was ever counted as seen. No app passed it yet.
+
 ## 0.99.0 — 2026-11-02
 
 What Peek still built by hand, moved into the kit for every app (Katerina, 2 November, on the audit "What Peek still
