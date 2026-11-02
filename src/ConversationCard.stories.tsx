@@ -95,6 +95,9 @@ export const New: Story = { render: (args) => <Live {...args} isNew /> }
 /** A reply under it not read yet. */
 export const NewReply: Story = { name: 'New reply', render: (args) => <Live {...args} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM', isNew: true }} onClick={() => {}} /> }
 
+/** Replies under it not read yet, by count: the row says how many. */
+export const NewReplies: Story = { name: 'New replies, how many', render: (args) => <Live {...args} replies={{ count: 3, faces: [TWO, THREE, YOU], last: '12:02 PM', newCount: 2 }} onClick={() => {}} /> }
+
 /** Urgent and not read yet. */
 export const Urgent: Story = { render: (args) => <Live {...args} isNew urgent replies={{ count: 1, faces: [TWO], last: '12:02 PM', isNew: true }} /> }
 

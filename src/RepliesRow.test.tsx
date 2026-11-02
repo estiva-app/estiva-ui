@@ -45,3 +45,27 @@ describe('RepliesRow', () => {
     expect(container.querySelectorAll('img, [data-avatar], [aria-label="Person two"]').length).toBeGreaterThan(0)
   })
 })
+
+describe('RepliesRow, how many are new (newCount)', () => {
+  it('says how many replies are new, not "1 new" whatever the count (Ship: "3 replies, 2 new")', () => {
+    render(<RepliesRow count={3} newCount={2} />)
+    expect(screen.getByText('2 new')).toBeTruthy()
+    expect(screen.queryByText('1 new')).toBeNull()
+  })
+
+  it('says nothing new when none is, whatever isNew says', () => {
+    render(<RepliesRow count={3} newCount={0} isNew />)
+    expect(screen.queryByText(/ new$/)).toBeNull()
+  })
+
+  it('says how many are new in the name a press reads, before what the press does', () => {
+    render(<RepliesRow count={3} newCount={2} onOpen={() => {}} />)
+    expect(screen.getByRole('button', { name: '3 replies, 2 new, open the thread' })).toBeTruthy()
+  })
+
+  it('with isNew alone, says "1 new" and keeps its name as it was (Peek passes no count)', () => {
+    render(<RepliesRow count={3} isNew onOpen={() => {}} />)
+    expect(screen.getByText('1 new')).toBeTruthy()
+    expect(screen.getByRole('button', { name: '3 replies, open the thread' })).toBeTruthy()
+  })
+})

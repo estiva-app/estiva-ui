@@ -23,6 +23,9 @@ export const One: Story = { args: { count: 1, faces: [TWO] } }
 /** A reply not read yet. */
 export const New: Story = { args: { isNew: true } }
 
+/** Several replies not read yet: how many, from `newCount`. */
+export const NewSeveral: Story = { name: 'New, how many', args: { newCount: 2 } }
+
 /** A reply not read yet, in an urgent thread. */
 export const Urgent: Story = { args: { isNew: true, urgent: true } }
 

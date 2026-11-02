@@ -195,6 +195,16 @@ describe('new and urgent (Peek: ConversationCard.urgent, the card’s part)', ()
     expect(screen.getByText('1 new')).toBeTruthy()
   })
 
+  it('replies under it new by count mark the comment too, and its row says how many (Ship, 2 November): "2 new"', () => {
+    const { container } = render(
+      <ConversationCard author={ONE} time="11:08 AM" replies={{ count: 3, newCount: 2 }}>
+        Words
+      </ConversationCard>,
+    )
+    expect(container.firstElementChild?.className).toMatch(/\bborder-accent-outline\b/)
+    expect(screen.getByText('2 new')).toBeTruthy()
+  })
+
   it('read, it draws neither mark nor edge', () => {
     const { container } = render(
       <ConversationCard author={ONE} time="11:08 AM">

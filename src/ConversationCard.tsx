@@ -317,7 +317,7 @@ export function ConversationCard(props: ConversationCardProps) {
         hovered={hovered}
         selected={marked}
         active={isEditing}
-        attention={attentionOf(isNew || !!replies?.isNew, urgent, inThreadCard)}
+        attention={attentionOf(isNew || (replies?.newCount ?? (replies?.isNew ? 1 : 0)) > 0, urgent, inThreadCard)}
         className={cn('relative', className)}
         // A press opens its thread, wherever it lands on the card but for what acts by itself (Card's `onPress`). Before,
         // the whole reactions row and the strip stopped every press, so a press beside the reactions did nothing
