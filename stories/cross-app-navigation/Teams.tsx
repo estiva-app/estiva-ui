@@ -6,6 +6,7 @@ import {
   IconCircleDashedPlus,
   IconDotsVertical,
   IconLayoutDashboard,
+  IconLayoutSidebarRight,
   IconLock,
   IconRobot,
   IconTarget,
@@ -646,21 +647,30 @@ function Message({ s, viewer }: { s: Said; viewer: PersonId }) {
   )
 }
 
-/** The files a space or topic lists, beside it, as in Per app's dot variant: Activity is behind the dot, so the column is only the files. */
+/**
+ * The column beside a space or topic, as Peek's is today (Miky, 2 Nov): Overview,
+ * then its files with their count. Activity is behind the dot (Per app's dot
+ * variant), so the column is only the files. The header's sidebar button closes it.
+ */
 function FilesColumn({ place }: { place: Place }) {
   const files = (place.files ?? []).map(fileOf)
   return (
-    <aside className="hidden w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border-subtle p-4 lg:flex">
-      <SectionLabel tone="muted">Files</SectionLabel>
-      {files.length === 0 ? (
-        <p className="text-body-2 text-text-muted">None yet. A place can be only a conversation.</p>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {files.map((f) => (
-            <LinkCard key={f.id} link={cardOf(f, '')} />
-          ))}
-        </div>
-      )}
+    <aside className="hidden w-80 shrink-0 flex-col border-l border-border-subtle lg:flex">
+      <Header title="Overview" />
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+        <SectionLabel>
+          Files <span className="ml-1 text-text-muted">{files.length}</span>
+        </SectionLabel>
+        {files.length === 0 ? (
+          <p className="text-body-2 text-text-muted">None yet. A place can be only a conversation.</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {files.map((f) => (
+              <LinkCard key={f.id} link={cardOf(f, '')} />
+            ))}
+          </div>
+        )}
+      </div>
     </aside>
   )
 }
@@ -681,6 +691,8 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
   const someoneElse = (Object.keys(PEOPLE) as PersonId[]).find((p) => p !== viewer && !isAgent(p)) ?? 'agent'
   const messages = messagesIn(w, place)
   const jump = (id: string) => document.getElementById(`said-${id}`)?.scrollIntoView({ block: 'center' })
+  const [side, setSide] = useState(true)
+  const hasSide = place.kind !== 'chat'
   return (
     <div className="flex h-full min-h-0">
     <div className="flex min-w-0 flex-1 flex-col">
@@ -694,6 +706,11 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
                 {listed.length}
               </span>
             </Button>
+            {hasSide && (
+              <IconButton aria-label={side ? 'Hide the sidebar' : 'Show the sidebar'} tooltip={side ? 'Hide the sidebar' : 'Show the sidebar'} onClick={() => setSide(!side)}>
+                <IconLayoutSidebarRight {...icon16} />
+              </IconButton>
+            )}
             {place.kind !== 'chat' && (
               <Menu
                 align="right"
@@ -758,7 +775,7 @@ function PlacePage({ place, onOpen, teamShown }: { place: Place; onOpen: (o: Ope
         />
       )}
     </div>
-    {place.kind !== 'chat' && <FilesColumn place={place} />}
+    {hasSide && side && <FilesColumn place={place} />}
     </div>
   )
 }
