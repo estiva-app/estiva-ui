@@ -1,22 +1,30 @@
 import { useState, type ReactNode } from 'react'
-import { IconArchive, IconCircle, IconCircleCheck, IconExternalLink, IconFolder, IconHome, IconListCheck, IconProgress, IconTarget } from '@tabler/icons-react'
+import { IconArchive, IconCircle, IconCircleCheck, IconExternalLink, IconFolder, IconLayoutGrid, IconList, IconListCheck, IconMessages, IconProgress, IconTarget } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
+import { Avatar } from '../../src/Avatar'
+import { Card } from '../../src/Card'
 import { EmptyState } from '../../src/EmptyState'
+import { IconButton } from '../../src/IconButton'
 import { KindIcon } from '../../src/KindIcon'
 import { Link } from '../../src/Link'
 import { Menu, MenuItem } from '../../src/Menu'
 import { NavItem } from '../../src/NavItem'
 import { PersonTrigger } from '../../src/PersonTrigger'
+import { ProgressBar } from '../../src/ProgressBar'
 import { SectionLabel } from '../../src/SectionLabel'
 import { Sidebar } from '../../src/Sidebar'
 import { SkeletonList } from '../../src/Skeleton'
+import { Tabs } from '../../src/Tabs'
+import { UnreadDot } from '../../src/UnreadDot'
 import { Header, go, icon16 } from './Lens'
 
 /**
  * Ship's Topics navigation, stage 1 (project "Ship's Topics navigation",
- * decided 2 Nov): the sidebar Ship can draw today, Home, Topics and a topic's
- * page. Unlike Per app's Ship (29 Oct), there is no Views and no Starred, and
- * the sidebar still says Folders: Teams arrive with "Teams and following".
+ * decided 2 Nov): the sidebar Ship can draw today, Topics, a topic's page and
+ * Projects. Unlike Per app's Ship (29 Oct), there is no Views and no Starred,
+ * and the sidebar still says Folders: Teams arrive with "Teams and following".
+ * Home is parked (Miky, 2 Nov, on the prototype): it should become the activity
+ * on your projects and issues, shaped later.
  * Its own data, shaped like Miky's workspace, because a topic here lists
  * issues as well as projects, and things get archived.
  */
@@ -24,13 +32,16 @@ import { Header, go, icon16 } from './Lens'
 type Person = 'miky' | 'katerina' | 'agent'
 type FolderId = 'hq' | 'peek' | 'ship' | 'leaf' | 'agent'
 type Status = 'todo' | 'in-progress' | 'done'
+/** Ship's own project statuses: Planned, In Progress, Completed. */
+type ProjectStatus = 'planned' | 'active' | 'completed'
 
-interface Project { id: string; kind: 'project'; title: string; folder: FolderId; lead: Person; members: Person[]; progress: string; archived?: boolean }
+interface Project { id: string; kind: 'project'; title: string; folder: FolderId; status: ProjectStatus; lead: Person; members: Person[]; done: number; total: number; archived?: boolean }
 interface Issue { id: string; kind: 'issue'; title: string; project: string; status: Status; assignee: Person; archived?: boolean }
 interface Doc { id: string; kind: 'document'; title: string }
 type Item = Project | Issue | Doc
 type Work = Project | Issue
-interface Topic { id: string; title: string; folder: FolderId; members: Person[]; space?: boolean; lists: string[] }
+/** `conversations` is how many the topic has in Peek; `newFor`, how many of them have something new for each person. */
+interface Topic { id: string; title: string; summary: string; folder: FolderId; members: Person[]; space?: boolean; lists: string[]; conversations: number; newFor?: Partial<Record<Person, number>> }
 
 const PEOPLE: Record<Person, string> = { miky: 'Miky', katerina: 'Katerina Kelepouri', agent: 'Estiva agent' }
 
@@ -43,29 +54,29 @@ const FOLDERS: { id: FolderId; name: string }[] = [
 ]
 const folderName = (id: FolderId) => FOLDERS.find((f) => f.id === id)!.name
 
-const project = (id: string, title: string, folder: FolderId, progress: string, more: Partial<Project> = {}): Project =>
-  ({ id, kind: 'project', title, folder, lead: 'miky', members: ['miky', 'agent'], progress, ...more })
+const project = (id: string, title: string, folder: FolderId, status: ProjectStatus, done: number, total: number, more: Partial<Project> = {}): Project =>
+  ({ id, kind: 'project', title, folder, status, lead: 'miky', members: ['miky', 'agent'], done, total, ...more })
 const issue = (id: string, title: string, projectId: string, status: Status, assignee: Person, archived?: boolean): Issue =>
   ({ id, kind: 'issue', title, project: projectId, status, assignee, archived })
 const doc = (id: string, title: string): Doc => ({ id, kind: 'document', title })
 
 const ITEMS: Item[] = [
-  project('p-nav', 'Ship’s Topics navigation', 'ship', '0 of 6', { members: ['miky', 'katerina', 'agent'] }),
-  project('p-teams', 'Teams and following', 'hq', '2 of 8', { members: ['miky', 'katerina', 'agent'] }),
-  project('p-topics-files', 'Topics group files', 'hq', '8 of 8'),
-  project('p-read-only', 'Apps read only what they show', 'hq', '6 of 10'),
-  project('p-live', 'Live across apps', 'peek', '1 of 3'),
-  project('p-peek-bugs', 'Peek: Feedback & Bugs', 'peek', '4 of 9'),
-  project('p-ship-bugs', 'Ship: Feedback & Bugs', 'ship', '5 of 8'),
-  project('p-leaf-everyday', 'Leaf works for everyday documents', 'leaf', '7 of 11', { members: ['miky', 'katerina'] }),
-  project('p-widgets-1', 'Widgets 2: build 1', 'hq', '6 of 6', { archived: true }),
-  project('p-widgets-2', 'Widgets 2: build 2', 'hq', '4 of 5', { members: ['miky', 'katerina'] }),
-  project('p-docs-2', 'docs.estiva.app 2: a grant reviewer sees what it can do', 'hq', '0 of 3'),
-  project('p-records-2', 'Decision records 2', 'agent', '4 of 7'),
-  project('p-agent-feedback', 'Agent: Feedback & Improvements', 'agent', '9 of 14'),
-  project('p-brand', 'Website refresh', 'hq', '2 of 5', { lead: 'katerina', members: ['katerina'] }),
-  project('p-launch', 'Public launch, first wave', 'hq', '9 of 9', { archived: true }),
-  issue('i-proto', 'Ship’s new sidebar, Home, Topics and a topic’s page in the prototype', 'p-nav', 'in-progress', 'miky'),
+  project('p-nav', 'Ship’s Topics navigation', 'ship', 'active', 0, 6, { members: ['miky', 'katerina', 'agent'] }),
+  project('p-teams', 'Teams and following', 'hq', 'planned', 0, 8, { members: ['miky', 'katerina', 'agent'] }),
+  project('p-topics-files', 'Topics group files', 'hq', 'completed', 8, 8),
+  project('p-read-only', 'Apps read only what they show', 'hq', 'active', 6, 10, { lead: 'agent' }),
+  project('p-live', 'Live across apps', 'peek', 'planned', 0, 3),
+  project('p-peek-bugs', 'Peek: Feedback & Bugs', 'peek', 'active', 4, 9),
+  project('p-ship-bugs', 'Ship: Feedback & Bugs', 'ship', 'active', 5, 8),
+  project('p-leaf-everyday', 'Leaf works for everyday documents', 'leaf', 'active', 7, 11, { lead: 'katerina', members: ['miky', 'katerina'] }),
+  project('p-widgets-1', 'Widgets 2: build 1', 'hq', 'completed', 6, 6, { archived: true }),
+  project('p-widgets-2', 'Widgets 2: build 2', 'hq', 'active', 4, 5, { lead: 'katerina', members: ['miky', 'katerina'] }),
+  project('p-docs-2', 'docs.estiva.app 2: a grant reviewer sees what it can do', 'hq', 'planned', 0, 3),
+  project('p-records-2', 'Decision records 2', 'agent', 'completed', 7, 7),
+  project('p-agent-feedback', 'Agent: Feedback & Improvements', 'agent', 'active', 9, 14, { lead: 'agent' }),
+  project('p-brand', 'Website refresh', 'hq', 'active', 2, 5, { lead: 'katerina', members: ['katerina'] }),
+  project('p-launch', 'Public launch, first wave', 'hq', 'completed', 9, 9, { archived: true }),
+  issue('i-proto', 'Ship’s new sidebar, Topics and a topic’s page in the prototype', 'p-nav', 'in-progress', 'miky'),
   issue('i-read', 'Ship reads every topic once, and Add to topic uses it', 'p-nav', 'todo', 'agent'),
   issue('i-rename', 'Folders are called Teams in every app', 'p-teams', 'todo', 'agent'),
   issue('i-widget-title', 'A widget card shows its title', 'p-widgets-2', 'in-progress', 'katerina'),
@@ -92,19 +103,19 @@ const folderOf = (work: Work) => (work.kind === 'project' ? work.folder : (itemO
 const isArchived = (work: Work) => !!work.archived
 
 const TOPICS: Topic[] = [
-  { id: 'widgets', title: 'Widgets', folder: 'hq', members: ['miky', 'katerina'], lists: ['p-widgets-2', 'i-widget-title', 'i-widget-height', 'p-widgets-1', 'i-widget-picker', 'd-testing-widgets'] },
-  { id: 'fast', title: 'Peek, Ship and Leaf are fast', folder: 'hq', members: ['miky'], lists: ['p-read-only', 'p-live', 'i-ship-copy', 'd-speed'] },
-  { id: 'navigation', title: 'Navigation', folder: 'hq', members: ['miky', 'katerina'], lists: ['p-nav', 'p-teams', 'p-topics-files', 'i-proto', 'd-navigation', 'd-meeting'] },
-  { id: 'grants', title: 'Grants', folder: 'hq', members: ['miky'], lists: ['p-docs-2', 'i-grant-form', 'd-grant-research', 'd-grant-application'] },
-  { id: 'brand', title: 'Brand', folder: 'hq', members: ['katerina'], lists: ['p-brand', 'i-brand-colours'] },
-  { id: 'triage', title: 'Feedback triage', folder: 'peek', members: ['katerina'], lists: ['p-peek-bugs', 'p-ship-bugs', 'i-unread-dot'] },
-  { id: 'records', title: 'Decision records', folder: 'agent', members: ['miky', 'agent'], lists: ['p-records-2', 'p-agent-feedback'] },
+  { id: 'widgets', title: 'Widgets', summary: 'Small live cards you put in a conversation or a document.', folder: 'hq', members: ['miky', 'katerina'], conversations: 6, newFor: { miky: 1, katerina: 2 }, lists: ['p-widgets-2', 'i-widget-title', 'i-widget-height', 'p-widgets-1', 'i-widget-picker', 'd-testing-widgets'] },
+  { id: 'fast', title: 'Peek, Ship and Leaf are fast', summary: 'Every app opens in under a second on a workspace Miky’s size.', folder: 'hq', members: ['miky'], conversations: 4, newFor: { miky: 1 }, lists: ['p-read-only', 'p-live', 'i-ship-copy', 'd-speed'] },
+  { id: 'navigation', title: 'Navigation', summary: 'How you find your way across Peek, Ship and Leaf: teams and topics.', folder: 'hq', members: ['miky', 'katerina'], conversations: 9, newFor: { miky: 3, katerina: 1 }, lists: ['p-nav', 'p-teams', 'p-topics-files', 'i-proto', 'd-navigation', 'd-meeting'] },
+  { id: 'grants', title: 'Grants', summary: 'Grants that fund the protocol work, and what each one asks for.', folder: 'hq', members: ['miky'], conversations: 2, lists: ['p-docs-2', 'i-grant-form', 'd-grant-research', 'd-grant-application'] },
+  { id: 'brand', title: 'Brand', summary: 'How Estiva looks, from the website to the apps.', folder: 'hq', members: ['katerina'], conversations: 3, newFor: { katerina: 1 }, lists: ['p-brand', 'i-brand-colours'] },
+  { id: 'triage', title: 'Feedback triage', summary: 'Bugs and feedback from the apps, sorted every week.', folder: 'peek', members: ['katerina'], conversations: 12, newFor: { katerina: 4 }, lists: ['p-peek-bugs', 'p-ship-bugs', 'i-unread-dot'] },
+  { id: 'records', title: 'Decision records', summary: 'Why Estiva is the way it is, written down.', folder: 'agent', members: ['miky', 'agent'], conversations: 1, lists: ['p-records-2', 'p-agent-feedback'] },
   // All of its work is archived: under Archived.
-  { id: 'launch', title: 'Public launch', folder: 'hq', members: ['miky', 'katerina'], lists: ['p-launch', 'i-launch-post'] },
+  { id: 'launch', title: 'Public launch', summary: 'The first public wave.', folder: 'hq', members: ['miky', 'katerina'], conversations: 5, lists: ['p-launch', 'i-launch-post'] },
   // Lists only a document: nothing to show in Ship.
-  { id: 'naming', title: 'Naming the protocol', folder: 'hq', members: ['miky'], lists: ['d-protocol-names'] },
+  { id: 'naming', title: 'Naming the protocol', summary: '', folder: 'hq', members: ['miky'], conversations: 3, lists: ['d-protocol-names'] },
   // A space is never on Ship's Topics, whatever it lists (Miky, 2 Nov).
-  { id: 'bugs', title: 'bugs', folder: 'peek', members: ['miky', 'katerina'], space: true, lists: ['i-unread-dot'] },
+  { id: 'bugs', title: 'bugs', summary: '', folder: 'peek', members: ['miky', 'katerina'], space: true, conversations: 20, lists: ['i-unread-dot'] },
 ]
 const topicOf = (id: string) => TOPICS.find((t) => t.id === id)!
 
@@ -119,17 +130,16 @@ const byTitle = <T extends { title: string }>(a: T, b: T) => a.title.localeCompa
 /** Projects first, then issues, as the topic lists them. */
 const projectsFirst = (work: Work[]) => [...work.filter((w) => w.kind === 'project'), ...work.filter((w) => w.kind === 'issue')]
 const isOpen = (i: Issue) => i.status !== 'done' && !i.archived
-const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`
-/** "2 projects · 1 open issue", leaving out a part that is none. */
-const workCount = (topic: Topic) => {
-  const live = liveWorkOf(topic)
-  const projectCount = live.filter((w) => w.kind === 'project').length
-  const openCount = live.filter((w) => w.kind === 'issue' && isOpen(w)).length
-  return [projectCount && plural(projectCount, 'project'), openCount && plural(openCount, 'open issue')].filter(Boolean).join(' · ')
+/** Its projects, archived ones included, and how many of them are completed (Linear's "2 / 10"). */
+const projectCount = (topic: Topic) => {
+  const list = workOf(topic).filter((w): w is Project => w.kind === 'project')
+  return { done: list.filter((p) => p.status === 'completed').length, total: list.length }
 }
 
+type ProjectTab = 'all' | ProjectStatus | 'archived'
+type ProjectLayout = 'table' | 'cards'
+
 type Place =
-  | { type: 'home' }
   | { type: 'topics'; folder?: FolderId; archived?: boolean }
   | { type: 'projects'; folder?: FolderId }
   | { type: 'issues'; folder?: FolderId }
@@ -139,7 +149,7 @@ type Place =
 
 const same = (a: Place, b: Place) => JSON.stringify(a) === JSON.stringify(b)
 
-/** How the shared read of every topic stands; Ship's own projects and issues are read as today. */
+/** How the shared read of every topic and its conversations stands; Ship's own projects and issues are read as today. */
 export type TopicsRead = 'ok' | 'loading' | 'failed' | 'none'
 
 const STATUS: Record<Status, { label: string; icon: ReactNode }> = {
@@ -147,21 +157,31 @@ const STATUS: Record<Status, { label: string; icon: ReactNode }> = {
   'in-progress': { label: 'In progress', icon: <IconProgress {...icon16} /> },
   done: { label: 'Done', icon: <IconCircleCheck {...icon16} /> },
 }
+const PROJECT_STATUS: Record<ProjectStatus, string> = { planned: 'Planned', active: 'Active', completed: 'Completed' }
 
 function Rows({ children }: { children: ReactNode }) {
   return <div className="flex flex-col divide-y divide-border-subtle rounded-md border border-border-subtle">{children}</div>
 }
 
+/** "6 / 10" beside a bar of the project's issues. */
+function Progress({ project: p, wide = false }: { project: Project; wide?: boolean }) {
+  return (
+    <span className={`flex shrink-0 items-center gap-2 ${wide ? 'w-full' : 'sm:w-36'}`}>
+      <ProgressBar value={p.done} max={p.total} label="Issues done" variant={p.archived ? 'quiet' : 'default'} className={wide ? 'flex-1' : 'hidden flex-1 sm:block'} />
+      <span className="w-12 text-right font-mono text-caption tabular-nums text-text-secondary">{p.done} / {p.total}</span>
+    </span>
+  )
+}
+
 /** A project with its progress, or an issue with its status and project. */
-function WorkRow({ work, onOpen, showFolder = false }: { work: Work; onOpen: (p: Place) => void; showFolder?: boolean }) {
+function WorkRow({ work, onOpen }: { work: Work; onOpen: (p: Place) => void }) {
   return (
     <button type="button" onClick={() => onOpen({ type: 'work', id: work.id })} className="flex items-center gap-3 px-3 py-2 text-left hover:bg-bg-hover">
       <KindIcon kind={work.kind} />
       <span className={`min-w-0 flex-1 truncate text-body-2 ${isArchived(work) ? 'text-text-muted' : 'text-text-primary'}`}>{work.title}</span>
       {work.kind === 'issue' && <span className="hidden max-w-48 truncate text-caption text-text-muted sm:inline">{itemOf(work.project).title}</span>}
-      {showFolder && work.kind === 'project' && <span className="hidden text-caption text-text-muted sm:inline">{folderName(work.folder)}</span>}
       {work.kind === 'project' ? (
-        <span className="w-14 shrink-0 text-right text-caption text-text-secondary">{work.progress}</span>
+        <Progress project={work} />
       ) : (
         <span className="flex w-24 shrink-0 items-center justify-end gap-1 text-caption text-text-secondary">
           {STATUS[work.status].icon}
@@ -192,28 +212,50 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
+/** Column names over a list, from a phone's width up. */
+function Columns({ children }: { children: ReactNode }) {
+  return <div className="hidden items-center gap-3 px-3 text-caption text-text-muted sm:flex">{children}</div>
+}
+
 /** Where the topic read stands, in place of a list that needs it. */
 function ReadState({ read, scope, onRetry }: { read: TopicsRead; scope: 'page' | 'section'; onRetry: () => void }) {
   if (read === 'loading') return <SkeletonList rows={scope === 'page' ? 8 : 3} />
   return <EmptyState scope={scope} message="Topics didn’t load." action={{ label: 'Try again', onClick: onRetry }} />
 }
 
-/** One topic on Topics: its name, and one level of the projects and issues it lists. */
-function TopicBlock({ topic, archived, onOpen }: { topic: Topic; archived: boolean; onOpen: (p: Place) => void }) {
-  const work = projectsFirst(archived ? workOf(topic) : liveWorkOf(topic))
+/** One topic on Topics, as Linear draws an initiative: its name and summary, its projects done of all, its conversations and what is new for you. */
+function TopicRow({ topic, viewer, onOpen }: { topic: Topic; viewer: Person; onOpen: (p: Place) => void }) {
+  const count = projectCount(topic)
+  const fresh = topic.newFor?.[viewer] ?? 0
   return (
-    <div className="flex flex-col gap-2">
-      <button type="button" onClick={() => onOpen({ type: 'topic', id: topic.id })} className="flex items-center gap-2 text-left">
-        <KindIcon kind="topic" />
-        <span className="text-body-1 font-medium text-text-primary hover:underline">{topic.title}</span>
-      </button>
-      <Rows>
-        {work.map((w) => (
-          <WorkRow key={w.id} work={w} onOpen={onOpen} />
-        ))}
-      </Rows>
-    </div>
+    <button type="button" onClick={() => onOpen({ type: 'topic', id: topic.id })} className="flex items-center gap-3 px-3 py-2 text-left hover:bg-bg-hover">
+      <KindIcon kind="topic" />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-body-2 font-medium text-text-primary">{topic.title}</span>
+        {topic.summary && <span className="truncate text-caption text-text-secondary">{topic.summary}</span>}
+      </span>
+      {/* On a phone only a dot for what is new stays beside the name. */}
+      {fresh > 0 && <UnreadDot className="shrink-0 sm:hidden" />}
+      <span className="hidden w-16 shrink-0 items-center gap-1 text-caption text-text-secondary sm:flex" aria-label={`${count.done} of ${count.total} projects completed`}>
+        <KindIcon kind="project" />
+        <span className="font-mono tabular-nums">{count.done} / {count.total}</span>
+      </span>
+      <span className="hidden w-28 shrink-0 items-center gap-1 text-caption text-text-secondary sm:flex">
+        <IconMessages {...icon16} aria-hidden />
+        <span className="font-mono tabular-nums">{topic.conversations}</span>
+        {fresh > 0 && (
+          <span className="ml-1 flex items-center gap-1 text-text-primary">
+            <UnreadDot />
+            {fresh} new
+          </span>
+        )}
+      </span>
+    </button>
   )
+}
+
+function TopicList({ topics, viewer, onOpen }: { topics: Topic[]; viewer: Person; onOpen: (p: Place) => void }) {
+  return <Rows>{topics.map((t) => <TopicRow key={t.id} topic={t} viewer={viewer} onOpen={onOpen} />)}</Rows>
 }
 
 function TopicsPage({ viewer, folder, archived = false, read, onRetry, onOpen }: { viewer: Person; folder?: FolderId; archived?: boolean; read: TopicsRead; onRetry: () => void; onOpen: (p: Place) => void }) {
@@ -224,7 +266,7 @@ function TopicsPage({ viewer, folder, archived = false, read, onRetry, onOpen }:
     const gone = inScope.filter(isArchivedTopic)
     return (
       <Page title={title} icon={<IconArchive {...icon16} />} right={<Link href="#" variant="quiet" onClick={go(() => onOpen({ type: 'topics', folder }))}>Topics</Link>}>
-        {gone.length === 0 ? <EmptyState scope="section" message="No archived topics." /> : <div className="flex flex-col gap-5">{gone.map((t) => <TopicBlock key={t.id} topic={t} archived onOpen={onOpen} />)}</div>}
+        {gone.length === 0 ? <EmptyState scope="section" message="No archived topics." /> : <TopicList topics={gone} viewer={viewer} onOpen={onOpen} />}
       </Page>
     )
   }
@@ -234,14 +276,20 @@ function TopicsPage({ viewer, folder, archived = false, read, onRetry, onOpen }:
   const archivedCount = inScope.filter(isArchivedTopic).length
   return (
     <Page title={title} icon={<IconTarget {...icon16} />}>
-      {shown.length === 0 && <EmptyState message="No topic lists a project or issue yet." />}
+      {shown.length === 0 ? (
+        <EmptyState message="No topic lists a project or issue yet." />
+      ) : (
+        <Columns>
+          <span className="flex-1 pl-7">Name</span>
+          <span className="w-16">Projects</span>
+          <span className="w-28">Conversations</span>
+        </Columns>
+      )}
       {[['Your topics', yours] as const, ['Other topics', others] as const].map(
         ([label, list]) =>
           list.length > 0 && (
             <Section key={label} label={label}>
-              <div className="flex flex-col gap-5">
-                {list.map((t) => <TopicBlock key={t.id} topic={t} archived={false} onOpen={onOpen} />)}
-              </div>
+              <TopicList topics={list} viewer={viewer} onOpen={onOpen} />
             </Section>
           ),
       )}
@@ -270,6 +318,7 @@ function TopicPage({ topic, read, onRetry, onOpen }: { topic: Topic; read: Topic
   if (read === 'loading' || read === 'failed') return <Page title={topic.title} icon={<KindIcon kind="topic" />} right={peek}><ReadState read={read} scope="page" onRetry={onRetry} /></Page>
   return (
     <Page title={topic.title} icon={<KindIcon kind="topic" />} right={peek} sub={<span className="text-caption text-text-muted">{folderName(topic.folder)}</span>}>
+      {topic.summary && <p className="text-body-2 text-text-secondary">{topic.summary}</p>}
       {live.length > 0 ? (
         <Rows>
           {live.map((w) => <WorkRow key={w.id} work={w} onOpen={onOpen} />)}
@@ -310,44 +359,94 @@ function TopicPage({ topic, read, onRetry, onOpen }: { topic: Topic; read: Topic
   )
 }
 
-function Home({ viewer, read, onRetry, onOpen }: { viewer: Person; read: TopicsRead; onRetry: () => void; onOpen: (p: Place) => void }) {
-  const topics = read === 'none' ? [] : TOPICS.filter((t) => isShown(t) && t.members.includes(viewer)).sort(byTitle)
-  const mine = projects.filter((p) => !p.archived && (p.lead === viewer || p.members.includes(viewer))).sort(byTitle)
-  const assigned = issues.filter((i) => isOpen(i) && i.assignee === viewer)
+const inTab = (p: Project, tab: ProjectTab) => (tab === 'archived' ? !!p.archived : !p.archived && (tab === 'all' || p.status === tab))
+const TAB_EMPTY: Record<ProjectTab, string> = { all: 'No projects here.', planned: 'No planned projects.', active: 'No active projects.', completed: 'No completed projects.', archived: 'No archived projects.' }
+
+function Lead({ person, named = false }: { person: Person; named?: boolean }) {
   return (
-    <Page title="Home" icon={<IconHome {...icon16} />}>
-      <Section label="Your topics">
-        {read === 'loading' || read === 'failed' ? (
-          <ReadState read={read} scope="section" onRetry={onRetry} />
-        ) : topics.length === 0 ? (
-          <EmptyState scope="section" message="You are in no topic yet." />
-        ) : (
-          <Rows>
-            {topics.map((t) => (
-              <button key={t.id} type="button" onClick={() => onOpen({ type: 'topic', id: t.id })} className="flex items-center gap-3 px-3 py-2 text-left hover:bg-bg-hover">
-                <KindIcon kind="topic" />
-                <span className="min-w-0 flex-1 truncate text-body-2 text-text-primary">{t.title}</span>
-                <span className="text-caption text-text-secondary">{workCount(t)}</span>
-              </button>
-            ))}
-          </Rows>
-        )}
-      </Section>
-      <Section label="Your projects">
-        {mine.length === 0 ? <EmptyState scope="section" message="You lead no project and are in none." /> : <Rows>{mine.map((p) => <WorkRow key={p.id} work={p} onOpen={onOpen} showFolder />)}</Rows>}
-      </Section>
-      <Section label="Assigned to you">
-        {assigned.length === 0 ? <EmptyState scope="section" message="No open issue is assigned to you." /> : <Rows>{assigned.map((i) => <WorkRow key={i.id} work={i} onOpen={onOpen} />)}</Rows>}
-      </Section>
-    </Page>
+    <span className="flex items-center gap-2 text-caption text-text-secondary">
+      <Avatar name={PEOPLE[person]} size={24} label={named ? undefined : PEOPLE[person]} />
+      {named && PEOPLE[person]}
+    </span>
   )
 }
 
-function ProjectsPage({ folder, onOpen }: { folder?: FolderId; onOpen: (p: Place) => void }) {
-  const list = projects.filter((p) => !p.archived && (!folder || p.folder === folder)).sort(byTitle)
+/** A project as a table row: name (and Folder, on the whole workspace's list), status on All, lead, progress. */
+function ProjectRow({ p, showFolder, showStatus, onOpen }: { p: Project; showFolder: boolean; showStatus: boolean; onOpen: (p: Place) => void }) {
   return (
-    <Page title={folder ? `${folderName(folder)} · Projects` : 'Projects'} icon={<KindIcon kind="project" />}>
-      {list.length === 0 ? <EmptyState message="No projects here." /> : <Rows>{list.map((p) => <WorkRow key={p.id} work={p} onOpen={onOpen} showFolder={!folder} />)}</Rows>}
+    <button type="button" onClick={() => onOpen({ type: 'work', id: p.id })} className="flex items-center gap-3 px-3 py-2 text-left hover:bg-bg-hover">
+      <KindIcon kind="project" />
+      <span className={`min-w-0 flex-1 truncate text-body-2 ${p.archived ? 'text-text-muted' : 'text-text-primary'}`}>{p.title}</span>
+      {showFolder && <span className="hidden w-24 truncate text-caption text-text-muted md:inline">{folderName(p.folder)}</span>}
+      {showStatus && <span className="hidden w-20 text-caption text-text-secondary sm:inline">{PROJECT_STATUS[p.status]}</span>}
+      <span className="hidden w-10 shrink-0 sm:block">
+        <Lead person={p.lead} />
+      </span>
+      <Progress project={p} />
+    </button>
+  )
+}
+
+function ProjectCard({ p, showFolder, showStatus, onOpen }: { p: Project; showFolder: boolean; showStatus: boolean; onOpen: (p: Place) => void }) {
+  return (
+    <Card href="#" onClick={go(() => onOpen({ type: 'work', id: p.id }))} className="flex flex-col gap-3 p-3">
+      <span className="flex items-start gap-2">
+        <KindIcon kind="project" />
+        <span className={`line-clamp-2 text-body-2 font-medium ${p.archived ? 'text-text-muted' : 'text-text-primary'}`}>{p.title}</span>
+      </span>
+      {(showFolder || showStatus) && (
+        <span className="text-caption text-text-muted">{[showFolder && folderName(p.folder), showStatus && PROJECT_STATUS[p.status]].filter(Boolean).join(' · ')}</span>
+      )}
+      <Progress project={p} wide />
+      <Lead person={p.lead} named />
+    </Card>
+  )
+}
+
+function ProjectsPage({ folder, firstTab, firstLayout, onOpen }: { folder?: FolderId; firstTab: ProjectTab; firstLayout: ProjectLayout; onOpen: (p: Place) => void }) {
+  const [tab, setTab] = useState<ProjectTab>(firstTab)
+  const [layout, setLayout] = useState<ProjectLayout>(firstLayout)
+  const here = projects.filter((p) => !folder || p.folder === folder)
+  const list = here.filter((p) => inTab(p, tab)).sort(byTitle)
+  const tabs = (['all', 'planned', 'active', 'completed', 'archived'] as const).map((id) => ({
+    id,
+    label: id === 'all' ? 'All' : id === 'archived' ? 'Archived' : PROJECT_STATUS[id],
+    count: here.filter((p) => inTab(p, id)).length,
+  }))
+  const showFolder = !folder
+  // A tab that is one status says it already; All and Archived mix them.
+  const showStatus = tab === 'all' || tab === 'archived'
+  const switcher = (
+    <span className="flex items-center gap-1">
+      <IconButton aria-label="Table" tooltip="Table" pressed={layout === 'table'} onClick={() => setLayout('table')}>
+        <IconList {...icon16} />
+      </IconButton>
+      <IconButton aria-label="Cards" tooltip="Cards" pressed={layout === 'cards'} onClick={() => setLayout('cards')}>
+        <IconLayoutGrid {...icon16} />
+      </IconButton>
+    </span>
+  )
+  return (
+    <Page title={folder ? `${folderName(folder)} · Projects` : 'Projects'} icon={<KindIcon kind="project" />} right={switcher}>
+      <Tabs aria-label="Projects by status" tabs={tabs} active={tab} onChange={setTab} />
+      {list.length === 0 ? (
+        <EmptyState scope="section" message={TAB_EMPTY[tab]} />
+      ) : layout === 'table' ? (
+        <div className="flex flex-col gap-2">
+          <Columns>
+            <span className="flex-1 pl-7">Name</span>
+            {showFolder && <span className="hidden w-24 md:inline">Folder</span>}
+            {showStatus && <span className="w-20">Status</span>}
+            <span className="w-10">Lead</span>
+            <span className="w-36">Progress</span>
+          </Columns>
+          <Rows>{list.map((p) => <ProjectRow key={p.id} p={p} showFolder={showFolder} showStatus={showStatus} onOpen={onOpen} />)}</Rows>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((p) => <ProjectCard key={p.id} p={p} showFolder={showFolder} showStatus={showStatus} onOpen={onOpen} />)}
+        </div>
+      )}
     </Page>
   )
 }
@@ -383,14 +482,14 @@ function WorkPage({ work, read, onOpen }: { work: Work; read: TopicsRead; onOpen
   )
 }
 
-function Content({ place, viewer, read, onRetry, onOpen }: { place: Place; viewer: Person; read: TopicsRead; onRetry: () => void; onOpen: (p: Place) => void }) {
+interface ContentProps { place: Place; viewer: Person; read: TopicsRead; projectsTab: ProjectTab; projectsAs: ProjectLayout; onRetry: () => void; onOpen: (p: Place) => void }
+
+function Content({ place, viewer, read, projectsTab, projectsAs, onRetry, onOpen }: ContentProps) {
   switch (place.type) {
-    case 'home':
-      return <Home viewer={viewer} read={read} onRetry={onRetry} onOpen={onOpen} />
     case 'topics':
       return <TopicsPage viewer={viewer} folder={place.folder} archived={place.archived} read={read} onRetry={onRetry} onOpen={onOpen} />
     case 'projects':
-      return <ProjectsPage folder={place.folder} onOpen={onOpen} />
+      return <ProjectsPage key={place.folder ?? 'all'} folder={place.folder} firstTab={projectsTab} firstLayout={projectsAs} onOpen={onOpen} />
     case 'issues':
       return <IssuesPage folder={place.folder} onOpen={onOpen} />
     case 'folder':
@@ -406,7 +505,7 @@ function Content({ place, viewer, read, onRetry, onOpen }: { place: Place; viewe
 const folderOfPlace = (place: Place): FolderId | undefined =>
   place.type === 'work' ? folderOf(itemOf(place.id) as Work) : 'folder' in place ? place.folder : undefined
 
-/** Home, Topics, Projects, Issues, then each Folder folding to its own Topics, Projects and Issues (Miky, 2 Nov). */
+/** Topics, Projects, Issues, then each Folder folding to its own Topics, Projects and Issues (Miky, 2 Nov). Home is parked. */
 function ShipSidebar({ place, onOpen, open, onFold }: { place: Place; onOpen: (p: Place) => void; open: Set<FolderId>; onFold: (f: FolderId, open: boolean) => void }) {
   // A project or issue marks its Folder's Projects or Issues entry.
   const at: Place =
@@ -414,12 +513,10 @@ function ShipSidebar({ place, onOpen, open, onFold }: { place: Place; onOpen: (p
   const item = (label: string, icon: ReactNode, to: Place, count?: { n: number; label: string }) => (
     <NavItem key={label} href="#" label={label} icon={icon} active={same(at, to)} count={count?.n} countLabel={count?.label} onClick={go(() => onOpen(to))} />
   )
-  const active = projects.filter((p) => !p.archived).length
+  const active = projects.filter((p) => !p.archived && p.status === 'active').length
   const openIssues = issues.filter(isOpen).length
   return (
     <Sidebar aria-label="ship navigation">
-      {item('Home', <IconHome {...icon16} />, { type: 'home' })}
-      <div className="pt-3" />
       {item('Topics', <IconTarget {...icon16} />, { type: 'topics' })}
       {item('Projects', <KindIcon kind="project" />, { type: 'projects' }, { n: active, label: `${active} active` })}
       {item('Issues', <IconListCheck {...icon16} />, { type: 'issues' }, { n: openIssues, label: `${openIssues} open` })}
@@ -451,11 +548,15 @@ export interface ShipTopicsProps {
   start?: Place
   /** The topic read's state when the story opens; Try again turns a failed read into a loaded one. */
   read?: TopicsRead
+  /** The tab Projects opens on. Default Active. */
+  projectsTab?: ProjectTab
+  /** Table or cards when Projects opens. Default table. */
+  projectsAs?: ProjectLayout
 }
 
 export type { Place as ShipPlace }
 
-export function ShipTopics({ viewer: firstViewer = 'miky', start = { type: 'home' }, read: firstRead = 'ok' }: ShipTopicsProps) {
+export function ShipTopics({ viewer: firstViewer = 'miky', start = { type: 'topics' }, read: firstRead = 'ok', projectsTab = 'active', projectsAs = 'table' }: ShipTopicsProps) {
   const [viewer, setViewer] = useState<Person>(firstViewer)
   const [place, setPlace] = useState<Place>(start)
   const [read, setRead] = useState<TopicsRead>(firstRead)
@@ -481,7 +582,7 @@ export function ShipTopics({ viewer: firstViewer = 'miky', start = { type: 'home
         identity={<ViewAs viewer={viewer} onViewer={setViewer} />}
         nav={<ShipSidebar place={place} onOpen={onOpen} open={open} onFold={fold} />}
       >
-        <Content place={place} viewer={viewer} read={read} onRetry={() => setRead('ok')} onOpen={onOpen} />
+        <Content place={place} viewer={viewer} read={read} projectsTab={projectsTab} projectsAs={projectsAs} onRetry={() => setRead('ok')} onOpen={onOpen} />
       </AppShell>
     </div>
   )

@@ -3,9 +3,9 @@ import { ShipTopics } from './ShipTopics'
 
 /**
  * PROTOTYPE (concept/cross-app-navigation): Ship's Topics navigation, stage 1
- * (decided 2 Nov). Ship's sidebar without Views and Starred, Home, Topics and a
- * topic's page. Everything is clickable; who you are is in the person menu, top
- * right.
+ * (decided 2 Nov, redrawn after Miky's look the same day). Ship's sidebar
+ * without Home, Views and Starred, Topics, a topic's page and Projects.
+ * Everything is clickable; who you are is in the person menu, top right.
  */
 const meta = {
   title: 'Prototype/Cross-app navigation/Ship topics (stage 1)',
@@ -16,14 +16,20 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Where Ship now opens: your topics, your projects, and the open issues assigned to you. */
-export const Home: Story = {
-  render: () => <ShipTopics />,
-}
-
-/** Your topics, then Other topics, each with the projects and issues it lists; Archived at the end. */
+/** Each topic with its summary, its projects completed of all, its conversations and what is new for you; Your topics, then Other topics, Archived at the end. */
 export const Topics: Story = {
   render: () => <ShipTopics start={{ type: 'topics' }} />,
+}
+
+/** Projects as a table: tabs by status, opening on Active, each with its lead and a bar of its issues done. */
+export const Projects: Story = {
+  render: () => <ShipTopics start={{ type: 'projects' }} />,
+}
+
+/** The same projects as cards, on All, where each says its status. */
+export const ProjectsAsCards: Story = {
+  name: 'Projects as cards',
+  render: () => <ShipTopics start={{ type: 'projects' }} projectsTab="all" projectsAs="cards" />,
 }
 
 /** A topic's page: its work with status, its documents opening in Leaf, and one archived project and issue behind a link. */
@@ -62,9 +68,9 @@ export const NoTopics: Story = {
   render: () => <ShipTopics start={{ type: 'topics' }} read="none" />,
 }
 
-/** The read of every topic is on its way; Ship's own projects and issues are already there. */
+/** The read of every topic and its conversations is on its way. */
 export const Loading: Story = {
-  render: () => <ShipTopics read="loading" />,
+  render: () => <ShipTopics start={{ type: 'topics' }} read="loading" />,
 }
 
 /** The read of every topic failed; Try again loads it. */
