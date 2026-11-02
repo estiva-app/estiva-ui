@@ -8,9 +8,13 @@
  * (D20) — and none of them was held by anything.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { useState } from 'react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConfirmDialog } from './ConfirmDialog'
+import { readIndexExports } from './registry/build'
 
 afterEach(cleanup)
 
@@ -107,6 +111,30 @@ describe('ConfirmDialog', () => {
     release(true)
   })
 
+  it('closed with Escape while the action runs, it is closed once, not again when the action goes through', async () => {
+    const user = userEvent.setup()
+    let release: (value: boolean) => void = () => {}
+    const onClose = vi.fn()
+    function Page() {
+      const [open, setOpen] = useState(true)
+      return open ? (
+        <Fixture
+          onConfirm={() => new Promise<boolean>((resolve) => { release = resolve })}
+          onClose={() => {
+            onClose()
+            setOpen(false)
+          }}
+        />
+      ) : null
+    }
+    render(<Page />)
+    await user.click(await screen.findByRole('button', { name: 'Delete' }))
+    await user.keyboard('{Escape}')
+    expect(onClose).toHaveBeenCalledOnce()
+    await act(async () => release(true))
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
   describe('alternative: a third, safer answer (Peek’s Archive instead)', () => {
     const archiveInstead = (onClick = vi.fn()) => ({
       label: 'Archive instead',
@@ -157,6 +185,11 @@ describe('ConfirmDialog', () => {
       render(<Fixture />)
       await screen.findByRole('alertdialog')
       expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual(['', 'Cancel', 'Delete'])
+    })
+
+    it('its type is exported beside the dialog, for an app that builds one ahead', () => {
+      const exported = readIndexExports(readFileSync(join(process.cwd(), 'src', 'index.ts'), 'utf8'))
+      expect(exported).toContainEqual(expect.objectContaining({ name: 'ConfirmDialogAlternative', isType: true }))
     })
   })
 })

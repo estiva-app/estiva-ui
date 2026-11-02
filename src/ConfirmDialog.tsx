@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { Button, type ButtonAction } from './Button'
 import { DialogShell } from './DialogShell'
 
@@ -30,6 +30,7 @@ export interface ConfirmDialogProps {
   confirmLabel: string
   destructive?: boolean
   onConfirm: () => Promise<boolean | void> | boolean | void
+  /** Cancel, Escape, the ✕, and an action that went through: once, when it was closed while the action ran. */
   onClose: () => void
   /**
    * A third, safer answer — "Archive instead" — drawn after the words, under
@@ -41,11 +42,18 @@ export interface ConfirmDialogProps {
 
 export function ConfirmDialog({ title, children, confirmLabel, destructive = false, onConfirm, onClose, alternative }: ConfirmDialogProps) {
   const [busy, setBusy] = useState(false)
+  // Closed while the action ran (Escape, the ✕): the action that then goes through does not close it a second time.
+  const closed = useRef(false)
+  const close = () => {
+    closed.current = true
+    onClose()
+  }
   const confirm = async () => {
+    closed.current = false
     setBusy(true)
     try {
       const ok = await onConfirm()
-      if (ok !== false) onClose()
+      if (ok !== false && !closed.current) close()
     } finally {
       setBusy(false)
     }
@@ -54,10 +62,10 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
     <DialogShell
       alert
       title={title}
-      onClose={onClose}
+      onClose={close}
       footer={
         <>
-          <Button variant="muted" onClick={onClose} disabled={busy}>
+          <Button variant="muted" onClick={close} disabled={busy}>
             Cancel
           </Button>
           <Button variant={destructive ? 'destructive' : 'primary'} onClick={() => void confirm()} disabled={busy}>

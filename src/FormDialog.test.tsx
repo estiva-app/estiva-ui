@@ -4,7 +4,7 @@
  * a topic each wired by hand (C10, 2 November), pinned once.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { FormDialog, type FormDialogProps } from './FormDialog'
@@ -134,6 +134,31 @@ describe('FormDialog', () => {
     await user.keyboard('{Control>}{Enter}{Enter}{/Control}')
     expect(onSubmit).toHaveBeenCalledTimes(1)
     sending.release(true)
+  })
+
+  it('closed with Escape while it sends, it is closed once, not again when the send goes through', async () => {
+    const user = userEvent.setup()
+    const sending = pending()
+    const onClose = vi.fn()
+    function Page() {
+      const [open, setOpen] = useState(true)
+      return open ? (
+        <Fixture
+          ready
+          onSubmit={() => sending.promise}
+          onClose={() => {
+            onClose()
+            setOpen(false)
+          }}
+        />
+      ) : null
+    }
+    render(<Page />)
+    await user.click(screen.getByRole('button', { name: 'Create' }))
+    await user.keyboard('{Escape}')
+    expect(onClose).toHaveBeenCalledOnce()
+    await act(async () => sending.release(true))
+    expect(onClose).toHaveBeenCalledOnce()
   })
 
   it('Cancel closes without sending', async () => {

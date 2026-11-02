@@ -33,7 +33,7 @@ export interface FormDialogProps {
   ready?: boolean
   /** Sends the form. Answer `false` to keep the dialog open (you have said why); anything else closes it. */
   onSubmit: () => Promise<boolean | void> | boolean | void
-  /** Cancel, Escape, the ✕, a press outside, and a send that went through. */
+  /** Cancel, Escape, the ✕, a press outside, and a send that went through: once, when it was closed while it sent. */
   onClose: () => void
   /** What the form holds: the words before the fields, then the fields. The form puts 24px between them. */
   children: ReactNode
@@ -43,11 +43,19 @@ export function FormDialog({ title, submitLabel, busyLabel, submitVariant = 'pri
   const [busy, setBusy] = useState(false)
   // Known at once rather than at the next render: two Ctrl+Enters before it re-renders send once.
   const sending = useRef(false)
+  // Closed while it sent (Escape, the ✕): the send that then goes through does not close it a second time.
+  const closed = useRef(false)
   const formId = useId()
+
+  const close = () => {
+    closed.current = true
+    onClose()
+  }
 
   const send = async () => {
     if (!ready || sending.current) return
     sending.current = true
+    closed.current = false
     setBusy(true)
     let answer: boolean | void = false
     try {
@@ -59,16 +67,16 @@ export function FormDialog({ title, submitLabel, busyLabel, submitVariant = 'pri
       sending.current = false
       setBusy(false)
     }
-    if (answer !== false) onClose()
+    if (answer !== false && !closed.current) close()
   }
 
   return (
     <DialogShell
       title={title}
-      onClose={onClose}
+      onClose={close}
       footer={
         <>
-          <Button variant="muted" onClick={onClose} disabled={busy}>
+          <Button variant="muted" onClick={close} disabled={busy}>
             Cancel
           </Button>
           <Button variant={submitVariant} type="submit" form={formId} disabled={!ready || busy}>

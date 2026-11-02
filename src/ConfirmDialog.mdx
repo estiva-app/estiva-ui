@@ -65,8 +65,9 @@ import { ConfirmDialog } from '@estiva-app/ui'
 - While `onConfirm` runs, every answer waits. Resolving `false` keeps the
   dialog open — your surface has said why; a resolved `void`/`true`
   closes it.
-- **Escape cancels; a press on the backdrop does not.** This is Base UI's
-  `AlertDialog`, through the shell's `alert`: a
+- **Escape cancels; a press on the backdrop does not.** Escape and the ✕ work
+  while `onConfirm` runs, and `onClose` is not called again when it goes
+  through. This is Base UI's `AlertDialog`, through the shell's `alert`: a
   destructive question is answered rather than clicked away. The backdrop
   used to cancel, and that is the one behaviour stage 3 deliberately changed.
 - It announces itself as an alert (`role="alertdialog"`), so a screen reader
