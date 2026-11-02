@@ -47,6 +47,12 @@ export interface IconButtonProps extends ComponentPropsWithRef<'button'> {
    * Form — it is the button (UIG-14, Katerina, 18 September).
    */
   href?: string
+  /**
+   * Something new behind it, as a hidden column's comments: the `UnreadDot`'s disc on the icon's top-right corner,
+   * so it reads as this button's and not its neighbour's, and ", new" after its `aria-label`, since a disc says
+   * nothing to a screen reader (Katerina, 3 November, for Ship's "Show comments").
+   */
+  unread?: boolean
   /** The icon: 16px, stroke 1.5. */
   children: ReactNode
 }
@@ -64,6 +70,7 @@ export function IconButton({
   tooltipPlacement,
   type = 'button',
   href,
+  unread = false,
   ...props
 }: IconButtonProps) {
   // Inside a busy Form: switched off, and looking it (formBusy.ts).
@@ -100,6 +107,8 @@ export function IconButton({
       variant === 'resolve' && 'hover:bg-success-muted hover:text-success-default',
       pressed && 'bg-bg-active text-text-primary',
       glow && 'signal:shadow-glow-accent',
+      // The dot's box, before `className` so a button placed `absolute` stays where it was put.
+      unread && 'relative',
       // `pointer-events-none` only where the button is truly out of reach:
       // with a `disabledReason` the button IS the tooltip's trigger, and a
       // trigger the pointer cannot land on never opens one. Base UI already
@@ -108,10 +117,20 @@ export function IconButton({
       off && 'cursor-not-allowed',
       className,
     )
+  // The name says "new" for the dot; an icon-only button is named by its `aria-label`.
+  const name = unread && props['aria-label'] ? `${props['aria-label']}, new` : props['aria-label']
+  /*
+    The disc centred on the 16px icon's top-right corner (the icon sits 4px in): 1px from the button's corner. Over
+    the icon, not in a slot of its own beside it: a 24px slot between two buttons sat as near the next one as its own
+    (Katerina, 3 November). `data-unread-dot`, not the slot's `data-unread`: a `SectionHeader` moves whatever holds
+    that one into its last button's place.
+  */
+  const dot = unread ? <span aria-hidden className="pointer-events-none absolute right-px top-px h-1.5 w-1.5 rounded-full bg-accent-primary" data-unread-dot /> : null
   const button =
     href && !unusable ? (
-      <a href={href} className={look(false)} {...anchor} onClick={inApp}>
+      <a href={href} className={look(false)} {...anchor} aria-label={name} onClick={inApp}>
         {children}
+        {dot}
       </a>
     ) : (
       <BaseButton
@@ -121,8 +140,10 @@ export function IconButton({
         className={(state) => look(state.disabled)}
         aria-pressed={pressed}
         {...props}
+        aria-label={name}
       >
         {children}
+        {dot}
       </BaseButton>
     )
 

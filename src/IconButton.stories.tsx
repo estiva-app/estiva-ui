@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconSettings } from '@tabler/icons-react'
+import { IconDotsVertical, IconMessage, IconSettings } from '@tabler/icons-react'
 import { IconButton } from './IconButton'
 
 const meta = {
@@ -72,6 +72,33 @@ export const Resolve: Story = { args: { variant: 'resolve', 'aria-label': 'Resol
 
 /** `pressed`: on — the active fill and `aria-pressed`, like Bold while the selection is bold. */
 export const Pressed: Story = { args: { pressed: true, 'aria-label': 'Bold' } }
+
+/**
+ * `unread`: something new behind it — the dot on the icon's corner, and "new" in its name. Ship's "Show comments"
+ * while the column is hidden, beside the ⋯ it must not seem to belong to.
+ */
+export const Unread: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex items-center gap-1">
+      <IconButton aria-label="Show comments" tooltip="Show comments" unread>
+        <IconMessage className="size-4" stroke={1.5} />
+      </IconButton>
+      <IconButton aria-label="More actions" tooltip="More actions">
+        <IconDotsVertical className="size-4" stroke={1.5} />
+      </IconButton>
+      <IconButton aria-label="Settings" unread>
+        <IconSettings className="size-4" stroke={1.5} />
+      </IconButton>
+      <IconButton aria-label="Settings" variant="outlined" unread>
+        <IconSettings className="size-4" stroke={1.5} />
+      </IconButton>
+      <IconButton aria-label="Settings" pressed unread>
+        <IconSettings className="size-4" stroke={1.5} />
+      </IconButton>
+    </div>
+  ),
+}
 
 /** `glow`: Signal's glow, on the send arrow while there is something to send. */
 export const Glow: Story = { args: { variant: 'primary', glow: true, 'aria-label': 'Send' } }

@@ -135,6 +135,36 @@ describe('IconButton', () => {
     the class is what can be asserted here; the story beside it is what shows
     the pixels.
   */
+  /*
+    Ship's "Show comments" while the column is hidden and holds something new (Katerina, 3 November): the dot on the
+    icon's corner, inside the button, and the name says it.
+  */
+  it('unread: the dot on the icon, and "new" in its name', () => {
+    render(
+      <>
+        <IconButton aria-label="Show comments" unread>
+          {icon}
+        </IconButton>
+        <IconButton aria-label="Edit">{icon}</IconButton>
+      </>,
+    )
+    const button = screen.getByRole('button', { name: 'Show comments, new' })
+    const dot = button.querySelector('[data-unread-dot]')
+    expect(dot).not.toBeNull()
+    expect(dot?.getAttribute('aria-hidden')).toBe('true')
+    expect(button.className).toContain('relative')
+    expect(screen.getByRole('button', { name: 'Edit' }).querySelector('[data-unread-dot]')).toBeNull()
+  })
+
+  it('unread on a link too', () => {
+    render(
+      <IconButton href="/inbox" aria-label="Inbox" unread>
+        {icon}
+      </IconButton>,
+    )
+    expect(screen.getByRole('link', { name: 'Inbox, new' }).querySelector('[data-unread-dot]')).not.toBeNull()
+  })
+
   it('keeps its own size in a flex parent that would stretch it', () => {
     render(
       <div className="flex h-[260px]">
