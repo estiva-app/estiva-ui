@@ -20,12 +20,15 @@ included.
   button's name and tooltip ("More actions" by default; Ship's "Message actions"). On `ConversationMenu`,
   `moreLabel` names its own ⋯, drawn when no `trigger` is given.
 - **`ConversationLayout`'s `below` in one column** (`threads="under"`), as two columns has it: under the comments,
-  after "On deleted blocks" and "Resolved", inside the column that scrolls and above the box; not while the comments
-  are read. Ship's reactions note goes there.
+  after "On deleted blocks" and "Resolved", at the column's foot, so with few comments it sits on the box, as a short
+  conversation's last line does in Peek's two columns (Katerina, 2 November); with many it comes after them and
+  scrolls with them. The comments still start at the top. Not while the comments are read. Ship's reactions note
+  goes there.
 - **`MenuItem`'s `disabledReason`**: a row shown but shut, saying why, as `Button`'s, `Select`'s and `LinkPickers`'
-  do. Its words and its icon take the disabled colour (the arrow, not the hand, over it); the reason shows under the
-  pointer, and where the arrow keys reach it, as Base UI keeps a disabled row among them. A press runs nothing and
-  the menu stays open. On a bare `MenuPanel` too. For Ship's Archive on an issue archived with its project.
+  do. Its words and its icon take the disabled colour (the arrow, not the hand, over it), and it takes no fill under
+  the pointer or the arrow keys (Katerina, 2 November); the reason shows there instead, on hover and where the arrow
+  keys reach it, as Base UI keeps a disabled row among them. A press runs nothing and the menu stays open. On a bare
+  `MenuPanel` too. For Ship's Archive on an issue archived with its project.
 
 ### Changed
 

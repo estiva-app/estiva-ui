@@ -4171,6 +4171,7 @@
       "docPage": null,
       "app": null,
       "looks": [
+        "cursor-pointer rounded-lg text-left outline-none",
         "text-menu signal:font-mono signal:text-small signal:tracking-wider leaf:font-mono leaf:text-small leaf:tracking-wider"
       ]
     },
@@ -6675,7 +6676,9 @@
       "storyId": "menus-windows-menu--items",
       "docPage": "src/Menu.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MenuItem",
@@ -6762,7 +6765,7 @@
           "name": "disabledReason",
           "takes": "text",
           "required": false,
-          "note": "Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, and says why under the pointer and when the arrow keys reach it, as `Button`'s does."
+          "note": "Why it cannot be chosen right now: the row is shown, shut, in the disabled colour, with no fill, and says why under the pointer and when the arrow keys reach it, as `Button`'s does."
         }
       ],
       "variants": [
@@ -6790,7 +6793,9 @@
       "storyId": "menus-windows-menuitem--default",
       "docPage": "src/MenuItem.mdx",
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MenuPanel",
@@ -6817,7 +6822,8 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+        "rounded-lg border border-border-default bg-bg-elevated shadow-lg",
+        "cursor-pointer rounded-lg text-left outline-none"
       ]
     },
     {
@@ -6850,7 +6856,9 @@
       "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MenuSection",
@@ -6897,7 +6905,9 @@
       "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MenuSeparator",
@@ -6916,7 +6926,9 @@
       "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MenuSub",
@@ -6975,7 +6987,9 @@
       "storyId": "menus-windows-menu--items",
       "docPage": null,
       "app": null,
-      "looks": []
+      "looks": [
+        "cursor-pointer rounded-lg text-left outline-none"
+      ]
     },
     {
       "name": "MetaText",
