@@ -128,6 +128,27 @@ describe('ConversationLayout, two columns, where it scrolls', () => {
     expect(box.current!.scrollTop).toBe(200)
   })
 
+  it('comes back to where it was left after another conversation that was still being read', () => {
+    const box = { current: null as HTMLDivElement | null }
+    const { rerender } = render(<Layout items={many(8)} rememberAs="before-a-read" boxRef={box} />)
+    scrollTo(box.current!, 200)
+    rerender(<Layout items={[]} loading rememberAs="being-read" boxRef={box} />)
+    // The placeholders are shorter: the browser pulls the offset in, and says so.
+    scrollTo(box.current!, 0)
+    rerender(<Layout items={many(8)} rememberAs="before-a-read" boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(200)
+  })
+
+  it('read again under the same name, lands where the reader left it, not where the placeholders pulled it', () => {
+    const box = { current: null as HTMLDivElement | null }
+    const { rerender } = render(<Layout items={many(8)} rememberAs="read-again" boxRef={box} />)
+    scrollTo(box.current!, 200)
+    rerender(<Layout items={[]} loading rememberAs="read-again" boxRef={box} />)
+    scrollTo(box.current!, 0)
+    rerender(<Layout items={many(8)} rememberAs="read-again" boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(200)
+  })
+
   it('without a name, opens at the newest each time it is drawn', () => {
     const box = { current: null as HTMLDivElement | null }
     const { unmount } = render(<Layout items={many(8)} boxRef={box} />)

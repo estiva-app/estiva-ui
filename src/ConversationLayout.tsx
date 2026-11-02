@@ -309,7 +309,8 @@ export function ConversationLayout({
     when something arrived? Only then does it follow: a comment that arrives follows only a reader already at the bottom.
   */
   const nearBottom = useRef(true)
-  // The conversation placed last: once per name (once per drawing, without one), and once its comments are read.
+  // The conversation placed last: once per name (once per drawing, without one), and once its comments are read;
+  // none while they are being read. Where the reader is is recorded only while it is placed.
   const placedFor = useRef<string | object | null>(null)
   const placeKey = rememberAs ?? FRESH
   const scrolled = (event: UIEvent<HTMLDivElement>) => {
@@ -323,7 +324,14 @@ export function ConversationLayout({
   // Opening lands at the newest, before the paint. Going back to one lands where it was left (Peek's OPT-3): at the
   // newest if it was left there, so what arrived meanwhile is in view; else on the comment that was at the top.
   useLayoutEffect(() => {
-    if (!beside || loading || placedFor.current === placeKey) return
+    if (!beside) return
+    if (loading) {
+      // Its placeholders stand in its comments' place: once they are read it is placed again, and meanwhile nothing
+      // is recorded, so the offset the shorter placeholders pull it to is never taken for where the reader left it.
+      placedFor.current = null
+      return
+    }
+    if (placedFor.current === placeKey) return
     const el = body.current
     if (!el) return
     const left = rememberAs ? places.get(rememberAs) : undefined
