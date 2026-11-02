@@ -324,3 +324,88 @@ describe('Thread, beside: where it scrolls', () => {
     expect(box.current!.scrollTop).toBe(1000)
   })
 })
+
+/**
+ * Holding still while cards, chips and pictures fill in (Peek's OPT-10): the box is watched for changes of size. jsdom
+ * has none, and no layout: here a stand-in watcher is told when something changed size, the box keeps its offset
+ * between 0 and its height less its view as a browser does, and each card says where its top is.
+ */
+describe('holding still while cards load', () => {
+  const watchers = new Set<() => void>()
+  class Watcher {
+    private readonly changed: () => void
+    constructor(changed: () => void) {
+      this.changed = changed
+    }
+    observe() {
+      watchers.add(this.changed)
+    }
+    disconnect() {
+      watchers.delete(this.changed)
+    }
+    unobserve() {}
+  }
+  /** Something in the box changed size: every watcher is told, as a browser tells them after layout. */
+  const resized = () => act(() => watchers.forEach((changed) => changed()))
+  const offsets = new WeakMap<Element, number>()
+  const tops = new WeakMap<Element, number>()
+  const hadWatcher = globalThis.ResizeObserver
+  beforeAll(() => {
+    globalThis.ResizeObserver = Watcher as unknown as typeof ResizeObserver
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return offsets.get(this) ?? 0
+      },
+      set(this: HTMLElement, top: number) {
+        offsets.set(this, Math.max(0, Math.min(top, this.scrollHeight - this.clientHeight)))
+      },
+    })
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      return new DOMRect(0, tops.get(this) ?? 0, 300, 40)
+    })
+  })
+  afterAll(() => {
+    globalThis.ResizeObserver = hadWatcher
+    delete (HTMLElement.prototype as { scrollTop?: number }).scrollTop
+    vi.restoreAllMocks()
+    delete (document as { elementFromPoint?: unknown }).elementFromPoint
+  })
+  afterEach(() => watchers.clear())
+
+  it('two columns, at the newest: a picture filling in above keeps the newest comments in view', () => {
+    const box = { current: null as HTMLDivElement | null }
+    render(<Layout items={many(8)} boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(600)
+    heights.scroll = 1300
+    resized()
+    expect(box.current!.scrollTop).toBe(900)
+  })
+
+  it('two columns, scrolled up to read: the comment at the top of the view stays at its height', () => {
+    const box = { current: null as HTMLDivElement | null }
+    render(<Layout items={many(8)} boxRef={box} />)
+    const card = document.querySelector('[data-conversation-item="c3"]')!.firstElementChild!
+    tops.set(card, 30)
+    document.elementFromPoint = () => card
+    scrollTo(box.current!, 200)
+    // A card above it grows by 50px: it is pushed down, and the view follows it.
+    tops.set(card, 80)
+    heights.scroll = 1050
+    resized()
+    expect(box.current!.scrollTop).toBe(250)
+  })
+
+  it('a thread at its newest reply stays there while a reply’s picture fills in, and a reader who scrolled up stays put', () => {
+    const box = { current: null as HTMLDivElement | null }
+    render(<Replies n={4} boxRef={box} />)
+    expect(box.current!.scrollTop).toBe(600)
+    heights.scroll = 1300
+    resized()
+    expect(box.current!.scrollTop).toBe(900)
+    scrollTo(box.current!, 100)
+    heights.scroll = 1500
+    resized()
+    expect(box.current!.scrollTop).toBe(100)
+  })
+})
