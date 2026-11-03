@@ -52,7 +52,7 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
 export function LinkUnavailable({ kind, noun, named = false, card = false, deleted = false, failed = false }: LinkUnavailableProps) {
   // A word ("Issue") reads in the sentence in small letters; an app's name is where the file lives: "file in Peek".
   const word = named ? `file in ${noun}` : /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
-  const words = deleted ? `${noun} deleted` : failed ? `Couldn't load this ${word}` : `You can't open this ${word}`
+  const words = deleted ? `${named ? `File in ${noun}` : noun} deleted` : failed ? `Couldn't load this ${word}` : `You can't open this ${word}`
   return <UnavailableRow kind={kind} words={words} card={card} />
 }
 

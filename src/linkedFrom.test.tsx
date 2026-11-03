@@ -242,6 +242,17 @@ describe('a file the reader cannot read', () => {
     expect(screen.getByText("You can't open this file in Peek")).toBeTruthy()
   })
 
+  it('says a read that failed could not load, from the same lookup, never that you cannot open it', () => {
+    render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record', failed: true }, options())} />)
+    expect(screen.getByText("Couldn't load this record")).toBeTruthy()
+    expect(screen.queryByText(/can't open/)).toBeNull()
+  })
+
+  it('says a deleted app-named file is a file in that app, never "Peek deleted"', () => {
+    render(<LinkCard link={{ state: 'unavailable', kind: 'file', noun: 'Peek', named: true, deleted: true }} />)
+    expect(screen.getByText('File in Peek deleted')).toBeTruthy()
+  })
+
   it('reads as the address says while it loads and when nothing came back', () => {
     render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record' }, options())} />)
     expect(screen.getByText("You can't open this record")).toBeTruthy()

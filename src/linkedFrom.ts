@@ -321,19 +321,21 @@ export function linkedFrom<T extends LinkedSource>(object: T, options: LinkedFro
  */
 export function linkStateFrom<T extends LinkedSource>(
   object: T | null | undefined,
-  unread: { kind: LinkedKind; noun: string; deleted?: boolean; url?: string },
+  unread: { kind: LinkedKind; noun: string; deleted?: boolean; failed?: boolean; url?: string },
   options: LinkedFromOptions<T>,
 ): LinkState {
   if (object === undefined) return { state: 'loading', kind: unread.kind }
   const written = unread.url ? { url: unread.url } : {}
-  if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun, ...(unread.deleted ? { deleted: true } : {}), ...written }
+  // `failed`: the read failed (the network, a busy relay), so `null` is no answer: "Couldn't load this issue".
+  const why = unread.deleted ? { deleted: true } : unread.failed ? { failed: true } : {}
+  if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun, ...why, ...written }
   if (object.unreachable) {
     const noun = nounOf(object)
     return {
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
       noun: noun || unread.noun,
-      // Its app's name, its type having none: "You can't open this Notes", not "this notes".
+      // Its app's name, its type having none: "You can't open this file in Notes".
       ...(noun && !object.noun ? { named: true } : {}),
       ...written,
     }
