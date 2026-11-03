@@ -231,6 +231,28 @@ describe('MoveDialog, a file not listed in exactly one Folder (`from` empty; Shi
     expect(onMove).toHaveBeenLastCalledWith({ folder: 'steer' })
   })
 
+  it('asks the box only for the Folders that name it, ticked as it opened, and says what it answered', async () => {
+    const onMove = vi.fn(async () => true)
+    const check = { label: (folder: string) => (folder === 'steer' ? 'Keep it a space in Steer' : undefined), checked: true }
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} check={check} onMove={onMove} />)
+    await pick('Folder', 'Third')
+    expect(screen.queryByRole('checkbox')).toBeNull()
+    await pick('Folder', 'Steer')
+    const box = screen.getByRole('checkbox', { name: 'Keep it a space in Steer' })
+    expect(box.getAttribute('aria-checked')).toBe('true')
+    await userEvent.click(box)
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledWith({ folder: 'steer', checked: false }))
+  })
+
+  it('a Folder that does not ask the box moves with no answer for it, however it opened', async () => {
+    const onMove = vi.fn(async () => true)
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} check={{ label: () => undefined, checked: true }} onMove={onMove} />)
+    await pick('Folder', 'Steer')
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledWith({ folder: 'steer' }))
+  })
+
   it('listed in one again (`from` named), the one it is in is held back once more', async () => {
     const { rerender } = render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} />)
     rerender(<Fixture {...flat} from="hq" folders={[HQ, STEER, THIRD]} />)

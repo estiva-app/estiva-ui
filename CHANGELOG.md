@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.104.0 — 2026-11-03
+
+### Added
+
+- **`MoveDialog` `check`** (type `MoveCheck`): one box under the choice that only some Folders ask. `label(folder)`
+  gives its words for the Folder picked, or `undefined` to leave it out; `checked` ticks it at open; `onMove` gets
+  `checked` only when it was shown. Peek's Teams (TEA-5) asks "Keep it a space in <team>" when a space moves to a
+  team the mover is in. Optional: an app that passes nothing sees nothing change.
+
 ## 0.103.0 — 2026-11-03
 
 What Leaf's comment column did by hand that the kit could not, before Leaf takes the one conversation (ONE-5), and two

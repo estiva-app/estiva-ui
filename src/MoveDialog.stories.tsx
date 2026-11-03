@@ -120,6 +120,19 @@ export const ListedTwice: Story = {
   },
 }
 
+/** A box only some Folders ask, ticked as it opened: here Steer asks it and Estiva HQ does not. The story picks Steer. */
+export const WithABox: Story = {
+  name: 'With a box',
+  args: {
+    title: 'Folders: navigation for the whole suite',
+    from: '',
+    places: undefined,
+    placesIn: undefined,
+    check: { label: (folder: string) => (folder === 'steer' ? 'Label' : undefined), checked: true },
+  },
+  play: pickSteer,
+}
+
 /** Moving: the button says so, and everything waits for the answer. */
 export const Moving: Story = {
   args: { onMove: () => new Promise<boolean>(() => {}) },
