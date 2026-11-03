@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Field } from './Field'
+import { Field, FieldLine } from './Field'
 import { FormDialog } from './FormDialog'
 import { Textarea } from './Textarea'
 
@@ -22,8 +22,11 @@ export function ResolveDialog({ onResolve, onCancel, refused }: ResolveDialogPro
   return (
     // Outlined at rest and green on hover in Signal, the kit's `resolve` look.
     <FormDialog title="Resolve" submitLabel="Resolve" submitVariant="resolve" onSubmit={() => onResolve(note)} onClose={onCancel}>
-      <Field label="Resolution message (optional)" error={refused}>
+      <Field label="Resolution message (optional)">
+        {/* The refusal in the error line's place, 6px under the note, without marking the note invalid: an invalid field
+            stops the form, and Resolve could not try again (found in Leaf's adoption, 3 November). */}
         <Textarea autoFocus value={note} onChange={(e) => setNote(e.target.value)} placeholder="Summarize the outcome or decision..." className="h-[109px]" />
+        {refused && <FieldLine tone="error">{refused}</FieldLine>}
       </Field>
     </FormDialog>
   )
