@@ -46,6 +46,10 @@ import { IconPencil } from '@tabler/icons-react'
 - `pressed` is a toggle that is on — Bold while the selection is bold: the
   active fill, and `aria-pressed`. A `ToolbarButton` takes it too.
 - `glow` lights it in Signal — the send arrow while there is something to send.
+- `unread` says something new is behind it, as "Show comments" while the
+  comments are hidden: the **UnreadDot**'s disc on the icon's top-right
+  corner, so it reads as this button's and not its neighbour's, and ", new"
+  after its `aria-label`. A `ToolbarButton` takes it too.
 - **Placed from outside, never restyled.** `className` takes space, size,
   flex and grid, and position; a colour, a text size, a border, a corner or a
   shadow is refused by the lint (`estiva/no-restyled-part`).

@@ -112,6 +112,21 @@ describe('Toolbar', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  it('a button takes the IconButton’s unread: the dot on its icon, "new" in its name, still in the walk', async () => {
+    const user = userEvent.setup()
+    render(
+      <Toolbar aria-label="Page actions">
+        <ToolbarButton aria-label="Show comments" unread>{dot}</ToolbarButton>
+        <ToolbarButton aria-label="More actions">{dot}</ToolbarButton>
+      </Toolbar>,
+    )
+    const button = screen.getByRole('button', { name: 'Show comments, new' })
+    expect(button.querySelector('[data-unread-dot]')).not.toBeNull()
+    button.focus()
+    await user.keyboard('{ArrowRight}')
+    expect(focused()).toBe('More actions')
+  })
+
   /**
    * A strip whose controls come and go from the arrow keys as their state
    * changes is a strip you cannot learn — and a `disabledReason` you cannot

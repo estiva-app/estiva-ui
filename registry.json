@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.100.0",
+    "packageVersion": "0.101.0",
     "exports": 243,
     "typeExports": 249,
     "files": null
@@ -4757,6 +4757,12 @@
           "takes": "text",
           "required": false,
           "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
+        },
+        {
+          "name": "unread",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something new behind it, as a hidden column's comments: the `UnreadDot`'s disc on the icon's top-right corner, so it reads as this button's and not its neighbour's, and \", new\" after its `aria-label`, since a disc says nothing to a screen reader (Katerina, 3 November, for Ship's \"Show comments\")."
         },
         {
           "name": "children",
@@ -11386,6 +11392,12 @@
           "note": "A link that looks like an icon button: an anchor, so the address stays real for a modified click or a new tab, as `Link` keeps it."
         },
         {
+          "name": "unread",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something new behind it, as a hidden column's comments: the `UnreadDot`'s disc on the icon's top-right corner, so it reads as this button's and not its neighbour's, and \", new\" after its `aria-label`, since a disc says nothing to a screen reader (Katerina, 3 November, for Ship's \"Show comments\")."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
@@ -11522,6 +11534,12 @@
           "takes": "top | bottom",
           "required": false,
           "note": null
+        },
+        {
+          "name": "unread",
+          "takes": "true/false",
+          "required": false,
+          "note": "Something new behind it, as a hidden column's comments: the `UnreadDot`'s disc on the icon's top-right corner, so it reads as this button's and not its neighbour's, and \", new\" after its `aria-label`, since a disc says nothing to a screen reader (Katerina, 3 November, for Ship's \"Show comments\")."
         },
         {
           "name": "children",
