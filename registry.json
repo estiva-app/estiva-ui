@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.103.0",
+    "packageVersion": "0.104.0",
     "exports": 245,
-    "typeExports": 253,
+    "typeExports": 254,
     "files": null
   },
   "storybook": {
@@ -7229,6 +7229,12 @@
           "takes": "text",
           "required": false,
           "note": "Said when no Folder is offered. \"There is no other folder it can be moved to.\" when absent."
+        },
+        {
+          "name": "check",
+          "takes": "MoveCheck",
+          "required": false,
+          "note": "A box under the choice, asked only where `label` names it; its answer comes back as `checked`."
         },
         {
           "name": "onMove",
