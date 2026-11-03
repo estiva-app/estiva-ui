@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.104.1 — 2026-11-03
+## 0.104.2 — 2026-11-03
+
+0.104.1 was never published: its release job stopped at the tests, twice, before `npm publish`. This version carries
+its fix (below) and nothing else that an app sees.
+
+### Fixed
+
+- **The `gates:status` tests no longer fetch this repository from GitHub.** The apps they make sit inside this
+  repository, so status read it as theirs and fetched its origin, once or twice a test; on the release machine that took
+  up to 20 s and three tests ran out of time. Git now stops looking at `node_modules` in those tests. Tests only.
+
+## 0.104.1 — 2026-11-03 (not published)
 
 ### Fixed
 
