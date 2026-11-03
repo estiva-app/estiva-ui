@@ -72,6 +72,9 @@ const codec: DocumentCodec = {
 
 - **It speaks the editor's document.** The package does not depend on `@estiva-app/protocol`: the app hands it `codec`, which reads its saved text and writes the editor's document back. Pass `{ links: true }`, or a link on words is lost at the next save.
 - **`onCommit` answers whether it was saved**, and gets the saved text the edit started from: whom a save names anew is the difference between the two (`mentionAddsFor`). A refused or thrown save keeps the text and says so.
+- **Or it answers what asks.** Where the app merges a refused save by blocks (`writeChange` in `@estiva-app/interop`), a block both people changed comes back as `asks`; answer `{ value, theirs, mine, blocks }`: `value` is theirs with every change of yours that did not clash in it and their words in each block that asks, `theirs` their saved text (the next save's `editedFrom`), `mine` what you sent. Pass `merges` too, so a newer save waits without the Load it line. Leaving before every block is chosen saves nothing and calls `onLeftUnsaved`: keep the text there if it should outlive the page. Text typed while that save was out is kept: in `value` where they did not change that block, and as your version where it asks, which a block they changed too then does.
+
+<Canvas of={DocumentEditorStories.BlockBothChanged} />
 - **`@` writes a reference to the person**, a chip whose `uri` is their `nostr:npub…`, not a message's mention. `uriOf` answers it; someone without one is not offered. The chip carries no name: `referenceView` resolves it.
 - **`label` is required**: the editor's accessible name.
 - **Give the editor a `key` per document.** The editor and which of `[`, `@`, File, comments and markdown it has are made once, as it opens; the lists, the upload and the people are read as they are each time.
@@ -87,7 +90,8 @@ It does these by itself. Write none of them around it.
 |---|---|
 | Saving on blur, on unmount and on a checklist tick; never while typing; Escape leaves | a save button, a timer, a key handler |
 | A refused save: the text kept, and "Could not save. Your text is still here." | a toast, or putting text back |
-| Someone else's save: loaded while you are not in it; while you are, "*Name* saved a newer version. Load it (replaces your changes)", and leaving saves yours over theirs — the later save wins | a merge, a conflict dialog |
+| Someone else's save: loaded while you are not in it; while you are, "*Name* saved a newer version. Load it (replaces your changes)", and leaving saves yours over theirs — the later save wins. With `merges`, no line: leaving saves yours to be merged | a merge, a conflict dialog |
+| A block you both changed (`onCommit` answers `DocumentAsks`): their words in the text, marked at its edge, and "Your version" beside it — under it at phone width — with Use mine, Copy and Dismiss; nothing saved until each is chosen, and the last choice saves after their text. A page opened before the text changed says so above it | a conflict dialog, a diff, a draft store |
 | Your own save coming back is not someone else's | an echo filter |
 | The text held when the sign-in ends, back unsaved after the tap, and nothing saved on the way out | a draft |
 | `/` Format (with checklist, note and warning) and Insert: Table, File (opens `[`), Upload, Mention (opens `@`) | the `/` rows |

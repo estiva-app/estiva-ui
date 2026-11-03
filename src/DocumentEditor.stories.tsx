@@ -389,3 +389,87 @@ export const ReadOnly: Story = {
 export const ReadOnlyWithoutComments: Story = {
   render: () => <Workbench readOnly />,
 }
+
+// ─── A block both people changed ───
+
+const block = (id: string, text: string) => ({ type: 'paragraph', id, content: [{ type: 'text', text }] })
+const blocks = (...content: object[]) => JSON.stringify({ type: 'doc', content })
+const ASK_START = blocks(
+  block('k1', 'The first block. Nobody changed it, so it reads as it did.'),
+  block('k2', 'The second block, as it was when you both started.'),
+  block('k3', 'The third block, as it was when you both started.'),
+)
+const ASK_THEIRS = blocks(
+  block('k1', 'The first block. Nobody changed it, so it reads as it did.'),
+  block('k2', 'The second block, as the other person saved it a moment before you: their words stand in the text.'),
+  block('k3', 'The third block. They changed it too, but you did not, so their words simply appear.'),
+)
+const ASK_MINE = blocks(
+  block('k1', 'The first block. Nobody changed it, so it reads as it did.'),
+  block('k2', 'The second block, as you had it: your words, kept beside theirs until you choose.'),
+  block('k3', 'The third block, as it was when you both started.'),
+)
+
+/**
+ * The app's side: the first save is refused because the other person saved
+ * the second block first, and the merge asks about it; the next save goes
+ * through. The story saves your text as it opens, as leaving the editor would.
+ */
+function Asking({ sinceOpened = false }: { sinceOpened?: boolean }) {
+  const answered = useRef(false)
+  const started = useRef(false)
+  const [said, setSaid] = useState<string | null>(null)
+  const onEditor = (editor: Editor | null) => {
+    if (!editor || started.current) return
+    started.current = true
+    setTimeout(() => {
+      editor.commands.setContent(codec.read(ASK_MINE, 'blocks'))
+      editor.view.focus()
+      editor.view.dom.blur()
+    })
+  }
+  return (
+    <div className="flex max-w-3xl flex-col gap-4 px-6 py-5">
+      <DocumentEditor
+        value={ASK_START}
+        format="blocks"
+        codec={codec}
+        label="Document"
+        merges
+        onEditor={onEditor}
+        onCommit={async (value) => {
+          if (!answered.current) {
+            answered.current = true
+            return { value: ASK_THEIRS, theirs: ASK_THEIRS, mine: ASK_MINE, blocks: ['k2'], sinceOpened }
+          }
+          setSaid(`Saved: ${savedLines(value)[1]}`)
+          return true
+        }}
+      />
+      {said && <p className="text-caption text-text-secondary">{said}</p>}
+    </div>
+  )
+}
+
+/**
+ * A block you both changed: their words in the text, marked at its edge;
+ * yours beside it with Use mine, Copy and Dismiss. Nothing is saved until you
+ * choose. A block only one of you changed shows nothing: their words appear.
+ */
+export const BlockBothChanged: Story = {
+  name: 'A block both changed',
+  render: () => <Asking />,
+}
+
+/** A page opened before the text changed, and refused: the same shape, under one line. */
+export const OpenedBefore: Story = {
+  name: 'Opened before it changed',
+  render: () => <Asking sinceOpened />,
+}
+
+/** At phone width your version sits under the block instead of beside it. */
+export const BlockBothChangedNarrow: Story = {
+  name: 'A block both changed, phone width',
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => <Asking />,
+}

@@ -42,9 +42,9 @@ export interface PartCardProps {
   href?: string
   /** The key of what it is part of: "ABC-2". */
   partKey?: string
-  /** What it is part of, in a word, for "A part of this issue not available". Absent, its kind's word. */
+  /** What it is part of, in a word, for "You can't open this issue". Absent, its kind's word. */
   noun?: string
-  /** Where it may still open, for someone who can, when it is not available. */
+  /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go. */
   openIn?: { app: string; href: string }
   /** The part's blocks, drawn by the app. */
   children?: ReactNode
@@ -52,12 +52,13 @@ export interface PartCardProps {
   maxHeight?: number
 }
 
-export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, openIn, children, maxHeight }: PartCardProps) {
+export function PartCard({ state = 'ready', kind, heading, href, partKey, noun, children, maxHeight }: PartCardProps) {
   const word = noun ?? kindNounOf({ kind }) ?? 'File'
   const boxed = useContext(inTheBox)
   if (state === 'loading') return <LinkCardLoading kind={kind} shape={{ summary: true, rows: 0, footer: 'none' }} />
   if (state === 'unavailable' || state === 'deleted') {
-    return <LinkUnavailable kind={kind} noun={`A part of this ${word.toLowerCase()}`} openIn={openIn} deleted={state === 'deleted'} card />
+    // A part you can't read is one whose file you can't read: "You can't open this issue".
+    return <LinkUnavailable kind={kind} noun={state === 'deleted' ? `A part of this ${word.toLowerCase()}` : word} deleted={state === 'deleted'} card />
   }
   // The SPEC's words (§13.6.1): what it is part of is still there; the part is not, or cannot be one.
   if (state === 'detached') return <UnavailableRow kind={kind} words="This part was deleted" card />

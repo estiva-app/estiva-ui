@@ -147,7 +147,7 @@ export interface LoadingShape {
 /**
  * Where a link's lookup stands. `loading` knows the kind from the address, and
  * a shape when the app remembers one; `unavailable` is not the reader's to see
- * ("Issue not available"), or `deleted` ("Issue deleted"), which a reader tells
+ * ("You can't open this issue"), or `deleted` ("Issue deleted"), which a reader tells
  * apart by a deletion naming the address (SPEC §13.6.1: deleted is not
  * not-permitted). Written as a URL, it is that URL either way (`url`).
  */
@@ -158,7 +158,7 @@ export type LinkState =
       kind: LinkedKind
       /** What it is, in a word: "Item". */
       noun: string
-      /** Where it may still open for someone who can: the app that owns it, and its address. */
+      /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go (Miky, ALO-4's review). */
       openIn?: { app: string; href: string }
       /** Deleted, as a trusted deletion naming its address says (SPEC §13.6.1): "Issue deleted", with no way out. */
       deleted?: boolean

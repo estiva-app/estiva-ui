@@ -116,6 +116,7 @@ export { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen, referenceMenuCli
 export {
   DocumentEditor,
   type DocumentEditorProps,
+  type DocumentAsks,
   type DocumentCodec,
   type DocumentReferences,
   type DocumentMentions,

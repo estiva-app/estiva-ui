@@ -9,10 +9,8 @@
  * At most 480px wide, as a card is, in a box being written in too.
  */
 import { useContext } from 'react'
-import { IconExternalLink } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { AvatarGroup } from './AvatarGroup'
-import { Button } from './Button'
 import { Card } from './Card'
 import { cn } from './cn'
 import { Link } from './Link'
@@ -21,13 +19,12 @@ import { CommentCount, kindNounOf, LinkedIcon, LinkTile, ProgressRing, StatusMar
 import { LinkPreview } from './LinkPreview'
 import { TIME_CLASSES, TYPE_TILE_CLASSES } from './looks'
 import { SkeletonBar } from './Skeleton'
-import { WithTooltip } from './Tooltip'
 
 export interface LinkUnavailableProps {
   kind: LinkedKind
-  /** What it is, in a word: "Issue". Drawn as "Issue not available". */
+  /** What it is, in a word: "Issue". Drawn as "You can't open this issue", or "Issue deleted". */
   noun: string
-  /** Where it may still open, for someone who can: its app and address. */
+  /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go. */
   openIn?: { app: string; href: string }
   /** In a card's place: a card's 12px round it. Default a row's. */
   card?: boolean
@@ -42,15 +39,18 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
  * Not available: not this reader's to see, or deleted, which says so (SPEC
  * §13.6.1: deleted is not not-permitted). Drawn as the row or the card it
  * would have been, on the same fill and edge (Katerina, 29 Oct: "same styling
- * as the linkcard default"), its words muted. The way out stays, since the app
- * it lives in may still open it for you; a deleted one has none.
+ * as the linkcard default"), its words muted. Not this reader's: "You can't
+ * open this issue", the approved story's words, with no way out, since there
+ * is nothing for them to open (Miky, ALO-4's review, 3 November).
  */
-export function LinkUnavailable({ kind, noun, openIn, card = false, deleted = false }: LinkUnavailableProps) {
-  return <UnavailableRow kind={kind} words={`${noun} ${deleted ? 'deleted' : 'not available'}`} openIn={deleted ? undefined : openIn} card={card} />
+export function LinkUnavailable({ kind, noun, card = false, deleted = false }: LinkUnavailableProps) {
+  // A word ("Issue") reads in the sentence in small letters; an app's name ("Estiva Ship") keeps its own.
+  const word = /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
+  return <UnavailableRow kind={kind} words={deleted ? `${noun} deleted` : `You can't open this ${word}`} card={card} />
 }
 
 /** The not-available row with the words it is given; `href` makes the words a link (a part that can't be shown opens its whole file). */
-export function UnavailableRow({ kind, words, href, openIn, card = false }: { kind: LinkedKind; words: string; href?: string; openIn?: { app: string; href: string }; card?: boolean }) {
+export function UnavailableRow({ kind, words, href, card = false }: { kind: LinkedKind; words: string; href?: string; card?: boolean }) {
   const wide = useContext(inTheBox)
   return (
     <Card fill={wide ? 'elevated' : 'inset'} className={cn(card ? 'flex items-center gap-3 p-3' : ROW_CLASSES, 'max-w-[480px]')}>
@@ -66,15 +66,6 @@ export function UnavailableRow({ kind, words, href, openIn, card = false }: { ki
           words
         )}
       </span>
-      {/* The kit's Button as a link, as Peek's file header has it (Katerina, 31 Oct): "Open", the app in its name and
-          tooltip, in place of a text link with a typed arrow. */}
-      {openIn && (
-        <WithTooltip label={`Open in ${openIn.app}`}>
-          <Button href={openIn.href} external size="small" className="shrink-0" leadingIcon={<IconExternalLink stroke={1.5} className="size-3.5" />} aria-label={`Open in ${openIn.app}`}>
-            Open
-          </Button>
-        </WithTooltip>
-      )}
     </Card>
   )
 }
@@ -124,7 +115,7 @@ export function LinkRow({ link, preview = true }: LinkRowProps) {
   }
   if (link.state === 'unavailable') {
     if (link.url) return <WrittenUrl url={link.url} block />
-    return <LinkUnavailable kind={link.kind} noun={link.noun} openIn={link.openIn} deleted={link.deleted} />
+    return <LinkUnavailable kind={link.kind} noun={link.noun} deleted={link.deleted} />
   }
   const { linked } = link
   const status = chosenOf(linked.status)
