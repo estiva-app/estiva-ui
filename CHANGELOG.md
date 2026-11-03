@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.104.1 — 2026-11-03
+
+### Fixed
+
+- **`ResolveDialog` tries again after a refusal.** The refusal was the note field's `error`, which marks the field
+  invalid, and an invalid field stops the form: after a refused resolve, Resolve sent nothing until the dialog was
+  closed and opened again (found in Leaf's adoption, Katerina, 3 November: fix it). It is now the same error line in
+  the same place under the note, drawn pixel for pixel as before, and Resolve tries again. Every app that resolves
+  (Peek; Leaf from its adoption) gets it on taking this version; nothing to change.
+
 ## 0.104.0 — 2026-11-03
 
 ### Added
