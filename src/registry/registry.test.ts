@@ -399,6 +399,7 @@ const DOCGEN_STOPS_AT_OMIT = new Set([
   'PersonTrigger.size',
   'ToolbarLink.variant',
   'ToolbarLink.glow',
+  'ToolbarLink.unread',
   'ToolbarLink.tooltip',
   'ToolbarLink.tooltipShortcut',
   'ToolbarLink.tooltipPlacement',
