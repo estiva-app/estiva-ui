@@ -154,7 +154,7 @@ export function MoveDialog({
       submitLabel="Move"
       busyLabel="Moving…"
       ready={ready}
-      onSubmit={() => onMove(nests ? { folder, parent: parent === TOP ? '' : parent, ...asked } : { folder, ...asked })}
+      onSubmit={() => onMove({ ...(nests ? { folder, parent: parent === TOP ? '' : parent } : { folder }), ...asked })}
       onClose={onClose}
     >
       {destinations?.length === 0 ? (
