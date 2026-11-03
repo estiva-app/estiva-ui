@@ -157,8 +157,9 @@ export interface CommentBoxProps {
   /** The card and parts in the box while something is written, with the files, ✕ on the card. Absent, there are none. */
   under?: BoxUnder
   /**
-   * What the new comment will be on, in a line above the box: the `about` the posted card will carry (a `QuotedLine`,
-   * the app's words for a block), with ✕ in the app's words to drop it. Not drawn on an edit or a closed box.
+   * What the new comment will be on, in a strip above the box on the inset fill: the `about` the posted card will carry
+   * (a `QuotedLine`, the app's words for a block), with ✕ in it, in the app's words, to drop it. Not drawn on an edit or
+   * a closed box.
    */
   about?: BoxAbout
   /**
@@ -820,15 +821,16 @@ function OpenCommentBox({
   return (
     <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={upload ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
       {about && (
-        // 8px above the box (with the column's 4px), as Leaf's and Ship's own lines sat; ✕ level with a one-line quote.
-        <div data-box-about className="mb-1 flex items-center gap-2">
+        // The whole strip, its ✕ in it, on the inset fill the closed box's line has (Katerina, 3 November: B); 8px above
+        // the box with the column's 4px. 36px tall with or without ✕, so the box does not move when an app offers none.
+        <Card data-box-about fill="inset" className="mb-1 flex min-h-9 items-center gap-2 py-1 pl-3 pr-1">
           <div className="min-w-0 flex-1">{about.view}</div>
           {about.remove && (
             <IconButton tooltip={about.remove.label} aria-label={about.remove.label} onClick={about.remove.onRemove}>
               <IconX size={16} stroke={1.5} />
             </IconButton>
           )}
-        </div>
+        </Card>
       )}
       <SendBox
         editor={editor}
