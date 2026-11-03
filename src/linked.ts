@@ -158,8 +158,10 @@ export type LinkState =
       kind: LinkedKind
       /** What it is, in a word: "Item". */
       noun: string
-      /** `noun` is its app's name ("Notes"), its type having none: kept as written, never "this notes". */
+      /** `noun` is its app's name ("Notes"), its type having none: "You can't open this file in Notes". */
       named?: boolean
+      /** Its read failed (the network, a busy relay): "Couldn't load this issue", which says nothing about access. */
+      failed?: boolean
       /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go (Miky, ALO-4's review). */
       openIn?: { app: string; href: string }
       /** Deleted, as a trusted deletion naming its address says (SPEC §13.6.1): "Issue deleted", with no way out. */
