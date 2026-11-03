@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.102.2",
+    "packageVersion": "0.103.0",
     "exports": 245,
     "typeExports": 253,
     "files": null
@@ -2290,7 +2290,7 @@
           "name": "about",
           "takes": "BoxAbout",
           "required": false,
-          "note": "What the new comment will be on, in a line above the box: the `about` the posted card will carry (a `QuotedLine`, the app's words for a block), with ✕ in the app's words to drop it."
+          "note": "What the new comment will be on, in a strip above the box on the inset fill: the `about` the posted card will carry (a `QuotedLine`, the app's words for a block), with ✕ in it, in the app's words, to drop it."
         },
         {
           "name": "showsAtOnce",
