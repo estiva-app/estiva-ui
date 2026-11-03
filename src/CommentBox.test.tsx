@@ -440,6 +440,30 @@ describe('read-only', () => {
   })
 })
 
+// Leaf's "On “words”" and Ship's block note over the box, each hand-made, now the kit's (Katerina, 3 November).
+describe('above the box: what the new comment will be on, with ✕', () => {
+  it('draws the app’s line above the box, and its ✕ in the app’s words drops it', () => {
+    const onRemove = vi.fn()
+    render(<Box about={{ view: <span>On “press notes”</span>, remove: { label: 'Comment on the whole document instead', onRemove } }} />)
+    const line = screen.getByText('On “press notes”')
+    expect(line.compareDocumentPosition(document.querySelector('.ProseMirror')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Comment on the whole document instead' }))
+    expect(onRemove).toHaveBeenCalledOnce()
+  })
+
+  it('with no remove, the line has no ✕', () => {
+    render(<Box about={{ view: <span>On the paragraph</span> }} />)
+    expect(screen.getByText('On the paragraph')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /instead|Remove/ })).toBeNull()
+  })
+
+  it('a closed box says only why: no line about a comment it cannot write', () => {
+    render(<Box closed={{ reason: 'Archived.' }} about={{ view: <span>On the paragraph</span>, remove: { label: 'Remove', onRemove: () => {} } }} />)
+    expect(screen.getByText('Archived.')).toBeTruthy()
+    expect(screen.queryByText('On the paragraph')).toBeNull()
+  })
+})
+
 describe('under the box: the one card, with ✕, and the live parts', () => {
   const ISSUE = 'https://app.example/item/one'
   const BLOCK = 'https://app.example/page/two#block'

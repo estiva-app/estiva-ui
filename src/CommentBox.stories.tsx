@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { Editor, JSONContent } from '@tiptap/react'
 import { IconSquareRounded } from '@tabler/icons-react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
@@ -13,6 +13,7 @@ import { LinkCard } from './LinkCard'
 import { LinkChip } from './LinkChip'
 import { ITEM, ITEM_NO_SUMMARY, ready } from './linked.examples'
 import { PartCard } from './PartCard'
+import { QuotedLine } from './QuotedLine'
 import { RichText } from './RichText'
 
 /**
@@ -214,6 +215,21 @@ export const ReadOnlyArchived: Story = { render: () => <Live closed={{ reason: '
 
 /** Read-only, signed out: a line in the box's place. */
 export const ReadOnlySignedOut: Story = { render: () => <Live closed={{ reason: 'Sign in to write here.' }} /> }
+
+/** A new comment on a part of the page; ✕ drops the line, and the comment is on the whole page. */
+function OnAPart({ view, remove, placeholder }: { view: ReactNode; remove: string; placeholder: string }) {
+  const [on, setOn] = useState(true)
+  return <Live about={on ? { view, remove: { label: remove, onRemove: () => setOn(false) } } : undefined} placeholder={on ? placeholder : 'Comment on this page…'} />
+}
+
+/** On words of the page: the line above the box says which, as the posted comment's `about` will (Leaf's and Ship's, 3 November). */
+export const OnWords: Story = {
+  name: 'On words',
+  render: () => <OnAPart view={<QuotedLine words="the second step of the plan" />} remove="Comment on the whole page instead" placeholder="Comment on these words…" />,
+}
+
+/** On a part with no words, a block: the app's own words for it, in the same line. */
+export const OnABlock: Story = { name: 'On a block', render: () => <OnAPart view={<QuotedLine label="On the paragraph" />} remove="Remove" placeholder="Comment on this block…" /> }
 
 const ITEM_URL = 'https://app.example/item/one'
 const PART_URL = 'https://app.example/page/two#block'

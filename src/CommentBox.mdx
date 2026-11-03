@@ -18,6 +18,7 @@ The one box every app writes a comment, a reply and a line of a conversation in:
 - `under` to show, while something is written, the one card it will be sent with and the live part of each block link. They sit inside the box with the files, on the files' fill; the card's ✕ is a file's, on hover, and its values and links read as words until it is sent, so a click on it never leaves the draft. An edit box shows the card and no part.
 - `referenceView` to draw every link the box holds — a pasted app URL once it names something, a pasted `nostr:` address of a file or a message, and a `[` pick — as the app draws a link, with the kit's **LinkChip**: one chip look in every box. It is told it is being edited, so it shows no preview, and a click on it stays in the draft.
 - `closed` where nothing can be written (archived, signed out): a line saying why, in the box's place. No greyed box.
+- `about` when the new comment will be on a part of the page: a line above the box, `view` being the `about` the posted **ConversationCard** will carry (a **QuotedLine**, your words for a block), and `remove` its ✕ in your words ("Comment on the whole page instead"). Not drawn on an edit or a closed box.
 - `marked` when the app has its own reason for the bar down the text, besides an urgent mention, which always draws it.
 - `onEditor` when something outside the box writes into it: the app keeps the editor it is handed and inserts into the box last used.
 

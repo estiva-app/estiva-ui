@@ -70,6 +70,8 @@ export interface ConversationEntryProps {
    * everyone.", and on a comment how many replies stay. A string is one paragraph; a node is drawn as given.
    */
   deleteNote?: ReactNode
+  /** Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered `false`). */
+  deleteRefused?: string
   /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
   /** The app's own rows in the ⋯ menu after Edit, before Delete: Peek's "View details". */
@@ -270,7 +272,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -308,7 +310,6 @@ export function ConversationCard(props: ConversationCardProps) {
   const repliesRow = replies && replies.count > 0 && (
     <RepliesRow {...replies} onOpen={replies.onOpen ?? (under ? item?.toggle : undefined)} open={replies.open ?? (under && !!item?.open)} urgent={urgent} />
   )
-  const aboutShown = !!about && !deleted
   return (
     <>
       <Card
@@ -349,7 +350,12 @@ export function ConversationCard(props: ConversationCardProps) {
         ) : (
           <div data-comment-body className="flex flex-col items-start px-2 pt-2">
             {deleted ? (
-              <p className="w-full pb-2 pl-8 pr-2 text-caption italic text-text-muted">This comment was deleted.</p>
+              <>
+                {/* What it was on stays, where the words start: its replies still talk about that place (Leaf's; Katerina, 3 November: every app). */}
+                {!!about && <div className="relative w-full pl-8 pr-2">{about}</div>}
+                {/* 4px under it, as the words sit under it on a comment that is there. */}
+                <p className={cn('w-full pb-2 pl-8 pr-2 text-caption italic text-text-muted', !!about && 'pt-1')}>This comment was deleted.</p>
+              </>
             ) : (
               <>
                 <Head
@@ -363,7 +369,7 @@ export function ConversationCard(props: ConversationCardProps) {
                   urgent={urgent}
                   meta={resolved && <ResolvedCheck by={resolved.by} note={resolved.note} at={resolved.at} />}
                 />
-                {aboutShown && (
+                {!!about && (
                   // Under the name, above the words (Katerina, 1 November).
                   <div className="relative w-full pl-8 pr-2 pt-0.5">{about}</div>
                 )}
@@ -438,7 +444,7 @@ export function ConversationCard(props: ConversationCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
+        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
           {deleteNote !== undefined ? (
             typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote
           ) : (
@@ -469,7 +475,7 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', noun = 'reply', className, children } = props
+  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', noun = 'reply', className, children } = props
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -560,7 +566,7 @@ export function ReplyCard(props: ReplyCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)}>
+        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
           {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
         </ConfirmDialog>
       )}

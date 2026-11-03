@@ -68,6 +68,12 @@ export const Edited: Story = { render: (args) => <Live {...args} edited="Edited 
 /** Deleted: its replies stay under it. */
 export const Deleted: Story = { render: (args) => <Live {...args} deleted replies={{ count: 2, faces: [TWO, THREE], last: '11:40 AM' }} /> }
 
+/** Deleted, on a part of the page: what it was on stays, for its replies (Leaf's, 3 November). */
+export const DeletedOnAPart: Story = {
+  name: 'Deleted, on a part',
+  render: (args) => <Live {...args} deleted about={<QuotedLine words="the words this comment was on" />} replies={{ count: 2, faces: [TWO, THREE], last: '11:40 AM' }} />,
+}
+
 /** Pictures and files under the words. */
 export const WithFiles: Story = { name: 'Files', render: (args) => <Live {...args} files={<Files />} /> }
 

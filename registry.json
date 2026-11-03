@@ -6,7 +6,7 @@
     "package": "@estiva-app/ui",
     "packageVersion": "0.102.2",
     "exports": 245,
-    "typeExports": 252,
+    "typeExports": 253,
     "files": null
   },
   "storybook": {
@@ -2287,6 +2287,12 @@
           "note": "The card and parts in the box while something is written, with the files, ✕ on the card."
         },
         {
+          "name": "about",
+          "takes": "BoxAbout",
+          "required": false,
+          "note": "What the new comment will be on, in a line above the box: the `about` the posted card will carry (a `QuotedLine`, the app's words for a block), with ✕ in the app's words to drop it."
+        },
+        {
           "name": "showsAtOnce",
           "takes": "true/false",
           "required": false,
@@ -2558,6 +2564,12 @@
           "takes": "ConfirmDialogAlternative",
           "required": false,
           "note": "A third, safer answer — \"Archive instead\" — drawn after the words, under its sentence, and switched off while the confirm runs (Peek's, 2 November)."
+        },
+        {
+          "name": "refused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last confirm was refused, in plain words: said under the words, in the error line, while the question stays open (`onConfirm` answered `false`), as `ResolveDialog`'s `refused` is said under its field."
         }
       ],
       "variants": [],
@@ -2932,6 +2944,12 @@
           "takes": "anything",
           "required": false,
           "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
+        },
+        {
+          "name": "deleteRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered `false`)."
         },
         {
           "name": "menu",
@@ -9480,6 +9498,12 @@
           "takes": "anything",
           "required": false,
           "note": "The app's own words under the delete question, what deleting does there, in place of the kit's: \"It is deleted for everyone.\", and on a comment how many replies stay."
+        },
+        {
+          "name": "deleteRefused",
+          "takes": "text",
+          "required": false,
+          "note": "Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered `false`)."
         },
         {
           "name": "menu",

@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, nodePasteRule, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
-import { IconLock, IconPaperclip, IconSquareRounded } from '@tabler/icons-react'
+import { IconLock, IconPaperclip, IconSquareRounded, IconX } from '@tabler/icons-react'
 import { AttachedCard } from './AttachedCard'
 import { AttachmentCard } from './AttachmentCard'
 import { ReferenceNode, type ReferenceViewProps } from './BlockNodes'
@@ -25,6 +25,7 @@ import {
 } from './ComposerTriggers'
 import { FieldLine } from './Field'
 import { FilePicker } from './FilePicker'
+import { IconButton } from './IconButton'
 import { inTheBox } from './linked'
 import { LinkedIcon } from './LinkParts'
 import { linkedKindOfReference } from './LinkPlaces'
@@ -127,6 +128,14 @@ export interface BoxSentUnder {
   card?: string
 }
 
+/** What a new comment will be on, above the box (Leaf's "On “words”", Ship's block: each hand-made until 3 November). */
+export interface BoxAbout {
+  /** The line: what the posted card's `about` will show. */
+  view: ReactNode
+  /** ✕ beside it, in the app's words: "Comment on the whole document instead", "Remove". Absent, no ✕. */
+  remove?: { label: string; onRemove: () => void }
+}
+
 export interface CommentBoxProps {
   /** Who `@` and `!@` offer. */
   people: readonly MentionPerson[]
@@ -147,6 +156,11 @@ export interface CommentBoxProps {
   send: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
   /** The card and parts in the box while something is written, with the files, ✕ on the card. Absent, there are none. */
   under?: BoxUnder
+  /**
+   * What the new comment will be on, in a line above the box: the `about` the posted card will carry (a `QuotedLine`,
+   * the app's words for a block), with ✕ in the app's words to drop it. Not drawn on an edit or a closed box.
+   */
+  about?: BoxAbout
   /**
    * The app shows a send before the relay answers: the box empties at once,
    * and a refusal puts the words back. Otherwise the box holds the words, shut,
@@ -460,6 +474,7 @@ function OpenCommentBox({
   code = 'block',
   send,
   under,
+  about,
   showsAtOnce = false,
   label,
   placeholder,
@@ -804,6 +819,17 @@ function OpenCommentBox({
 
   return (
     <div ref={root} className={cn('flex flex-col gap-1', className)} onDragOver={upload ? (e) => e.preventDefault() : undefined} onDrop={onDrop}>
+      {about && (
+        // 8px above the box (with the column's 4px), as Leaf's and Ship's own lines sat; ✕ level with a one-line quote.
+        <div data-box-about className="mb-1 flex items-center gap-2">
+          <div className="min-w-0 flex-1">{about.view}</div>
+          {about.remove && (
+            <IconButton tooltip={about.remove.label} aria-label={about.remove.label} onClick={about.remove.onRemove}>
+              <IconX size={16} stroke={1.5} />
+            </IconButton>
+          )}
+        </div>
+      )}
       <SendBox
         editor={editor}
         onSend={go}

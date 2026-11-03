@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { useState } from 'react'
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConfirmDialog } from './ConfirmDialog'
 import { readIndexExports } from './registry/build'
@@ -87,6 +87,17 @@ describe('ConfirmDialog', () => {
     await user.click(await screen.findByRole('button', { name: 'Delete' }))
     expect(onClose).not.toHaveBeenCalled()
     expect(screen.getByRole('alertdialog')).toBeTruthy()
+  })
+
+  // Leaf's delete question said why in its own line; now the kit's does, as ResolveDialog's field does (3 November).
+  it('says why the last action was refused, under its words, in the error line', async () => {
+    const { rerender } = render(<Fixture />)
+    const dialog = await screen.findByRole('alertdialog')
+    expect(within(dialog).queryByRole('alert')).toBeNull()
+    rerender(<Fixture refused="The relay refused it." />)
+    const line = within(dialog).getByRole('alert')
+    expect(line.textContent).toBe('The relay refused it.')
+    expect(within(dialog).getByText('This cannot be undone.').compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('an action that resolves nothing still closes', async () => {
