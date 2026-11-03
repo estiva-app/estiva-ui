@@ -111,8 +111,11 @@ export interface DocumentEditorProps {
   readOnly?: boolean
   /** Who saved the text last, when it was not you: named in "… saved a newer version". */
   changedBy?: { name: string } | null
-  /** A save refused after the editor closed, with nothing left on screen to say it. */
-  onLeftUnsaved?: () => void
+  /**
+   * A save refused after the editor closed, with nothing left on screen to say it. Closed while blocks ask, it is
+   * handed the text with your version of each, in the saved format, for the app to keep.
+   */
+  onLeftUnsaved?: (unsaved?: string) => void
   /** Where text typed when the sign-in ends is held, under `holdKey`. */
   hold?: HeldTyping
   holdKey?: string
@@ -176,8 +179,25 @@ function blockOf(doc: JSONContent, id: string): JSONContent | null {
   return null
 }
 
-/** The words of a block of the editor's document, as "Your version" shows them. */
-const wordsOf = (node: JSONContent): string => (node.text ?? '') + (node.content ?? []).map(wordsOf).join(node.type === 'doc' ? '\n' : '')
+/** The words of a block of the editor's document, as "Your version" shows them: a line per block inside it (a list's items). */
+const wordsOf = (node: JSONContent): string => {
+  const children = node.content ?? []
+  const inline = children.every((child) => child.text !== undefined || !child.content)
+  return (node.text ?? '') + children.map(wordsOf).join(inline ? '' : '\n')
+}
+
+/** A document with each of these blocks as `from` has it, or taken out where `from` has none: your text with your version of each block that asks. */
+function withBlocksFrom(doc: JSONContent, ids: readonly string[], from: JSONContent): JSONContent {
+  if (!doc.content) return doc
+  return {
+    ...doc,
+    content: doc.content.flatMap((child) => {
+      const id = child.attrs?.blockId as string | undefined
+      if (id && ids.includes(id)) return blockOf(from, id) ?? []
+      return [withBlocksFrom(child, ids, from)]
+    }),
+  }
+}
 
 /** What the editor holds while blocks ask. */
 interface Asking {
@@ -342,6 +362,11 @@ export function DocumentEditor({
     askingNow.current = next
     setAsking(next)
   }
+  // While blocks ask, what is lost if the text goes now: the text with your version of each. Otherwise `null`.
+  const asked = (): JSONContent | null => {
+    const now = askingNow.current
+    return now && typed.current ? withBlocksFrom(typed.current, now.blocks, now.mine) : null
+  }
   // The editor, for the callbacks made before it is.
   const current = useRef<Editor | null>(null)
   // Where each asking block's "Your version" is drawn: elements the editor's decorations place beside and under the block.
@@ -365,7 +390,12 @@ export function DocumentEditor({
   */
   const askAbout = (answer: DocumentAsks, replaced: string) => {
     const { codec: words, format: written } = latest.current
-    const held = words.read(answer.value, written)
+    const mine = words.read(answer.mine, written)
+    // A block that asks must be in the text to be chosen: one they deleted that you changed is held as yours, at the end.
+    const value = words.read(answer.value, written)
+    const missing = answer.blocks.flatMap((id) => (blockOf(value, id) ? [] : (blockOf(mine, id) ?? [])))
+    const held = missing.length ? { ...value, content: [...(value.content ?? []), ...missing] } : value
+    const blocks = answer.blocks.filter((id) => blockOf(held, id))
     saved.current = answer.theirs
     shown.current = answer.theirs
     setSuperseded(replaced)
@@ -373,7 +403,7 @@ export function DocumentEditor({
     const editor = current.current
     if (editor && !editor.isDestroyed) editor.commands.setContent(held, { emitUpdate: false })
     typed.current = held
-    ask({ blocks: answer.blocks, mine: words.read(answer.mine, written), theirs: words.read(answer.theirs, written), sinceOpened: !!answer.sinceOpened })
+    ask(blocks.length ? { blocks, mine, theirs: words.read(answer.theirs, written), sinceOpened: !!answer.sinceOpened } : null)
   }
 
   const save = useCallback(
@@ -397,9 +427,9 @@ export function DocumentEditor({
       try {
         const answer = await onCommit(next.value, next.contentFormat, editedFrom)
         if (isAsks(answer)) {
-          // Closed meanwhile: there is no text left to choose in, and nothing was saved.
+          // Closed meanwhile: there is no text left to choose in, and nothing was saved. The app keeps what was sent.
           if (left.current) {
-            if (!ended()) latest.current.onLeftUnsaved?.()
+            if (!ended()) latest.current.onLeftUnsaved?.(next.value)
           } else {
             askAbout(answer, replaced)
             setFailed(false)
@@ -450,7 +480,8 @@ export function DocumentEditor({
     const store = latest.current.hold
     if (!holds || !store || !holdKey) return
     return store.register(holdKey, () => {
-      const doc = typed.current
+      // While blocks ask, your version of each is held: the ask itself does not outlive the passkey trip.
+      const doc = asked() ?? typed.current
       return doc && latest.current.codec.write(doc).value !== saved.current ? JSON.stringify(doc) : undefined
     })
   }, [holdKey, holds])
@@ -589,6 +620,9 @@ export function DocumentEditor({
     setBase(latest.current.value)
     setFailed(false)
     setRestored(false)
+    // Theirs replaces yours whole, so nothing is left to choose.
+    ask(null)
+    slots.current.clear()
   }
 
   // Closing saves on the way out. Not when the sign-in ended: the save would be refused and reported as lost over
@@ -597,7 +631,8 @@ export function DocumentEditor({
     () => () => {
       left.current = true
       if (ended()) return
-      if (askingNow.current) latest.current.onLeftUnsaved?.()
+      const draft = asked()
+      if (draft) latest.current.onLeftUnsaved?.(latest.current.codec.write(draft).value)
       else void latestSave.current(typed.current)
     },
     [],
