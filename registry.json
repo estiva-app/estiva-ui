@@ -6231,7 +6231,7 @@
           "name": "named",
           "takes": "true/false",
           "required": false,
-          "note": "`noun` is its app's name (\"Peek\"), its type having none: kept as written, \"You can't open this Peek\"."
+          "note": "`noun` is its app's name (\"App one\"), its type having none: kept as written, \"You can't open this App one\"."
         },
         {
           "name": "openIn",

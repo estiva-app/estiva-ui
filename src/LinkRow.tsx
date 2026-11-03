@@ -24,7 +24,7 @@ export interface LinkUnavailableProps {
   kind: LinkedKind
   /** What it is, in a word: "Issue". Drawn as "You can't open this issue", or "Issue deleted". */
   noun: string
-  /** `noun` is its app's name ("Peek"), its type having none: kept as written, "You can't open this Peek". */
+  /** `noun` is its app's name ("App one"), its type having none: kept as written, "You can't open this App one". */
   named?: boolean
   /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go. */
   openIn?: { app: string; href: string }

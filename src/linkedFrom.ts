@@ -333,7 +333,7 @@ export function linkStateFrom<T extends LinkedSource>(
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
       noun: noun || unread.noun,
-      // Its app's name, its type having none: "You can't open this Peek", not "this peek".
+      // Its app's name, its type having none: "You can't open this Notes", not "this notes".
       ...(noun && !object.noun ? { named: true } : {}),
       ...written,
     }

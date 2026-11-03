@@ -158,7 +158,7 @@ export type LinkState =
       kind: LinkedKind
       /** What it is, in a word: "Item". */
       noun: string
-      /** `noun` is its app's name ("Peek"), its type having none: kept as written, never "this peek". */
+      /** `noun` is its app's name ("Notes"), its type having none: kept as written, never "this notes". */
       named?: boolean
       /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go (Miky, ALO-4's review). */
       openIn?: { app: string; href: string }
