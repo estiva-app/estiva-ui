@@ -36,7 +36,7 @@ const GROUPS: NavTreeGroup[] = [
       { id: 'f', label: 'An item with a hint and a count', href: '#', icon: placeholder, hint, count: 12, countLabel: '12 open' },
     ],
   },
-  { id: 'g3', title: 'Group three', nodes: [{ id: 'g', label: 'Item six', href: '#', icon: placeholder }] },
+  { id: 'g3', title: 'A group whose name runs longer than the column, cut short', nodes: [{ id: 'g', label: 'Item six', href: '#', icon: placeholder }] },
 ]
 
 const meta = {
