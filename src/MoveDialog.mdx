@@ -65,6 +65,12 @@ import { MoveDialog } from '@estiva-app/ui'
 - Pass only the Folders a move can land in: filter `folders` before, by your
   app's own rules (a Folder that cannot take it). A move your app refuses when
   it is made is answered with `false`, said why, and the dialog stays.
+- `check` adds one box under the choice that only some Folders ask:
+  `label(folder)` gives its words there, or `undefined` to leave it out;
+  `checked` ticks it at open. `onMove` then gets `checked`, only when the box
+  was shown for the Folder picked.
+
+<Canvas of={MoveDialogStories.WithABox} />
 
 <Canvas of={MoveDialogStories.FolderUnreadable} />
 

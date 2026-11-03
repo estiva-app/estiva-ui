@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Checkbox } from './Checkbox'
 import { EmptyState } from './EmptyState'
 import { Field } from './Field'
 import { FormDialog } from './FormDialog'
@@ -24,6 +25,16 @@ export interface MovePlace {
 export interface MoveChoice {
   folder: string
   parent?: string
+  /** Whether `check`'s box was ticked; only when it was shown for the Folder picked. */
+  checked?: boolean
+}
+
+/** A box under the choice that only some Folders offer, such as "Keep it a space in <team>" where the person may mark one. */
+export interface MoveCheck {
+  /** The box's words for a Folder, or `undefined` to leave it out there. */
+  label: (folder: string) => string | undefined
+  /** Ticked when the dialog opens. */
+  checked: boolean
 }
 
 /**
@@ -67,6 +78,8 @@ export interface MoveDialogProps {
   folderLabel?: string
   /** Said when no Folder is offered. "There is no other folder it can be moved to." when absent. */
   noFolder?: string
+  /** A box under the choice, asked only where `label` names it; its answer comes back as `checked`. */
+  check?: MoveCheck
   /** Answer `false` to keep the dialog open (you have said why); anything else closes it. */
   onMove: (choice: MoveChoice) => Promise<boolean | void> | boolean | void
   onClose: () => void
@@ -85,9 +98,11 @@ export function MoveDialog({
   heading = 'Move',
   folderLabel = 'Folder',
   noFolder = 'There is no other folder it can be moved to.',
+  check,
   onMove,
   onClose,
 }: MoveDialogProps) {
+  const [ticked, setTicked] = useState(check?.checked ?? false)
   const nests = !!placesIn
   // Moving a file that nests under nothing into the Folder it is in would do nothing, so that one is not offered.
   const destinations = folders && (nests ? folders : folders.filter((folder) => folder.id !== from))
@@ -130,6 +145,8 @@ export function MoveDialog({
   const valueOf = (place: MovePlace) => place.id || TOP
   const parent = picked ?? (startAtTop && targets[0] && !targets[0].id ? TOP : undefined)
   const ready = !!folder && (!nests || !!parent)
+  const checkLabel = folder ? check?.label(folder) : undefined
+  const asked = checkLabel === undefined ? {} : { checked: ticked }
 
   return (
     <FormDialog
@@ -137,7 +154,7 @@ export function MoveDialog({
       submitLabel="Move"
       busyLabel="Moving…"
       ready={ready}
-      onSubmit={() => onMove(nests ? { folder, parent: parent === TOP ? '' : parent } : { folder })}
+      onSubmit={() => onMove({ ...(nests ? { folder, parent: parent === TOP ? '' : parent } : { folder }), ...asked })}
       onClose={onClose}
     >
       {destinations?.length === 0 ? (
@@ -179,6 +196,7 @@ export function MoveDialog({
                 />
               </Field>
             ))}
+          {checkLabel !== undefined && <Checkbox checked={ticked} onChange={setTicked} label={checkLabel} />}
         </>
       )}
     </FormDialog>

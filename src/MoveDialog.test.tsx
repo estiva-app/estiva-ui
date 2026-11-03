@@ -8,7 +8,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MoveDialog, type MoveDialogProps, type MovePlace } from './MoveDialog'
+import { MoveDialog, type MoveChoice, type MoveDialogProps, type MovePlace } from './MoveDialog'
 
 afterEach(cleanup)
 
@@ -229,6 +229,45 @@ describe('MoveDialog, a file not listed in exactly one Folder (`from` empty; Shi
     await userEvent.click(screen.getByRole('button', { name: 'Move' }))
     await waitFor(() => expect(onMove).toHaveBeenCalledTimes(2))
     expect(onMove).toHaveBeenLastCalledWith({ folder: 'steer' })
+  })
+
+  it('asks the box only for the Folders that name it, ticked as it opened, and says what it answered', async () => {
+    const onMove = vi.fn(async () => true)
+    const check = { label: (folder: string) => (folder === 'steer' ? 'Keep it a space in Steer' : undefined), checked: true }
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} check={check} onMove={onMove} />)
+    await pick('Folder', 'Third')
+    expect(screen.queryByRole('checkbox')).toBeNull()
+    await pick('Folder', 'Steer')
+    const box = screen.getByRole('checkbox', { name: 'Keep it a space in Steer' })
+    expect(box.getAttribute('aria-checked')).toBe('true')
+    await userEvent.click(box)
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledWith({ folder: 'steer', checked: false }))
+  })
+
+  it('a Folder that does not ask the box moves with no answer for it, even after another Folder showed it ticked', async () => {
+    const onMove = vi.fn(async (_choice: MoveChoice) => true)
+    const check = { label: (folder: string) => (folder === 'steer' ? 'Keep it a space in Steer' : undefined), checked: true }
+    render(<Fixture {...flat} folders={[HQ, STEER, THIRD]} check={check} onMove={onMove} />)
+    await pick('Folder', 'Steer')
+    expect(screen.getByRole('checkbox', { name: 'Keep it a space in Steer' }).getAttribute('aria-checked')).toBe('true')
+    await pick('Folder', 'Third')
+    expect(screen.queryByRole('checkbox')).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledTimes(1))
+    expect(onMove.mock.calls[0][0]).toEqual({ folder: 'third' })
+    expect(onMove.mock.calls[0][0]).not.toHaveProperty('checked')
+  })
+
+  it('a file that nests sends the box’s answer with the place it goes under', async () => {
+    const onMove = vi.fn(async () => true)
+    const check = { label: (folder: string) => (folder === 'steer' ? 'Keep it a space in Steer' : undefined), checked: true }
+    render(<Fixture startAtTop placesIn={vi.fn(async () => [TOP])} check={check} onMove={onMove} />)
+    await pick('Folder', 'Steer')
+    expect(screen.getByRole('checkbox', { name: 'Keep it a space in Steer' }).getAttribute('aria-checked')).toBe('true')
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Move' }) as HTMLButtonElement).disabled).toBe(false))
+    await userEvent.click(screen.getByRole('button', { name: 'Move' }))
+    await waitFor(() => expect(onMove).toHaveBeenCalledWith({ folder: 'steer', parent: '', checked: true }))
   })
 
   it('listed in one again (`from` named), the one it is in is held back once more', async () => {
