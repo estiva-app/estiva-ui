@@ -312,6 +312,7 @@ describe('a block you both changed', () => {
       doc(para('b1', 'One: my words, and more.'), para('b2', 'Two: my words, and more.'), para('b3', 'Three as written.'), para('b4', 'Four, new.')),
     )
     expect(textNow()).toBe('One: my words, and more.|Two: their words.|Three: theirs too.|Four, new.')
+    expect(yourVersions().length).toBeGreaterThan(0)
     expect(yourVersions().every((words) => words?.includes('Two: my words, and more.'))).toBe(true)
     expect(onCommit).toHaveBeenCalledTimes(1)
   })

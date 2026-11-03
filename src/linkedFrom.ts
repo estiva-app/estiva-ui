@@ -328,12 +328,10 @@ export function linkStateFrom<T extends LinkedSource>(
   const written = unread.url ? { url: unread.url } : {}
   if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun, ...(unread.deleted ? { deleted: true } : {}), ...written }
   if (object.unreachable) {
-    const href = object.openUrl && /^https:\/\//i.test(object.openUrl) ? object.openUrl : undefined
     return {
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
       noun: nounOf(object) || unread.noun,
-      ...(href ? { openIn: { app: object.appName ?? 'its app', href } } : {}),
       ...written,
     }
   }

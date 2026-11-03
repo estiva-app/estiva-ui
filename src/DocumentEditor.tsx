@@ -217,7 +217,7 @@ function blocksChanged(from: JSONContent, to: JSONContent): string[] {
 
 /**
  * The merge with these blocks as you typed them since the save went: changed in place, taken out where you took them
- * out, and a new one after the block it follows in your text.
+ * out, and a new one after the nearest block before it in your text that the merge still holds.
  */
 function withTypedSince(merged: JSONContent, typedNow: JSONContent, ids: readonly string[]): JSONContent {
   if (ids.length === 0) return merged
@@ -229,8 +229,11 @@ function withTypedSince(merged: JSONContent, typedNow: JSONContent, ids: readonl
   yours.forEach((block, i) => {
     const id = block.attrs?.blockId as string | undefined
     if (!id || !ids.includes(id) || content.some((child) => child.attrs?.blockId === id)) return
-    const after = yours[i - 1]?.attrs?.blockId as string | undefined
-    const at = after ? content.findIndex((child) => child.attrs?.blockId === after) + 1 : 0
+    let at = 0
+    for (let j = i - 1; j >= 0 && at === 0; j--) {
+      const before = yours[j].attrs?.blockId as string | undefined
+      at = content.findIndex((child) => child.attrs?.blockId === before) + 1
+    }
     content.splice(at, 0, block)
   })
   return { ...merged, content }

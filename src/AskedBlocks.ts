@@ -37,19 +37,27 @@ const newBar = () => {
   return bar
 }
 
-/** How far down a block its words reach, leaving out the card drawn in it; `null` when it has none to measure. */
+/**
+ * How far down a block its words reach, to the foot of their last line, leaving out the card drawn in it; `null` when
+ * it has none to measure.
+ */
 function wordsHeight(block: HTMLElement): number | null {
   const top = block.getBoundingClientRect().top
   let bottom: number | null = null
+  let glyphs = 0
   const range = document.createRange()
   const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT)
   for (let text = walker.nextNode(); text; text = walker.nextNode()) {
     if (text.parentElement?.closest('.ProseMirror-widget')) continue
     range.selectNodeContents(text)
-    const box = range.getBoundingClientRect()
-    if (box.height > 0) bottom = Math.max(bottom ?? box.bottom, box.bottom)
+    for (const box of range.getClientRects()) {
+      if (box.height > 0 && (bottom === null || box.bottom > bottom)) [bottom, glyphs] = [box.bottom, box.height]
+    }
   }
-  return bottom === null ? null : bottom - top
+  if (bottom === null) return null
+  // A line is taller than its letters: half the difference is below them, as half is above the first.
+  const line = parseFloat(getComputedStyle(block).lineHeight)
+  return bottom - top + (line > glyphs ? (line - glyphs) / 2 : 0)
 }
 
 /** Each asked block's bar as tall as its words; where nothing can be measured, as tall as the block. */
@@ -57,7 +65,7 @@ function measureWords(root: HTMLElement) {
   for (const block of root.querySelectorAll<HTMLElement>('[data-asked-block]')) {
     const bar = block.querySelector<HTMLElement>('[data-asked-bar]')
     if (!bar) continue
-    const height = typeof document.createRange().getBoundingClientRect === 'function' ? wordsHeight(block) : null
+    const height = typeof document.createRange().getClientRects === 'function' ? wordsHeight(block) : null
     const next = height === null ? '' : `${height}px`
     if (bar.style.height !== next) bar.style.height = next
   }
@@ -119,20 +127,21 @@ export const AskedBlocks = Extension.create({
           },
         },
         // The bar's height, again whenever the text, the editor's width or a card (drawn after the block) changes it.
+        // Nothing is watched or measured while no block asks: typing costs what it did.
         view(view) {
           const measure = () => measureWords(view.dom)
           const resized = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
-          const watch = () => {
-            if (!resized) return
-            resized.disconnect()
-            resized.observe(view.dom)
-            for (const block of view.dom.querySelectorAll('[data-asked-block]')) resized.observe(block)
-          }
-          watch()
+          let watched: readonly Element[] = []
           return {
             update() {
-              watch()
-              measure()
+              const asking = (askedBlocksKey.getState(view.state)?.ids.length ?? 0) > 0
+              const blocks = asking ? [...view.dom.querySelectorAll('[data-asked-block]')] : []
+              if (resized && (blocks.length !== watched.length || blocks.some((block, i) => block !== watched[i]))) {
+                resized.disconnect()
+                if (blocks.length) for (const element of [view.dom, ...blocks]) resized.observe(element)
+                watched = blocks
+              }
+              if (asking) measure()
             },
             destroy: () => resized?.disconnect(),
           }

@@ -158,7 +158,7 @@ export type LinkState =
       kind: LinkedKind
       /** What it is, in a word: "Item". */
       noun: string
-      /** Where it may still open for someone who can: the app that owns it, and its address. */
+      /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go (Miky, ALO-4's review). */
       openIn?: { app: string; href: string }
       /** Deleted, as a trusted deletion naming its address says (SPEC §13.6.1): "Issue deleted", with no way out. */
       deleted?: boolean

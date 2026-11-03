@@ -44,7 +44,9 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
  * is nothing for them to open (Miky, ALO-4's review, 3 November).
  */
 export function LinkUnavailable({ kind, noun, card = false, deleted = false }: LinkUnavailableProps) {
-  return <UnavailableRow kind={kind} words={deleted ? `${noun} deleted` : `You can't open this ${noun.toLowerCase()}`} card={card} />
+  // A word ("Issue") reads in the sentence in small letters; an app's name ("Estiva Ship") keeps its own.
+  const word = /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
+  return <UnavailableRow kind={kind} words={deleted ? `${noun} deleted` : `You can't open this ${word}`} card={card} />
 }
 
 /** The not-available row with the words it is given; `href` makes the words a link (a part that can't be shown opens its whole file). */

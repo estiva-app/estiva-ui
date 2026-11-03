@@ -224,24 +224,21 @@ describe('when it changed, and who made it', () => {
 })
 
 describe('a file the reader cannot read', () => {
-  it('is not available, and opens in its app only at an https address', () => {
+  it('says you cannot open it, with nowhere to go, even where its app names an address', () => {
     const stub: LinkedSource = { ...GROUP, unreachable: true, noun: 'group', appName: 'App one', openUrl: 'https://app.example/x' }
     render(<LinkCard link={linkStateFrom(stub, UNREAD, options())} />)
-    expect(screen.getByText(/Group not available/)).toBeTruthy()
-    expect(screen.getByRole('link', { name: /App one/ }).getAttribute('href')).toBe('https://app.example/x')
-    cleanup()
-    render(<LinkCard link={linkStateFrom({ ...stub, openUrl: 'javascript:alert(1)' }, UNREAD, options())} />)
+    expect(screen.getByText("You can't open this group")).toBeTruthy()
     expect(screen.queryByRole('link')).toBeNull()
   })
 
   it('is named by its app when its type has no name, as the record a-file-is-labelled-by-its-type-not-its-app says', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText('App one not available')).toBeTruthy()
+    expect(screen.getByText("You can't open this App one")).toBeTruthy()
   })
 
   it('reads as the address says while it loads and when nothing came back', () => {
     render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText('Record not available')).toBeTruthy()
+    expect(screen.getByText("You can't open this record")).toBeTruthy()
   })
 
   it('says it was deleted when a trusted deletion names it, and offers no way out', () => {
