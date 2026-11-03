@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -140,6 +141,42 @@ describe('ConversationCard', () => {
     expect(screen.queryByText('Words')).toBeNull()
     expect(screen.getByText('3 replies')).toBeTruthy()
   })
+
+  // Leaf's column kept it, and now every app does (Katerina, 3 November): the replies still talk about that place.
+  it('a deleted comment still says what it was on, above "This comment was deleted."', () => {
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" deleted about={<p>On the paragraph</p>} replies={{ count: 1 }}>
+        Words
+      </ConversationCard>,
+    )
+    const place = screen.getByText('On the paragraph')
+    expect(place.compareDocumentPosition(screen.getByText('This comment was deleted.')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('a delete the app refused keeps the question open and says why (Leaf’s, Katerina, 3 November)', async () => {
+    const user = userEvent.setup()
+    function Refusing() {
+      const [refused, setRefused] = useState<string>()
+      const refuse = () => {
+        setRefused('Could not delete it. Try again.')
+        return false
+      }
+      return (
+        <ConversationCard author={ONE} time="11:08 AM" own onDelete={refuse} deleteRefused={refused}>
+          Words
+        </ConversationCard>
+      )
+    }
+    render(<Refusing />)
+    await point(user, 'Words')
+    press('More actions')
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    const question = await screen.findByRole('alertdialog')
+    expect(within(question).queryByRole('alert')).toBeNull()
+    await user.click(within(question).getByRole('button', { name: 'Delete comment' }))
+    expect((await within(question).findByRole('alert')).textContent).toBe('Could not delete it. Try again.')
+    expect(screen.getByRole('alertdialog')).toBe(question)
+  })
 })
 
 describe('ReplyCard', () => {
@@ -156,6 +193,19 @@ describe('ReplyCard', () => {
     await user.click(await screen.findByRole('menuitem', { name: 'Delete' }))
     await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Delete reply' }))
     expect(onDelete).toHaveBeenCalledOnce()
+  })
+
+  it('a delete the app refused says why, as a comment’s does', async () => {
+    const user = userEvent.setup()
+    render(
+      <ReplyCard author={ONE} time="11:40 AM" own onDelete={() => false} deleteRefused="Could not delete it. Try again.">
+        A reply
+      </ReplyCard>,
+    )
+    await point(user, 'A reply')
+    press('More actions')
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    expect(within(await screen.findByRole('alertdialog')).getByRole('alert').textContent).toBe('Could not delete it. Try again.')
   })
 })
 

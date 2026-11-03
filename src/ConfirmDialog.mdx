@@ -45,6 +45,8 @@ import { ConfirmDialog } from '@estiva-app/ui'
 )}
 ```
 
+- `refused` says why the last confirm was refused (`onConfirm` answered
+  `false`): the error line under your words, while the question stays open.
 - `alternative` is `{ label, sentence, onClick }`. Its button sits under its
   sentence, after your words, and waits while the confirm runs, as Cancel does.
   It closes nothing: open what it leads to, and that takes this one's place.

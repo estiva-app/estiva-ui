@@ -31,4 +31,13 @@ describe('QuotedLine', () => {
     expect(screen.getByText('Picture: plan-sketch.png')).toBeTruthy()
     expect(container.querySelector('[data-quoted="part"]')).not.toBeNull()
   })
+
+  // Yellow means "these words are in the page"; a block's name is not (Katerina, 3 November: grey, not yellow).
+  it('draws a part’s name on the grey, never the page’s yellow', () => {
+    render(<QuotedLine label="On the paragraph" />)
+    const mark = screen.getByText('On the paragraph')
+    expect(mark.className).not.toMatch(/\bbg-warning-muted\b/)
+    expect(mark.className).toMatch(/\bbg-bg-inset\b/)
+    expect(mark.className).not.toMatch(/\bline-through\b/)
+  })
 })

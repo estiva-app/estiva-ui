@@ -57,10 +57,21 @@ describe('LinkChip', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  it('says “not available” in words, and leads nowhere', () => {
+  // Changed on purpose (Katerina, 3 November): the chip says what a row and a card say since 0.102.0, one wording everywhere.
+  it('says “You can’t open this issue” in words, as a row and a card do, and leads nowhere', () => {
     render(<LinkChip link={UNAVAILABLE} />)
-    expect(screen.getByText('Issue not available')).toBeTruthy()
+    expect(screen.getByText("You can't open this issue")).toBeTruthy()
     expect(screen.queryByRole('link')).toBeNull()
+  })
+
+  it('names where an app-named file lives, as a row does: “You can’t open this file in Peek”', () => {
+    render(<LinkChip link={{ state: 'unavailable', kind: 'file', noun: 'Peek', named: true }} />)
+    expect(screen.getByText("You can't open this file in Peek")).toBeTruthy()
+  })
+
+  it('a read that failed says “Couldn’t load this issue”, as a row does', () => {
+    render(<LinkChip link={{ state: 'unavailable', kind: 'issue', noun: 'Issue', failed: true }} />)
+    expect(screen.getByText("Couldn't load this issue")).toBeTruthy()
   })
 
   it('is a label, not a link, for a file with no address to open', () => {

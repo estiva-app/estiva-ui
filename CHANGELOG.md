@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.103.0 — 2026-11-03
+
+What Leaf's comment column did by hand that the kit could not, before Leaf takes the one conversation (ONE-5), and two
+rulings from Leaf's adoption page (Katerina, 3 November). New options are optional: an app that passes nothing new
+sees nothing change, except the four lines under Changed and Fixed.
+
+### Added
+
+- **`CommentBox` `about`** (type `BoxAbout`): a strip above the box naming what the new comment will be on, the
+  `about` the posted card will carry (a `QuotedLine`, the app's words for a block), on the inset fill, with ✕ in it in
+  the app's words ("Comment on the whole page instead"). 36px tall, 8px above the box. Leaf's "On “words”" and Ship's
+  block note were each made by hand. Not drawn on an edit or a closed box.
+- **`deleteRefused`** on `ConversationCard` and `ReplyCard`, and **`refused`** on `ConfirmDialog`: why the last delete
+  was refused, in the error line under the question while it stays open (`onDelete` answered `false`), as
+  `ResolveDialog`'s `refused` is said under its field. Before, the question stayed open and said nothing.
+
+### Changed
+
+- **A deleted comment keeps its `about`**: what it was on stays above "This comment was deleted.", 4px over it, so its
+  replies still read against their place (Leaf's column did; now every app). An app that passes `about` on a deleted
+  comment sees it; before, the kit hid it.
+- **`LinkChip`, for a link it can't open, says what a row and a card say**: "You can't open this file", "Couldn't load
+  this issue", "You can't open this file in Peek", not "File not available". Leaf showed both wordings after taking
+  0.102. One function writes them for row, card and chip.
+- **`QuotedLine`'s `label`** (a part with no words: a block, a picture) is on the grey, not the page's yellow: the
+  yellow means "these words are in the page", and a name is not. Words still in the page stay yellow, on a deleted
+  comment too.
+
+### Fixed
+
+- **A long section title stays on one line**, cut short with "…": `SectionHeader`'s heading look (NavTree's groups,
+  `CollapsibleSection`) let it wrap, so a Folder named by its id ran onto three lines and out of its 32px row
+  (Katerina, 3 November, in Peek). Its quiet and row looks, and `NavItem`, already cut it. A title that fits is drawn
+  exactly as before.
+
 ## 0.102.2 — 2026-11-03
 
 ### Changed

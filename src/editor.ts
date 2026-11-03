@@ -18,6 +18,7 @@ export {
   type CommentBoxEdit,
   type BoxFile,
   type BoxFileState,
+  type BoxAbout,
   type BoxUnder,
   type BoxUnderRead,
   type BoxSentUnder,

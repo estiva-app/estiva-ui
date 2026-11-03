@@ -69,6 +69,12 @@ export const DeleteAComment: Story = {
   args: { title: 'Delete this comment?', confirmLabel: 'Delete comment', children: 'Its 2 replies stay.' },
 }
 
+/** A delete that was refused: the question stays, and the error line under its words says why (`refused`; Leaf's, 3 November). */
+export const DeleteRefused: Story = {
+  name: 'Delete refused',
+  args: { title: 'Delete this comment?', confirmLabel: 'Delete comment', children: 'Its reply stays.', refused: 'Could not delete it. Try again.' },
+}
+
 /** Before a reply is deleted. The question a `ReplyCard` asks. */
 export const DeleteAReply: Story = {
   name: 'Delete a reply',

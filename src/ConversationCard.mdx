@@ -61,6 +61,8 @@ import { ConversationCard } from '@estiva-app/ui'
 - **The words are yours to draw**: text, people named, links, attached cards and quoted blocks, with **RichText** and the link parts. The card gives them their size and colour.
 - **Edit opens your box**: `editor` draws your **CommentBox** edit form; call `done` when it saves or cancels. To open it again after a refused save, hold `editing` yourself.
 - **Resolve opens the dialog**: **ResolveDialog**, then `onResolve(note)`. Answer `false` when it was refused; the dialog stays.
+- **Delete asks first**: **ConfirmDialog**, then `onDelete()`. Answer `false` when it was refused, and pass `deleteRefused` (why, in plain words): the question stays and says it, as Resolve's does.
+- **Deleted** keeps its `about`: what it was on stays above "This comment was deleted.", for the replies under it.
 - `time` is your words for it ("11:08 AM"); `at` is the moment (ms), from which the card says the exact date and time on hover. Never a tooltip of your own round `time`.
 - A press on the card is `onClick` (its thread opens); a press on a button, a link or anything marked `data-interactive` inside it is not.
 - The strip shows while the card is pointed at or has focus, and holds while its reactions or its menu are open.

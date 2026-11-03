@@ -49,6 +49,13 @@ describe('SectionHeader', () => {
     expect(screen.queryByRole('button')).toBeNull()
     expect(screen.getByText('Section')).not.toBeNull()
   })
+
+  // A Folder named by its id ran onto two lines in the sidebar (Katerina, 3 November). Chrome draws the cut (the NavTree story).
+  it.each(['heading', 'quiet', 'row'] as const)('a long title stays on one line, cut short, in the %s look', (look) => {
+    const name = '0f3c9a12-5b7e-4d21-9c8a-6e2f1b4d7a90'
+    render(<SectionHeader title={name} chevron look={look} />)
+    expect(screen.getByText(name).className.split(' ')).toEqual(expect.arrayContaining(['min-w-0', 'truncate']))
+  })
 })
 
 /**

@@ -1,7 +1,7 @@
 /**
  * A link in running text: the icon (or the author's face, for words a person
  * wrote), the key, the title cut short, the status as its shape. Loading
- * keeps the icon, since the kind is known from the address; not available says
+ * keeps the icon, since the kind is known from the address; one it can't open says
  * so in words. Hovering it shows its card; a tap opens it.
  *
  * Look C (Katerina, 29 Oct): the key a step lighter than LinkKey's muted grey
@@ -14,7 +14,7 @@ import type { LinkState } from './linked'
 import { chosenOf } from './linked'
 import { LinkedIcon, LinkKey, StatusMark } from './LinkParts'
 import { LinkPreview } from './LinkPreview'
-import { WrittenUrl } from './LinkRow'
+import { unavailableWords, WrittenUrl } from './LinkRow'
 import { SkeletonBar } from './Skeleton'
 
 export interface LinkChipProps {
@@ -35,8 +35,9 @@ export function LinkChip({ link, preview = true }: LinkChipProps) {
     // Written as a URL, it stays that URL (SPEC §13.1); only a `nostr:` reference says why it is not shown.
     if (link.url) return <WrittenUrl url={link.url} />
     return (
+      // A row's and a card's words, one wording everywhere (Katerina, 3 November).
       <InlineChip tone="muted" icon={<LinkedIcon kind={link.kind} size={14} tone="inherit" />}>
-        {link.noun} {link.deleted ? 'deleted' : 'not available'}
+        {unavailableWords(link.noun, { named: link.named, deleted: link.deleted, failed: link.failed })}
       </InlineChip>
     )
   }

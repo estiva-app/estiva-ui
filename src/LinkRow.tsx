@@ -50,10 +50,14 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
  * access (Miky, 3 November).
  */
 export function LinkUnavailable({ kind, noun, named = false, card = false, deleted = false, failed = false }: LinkUnavailableProps) {
+  return <UnavailableRow kind={kind} words={unavailableWords(noun, { named, deleted, failed })} card={card} />
+}
+
+/** What a link that can't be opened says, row, card and chip alike: "You can't open this issue", "Couldn't load this issue", "Issue deleted". */
+export function unavailableWords(noun: string, { named = false, deleted = false, failed = false }: { named?: boolean; deleted?: boolean; failed?: boolean } = {}): string {
   // A word ("Issue") reads in the sentence in small letters; an app's name is where the file lives: "file in Peek".
   const word = named ? `file in ${noun}` : /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
-  const words = deleted ? `${named ? `File in ${noun}` : noun} deleted` : failed ? `Couldn't load this ${word}` : `You can't open this ${word}`
-  return <UnavailableRow kind={kind} words={words} card={card} />
+  return deleted ? `${named ? `File in ${noun}` : noun} deleted` : failed ? `Couldn't load this ${word}` : `You can't open this ${word}`
 }
 
 /** The not-available row with the words it is given; `href` makes the words a link (a part that can't be shown opens its whole file). */

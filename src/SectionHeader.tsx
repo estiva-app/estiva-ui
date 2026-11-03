@@ -189,7 +189,10 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
             // A row's words: NavItem's size and colour, brightening under the pointer with the row.
             <span className="min-w-0 flex-1 truncate text-body-2">{title}</span>
           ) : (
-            <SectionLabel folds={chevron}>{title}</SectionLabel>
+            // One line, as the other looks and a NavItem's label: a Folder named by its id ran onto two (Katerina, 3 November).
+            <SectionLabel folds={chevron} truncate>
+              {title}
+            </SectionLabel>
           )}
           {/* 8px after the title with the 4px gap, in a row's count style. */}
           {count != null && <span className={cn('ml-1 shrink-0', COUNT_TEXT_CLASSES)}>{count}</span>}

@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { Button, type ButtonAction } from './Button'
 import { DialogShell } from './DialogShell'
+import { FieldLine } from './Field'
 
 /**
  * A question with two answers — three, with a safer `alternative` — before something a person would want back —
@@ -38,9 +39,14 @@ export interface ConfirmDialogProps {
    * It closes nothing: what it opens takes this question's place.
    */
   alternative?: ConfirmDialogAlternative
+  /**
+   * Why the last confirm was refused, in plain words: said under the words, in the error line, while the question
+   * stays open (`onConfirm` answered `false`), as `ResolveDialog`'s `refused` is said under its field.
+   */
+  refused?: string
 }
 
-export function ConfirmDialog({ title, children, confirmLabel, destructive = false, onConfirm, onClose, alternative }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, children, confirmLabel, destructive = false, onConfirm, onClose, alternative, refused }: ConfirmDialogProps) {
   const [busy, setBusy] = useState(false)
   // Closed while the action ran (Escape, the ✕): the action that then goes through does not close it a second time.
   const closed = useRef(false)
@@ -77,6 +83,7 @@ export function ConfirmDialog({ title, children, confirmLabel, destructive = fal
       {/* The words' look on a box of the dialog's own, not pushed into DialogShell's body (UIG-9). */}
       <div className="flex flex-col gap-3 text-body-2 text-text-primary">
         {children}
+        {refused && <FieldLine tone="error">{refused}</FieldLine>}
         {/* Its sentence and its button one block, 8px apart, as Peek's delete question drew them. */}
         {alternative && (
           <div className="flex flex-col items-start gap-2">
