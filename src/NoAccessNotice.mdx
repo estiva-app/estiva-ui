@@ -1,0 +1,43 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './NoAccessNotice.stories'
+
+<Meta of={Stories} />
+
+# NoAccessNotice
+
+What a link to a file you can't read shows: "You can't open this …", and no title.
+
+<Canvas of={Stories.Page} />
+
+## When
+
+- `page`: where the link opens. The page holds the line alone.
+- `card`: where a message draws the card of what it names.
+
+<Canvas of={Stories.InACard} />
+
+## When not
+
+- A file that was deleted → **DeletedNotice**, which says who deleted it.
+- A page with nothing in it yet → **EmptyState**.
+
+## How
+
+```tsx
+import { NoAccessNotice } from '@estiva-app/ui'
+
+<NoAccessNotice what="page" />
+<NoAccessNotice what="page" place="card" />
+```
+
+- `what` is the kind of file, in the app's words. Never pass its title: the line exists so a link tells someone who can't read the file nothing about it.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The line, its lock and its place, the same in every app | the sentence |  |
+
+## Props
+
+<Controls />

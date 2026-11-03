@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.101.0",
-    "exports": 243,
-    "typeExports": 249,
+    "packageVersion": "0.102.0",
+    "exports": 245,
+    "typeExports": 252,
     "files": null
   },
   "storybook": {
@@ -3317,6 +3317,44 @@
       "looks": []
     },
     {
+      "name": "DeletedNotice",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/DeletedNotice.tsx",
+      "purpose": "The card a link to a deleted file opens on: who deleted it and when, and Restore.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "by",
+          "takes": "text",
+          "required": true,
+          "note": "Who deleted it, in the app's words: \"You\", a name."
+        },
+        {
+          "name": "when",
+          "takes": "text",
+          "required": true,
+          "note": "When, in the app's words, with its day: \"Today\", \"Mon, Nov 2\"."
+        },
+        {
+          "name": "onRestore",
+          "takes": "a handler",
+          "required": false,
+          "note": "Bring it back; the button waits for it. Absent for someone who may not edit it: the card offers nothing."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "status-feedback-deletednotice--docs",
+      "storyId": "status-feedback-deletednotice--deleted",
+      "docPage": "src/DeletedNotice.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "deleteTableColumn",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -3578,6 +3616,12 @@
           "takes": "a handler",
           "required": true,
           "note": "Save. Called when you leave, never while typing, with the text, its format, and the saved text this edit started from — so the app can tell whom the save names anew."
+        },
+        {
+          "name": "merges",
+          "takes": "true/false",
+          "required": false,
+          "note": "Your saves are merged with someone else's (the app merges them by blocks): a newer save arriving while you are in the editor waits with no line, and leaving saves yours merged onto it."
         },
         {
           "name": "label",
@@ -7564,6 +7608,46 @@
       "docsId": "app-frame-navtree--docs",
       "storyId": "app-frame-navtree--default",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "NoAccessNotice",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/NoAccessNotice.tsx",
+      "purpose": "What a link to a file you can't read shows: \"You can't open this …\", and no title.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "what",
+          "takes": "text",
+          "required": true,
+          "note": "What the link names, in the app's words: \"project\", \"page\"."
+        },
+        {
+          "name": "place",
+          "takes": "page | card",
+          "required": false,
+          "note": "`page` where the link opens; `card` where a message draws the card of what it names."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "place",
+          "values": [
+            "page",
+            "card"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "status-feedback-noaccessnotice--docs",
+      "storyId": "status-feedback-noaccessnotice--page",
+      "docPage": "src/NoAccessNotice.mdx",
       "app": null,
       "looks": []
     },

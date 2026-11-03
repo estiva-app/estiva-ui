@@ -1,0 +1,43 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './DeletedNotice.stories'
+
+<Meta of={Stories} />
+
+# DeletedNotice
+
+The card a link to a deleted file opens on: who deleted it and when, and Restore.
+
+<Canvas of={Stories.Deleted} />
+
+## When
+
+- At the top of a deleted file's page, under its title, where a link to it opens. A deleted file is gone from lists and search; a link still opens it.
+- For someone who may only read it: the line alone.
+
+<Canvas of={Stories.ReadOnly} />
+
+## When not
+
+- An archived file → **ArchivedNotice**, the same card in the same words.
+- A file the person cannot read at all → **NoAccessNotice**: no title, nothing about it.
+
+## How
+
+```tsx
+import { DeletedNotice } from '@estiva-app/ui'
+
+<DeletedNotice by={name} when={day} onRestore={canEdit ? restore : undefined} />
+```
+
+- Give `when` its day, in the app's words: "Today", "Mon, Nov 2".
+- Leave out `onRestore` for someone who may not edit it: the card offers nothing.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Waits for Restore's answer, and ignores a second press meanwhile | a busy state |  |
+
+## Props
+
+<Controls />

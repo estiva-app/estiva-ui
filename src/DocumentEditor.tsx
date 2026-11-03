@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react'
+// @estiva-escape(estiva/no-hand-rolled-behaviour): "Your version" is drawn into the text, in the slot ProseMirror's decoration places at its block's end; nothing floats, so no Base UI part has it.
+import { createPortal } from 'react-dom'
 import type { AnyExtension } from '@tiptap/core'
 import { TextSelection } from '@tiptap/pm/state'
 import { EditorContent, useEditor, useEditorState, type Editor, type JSONContent } from '@tiptap/react'
 import { TableKit } from '@tiptap/extension-table'
-import { IconMessagePlus } from '@tabler/icons-react'
+import { IconCheck, IconCopy, IconMessagePlus } from '@tabler/icons-react'
+import { ASKED_BLOCK_CLASSES, AskedBlocks, blockAt, setAskedBlocks, type AskedSlot } from './AskedBlocks'
 import type { HandleBlock } from './BlockHandle'
 import { AttachmentNode, BlockId, Callout, Checklist, ReferenceNode, UnknownBlock, isChecklistTick, type AttachmentViewProps, type ReferenceViewProps } from './BlockNodes'
 import { Button } from './Button'
+import { Card } from './Card'
 import { cn } from './cn'
 import { CodeBlockColours } from './CodeBlockColours'
 import { CommentHighlights, anchorOfSelection, type SelectionAnchor } from './CommentHighlights'
@@ -23,6 +27,7 @@ import { LinkPlaces } from './LinkPlaces'
 import { EDITOR_SELECTION_CLASSES } from './looks'
 import { ReferenceMenu, ReferenceMenuView, isReferenceMenuOpen } from './ReferenceMenu'
 import { richTextClassName } from './RichText'
+import { SectionLabel } from './SectionLabel'
 import { KeptSelection, SelectionToolbar } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
 
@@ -88,9 +93,16 @@ export interface DocumentEditorProps {
   /**
    * Save. Called when you leave, never while typing, with the text, its format,
    * and the saved text this edit started from — so the app can tell whom the
-   * save names anew. Answer whether it was saved.
+   * save names anew. Answer whether it was saved, or, when someone changed a
+   * block you changed too, what asks ({@link DocumentAsks}).
    */
-  onCommit: (value: string, contentFormat: string | undefined, editedFrom: string) => Promise<boolean> | boolean
+  onCommit: (value: string, contentFormat: string | undefined, editedFrom: string) => Promise<boolean | DocumentAsks> | boolean | DocumentAsks
+  /**
+   * Your saves are merged with someone else's (the app merges them by blocks):
+   * a newer save arriving while you are in the editor waits with no line, and
+   * leaving saves yours merged onto it. Without it, the line with Load it.
+   */
+  merges?: boolean
   /** The editor's accessible name. */
   label: string
   /** Muted words over an empty editor. */
@@ -135,6 +147,81 @@ export interface DocumentEditorProps {
   extensions?: readonly AnyExtension[]
 }
 
+/**
+ * A save refused because someone changed a block you changed too, merged as far
+ * as it goes. Nothing of yours is saved until every block that asks is chosen.
+ */
+export interface DocumentAsks {
+  /** The text to hold now, unsaved: theirs, with every change of yours that did not clash in it, and their words in each block that asks. */
+  value: string
+  /** Their saved text, which `value` follows: the next save's `editedFrom`. */
+  theirs: string
+  /** Your text as you saved it: "Your version" of each block is read from it. */
+  mine: string
+  /** The ids of the blocks that ask: changed by both, or changed by one and deleted by the other. */
+  blocks: readonly string[]
+  /** The text changed since this page was opened, and the app could not merge it: said above the text. */
+  sinceOpened?: boolean
+}
+
+const isAsks = (answer: boolean | DocumentAsks): answer is DocumentAsks => typeof answer === 'object' && answer !== null
+
+/** The node of the block with this id in a document of the editor's, or `null` when it holds none. */
+function blockOf(doc: JSONContent, id: string): JSONContent | null {
+  if (doc.attrs?.blockId === id) return doc
+  for (const child of doc.content ?? []) {
+    const found = blockOf(child, id)
+    if (found) return found
+  }
+  return null
+}
+
+/** The words of a block of the editor's document, as "Your version" shows them. */
+const wordsOf = (node: JSONContent): string => (node.text ?? '') + (node.content ?? []).map(wordsOf).join(node.type === 'doc' ? '\n' : '')
+
+/** What the editor holds while blocks ask. */
+interface Asking {
+  blocks: readonly string[]
+  mine: JSONContent
+  theirs: JSONContent
+  sinceOpened: boolean
+}
+
+/**
+ * Your version, beside the block you both changed. Use mine puts yours in its place; Copy puts yours on the clipboard
+ * and keeps it here, so you can paste it and still choose; Dismiss keeps theirs. None of them takes focus from the text.
+ */
+function YourVersion({ words, onUseMine, onDismiss }: { words: string; onUseMine: () => void; onDismiss: () => void }) {
+  const [copied, setCopied] = useState(false)
+  const keep = (event: { preventDefault: () => void }) => event.preventDefault()
+  return (
+    <Card fill="inset" className="flex flex-col gap-2 p-3" data-your-version="">
+      <SectionLabel>Your version</SectionLabel>
+      <p className="whitespace-pre-wrap text-body-2 text-text-primary">{words}</p>
+      <div className="flex flex-wrap items-center gap-1">
+        <Button variant="outlined" size="small" onMouseDown={keep} onClick={onUseMine}>
+          Use mine
+        </Button>
+        <Button
+          variant="muted"
+          size="small"
+          leadingIcon={copied ? <IconCheck size={14} stroke={1.5} /> : <IconCopy size={14} stroke={1.5} />}
+          onMouseDown={keep}
+          onClick={() => {
+            void navigator.clipboard?.writeText(words).catch(() => undefined)
+            setCopied(true)
+          }}
+        >
+          {copied ? 'Copied' : 'Copy'}
+        </Button>
+        <Button variant="muted" size="small" onMouseDown={keep} onClick={onDismiss}>
+          Dismiss
+        </Button>
+      </div>
+    </Card>
+  )
+}
+
 /** The editor's own document held for this place when the sign-in ended, block ids and all; `null` when none. */
 function heldDocument(hold: HeldTyping | undefined, key: string | undefined): JSONContent | null {
   const text = hold && key ? hold.text(key) : undefined
@@ -160,18 +247,26 @@ function heldDocument(hold: HeldTyping | undefined, key: string | undefined): JS
  *   While you are in it, it waits, and a line says who saved a newer version,
  *   with "Load it"; leaving with a change saves yours over it — the later save
  *   wins (Miky, LEAF-3's kickoff and 13 October). Your own save coming back is
- *   never mistaken for someone else's.
+ *   never mistaken for someone else's. With `merges`, no line: leaving merges
+ *   yours onto theirs.
+ * - **A block you both changed asks** (`onCommit` answers {@link DocumentAsks}):
+ *   their words are in the text, marked at the block's edge, and yours sit
+ *   beside it with Use mine, Copy and Dismiss. Nothing is saved until every
+ *   block is chosen; the last choice saves. Leaving before that saves nothing
+ *   and goes to `onLeftUnsaved`.
  * - **The sign-in ending** holds what was typed (`hold`), and the editor opens
  *   with it, unsaved, after the passkey tap.
  *
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/every-app-edits-a-document-with-one-shared-editor.md
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/the-block-editor-kit-lives-in-protocol-and-ui.md
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/merging-two-changes-to-one-text-never-loses-words.md
  */
 export function DocumentEditor({
   value,
   format,
   codec,
   onCommit,
+  merges = false,
   label,
   placeholder,
   readOnly = false,
@@ -240,11 +335,53 @@ export function DocumentEditor({
   */
   const picking = useRef(false)
   const picker = useRef<HTMLInputElement>(null)
+  // Blocks a refused save asks about: nothing is saved until each is chosen. The ref is for the callbacks.
+  const [asking, setAsking] = useState<Asking | null>(null)
+  const askingNow = useRef<Asking | null>(null)
+  const ask = (next: Asking | null) => {
+    askingNow.current = next
+    setAsking(next)
+  }
+  // The editor, for the callbacks made before it is.
+  const current = useRef<Editor | null>(null)
+  // Where each asking block's "Your version" is drawn: elements the editor's decorations place beside and under the block.
+  const slots = useRef(new Map<string, HTMLElement>())
+  const slotOf = useCallback((id: string, where: AskedSlot) => {
+    const key = `${id} ${where}`
+    let slot = slots.current.get(key)
+    if (!slot) {
+      slot = document.createElement('span')
+      slot.className = ASKED_BLOCK_CLASSES[where]
+      slot.contentEditable = 'false'
+      slots.current.set(key, slot)
+    }
+    return slot
+  }, [])
+
+  /*
+    The save asked: theirs is the saved text now, and the editor holds the
+    merge, unsaved, with their words in each block that asks. A value still
+    holding what this save replaced is not someone else's.
+  */
+  const askAbout = (answer: DocumentAsks, replaced: string) => {
+    const { codec: words, format: written } = latest.current
+    const held = words.read(answer.value, written)
+    saved.current = answer.theirs
+    shown.current = answer.theirs
+    setSuperseded(replaced)
+    setBase(answer.theirs)
+    const editor = current.current
+    if (editor && !editor.isDestroyed) editor.commands.setContent(held, { emitUpdate: false })
+    typed.current = held
+    ask({ blocks: answer.blocks, mine: words.read(answer.mine, written), theirs: words.read(answer.theirs, written), sinceOpened: !!answer.sinceOpened })
+  }
 
   const save = useCallback(
     async (doc: JSONContent | null) => {
       // Read only: a box ticked in a node view is not a save. After an ending the text is held, and a save would be refused.
       if (!doc || readOnly || ended()) return
+      // Blocks ask: nothing of yours is saved until each is chosen.
+      if (askingNow.current) return
       // A change made while a save is out goes next, not nowhere.
       if (committing.current) {
         again.current = true
@@ -258,7 +395,18 @@ export function DocumentEditor({
       const replaced = latest.current.value
       const editedFrom = saved.current
       try {
-        const ok = await onCommit(next.value, next.contentFormat, editedFrom)
+        const answer = await onCommit(next.value, next.contentFormat, editedFrom)
+        if (isAsks(answer)) {
+          // Closed meanwhile: there is no text left to choose in, and nothing was saved.
+          if (left.current) {
+            if (!ended()) latest.current.onLeftUnsaved?.()
+          } else {
+            askAbout(answer, replaced)
+            setFailed(false)
+          }
+          return
+        }
+        const ok = answer
         if (ok) {
           // The editor already shows it, and may hold more typed since: `shown` keeps the effect below from setting it.
           saved.current = next.value
@@ -283,7 +431,7 @@ export function DocumentEditor({
       } finally {
         committing.current = false
         setSaving(false)
-        if (again.current) {
+        if (again.current && !askingNow.current) {
           again.current = false
           // After an ending it is held for after the tap, and a save would only be refused. Only a change: leaving
           // while a blur's save is out asks again for the same text, and a refused one would be sent and said twice.
@@ -414,11 +562,11 @@ export function DocumentEditor({
   */
   const arrived = value !== base && value !== superseded && !own.current.has(value)
   // Read only, there is nothing of yours to keep: theirs loads even while you select words to comment on.
-  if (arrived && (readOnly || (!focused && !saving && !failed && !restored))) {
+  if (arrived && (readOnly || (!focused && !saving && !failed && !restored && !asking))) {
     own.current.clear()
     setBase(value)
   }
-  const waiting = arrived && !readOnly && (focused || failed || restored)
+  const waiting = arrived && !readOnly && (focused || failed || restored || !!asking)
 
   // The text the editor should hold, set into it when it changes — never under your own typing, which `shown` already holds.
   useEffect(() => {
@@ -444,23 +592,58 @@ export function DocumentEditor({
   }
 
   // Closing saves on the way out. Not when the sign-in ended: the save would be refused and reported as lost over
-  // the passkey screen, and the text is held on the device instead.
+  // the passkey screen, and the text is held on the device instead. Not while blocks ask: nothing is saved until chosen.
   useEffect(
     () => () => {
       left.current = true
-      if (!ended()) void latestSave.current(typed.current)
+      if (ended()) return
+      if (askingNow.current) latest.current.onLeftUnsaved?.()
+      else void latestSave.current(typed.current)
     },
     [],
   )
 
   useEffect(() => {
+    current.current = editor
     onEditor?.(editor)
     return () => onEditor?.(null)
   }, [editor, onEditor])
 
+  // The blocks that ask, drawn in the text; none once every one is chosen.
+  const askedIds = asking?.blocks
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) setAskedBlocks(editor, askedIds ?? [], slotOf)
+  }, [editor, askedIds, slotOf])
+
+  /*
+    One block chosen: yours or theirs in its place, or the block gone when the
+    one chosen deleted it. The last choice saves, after their text.
+  */
+  const choose = (id: string, side: 'mine' | 'theirs') => {
+    const now = askingNow.current
+    if (!editor || editor.isDestroyed || !now) return
+    const chosen = blockOf(side === 'mine' ? now.mine : now.theirs, id)
+    const at = blockAt(editor.state.doc, id)
+    if (at) {
+      const end = at.pos + at.node.nodeSize
+      const tr = chosen ? editor.state.tr.replaceWith(at.pos, end, editor.schema.nodeFromJSON(chosen)) : editor.state.tr.delete(at.pos, end)
+      editor.view.dispatch(tr)
+    }
+    typed.current = editor.getJSON()
+    const rest = now.blocks.filter((block) => block !== id)
+    if (rest.length > 0) {
+      ask({ ...now, blocks: rest })
+      return
+    }
+    ask(null)
+    slots.current.clear()
+    void latestSave.current(typed.current)
+  }
+
   const who = changedBy?.name ?? 'Someone'
   const drawn = (
     <div className="flex flex-col gap-1">
+      {asking?.sinceOpened && <FieldLine tone="helper">This page changed since you opened it.</FieldLine>}
       <EditorBlockHandle editor={editor} actions={blockRows}>
         {/* A table's handles and ➕ bars while you point at it; the block handle stays the table's. */}
         <EditorTableControls editor={editor}>
@@ -498,7 +681,16 @@ export function DocumentEditor({
       <ReferenceMenuView editor={editor} />
       {/* Always there, so `/` → File, made as the editor opened, has a dialog to open even if `upload` came and went. */}
       <FilePicker ref={picker} multiple onPick={(files) => void attach(files)} />
-      {waiting && (
+      {asking?.blocks.flatMap((id) => {
+        const mine = blockOf(asking.mine, id)
+        const card = <YourVersion words={mine ? wordsOf(mine) : 'You deleted this block.'} onUseMine={() => choose(id, 'mine')} onDismiss={() => choose(id, 'theirs')} />
+        // Beside the words, and under them at phone width: one is shown at a time (`ASKED_BLOCK_CLASSES`).
+        return (['beside', 'under'] as const).map((where) =>
+          // @estiva-escape(estiva/no-hand-rolled-behaviour): into the block's slot in the text (AskedBlocks), not a floating panel.
+          createPortal(card, slotOf(id, where), `${id} ${where}`),
+        )
+      })}
+      {waiting && !merges && (
         <FieldLine tone="helper">
           {`${who} saved a newer version.`}{' '}
           {/* Pressing it must not take focus from the editor: that blur would save yours over theirs first. */}
@@ -568,6 +760,8 @@ export function documentExtensions({ latest, references, mentions, linkChips, ta
     CodeBlockColours,
     TableKit.configure({ table: { resizable: false } }),
     BlockId,
+    // A block a refused save asks about, drawn so a save never carries it.
+    AskedBlocks,
     Checklist,
     Callout,
     // A link is being edited only while the caret is on its line: anywhere else on the page it previews on hover.

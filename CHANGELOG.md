@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.102.0 — 2026-11-03
+
+What an editor shows when two people changed one text at once, and what a link to a deleted file or one you can't read
+opens on, from the approved story *Project changes* (Miky, 2 November; ALO-4). Optional: an app that passes nothing
+new sees nothing change, Ship, Leaf and Peek included.
+
+### Added
+
+- **`DocumentEditor`'s asks.** `onCommit` may answer `DocumentAsks` (`{ value, theirs, mine, blocks, sinceOpened? }`)
+  where the app merged a refused save by blocks and a block both people changed asks. The editor holds `value`
+  unsaved, marks each block that asks with a bar at its edge, and draws "Your version" beside it (under it at phone
+  width) with Use mine, Copy and Dismiss. Nothing is saved until every block is chosen; the last choice saves after
+  `theirs`. Leaving first saves nothing and calls `onLeftUnsaved`. `sinceOpened` adds "This page changed since you
+  opened it." above the text. Text typed while the refused save was out is replaced by `value`.
+- **`DocumentEditor`'s `merges`**: a newer save arriving while you are in the editor waits with no Load it line, and
+  leaving saves yours to be merged onto it.
+- **`DeletedNotice`**: `ArchivedNotice`'s card for a deleted file — "Deleted by … · date", and Restore for someone
+  who may edit it, waiting for its answer.
+- **`NoAccessNotice`**: "You can't open this …", with no title, where a link opens (`page`) or in a message's card
+  (`card`).
+
 ## 0.101.0 — 2026-11-03
 
 A dot on an icon button, for Ship's "Show comments" while its comments column is hidden and holds something new

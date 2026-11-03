@@ -212,6 +212,132 @@ describe("someone else's save", () => {
     await settle()
     expect(screen.queryByText('Person two saved a newer version.')).toBeNull()
   })
+
+  it('with merges, waits with no line: leaving saves yours to be merged onto it', async () => {
+    const onCommit = vi.fn(async () => true)
+    const { rerender } = render(<Doc merges onCommit={onCommit} />)
+    await type(' mine')
+    rerender(<Doc merges onCommit={onCommit} value={doc(para('a1', 'Their line'))} changedBy={{ name: 'Person two' }} />)
+    await settle()
+    expect(screen.queryByText(/saved a newer version/)).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Load it' })).toBeNull()
+    expect(editorOf().getText()).toBe('First line mine')
+    await leave()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('a block you both changed', () => {
+  // You and they started from the same text; they saved first.
+  const START = doc(para('b1', 'One as written.'), para('b2', 'Two as written.'), para('b3', 'Three as written.'))
+  const THEIRS = doc(para('b1', 'One as written.'), para('b2', 'Two: their words.'), para('b3', 'Three: theirs too.'))
+  const MINE = doc(para('b1', 'One: my words.'), para('b2', 'Two: my words.'), para('b3', 'Three as written.'))
+  // The app's merge as far as it goes: your first block in, their third, and their words in the second, which asks.
+  const HELD = doc(para('b1', 'One: my words.'), para('b2', 'Two: their words.'), para('b3', 'Three: theirs too.'))
+  const asks = (extra: object = {}) => ({ value: HELD, theirs: THEIRS, mine: MINE, blocks: ['b2'], ...extra })
+
+  /** You change the first two blocks and leave; the save asks. */
+  async function saveThatAsks(onCommit: DocumentEditorProps['onCommit'], props: Partial<DocumentEditorProps> = {}) {
+    const view = render(<Doc value={START} onCommit={onCommit} {...props} />)
+    await act(async () => {
+      const editor = editorOf()
+      editor.commands.setContent(codec.read(MINE, 'blocks'))
+    })
+    await leave()
+    await settle()
+    return view
+  }
+  const textNow = () => editorOf().getText({ blockSeparator: '|' })
+  const yourVersion = () => document.querySelector('[data-your-version]') as HTMLElement | null
+
+  it('holds their words in that block and yours beside it, keeps your other changes, and saves nothing until you choose', async () => {
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => asks())
+    await saveThatAsks(onCommit)
+    expect(textNow()).toBe('One: my words.|Two: their words.|Three: theirs too.')
+    expect(within(yourVersion()!).getByText('Your version')).toBeTruthy()
+    expect(within(yourVersion()!).getByText('Two: my words.')).toBeTruthy()
+    expect(document.querySelector('[data-asked-block="b2"]')?.textContent).toContain('Two: their words.')
+    // Typing more and leaving again sends nothing while the block asks.
+    await type(' More.')
+    await leave()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
+  it('Use mine puts yours in its place and saves after their text', async () => {
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>().mockResolvedValueOnce(asks()).mockResolvedValue(true)
+    await saveThatAsks(onCommit)
+    await act(async () => {
+      fireEvent.click(within(yourVersion()!).getByRole('button', { name: 'Use mine' }))
+    })
+    await settle()
+    expect(onCommit).toHaveBeenCalledTimes(2)
+    const [value, , editedFrom] = onCommit.mock.calls[1]
+    expect(saved(value).map((b) => `${b.id}:${b.runs[0].text}`)).toEqual(['b1:One: my words.', 'b2:Two: my words.', 'b3:Three: theirs too.'])
+    expect(editedFrom).toBe(THEIRS)
+    expect(yourVersion()).toBeNull()
+  })
+
+  it('Dismiss keeps theirs in that block and saves the rest of yours', async () => {
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>().mockResolvedValueOnce(asks()).mockResolvedValue(true)
+    await saveThatAsks(onCommit)
+    await act(async () => {
+      fireEvent.click(within(yourVersion()!).getByRole('button', { name: 'Dismiss' }))
+    })
+    await settle()
+    expect(onCommit).toHaveBeenCalledTimes(2)
+    expect(saved(onCommit.mock.calls[1][0]).map((b) => `${b.id}:${b.runs[0].text}`)).toEqual(['b1:One: my words.', 'b2:Two: their words.', 'b3:Three: theirs too.'])
+    expect(document.querySelector('[data-asked-block]')).toBeNull()
+  })
+
+  it('Copy puts your version on the clipboard and keeps it there to choose', async () => {
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => asks())
+    await saveThatAsks(onCommit)
+    await act(async () => {
+      fireEvent.click(within(yourVersion()!).getByRole('button', { name: 'Copy' }))
+    })
+    expect(writeText).toHaveBeenCalledWith('Two: my words.')
+    expect(within(yourVersion()!).getByRole('button', { name: 'Copied' })).toBeTruthy()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
+  it('a block they deleted that you changed: Dismiss takes it out', async () => {
+    const theirs = doc(para('b1', 'One as written.'), para('b3', 'Three as written.'))
+    const held = doc(para('b1', 'One: my words.'), para('b2', 'Two: my words.'), para('b3', 'Three as written.'))
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>().mockResolvedValueOnce({ value: held, theirs, mine: MINE, blocks: ['b2'] }).mockResolvedValue(true)
+    await saveThatAsks(onCommit)
+    await act(async () => {
+      fireEvent.click(within(yourVersion()!).getByRole('button', { name: 'Dismiss' }))
+    })
+    await settle()
+    expect(saved(onCommit.mock.calls[1][0]).map((b) => b.id)).toEqual(['b1', 'b3'])
+  })
+
+  it('leaving the page before choosing saves nothing and says so', async () => {
+    const onLeftUnsaved = vi.fn()
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => asks())
+    const { unmount } = await saveThatAsks(onCommit, { onLeftUnsaved })
+    unmount()
+    await settle()
+    expect(onCommit).toHaveBeenCalledTimes(1)
+    expect(onLeftUnsaved).toHaveBeenCalledTimes(1)
+  })
+
+  it('their save showing up afterwards does not replace what you are choosing in', async () => {
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(async () => asks())
+    const { rerender } = await saveThatAsks(onCommit)
+    rerender(<Doc value={THEIRS} onCommit={onCommit} />)
+    await settle()
+    expect(textNow()).toBe('One: my words.|Two: their words.|Three: theirs too.')
+    expect(yourVersion()).toBeTruthy()
+  })
+
+  it('a page opened before the text changed says so above it, in the same shape', async () => {
+    await saveThatAsks(async () => asks({ sinceOpened: true }))
+    expect(screen.getByText('This page changed since you opened it.')).toBeTruthy()
+    expect(yourVersion()).toBeTruthy()
+  })
 })
 
 describe('the sign-in ending', () => {
