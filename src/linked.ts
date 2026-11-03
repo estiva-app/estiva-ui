@@ -147,7 +147,7 @@ export interface LoadingShape {
 /**
  * Where a link's lookup stands. `loading` knows the kind from the address, and
  * a shape when the app remembers one; `unavailable` is not the reader's to see
- * ("Issue not available"), or `deleted` ("Issue deleted"), which a reader tells
+ * ("You can't open this issue"), or `deleted` ("Issue deleted"), which a reader tells
  * apart by a deletion naming the address (SPEC §13.6.1: deleted is not
  * not-permitted). Written as a URL, it is that URL either way (`url`).
  */

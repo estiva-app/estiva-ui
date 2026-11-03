@@ -6225,13 +6225,13 @@
           "name": "noun",
           "takes": "text",
           "required": true,
-          "note": "What it is, in a word: \"Issue\". Drawn as \"Issue not available\"."
+          "note": "What it is, in a word: \"Issue\". Drawn as \"You can't open this issue\", or \"Issue deleted\"."
         },
         {
           "name": "openIn",
           "takes": "{ app: string; href: string }",
           "required": false,
-          "note": "Where it may still open, for someone who can: its app and address."
+          "note": null
         },
         {
           "name": "card",
@@ -7617,7 +7617,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/NoAccessNotice.tsx",
-      "purpose": "What a link to a file you can't read shows: \"You can't open this …\", and no title.",
+      "purpose": "Where a link to a file you can't read opens: \"You can't open this …\", and no title.",
       "purposeFrom": "page",
       "props": [
         {
@@ -7625,23 +7625,9 @@
           "takes": "text",
           "required": true,
           "note": "What the link names, in the app's words: \"project\", \"page\"."
-        },
-        {
-          "name": "place",
-          "takes": "page | card",
-          "required": false,
-          "note": "`page` where the link opens; `card` where a message draws the card of what it names."
         }
       ],
-      "variants": [
-        {
-          "prop": "place",
-          "values": [
-            "page",
-            "card"
-          ]
-        }
-      ],
+      "variants": [],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,
@@ -7869,13 +7855,13 @@
           "name": "noun",
           "takes": "text",
           "required": false,
-          "note": "What it is part of, in a word, for \"A part of this issue not available\"."
+          "note": "What it is part of, in a word, for \"You can't open this issue\"."
         },
         {
           "name": "openIn",
           "takes": "{ app: string; href: string }",
           "required": false,
-          "note": "Where it may still open, for someone who can, when it is not available."
+          "note": null
         },
         {
           "name": "children",

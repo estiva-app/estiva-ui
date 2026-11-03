@@ -31,9 +31,9 @@ describe('LinkRow', () => {
     expect(screen.queryByRole('link')).toBeNull()
   })
 
-  it('says it is not available in one line', () => {
+  it('says you cannot open it, in one line', () => {
     render(<LinkRow link={UNAVAILABLE} />)
-    expect(screen.getByText('Issue not available')).toBeTruthy()
+    expect(screen.getByText("You can't open this issue")).toBeTruthy()
   })
 
   it('says its count whole, one comment or several, never the figure run into the noun', () => {

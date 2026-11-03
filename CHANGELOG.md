@@ -20,8 +20,14 @@ new sees nothing change, Ship, Leaf and Peek included.
   leaving saves yours to be merged onto it.
 - **`DeletedNotice`**: `ArchivedNotice`'s card for a deleted file — "Deleted by … · date", and Restore for someone
   who may edit it, waiting for its answer.
-- **`NoAccessNotice`**: "You can't open this …", with no title, where a link opens (`page`) or in a message's card
-  (`card`).
+- **`NoAccessNotice`**: "You can't open this …", with no title, on the page a link opens.
+
+### Changed
+
+- **A link you can't open, under a message** (`LinkRow`, `LinkCard`, `PartCard` unavailable): "You can't open this
+  issue" in place of "Issue not available", and no Open button, since there is nothing for them to open. One card for
+  that moment in every app, in the story's words (Miky, ALO-4's review, 3 November). `openIn` is still accepted and no
+  longer drawn; Ship, Leaf and Peek need no change. A deleted one still says "Issue deleted".
 
 ## 0.101.0 — 2026-11-03
 

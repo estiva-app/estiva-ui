@@ -5,19 +5,17 @@ import * as Stories from './NoAccessNotice.stories'
 
 # NoAccessNotice
 
-What a link to a file you can't read shows: "You can't open this …", and no title.
+Where a link to a file you can't read opens: "You can't open this …", and no title.
 
 <Canvas of={Stories.Page} />
 
 ## When
 
-- `page`: where the link opens. The page holds the line alone.
-- `card`: where a message draws the card of what it names.
-
-<Canvas of={Stories.InACard} />
+- The page a link opens, when the file is not yours to read. The page holds the line alone.
 
 ## When not
 
+- Under a message → **LinkRow** or **LinkCard** with the link unavailable: the same words, on the link's own card.
 - A file that was deleted → **DeletedNotice**, which says who deleted it.
 - A page with nothing in it yet → **EmptyState**.
 
@@ -27,7 +25,6 @@ What a link to a file you can't read shows: "You can't open this …", and no ti
 import { NoAccessNotice } from '@estiva-app/ui'
 
 <NoAccessNotice what="page" />
-<NoAccessNotice what="page" place="card" />
 ```
 
 - `what` is the kind of file, in the app's words. Never pass its title: the line exists so a link tells someone who can't read the file nothing about it.

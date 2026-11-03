@@ -31,9 +31,9 @@ describe('PartCard', () => {
     tall.mockRestore()
   })
 
-  it('says a part is not available in words', () => {
+  it('says a part you cannot read is a file you cannot open', () => {
     render(<PartCard state="unavailable" kind="issue" noun="Issue" />)
-    expect(screen.getByText('A part of this issue not available')).toBeTruthy()
+    expect(screen.getByText("You can't open this issue")).toBeTruthy()
   })
 
   it('says what became of a part in the SPEC’s words: deleted with its file, its block deleted, or no part to show', () => {

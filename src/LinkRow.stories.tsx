@@ -50,12 +50,12 @@ export const Deleted: Story = { args: { link: DELETED } }
 /** Written as a URL that cannot be shown: it stays that URL, a plain link, in the row's place. */
 export const WrittenAsAUrl: Story = { args: { link: WRITTEN_AS_A_URL } }
 
-/** The not-available line on its own, as a card or a part draws it too; without `openIn`, no way out. */
+/** The not-available line on its own, as a card or a part draws it too, and the deleted one: no way out from either. */
 export const NotAvailableLine: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
-      <LinkUnavailable kind="issue" noun="Issue" openIn={{ app: 'App one', href: '#elsewhere' }} />
-      <LinkUnavailable kind="page" noun="Document" />
+      <LinkUnavailable kind="issue" noun="Item" />
+      <LinkUnavailable kind="page" noun="Item" deleted />
     </div>
   ),
 }

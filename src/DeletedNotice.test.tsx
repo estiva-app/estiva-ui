@@ -39,10 +39,8 @@ describe('DeletedNotice', () => {
 })
 
 describe('NoAccessNotice', () => {
-  it('says the file cannot be opened, and never which one, on a page and in a card', () => {
-    const { container, rerender } = render(<NoAccessNotice what="item" />)
-    expect(container.textContent).toBe("You can't open this item")
-    rerender(<NoAccessNotice what="item" place="card" />)
+  it('says the file cannot be opened, and never which one', () => {
+    const { container } = render(<NoAccessNotice what="item" />)
     expect(container.textContent).toBe("You can't open this item")
   })
 })
