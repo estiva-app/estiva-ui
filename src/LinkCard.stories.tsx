@@ -86,7 +86,7 @@ export const NotAvailable: Story = { args: { link: UNAVAILABLE } }
 export const Deleted: Story = { args: { link: DELETED } }
 
 /** Its read failed (the network, a busy relay): it could not load, which says nothing about access. */
-export const CouldNotLoad: Story = { args: { link: { ...UNAVAILABLE, failed: true } } }
+export const CouldNotLoad: Story = { args: { link: { state: 'unavailable', kind: 'issue', noun: 'Issue', failed: true } } }
 
 /** Not this reader's, its type having no name: the app it lives in. */
 export const InAnApp: Story = { args: { link: { state: 'unavailable', kind: 'file', noun: 'App one', named: true } } }

@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { DELETED, ITEM, ITEM_UNREAD, LOADING, PLACE, ready, SAID, UNAVAILABLE } from './linked.examples'
 import { LinkCard } from './LinkCard'
+import type { LinkState } from './linked'
 import { LinkRow } from './LinkRow'
 
 afterEach(cleanup)
@@ -56,7 +57,7 @@ describe('LinkRow', () => {
 
   // Miky, 3 November: a failed read is not an answer about access.
   it('says a failed read could not load, never that you cannot open it, in a row and a card alike', () => {
-    const failed = { ...UNAVAILABLE, failed: true }
+    const failed: LinkState = { state: 'unavailable', kind: 'issue', noun: 'Issue', failed: true }
     const { rerender } = render(<LinkRow link={failed} />)
     expect(screen.getByText("Couldn't load this issue")).toBeTruthy()
     expect(screen.queryByText(/can't open/)).toBeNull()
