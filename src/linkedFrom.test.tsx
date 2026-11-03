@@ -233,12 +233,24 @@ describe('a file the reader cannot read', () => {
 
   it('is named by its app when its type has no name, as the record a-file-is-labelled-by-its-type-not-its-app says', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'App one' }, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText("You can't open this App one")).toBeTruthy()
+    expect(screen.getByText("You can't open this file in App one")).toBeTruthy()
   })
 
-  it('keeps a one-word app name as it is written: "this Peek", never "this peek"', () => {
+  // Miky, 3 November: nobody opens "a Peek"; the app is where the file lives.
+  it('says an app-named file is a file in that app, its name as written: "this file in Peek", never "this Peek"', () => {
     render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'Peek' }, { kind: 'file', noun: 'Record' }, options())} />)
-    expect(screen.getByText("You can't open this Peek")).toBeTruthy()
+    expect(screen.getByText("You can't open this file in Peek")).toBeTruthy()
+  })
+
+  it('says a read that failed could not load, from the same lookup, never that you cannot open it', () => {
+    render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record', failed: true }, options())} />)
+    expect(screen.getByText("Couldn't load this record")).toBeTruthy()
+    expect(screen.queryByText(/can't open/)).toBeNull()
+  })
+
+  it('says a deleted app-named file is a file in that app, never "Peek deleted"', () => {
+    render(<LinkCard link={{ state: 'unavailable', kind: 'file', noun: 'Peek', named: true, deleted: true }} />)
+    expect(screen.getByText('File in Peek deleted')).toBeTruthy()
   })
 
   it('reads as the address says while it loads and when nothing came back', () => {

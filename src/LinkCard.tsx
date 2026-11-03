@@ -56,7 +56,7 @@ export function LinkCard({ link, readOnly = false, bare = false }: LinkCardProps
   if (link.state === 'loading') return <LinkCardLoading kind={link.kind} shape={link.shape} />
   if (link.state === 'unavailable') {
     if (link.url) return <WrittenUrl url={link.url} block />
-    return <LinkUnavailable kind={link.kind} noun={link.noun} named={link.named} deleted={link.deleted} card />
+    return <LinkUnavailable kind={link.kind} noun={link.noun} named={link.named} deleted={link.deleted} failed={link.failed} card />
   }
   const { linked } = link
   const body = linked.kind === 'message' && linked.author ? <SaidBody linked={linked} /> : <CardBody linked={linked} readOnly={readOnly || boxed} />

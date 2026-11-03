@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.102.2 — 2026-11-03
+
+### Changed
+
+- **A link whose read failed** (the network, a busy relay) says "Couldn't load this issue", not "You can't open this
+  issue": a failed read says nothing about access (Miky, 3 November; ALO-4). The app says so with `failed` on the
+  unavailable `LinkState`, and on `LinkUnavailable`; an app that passes nothing new keeps today's words.
+- **A link you can't open, to a file whose type has no name**, reads "You can't open this file in Peek", not "You can't
+  open this Peek": the app is where the file lives (Miky, 3 November; ALO-4).
+
 ## 0.102.1 — 2026-11-03
 
 ### Fixed

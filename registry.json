@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.102.1",
+    "packageVersion": "0.102.2",
     "exports": 245,
     "typeExports": 252,
     "files": null
@@ -6231,7 +6231,13 @@
           "name": "named",
           "takes": "true/false",
           "required": false,
-          "note": "`noun` is its app's name (\"App one\"), its type having none: kept as written, \"You can't open this App one\"."
+          "note": "`noun` is its app's name (\"App one\"), its type having none: \"You can't open this file in App one\"."
+        },
+        {
+          "name": "failed",
+          "takes": "true/false",
+          "required": false,
+          "note": "Its read failed (the network, a busy relay), which says nothing about access: \"Couldn't load this issue\"."
         },
         {
           "name": "openIn",
