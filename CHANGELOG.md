@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.102.1 — 2026-11-03
+
+### Fixed
+
+- **A link you can't open, to a file whose type has no name**, reads "You can't open this Peek", not "You can't open
+  this peek": 0.102.0 put any one-word noun in small letters, an app's name too. `linkStateFrom` now marks a noun that
+  is the app's name (`named` on the unavailable `LinkState`, and on `LinkUnavailable`), and that one keeps its letters.
+  Found by Ship's tests on the bump to 0.102.0 (ALO-4). Nothing changes for an app that passes nothing new.
+
 ## 0.102.0 — 2026-11-03
 
 What an editor shows when two people changed one text at once, and what a link to a deleted file or one you can't read

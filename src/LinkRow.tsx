@@ -24,6 +24,8 @@ export interface LinkUnavailableProps {
   kind: LinkedKind
   /** What it is, in a word: "Issue". Drawn as "You can't open this issue", or "Issue deleted". */
   noun: string
+  /** `noun` is its app's name ("Peek"), its type having none: kept as written, "You can't open this Peek". */
+  named?: boolean
   /** @deprecated Not drawn since 0.102.0: someone who can't open it has nowhere to go. */
   openIn?: { app: string; href: string }
   /** In a card's place: a card's 12px round it. Default a row's. */
@@ -43,9 +45,9 @@ const ROW_CLASSES = 'flex items-center gap-3 p-1.5 pr-3'
  * open this issue", the approved story's words, with no way out, since there
  * is nothing for them to open (Miky, ALO-4's review, 3 November).
  */
-export function LinkUnavailable({ kind, noun, card = false, deleted = false }: LinkUnavailableProps) {
-  // A word ("Issue") reads in the sentence in small letters; an app's name ("Estiva Ship") keeps its own.
-  const word = /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
+export function LinkUnavailable({ kind, noun, named = false, card = false, deleted = false }: LinkUnavailableProps) {
+  // A word ("Issue") reads in the sentence in small letters; an app's name ("Peek", "Estiva Ship") keeps its own.
+  const word = !named && /^[A-Z][a-z]*$/.test(noun) ? noun.toLowerCase() : noun
   return <UnavailableRow kind={kind} words={deleted ? `${noun} deleted` : `You can't open this ${word}`} card={card} />
 }
 
@@ -115,7 +117,7 @@ export function LinkRow({ link, preview = true }: LinkRowProps) {
   }
   if (link.state === 'unavailable') {
     if (link.url) return <WrittenUrl url={link.url} block />
-    return <LinkUnavailable kind={link.kind} noun={link.noun} deleted={link.deleted} />
+    return <LinkUnavailable kind={link.kind} noun={link.noun} named={link.named} deleted={link.deleted} />
   }
   const { linked } = link
   const status = chosenOf(linked.status)

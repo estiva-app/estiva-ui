@@ -328,10 +328,13 @@ export function linkStateFrom<T extends LinkedSource>(
   const written = unread.url ? { url: unread.url } : {}
   if (object === null) return { state: 'unavailable', kind: unread.kind, noun: unread.noun, ...(unread.deleted ? { deleted: true } : {}), ...written }
   if (object.unreachable) {
+    const noun = nounOf(object)
     return {
       state: 'unavailable',
       kind: linkedKindOfKind(object.kind),
-      noun: nounOf(object) || unread.noun,
+      noun: noun || unread.noun,
+      // Its app's name, its type having none: "You can't open this Peek", not "this peek".
+      ...(noun && !object.noun ? { named: true } : {}),
       ...written,
     }
   }
