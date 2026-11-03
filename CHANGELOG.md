@@ -10,10 +10,12 @@ new sees nothing change, Ship, Leaf and Peek included.
 
 - **`DocumentEditor`'s asks.** `onCommit` may answer `DocumentAsks` (`{ value, theirs, mine, blocks, sinceOpened? }`)
   where the app merged a refused save by blocks and a block both people changed asks. The editor holds `value`
-  unsaved, marks each block that asks with a bar at its edge, and draws "Your version" beside it (under it at phone
-  width) with Use mine, Copy and Dismiss. Nothing is saved until every block is chosen; the last choice saves after
-  `theirs`. Leaving first saves nothing and calls `onLeftUnsaved`. `sinceOpened` adds "This page changed since you
-  opened it." above the text. Text typed while the refused save was out is replaced by `value`.
+  unsaved, marks each block that asks with a bar as long as its words, and draws "Your version" beside it (under the
+  block, outside the bar, at phone width) with Use mine, Copy and Dismiss. Nothing is saved until every block is
+  chosen; the last choice saves after `theirs`. Leaving first saves nothing and calls `onLeftUnsaved`. `sinceOpened`
+  adds "This page changed since you opened it." above the text. Text typed while the refused save was out is kept:
+  in `value` where they did not change that block, and as your version of a block that asks, which a block they
+  changed too then does.
 - **`DocumentEditor`'s `merges`**: a newer save arriving while you are in the editor waits with no Load it line, and
   leaving saves yours to be merged onto it.
 - **`DeletedNotice`**: `ArchivedNotice`'s card for a deleted file — "Deleted by … · date", and Restore for someone

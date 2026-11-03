@@ -199,6 +199,46 @@ function withBlocksFrom(doc: JSONContent, ids: readonly string[], from: JSONCont
   }
 }
 
+/** The top-level blocks `to` has changed, added or taken out since `from`. */
+function blocksChanged(from: JSONContent, to: JSONContent): string[] {
+  if (from === to) return []
+  const before = new Map((from.content ?? []).map((child) => [child.attrs?.blockId as string | undefined, JSON.stringify(child)]))
+  const after = new Set<string>()
+  const changed: string[] = []
+  for (const child of to.content ?? []) {
+    const id = child.attrs?.blockId as string | undefined
+    if (!id) continue
+    after.add(id)
+    if (before.get(id) !== JSON.stringify(child)) changed.push(id)
+  }
+  for (const id of before.keys()) if (id && !after.has(id)) changed.push(id)
+  return changed
+}
+
+/**
+ * The merge with these blocks as you typed them since the save went: changed in place, taken out where you took them
+ * out, and a new one after the block it follows in your text.
+ */
+function withTypedSince(merged: JSONContent, typedNow: JSONContent, ids: readonly string[]): JSONContent {
+  if (ids.length === 0) return merged
+  const yours = typedNow.content ?? []
+  const content = (merged.content ?? []).flatMap((child) => {
+    const id = child.attrs?.blockId as string | undefined
+    return id && ids.includes(id) ? (yours.find((block) => block.attrs?.blockId === id) ?? []) : [child]
+  })
+  yours.forEach((block, i) => {
+    const id = block.attrs?.blockId as string | undefined
+    if (!id || !ids.includes(id) || content.some((child) => child.attrs?.blockId === id)) return
+    const after = yours[i - 1]?.attrs?.blockId as string | undefined
+    const at = after ? content.findIndex((child) => child.attrs?.blockId === after) + 1 : 0
+    content.splice(at, 0, block)
+  })
+  return { ...merged, content }
+}
+
+/** Whose version of a block that asks is chosen. */
+type Side = 'mine' | 'theirs'
+
 /** What the editor holds while blocks ask. */
 interface Asking {
   blocks: readonly string[]
@@ -386,16 +426,26 @@ export function DocumentEditor({
   /*
     The save asked: theirs is the saved text now, and the editor holds the
     merge, unsaved, with their words in each block that asks. A value still
-    holding what this save replaced is not someone else's.
+    holding what this save replaced is not someone else's. `sent` is the text
+    that save carried: what was typed since is kept, in the merge or as your
+    version of a block that asks, and a block they changed too asks as well.
   */
-  const askAbout = (answer: DocumentAsks, replaced: string) => {
+  const askAbout = (answer: DocumentAsks, replaced: string, sent: JSONContent) => {
     const { codec: words, format: written } = latest.current
-    const mine = words.read(answer.mine, written)
-    // A block that asks must be in the text to be chosen: one they deleted that you changed is held as yours, at the end.
+    // Both read back through the codec, so they compare with what the app answers.
+    const asRead = (doc: JSONContent) => words.read(words.write(doc).value, written)
+    const before = asRead(sent)
+    const now = typed.current && typed.current !== sent ? asRead(typed.current) : before
+    const since = blocksChanged(before, now)
+    const mine = withBlocksFrom(words.read(answer.mine, written), since, now)
     const value = words.read(answer.value, written)
-    const missing = answer.blocks.flatMap((id) => (blockOf(value, id) ? [] : (blockOf(mine, id) ?? [])))
-    const held = missing.length ? { ...value, content: [...(value.content ?? []), ...missing] } : value
-    const blocks = answer.blocks.filter((id) => blockOf(held, id))
+    const theirsToo = (id: string) => !!blockOf(before, id) && JSON.stringify(blockOf(value, id)) !== JSON.stringify(blockOf(before, id))
+    const asks = [...answer.blocks, ...since.filter((id) => !answer.blocks.includes(id) && theirsToo(id))]
+    // A block that asks must be in the text to be chosen: one they deleted that you changed is held as yours, at the end.
+    const missing = asks.flatMap((id) => (blockOf(value, id) ? [] : (blockOf(mine, id) ?? [])))
+    const merged = missing.length ? { ...value, content: [...(value.content ?? []), ...missing] } : value
+    const held = withTypedSince(merged, now, since.filter((id) => !asks.includes(id)))
+    const blocks = asks.filter((id) => blockOf(held, id))
     saved.current = answer.theirs
     shown.current = answer.theirs
     setSuperseded(replaced)
@@ -431,7 +481,7 @@ export function DocumentEditor({
           if (left.current) {
             if (!ended()) latest.current.onLeftUnsaved?.(next.value)
           } else {
-            askAbout(answer, replaced)
+            askAbout(answer, replaced, doc)
             setFailed(false)
           }
           return
@@ -654,7 +704,7 @@ export function DocumentEditor({
     One block chosen: yours or theirs in its place, or the block gone when the
     one chosen deleted it. The last choice saves, after their text.
   */
-  const choose = (id: string, side: 'mine' | 'theirs') => {
+  const choose = (id: string, side: Side) => {
     const now = askingNow.current
     if (!editor || editor.isDestroyed || !now) return
     const chosen = blockOf(side === 'mine' ? now.mine : now.theirs, id)
@@ -719,11 +769,9 @@ export function DocumentEditor({
       {asking?.blocks.flatMap((id) => {
         const mine = blockOf(asking.mine, id)
         const card = <YourVersion words={mine ? wordsOf(mine) : 'You deleted this block.'} onUseMine={() => choose(id, 'mine')} onDismiss={() => choose(id, 'theirs')} />
-        // Beside the words, and under them at phone width: one is shown at a time (`ASKED_BLOCK_CLASSES`).
-        return (['beside', 'under'] as const).map((where) =>
-          // @estiva-escape(estiva/no-hand-rolled-behaviour): into the block's slot in the text (AskedBlocks), not a floating panel.
-          createPortal(card, slotOf(id, where), `${id} ${where}`),
-        )
+        // Beside the words, and under the block at phone width: one is shown at a time (`ASKED_BLOCK_CLASSES`).
+        // @estiva-escape(estiva/no-hand-rolled-behaviour): into the block's slot in the text (AskedBlocks), not a floating panel.
+        return (['beside', 'under'] as const).map((where) => createPortal(card, slotOf(id, where), `${id} ${where}`))
       })}
       {waiting && !merges && (
         <FieldLine tone="helper">

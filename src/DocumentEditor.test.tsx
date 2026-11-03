@@ -289,6 +289,40 @@ describe('a block you both changed', () => {
     expect(document.querySelector('[data-asked-block]')).toBeNull()
   })
 
+  /** You leave with MINE; while that save is out you type `typedSince`; then it asks. */
+  async function typedWhileItIsOut(typedSince: ReturnType<typeof doc>) {
+    let answer: (asked: ReturnType<typeof asks>) => void = () => {}
+    const onCommit = vi.fn<DocumentEditorProps['onCommit']>(() => new Promise((resolve) => (answer = resolve)))
+    render(<Doc value={START} onCommit={onCommit} />)
+    await act(async () => {
+      editorOf().commands.setContent(codec.read(MINE, 'blocks'))
+    })
+    await leave()
+    await act(async () => {
+      editorOf().commands.setContent(codec.read(typedSince, 'blocks'))
+    })
+    await act(async () => answer(asks()))
+    await settle()
+    return onCommit
+  }
+  const yourVersions = () => [...document.querySelectorAll('[data-your-version]')].map((card) => card.textContent)
+
+  it('what you typed while the save was out stays: in the merge, and as your version of the block that asks', async () => {
+    const onCommit = await typedWhileItIsOut(
+      doc(para('b1', 'One: my words, and more.'), para('b2', 'Two: my words, and more.'), para('b3', 'Three as written.'), para('b4', 'Four, new.')),
+    )
+    expect(textNow()).toBe('One: my words, and more.|Two: their words.|Three: theirs too.|Four, new.')
+    expect(yourVersions().every((words) => words?.includes('Two: my words, and more.'))).toBe(true)
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
+  it('a block they changed that you typed in while the save was out asks too', async () => {
+    await typedWhileItIsOut(doc(para('b1', 'One: my words.'), para('b2', 'Two: my words.'), para('b3', 'Three: typed while out.')))
+    expect(textNow()).toBe('One: my words.|Two: their words.|Three: theirs too.')
+    expect(document.querySelector('[data-asked-block="b3"]')).not.toBeNull()
+    expect(yourVersions().some((words) => words?.includes('Three: typed while out.'))).toBe(true)
+  })
+
   it('Copy puts your version on the clipboard and keeps it there to choose', async () => {
     const writeText = vi.fn(async () => {})
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
