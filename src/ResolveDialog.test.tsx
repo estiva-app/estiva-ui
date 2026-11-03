@@ -71,4 +71,15 @@ describe('ResolveDialog', () => {
     render(<ResolveDialog onResolve={() => false} onCancel={() => {}} refused="The file is archived" />)
     expect(screen.getByText(/The file is archived/)).toBeTruthy()
   })
+
+  // Found in Leaf's adoption (3 November): the refusal marked the note invalid, and the form then sent nothing.
+  it('after a refusal, Resolve tries again, with the note as written', async () => {
+    const user = userEvent.setup()
+    const onResolve = vi.fn(() => false)
+    render(<ResolveDialog onResolve={onResolve} onCancel={() => {}} refused="The relay is busy. Try again." />)
+    await user.type(screen.getByRole('textbox'), 'Done')
+    await user.click(screen.getByRole('button', { name: 'Resolve' }))
+    await vi.waitFor(() => expect(onResolve).toHaveBeenCalledWith('Done'))
+    expect(screen.getByRole('alert').textContent).toBe('The relay is busy. Try again.')
+  })
 })
