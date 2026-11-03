@@ -236,6 +236,11 @@ describe('a file the reader cannot read', () => {
     expect(screen.getByText("You can't open this App one")).toBeTruthy()
   })
 
+  it('keeps a one-word app name as it is written: "this Peek", never "this peek"', () => {
+    render(<LinkCard link={linkStateFrom({ ...GROUP, unreachable: true, appName: 'Peek' }, { kind: 'file', noun: 'Record' }, options())} />)
+    expect(screen.getByText("You can't open this Peek")).toBeTruthy()
+  })
+
   it('reads as the address says while it loads and when nothing came back', () => {
     render(<LinkCard link={linkStateFrom(null, { kind: 'file', noun: 'Record' }, options())} />)
     expect(screen.getByText("You can't open this record")).toBeTruthy()

@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.102.0",
+    "packageVersion": "0.102.1",
     "exports": 245,
     "typeExports": 252,
     "files": null
@@ -6226,6 +6226,12 @@
           "takes": "text",
           "required": true,
           "note": "What it is, in a word: \"Issue\". Drawn as \"You can't open this issue\", or \"Issue deleted\"."
+        },
+        {
+          "name": "named",
+          "takes": "true/false",
+          "required": false,
+          "note": "`noun` is its app's name (\"App one\"), its type having none: kept as written, \"You can't open this App one\"."
         },
         {
           "name": "openIn",
