@@ -70,7 +70,10 @@ export interface ConversationEntryProps {
    * everyone.", and on a comment how many replies stay. A string is one paragraph; a node is drawn as given.
    */
   deleteNote?: ReactNode
-  /** Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered `false`). */
+  /**
+   * Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered
+   * `false`). Only in the question it answered: one opened again says nothing until its own Delete is refused.
+   */
   deleteRefused?: string
   /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
@@ -110,7 +113,10 @@ export interface ConversationCardProps extends ConversationEntryProps {
   resolveHint?: string
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
-  /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
+  /**
+   * Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve`
+   * answered `false`). Only in the dialog it answered: one opened again says nothing until its own Resolve is refused.
+   */
   resolveRefused?: string
   onReopen?: () => void
   /** The one open beside its thread. */
@@ -253,6 +259,48 @@ function stillHere(root: HTMLElement | null) {
   } catch {
     return root.matches(':hover')
   }
+}
+
+/**
+ * The card's questions, Delete and Resolve, each mounted only while it is open. The app's refusal is said only once
+ * this opening's own press was answered: the app keeps the refusal in its own state and is not told when a question
+ * closes, so the next one opened already saying the last one's "Could not … Try again." (Leaf's adoption review,
+ * 4 November).
+ */
+function DeleteQuestion({ noun, onDelete, refused, onClose, children }: { noun: string; onDelete: NonNullable<ConversationEntryProps['onDelete']>; refused?: string; onClose: () => void; children: ReactNode }) {
+  const [answered, setAnswered] = useState(false)
+  return (
+    <ConfirmDialog
+      title={`Delete this ${noun}?`}
+      confirmLabel={`Delete ${noun}`}
+      destructive
+      onConfirm={async () => {
+        const ok = await onDelete()
+        setAnswered(true)
+        return ok
+      }}
+      onClose={onClose}
+      refused={answered ? refused : undefined}
+    >
+      {children}
+    </ConfirmDialog>
+  )
+}
+
+function ResolveQuestion({ onResolve, refused, onClose }: { onResolve: NonNullable<ConversationCardProps['onResolve']>; refused?: string; onClose: () => void }) {
+  const [answered, setAnswered] = useState(false)
+  return (
+    <ResolveDialog
+      refused={answered ? refused : undefined}
+      onCancel={onClose}
+      onResolve={async (note) => {
+        const ok = await onResolve(note)
+        setAnswered(true)
+        if (ok !== false) onClose()
+        return ok
+      }}
+    />
+  )
 }
 
 /** The editing state, held by the card or by the app. */
@@ -444,7 +492,7 @@ export function ConversationCard(props: ConversationCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
+        <DeleteQuestion noun={noun} onDelete={onDelete} refused={deleteRefused} onClose={() => setDeleting(false)}>
           {deleteNote !== undefined ? (
             typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote
           ) : (
@@ -453,19 +501,9 @@ export function ConversationCard(props: ConversationCardProps) {
               {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
             </>
           )}
-        </ConfirmDialog>
+        </DeleteQuestion>
       )}
-      {resolving && onResolve && (
-        <ResolveDialog
-          refused={resolveRefused}
-          onCancel={() => setResolving(false)}
-          onResolve={async (note) => {
-            const ok = await onResolve(note)
-            if (ok !== false) setResolving(false)
-            return ok
-          }}
-        />
-      )}
+      {resolving && onResolve && <ResolveQuestion onResolve={onResolve} refused={resolveRefused} onClose={() => setResolving(false)} />}
     </>
   )
 }
@@ -566,9 +604,9 @@ export function ReplyCard(props: ReplyCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
+        <DeleteQuestion noun={noun} onDelete={onDelete} refused={deleteRefused} onClose={() => setDeleting(false)}>
           {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
-        </ConfirmDialog>
+        </DeleteQuestion>
       )}
     </>
   )

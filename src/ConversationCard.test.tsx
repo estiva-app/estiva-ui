@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { PinnedComment } from './PinnedComment'
@@ -205,7 +205,85 @@ describe('ReplyCard', () => {
     await point(user, 'A reply')
     press('More actions')
     await user.click(await screen.findByRole('menuitem', { name: 'Delete' }))
-    expect(within(await screen.findByRole('alertdialog')).getByRole('alert').textContent).toBe('Could not delete it. Try again.')
+    // Said once its Delete is refused, not as the question opens (Leaf's adoption review, 4 November).
+    const question = await screen.findByRole('alertdialog')
+    await user.click(within(question).getByRole('button', { name: 'Delete reply' }))
+    expect((await within(question).findByRole('alert')).textContent).toBe('Could not delete it. Try again.')
+  })
+})
+
+/**
+ * The app keeps the refusal in its own state, as the usage page asks, and is not told when the question closes. Before,
+ * the next Delete or Resolve opened already saying the last one's "Could not … Try again.", before anything was pressed
+ * (Leaf's adoption review, 4 November).
+ */
+describe('a refusal is said only in the question it answered', () => {
+  const REFUSED = 'Could not do it. Try again.'
+
+  /** An app that sets the refusal when it refuses, and never clears it. */
+  function Refusing({ reply = false }: { reply?: boolean }) {
+    const [refused, setRefused] = useState<string>()
+    const refuse = () => {
+      setRefused(REFUSED)
+      return false
+    }
+    return reply ? (
+      <ReplyCard author={ONE} time="11:40 AM" own onDelete={refuse} deleteRefused={refused}>
+        Words
+      </ReplyCard>
+    ) : (
+      <ConversationCard author={ONE} time="11:08 AM" own onDelete={refuse} deleteRefused={refused} onResolve={refuse} resolveRefused={refused}>
+        Words
+      </ConversationCard>
+    )
+  }
+
+  async function askToDelete(user: ReturnType<typeof userEvent.setup>) {
+    await point(user, 'Words')
+    press('More actions')
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete' }))
+    return screen.findByRole('alertdialog')
+  }
+
+  async function askToResolve(user: ReturnType<typeof userEvent.setup>) {
+    await point(user, 'Words')
+    press('Resolve')
+    return screen.findByRole('dialog')
+  }
+
+  for (const [what, reply, button] of [
+    ['a comment', false, 'Delete comment'],
+    ['a reply', true, 'Delete reply'],
+  ] as const) {
+    it(`deleting ${what}: refused, cancelled and asked again, the new question is clean until it is refused`, async () => {
+      const user = userEvent.setup()
+      render(<Refusing reply={reply} />)
+      let question = await askToDelete(user)
+      await user.click(within(question).getByRole('button', { name: button }))
+      expect((await within(question).findByRole('alert')).textContent).toBe(REFUSED)
+      await user.click(within(question).getByRole('button', { name: 'Cancel' }))
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+
+      question = await askToDelete(user)
+      expect(within(question).queryByRole('alert')).toBeNull()
+      await user.click(within(question).getByRole('button', { name: button }))
+      expect((await within(question).findByRole('alert')).textContent).toBe(REFUSED)
+    })
+  }
+
+  it('resolving: refused, cancelled and asked again, the new dialog is clean until it is refused', async () => {
+    const user = userEvent.setup()
+    render(<Refusing />)
+    let dialog = await askToResolve(user)
+    await user.click(within(dialog).getByRole('button', { name: 'Resolve' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toBe(REFUSED)
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+
+    dialog = await askToResolve(user)
+    expect(within(dialog).queryByRole('alert')).toBeNull()
+    await user.click(within(dialog).getByRole('button', { name: 'Resolve' }))
+    expect((await within(dialog).findByRole('alert')).textContent).toBe(REFUSED)
   })
 })
 
