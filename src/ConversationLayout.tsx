@@ -67,7 +67,10 @@ export interface ConversationLayoutProps {
    * it, it opens at the newest each time it is drawn. `useLeftAt` with the same name says when it was left, for a "New" line.
    */
   rememberAs?: string
-  /** Two columns: the comments' scrolling box. Where it scrolls is the layout's: an app reads it, and keeps no place of its own in it. */
+  /**
+   * The comments' scrolling box, in both layouts: two columns' list, and one column's Panel body. Two columns, where it
+   * scrolls is the layout's: an app reads it, and keeps no place of its own in it.
+   */
   bodyRef?: Ref<HTMLDivElement>
   /** Two columns: the comments' box scrolled. */
   onBodyScroll?: UIEventHandler<HTMLDivElement>

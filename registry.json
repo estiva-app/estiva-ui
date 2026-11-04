@@ -3089,7 +3089,7 @@
           "name": "bodyRef",
           "takes": "Ref<HTMLDivElement>",
           "required": false,
-          "note": "Two columns: the comments' scrolling box."
+          "note": "The comments' scrolling box, in both layouts: two columns' list, and one column's Panel body."
         },
         {
           "name": "onBodyScroll",

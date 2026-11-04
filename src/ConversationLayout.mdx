@@ -48,6 +48,8 @@ import { ConversationLayout } from '@estiva-app/ui'
 
 - Which layout is the app's: where a conversation sits is its own.
 - The right column is 384px in every app.
+- To fill a page's height inside an app's frame, one column needs a `flex flex-col` parent and `className="min-h-0 flex-1"`
+  on the layout. Ship and Leaf both do this.
 - The app keeps `open`; the layout says when it changes, with `onOpenChange`. Give every comment a `thread`, a
   **Thread** with its box, even one with no replies yet: pressing it opens it to its box. An app that builds only the
   open thread gives a function, `thread: () => threadOf(comment)`: it is called only while that one is open.
@@ -62,6 +64,8 @@ import { ConversationLayout } from '@estiva-app/ui'
   pictures fill in. Give the conversation its name, `rememberAs` (its address), and going back to it lands where it was
   left, in this tab. `useLeftAt(name)` says when the reader left it away from the newest, for your "New" line in
   `before` over the first comment written since. Keep no place of your own: `bodyRef` and `onBodyScroll` only read the box.
+- `bodyRef` lends the comments' scrolling box in both layouts: two columns' list, and one column's body under its
+  header. `onBodyScroll` is two columns only.
 
 <Canvas of={Stories.TwoColumnsLong} />
 
