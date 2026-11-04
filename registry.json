@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.104.2",
+    "packageVersion": "0.104.3",
     "exports": 245,
     "typeExports": 254,
     "files": null
@@ -3089,7 +3089,7 @@
           "name": "bodyRef",
           "takes": "Ref<HTMLDivElement>",
           "required": false,
-          "note": "Two columns: the comments' scrolling box."
+          "note": "The comments' scrolling box, in both layouts: two columns' list, and one column's Panel body."
         },
         {
           "name": "onBodyScroll",

@@ -48,7 +48,9 @@ export function ContainerHeader({ title, chevron = false, titleMenu, actions, cl
     // (pl-2.5 + the button's px-1.5 = pl-4): the words stay where a title's
     // are, and the fill is inside the bar — a negative margin had it clipped
     // (Katerina, 5 October).
-    <div className={cn('flex h-12 shrink-0 items-center justify-between overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-2.5' : 'pl-4', className)}>
+    // 12px between the title and the buttons, as between the right group's own parts: a cut title, and a button
+    // after it, ran right up to them (Leaf's adoption review, 4 November). A bar whose title fits does not move.
+    <div className={cn('flex h-12 shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-2.5' : 'pl-4', className)}>
       <div className={cn('flex items-center gap-2 overflow-hidden', text ? 'shrink-0' : 'min-w-0 flex-1')}>
         {titleMenu != null ? (
           <Menu

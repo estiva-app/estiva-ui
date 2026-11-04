@@ -65,6 +65,20 @@ export const Yours: Story = { render: (args) => <Live {...args} author={YOU} own
 /** Edited since it was sent: "(edited)", its time on hover. */
 export const Edited: Story = { render: (args) => <Live {...args} edited="Edited 11:20 AM" /> }
 
+/**
+ * Leaf's card, 360px, with a time in words and "(edited)": the head runs to where the strip stands. While the strip
+ * shows, the head fades out 8px before it, and nothing in it moves. The story points at it.
+ */
+export const NarrowEdited: Story = {
+  name: 'Narrow, edited, a time in words',
+  // Leaf's card: its 384px column less 12px each side (Field's and FieldLine's stories write their 360px the same way).
+  decorators: [(Story) => <div className="w-[360px]"><Story /></div>],
+  render: (args) => <Live {...args} author={{ name: 'Marta' }} time="20 minutes ago" at={AT} edited="Edited 2 minutes ago" onReply={() => {}} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.hover(within(canvasElement).getByText(WORDS))
+  },
+}
+
 /** Deleted: its replies stay under it. */
 export const Deleted: Story = { render: (args) => <Live {...args} deleted replies={{ count: 2, faces: [TWO, THREE], last: '11:40 AM' }} /> }
 

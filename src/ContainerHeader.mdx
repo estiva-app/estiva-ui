@@ -54,6 +54,8 @@ import { ContainerHeader, IconButton } from '@estiva-app/ui'
 - A string title is one line in `body-2-strong` and keeps its width. Anything
   else — an EditableText, a title over a caption — takes the room left and is
   drawn as given.
+- The title stops 12px before the buttons, so a title cut short never touches
+  them.
 
 <Canvas of={ContainerHeaderStories.WithRichTitle} />
 

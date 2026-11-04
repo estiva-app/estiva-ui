@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.104.3 — 2026-11-04
+
+Three fixes and two lines of docs from the review of Leaf's adoption (Katerina, 4 November). No prop changes: an app
+takes this version and changes nothing.
+
+What each app sees:
+
+- **Peek and Ship**: a cut title stops 12px before its bar's buttons; a comment's head fades out before its strip
+  when it reaches it.
+- **Leaf**: the same two, and a delete or resolve question that opens clean after a refusal.
+
+### Fixed
+
+- **A refusal is said only in the question it answered.** After a refused delete or resolve and a Cancel, the next
+  Delete or Resolve on `ConversationCard` and `ReplyCard` opened already saying "Could not … Try again.", before
+  anything was pressed: the app keeps `deleteRefused` and `resolveRefused` in its own state and is not told the question
+  closed. Each question now opens clean, and says the refusal once its own press is refused. Peek and Ship pass
+  neither prop.
+- **A cut title stops 12px before the bar's buttons.** `ContainerHeader`'s bar had no gap, so a long title, and a
+  button after it, ran right up to the right group: Leaf's "Open" touched "Edited 2 hours ago", 0px apart. The bar now
+  keeps 12px there, the gap between the right group's own parts. Every `Panel`, `ListColumn`, `PageHeader`,
+  `DialogShell` and one-column `ConversationLayout` bar; a bar whose title fits does not move. A cut title is cut 12px
+  sooner.
+- **A comment's head fades out before its strip.** In a narrow card with a time in words and "(edited)" (Leaf's 360px
+  column), the strip covered the end of "(edited)". While the strip shows, a head that reaches it now fades out over
+  16px, ending 8px before it; nothing in the head moves. A head that ends before the strip is left as it is.
+
+### Docs
+
+- **`ConversationLayout`'s `bodyRef`** lends the comments' scrolling box in both layouts, not only in two columns.
+- **One column filling a page's height** inside an app's frame: a `flex flex-col` parent, and `className="min-h-0
+  flex-1"` on the layout, as Ship and Leaf do.
+
 ## 0.104.2 — 2026-11-03
 
 0.104.1 was never published: its release job stopped at the tests, twice, before `npm publish`. This version carries

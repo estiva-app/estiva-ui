@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useContext, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
@@ -70,7 +70,10 @@ export interface ConversationEntryProps {
    * everyone.", and on a comment how many replies stay. A string is one paragraph; a node is drawn as given.
    */
   deleteNote?: ReactNode
-  /** Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered `false`). */
+  /**
+   * Why the last delete was refused, in plain words: said under the question, while it stays open (`onDelete` answered
+   * `false`). Only in the question it answered: one opened again says nothing until its own Delete is refused.
+   */
   deleteRefused?: string
   /** The app's own rows in the ⋯ menu, after Resolve: `MenuItem`s. */
   menu?: ReactNode
@@ -110,7 +113,10 @@ export interface ConversationCardProps extends ConversationEntryProps {
   resolveHint?: string
   /** Resolve, with the note written in the dialog the card opens. Offered on the strip and in the menu. */
   onResolve?: (note: string) => Promise<boolean | void> | boolean | void
-  /** Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve` answered `false`). */
+  /**
+   * Why the last resolve was refused, in plain words: said under the note, while the dialog stays open (`onResolve`
+   * answered `false`). Only in the dialog it answered: one opened again says nothing until its own Resolve is refused.
+   */
   resolveRefused?: string
   onReopen?: () => void
   /** The one open beside its thread. */
@@ -150,11 +156,38 @@ function When({ time, at: given, timeHref, timeLabel = 'Link to this' }: Pick<Co
   return <MetaText className="shrink-0">{exact ? <WithTooltip label={exact}>{said}</WithTooltip> : time}</MetaText>
 }
 
-/** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+/** The head's words fade out over their last 16px before `end`: a mask on the words, as ShowMore's, so they end in whatever is behind. */
+const fadeBefore = (end: number) => `linear-gradient(to right, black ${end - 16}px, transparent ${end}px)`
+
+/**
+ * While the strip shows, where the head's words must end, in px from the head's start: 8px short of the strip,
+ * measured, as the strip's width follows the buttons the card offers; nothing when the words end before that. The head
+ * fades out there rather than giving way: giving way cut the name sooner and slid the time and "(edited)" left under
+ * the pointer. Before, the strip covered the end of "(edited)" in Leaf's 360px cards (Leaf's adoption review, 4 November).
+ */
+function useClearOfStrip(root: RefObject<HTMLDivElement | null>, strip: RefObject<HTMLDivElement | null>, shown: boolean) {
+  const [end, setEnd] = useState<number>()
+  useLayoutEffect(() => {
+    const words = root.current?.querySelector<HTMLElement>('[data-head]')
+    if (!shown || !words || !strip.current) {
+      setEnd(undefined)
+      return
+    }
+    const stop = strip.current.getBoundingClientRect().left - 8
+    const reach = Math.max(...Array.from(words.children, (part) => part.getBoundingClientRect().right))
+    setEnd(reach > stop ? stop - words.getBoundingClientRect().left : undefined)
+  }, [root, strip, shown])
+  return end
+}
+
+/**
+ * The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". `end`:
+ * the strip shows over the head, and its words fade out before this point (`useClearOfStrip`).
+ */
+function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta, end }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode; end?: number }) {
   return (
     <div className="flex w-full items-center gap-2">
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div data-head className="flex min-w-0 flex-1 items-center gap-2" style={end === undefined ? undefined : { maskImage: fadeBefore(end), WebkitMaskImage: fadeBefore(end) }}>
         <span data-face className="relative flex shrink-0">
           <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
         </span>
@@ -255,6 +288,48 @@ function stillHere(root: HTMLElement | null) {
   }
 }
 
+/**
+ * The card's questions, Delete and Resolve, each mounted only while it is open. The app's refusal is said only once
+ * this opening's own press was answered: the app keeps the refusal in its own state and is not told when a question
+ * closes, so the next one opened already saying the last one's "Could not … Try again." (Leaf's adoption review,
+ * 4 November).
+ */
+function DeleteQuestion({ noun, onDelete, refused, onClose, children }: { noun: string; onDelete: NonNullable<ConversationEntryProps['onDelete']>; refused?: string; onClose: () => void; children: ReactNode }) {
+  const [answered, setAnswered] = useState(false)
+  return (
+    <ConfirmDialog
+      title={`Delete this ${noun}?`}
+      confirmLabel={`Delete ${noun}`}
+      destructive
+      onConfirm={async () => {
+        const ok = await onDelete()
+        setAnswered(true)
+        return ok
+      }}
+      onClose={onClose}
+      refused={answered ? refused : undefined}
+    >
+      {children}
+    </ConfirmDialog>
+  )
+}
+
+function ResolveQuestion({ onResolve, refused, onClose }: { onResolve: NonNullable<ConversationCardProps['onResolve']>; refused?: string; onClose: () => void }) {
+  const [answered, setAnswered] = useState(false)
+  return (
+    <ResolveDialog
+      refused={answered ? refused : undefined}
+      onCancel={onClose}
+      onResolve={async (note) => {
+        const ok = await onResolve(note)
+        setAnswered(true)
+        if (ok !== false) onClose()
+        return ok
+      }}
+    />
+  )
+}
+
 /** The editing state, held by the card or by the app. */
 function useEditing(editing: boolean | undefined, onEditingChange: ((editing: boolean) => void) | undefined) {
   const [own, setOwn] = useState(false)
@@ -301,6 +376,8 @@ export function ConversationCard(props: ConversationCardProps) {
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
   const offersMenu = !!resolves || !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
+  const strip = useRef<HTMLDivElement>(null)
+  const wordsEnd = useClearOfStrip(root, strip, showStrip)
   const react = reactions?.onToggle
   // Read-only with no replies, there is nothing to open: no box to write in, no thread to read (Peek's way, Katerina, 1 November).
   const press = onClick ?? (readOnly && !replies?.count ? undefined : item?.toggle)
@@ -368,6 +445,7 @@ export function ConversationCard(props: ConversationCardProps) {
                   isNew={isNew}
                   urgent={urgent}
                   meta={resolved && <ResolvedCheck by={resolved.by} note={resolved.note} at={resolved.at} />}
+                  end={wordsEnd}
                 />
                 {!!about && (
                   // Under the name, above the words (Katerina, 1 November).
@@ -399,7 +477,7 @@ export function ConversationCard(props: ConversationCardProps) {
           <span aria-hidden className="pointer-events-none absolute left-[19px] w-0.5 bg-border-default" style={{ top: dotLine.top, height: dotLine.height }} />
         )}
         {showStrip && (
-          <div className="absolute right-1 top-1 z-10">
+          <div ref={strip} className="absolute right-1 top-1 z-10">
             <ConversationActions
               options={reactions?.options}
               onReact={react}
@@ -444,7 +522,7 @@ export function ConversationCard(props: ConversationCardProps) {
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
+        <DeleteQuestion noun={noun} onDelete={onDelete} refused={deleteRefused} onClose={() => setDeleting(false)}>
           {deleteNote !== undefined ? (
             typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote
           ) : (
@@ -453,19 +531,9 @@ export function ConversationCard(props: ConversationCardProps) {
               {replies && replies.count > 0 && <p>Its {replies.count === 1 ? 'reply stays' : `${replies.count} replies stay`}.</p>}
             </>
           )}
-        </ConfirmDialog>
+        </DeleteQuestion>
       )}
-      {resolving && onResolve && (
-        <ResolveDialog
-          refused={resolveRefused}
-          onCancel={() => setResolving(false)}
-          onResolve={async (note) => {
-            const ok = await onResolve(note)
-            if (ok !== false) setResolving(false)
-            return ok
-          }}
-        />
-      )}
+      {resolving && onResolve && <ResolveQuestion onResolve={onResolve} refused={resolveRefused} onClose={() => setResolving(false)} />}
     </>
   )
 }
@@ -486,6 +554,8 @@ export function ReplyCard(props: ReplyCardProps) {
   const offersMenu = !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
+  const strip = useRef<HTMLDivElement>(null)
+  const wordsEnd = useClearOfStrip(root, strip, showStrip)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   // In a Thread beside, a reply counts itself as it is first drawn: a new one takes the thread to its newest.
   const drawn = useContext(repliesDrawn)
@@ -521,7 +591,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} end={wordsEnd} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>
@@ -530,45 +600,47 @@ export function ReplyCard(props: ReplyCardProps) {
           </div>
         )}
         {showStrip && (
-          <ConversationActions
-            className="absolute right-1 top-1 z-10"
-            options={reactions?.options}
-            onReact={reactions?.onToggle}
-            onPickerOpenChange={(open) => {
-              setPicking(open)
-              if (!open) settle()
-            }}
-            more={
-              offersMenu && (
-                <ConversationMenu
-                  trigger={
-                    <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
-                      <IconDotsVertical size={16} stroke={1.5} />
-                    </ToolbarButton>
-                  }
-                  open={menuOpen}
-                  onOpenChange={(next) => {
-                    setMenuOpen(next)
-                    if (!next) settle()
-                  }}
-                  label={menuLabel}
-                  onEdit={own && editor ? () => setEditing(true) : undefined}
-                  editLabel={editLabel}
-                  after={menuAfter}
-                  onDelete={own && onDelete ? () => setDeleting(true) : undefined}
-                  deleteLabel={deleteLabel}
-                >
-                  {menu}
-                </ConversationMenu>
-              )
-            }
-          />
+          // In a box of its own, as a comment's: the box is what the head measures to keep clear of.
+          <div ref={strip} className="absolute right-1 top-1 z-10">
+            <ConversationActions
+              options={reactions?.options}
+              onReact={reactions?.onToggle}
+              onPickerOpenChange={(open) => {
+                setPicking(open)
+                if (!open) settle()
+              }}
+              more={
+                offersMenu && (
+                  <ConversationMenu
+                    trigger={
+                      <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
+                        <IconDotsVertical size={16} stroke={1.5} />
+                      </ToolbarButton>
+                    }
+                    open={menuOpen}
+                    onOpenChange={(next) => {
+                      setMenuOpen(next)
+                      if (!next) settle()
+                    }}
+                    label={menuLabel}
+                    onEdit={own && editor ? () => setEditing(true) : undefined}
+                    editLabel={editLabel}
+                    after={menuAfter}
+                    onDelete={own && onDelete ? () => setDeleting(true) : undefined}
+                    deleteLabel={deleteLabel}
+                  >
+                    {menu}
+                  </ConversationMenu>
+                )
+              }
+            />
+          </div>
         )}
       </Card>
       {deleting && onDelete && (
-        <ConfirmDialog title={`Delete this ${noun}?`} confirmLabel={`Delete ${noun}`} destructive onConfirm={onDelete} onClose={() => setDeleting(false)} refused={deleteRefused}>
+        <DeleteQuestion noun={noun} onDelete={onDelete} refused={deleteRefused} onClose={() => setDeleting(false)}>
           {deleteNote === undefined ? <p>It is deleted for everyone.</p> : typeof deleteNote === 'string' ? <p>{deleteNote}</p> : deleteNote}
-        </ConfirmDialog>
+        </DeleteQuestion>
       )}
     </>
   )
