@@ -47,6 +47,12 @@ describe('ContainerHeader', () => {
     expect(screen.getByRole('button', { name: 'New' }).closest('div')!.className).toContain('gap-1')
   })
 
+  // A cut title, and a button after it, ran right up to the buttons: 0px apart (Leaf's adoption review, 4 November).
+  it('keeps 12px between the title and the buttons, the gap between the right group’s own parts', () => {
+    const { container } = render(<ContainerHeader title={<em>Plan</em>} actions={<button type="button">New</button>} />)
+    expect(container.firstElementChild!.className.split(' ')).toContain('gap-3')
+  })
+
   it('a title with a menu is one button, and opens it', async () => {
     render(<ContainerHeader title="View one" titleMenu={<MenuItem label="View two" />} />)
     await userEvent.click(screen.getByRole('button', { name: 'View one' }))
