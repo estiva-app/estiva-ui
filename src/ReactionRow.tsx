@@ -92,10 +92,16 @@ export interface ReactionRowProps {
   nameOf: (id: string) => string
   /** Who is looking: their pills are lit, and "who reacted" says "you". */
   viewer?: string
-  /** Your reaction on or off. Absent, the row only shows (read-only, signed out). */
-  onToggle?: (emoji: string) => void
+  /**
+   * Your reaction on or off. Absent, the row only shows (read-only, signed out). In a `ConversationCard`, answering
+   * with what the relay said lets the card say why a refused one did not go through.
+   */
+  onToggle?: (emoji: string) => void | Promise<ReactionAnswer | void>
   className?: string
 }
+
+/** What the relay said about a reaction; `reason` as it came, said in plain words by the card. */
+export type ReactionAnswer = { accepted: true } | { accepted: false; reason: unknown }
 
 export function ReactionRow({ reactions, options, nameOf, viewer, onToggle, className }: ReactionRowProps) {
   const shown = reactions.filter((r) => r.by.length > 0)

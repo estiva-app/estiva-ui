@@ -99,25 +99,54 @@ export function WithBlock() {
   )
 }
 
+/**
+ * What the relay (or Estiva ID, or the network) says for each cause of a refusal, as an app hands it over raw. The kit
+ * says each in `@estiva-app/conversation`'s plain words; a story picks one to show its sentence.
+ */
+export const RELAY_SAYS = {
+  'Too long': 'invalid: content exceeds maximum size of 262144 bytes',
+  'Deleted, or no longer yours to write beside': 'invalid: edit target not found or not editable by you',
+  'No longer a member': 'restricted: not a channel member',
+  Archived: 'restricted: channel is archived',
+  'Too many at once': 'rate-limited: slow down',
+  'Wrong clock': 'invalid: event timestamp too far in the future',
+  'Signed out': 'auth-required: authentication required',
+  'Anything else': 'error: internal error',
+} as const
+export type RelaySays = keyof typeof RELAY_SAYS
+
+/** What the server says when it refuses a file, as protocol's upload hands it over. */
+export const SERVER_SAYS = {
+  'Too large': 'upload failed: 413 {"error":"file too large: 11534336 bytes (max 10485760)"}',
+  'Not a type it takes': 'upload failed: 415 unsupported content type',
+  'Could not be read': 'upload failed: 422 invalid image metadata',
+  'Too many at once': 'upload failed: 429 rate limit exceeded',
+  'Signed out': 'upload failed: 401 authentication failed',
+  'No longer a member': 'upload failed: 403 forbidden',
+  'Anything else': 'upload failed: 500 internal error',
+} as const
+export type ServerSays = keyof typeof SERVER_SAYS
+
 const saved = (): Promise<SendAnswer> => new Promise((resolve) => setTimeout(() => resolve({ accepted: true }), 400))
-const refused = (): Promise<SendAnswer> => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason: 'try again in a moment' }), 600))
+const refused = (reason: string): Promise<SendAnswer> => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason }), 600))
 const asBody = (text: string): JSONContent => ({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text }] }] })
 
-/** The box a comment is edited in: the kit's CommentBox, as an app hands it to the card. */
-export function EditBox({ text, done, refuse = false }: { text: string; done: () => void; refuse?: boolean }) {
+/** The box a comment is edited in: the kit's CommentBox, as an app hands it to the card. `refuse`: why the relay says no. */
+export function EditBox({ text, done, refuse }: { text: string; done: () => void; refuse?: RelaySays }) {
+  const answer = () => (refuse ? refused(RELAY_SAYS[refuse]) : saved())
   return (
     <CommentBox
       people={[]}
       label="Edit"
       placeholder={null}
-      send={refuse ? refused : saved}
+      send={answer}
       edit={{
         body: asBody(text),
         onCancel: done,
         onSave: async () => {
-          const answer = await (refuse ? refused() : saved())
-          if (answer.accepted) done()
-          return answer
+          const said = await answer()
+          if (said.accepted) done()
+          return said
         },
       }}
     />

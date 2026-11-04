@@ -11,6 +11,7 @@ import { InlineChip } from './InlineChip'
 import { Kbd } from './Kbd'
 import { LinkCard } from './LinkCard'
 import { LinkChip } from './LinkChip'
+import { RELAY_SAYS, SERVER_SAYS, type RelaySays, type ServerSays } from './conversation.examples'
 import { ITEM, ITEM_NO_SUMMARY, ready } from './linked.examples'
 import { PartCard } from './PartCard'
 import { QuotedLine } from './QuotedLine'
@@ -54,23 +55,30 @@ const INSERT = [commentBoxRows.file, commentBoxRows.mention, commentBoxRows.urge
 
 const plain = (body: JSONContent): string => (body.text ?? '') + (body.content ?? []).map(plain).join(' ')
 
-/** A relay that answers after a moment, and refuses whatever says "refuse". */
-const answering = (body: JSONContent): Promise<SendAnswer> =>
-  new Promise((resolve) =>
-    setTimeout(() => resolve(/refuse/i.test(plain(body)) ? { accepted: false, reason: 'rate-limited, try again in a minute' } : { accepted: true }), 900),
-  )
+/** A relay that answers after a moment, and refuses whatever says "refuse", for `refusal`. */
+const answering =
+  (refusal: RelaySays = 'Too many at once') =>
+  (body: JSONContent): Promise<SendAnswer> =>
+    new Promise((resolve) => setTimeout(() => resolve(/refuse/i.test(plain(body)) ? { accepted: false, reason: RELAY_SAYS[refusal] } : { accepted: true }), 900))
+
+/** A relay that refuses every save, for `refusal`. */
+const refusing = (refusal: RelaySays) => (): Promise<SendAnswer> => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason: RELAY_SAYS[refusal] }), 900))
 
 /** A relay that never answers. */
 const silent = (): Promise<SendAnswer> => new Promise(() => {})
 
+/** A server that takes every file, never answers, or refuses every file for `refusal`. */
 const uploads =
-  (answer: 'ready' | 'failed' | 'never') =>
+  (answer: 'ready' | 'failed' | 'never', refusal: ServerSays = 'Anything else') =>
   (file: File): Promise<UploadAnswer> =>
     answer === 'never'
       ? new Promise(() => {})
       : new Promise((resolve) =>
-          setTimeout(() => resolve(answer === 'ready' ? { accepted: true, value: file.name } : { accepted: false, reason: 'The file is larger than 20 MB.' }), 1800),
+          setTimeout(() => resolve(answer === 'ready' ? { accepted: true, value: file.name } : { accepted: false, reason: SERVER_SAYS[refusal] }), 1800),
         )
+
+/** What the relay said, picked in the controls. */
+const relayControl = { argTypes: { refusal: { control: 'select', options: Object.keys(RELAY_SAYS) } } } as const
 
 const PLACEHOLDER = (
   <>
@@ -121,7 +129,7 @@ function Live({ start, ...props }: Partial<CommentBoxProps> & { start?: JSONCont
           people={PEOPLE}
           references={references}
           insert={INSERT}
-          send={answering}
+          send={answering()}
           label="Write"
           placeholder={PLACEHOLDER}
           draft={kept}
@@ -176,29 +184,36 @@ export const CommandsOpen: Story = { render: () => <Live />, play: typeInto('/')
 /** Held until the relay answers: the words stay, shut. */
 export const Sending: Story = { render: () => <Live send={silent} />, play: typeInto('On its way{Enter}') }
 
-/** The relay said no: the words are back in the box, and a line says why. */
-export const Refused: Story = { render: () => <Live />, play: typeInto('Please refuse this{Enter}') }
+/**
+ * The relay said no: the words are back in the box, and a line says why, in the same plain words in every app. Pick
+ * what the relay said in the controls.
+ */
+export const Refused: StoryObj<{ refusal: RelaySays }> = {
+  ...relayControl,
+  args: { refusal: 'Too long' },
+  render: ({ refusal }) => <Live send={answering(refusal)} />,
+  play: typeInto('Please refuse this{Enter}'),
+}
 
 /** Shown at once: the box empties now, and a refusal puts the words back. Write "refuse" to see it. */
 export const ShownAtOnce: Story = { render: () => <Live showsAtOnce /> }
 
 /** Editing something sent: the chips stay chips; only the keys on the left. */
 export const Editing: Story = {
-  render: () => <Live edit={{ body: WITH_CHIPS, onCancel: () => {}, onSave: answering }} />,
+  render: () => <Live edit={{ body: WITH_CHIPS, onCancel: () => {}, onSave: answering() }} />,
 }
 
-/** A save the relay refused: "Saving…" while it waits, then a line under the box; the changes stay. */
-export const EditingRefused: Story = {
-  render: () => (
-    <Live
-      edit={{
-        body: WITH_CHIPS,
-        onCancel: () => {},
-        onSave: () => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason: 'rate-limited, try again in a minute' }), 900)),
-      }}
-    />
-  ),
+/** A save the relay refused: "Saving…" while it waits, then a line under the box; the changes stay. Pick what the relay said in the controls. */
+export const EditingRefused: StoryObj<{ refusal: RelaySays }> = {
+  ...relayControl,
+  args: { refusal: 'Deleted, or no longer yours to write beside' },
+  render: ({ refusal }) => <Live edit={{ body: WITH_CHIPS, onCancel: () => {}, onSave: refusing(refusal) }} />,
   play: typeInto('{Enter}'),
+}
+
+/** An edit with nothing left in it, no words and no file: Save is off, and nothing is said. */
+export const EditingEmptied: Story = {
+  render: () => <Live edit={{ body: { type: 'doc', content: [{ type: 'paragraph' }] }, onCancel: () => {}, onSave: answering() }} />,
 }
 
 /** A file attached and ready: its card under the text, and Send can send it with no words. */
@@ -207,8 +222,25 @@ export const WithAFile: Story = { render: () => <Live />, play: pickAFile }
 /** A file uploading: Send waits for it. */
 export const FileUploading: Story = { render: () => <Live upload={uploads('never')} />, play: pickAFile }
 
-/** A file that failed: it says why, Send holds, and its ✕ removes it. */
-export const FileFailed: Story = { render: () => <Live upload={uploads('failed')} />, play: pickAFile }
+/**
+ * A file the server refused: its card says why, Send holds, and its ✕ removes it. Pick what the server said in the
+ * controls.
+ */
+export const FileFailed: StoryObj<{ refusal: ServerSays }> = {
+  args: { refusal: 'Too large' },
+  argTypes: { refusal: { control: 'select', options: Object.keys(SERVER_SAYS) } },
+  render: ({ refusal }) => <Live upload={uploads('failed', refusal)} />,
+  play: pickAFile,
+}
+
+/** A file over the server's limit for its type (a GIF over 10 MB): its card says so at once, and nothing uploads. */
+export const FileTooLarge: Story = {
+  render: () => <Live />,
+  play: async ({ canvasElement }) => {
+    const input = canvasElement.querySelector('input[type=file]') as HTMLInputElement
+    await userEvent.upload(input, new File([new Uint8Array(15 * 1024 * 1024)], 'image.gif', { type: 'image/gif' }))
+  },
+}
 
 /** Read-only, archived: a line in the box's place. */
 export const ReadOnlyArchived: Story = { render: () => <Live closed={{ reason: 'This is archived, so nothing new can be written here.' }} /> }
@@ -307,7 +339,7 @@ export const EditingWithACard: Story = {
       edit={{
         body: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'As in' }] }] },
         onCancel: () => {},
-        onSave: answering,
+        onSave: answering(),
       }}
     />
   ),

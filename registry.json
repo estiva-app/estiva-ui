@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.105.0",
+    "packageVersion": "0.106.0",
     "exports": 245,
     "typeExports": 254,
     "files": null
@@ -2883,13 +2883,7 @@
           "name": "reactions",
           "takes": "ReactionRowProps",
           "required": false,
-          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too."
-        },
-        {
-          "name": "reactionRefused",
-          "takes": "text",
-          "required": false,
-          "note": "Why the last reaction was refused, in plain words: said under the reactions."
+          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too; when `onToggle` answers with a refusal, \"Not reacted: <why>.\" is said under the reactions until the next reaction here, or until the card goes."
         },
         {
           "name": "isNew",
@@ -9443,13 +9437,7 @@
           "name": "reactions",
           "takes": "ReactionRowProps",
           "required": false,
-          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too."
-        },
-        {
-          "name": "reactionRefused",
-          "takes": "text",
-          "required": false,
-          "note": "Why the last reaction was refused, in plain words: said under the reactions."
+          "note": "Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too; when `onToggle` answers with a refusal, \"Not reacted: <why>.\" is said under the reactions until the next reaction here, or until the card goes."
         },
         {
           "name": "isNew",

@@ -1,4 +1,5 @@
 import { useContext, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { refusalReason } from '@estiva-app/conversation'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
@@ -47,10 +48,11 @@ export interface ConversationEntryProps {
   about?: ReactNode
   /** Pictures and files: `AttachmentCard`s, laid out under the words. */
   files?: ReactNode
-  /** Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too. */
+  /**
+   * Its reactions: the kit's `ReactionRow`. With `onToggle`, the strip offers React too; when `onToggle` answers with a
+   * refusal, "Not reacted: <why>." is said under the reactions until the next reaction here, or until the card goes.
+   */
   reactions?: ReactionRowProps
-  /** Why the last reaction was refused, in plain words: said under the reactions. */
-  reactionRefused?: string
   /** Not read yet: the dot, or the urgent mark with `urgent`, and the card's edge in the theme's colour. */
   isNew?: boolean
   urgent?: boolean
@@ -253,6 +255,34 @@ function Words({ children }: { children: ReactNode }) {
   )
 }
 
+/**
+ * The card holds why its last reaction was refused, so it lasts the same in every app: said from the answer until the
+ * next reaction here, or until the card goes. Only the latest reaction's answer is said.
+ */
+function useReactionRefusal(reactions: ReactionRowProps | undefined): { row: ReactionRowProps | undefined; refused: string | undefined } {
+  const [refused, setRefused] = useState<string>()
+  const latest = useRef(0)
+  const toggle = reactions?.onToggle
+  if (!reactions || !toggle) return { row: reactions, refused }
+  const onToggle = (emoji: string) => {
+    const mine = ++latest.current
+    setRefused(undefined)
+    const say = (reason: unknown) => {
+      if (mine === latest.current) setRefused(refusalReason(reason))
+    }
+    const answer = toggle(emoji)
+    if (!answer) return
+    return answer.then((said) => {
+      if (said && !said.accepted) say(said.reason)
+      return said
+    }, (reason: unknown) => {
+      say(reason)
+      return { accepted: false as const, reason }
+    })
+  }
+  return { row: { ...reactions, onToggle }, refused }
+}
+
 function Reactions({ reactions, refused, readOnly }: { reactions?: ReactionRowProps; refused?: string; readOnly: boolean }) {
   if ((!reactions || reactions.reactions.length === 0) && !refused) return null
   return (
@@ -347,7 +377,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -378,7 +408,8 @@ export function ConversationCard(props: ConversationCardProps) {
   const showStrip = hovered && !isEditing && !readOnly
   const strip = useRef<HTMLDivElement>(null)
   const wordsEnd = useClearOfStrip(root, strip, showStrip)
-  const react = reactions?.onToggle
+  const { row: reactionRow, refused: reactionRefused } = useReactionRefusal(reactions)
+  const react = reactionRow?.onToggle
   // Read-only with no replies, there is nothing to open: no box to write in, no thread to read (Peek's way, Katerina, 1 November).
   const press = onClick ?? (readOnly && !replies?.count ? undefined : item?.toggle)
   const reply = onReply ?? item?.show
@@ -459,7 +490,7 @@ export function ConversationCard(props: ConversationCardProps) {
             {!deleted && files && (
               <div className="relative flex w-full flex-wrap items-start gap-2 pb-2 pl-8 pr-2">{files}</div>
             )}
-            <Reactions reactions={reactions} refused={reactionRefused} readOnly={readOnly} />
+            <Reactions reactions={reactionRow} refused={reactionRefused} readOnly={readOnly} />
             {resolved?.note && (
               // Who resolved it and the note, above the way into the replies; the check by the time says "Resolved" (Katerina, 1 November).
               <div className="relative w-full pb-1">
@@ -543,7 +574,8 @@ export function ConversationCard(props: ConversationCardProps) {
  * when it has one. Peek's, moved with the conversation.
  */
 export function ReplyCard(props: ReplyCardProps) {
-  const { id, author, about, files, reactions, reactionRefused, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', noun = 'reply', className, children } = props
+  const { id, author, about, files, isNew = false, urgent = false, own = false, editor, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', noun = 'reply', className, children } = props
+  const { row: reactions, refused: reactionRefused } = useReactionRefusal(props.reactions)
   const readOnly = props.readOnly ?? false
   const [hovered, setHovered] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)

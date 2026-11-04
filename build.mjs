@@ -67,7 +67,8 @@ await build({
       name: 'main-entry-is-external',
       setup(on) {
         on.onResolve({ filter: /^\.\// }, (args) => {
-          if (args.kind === 'entry-point' || EDITOR_OWN.has(args.path)) return undefined
+          // Only this package's own files: a bundled package's relative imports (`@estiva-app/conversation`'s) stay its own.
+          if (args.kind === 'entry-point' || EDITOR_OWN.has(args.path) || args.importer.includes('/node_modules/')) return undefined
           return { path: '@estiva-app/ui', external: true }
         })
       },
