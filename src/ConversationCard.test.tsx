@@ -222,7 +222,7 @@ describe('a refused reaction (ONE-4)', () => {
     expect(screen.queryByText(/Not reacted/)).toBeNull()
   })
 
-  it('says only the latest reaction’s answer: an earlier refusal arriving late is not said', async () => {
+  it('says only the latest reaction’s answer: an earlier refusal arriving late does not replace it', async () => {
     const answers: ((a: { accepted: true } | { accepted: false; reason: unknown }) => void)[] = []
     const onToggle = () => new Promise<{ accepted: true } | { accepted: false; reason: unknown }>((resolve) => answers.push(resolve))
     render(
@@ -232,10 +232,12 @@ describe('a refused reaction (ONE-4)', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
     fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
-    answers[1]({ accepted: true })
-    answers[0]({ accepted: false, reason: 'rate-limited: slow down' })
+    answers[1]({ accepted: false, reason: 'rate-limited: slow down' })
     await settle()
-    expect(screen.queryByText(/Not reacted/)).toBeNull()
+    answers[0]({ accepted: false, reason: 'invalid: reaction target event not found' })
+    await settle()
+    expect(screen.getByText('Not reacted: too many at once, try again in a moment.')).toBeTruthy()
+    expect(screen.queryByText(/this message was deleted/)).toBeNull()
   })
 })
 

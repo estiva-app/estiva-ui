@@ -10,8 +10,9 @@ What each app does on taking it (all three, in the ONE-4 adoption PRs):
 
 - **Pass every refusal as it came**, never a sentence of its own: `send`, `edit.onSave` and `upload` answer
   `{ accepted: false, reason }` with the relay's words, the error or the HTTP body (`reason` is now `unknown`), and
-  `edit.refused` takes the same. A sentence an app passes still reads — the words map back — but it is a mapping the
-  app should delete.
+  `edit.refused` takes the same. Until it does, an app's own sentence is read as a refusal of its own: most come out as
+  "something went wrong, try again", and an upload's as "Could not upload, try again" — so take this version in the
+  same PR that deletes the app's words.
 - **Return the reaction's answer from `reactions.onToggle`** and drop `reactionRefused`: Peek
   `src/components/ConversationCard.tsx:291` and `src/components/ReplyCard.tsx:194` (and `src/lib/reactions.ts`'s
   store); Ship `src/components/conversations/ThreadCards.tsx:95–140`; Leaf `src/comments/CommentsColumn.tsx:478–499`.

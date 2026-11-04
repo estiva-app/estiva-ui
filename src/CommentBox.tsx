@@ -501,7 +501,7 @@ function OpenCommentBox({
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
   const [sending, setSending] = useState(false)
   // The plain reason, never the relay's words (ONE-4).
-  const [refused, setRefused] = useState<string | null>(edit?.refused != null ? refusalReason(edit.refused) : null)
+  const [refused, setRefused] = useState<string | null>(edit?.refused ? refusalReason(edit.refused) : null)
   // What shows under the box, and what ✕ took off.
   const [reading, setReading] = useState<BoxUnderRead | undefined>(undefined)
   const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
@@ -570,16 +570,17 @@ function OpenCommentBox({
   }, [editor])
 
   // Whether the edit's words are gone: Save waits for something to save, and a refusal says the changes are in the box only while they are.
-  const [wordless, setWordless] = useState(() => !!edit && !!editor && isEmpty(editor))
+  const editing = !!edit
+  const [wordless, setWordless] = useState(() => editing && !!editor && isEmpty(editor))
   useEffect(() => {
-    if (!editor || !edit) return
+    if (!editor || !editing) return
     const read = () => setWordless(isEmpty(editor))
     read()
     editor.on('update', read)
     return () => {
       editor.off('update', read)
     }
-  }, [editor, edit])
+  }, [editor, editing])
 
   // Drafts: every change is kept, and an empty box is no draft.
   useEffect(() => {
