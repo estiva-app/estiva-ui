@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useContext, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { IconArrowNarrowRight, IconCircleCheck, IconDotsVertical } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Card } from './Card'
@@ -156,11 +156,38 @@ function When({ time, at: given, timeHref, timeLabel = 'Link to this' }: Pick<Co
   return <MetaText className="shrink-0">{exact ? <WithTooltip label={exact}>{said}</WithTooltip> : time}</MetaText>
 }
 
-/** The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". */
-function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode }) {
+/** The head's words fade out over their last 16px before `end`: a mask on the words, as ShowMore's, so they end in whatever is behind. */
+const fadeBefore = (end: number) => `linear-gradient(to right, black ${end - 16}px, transparent ${end}px)`
+
+/**
+ * While the strip shows, where the head's words must end, in px from the head's start: 8px short of the strip,
+ * measured, as the strip's width follows the buttons the card offers; nothing when the words end before that. The head
+ * fades out there rather than giving way: giving way cut the name sooner and slid the time and "(edited)" left under
+ * the pointer. Before, the strip covered the end of "(edited)" in Leaf's 360px cards (Leaf's adoption review, 4 November).
+ */
+function useClearOfStrip(root: RefObject<HTMLDivElement | null>, strip: RefObject<HTMLDivElement | null>, shown: boolean) {
+  const [end, setEnd] = useState<number>()
+  useLayoutEffect(() => {
+    const words = root.current?.querySelector<HTMLElement>('[data-head]')
+    if (!shown || !words || !strip.current) {
+      setEnd(undefined)
+      return
+    }
+    const stop = strip.current.getBoundingClientRect().left - 8
+    const reach = Math.max(...Array.from(words.children, (part) => part.getBoundingClientRect().right))
+    setEnd(reach > stop ? stop - words.getBoundingClientRect().left : undefined)
+  }, [root, strip, shown])
+  return end
+}
+
+/**
+ * The face, the name, the time and "(edited)", with the new mark at the far right. `meta`: after "(edited)". `end`:
+ * the strip shows over the head, and its words fade out before this point (`useClearOfStrip`).
+ */
+function Head({ author, time, at, timeHref, timeLabel, edited, isNew, urgent, meta, end }: Pick<ConversationEntryProps, 'author' | 'time' | 'at' | 'timeHref' | 'timeLabel' | 'edited' | 'isNew' | 'urgent'> & { meta?: ReactNode; end?: number }) {
   return (
     <div className="flex w-full items-center gap-2">
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div data-head className="flex min-w-0 flex-1 items-center gap-2" style={end === undefined ? undefined : { maskImage: fadeBefore(end), WebkitMaskImage: fadeBefore(end) }}>
         <span data-face className="relative flex shrink-0">
           <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} />
         </span>
@@ -349,6 +376,8 @@ export function ConversationCard(props: ConversationCardProps) {
   // The ⋯ menu only when it has a row to show: Resolve or Reopen, the app's rows, or Edit and Delete on your own.
   const offersMenu = !!resolves || !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly
+  const strip = useRef<HTMLDivElement>(null)
+  const wordsEnd = useClearOfStrip(root, strip, showStrip)
   const react = reactions?.onToggle
   // Read-only with no replies, there is nothing to open: no box to write in, no thread to read (Peek's way, Katerina, 1 November).
   const press = onClick ?? (readOnly && !replies?.count ? undefined : item?.toggle)
@@ -416,6 +445,7 @@ export function ConversationCard(props: ConversationCardProps) {
                   isNew={isNew}
                   urgent={urgent}
                   meta={resolved && <ResolvedCheck by={resolved.by} note={resolved.note} at={resolved.at} />}
+                  end={wordsEnd}
                 />
                 {!!about && (
                   // Under the name, above the words (Katerina, 1 November).
@@ -447,7 +477,7 @@ export function ConversationCard(props: ConversationCardProps) {
           <span aria-hidden className="pointer-events-none absolute left-[19px] w-0.5 bg-border-default" style={{ top: dotLine.top, height: dotLine.height }} />
         )}
         {showStrip && (
-          <div className="absolute right-1 top-1 z-10">
+          <div ref={strip} className="absolute right-1 top-1 z-10">
             <ConversationActions
               options={reactions?.options}
               onReact={react}
@@ -524,6 +554,8 @@ export function ReplyCard(props: ReplyCardProps) {
   const offersMenu = !!menu || !!menuAfter || (own && (!!editor || !!onDelete))
   const showStrip = hovered && !isEditing && !readOnly && (offersMenu || !!reactions?.onToggle)
   const root = useRef<HTMLDivElement>(null)
+  const strip = useRef<HTMLDivElement>(null)
+  const wordsEnd = useClearOfStrip(root, strip, showStrip)
   const settle = () => requestAnimationFrame(() => setHovered(stillHere(root.current)))
   // In a Thread beside, a reply counts itself as it is first drawn: a new one takes the thread to its newest.
   const drawn = useContext(repliesDrawn)
@@ -559,7 +591,7 @@ export function ReplyCard(props: ReplyCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div className="flex flex-col items-start px-2 pt-2">
-            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} />
+            <Head author={author} time={props.time} at={props.at} timeHref={props.timeHref} timeLabel={props.timeLabel} edited={props.edited} isNew={isNew} urgent={urgent} end={wordsEnd} />
             {/* As on a comment: under the name, above the words. */}
             {about && <div className="w-full pl-8 pr-2 pt-0.5">{about}</div>}
             <Words>{children}</Words>
@@ -568,39 +600,41 @@ export function ReplyCard(props: ReplyCardProps) {
           </div>
         )}
         {showStrip && (
-          <ConversationActions
-            className="absolute right-1 top-1 z-10"
-            options={reactions?.options}
-            onReact={reactions?.onToggle}
-            onPickerOpenChange={(open) => {
-              setPicking(open)
-              if (!open) settle()
-            }}
-            more={
-              offersMenu && (
-                <ConversationMenu
-                  trigger={
-                    <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
-                      <IconDotsVertical size={16} stroke={1.5} />
-                    </ToolbarButton>
-                  }
-                  open={menuOpen}
-                  onOpenChange={(next) => {
-                    setMenuOpen(next)
-                    if (!next) settle()
-                  }}
-                  label={menuLabel}
-                  onEdit={own && editor ? () => setEditing(true) : undefined}
-                  editLabel={editLabel}
-                  after={menuAfter}
-                  onDelete={own && onDelete ? () => setDeleting(true) : undefined}
-                  deleteLabel={deleteLabel}
-                >
-                  {menu}
-                </ConversationMenu>
-              )
-            }
-          />
+          // In a box of its own, as a comment's: the box is what the head measures to keep clear of.
+          <div ref={strip} className="absolute right-1 top-1 z-10">
+            <ConversationActions
+              options={reactions?.options}
+              onReact={reactions?.onToggle}
+              onPickerOpenChange={(open) => {
+                setPicking(open)
+                if (!open) settle()
+              }}
+              more={
+                offersMenu && (
+                  <ConversationMenu
+                    trigger={
+                      <ToolbarButton tooltip={moreLabel} aria-label={moreLabel}>
+                        <IconDotsVertical size={16} stroke={1.5} />
+                      </ToolbarButton>
+                    }
+                    open={menuOpen}
+                    onOpenChange={(next) => {
+                      setMenuOpen(next)
+                      if (!next) settle()
+                    }}
+                    label={menuLabel}
+                    onEdit={own && editor ? () => setEditing(true) : undefined}
+                    editLabel={editLabel}
+                    after={menuAfter}
+                    onDelete={own && onDelete ? () => setDeleting(true) : undefined}
+                    deleteLabel={deleteLabel}
+                  >
+                    {menu}
+                  </ConversationMenu>
+                )
+              }
+            />
+          </div>
         )}
       </Card>
       {deleting && onDelete && (

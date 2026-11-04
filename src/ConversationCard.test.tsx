@@ -213,6 +213,56 @@ describe('ReplyCard', () => {
 })
 
 /**
+ * In Leaf's 360px cards a time in words and "(edited)" ran under the strip, which covered the end of "(edited)" (Leaf's
+ * adoption review, 4 November). jsdom draws nothing, so the boxes are given: the strip from x 232, the head's words to
+ * x 367, the last part of them ending at `end`.
+ */
+describe('the head keeps clear of the strip', () => {
+  function placed(end: number) {
+    return vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      const box = (left: number, right: number) => ({ left, right, x: left, y: 0, top: 0, bottom: 20, width: right - left, height: 20, toJSON: () => ({}) }) as DOMRect
+      if (this.matches('[data-head]')) return box(25, 367)
+      if (this.parentElement?.matches('[data-head]')) return this === this.parentElement.lastElementChild ? box(end - 40, end) : box(25, end - 48)
+      if (this.matches('.absolute.right-1.top-1')) return box(232, 372)
+      return box(0, 0)
+    })
+  }
+  const head = () => document.querySelector<HTMLElement>('[data-head]')!
+
+  for (const [what, card] of [
+    ['a comment', (words: string) => <ConversationCard author={ONE} time="20 minutes ago" edited="Edited 2 minutes ago" onReply={() => {}} onResolve={() => {}}>{words}</ConversationCard>],
+    ['a reply', (words: string) => <ReplyCard author={ONE} time="20 minutes ago" edited="Edited 2 minutes ago" own onDelete={() => {}}>{words}</ReplyCard>],
+  ] as const) {
+    it(`${what}: while the strip shows, the words that reach it fade out 8px before it, and nothing in the head moves`, async () => {
+      const user = userEvent.setup()
+      const boxes = placed(238.4)
+      render(card('Words'))
+      const parts = Array.from(head().children, (part) => part.outerHTML)
+      expect(head().style.maskImage).toBe('')
+      await point(user, 'Words')
+      // Transparent from 8px before the strip (x 224, 199px into the head), after a 16px fade.
+      expect(head().style.maskImage).toBe('linear-gradient(to right, black 183px, transparent 199px)')
+      expect(Array.from(head().children, (part) => part.outerHTML)).toEqual(parts)
+      boxes.mockRestore()
+    })
+  }
+
+  it('words that end before the strip are left as they are', async () => {
+    const user = userEvent.setup()
+    const boxes = placed(200)
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" onReply={() => {}}>
+        Words
+      </ConversationCard>,
+    )
+    await point(user, 'Words')
+    expect(screen.getByRole('button', { name: 'Reply' })).toBeTruthy()
+    expect(head().style.maskImage).toBe('')
+    boxes.mockRestore()
+  })
+})
+
+/**
  * The app keeps the refusal in its own state, as the usage page asks, and is not told when the question closes. Before,
  * the next Delete or Resolve opened already saying the last one's "Could not … Try again.", before anything was pressed
  * (Leaf's adoption review, 4 November).
