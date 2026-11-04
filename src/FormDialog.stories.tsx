@@ -38,7 +38,7 @@ export const NewFolder: Story = {
     return (
       <FormDialog {...args} ready={!!name.trim()}>
         <p className="text-body-2 text-text-secondary">A place for files and conversations. Everyone you add to it can read what is in it.</p>
-        <Field label="Folder name">
+        <Field label="Team name">
           <TextInput value={name} onChange={(event) => setName(event.target.value)} placeholder="What is it for?" autoFocus />
         </Field>
       </FormDialog>
@@ -53,7 +53,7 @@ export const Sending: Story = {
   render: NewFolder.render,
   play: async ({ canvasElement }) => {
     const page = within(canvasElement.ownerDocument.body)
-    await userEvent.type(page.getByRole('textbox', { name: 'Folder name' }), 'Steer')
+    await userEvent.type(page.getByRole('textbox', { name: 'Team name' }), 'Steer')
     await userEvent.click(page.getByRole('button', { name: 'Create' }))
   },
 }
@@ -69,7 +69,7 @@ export const Refused: Story = {
 /** Nothing to choose from: a section's empty line where the fields would be, and the button greyed. */
 export const NothingToChoose: Story = {
   name: 'Nothing to choose',
-  args: { title: 'Move', submitLabel: 'Move', busyLabel: 'Moving…', ready: false, children: <EmptyState scope="section" message="There is no other folder it can be moved to." /> },
+  args: { title: 'Move', submitLabel: 'Move', busyLabel: 'Moving…', ready: false, children: <EmptyState scope="section" message="There is no other team it can be moved to." /> },
 }
 
 /** A Resolve: the kit's `resolve` look on the sending button, as `ResolveDialog` draws it. */

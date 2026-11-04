@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.105.0 — 2026-11-04
+
+### Changed
+
+- **`MoveDialog` says team by default** (TEA-8: every app says team where it said Folder, on the same day; record
+  a-team-is-the-folder-and-is-called-a-team). `folderLabel` is "Team", `noFolder` "There is no other team it can be
+  moved to.", the placeholder "Pick a team", and an unnamed one "this team". Prop names are unchanged. A minor, not a
+  patch, so that no app on `^0.104` says team before its own release-day bump. An app passing its own words is
+  unaffected; one using the defaults (Peek's `src/components/views/useFileControls.tsx`) says team once it updates.
+  The MoveDialog, FormDialog and ArchiveDialog stories and pages say team too.
+
 ## 0.104.3 — 2026-11-04
 
 Three fixes and two lines of docs from the review of Leaf's adoption (Katerina, 4 November). No prop changes: an app
