@@ -65,7 +65,9 @@ const draft = composerDraft(createDraftStore(localStorage), draftKeys.thread(roo
 ```
 
 - **It speaks the editor's document.** The text a document sends, and the document an edit or a draft opens with, are `@estiva-app/conversation`'s: `composerText`, `composerDocument`, `composerDraft`. Never write marker text here.
-- **`send` answers.** Resolve `{ accepted: false, reason }` and the words come back with "Not sent: *reason*". A thrown send is a refusal too.
+- **`send` answers.** Resolve `{ accepted: false, reason }` and the words come back with "Not sent: *why*. Your text is back in the box." A thrown send is a refusal too. Hand `reason` over as it came — the relay's words, the error, the HTTP body, or `{ cause }` for a cause of your own — never your own sentence: the box says it in `@estiva-app/conversation`'s plain words (`refusalReason`), the same in every app. `onSave` and `edit.refused` likewise ("Not saved: *why*.", and "Your changes are still in the box." while it holds something).
+- **`upload` answers the same way**: `{ accepted: false, reason }` with the reason as it came (protocol's `upload failed: <status> <body>`); the file's card says `uploadRefusal`'s line. A file over the server's limit for its type (10 MB a GIF, 50 MB another picture, 100 MB anything else) is said on its card as it is picked, and never handed to `upload`.
+- **An edit holding nothing**, no words and no file, cannot be saved: Save is off. One whose words are all gone but that keeps a file is saved.
 - **`label` is required**: the editor's accessible name.
 - **`insert` is the app's Insert rows**, after the shared Format section: `commentBoxRows` and the app's own. An edit drops Urgent itself (an edit makes nobody urgent); with no `upload` there is no Upload (`commentBoxRows.file` is that row).
 - **Give the box a `key` per destination.** The editor, the rows and `code` are made once, as the box opens; a new thread is a new box.
@@ -88,7 +90,8 @@ It does these by itself. Write none of them around it.
 | `[`'s rows wear the icon of the kind each address names | an icon lookup |
 | Enter and Ctrl/Cmd+Enter send; Escape cancels an edit | key handlers |
 | Holding the words until the answer, or showing the send at once | a sending state |
-| A refusal: the words back, and a line under the box | a toast, or putting text back |
+| A refusal: the words back, and a line under the box in the plain words every app says | a toast, putting text back, or words for the relay's reasons |
+| A file over the server's limit, said on its card before anything uploads | a size check |
 | The draft, written as you type and forgotten once sent | an update listener |
 | Files: picking, pasting, dropping, uploading, failing; Send waits for an upload and holds on a failed file until its ✕ removes it | a file list |
 | The card in the box, its ✕, and a ✕ forgotten once the link is taken out; a refused send puts back what ✕ took off | a card state |

@@ -94,6 +94,9 @@ const TILE_CLASSES = TYPE_TILE_CLASSES
 // @estiva-escape(no-copied-look): A6 (Katerina, 24 September: record only): a 12px medium name, the text style InputChip's label also uses, not a copy of a part
 const NAME_CLASSES = 'text-caption font-medium text-text-primary truncate'
 const NOTE_CLASSES = 'text-small tracking-wide leading-tight truncate'
+// A failed file's reason is what the person acts on, its limit included ("Too large: the most is 10 MB"): up to two
+// lines rather than cut at the card's width (ONE-4).
+const FAILED_NOTE_CLASSES = 'text-small tracking-wide leading-tight line-clamp-2 text-error-default'
 
 function TypeIcon({ name }: { name: string }) {
   const Icon = ICON_BY_EXTENSION[extensionOf(name)] ?? IconFile
@@ -414,7 +417,7 @@ export function AttachmentCard({
           <Truncating
             text={(failed || warning ? note : state === 'uploading' ? (note ?? 'Uploading…') : (note ?? sizeText)) ?? ''}
             hint={noteHint}
-            className={cn(NOTE_CLASSES, failed ? 'text-error-default' : warning ? 'text-warning-default' : 'text-text-secondary')}
+            className={failed ? FAILED_NOTE_CLASSES : cn(NOTE_CLASSES, warning ? 'text-warning-default' : 'text-text-secondary')}
           />
         </div>
         {onRemove && (

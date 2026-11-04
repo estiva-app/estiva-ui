@@ -62,6 +62,7 @@ import { ConversationCard } from '@estiva-app/ui'
 - **Edit opens your box**: `editor` draws your **CommentBox** edit form; call `done` when it saves or cancels. To open it again after a refused save, hold `editing` yourself.
 - **Resolve opens the dialog**: **ResolveDialog**, then `onResolve(note)`. Answer `false` when it was refused, and pass `resolveRefused` (why, in plain words); the dialog stays and says it.
 - **Delete asks first**: **ConfirmDialog**, then `onDelete()`. Answer `false` when it was refused, and pass `deleteRefused` (why, in plain words): the question stays and says it, as Resolve's does.
+- **A reaction answers**: `reactions.onToggle` returns the relay's answer, `{ accepted: false, reason }` with the reason as it came. The card says "Not reacted: *why*." under the reactions in `@estiva-app/conversation`'s plain words, until the next reaction on it or until it goes; only the latest reaction's answer is said. Hold no refusal of your own.
 - **A refusal is said only in the question it answered.** Keep it in your own state and never clear it: a question opened again says nothing until its own press is refused.
 - **Deleted** keeps its `about`: what it was on stays above "This comment was deleted.", for the replies under it.
 - `time` is your words for it ("11:08 AM"); `at` is the moment (ms), from which the card says the exact date and time on hover. Never a tooltip of your own round `time`.
@@ -76,6 +77,7 @@ import { ConversationCard } from '@estiva-app/ui'
 | A card that opens on a press is a Tab stop: reaching it shows its actions, Enter or Space opens it | a `tabIndex` and a key handler |  |
 | Asks before it deletes | a confirm dialog |  |
 | Says a refusal only in the question it answered | clearing it when the question closes |  |
+| Says why a reaction was refused, in the words every app says, until the next reaction or until the card goes | a refusal state, or words for the relay's reasons |  |
 | Says the exact date and time under the pointer, from `at` | a tooltip round the time |  |
 | Opens the Resolve dialog, and closes it once resolved | a dialog and its open state |  |
 | Says it is resolved, with who and the note, and hides nothing of it | a resolved line or chip of your own |  |

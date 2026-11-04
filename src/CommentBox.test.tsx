@@ -90,13 +90,30 @@ describe('sending, held until the relay answers', () => {
     expect(screen.queryByText('Sending…')).toBeNull()
   })
 
-  it('a refusal keeps the words in the box and says why under it', async () => {
-    render(<Box send={async () => ({ accepted: false, reason: 'rate-limited' })} />)
+  it('a refusal keeps the words in the box and says why under it in plain words, never the relay’s', async () => {
+    render(<Box send={async () => ({ accepted: false, reason: 'invalid: content exceeds maximum size of 262144 bytes' })} />)
     await type('Hello there')
     await press('Enter')
     await settle()
     expect(editorOf().getText()).toBe('Hello there')
-    expect(screen.getByText('Not sent: rate-limited. Your text is back in the box.')).toBeTruthy()
+    expect(screen.getByText('Not sent: it is too long. Your text is back in the box.')).toBeTruthy()
+    expect(screen.queryByText(/262144|invalid:/)).toBeNull()
+  })
+
+  it('a send refused as on a deleted message says you can no longer write here, not that a message was deleted', async () => {
+    render(<Box send={async () => ({ accepted: false, reason: 'invalid: reply target event not found' })} />)
+    await type('Hello there')
+    await press('Enter')
+    await settle()
+    expect(screen.getByText('Not sent: you can no longer write here. Your text is back in the box.')).toBeTruthy()
+  })
+
+  it('a send that throws says something went wrong, not the error', async () => {
+    render(<Box send={async () => Promise.reject(new TypeError('Failed to fetch'))} />)
+    await type('Hello there')
+    await press('Enter')
+    await settle()
+    expect(screen.getByText('Not sent: something went wrong, try again. Your text is back in the box.')).toBeTruthy()
     expect(editorOf().isEditable).toBe(true)
   })
 
@@ -182,11 +199,11 @@ describe('sending, shown at once', () => {
     await press('Enter')
     expect(editorOf().getText()).toBe('')
     expect(onSent).toHaveBeenCalledTimes(1)
-    answer.answer({ accepted: false, reason: 'rate-limited' })
+    answer.answer({ accepted: false, reason: 'restricted: not a channel member' })
     await settle()
     expect(editorOf().getText()).toBe('Hello there')
     expect(onRefused).toHaveBeenCalledTimes(1)
-    expect(screen.getByText('Not sent: rate-limited. Your text is back in the box.')).toBeTruthy()
+    expect(screen.getByText('Not sent: you can no longer write here. Your text is back in the box.')).toBeTruthy()
   })
 })
 
@@ -242,12 +259,42 @@ describe('editing', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
-  it('a refused save keeps the words and says it was not saved', async () => {
-    render(<Box edit={{ body, onSave: async () => ({ accepted: false, reason: 'gone' }), onCancel: () => {} }} />)
+  it('a refused save keeps the words and says it was not saved, and why', async () => {
+    render(<Box edit={{ body, onSave: async () => ({ accepted: false, reason: 'invalid: edit target not found or not editable by you' }), onCancel: () => {} }} />)
     await press('Enter')
     await settle()
-    expect(screen.getByText('Not saved: gone. Your changes are still in the box.')).toBeTruthy()
+    expect(screen.getByText('Not saved: this message was deleted, or you can no longer write here. Your changes are still in the box.')).toBeTruthy()
     expect(editorOf().getText()).toBe('Said before')
+  })
+
+  it('an edit emptied of its words and files cannot be saved, and says nothing', async () => {
+    const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
+    render(<Box edit={{ body, onSave, onCancel: () => {} }} />)
+    await act(async () => {
+      editorOf().commands.clearContent(true)
+    })
+    expect((screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement).disabled).toBe(true)
+    await press('Enter')
+    expect(onSave).not.toHaveBeenCalled()
+    expect(screen.queryByText(/Not saved/)).toBeNull()
+  })
+
+  it('an edit emptied of its words that keeps a file is saved', async () => {
+    const onSave = vi.fn<CommentBoxEdit['onSave']>(async () => ({ accepted: true }))
+    const files = [{ id: 'old', name: 'old.png', state: 'ready' as const, value: 'old-record' }]
+    render(<Box edit={{ body, files, writesFiles: true, onSave, onCancel: () => {} }} />)
+    await act(async () => {
+      editorOf().commands.clearContent(true)
+    })
+    expect((screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement).disabled).toBe(false)
+    await press('Enter')
+    expect(onSave).toHaveBeenCalledTimes(1)
+    expect(onSave.mock.calls[0][1]).toMatchObject([{ value: 'old-record' }])
+  })
+
+  it('a refusal reopened with nothing in the box does not say the changes are still there', () => {
+    render(<Box edit={{ body: { type: 'doc', content: [{ type: 'paragraph' }] }, refused: 'rate-limited: slow down', onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    expect(screen.getByText('Not saved: too many at once, try again in a moment.')).toBeTruthy()
   })
 
   it('/ offers Upload and no Urgent in an edit whose save writes files', async () => {
@@ -317,8 +364,8 @@ describe('editing', () => {
   })
 
   it('an edit the app reopens after a refusal says why under it as it opens', () => {
-    render(<Box edit={{ body, refused: 'rate-limited', onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
-    expect(screen.getByText('Not saved: rate-limited. Your changes are still in the box.')).toBeTruthy()
+    render(<Box edit={{ body, refused: 'rate-limited: slow down', onSave: async () => ({ accepted: true }), onCancel: () => {} }} />)
+    expect(screen.getByText('Not saved: too many at once, try again in a moment. Your changes are still in the box.')).toBeTruthy()
     expect(editorOf().getText()).toBe('Said before')
   })
 })
@@ -363,13 +410,13 @@ describe('files', () => {
 
   it('a failed upload says why and holds Send and Enter until its ✕ takes it off', async () => {
     const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
-    render(<Box send={send} upload={async () => ({ accepted: false, reason: 'too large' })} />)
+    render(<Box send={send} upload={async () => ({ accepted: false, reason: 'upload failed: 413 {"error":"file too large: 11534336 bytes (max 10485760)"}' })} />)
     const input = document.querySelector('input[type=file]') as HTMLInputElement
     await act(async () => {
       fireEvent.change(input, { target: { files: [new File(['x'], 'big.mov', { type: 'video/quicktime' })] } })
     })
     await settle()
-    expect(screen.getByText('too large')).toBeTruthy()
+    expect(screen.getByText('Too large: the most is 10 MB')).toBeTruthy()
     expect(screen.queryByText('Uploading… Send waits for the file.')).toBeNull()
     await type('See this')
     expect(screen.getByText('Remove the file that did not upload to send.')).toBeTruthy()
@@ -384,6 +431,19 @@ describe('files', () => {
     expect(send).toHaveBeenCalledTimes(1)
     expect(textOf(send.mock.calls[0][0])).toBe('See this')
     expect(send.mock.calls[0][1]).toEqual([])
+  })
+
+  it('a file over the server’s limit for its type says so on its card and never uploads', async () => {
+    const upload = vi.fn<NonNullable<CommentBoxProps['upload']>>(async () => ({ accepted: true, value: 1 }))
+    render(<Box upload={upload} />)
+    const gif = new File(['x'], 'big.gif', { type: 'image/gif' })
+    Object.defineProperty(gif, 'size', { value: 15 * 1024 * 1024 })
+    await act(async () => {
+      fireEvent.change(document.querySelector('input[type=file]') as HTMLInputElement, { target: { files: [gif] } })
+    })
+    expect(screen.getByText('Too large: the most is 10 MB')).toBeTruthy()
+    expect(screen.getByText('Remove the file that did not upload to send.')).toBeTruthy()
+    expect(upload).not.toHaveBeenCalled()
   })
 
   it('an upload that arrives after the box opened offers Upload in /', async () => {

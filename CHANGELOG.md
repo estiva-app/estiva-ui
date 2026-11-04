@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.106.0 — 2026-11-04
+
+One set of words for a refused send, edit, reaction or file, the same in every app (ONE-4; the words Miky approved
+at its kickoff, 4 Nov). The box and the cards now say every refusal in `@estiva-app/conversation` 0.33's plain words,
+bundled here, and never the relay's. A minor: `reactionRefused` is gone, and an app should hand reasons over raw.
+
+What each app does on taking it (all three, in the ONE-4 adoption PRs):
+
+- **Pass every refusal as it came**, never a sentence of its own: `send`, `edit.onSave` and `upload` answer
+  `{ accepted: false, reason }` with the relay's words, the error or the HTTP body (`reason` is now `unknown`), and
+  `edit.refused` takes the same. Until it does, an app's own sentence is read as a refusal of its own: most come out as
+  "something went wrong, try again", and an upload's as "Could not upload, try again" — so take this version in the
+  same PR that deletes the app's words.
+- **Return the reaction's answer from `reactions.onToggle`** — a fire-and-forget `onToggle` still compiles, and then a
+  refused reaction says nothing at all — and drop `reactionRefused`: Peek
+  `src/components/ConversationCard.tsx:291` and `src/components/ReplyCard.tsx:194` (and `src/lib/reactions.ts`'s
+  store); Ship `src/components/conversations/ThreadCards.tsx:95–140`; Leaf `src/comments/CommentsColumn.tsx:478–499`.
+- **Delete its own size check and upload words**: the box checks the server's limits as a file is picked.
+
+### Changed
+
+- **`CommentBox` says why in the same words in every app.** "Not sent: *why*. Your text is back in the box.",
+  "Not saved: *why*." with "Your changes are still in the box." only while the box holds something, through
+  `refusalReason`: "it is too long", "this message was deleted, or you can no longer write here", "you can no longer
+  write here", "this team is archived", "too many at once, try again in a moment", "your computer’s clock is wrong;
+  set it and try again", "you are signed out; sign in again", or "something went wrong, try again" (also for a
+  thrown send or save, which said "try again in a moment"). A send refused as on a deleted message says "you can no
+  longer write here": "this message was deleted" is an edit's or a reaction's. `SendAnswer.reason`, `UploadAnswer.reason` and
+  `CommentBoxEdit.refused` take `unknown`.
+- **A file's card says why it was refused** in `uploadRefusal`'s words ("Too large: the most is 10 MB", "This type
+  of file can’t be added", "This file could not be read", "Too many at once, try again in a moment", "Sign in
+  again", "You can no longer add files here", "Could not upload, try again"), where it said the app's reason, or "It
+  could not be uploaded." when the upload threw. **`AttachmentCard`**: a failed file's note takes up to two lines
+  where it was cut at the card's width, so the limit in "Too large: the most is 10 MB" is read without hovering.
+- **A file over the server's limit is stopped as it is picked** (Miky, 4 Nov: the server's limits, in every app): a
+  GIF over 10 MB, another picture over 50 MB, anything else over 100 MB is a failed card saying "Too large: the most
+  is *n* MB", and `upload` is never called.
+- **An edit holding nothing cannot be saved** (Miky, at /land of estiva-foundation#201): Save is off, and Enter does
+  nothing, while the box has no words and no file. One whose words are gone but that keeps a file still saves.
+- **`ConversationCard` and `ReplyCard` hold a refused reaction themselves.** `reactions.onToggle` may return a
+  promise of the relay's answer (`ReactionAnswer`); a refusal is said under the reactions, "Not reacted: *why*.",
+  until the next reaction on that card or until the card goes, and only the latest reaction's answer is said.
+  **Removed:** `reactionRefused`.
+
+### Fixed
+
+- **The editor bundle can import a bundled package.** `build.mjs`'s editor plugin turned every `./` import into one
+  from `@estiva-app/ui`, `@estiva-app/conversation`'s own included, the first time the editor imported it at run
+  time; only this package's own files are now.
+
+### Stories
+
+- `CommentBox`: Refused, Editing refused and File failed pick what the relay or the server said in the controls,
+  so every sentence can be seen; Editing, emptied and File too large are new. `ConversationCard`: Edit refused and
+  Reaction refused pick the relay's words and press Save or a reaction.
+
 ## 0.105.0 — 2026-11-04
 
 ### Changed

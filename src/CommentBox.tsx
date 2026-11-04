@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, nodePasteRule, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
+import { REFUSAL_REASONS, refusalCause, refusalReason, tooLarge, uploadRefusal } from '@estiva-app/conversation'
 import { IconLock, IconPaperclip, IconSquareRounded, IconX } from '@tabler/icons-react'
 import { AttachedCard } from './AttachedCard'
 import { AttachmentCard } from './AttachmentCard'
@@ -52,11 +53,15 @@ import { sendsInLayout } from './conversationScroll'
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/every-app-writes-and-reacts-with-one-shared-box.md
  */
 
-/** What the relay said about a send, an edit or an upload. */
-export type SendAnswer = { accepted: true } | { accepted: false; reason: string }
+/**
+ * What the relay said about a send, an edit or a reaction. `reason` is the refusal as it came (the relay's words, an
+ * `Error`, an HTTP body, or `{ cause }` for an app's own): the box says it in `@estiva-app/conversation`'s plain words
+ * (`refusalReason`), the same in every app, never the relay's.
+ */
+export type SendAnswer = { accepted: true } | { accepted: false; reason: unknown }
 
-/** What an upload answered: the app's own record of the file, or why not. */
-export type UploadAnswer = { accepted: true; value: unknown } | { accepted: false; reason: string }
+/** What an upload answered: the app's own record of the file, or why not, as it came; the card says `uploadRefusal`'s line. */
+export type UploadAnswer = { accepted: true; value: unknown } | { accepted: false; reason: unknown }
 
 /** Where a file in the box is: Send waits for one uploading. */
 export type BoxFileState = 'uploading' | 'ready' | 'failed'
@@ -72,6 +77,15 @@ export interface BoxFile {
   note?: string
   /** What `upload` answered for it: the app's own record (an `imeta`, a URL). */
   value?: unknown
+}
+
+/**
+ * Why a send was refused. "This message was deleted" is an edit's or a reaction's (Decided, ONE-4): a new message
+ * refused the same way (a reply whose message went) is one you can no longer write here.
+ */
+function sendRefusal(reason: unknown): string {
+  const cause = refusalCause(reason)
+  return REFUSAL_REASONS[cause === 'gone' ? 'no-access' : cause]
 }
 
 /** A draft, in the box's terms — `@estiva-app/conversation`'s `composerDraft` is one. */
@@ -92,8 +106,8 @@ export interface CommentBoxEdit {
    * Opt-in, so an app whose save drops them never offers it: a file added and silently lost.
    */
   writesFiles?: boolean
-  /** Why the relay refused this edit, when the app reopens a box it closed at once: said under it as it opens. Read as the box opens, so a reopen is a new box (a new `key`). */
-  refused?: string
+  /** Why the relay refused this edit, as it came, when the app reopens a box it closed at once: said under it as it opens. Read as the box opens, so a reopen is a new box (a new `key`). */
+  refused?: unknown
   onCancel: () => void
   /** Save; the box holds the words until the answer, and a refusal is said under it. */
   onSave: (body: JSONContent, files: BoxFile[], under: BoxSentUnder) => Promise<SendAnswer>
@@ -495,7 +509,8 @@ function OpenCommentBox({
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
   const [sending, setSending] = useState(false)
-  const [refused, setRefused] = useState<string | null>(edit?.refused ?? null)
+  // The plain reason, never the relay's words (ONE-4).
+  const [refused, setRefused] = useState<string | null>(edit?.refused ? refusalReason(edit.refused) : null)
   // What shows under the box, and what ✕ took off.
   const [reading, setReading] = useState<BoxUnderRead | undefined>(undefined)
   const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
@@ -512,14 +527,19 @@ function OpenCommentBox({
     for (const file of picked) {
       fileCount += 1
       const id = `file-${fileCount}`
-      setFiles((all) => [...all, { id, name: file.name, size: file.size, contentType: file.type, state: 'uploading' }])
-      uploadOne(file).then(
-        (answer) =>
-          setFiles((all) =>
-            all.map((f) => (f.id !== id ? f : answer.accepted ? { ...f, state: 'ready', value: answer.value } : { ...f, state: 'failed', note: answer.reason })),
-          ),
-        () => setFiles((all) => all.map((f) => (f.id === id ? { ...f, state: 'failed', note: 'It could not be uploaded.' } : f))),
-      )
+      const card = { id, name: file.name, size: file.size, contentType: file.type }
+      // Over the server's limit for its type: said on its card before anything uploads (Miky, 4 Nov).
+      const over = tooLarge(file)
+      if (over) {
+        setFiles((all) => [...all, { ...card, state: 'failed', note: over }])
+        continue
+      }
+      setFiles((all) => [...all, { ...card, state: 'uploading' }])
+      const failed = (reason: unknown) => setFiles((all) => all.map((f) => (f.id === id ? { ...f, state: 'failed', note: uploadRefusal(reason, file) } : f)))
+      uploadOne(file).then((answer) => {
+        if (!answer.accepted) return failed(answer.reason)
+        setFiles((all) => all.map((f) => (f.id === id ? { ...f, state: 'ready', value: answer.value } : f)))
+      }, failed)
     }
     return true
   }, [])
@@ -557,6 +577,19 @@ function OpenCommentBox({
     handOut.current?.(editor)
     return () => handOut.current?.(null)
   }, [editor])
+
+  // Whether the edit's words are gone: Save waits for something to save, and a refusal says the changes are in the box only while they are.
+  const editing = !!edit
+  const [wordless, setWordless] = useState(() => editing && !!editor && isEmpty(editor))
+  useEffect(() => {
+    if (!editor || !editing) return
+    const read = () => setWordless(isEmpty(editor))
+    read()
+    editor.on('update', read)
+    return () => {
+      editor.off('update', read)
+    }
+  }, [editor, editing])
 
   // Drafts: every change is kept, and an empty box is no draft.
   useEffect(() => {
@@ -645,7 +678,7 @@ function OpenCommentBox({
       const sent = files.filter((f) => f.state === 'ready')
       const sentUnder = underOf(body)
       setRefused(null)
-      const answered = (answer: Promise<SendAnswer>) => answer.catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
+      const answered = (answer: Promise<SendAnswer>) => answer.catch((reason: unknown): SendAnswer => ({ accepted: false, reason }))
       if (showsAtOnce) {
         // Shown at once: the box empties now (the send box clears it); a refusal puts the words back above anything written since,
         // and what ✕ took off with them.
@@ -667,7 +700,7 @@ function OpenCommentBox({
           ed.commands.focus('end')
           setRemoved((now) => new Set([...now, ...took]))
           setFiles((all) => [...sent, ...all])
-          setRefused(answer.reason)
+          setRefused(sendRefusal(answer.reason))
         })
         return true
       }
@@ -677,7 +710,7 @@ function OpenCommentBox({
         setSending(false)
         if (!answer.accepted) {
           layout?.refused()
-          setRefused(answer.reason)
+          setRefused(sendRefusal(answer.reason))
           return
         }
         if (!ed.isDestroyed) ed.commands.clearContent(true)
@@ -691,17 +724,20 @@ function OpenCommentBox({
     [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused, layout],
   )
 
+  // An edit holding nothing, no words and no file, cannot be saved: Save is off, and nothing is said (Miky, 4 Nov). One
+  // emptied of its words that keeps a file is saved, in every app.
+  const holdsNothing = !!edit && wordless && files.length === 0
   save.current = () => {
-    if (!editor || !edit || sending || uploading || failed > 0) return true
+    if (!editor || !edit || sending || uploading || failed > 0 || (isEmpty(editor) && files.length === 0)) return true
     setRefused(null)
     setSending(true)
     const body = editor.getJSON()
     void edit
       .onSave(body, files, underOf(body))
-      .catch((): SendAnswer => ({ accepted: false, reason: 'try again in a moment' }))
+      .catch((reason: unknown): SendAnswer => ({ accepted: false, reason }))
       .then((answer) => {
         setSending(false)
-        if (!answer.accepted) setRefused(answer.reason)
+        if (!answer.accepted) setRefused(refusalReason(answer.reason))
       })
     return true
   }
@@ -762,7 +798,7 @@ function OpenCommentBox({
 
   const refusedLine = refused && (
     <FieldLine tone="error">
-      {edit ? `Not saved: ${refused}. Your changes are still in the box.` : `Not sent: ${refused}. Your text is back in the box.`}
+      {edit ? `Not saved: ${refused}.${holdsNothing ? '' : ' Your changes are still in the box.'}` : `Not sent: ${refused}. Your text is back in the box.`}
     </FieldLine>
   )
 
@@ -803,7 +839,7 @@ function OpenCommentBox({
                 <Button variant="outlined" size="small" onClick={edit.onCancel}>
                   Cancel
                 </Button>
-                <Button variant="primary" size="small" disabled={uploading || failed > 0 || sending} onClick={() => save.current()}>
+                <Button variant="primary" size="small" disabled={uploading || failed > 0 || sending || holdsNothing} onClick={() => save.current()}>
                   Save
                 </Button>
               </div>

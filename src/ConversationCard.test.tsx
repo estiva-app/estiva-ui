@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { PinnedComment } from './PinnedComment'
@@ -176,6 +176,68 @@ describe('ConversationCard', () => {
     await user.click(within(question).getByRole('button', { name: 'Delete comment' }))
     expect((await within(question).findByRole('alert')).textContent).toBe('Could not delete it. Try again.')
     expect(screen.getByRole('alertdialog')).toBe(question)
+  })
+})
+
+describe('a refused reaction (ONE-4)', () => {
+  const OPTIONS = [{ emoji: '👍', label: 'Makes sense' }]
+  const row = (onToggle: (emoji: string) => Promise<{ accepted: true } | { accepted: false; reason: unknown }>) => ({
+    reactions: [{ emoji: '👍', by: ['a', 'b'] }],
+    options: OPTIONS,
+    nameOf: () => 'Someone',
+    onToggle,
+  })
+  const settle = () => act(async () => {
+    for (let i = 0; i < 5; i++) await Promise.resolve()
+  })
+
+  it('says why in plain words under the reactions, never the relay’s', async () => {
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" reactions={row(async () => ({ accepted: false, reason: 'invalid: reaction target event not found' }))}>
+        Words
+      </ConversationCard>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
+    await settle()
+    expect(screen.getByText('Not reacted: this message was deleted, or you can no longer write here.')).toBeTruthy()
+    expect(screen.queryByText(/invalid:/)).toBeNull()
+  })
+
+  it('is gone on the next reaction, and a reply’s works the same', async () => {
+    const answers: ((a: { accepted: true } | { accepted: false; reason: unknown }) => void)[] = []
+    const onToggle = () => new Promise<{ accepted: true } | { accepted: false; reason: unknown }>((resolve) => answers.push(resolve))
+    render(
+      <ReplyCard author={ONE} time="11:40 AM" reactions={row(onToggle)}>
+        A reply
+      </ReplyCard>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
+    answers[0]({ accepted: false, reason: 'rate-limited: slow down' })
+    await settle()
+    expect(screen.getByText('Not reacted: too many at once, try again in a moment.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
+    expect(screen.queryByText(/Not reacted/)).toBeNull()
+    answers[1]({ accepted: true })
+    await settle()
+    expect(screen.queryByText(/Not reacted/)).toBeNull()
+  })
+
+  it('says only the latest reaction’s answer: an earlier refusal arriving late does not replace it', async () => {
+    const answers: ((a: { accepted: true } | { accepted: false; reason: unknown }) => void)[] = []
+    const onToggle = () => new Promise<{ accepted: true } | { accepted: false; reason: unknown }>((resolve) => answers.push(resolve))
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" reactions={row(onToggle)}>
+        Words
+      </ConversationCard>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Makes sense, 2' }))
+    answers[1]({ accepted: false, reason: 'rate-limited: slow down' })
+    await settle()
+    answers[0]({ accepted: false, reason: 'invalid: reaction target event not found' })
+    await settle()
+    expect(screen.getByText('Not reacted: too many at once, try again in a moment.')).toBeTruthy()
+    expect(screen.queryByText(/this message was deleted/)).toBeNull()
   })
 })
 

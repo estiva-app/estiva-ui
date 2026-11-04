@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 import { userEvent, within } from 'storybook/test'
 import { ConversationCard, type ConversationCardProps } from './ConversationCard'
-import { AT, Column, EditBox, Files, LONG, Mentions, ONE, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions } from './conversation.examples'
+import { AT, Column, EditBox, Files, LONG, Mentions, ONE, RELAY_SAYS, SOME, THREE, TWO, WithBlock, WithCard, WORDS, YOU, useReactions, type RelaySays } from './conversation.examples'
 import { RichText } from './RichText'
 import { MenuItem } from './Menu'
 import type { ReactionCount } from './ReactionRow'
@@ -45,6 +45,14 @@ function Live({ start, resolvedAt, deletable = true, ...props }: ConversationCar
       editor={props.own ? (done) => <EditBox text={typeof props.children === 'string' ? props.children : WORDS} done={done} /> : undefined}
     />
   )
+}
+
+type CardWithRefusal = ConversationCardProps & { refusal: RelaySays }
+
+/** A card whose every reaction the relay refuses, for `refusal`. */
+function RefusingReactions({ refusal, ...props }: CardWithRefusal) {
+  const reacting = useReactions(SOME)
+  return <ConversationCard {...props} reactions={{ ...reacting, onToggle: () => new Promise((resolve) => setTimeout(() => resolve({ accepted: false, reason: RELAY_SAYS[refusal] }), 400)) }} />
 }
 
 /** Someone's comment. */
@@ -146,14 +154,30 @@ export const Selected: Story = { render: (args) => <Live {...args} selected repl
 /** Being edited, in the kit's box. */
 export const Editing: Story = { render: (args) => <Live {...args} author={YOU} own editing /> }
 
-/** An edit that was refused: the box opens again, and says why. */
-export const EditRefused: Story = {
+/** An edit that was refused: Save, and the box says why. Pick what the relay said in the controls. */
+export const EditRefused: StoryObj<CardWithRefusal> = {
   name: 'Edit refused',
-  render: (args) => <ConversationCard {...args} author={YOU} own editing editor={(done) => <EditBox text={WORDS} done={done} refuse />} />,
+  args: { refusal: 'Too long' },
+  argTypes: { refusal: { control: 'select', options: Object.keys(RELAY_SAYS) } },
+  render: ({ refusal, ...args }) => <ConversationCard {...args} author={YOU} own editing editor={(done) => <EditBox text={WORDS} done={done} refuse={refusal} />} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Save' }))
+  },
 }
 
-/** A reaction that was refused: said under the reactions. */
-export const ReactionRefused: Story = { name: 'Reaction refused', render: (args) => <Live {...args} start={SOME} reactionRefused="try again in a moment" /> }
+/**
+ * A reaction that was refused: said under the reactions until the next reaction here, or until the card goes. Pick
+ * what the relay said in the controls; the story presses a reaction.
+ */
+export const ReactionRefused: StoryObj<CardWithRefusal> = {
+  name: 'Reaction refused',
+  args: { refusal: 'Deleted, or no longer yours to write beside' },
+  argTypes: { refusal: { control: 'select', options: Object.keys(RELAY_SAYS) } },
+  render: ({ refusal, ...args }) => <RefusingReactions {...args} refusal={refusal} />,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Makes sense, 2' }))
+  },
+}
 
 /** Nothing can be changed: no strip, reactions only shown. */
 export const ReadOnly: Story = { name: 'Read-only', render: (args) => <Live {...args} readOnly start={SOME} replies={{ count: 2, faces: [TWO, THREE], last: '12:02 PM' }} /> }
