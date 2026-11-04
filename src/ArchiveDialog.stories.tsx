@@ -3,7 +3,7 @@ import { userEvent, within } from 'storybook/test'
 import { ArchiveDialog } from './ArchiveDialog'
 
 /**
- * The question before archiving a file or a Folder: what goes with it,
+ * The question before archiving a file or a team: what goes with it,
  * counted, and an optional resolution. The apps it goes out of and the last
  * line are the caller's words; these are Peek's, and Ship's in its own story.
  */
@@ -38,15 +38,15 @@ export const ATopic: Story = {
   args: { title: 'Release notes', what: 'topic', hides: [] },
 }
 
-/** A Folder: what only it lists goes, and what another Folder lists stays there. */
+/** A team: what only it lists goes, and what another team lists stays there. */
 export const AFolder: Story = {
-  name: 'A folder',
-  args: { title: 'Estiva HQ', what: 'folder', hides: ['3 projects', '6 topics'], staysVisible: ['2 files also in Steer'] },
+  name: 'A team',
+  args: { title: 'Estiva HQ', what: 'team', hides: ['3 projects', '6 topics'], staysVisible: ['2 files also in Steer'] },
 }
 
 /** Opened before the count is in: it says it is counting, and Archive waits. */
 export const Counting: Story = {
-  args: { title: 'Estiva HQ', what: 'folder', hides: null },
+  args: { title: 'Estiva HQ', what: 'team', hides: null },
 }
 
 /** Another app's words: the apps in its order, and its own last line. */

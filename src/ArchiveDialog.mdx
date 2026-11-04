@@ -5,7 +5,7 @@ import * as ArchiveDialogStories from './ArchiveDialog.stories'
 
 # ArchiveDialog
 
-The question asked before archiving a file or a Folder: what goes out of the
+The question asked before archiving a file or a team: what goes out of the
 lists with it, counted, and an optional resolution.
 
 <Canvas of={ArchiveDialogStories.AProject} />
@@ -13,7 +13,7 @@ lists with it, counted, and an optional resolution.
 ## When
 
 - Before archiving anything whose manifest declares an archive action — a
-  topic, a project or an issue — or a Folder. Read the counts first, with
+  topic, a project or an issue — or a team. Read the counts first, with
   interop's `archiveImpact`, and word them: "14 issues", "2 files also in Steer".
 - Open it at once, with `hides={null}`, when the count is still on its way: it
   says it is counting, and Archive waits for it.

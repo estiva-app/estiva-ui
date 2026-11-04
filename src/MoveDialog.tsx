@@ -74,9 +74,9 @@ export interface MoveDialogProps {
   startIn?: string
   /** The dialog's heading. "Move" when absent. */
   heading?: string
-  /** The Folder field's label. "Folder" when absent. */
+  /** The team field's label. "Team" when absent. */
   folderLabel?: string
-  /** Said when no Folder is offered. "There is no other folder it can be moved to." when absent. */
+  /** Said when no team is offered. "There is no other team it can be moved to." when absent. */
   noFolder?: string
   /** A box under the choice, asked only where `label` names it; its answer comes back as `checked`. */
   check?: MoveCheck
@@ -96,8 +96,8 @@ export function MoveDialog({
   topLabel,
   startIn,
   heading = 'Move',
-  folderLabel = 'Folder',
-  noFolder = 'There is no other folder it can be moved to.',
+  folderLabel = 'Team',
+  noFolder = 'There is no other team it can be moved to.',
   check,
   onMove,
   onClose,
@@ -139,7 +139,8 @@ export function MoveDialog({
     setPicked(undefined)
   }
 
-  const folderName = destinations?.find((candidate) => candidate.id === folder)?.name ?? 'this folder'
+  const chosenName = destinations?.find((candidate) => candidate.id === folder)?.name
+  const folderName = chosenName || 'this team'
   const status = nests && folder ? read[folder] : undefined
   const targets = Array.isArray(status) ? (status as readonly MovePlace[]) : []
   const valueOf = (place: MovePlace) => place.id || TOP
@@ -171,14 +172,14 @@ export function MoveDialog({
               value={folder}
               onChange={chooseFolder}
               options={(destinations ?? []).map((candidate) => ({ value: candidate.id, label: candidate.name }))}
-              placeholder={destinations ? 'Pick a folder' : 'Reading…'}
+              placeholder={destinations ? 'Pick a team' : 'Reading…'}
               ariaLabel={folderLabel}
             />
           </Field>
           {nests &&
             folder &&
             (status === 'failed' ? (
-              <EmptyState scope="section" message={`${folderName} could not be read.`} action={{ label: 'Try again', onClick: () => readPlaces(folder) }} />
+              <EmptyState scope="section" message={`${chosenName || 'This team'} could not be read.`} action={{ label: 'Try again', onClick: () => readPlaces(folder) }} />
             ) : Array.isArray(status) && targets.length === 0 ? (
               <EmptyState scope="section" message={`There is nowhere in ${folderName} to put it.`} />
             ) : (

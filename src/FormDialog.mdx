@@ -13,7 +13,7 @@ the button that sends it, waiting together while it sends.
 ## When
 
 - A dialog that asks for something and then does it: a name, a destination, a
-  resolution. New folder, Rename folder, Start a topic, Move, Archive.
+  resolution. New team, Rename team, Start a topic, Move, Archive.
 - `ready` says when there is enough to send; until then the button is greyed and
   Enter sends nothing.
 - Nothing to choose from: give a section's **EmptyState** as the only child and
@@ -35,7 +35,7 @@ import { FormDialog, Field, TextInput } from '@estiva-app/ui'
 
 {open && (
   <FormDialog
-    title="New folder"
+    title="New team"
     submitLabel="Create"
     busyLabel="Creating…"
     ready={!!name.trim()}
@@ -43,7 +43,7 @@ import { FormDialog, Field, TextInput } from '@estiva-app/ui'
     onClose={() => setOpen(false)}
   >
     <p className="text-body-2 text-text-secondary">A place for files and conversations.</p>
-    <Field label="Folder name">
+    <Field label="Team name">
       <TextInput value={name} onChange={(e) => setName(e.target.value)} autoFocus />
     </Field>
   </FormDialog>
