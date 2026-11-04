@@ -140,7 +140,7 @@ export function MoveDialog({
   }
 
   const chosenName = destinations?.find((candidate) => candidate.id === folder)?.name
-  const folderName = chosenName ?? 'this team'
+  const folderName = chosenName || 'this team'
   const status = nests && folder ? read[folder] : undefined
   const targets = Array.isArray(status) ? (status as readonly MovePlace[]) : []
   const valueOf = (place: MovePlace) => place.id || TOP
@@ -179,7 +179,7 @@ export function MoveDialog({
           {nests &&
             folder &&
             (status === 'failed' ? (
-              <EmptyState scope="section" message={`${chosenName ?? 'This team'} could not be read.`} action={{ label: 'Try again', onClick: () => readPlaces(folder) }} />
+              <EmptyState scope="section" message={`${chosenName || 'This team'} could not be read.`} action={{ label: 'Try again', onClick: () => readPlaces(folder) }} />
             ) : Array.isArray(status) && targets.length === 0 ? (
               <EmptyState scope="section" message={`There is nowhere in ${folderName} to put it.`} />
             ) : (

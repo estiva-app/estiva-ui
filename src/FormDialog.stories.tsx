@@ -17,7 +17,7 @@ const meta = {
   },
   argTypes: { children: { control: false }, onSubmit: { control: false }, onClose: { control: false } },
   args: {
-    title: 'New folder',
+    title: 'New team',
     submitLabel: 'Create',
     busyLabel: 'Creating…',
     onSubmit: () => {},
@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>
 
 /** One field and the sentence before it. Create waits for a name; Enter in the field sends. */
 export const NewFolder: Story = {
-  name: 'New folder',
+  name: 'New team',
   parameters: { controls: { disable: true } },
   render: (args) => {
     const [name, setName] = useState('')

@@ -148,6 +148,16 @@ describe('MoveDialog, the kit’s', () => {
     expect(screen.getByRole('combobox', { name: 'Team' }).textContent).toContain('Reading…')
   })
 
+  it('asks the person to pick a team before one is chosen', () => {
+    render(<Fixture places={undefined} placesIn={undefined} />)
+    expect(screen.getByRole('combobox', { name: 'Team' }).textContent).toContain('Pick a team')
+  })
+
+  it('says “This team” when a team with no name could not be read', async () => {
+    render(<Fixture folders={[HQ, { id: 'unnamed', name: '' }]} startIn="unnamed" placesIn={async () => Promise.reject(new Error('down'))} />)
+    expect(await screen.findByText('This team could not be read.')).toBeTruthy()
+  })
+
   it('says there is no other team when none is offered', () => {
     render(<Fixture folders={[HQ]} places={undefined} placesIn={undefined} />)
     expect(screen.getByText('There is no other team it can be moved to.')).toBeTruthy()
