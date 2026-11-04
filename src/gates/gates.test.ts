@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { ESLint, type Linter } from 'eslint'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { appChecks } from './app-checks'
 import { countCommitted, hookRuns, skippedFolders, skipsListed } from './ci'
 import { writeGateCount } from './count'
@@ -354,6 +354,18 @@ describe('runHook', () => {
 })
 
 describe('gates:status', () => {
+  // The made apps sit inside this repository, so status read it as theirs and fetched its origin, once or twice a test:
+  // on the release machine that took up to 20 s and the tests ran out of time (v0.104.1, 3 November). Git stops looking
+  // at `node_modules`, so an app is no repository unless a test makes it one.
+  const ceiling = process.env.GIT_CEILING_DIRECTORIES
+  beforeAll(() => {
+    process.env.GIT_CEILING_DIRECTORIES = join(root, 'node_modules')
+  })
+  afterAll(() => {
+    if (ceiling === undefined) delete process.env.GIT_CEILING_DIRECTORIES
+    else process.env.GIT_CEILING_DIRECTORIES = ceiling
+  })
+
   it('reads a CI job by its id, a committed hook, and a script', () => {
     const dir = app('status-helpers', {
       '.github/workflows/deploy.yml': 'jobs:\n  check:\n    steps:\n      - run: npm test\n  gate:\n    steps:\n      # - run: npm run lint:rules\n      - run: npm run lint:rules\n',
