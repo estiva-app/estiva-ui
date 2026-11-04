@@ -638,8 +638,8 @@
       "looks": [
         "text-caption font-medium text-text-primary truncate",
         "text-small tracking-wide leading-tight truncate",
+        "text-small tracking-wide leading-tight line-clamp-2 text-error-default",
         "rounded-md bg-bg-active text-text-secondary overflow-hidden",
-        "text-small tracking-wide leading-tight truncate text-error-default",
         "text-small tracking-wide leading-tight truncate text-warning-default",
         "text-small tracking-wide leading-tight truncate text-text-secondary",
         "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100",

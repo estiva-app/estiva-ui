@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ComponentType, type DragEvent, type ReactNode } from 'react'
 import { Extension, nodePasteRule, type AnyExtension, type EditorOptions } from '@tiptap/core'
 import { Editor, type JSONContent } from '@tiptap/react'
-import { refusalReason, tooLarge, uploadRefusal } from '@estiva-app/conversation'
+import { REFUSAL_REASONS, refusalCause, refusalReason, tooLarge, uploadRefusal } from '@estiva-app/conversation'
 import { IconLock, IconPaperclip, IconSquareRounded, IconX } from '@tabler/icons-react'
 import { AttachedCard } from './AttachedCard'
 import { AttachmentCard } from './AttachmentCard'
@@ -77,6 +77,15 @@ export interface BoxFile {
   note?: string
   /** What `upload` answered for it: the app's own record (an `imeta`, a URL). */
   value?: unknown
+}
+
+/**
+ * Why a send was refused. "This message was deleted" is an edit's or a reaction's (Decided, ONE-4): a new message
+ * refused the same way (a reply whose message went) is one you can no longer write here.
+ */
+function sendRefusal(reason: unknown): string {
+  const cause = refusalCause(reason)
+  return REFUSAL_REASONS[cause === 'gone' ? 'no-access' : cause]
 }
 
 /** A draft, in the box's terms — `@estiva-app/conversation`'s `composerDraft` is one. */
@@ -691,7 +700,7 @@ function OpenCommentBox({
           ed.commands.focus('end')
           setRemoved((now) => new Set([...now, ...took]))
           setFiles((all) => [...sent, ...all])
-          setRefused(refusalReason(answer.reason))
+          setRefused(sendRefusal(answer.reason))
         })
         return true
       }
@@ -701,7 +710,7 @@ function OpenCommentBox({
         setSending(false)
         if (!answer.accepted) {
           layout?.refused()
-          setRefused(refusalReason(answer.reason))
+          setRefused(sendRefusal(answer.reason))
           return
         }
         if (!ed.isDestroyed) ed.commands.clearContent(true)

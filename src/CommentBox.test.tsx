@@ -100,6 +100,14 @@ describe('sending, held until the relay answers', () => {
     expect(screen.queryByText(/262144|invalid:/)).toBeNull()
   })
 
+  it('a send refused as on a deleted message says you can no longer write here, not that a message was deleted', async () => {
+    render(<Box send={async () => ({ accepted: false, reason: 'invalid: reply target event not found' })} />)
+    await type('Hello there')
+    await press('Enter')
+    await settle()
+    expect(screen.getByText('Not sent: you can no longer write here. Your text is back in the box.')).toBeTruthy()
+  })
+
   it('a send that throws says something went wrong, not the error', async () => {
     render(<Box send={async () => Promise.reject(new TypeError('Failed to fetch'))} />)
     await type('Hello there')

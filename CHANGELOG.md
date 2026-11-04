@@ -13,7 +13,8 @@ What each app does on taking it (all three, in the ONE-4 adoption PRs):
   `edit.refused` takes the same. Until it does, an app's own sentence is read as a refusal of its own: most come out as
   "something went wrong, try again", and an upload's as "Could not upload, try again" — so take this version in the
   same PR that deletes the app's words.
-- **Return the reaction's answer from `reactions.onToggle`** and drop `reactionRefused`: Peek
+- **Return the reaction's answer from `reactions.onToggle`** — a fire-and-forget `onToggle` still compiles, and then a
+  refused reaction says nothing at all — and drop `reactionRefused`: Peek
   `src/components/ConversationCard.tsx:291` and `src/components/ReplyCard.tsx:194` (and `src/lib/reactions.ts`'s
   store); Ship `src/components/conversations/ThreadCards.tsx:95–140`; Leaf `src/comments/CommentsColumn.tsx:478–499`.
 - **Delete its own size check and upload words**: the box checks the server's limits as a file is picked.
@@ -25,12 +26,14 @@ What each app does on taking it (all three, in the ONE-4 adoption PRs):
   `refusalReason`: "it is too long", "this message was deleted, or you can no longer write here", "you can no longer
   write here", "this team is archived", "too many at once, try again in a moment", "your computer’s clock is wrong;
   set it and try again", "you are signed out; sign in again", or "something went wrong, try again" (also for a
-  thrown send or save, which said "try again in a moment"). `SendAnswer.reason`, `UploadAnswer.reason` and
+  thrown send or save, which said "try again in a moment"). A send refused as on a deleted message says "you can no
+  longer write here": "this message was deleted" is an edit's or a reaction's. `SendAnswer.reason`, `UploadAnswer.reason` and
   `CommentBoxEdit.refused` take `unknown`.
 - **A file's card says why it was refused** in `uploadRefusal`'s words ("Too large: the most is 10 MB", "This type
   of file can’t be added", "This file could not be read", "Too many at once, try again in a moment", "Sign in
   again", "You can no longer add files here", "Could not upload, try again"), where it said the app's reason, or "It
-  could not be uploaded." when the upload threw.
+  could not be uploaded." when the upload threw. **`AttachmentCard`**: a failed file's note takes up to two lines
+  where it was cut at the card's width, so the limit in "Too large: the most is 10 MB" is read without hovering.
 - **A file over the server's limit is stopped as it is picked** (Miky, 4 Nov: the server's limits, in every app): a
   GIF over 10 MB, another picture over 50 MB, anything else over 100 MB is a failed card saying "Too large: the most
   is *n* MB", and `upload` is never called.
