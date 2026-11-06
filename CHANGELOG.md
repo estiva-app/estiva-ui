@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.108.1 — 2026-11-06
+
+The comment box's "Not sent:" line names a reply refused because its comment was deleted meanwhile: "Not sent: this
+message was deleted, or you can no longer write here." (ONE-10; found by /land's product review of peek#623,
+ship#387 and leaf#112). The relay now refuses such a reply with "invalid: reply parent not found in this team", which
+the bundled `@estiva-app/conversation` 0.33 read as "something went wrong, try again". The bundled copy is now 0.35.0.
+No API change.
+
 ## 0.108.0 — 2026-11-06
 
 How you follow a place, and who follows it, for every app (TEA-6; the Teams and following prototype Miky approved on
