@@ -1,5 +1,5 @@
 import { useState, type MouseEvent, type ReactNode } from 'react'
-import { IconCompass, IconDots } from '@tabler/icons-react'
+import { IconDots } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Button } from '../../src/Button'
 import { EmptyState } from '../../src/EmptyState'
@@ -71,7 +71,8 @@ export function Page({ title, icon, actions, meta, children }: { title: string; 
 
 /** The "Explore topics" row under a sidebar's topics: the same row in every app. */
 export function ExploreRow({ place, onOpen }: { place: Place; onOpen: (p: Place) => void }) {
-  return <NavItem href="#" label="Explore topics" icon={<IconCompass {...icon16} />} active={place.type === 'explore'} onClick={go(() => onOpen({ type: 'explore' }))} />
+  // No icon: it is a way in, not another kind of topic (Miky, 6 Nov).
+  return <NavItem href="#" label="Explore topics" active={place.type === 'explore'} onClick={go(() => onOpen({ type: 'explore' }))} />
 }
 
 /**
@@ -184,7 +185,7 @@ export function ExplorePage({ viewer, read, onRetry, onOpen, start = 'all', titl
   }
   const rows = lists[tab].filter((t) => t.title.toLowerCase().includes(q.trim().toLowerCase()))
   return (
-    <Page title={title} icon={<IconCompass {...icon16} />}>
+    <Page title={title}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
           tabs={[

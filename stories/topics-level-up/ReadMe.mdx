@@ -17,11 +17,11 @@ A prototype on the `concept/topics-level-up` branch only. It never merges, which
 **Add to Open work on the topic's page**: a button in the header, and Ctrl/Cmd+O anywhere on the page adds it, or takes it out again. A toast says which.
 
 **A topic's files in Peek's Overview** (*Peek: a topic's files*, on *Widgets*):
-- Hover a file: the **⋮⋮ grip** shows at its left. Drag it; a line shows where it will land. A click on the file still opens it.
-- Its **"…"** (where the ✕ was) offers *Show as row*, *Show as card* and *Remove* (with Undo). No Move up or Move down.
+- **Drag the file itself**; a line shows where it will land. A click on the file still opens it. No grip, so the files keep their alignment.
+- Its **"…"** floats over the file's top-right corner on hover, where the ✕ floats today, and takes no space of its own. It offers *Show as row*, *Show as card* and *Remove* (with Undo). No Move up or Move down.
 - **Files** has no count any more.
 - Archived files sit at the end behind one **Archived · 2** line.
-- Someone who can't add a file to the topic gets no grip and no "…" (*Peek: a topic you're not in*, *Peek: an archived topic*).
+- Someone who can't add a file to the topic can't drag a file and gets no "…" (*Peek: a topic you're not in*, *Peek: an archived topic*).
 
 **Explore topics** (*Peek: Explore topics*, *Leaf: Explore topics*, and Ship's *Topics* page, which is Ship's Explore): All, Your topics, Other topics and Archived, as Ship's Topics page has them, with a search. All, Other and Archived are **A to Z**, like browsing channels in Slack; *Your topics* keeps the sidebar's order. *Join* on a topic you're not in. An archived one opens read-only.
 
@@ -43,7 +43,7 @@ Everything else is the kit's or another app's screen: *Sidebar*, *NavItem* and *
 
 | New here | What it could have been | Why it's new |
 | --- | --- | --- |
-| The ⋮⋮ grip and drop line on a topic's files | The document's block handle (*BlockHandle*): the same grip and line | Nothing in the apps reorders a list. Chosen by Miky at kickoff, 6 Nov: the grip, like a block |
+| Dragging a whole file, with a drop line | The document's block handle (*BlockHandle*): its drop line, without the grip | Nothing in the apps reorders a list. Miky, 6 Nov: the grip threw the files out of line, so the file itself is dragged |
 | Ctrl/Cmd+O | The launcher's Ctrl+K, the only key today | The first key for an action. Chosen by Miky at kickoff, 6 Nov |
 | A document row folding to its child pages, in Ship's topic page | *NavTree*'s fold, which lives only in a sidebar | No row in a page folds today |
 | The conversation panel's reply line | *CommentBox*, which the build uses | Drawn roughly here to keep the prototype small |

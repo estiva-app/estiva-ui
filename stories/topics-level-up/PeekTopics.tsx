@@ -1,5 +1,5 @@
 import { useEffect, useState, type DragEvent } from 'react'
-import { IconArchive, IconCheck, IconGripVertical, IconLayoutDashboard, IconPlus } from '@tabler/icons-react'
+import { IconArchive, IconCheck, IconLayoutDashboard, IconPlus } from '@tabler/icons-react'
 import { ArchivedNotice } from '../../src/ArchivedNotice'
 import { Button } from '../../src/Button'
 import { cn } from '../../src/cn'
@@ -25,9 +25,9 @@ const OPEN_WORK_KEY = () => (isApplePlatform() ? 'Cmd+O' : 'Ctrl+O')
 
 /**
  * A topic's files in its Overview, in the topic's order, each a row or a card.
- * NEW HERE: the ⋮⋮ grip and the drop line, taken from the document's block
- * handle (BlockHandle): grab the grip to move a file; a click on the file still
- * opens it. The ✕ is now a "…" with Remove, Show as row, Show as card.
+ * NEW HERE: the whole file is dragged, with the document block's drop line
+ * (BlockHandle); a click on the file still opens it. Peek's floating ✕ is now a
+ * floating "…" with Remove, Show as row, Show as card (Miky, 6 Nov).
  */
 function TopicFiles({ topic, read, readOnly, onRetry }: { topic: Topic; read: Read; readOnly: boolean; onRetry: () => void }) {
   const [files, setFiles] = useState(topic.files)
@@ -74,31 +74,22 @@ function TopicFiles({ topic, read, readOnly, onRetry }: { topic: Topic; read: Re
           {live.map((f, index) => (
             <li key={f.id} data-topic-file={fileOf(f.id).title} className={cn('group/file relative py-1', dragging === f.id && 'opacity-40')} onDragOver={over(index)} onDrop={drop}>
               {dropAt === index && <DropLine at="top" />}
-              <div className="relative flex items-start gap-1">
-                {readOnly ? (
-                  <span aria-hidden className="w-4 shrink-0" />
-                ) : (
-                  <span
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.effectAllowed = 'move'
-                      setDragging(f.id)
-                    }}
-                    onDragEnd={() => {
-                      setDragging(null)
-                      setDropAt(null)
-                    }}
-                    aria-label={`Drag to move ${fileOf(f.id).title}`}
-                    className="mt-3 flex h-5 w-4 shrink-0 cursor-grab items-center justify-center text-text-muted opacity-0 group-hover/file:opacity-100"
-                  >
-                    <IconGripVertical size={16} stroke={1.5} />
-                  </span>
-                )}
-                <div className="min-w-0 flex-1">{f.look === 'card' ? <LinkCard link={linkOf(fileOf(f.id), readOnly)} readOnly={readOnly} /> : <LinkRow link={linkOf(fileOf(f.id), readOnly)} />}</div>
-                {readOnly ? (
-                  <span aria-hidden className="w-7 shrink-0" />
-                ) : (
-                  <div className="mt-2 w-7 shrink-0 opacity-0 focus-within:opacity-100 group-hover/file:opacity-100 has-[[aria-expanded=true]]:opacity-100">
+              <div
+                className="relative"
+                draggable={!readOnly}
+                onDragStart={(e) => {
+                  e.dataTransfer.effectAllowed = 'move'
+                  setDragging(f.id)
+                }}
+                onDragEnd={() => {
+                  setDragging(null)
+                  setDropAt(null)
+                }}
+              >
+                {f.look === 'card' ? <LinkCard link={linkOf(fileOf(f.id), readOnly)} readOnly={readOnly} /> : <LinkRow link={linkOf(fileOf(f.id), readOnly)} />}
+                {!readOnly && (
+                  // Floats where Peek's ✕ floats today: over the file's top-right corner, on hover.
+                  <div className={cn('absolute right-1 z-10 rounded-md bg-bg-elevated opacity-0 shadow-sm focus-within:opacity-100 group-hover/file:opacity-100 has-[[aria-expanded=true]]:opacity-100 [@media(hover:none)]:opacity-100', f.look === 'card' ? 'top-1' : 'top-1/2 -translate-y-1/2')}>
                     <Menu align="right" trigger={<IconButton aria-label={`More options for ${fileOf(f.id).title}`} tooltip="More options"><MoreIcon /></IconButton>}>
                       <MenuItem label="Show as row" selected={f.look === 'row'} onClick={() => setLook(f.id, 'row')} />
                       <MenuItem label="Show as card" selected={f.look === 'card'} onClick={() => setLook(f.id, 'card')} />
