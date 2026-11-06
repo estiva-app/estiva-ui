@@ -1,0 +1,53 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Prototype/Topics level-up/Read me" />
+
+# Topics: level up the topic experience
+
+A prototype on the `concept/topics-level-up` branch only. It never merges, which is why it names apps and uses real topic names (the contents are made up). It draws Miky's notes of 3, 4 and 6 November in Peek's *Universal Navigation* topic, and the calls he made while the project was shaped. Pick each app's theme in the toolbar: **signal** for Peek, **ship** for Ship, **leaf** for Leaf. *View as*, top right, switches between Miky and Katerina.
+
+## What to look at
+
+**Your topics, in the order things happen.** In every app the sidebar lists your topics newest activity first: a message by anyone, the agent's included, a file added, or a save, status or comment on a file the topic lists. Open *Peek: a new message moves a topic*: two seconds in, Katerina writes in *Onboarding* and it jumps to the top with its dot. Ship and Leaf reorder on the next open, so a row never moves under your pointer.
+
+**Peek's sidebar is one flat list** of every topic you're in, then **Explore topics**. No files under a topic, no *Other topics* or *Archived* sections.
+
+**A topic's "…" in Peek's sidebar** has only what you do from a list: *Add to Open work* (with its key, **Ctrl+O**, **Cmd+O** on a Mac), *Copy link*, *Make it a space* where it applies, and *Leave*. Rename, Move, Archive and Delete are on the topic's page, in its own "…". *New topic inside* is gone.
+
+**Add to Open work on the topic's page**: a button in the header, and Ctrl/Cmd+O anywhere on the page adds it, or takes it out again. A toast says which.
+
+**A topic's files in Peek's Overview** (*Peek: a topic's files*, on *Widgets*):
+- Hover a file: the **⋮⋮ grip** shows at its left. Drag it; a line shows where it will land. A click on the file still opens it.
+- Its **"…"** (where the ✕ was) offers *Show as row*, *Show as card* and *Remove* (with Undo). No Move up or Move down.
+- **Files** has no count any more.
+- Archived files sit at the end behind one **Archived · 2** line.
+- Someone who can't add a file to the topic gets no grip and no "…" (*Peek: a topic you're not in*, *Peek: an archived topic*).
+
+**Explore topics** (*Peek: Explore topics*, *Leaf: Explore topics*, and Ship's *Topics* page, which is Ship's Explore): All, Your topics, Other topics and Archived, as Ship's Topics page has them, with a search. All, Other and Archived are **A to Z**, like browsing channels in Slack; *Your topics* keeps the sidebar's order. *Join* on a topic you're not in. An archived one opens read-only.
+
+**Ship's sidebar** shows your **five newest topics**, each folding to its projects and issues in the topic's order, then *Explore topics*.
+
+**Ship's topic page** (*Ship: a topic's page*, on *Widgets*) reads like Ship:
+- **Projects** drawn as the Projects page draws them: status, lead and progress, under All, Planned, Active and Completed.
+- **Issues**, then **Documents**, each with who edited it last and when; *Widgets spec* folds open to its two pages.
+- The files keep the topic's order inside each kind.
+- **The conversation** in the right panel, where a project's or an issue's sits, instead of the "Conversation in Peek" link. Reply in it; the button left of the "…" hides and shows it.
+
+**Leaf's sidebar** shows your **five newest topics**, folding to their pages, projects and issues as today, then *Explore topics* in the place of *More*.
+
+Every screen has its loading, failed and empty stories; Ship's has the topic you can't open.
+
+## New here
+
+Everything else is the kit's or another app's screen: *Sidebar*, *NavItem* and *NavTree* rows and folds, Ship's *Topics* page (Tabs, SearchInput, Join) for Explore everywhere, *Menu* with `selected` for row or card, *LinkRow* and *LinkCard* for the two looks, *MenuItem* `shortcut` and *Tooltip* `shortcut` for the key, Ship's project row for projects, *Panel* for the conversation, *SectionHeader*, *EmptyState*, *SkeletonList*, *NoAccessNotice*, *ArchivedNotice*.
+
+| New here | What it could have been | Why it's new |
+| --- | --- | --- |
+| The ⋮⋮ grip and drop line on a topic's files | The document's block handle (*BlockHandle*): the same grip and line | Nothing in the apps reorders a list. Chosen by Miky at kickoff, 6 Nov: the grip, like a block |
+| Ctrl/Cmd+O | The launcher's Ctrl+K, the only key today | The first key for an action. Chosen by Miky at kickoff, 6 Nov |
+| A document row folding to its child pages, in Ship's topic page | *NavTree*'s fold, which lives only in a sidebar | No row in a page folds today |
+| The conversation panel's reply line | *CommentBox*, which the build uses | Drawn roughly here to keep the prototype small |
+
+## Not drawn
+
+The topic's conversation and Activity in Peek, Leaf's topic page and every Home and Desk are as today. Which topics are "yours" stays membership, until "Teams and following". Main and All belongs to its own project.
