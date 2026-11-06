@@ -23,6 +23,9 @@ export interface PinnedCommentProps {
 /** What stands in a comment's place when it is gone: deleted, or not shown (SPEC §6.5). */
 export const goneWords = (deleted: boolean) => (deleted ? 'This comment was deleted.' : 'This comment can’t be shown.')
 
+/** The box's `closed` under that thread, deleted or not shown, the same in every app: the line above already says why. */
+export const GONE_CLOSED = 'This thread takes no new replies.'
+
 /**
  * The comment a thread answers, pinned at the top of the replies column: who, when, and its first line, on a raised
  * card. Peek's pinned message, moved with the conversation.

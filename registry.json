@@ -4,8 +4,8 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.106.0",
-    "exports": 245,
+    "packageVersion": "0.107.0",
+    "exports": 247,
     "typeExports": 254,
     "files": null
   },
@@ -2766,6 +2766,12 @@
           "note": "Deleted: \"This comment was deleted.\", and its replies stay."
         },
         {
+          "name": "unseen",
+          "takes": "true/false",
+          "required": false,
+          "note": "Not read, and nothing says it was deleted (SPEC §6.5's \"not returned\"): \"This comment can't be shown.\", drawn as a deleted one is, and its replies stay (Miky, 6 November, ONE-9)."
+        },
+        {
           "name": "replies",
           "takes": "Omit<RepliesRowProps, 'urgent'>",
           "required": false,
@@ -4735,6 +4741,44 @@
       "docsId": "menus-windows-formdialog--docs",
       "storyId": "menus-windows-formdialog--new-folder",
       "docPage": "src/FormDialog.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "GONE_CLOSED",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PinnedComment.tsx",
+      "purpose": "The box's `closed` under that thread, deleted or not shown, the same in every app: the line above already says why.",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-pinnedcomment--docs",
+      "storyId": "conversation-pinnedcomment--pinned",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "goneWords",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/PinnedComment.tsx",
+      "purpose": "What stands in a comment's place when it is gone: deleted, or not shown (SPEC §6.5).",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-pinnedcomment--docs",
+      "storyId": "conversation-pinnedcomment--pinned",
+      "docPage": null,
       "app": null,
       "looks": []
     },
@@ -8233,6 +8277,12 @@
           "takes": "true/false",
           "required": false,
           "note": "It was deleted; its replies stay."
+        },
+        {
+          "name": "unseen",
+          "takes": "true/false",
+          "required": false,
+          "note": "It wasn't read, and nothing says it was deleted: \"This comment can't be shown.\", and its replies stay (ONE-9)."
         }
       ],
       "variants": [],

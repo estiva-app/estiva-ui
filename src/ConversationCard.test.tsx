@@ -157,6 +157,13 @@ describe('ConversationCard', () => {
     expect(screen.getByText('1 reply')).toBeTruthy()
   })
 
+  it('a thread whose comment was not read pins "can’t be shown" above its replies, not the comment’s words', () => {
+    render(<PinnedComment author={ONE} time="Today at 11:08 AM" words="The comment" unseen />)
+    expect(screen.getByText('This comment can’t be shown.')).toBeTruthy()
+    expect(screen.queryByText('The comment')).toBeNull()
+    expect(screen.queryByText('This comment was deleted.')).toBeNull()
+  })
+
   // Leaf's column kept it, and now every app does (Katerina, 3 November): the replies still talk about that place.
   it('a deleted comment still says what it was on, above "This comment was deleted."', () => {
     render(

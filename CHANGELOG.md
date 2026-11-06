@@ -6,6 +6,9 @@ A comment the app could not read, with no sign it was deleted, says "This commen
 (SPEC §6.5's "not returned"; Miky, 6 November, ONE-9). `unseen` on **ConversationCard**, **PinnedComment** and a
 **Thread**'s `start`: drawn as `deleted` is (its `about` kept, read-only, its replies stay), in its own words. An app
 sets it from `@estiva-app/conversation`'s `Thread.state === 'missing'`, as it sets `deleted` from `'deleted'`.
+With both set, `deleted` wins. `goneWords(deleted)` and `GONE_CLOSED` ("This thread takes no new replies.") are
+exported: pass `GONE_CLOSED` as the box's `closed` under either thread, in place of the app's own sentence (Peek
+`src/components/views/useFileConversationView.tsx:499`; Ship and Leaf, wherever they close a deleted comment's box).
 
 ## 0.106.0 — 2026-11-04
 
