@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { IconHome } from '@tabler/icons-react'
 import { KindIcon } from '../../src/KindIcon'
 import { NavItem } from '../../src/NavItem'
-import { NavTree } from '../../src/NavTree'
+import { Sidebar } from '../../src/Sidebar'
 import { TOPICS, fileOf, topicOf, type Person, type Read, type Topic } from './fixtures'
-import { ExplorePage, FilePlaceholder, Frame, Page, Providers, TopicsSection, go, icon16, type Place } from './parts'
+import { ExplorePage, FilePlaceholder, Frame, Page, Providers, TeamsTree, TopicsSection, go, icon16, type Place } from './parts'
 
 export interface LeafTopicsProps {
   viewer?: Person
@@ -25,7 +25,7 @@ export function LeafTopics(props: LeafTopicsProps) {
 /**
  * Leaf's sidebar: Home, your five newest topics, each folding to its pages,
  * projects and issues in the topic's order (as today), then Explore topics in
- * the place of More, then the Folders as today.
+ * the place of More, then Teams as today.
  */
 function LeafApp({ viewer: firstViewer = 'miky', start = { type: 'home' }, read: firstRead = 'ok', none = false }: LeafTopicsProps) {
   const [viewer, setViewer] = useState<Person>(firstViewer)
@@ -42,7 +42,7 @@ function LeafApp({ viewer: firstViewer = 'miky', start = { type: 'home' }, read:
     ) : place.type === 'file' ? (
       <FilePlaceholder id={place.id} />
     ) : (
-      <Page title="Home" icon={<IconHome {...icon16} />}>
+      <Page title="Home">
         <p className="text-caption text-text-muted">Home, as today.</p>
       </Page>
     )
@@ -52,14 +52,12 @@ function LeafApp({ viewer: firstViewer = 'miky', start = { type: 'home' }, read:
       viewer={viewer}
       onViewer={setViewer}
       nav={
-        <>
+        // Leaf's sidebar on origin/main: Home, Topics, Teams.
+        <Sidebar>
           <NavItem href="#" label="Home" icon={<IconHome {...icon16} />} active={place.type === 'home'} onClick={go(() => setPlace({ type: 'home' }))} />
           <TopicsSection viewer={viewer} topics={none ? [] : TOPICS} read={read} place={place} onOpen={setPlace} limit={5} fold={fold} />
-          <NavTree title="Folders">
-            <NavItem href="#" label="Estiva HQ" icon={<KindIcon kind="file" />} />
-            <NavItem href="#" label="Peek" icon={<KindIcon kind="file" />} />
-          </NavTree>
-        </>
+          <TeamsTree app="Leaf" />
+        </Sidebar>
       }
     >
       {content}

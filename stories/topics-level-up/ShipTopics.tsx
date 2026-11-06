@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { IconChevronDown, IconChevronRight, IconFileText, IconHome, IconLayoutList, IconSend } from '@tabler/icons-react'
+import { IconBox, IconChevronDown, IconChevronRight, IconFileText, IconLayoutList, IconListDetails, IconSend } from '@tabler/icons-react'
 import { Avatar } from '../../src/Avatar'
 import { EmptyState } from '../../src/EmptyState'
 import { IconButton } from '../../src/IconButton'
@@ -7,6 +7,7 @@ import { KindIcon } from '../../src/KindIcon'
 import { Menu, MenuItem, MenuSeparator } from '../../src/Menu'
 import { NavItem } from '../../src/NavItem'
 import { NoAccessNotice } from '../../src/NoAccessNotice'
+import { Sidebar } from '../../src/Sidebar'
 import { Panel } from '../../src/Panel'
 import { ProgressBar } from '../../src/ProgressBar'
 import { SectionHeader } from '../../src/SectionHeader'
@@ -14,7 +15,7 @@ import { SkeletonList } from '../../src/Skeleton'
 import { Tabs } from '../../src/Tabs'
 import { TextInput } from '../../src/TextInput'
 import { PEOPLE, TOPICS, fileOf, topicOf, type File, type Person, type Read, type Topic } from './fixtures'
-import { ExplorePage, FilePlaceholder, Frame, MoreIcon, Page, Providers, TopicsSection, go, icon16, type Place } from './parts'
+import { ExplorePage, FilePlaceholder, Frame, MoreIcon, Page, Providers, TeamsTree, TopicsSection, go, icon16, type Place } from './parts'
 
 type ProjectsTab = 'all' | 'planned' | 'active' | 'completed'
 const TABS: Record<ProjectsTab, string> = { all: 'All', planned: 'Planned', active: 'Active', completed: 'Completed' }
@@ -250,7 +251,7 @@ export function ShipTopics(props: ShipTopicsProps) {
   )
 }
 
-/** Ship's sidebar: Home, Projects, Issues, then your five newest topics, each folding to its projects and issues, then Explore topics. */
+/** Ship's sidebar: Projects, Issues, then your five newest topics, each folding to its projects and issues, then Explore topics, then Teams. */
 function ShipApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'widgets' }, read: firstRead = 'ok', topic: firstTopic = 'ok' }: ShipTopicsProps) {
   const [viewer, setViewer] = useState<Person>(firstViewer)
   const [place, setPlace] = useState<Place>(start)
@@ -266,8 +267,8 @@ function ShipApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
     ) : place.type === 'file' ? (
       <FilePlaceholder id={place.id} />
     ) : (
-      <Page title="Home">
-        <p className="text-caption text-text-muted">Home, as today.</p>
+      <Page title="Projects">
+        <p className="text-caption text-text-muted">Projects, as today.</p>
       </Page>
     )
   return (
@@ -276,12 +277,14 @@ function ShipApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
       viewer={viewer}
       onViewer={setViewer}
       nav={
-        <>
-          <NavItem href="#" label="Home" icon={<IconHome {...icon16} />} active={place.type === 'home'} onClick={go(() => setPlace({ type: 'home' }))} />
-          <NavItem href="#" label="Projects" icon={<KindIcon kind="project" />} />
-          <NavItem href="#" label="Issues" icon={<KindIcon kind="issue" />} />
+        // ShipSidebar on origin/main: Projects and Issues with their counts, then Teams. Its "Topics" row becomes this
+        // Topics section, whose Explore topics opens the same Topics page.
+        <Sidebar>
+          <NavItem href="#" label="Projects" icon={<IconBox {...icon16} />} count={6} countLabel="6 active" active={place.type === 'home'} onClick={go(() => setPlace({ type: 'home' }))} />
+          <NavItem href="#" label="Issues" icon={<IconListDetails {...icon16} />} count={24} countLabel="24 open" />
           <TopicsSection viewer={viewer} topics={TOPICS} read={read} place={place} onOpen={setPlace} limit={5} fold={fold} />
-        </>
+          <TeamsTree app="Ship" />
+        </Sidebar>
       }
     >
       {content}

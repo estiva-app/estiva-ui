@@ -1,16 +1,15 @@
 import { useState, type MouseEvent, type ReactNode } from 'react'
-import { IconDots } from '@tabler/icons-react'
+import { IconArrowUpRight, IconBox, IconDots, IconFilePlus, IconListDetails, IconPlus, IconTarget } from '@tabler/icons-react'
 import { AppShell } from '../../src/AppShell'
 import { Button } from '../../src/Button'
 import { EmptyState } from '../../src/EmptyState'
 import { KindIcon } from '../../src/KindIcon'
 import { Menu, MenuItem } from '../../src/Menu'
 import { NavItem } from '../../src/NavItem'
-import { NavTree } from '../../src/NavTree'
+import { NavTree, type NavTreeGroup } from '../../src/NavTree'
 import { PageHeader } from '../../src/PageHeader'
 import { PersonTrigger } from '../../src/PersonTrigger'
 import { SearchInput } from '../../src/SearchInput'
-import { Sidebar } from '../../src/Sidebar'
 import { SkeletonList } from '../../src/Skeleton'
 import { Tabs } from '../../src/Tabs'
 import { ToastProvider } from '../../src/Toast'
@@ -38,20 +37,42 @@ export function Providers({ children }: { children: ReactNode }) {
   )
 }
 
-/** The app's frame: its name, View as, the sidebar and the page. Inside `Providers`. */
-export function Frame({ app, viewer, onViewer, nav, children }: { app: string; viewer: Person; onViewer: (p: Person) => void; nav: ReactNode; children: ReactNode }) {
+/**
+ * The app's frame as each app draws it on origin/main (6 Nov): Peek floating,
+ * with its search and no name (PeekFrame); Ship solid, "Estiva Ship"
+ * (App.tsx); Leaf inset, "Leaf" (App.tsx). `nav` is the app's own: Peek's
+ * Rail, or a Sidebar. View as, top right, stands in for the identity menu.
+ * Inside `Providers`.
+ */
+export function Frame({
+  app,
+  viewer,
+  onViewer,
+  nav,
+  children,
+}: {
+  app: 'Peek' | 'Ship' | 'Leaf'
+  viewer: Person
+  onViewer: (p: Person) => void
+  nav: ReactNode
+  children: ReactNode
+}) {
+  const [navOpen, setNavOpen] = useState(true)
   return (
     <div className="h-screen overflow-hidden">
       <AppShell
-        variant="inset"
-        logo={<span className="px-2 text-body-1 font-semibold text-text-primary">{app}</span>}
+        variant={app === 'Peek' ? 'floating' : app === 'Ship' ? 'solid' : 'inset'}
+        logo={app === 'Peek' ? undefined : app === 'Ship' ? 'Estiva Ship' : 'Leaf'}
+        {...(app === 'Peek' ? { onSearch: () => {}, searchPlaceholder: 'Search Peek...' } : {})}
+        navOpen={navOpen}
+        onNavOpenChange={setNavOpen}
         identity={
           <Menu align="right" trigger={<PersonTrigger name={PEOPLE[viewer]} />}>
             <MenuItem label="View as Miky" selected={viewer === 'miky'} onClick={() => onViewer('miky')} />
             <MenuItem label="View as Katerina" selected={viewer === 'katerina'} onClick={() => onViewer('katerina')} />
           </Menu>
         }
-        nav={<Sidebar>{nav}</Sidebar>}
+        nav={nav}
       >
         {children}
       </AppShell>
@@ -59,11 +80,44 @@ export function Frame({ app, viewer, onViewer, nav, children }: { app: string; v
   )
 }
 
+/** The teams in the fixtures, A to Z, as the apps sort them. */
+export const TEAMS = [...new Set(TOPICS.map((t) => t.team))].sort((a, b) => a.localeCompare(b))
+
+/**
+ * Ship's and Leaf's Teams, below Topics, as today: each team a closed group.
+ * Ship's opens to its Topics, Projects and Issues and has New team; Leaf's
+ * opens to its documents and has New document (ShipSidebar.tsx, leaf App.tsx).
+ */
+export function TeamsTree({ app }: { app: 'Ship' | 'Leaf' }) {
+  const groups: NavTreeGroup[] = TEAMS.map((team) => ({
+    id: team,
+    title: team,
+    defaultOpen: false,
+    ...(app === 'Ship' ? { actions: [{ icon: <IconArrowUpRight {...icon16} />, tooltip: 'Open team', onClick: () => {} }] } : {}),
+    nodes:
+      app === 'Ship'
+        ? [
+            { id: `${team}/topics`, label: 'Topics', icon: <IconTarget {...icon16} />, href: '#' },
+            { id: `${team}/projects`, label: 'Projects', icon: <IconBox {...icon16} />, href: '#' },
+            { id: `${team}/issues`, label: 'Issues', icon: <IconListDetails {...icon16} />, href: '#' },
+          ]
+        : [{ id: `${team}/readme`, label: 'Read me', icon: <KindIcon kind="file" />, href: '#' }],
+  }))
+  return (
+    <NavTree
+      title="Teams"
+      titleActions={[app === 'Ship' ? { icon: <IconPlus {...icon16} />, tooltip: 'New team', onClick: () => {} } : { icon: <IconFilePlus {...icon16} />, tooltip: 'New document', onClick: () => {} }]}
+      groups={groups}
+      onSelect={(_, event) => event.preventDefault()}
+    />
+  )
+}
+
 /** A page body under a PageHeader, as the apps draw a page. */
-export function Page({ title, icon, actions, meta, children }: { title: string; icon?: ReactNode; actions?: ReactNode; meta?: string[]; children: ReactNode }) {
+export function Page({ title, icon, actions, meta, members, children }: { title: string; icon?: ReactNode; actions?: ReactNode; meta?: string[]; members?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader title={title} leading={icon} actions={actions} meta={meta} />
+      <PageHeader title={title} leading={icon} actions={actions} meta={meta} members={members} />
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">{children}</div>
     </div>
   )
@@ -90,7 +144,10 @@ export function TopicsSection({
   fold,
   menu,
   unread = [],
+  inColumn = false,
 }: {
+  /** Peek: inside its Topics column, whose header already says "Topics". */
+  inColumn?: boolean
   viewer: Person
   topics?: Topic[]
   read: Read
@@ -102,15 +159,16 @@ export function TopicsSection({
   unread?: string[]
 }) {
   const [open, setOpen] = useState<Set<string>>(() => new Set(place.type === 'topic' ? [place.id] : []))
+  const title = inColumn ? undefined : 'Topics'
   if (read === 'loading')
     return (
-      <NavTree title="Topics">
+      <NavTree title={title}>
         <SkeletonList rows={5} />
       </NavTree>
     )
   if (read === 'failed')
     return (
-      <NavTree title="Topics">
+      <NavTree title={title}>
         <div className="px-2 py-1">
           <EmptyState scope="section" message="Your topics could not be read. Reload to try again." />
         </div>
@@ -119,7 +177,7 @@ export function TopicsSection({
     )
   const mine = yourTopics(viewer, topics).slice(0, limit)
   return (
-    <NavTree title="Topics">
+    <NavTree title={title}>
       {mine.length === 0 && (
         <div className="px-2 py-1">
           <EmptyState scope="section" message="You’re in no topics yet." />

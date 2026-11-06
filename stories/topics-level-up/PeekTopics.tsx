@@ -1,5 +1,6 @@
-import { useEffect, useState, type DragEvent } from 'react'
-import { IconArchive, IconCheck, IconLayoutDashboard, IconPlus } from '@tabler/icons-react'
+import { useEffect, useState, type DragEvent, type ReactNode } from 'react'
+import { IconArchive, IconCheck, IconDotsVertical, IconEdit, IconLayoutDashboard, IconLayoutSidebarRight, IconNote, IconPlus, IconTarget, IconUser, IconUsers } from '@tabler/icons-react'
+import { MembersPill } from '../../src/MembersPill'
 import { ArchivedNotice } from '../../src/ArchivedNotice'
 import { Button } from '../../src/Button'
 import { cn } from '../../src/cn'
@@ -10,15 +11,18 @@ import { LinkCard } from '../../src/LinkCard'
 import { LinkRow } from '../../src/LinkRow'
 import { Link } from '../../src/Link'
 import { Menu, MenuItem, MenuSeparator } from '../../src/Menu'
-import { NavItem } from '../../src/NavItem'
+import { ListColumn } from '../../src/ListColumn'
 import { Panel } from '../../src/Panel'
+import { Rail as RailNav } from '../../src/Rail'
+import { RailItem } from '../../src/RailItem'
 import { SectionHeader } from '../../src/SectionHeader'
 import { SkeletonList } from '../../src/Skeleton'
 import { isApplePlatform } from '../../src/shortcuts'
 import { useToast } from '../../src/Toast'
+import { Toolbar, ToolbarButton } from '../../src/Toolbar'
 import { WithTooltip } from '../../src/Tooltip'
-import { TOPICS, fileOf, linkOf, type Look, type Person, type Read, type Topic } from './fixtures'
-import { ExplorePage, FilePlaceholder, Frame, MoreIcon, Page, Providers, TopicsSection, go, icon16, type Place } from './parts'
+import { PEOPLE, TOPICS, fileOf, linkOf, type Look, type Person, type Read, type Topic } from './fixtures'
+import { ExplorePage, FilePlaceholder, Frame, MoreIcon, Page, Providers,TopicsSection, go, icon16, type Place } from './parts'
 
 /** Ctrl+O, Cmd+O on a Mac: Add to Open work, again to remove (Miky, 6 Nov). */
 const OPEN_WORK_KEY = () => (isApplePlatform() ? 'Cmd+O' : 'Ctrl+O')
@@ -141,23 +145,29 @@ function DropLine({ at }: { at: 'top' | 'bottom' }) {
 /** The topic's page in Peek: the conversation in the middle, the Overview with its files on the right. */
 function TopicPage({ topic, viewer, read, onRetry, inOpenWork, onToggleOpenWork }: { topic: Topic; viewer: Person; read: Read; onRetry: () => void; inOpenWork: boolean; onToggleOpenWork: () => void }) {
   const readOnly = !!topic.archived || !topic.members.includes(viewer)
+  const [overview, setOverview] = useState(true)
   return (
+    // The header as Peek's file page draws it today (useFilePane): the title alone, the members pill, then one toolbar.
     <Page
       title={topic.title}
-      icon={<KindIcon kind="topic" />}
-      meta={[topic.team]}
+      members={<MembersPill members={topic.members.map((p) => ({ name: PEOPLE[p] }))} count={topic.members.length} />}
       actions={
         <div className="flex items-center gap-1">
           {!topic.archived && (
-            // Add to Open work: now a button on the topic's page, with its key (Miky, 3 Nov: "more prominent and have keyboard shortcut").
+            // NEW HERE. Add to Open work: now a button on the topic's page, with its key (Miky, 3 Nov: "more prominent and have keyboard shortcut").
             <WithTooltip label={inOpenWork ? 'Remove from Open work' : 'Add to Open work'} shortcut={OPEN_WORK_KEY()}>
               <Button size="small" variant="outlined" leadingIcon={inOpenWork ? <IconCheck {...icon16} /> : <IconLayoutDashboard {...icon16} />} onClick={onToggleOpenWork}>
                 {inOpenWork ? 'In Open work' : 'Add to Open work'}
               </Button>
             </WithTooltip>
           )}
+          <Toolbar aria-label="File actions" surface={false}>
+            {/* The Overview, shown and hidden, before the ⋮, as today (SidePanelButton). */}
+            <ToolbarButton tooltip={overview ? 'Hide side panel' : 'Show side panel'} aria-label={overview ? 'Hide side panel' : 'Show side panel'} pressed={overview} onClick={() => setOverview(!overview)}>
+              <IconLayoutSidebarRight {...icon16} />
+            </ToolbarButton>
           {/* Rename, Move, Archive and Delete live here only (Miky, 3 Nov). New topic inside is gone everywhere. */}
-          <Menu align="right" trigger={<IconButton aria-label={`More options for ${topic.title}`} tooltip="More options"><MoreIcon /></IconButton>}>
+          <Menu align="right" trigger={<ToolbarButton tooltip="More actions" aria-label="More actions"><IconDotsVertical {...icon16} /></ToolbarButton>}>
             {topic.archived ? (
               <MenuItem label="Unarchive" />
             ) : (
@@ -171,6 +181,7 @@ function TopicPage({ topic, viewer, read, onRetry, inOpenWork, onToggleOpenWork 
               </>
             )}
           </Menu>
+          </Toolbar>
         </div>
       }
     >
@@ -179,7 +190,7 @@ function TopicPage({ topic, viewer, read, onRetry, inOpenWork, onToggleOpenWork 
         <div className="flex min-w-0 flex-1 items-center justify-center p-6">
           <p className="text-caption text-text-muted">The topic’s conversation, as today.</p>
         </div>
-        <div className="w-[384px] shrink-0 border-l border-border-subtle">
+        {overview && <div className="w-[384px] shrink-0 border-l border-border-subtle">
           <Panel title="Overview" bodyClassName="flex flex-col pb-4 pt-2">
             <TopicFiles key={topic.id} topic={topic} read={read} readOnly={readOnly} onRetry={onRetry} />
             <section className="flex flex-col">
@@ -187,7 +198,7 @@ function TopicPage({ topic, viewer, read, onRetry, inOpenWork, onToggleOpenWork 
               <p className="px-4 text-caption text-text-muted">Activity, as today.</p>
             </section>
           </Panel>
-        </div>
+        </div>}
       </div>
     </Page>
   )
@@ -226,6 +237,8 @@ function PeekApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
   const [topics, setTopics] = useState<Topic[]>(TOPICS)
   const [unread, setUnread] = useState<string[]>(['fast'])
   const [openWork, setOpenWork] = useState<Set<string>>(() => new Set(firstOpenWork))
+  // The rail's choice when it isn't Topics; null follows the place.
+  const [rail, setRail] = useState<Exclude<Rail, 'topics'> | null>(null)
   const { showToast } = useToast()
   const toggle = (t: Topic) => {
     const had = openWork.has(t.id)
@@ -278,7 +291,7 @@ function PeekApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
     </>
   )
 
-  const content =
+  const page =
     place.type === 'explore' ? (
       <ExplorePage viewer={viewer} read={read} onRetry={() => setRead('ok')} onOpen={open} />
     ) : place.type === 'topic' && current ? (
@@ -286,10 +299,46 @@ function PeekApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
     ) : place.type === 'file' ? (
       <FilePlaceholder id={place.id} />
     ) : (
-      <Page title="Desk">
-        <p className="text-caption text-text-muted">The Desk, as today.</p>
-      </Page>
+      <Untouched what="Pick a topic, or Explore topics." />
     )
+
+  // What the rail has lit: Desk is the story's home; Teams and People are drawn only as far as their own page.
+  const at: Rail = rail ?? (place.type === 'home' ? 'desk' : 'topics')
+  const content =
+    at === 'topics' ? (
+      <div className="flex min-h-0 min-w-0 flex-1">
+        {/* Peek's Topics column, as TopicsColumn draws it: its header with New topic, then the list. Flat now, with Explore topics last. */}
+        <ListColumn
+          title="Topics"
+          actions={
+            <Toolbar aria-label="Topic list actions" surface={false}>
+              <ToolbarButton tooltip="New topic" aria-label="New topic">
+                <IconEdit {...icon16} />
+              </ToolbarButton>
+            </Toolbar>
+          }
+        >
+          <TopicsSection inColumn viewer={viewer} topics={topics} read={read} place={place} onOpen={open} menu={menu} unread={unread} />
+        </ListColumn>
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">{page}</div>
+      </div>
+    ) : (
+      <Untouched what={at === 'desk' ? 'Desk, as today.' : at === 'teams' ? 'Teams, as today.' : 'People, as today.'} />
+    )
+
+  const item = (key: Rail, label: string, icon: ReactNode) => (
+    <RailItem
+      href="#"
+      icon={icon}
+      label={label}
+      active={at === key}
+      onClick={go(() => {
+        setRail(key === 'topics' ? null : key)
+        if (key === 'desk') setPlace({ type: 'home' })
+        if (key === 'topics' && place.type === 'home') setPlace({ type: 'topic', id: topics[0].id })
+      })}
+    />
+  )
 
   return (
     <Frame
@@ -297,13 +346,27 @@ function PeekApp({ viewer: firstViewer = 'miky', start = { type: 'topic', id: 'w
       viewer={viewer}
       onViewer={setViewer}
       nav={
-        <>
-          <NavItem href="#" label="Desk" icon={<IconLayoutDashboard {...icon16} />} active={place.type === 'home'} onClick={go(() => open({ type: 'home' }))} />
-          <TopicsSection viewer={viewer} topics={topics} read={read} place={place} onOpen={open} menu={menu} unread={unread} />
-        </>
+        // Peek's NavRail on origin/main: Desk, Topics, Teams, People.
+        <RailNav>
+          {item('desk', 'Desk', <IconNote {...icon16} />)}
+          {item('topics', 'Topics', <IconTarget {...icon16} />)}
+          {item('teams', 'Teams', <IconUsers {...icon16} />)}
+          {item('people', 'People', <IconUser {...icon16} />)}
+        </RailNav>
       }
     >
       {content}
     </Frame>
+  )
+}
+
+type Rail = 'desk' | 'topics' | 'teams' | 'people'
+
+/** A screen this project doesn't change. */
+function Untouched({ what }: { what: string }) {
+  return (
+    <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+      <p className="text-caption text-text-muted">{what}</p>
+    </div>
   )
 }

@@ -6,6 +6,8 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 A prototype on the `concept/topics-level-up` branch only. It never merges, which is why it names apps and uses real topic names (the contents are made up). It draws Miky's notes of 3, 4 and 6 November in Peek's *Universal Navigation* topic, and the calls he made while the project was shaped. Pick each app's theme in the toolbar: **signal** for Peek, **ship** for Ship, **leaf** for Leaf. *View as*, top right, switches between Miky and Katerina.
 
+**Each app's frame is what ships today** (redrawn 6 Nov from each app's code on `main`, and checked against a screenshot of each live app): Peek's rail with Desk, Topics, Teams and People, and its Topics column with New topic; Ship's sidebar with Projects and Issues, then Teams; Leaf's with Home, Topics, then Teams. Only what this project changes is changed.
+
 ## What to look at
 
 **Your topics, in the order things happen.** In every app the sidebar lists your topics newest activity first: a message by anyone, the agent's included, a file added, or a save, status or comment on a file the topic lists. Open *Peek: a new message moves a topic*: two seconds in, Katerina writes in *Onboarding* and it jumps to the top with its dot. Ship and Leaf reorder on the next open, so a row never moves under your pointer.
@@ -25,7 +27,7 @@ A prototype on the `concept/topics-level-up` branch only. It never merges, which
 
 **Explore topics** (*Peek: Explore topics*, *Leaf: Explore topics*, and Ship's *Topics* page, which is Ship's Explore): All, Your topics, Other topics and Archived, as Ship's Topics page has them, with a search. All, Other and Archived are **A to Z**, like browsing channels in Slack; *Your topics* keeps the sidebar's order. *Join* on a topic you're not in. An archived one opens read-only.
 
-**Ship's sidebar** shows your **five newest topics**, each folding to its projects and issues in the topic's order, then *Explore topics*.
+**Ship's sidebar** shows your **five newest topics** under Projects and Issues, each folding to its projects and issues in the topic's order, then *Explore topics*, then Teams as today. Today's *Topics* row at the top of the sidebar goes: *Explore topics* opens the same Topics page.
 
 **Ship's topic page** (*Ship: a topic's page*, on *Widgets*) reads like Ship:
 - **Projects** drawn as the Projects page draws them: status, lead and progress, under All, Planned, Active and Completed.
@@ -33,7 +35,7 @@ A prototype on the `concept/topics-level-up` branch only. It never merges, which
 - The files keep the topic's order inside each kind.
 - **The conversation** in the right panel, where a project's or an issue's sits, instead of the "Conversation in Peek" link. Reply in it; the button left of the "…" hides and shows it.
 
-**Leaf's sidebar** shows your **five newest topics**, folding to their pages, projects and issues as today, then *Explore topics* in the place of *More*.
+**Leaf's sidebar** shows your **five newest topics**, folding to their pages, projects and issues as today, then *Explore topics* in the place of *More*, then Teams as today.
 
 Every screen has its loading, failed and empty stories; Ship's has the topic you can't open.
 
@@ -48,6 +50,31 @@ Everything else is the kit's or another app's screen: *Sidebar*, *NavItem* and *
 | A document row folding to its child pages, in Ship's topic page | *NavTree*'s fold, which lives only in a sidebar | No row in a page folds today |
 | The conversation panel's reply line | *CommentBox*, which the build uses | Drawn roughly here to keep the prototype small |
 
+## Where the prototype still differs from today's apps
+
+Not changes this project makes: places the drawing is rougher than the app.
+
+**Every app**
+- Top right is *View as* with a name; the apps show your own picture and menu.
+- The teams are three made-up ones (Company, Design, Engineering), and their names draw a little heavier than in the apps.
+
+**Peek**
+- Desk, Teams and People open a line of text, not their screens.
+- The topic's conversation and Activity are a line of text.
+- Peek's Join or Leave button, left of the side-panel button where Peek offers it, isn't drawn.
+- A topic opens with its Overview showing, so its files are in view; Peek remembers when you hide it.
+- Nothing open shows a topic, never Peek's "No file selected".
+
+**Ship**
+- Projects and Issues have made-up counts, and Projects opens a line of text.
+- A team opens to Topics, Projects and Issues, which go nowhere.
+
+**Leaf**
+- A team opens to one *Read me*; in Leaf it lists the team's documents.
+- Home is a line of text, not Recent.
+- In no topic, Leaf today leaves Topics out; here it says "You're in no topics yet." above *Explore topics*, so there is still a way in.
+- Leaf's topic page is a line of text.
+
 ## Not drawn
 
-The topic's conversation and Activity in Peek, Leaf's topic page and every Home and Desk are as today. Which topics are "yours" stays membership, until "Teams and following". Main and All belongs to its own project.
+Which topics are "yours" stays membership, until "Teams and following". Main and All belongs to its own project.
