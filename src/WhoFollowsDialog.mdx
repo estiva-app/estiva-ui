@@ -1,0 +1,65 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as WhoFollowsDialogStories from './WhoFollowsDialog.stories'
+
+<Meta of={WhoFollowsDialogStories} />
+
+# WhoFollowsDialog
+
+Who follows a place, at All and at Important, with "Add someone" — the list a
+**MembersPill** opens beside a **FollowSwitch**.
+
+<Canvas of={WhoFollowsDialogStories.Default} />
+
+## When
+
+- Behind the faces beside a place's title: everyone it lists, by level, and
+  adding someone.
+- Straight on the add layer (`initialView="add"`), from a menu's "Add someone…".
+
+## When not
+
+- Being in a thing or not, with no levels → **MembersDialog**.
+- Changing your own level → **FollowSwitch**; nobody's level changes here.
+
+## How
+
+```tsx
+import { WhoFollowsDialog } from '@estiva-app/ui'
+
+const atAll: { id: string; name: string; picture?: string; caption?: string }[] = []
+const atImportant: { id: string; name: string; picture?: string; caption?: string }[] = []
+const directory: { id: string; label: string; picture?: string }[] = []
+const [open, setOpen] = useState(false)
+
+{open && (
+  <WhoFollowsDialog
+    title="Item one"
+    all={atAll}
+    important={atImportant}
+    candidates={directory}
+    onAdd={(chosen) => {}}
+    onClose={() => setOpen(false)}
+  />
+)}
+```
+
+- A row is **MembersDialog**'s: `{ id, name, picture?, bot?, caption? }`. The
+  caption says how they are in it ("Chose it", "Added by …").
+- Each group is drawn with its count, and "Nobody" when it is empty.
+- `onAdd` shows **Add someone**, which opens the same add layer as
+  **MembersDialog**'s, leaving out everyone listed by id. Return `false` to
+  stay on it; otherwise it returns to the list.
+
+## What it owns
+
+It does these by itself, on top of what **DialogShell** and **ChipInput** own.
+What an add does is yours.
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| Goes between the list and the add layer, and back after an add | a view state, or a second dialog |  |
+| Leaves everyone listed out of the picker | a filter over your directory |  |
+
+## Props
+
+<Controls of={WhoFollowsDialogStories.Default} />

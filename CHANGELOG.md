@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.108.0 — 2026-11-06
+
+How you follow a place, and who follows it, for every app (TEA-6; the Teams and following prototype Miky approved on
+2 November, estiva-ui `concept/cross-app-navigation`). Nothing changes for an app that does not take them.
+
+- **FollowSwitch**: one button before a place's title, drawn as its level, opening Not following, Important and All
+  with what each lights, and "Back to <name>’s default" when `backTo` is given. Controlled: `level` in, `onChoose`
+  out (`'off' | 'important' | 'all' | 'default'`, the choices `@estiva-app/conversation`'s `switchWrites` takes); it
+  waits while the promise runs. Without `onChoose` it cannot be changed (an archived team's place).
+- **LevelIcon**: the icon alone, for a list of places: dashed circle Important, full circle All, dashed with a plus
+  for Not following; with `people`, the same as people, for a team's chat.
+- **WhoFollowsDialog**: who a place lists, All then Important, counted, "Nobody" when empty, and "Add someone",
+  which opens **MembersDialog**'s own add layer (Miky, 6 November: adding someone is the standard modal, not a
+  per-row list). `initialView="add"` opens on it, for a menu's "Add someone…". The prototype's footer line and the
+  per-row "Joins at Important" caption are left out.
+- **MembersPill** takes `label`, the button's accessible name, for a pill that opens something other than members
+  ("Who follows Item one: 4"). Without it, it still says "4 members".
+- **MembersDialog** draws its rows and its add layer from the parts WhoFollowsDialog shares; nothing a person sees
+  changes.
+
 ## 0.107.0 — 2026-11-06
 
 A comment the app could not read, with no sign it was deleted, says "This comment can’t be shown." in its place

@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.107.0",
-    "exports": 247,
-    "typeExports": 254,
+    "packageVersion": "0.108.0",
+    "exports": 250,
+    "typeExports": 259,
     "files": null
   },
   "storybook": {
@@ -4547,6 +4547,97 @@
       "looks": []
     },
     {
+      "name": "FollowSwitch",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/FollowSwitch.tsx",
+      "purpose": "How you follow a place, in one button before its title: Not following, Important or All, and back to a group's default when you chose against it.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "level",
+          "takes": "all | important",
+          "required": true,
+          "note": "What lights for the viewer now: a level, or `undefined` for Not following."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "The place's name, for the button's accessible name."
+        },
+        {
+          "name": "onChoose",
+          "takes": "a handler",
+          "required": false,
+          "note": "Changes it. While its promise runs the button waits; a rejection is the caller's to report."
+        },
+        {
+          "name": "readOnlyReason",
+          "takes": "text",
+          "required": false,
+          "note": "Without `onChoose`: why it cannot be changed, said under the pointer (\"This team is archived\")."
+        },
+        {
+          "name": "people",
+          "takes": "true/false",
+          "required": false,
+          "note": "People rather than circles, as `LevelIcon`'s `people`."
+        },
+        {
+          "name": "offDescription",
+          "takes": "text",
+          "required": false,
+          "note": "The line under Not following."
+        },
+        {
+          "name": "backTo",
+          "takes": "text",
+          "required": false,
+          "note": "The name of the group whose default reaches the viewer, when they chose against it: offers \"Back to <name>’s default\"."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "level",
+          "values": [
+            "all",
+            "important"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "follow",
+          "behaviour": "Stays attached to its anchor on scroll and resize"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "people-followswitch--docs",
+      "storyId": "people-followswitch--important",
+      "docPage": "src/FollowSwitch.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Form",
       "repo": "estiva-ui",
       "kind": "component",
@@ -5671,6 +5762,46 @@
       "looks": []
     },
     {
+      "name": "LevelIcon",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/FollowSwitch.tsx",
+      "purpose": "How a place is followed, as one 16px icon: a dashed circle for Important, a full one for All, a dashed one with a plus, muted, for Not following.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "level",
+          "takes": "all | important",
+          "required": true,
+          "note": "The level it is followed at; `undefined` draws Not following."
+        },
+        {
+          "name": "people",
+          "takes": "true/false",
+          "required": false,
+          "note": "People rather than circles: for a place that is a group's own (Miky, 2 Nov)."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "level",
+          "values": [
+            "all",
+            "important"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "people-followswitch--docs",
+      "storyId": "people-followswitch--important",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Lightbox",
       "repo": "estiva-ui",
       "kind": "component",
@@ -6661,6 +6792,12 @@
           "takes": "a handler",
           "required": false,
           "note": "Opens the list — usually a `MembersDialog`."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": false,
+          "note": "The button's accessible name, when the list it opens is not \"members\" — \"Who follows <name>: 4\"."
         },
         {
           "name": "className",
@@ -12332,6 +12469,97 @@
       "docsId": "status-feedback-toast--docs",
       "storyId": "status-feedback-toast--neutral",
       "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "WhoFollowsDialog",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/WhoFollowsDialog.tsx",
+      "purpose": "Who follows a place, at All and at Important, with \"Add someone\" — the list a MembersPill opens beside a FollowSwitch.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "The place's name: the title reads \"Who follows <title>\"."
+        },
+        {
+          "name": "all",
+          "takes": "MembersDialogMember[]",
+          "required": true,
+          "note": "Who follows it at All, in the order to draw them."
+        },
+        {
+          "name": "important",
+          "takes": "MembersDialogMember[]",
+          "required": true,
+          "note": "Who follows it at Important."
+        },
+        {
+          "name": "candidates",
+          "takes": "MembersDialogCandidate[]",
+          "required": false,
+          "note": "Who \"Add someone\" may offer. Everyone listed is left out by id; leave the viewer out yourself — they join with the switch, not by adding themselves."
+        },
+        {
+          "name": "onAdd",
+          "takes": "a handler",
+          "required": false,
+          "note": "Adds the people chosen. With it, the \"Add someone\" row shows and opens the same add layer as `MembersDialog`'s."
+        },
+        {
+          "name": "initialView",
+          "takes": "list | add",
+          "required": false,
+          "note": "`add` opens straight on the add layer, as a menu's \"Add someone…\" does."
+        },
+        {
+          "name": "onClose",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "initialView",
+          "values": [
+            "list",
+            "add"
+          ]
+        }
+      ],
+      "ownsBehaviours": [
+        {
+          "id": "portal",
+          "behaviour": "Floats on top of the page"
+        },
+        {
+          "id": "press-outside",
+          "behaviour": "Closes on a press outside"
+        },
+        {
+          "id": "page-keys",
+          "behaviour": "Takes its keys by itself"
+        },
+        {
+          "id": "focus",
+          "behaviour": "Holds focus inside while open, and gives it back"
+        },
+        {
+          "id": "scroll-lock",
+          "behaviour": "Stops the page behind it scrolling"
+        }
+      ],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "people-whofollowsdialog--docs",
+      "storyId": "people-whofollowsdialog--default",
+      "docPage": "src/WhoFollowsDialog.mdx",
       "app": null,
       "looks": []
     },
