@@ -142,6 +142,21 @@ describe('ConversationCard', () => {
     expect(screen.getByText('3 replies')).toBeTruthy()
   })
 
+  // SPEC §6.5's "not returned" (Miky, 6 November): never said to be deleted, and closed as a deleted one is.
+  it('says a comment that was not read can’t be shown, never that it was deleted, and offers nothing on it', () => {
+    render(
+      <ConversationCard author={ONE} time="11:08 AM" unseen own onDelete={() => {}} onReply={() => {}} onResolve={() => {}} replies={{ count: 1 }}>
+        Words
+      </ConversationCard>,
+    )
+    expect(screen.getByText('This comment can’t be shown.')).toBeTruthy()
+    expect(screen.queryByText('This comment was deleted.')).toBeNull()
+    expect(screen.queryByText('Words')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /resolve/i })).toBeNull()
+    expect(screen.getByText('1 reply')).toBeTruthy()
+  })
+
   // Leaf's column kept it, and now every app does (Katerina, 3 November): the replies still talk about that place.
   it('a deleted comment still says what it was on, above "This comment was deleted."', () => {
     render(

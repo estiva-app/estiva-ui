@@ -163,7 +163,7 @@ export function Thread({
     >
       {start && (
         <div className={cn('px-4 pb-2 pt-4', SHOWN_CLASSES)} data-thread-start={start.id}>
-          <PinnedComment author={start.author} time={start.time} at={start.at} words={start.words} deleted={start.deleted} />
+          <PinnedComment author={start.author} time={start.time} at={start.at} words={start.words} deleted={start.deleted} unseen={start.unseen} />
         </div>
       )}
       <Divider look="section" label="Replies" className="px-4 py-2" />

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.107.0 — 2026-11-06
+
+A comment the app could not read, with no sign it was deleted, says "This comment can’t be shown." in its place
+(SPEC §6.5's "not returned"; Miky, 6 November, ONE-9). `unseen` on **ConversationCard**, **PinnedComment** and a
+**Thread**'s `start`: drawn as `deleted` is (its `about` kept, read-only, its replies stay), in its own words. An app
+sets it from `@estiva-app/conversation`'s `Thread.state === 'missing'`, as it sets `deleted` from `'deleted'`.
+
 ## 0.106.0 — 2026-11-04
 
 One set of words for a refused send, edit, reaction or file, the same in every app (ONE-4; the words Miky approved

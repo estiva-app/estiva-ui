@@ -161,6 +161,18 @@ export const StartDeleted: Story = {
   ),
 }
 
+/** The comment was not read, and nothing says it was deleted: its replies stay, and no new one can be written. */
+export const StartNotShown: Story = {
+  name: 'Comment not shown',
+  render: () => (
+    <Side>
+      <Thread start={{ ...START, unseen: true }} onClose={() => {}} notice={<WriteBox closed="This comment can’t be shown, so its thread takes no new replies." />}>
+        <Replies />
+      </Thread>
+    </Side>
+  ),
+}
+
 /** Archived: nothing can be changed. The reactions show but cannot be pressed, and the box says why, in every app's words (`archivedLine`). */
 export const ReadOnly: Story = {
   name: 'Read-only',
