@@ -16,6 +16,7 @@ import { ReactionRow, type ReactionRowProps } from './ReactionRow'
 import { RepliesRow, type RepliesRowProps } from './RepliesRow'
 import { ResolveDialog } from './ResolveDialog'
 import { exactTime, InConversationItem, InThreadCard, momentOf, SHOWN_CLASSES, useFaceLine } from './threadCard'
+import { goneWords } from './PinnedComment'
 import { ToolbarButton } from './Toolbar'
 import { WithTooltip } from './Tooltip'
 import { UnreadDot } from './UnreadDot'
@@ -96,6 +97,11 @@ export interface ConversationEntryProps {
 export interface ConversationCardProps extends ConversationEntryProps {
   /** Deleted: "This comment was deleted.", and its replies stay. */
   deleted?: boolean
+  /**
+   * Not read, and nothing says it was deleted (SPEC §6.5's "not returned"): "This comment can't be shown.", drawn as
+   * a deleted one is, and its replies stay (Miky, 6 November, ONE-9).
+   */
+  unseen?: boolean
   /** Its thread: how many replied, their faces, the last time, and whether one is new. Opening it is `onReply` or `onClick`. */
   replies?: Omit<RepliesRowProps, 'urgent'>
   /** Reply: offered on the strip. */
@@ -377,7 +383,9 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, deleted = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, deleted: isDeleted = false, unseen = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  // Not shown is drawn as deleted, in its own words.
+  const deleted = isDeleted || unseen
   const readOnly = (props.readOnly ?? false) || deleted
   const inThreadCard = useContext(InThreadCard)
 
@@ -462,7 +470,7 @@ export function ConversationCard(props: ConversationCardProps) {
                 {/* What it was on stays, where the words start: its replies still talk about that place (Leaf's; Katerina, 3 November: every app). */}
                 {!!about && <div className="relative w-full pl-8 pr-2">{about}</div>}
                 {/* 4px under it, as the words sit under it on a comment that is there. */}
-                <p className={cn('w-full pb-2 pl-8 pr-2 text-caption italic text-text-muted', !!about && 'pt-1')}>This comment was deleted.</p>
+                <p className={cn('w-full pb-2 pl-8 pr-2 text-caption italic text-text-muted', !!about && 'pt-1')}>{goneWords(isDeleted)}</p>
               </>
             ) : (
               <>

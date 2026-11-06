@@ -6,6 +6,7 @@ import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationLayout } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { MembersPill } from './MembersPill'
+import { GONE_CLOSED } from './PinnedComment'
 import { useSeenOnScreen } from './seenOnScreen'
 import { showInConversation } from './showInConversation'
 import { Thread } from './Thread'
@@ -154,7 +155,19 @@ export const StartDeleted: Story = {
   name: 'Comment deleted',
   render: () => (
     <Side>
-      <Thread start={{ ...START, deleted: true }} onClose={() => {}} notice={<WriteBox closed="The comment was deleted, so its thread takes no new replies." />}>
+      <Thread start={{ ...START, deleted: true }} onClose={() => {}} notice={<WriteBox closed={GONE_CLOSED} />}>
+        <Replies />
+      </Thread>
+    </Side>
+  ),
+}
+
+/** The comment was not read, and nothing says it was deleted: its replies stay, and no new one can be written. */
+export const StartNotShown: Story = {
+  name: 'Comment not shown',
+  render: () => (
+    <Side>
+      <Thread start={{ ...START, unseen: true }} onClose={() => {}} notice={<WriteBox closed={GONE_CLOSED} />}>
         <Replies />
       </Thread>
     </Side>

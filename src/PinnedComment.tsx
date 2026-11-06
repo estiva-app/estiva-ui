@@ -16,18 +16,26 @@ export interface PinnedCommentProps {
   words: ReactNode
   /** It was deleted; its replies stay. */
   deleted?: boolean
+  /** It wasn't read, and nothing says it was deleted: "This comment can't be shown.", and its replies stay (ONE-9). */
+  unseen?: boolean
 }
+
+/** What stands in a comment's place when it is gone: deleted, or not shown (SPEC §6.5). */
+export const goneWords = (deleted: boolean) => (deleted ? 'This comment was deleted.' : 'This comment can’t be shown.')
+
+/** The box's `closed` under that thread, deleted or not shown, the same in every app: the line above already says why. */
+export const GONE_CLOSED = 'This thread takes no new replies.'
 
 /**
  * The comment a thread answers, pinned at the top of the replies column: who, when, and its first line, on a raised
  * card. Peek's pinned message, moved with the conversation.
  */
-export function PinnedComment({ author, time, at: given, words, deleted = false }: PinnedCommentProps) {
+export function PinnedComment({ author, time, at: given, words, deleted = false, unseen = false }: PinnedCommentProps) {
   const at = momentOf(given)
   return (
     <Card fill="elevated" clip>
-      {deleted ? (
-        <p className="p-2 text-caption italic text-text-muted">This comment was deleted.</p>
+      {deleted || unseen ? (
+        <p className="p-2 text-caption italic text-text-muted">{goneWords(deleted)}</p>
       ) : (
         <div className="flex flex-col p-2">
           <div className="flex items-center gap-2">

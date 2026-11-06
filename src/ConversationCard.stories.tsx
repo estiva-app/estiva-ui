@@ -96,6 +96,9 @@ export const DeletedOnAPart: Story = {
   render: (args) => <Live {...args} deleted about={<QuotedLine words="the words this comment was on" />} replies={{ count: 2, faces: [TWO, THREE], last: '11:40 AM' }} />,
 }
 
+/** Not read, and nothing says it was deleted: drawn as a deleted one, never said to be deleted (SPEC §6.5, Miky, 6 November). */
+export const NotShown: Story = { name: 'Not shown', render: (args) => <Live {...args} unseen replies={{ count: 1, faces: [TWO], last: '11:40 AM' }} /> }
+
 /** Pictures and files under the words. */
 export const WithFiles: Story = { name: 'Files', render: (args) => <Live {...args} files={<Files />} /> }
 
