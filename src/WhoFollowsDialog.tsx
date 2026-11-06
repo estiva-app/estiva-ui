@@ -11,7 +11,7 @@ export interface WhoFollowsDialogProps {
   all: MembersDialogMember[]
   /** Who follows it at Important. */
   important: MembersDialogMember[]
-  /** Who "Add someone" may offer. Everyone listed is left out by id. */
+  /** Who "Add someone" may offer. Everyone listed is left out by id; leave the viewer out yourself — they join with the switch, not by adding themselves. */
   candidates?: MembersDialogCandidate[]
   /**
    * Adds the people chosen. With it, the "Add someone" row shows and opens the

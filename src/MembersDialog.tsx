@@ -65,7 +65,7 @@ export interface MembersDialogProps {
 }
 
 // The icon in the accent as text: Ship's button blue read at 2.7:1 on its grey square (Katerina, 8 October).
-export const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-text'
+const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-text'
 
 /** One person in a roster: a face, a name, a second line, and an optional control at the end. Shared with `WhoFollowsDialog`. */
 export function RosterRow({ member, trailing }: { member: MembersDialogMember; trailing?: ReactNode }) {

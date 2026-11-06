@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.107.0",
+    "packageVersion": "0.108.0",
     "exports": 250,
     "typeExports": 259,
     "files": null
@@ -4571,7 +4571,13 @@
           "name": "onChoose",
           "takes": "a handler",
           "required": false,
-          "note": "Changes it. While its promise runs the button waits."
+          "note": "Changes it. While its promise runs the button waits; a rejection is the caller's to report."
+        },
+        {
+          "name": "readOnlyReason",
+          "takes": "text",
+          "required": false,
+          "note": "Without `onChoose`: why it cannot be changed, said under the pointer (\"This team is archived\")."
         },
         {
           "name": "people",
@@ -12497,7 +12503,7 @@
           "name": "candidates",
           "takes": "MembersDialogCandidate[]",
           "required": false,
-          "note": "Who \"Add someone\" may offer. Everyone listed is left out by id."
+          "note": "Who \"Add someone\" may offer. Everyone listed is left out by id; leave the viewer out yourself — they join with the switch, not by adding themselves."
         },
         {
           "name": "onAdd",

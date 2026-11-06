@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** What the FollowSwitch and WhoFollowsDialog pages claim, pinned. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FollowSwitch } from './FollowSwitch'
 import { MembersPill } from './MembersPill'
@@ -41,7 +41,10 @@ describe('FollowSwitch', () => {
     await user.keyboard('{Escape}')
     rerender(<FollowSwitch level="all" label="Item one" onChoose={onChoose} backTo="Group one" />)
     await user.click(screen.getByRole('button', { name: /change how you follow/ }))
-    await user.click(await screen.findByRole('menuitem', { name: /Back to Group one’s default/ }))
+    const back = await screen.findByRole('menuitem', { name: /Back to Group one’s default/ })
+    // A chosen level is public (record a-place-lists-who-chose-a-level-and-its-teams-members): never "only you see".
+    expect(back.textContent).not.toContain('only you see')
+    await user.click(back)
     expect(onChoose).toHaveBeenCalledWith('default')
   })
 
@@ -59,9 +62,26 @@ describe('FollowSwitch', () => {
     await user.click(button)
     await user.click(await screen.findByRole('menuitem', { name: /^All/ }))
     expect(button.hasAttribute('disabled')).toBe(true)
-    done()
-    await vi.waitFor(() => expect(button.hasAttribute('disabled')).toBe(false))
+    await act(async () => done())
+    expect(button.hasAttribute('disabled')).toBe(false)
     expect(onChoose).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops waiting when the save fails, without throwing past it', async () => {
+    const user = userEvent.setup()
+    let fail = (_: Error) => {}
+    const onChoose = vi.fn(() => new Promise<void>((_, reject) => (fail = reject)))
+    const unhandled = vi.fn()
+    process.on('unhandledRejection', unhandled)
+    render(<FollowSwitch level="important" label="Item one" onChoose={onChoose} />)
+    const button = screen.getByRole('button', { name: /change how you follow/ })
+    await user.click(button)
+    await user.click(await screen.findByRole('menuitem', { name: /^All/ }))
+    await act(async () => fail(new Error('refused')))
+    expect(button.hasAttribute('disabled')).toBe(false)
+    await act(async () => new Promise((resolve) => setImmediate(resolve)))
+    process.off('unhandledRejection', unhandled)
+    expect(unhandled).not.toHaveBeenCalled()
   })
 })
 

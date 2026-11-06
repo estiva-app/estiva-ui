@@ -56,8 +56,10 @@ export interface FollowSwitchProps {
   level: FollowLevel | undefined
   /** The place's name, for the button's accessible name. */
   label: string
-  /** Changes it. While its promise runs the button waits. Without it the switch shows the level and cannot change it. */
+  /** Changes it. While its promise runs the button waits; a rejection is the caller's to report. Without it the switch shows the level and cannot change it. */
   onChoose?: (choice: FollowChoice) => void | Promise<unknown>
+  /** Without `onChoose`: why it cannot be changed, said under the pointer ("This team is archived"). */
+  readOnlyReason?: string
   /** People rather than circles, as `LevelIcon`'s `people`. */
   people?: boolean
   /** The line under Not following. */
@@ -74,11 +76,11 @@ export interface FollowSwitchProps {
  * it lights, and "Back to <name>’s default" when the viewer chose against a
  * group's default. It sits before the place's title, drawn as `LevelIcon`.
  */
-export function FollowSwitch({ level, label, onChoose, people = false, offDescription = 'Nothing here lights for you', backTo }: FollowSwitchProps) {
+export function FollowSwitch({ level, label, onChoose, readOnlyReason, people = false, offDescription = 'Nothing here lights for you', backTo }: FollowSwitchProps) {
   const [busy, setBusy] = useState(false)
   const now = level ? `You follow it at ${WORDS[level].label}` : 'Not following'
   const button = (
-    <IconButton aria-label={`${now}: change how you follow ${label}`} tooltip={now} disabled={!onChoose || busy}>
+    <IconButton aria-label={`${now}: change how you follow ${label}`} tooltip={now} disabled={!onChoose || busy} disabledReason={onChoose ? undefined : readOnlyReason}>
       <LevelIcon level={level} people={people} />
     </IconButton>
   )
@@ -89,6 +91,8 @@ export function FollowSwitch({ level, label, onChoose, people = false, offDescri
     setBusy(true)
     try {
       await onChoose(choice)
+    } catch {
+      // The caller says it could not save; the switch only stops waiting, and keeps drawing the `level` it is given.
     } finally {
       setBusy(false)
     }
@@ -115,7 +119,7 @@ export function FollowSwitch({ level, label, onChoose, people = false, offDescri
       </MenuSection>
       {backTo && (
         <MenuSection label={`${backTo} gives you Important`}>
-          <MenuItem label={`Back to ${backTo}’s default`} description="Your choice no longer applies; only you see that you changed it" onClick={() => void choose('default')} />
+          <MenuItem label={`Back to ${backTo}’s default`} description={level ? 'Your choice no longer applies' : 'Your choice no longer applies; only you see that you changed it'} onClick={() => void choose('default')} />
         </MenuSection>
       )}
     </Menu>
