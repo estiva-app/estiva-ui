@@ -10,6 +10,8 @@ export interface MembersPillProps {
   count?: number
   /** Opens the list — usually a `MembersDialog`. Without it the pill is disabled. */
   onClick?: () => void
+  /** The button's accessible name, when the list it opens is not "members" — "Who follows <name>: 4". Defaults to "4 members". */
+  label?: string
   className?: string
 }
 
@@ -23,11 +25,11 @@ export interface MembersPillProps {
  * pick of 15 September). `disabled` rather than another element when there is
  * nothing to press, so one element keeps one set of pixels.
  */
-export function MembersPill({ members, count, onClick, className }: MembersPillProps) {
+export function MembersPill({ members, count, onClick, label, className }: MembersPillProps) {
   const total = count ?? members.length
   if (total === 0) return null
   return (
-    <Button variant="outlined" aria-label={`${total} ${total === 1 ? 'member' : 'members'}`} disabled={!onClick} onClick={onClick} className={cn('gap-2 pl-[3px] pr-2', className)}>
+    <Button variant="outlined" aria-label={label ?? `${total} ${total === 1 ? 'member' : 'members'}`} disabled={!onClick} onClick={onClick} className={cn('gap-2 pl-[3px] pr-2', className)}>
       <AvatarGroup members={members} />
       <span className={cn(MONO_CAPTION_CLASSES, 'signal:tabular-nums')}>{total}</span>
     </Button>

@@ -65,7 +65,103 @@ export interface MembersDialogProps {
 }
 
 // The icon in the accent as text: Ship's button blue read at 2.7:1 on its grey square (Katerina, 8 October).
-const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-text'
+export const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center justify-center shrink-0 text-accent-text'
+
+/** One person in a roster: a face, a name, a second line, and an optional control at the end. Shared with `WhoFollowsDialog`. */
+export function RosterRow({ member, trailing }: { member: MembersDialogMember; trailing?: ReactNode }) {
+  return (
+    <div className="flex h-12 items-center gap-3 px-5">
+      <Avatar size={32} name={member.name} src={member.picture} bot={member.bot} />
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-[2px]">
+        <div className="truncate text-body-2 text-text-primary">{member.name}</div>
+        {member.caption && <div className="truncate text-caption text-text-secondary">{member.caption}</div>}
+      </div>
+      {trailing}
+    </div>
+  )
+}
+
+/** The row on top that opens the add layer. Shared with `WhoFollowsDialog`. */
+export function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <MenuItem
+      size="tall"
+      className="py-2"
+      onClick={onClick}
+      leading={<span className={LEADING_CLASSES}><IconUserPlus size={16} stroke={1.5} /></span>}
+      label={label}
+    />
+  )
+}
+
+/**
+ * The add layer: an "Invite people" picker over `candidates`, with a back
+ * arrow. Shared with `WhoFollowsDialog`, so adding somebody looks and works
+ * the same wherever it opens (Miky, 6 November: "We have standard that it
+ * opens modal and there is add").
+ */
+export function AddPeopleLayer({
+  title,
+  backLabel,
+  candidates,
+  excludeIds,
+  onAdd,
+  onBack,
+  onClose,
+}: {
+  title: string
+  backLabel: string
+  candidates: MembersDialogCandidate[]
+  excludeIds: string[]
+  onAdd: (chosen: MembersDialogCandidate[]) => void | boolean | Promise<void | boolean>
+  onBack: () => void
+  onClose: () => void
+}) {
+  const [chosen, setChosen] = useState<MembersDialogCandidate[]>([])
+  const formId = useId()
+  const add = async () => {
+    if (chosen.length === 0) return
+    if ((await onAdd(chosen)) === false) return
+    setChosen([])
+    onBack()
+  }
+  return (
+    <DialogShell
+      title={title}
+      onClose={onClose}
+      headerContent={
+        <div className="flex min-w-0 items-center gap-2">
+          <IconButton tooltip={backLabel} aria-label={backLabel} className="-ml-2" onClick={onBack}>
+            <IconArrowLeft size={16} stroke={1.5} />
+          </IconButton>
+          <span className="truncate text-h4 text-text-primary">{title}</span>
+        </div>
+      }
+      bodyClassName="flex flex-col gap-6"
+      footer={
+        <>
+          <Button variant="muted" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" type="submit" form={formId} disabled={chosen.length === 0}>Invite</Button>
+        </>
+      }
+    >
+      <Form id={formId} onSubmit={add}>
+        <Field label="Invite people" required>
+          <ChipInput
+            value={chosen}
+            onChange={setChosen}
+            options={candidates}
+            placeholder="Search people..."
+            excludeIds={excludeIds}
+            chipLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={16} />}
+            rowLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={32} />}
+            autoFocus
+          />
+        </Field>
+      </Form>
+    </DialogShell>
+  )
+}
 
 /**
  * Who is in this, with joining, leaving and adding people — the list a
@@ -81,9 +177,7 @@ const LEADING_CLASSES = 'size-8 rounded-md bg-accent-muted flex items-center jus
  */
 export function MembersDialog({ members, count, self, candidates = [], onAdd, note, initialView = 'list', onClose }: MembersDialogProps) {
   const [view, setView] = useState<'list' | 'add'>(onAdd ? initialView : 'list')
-  const [chosen, setChosen] = useState<MembersDialogCandidate[]>([])
   const [toggling, setToggling] = useState(false)
-  const formId = useId()
 
   const toggle = async () => {
     if (!self || toggling) return
@@ -95,13 +189,6 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
     }
   }
 
-  const add = async () => {
-    if (!onAdd || chosen.length === 0) return
-    if ((await onAdd(chosen)) === false) return
-    setChosen([])
-    setView('list')
-  }
-
   // Leave sits on the viewer's own row, drawn first. A viewer with no row of their own gets Leave on top, as Join is.
   const ownRow = self?.action === 'leave' ? members.find((m) => m.id === self.id) : undefined
   const roster = ownRow ? [ownRow, ...members.filter((m) => m !== ownRow)] : members
@@ -109,40 +196,15 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
 
   if (view === 'add' && onAdd) {
     return (
-      <DialogShell
+      <AddPeopleLayer
         title="Add members"
+        backLabel="Back to members"
+        candidates={candidates}
+        excludeIds={members.map((m) => m.id)}
+        onAdd={onAdd}
+        onBack={() => setView('list')}
         onClose={onClose}
-        headerContent={
-          <div className="flex min-w-0 items-center gap-2">
-            <IconButton tooltip="Back to members" aria-label="Back to members" className="-ml-2" onClick={() => setView('list')}>
-              <IconArrowLeft size={16} stroke={1.5} />
-            </IconButton>
-            <span className="truncate text-h4 text-text-primary">Add members</span>
-          </div>
-        }
-        bodyClassName="flex flex-col gap-6"
-        footer={
-          <>
-            <Button variant="muted" onClick={onClose}>Cancel</Button>
-            <Button variant="primary" type="submit" form={formId} disabled={chosen.length === 0}>Invite</Button>
-          </>
-        }
-      >
-        <Form id={formId} onSubmit={add}>
-          <Field label="Invite people" required>
-            <ChipInput
-              value={chosen}
-              onChange={setChosen}
-              options={candidates}
-              placeholder="Search people..."
-              excludeIds={members.map((m) => m.id)}
-              chipLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={16} />}
-              rowLeading={(o) => <Avatar name={o.label} src={o.picture} bot={o.bot} size={32} />}
-              autoFocus
-            />
-          </Field>
-        </Form>
-      </DialogShell>
+      />
     )
   }
 
@@ -173,30 +235,21 @@ export function MembersDialog({ members, count, self, candidates = [], onAdd, no
               label={self.action === 'join' ? 'Join' : 'Leave'}
             />
           )}
-          {onAdd && (
-            <MenuItem
-              size="tall"
-              className="py-2"
-              onClick={() => setView('add')}
-              leading={<span className={LEADING_CLASSES}><IconUserPlus size={16} stroke={1.5} /></span>}
-              label="Add members"
-            />
-          )}
+          {onAdd && <AddRow label="Add members" onClick={() => setView('add')} />}
         </div>
       )}
       {roster.map((member) => (
-        <div key={member.id} className="flex h-12 items-center gap-3 px-5">
-          <Avatar size={32} name={member.name} src={member.picture} bot={member.bot} />
-          <div className="flex min-w-0 flex-1 flex-col justify-center gap-[2px]">
-            <div className="truncate text-body-2 text-text-primary">{member.name}</div>
-            {member.caption && <div className="truncate text-caption text-text-secondary">{member.caption}</div>}
-          </div>
-          {member === ownRow && (
-            <Button variant="destructive" size="small" disabled={toggling} onClick={() => void toggle()}>
-              Leave
-            </Button>
-          )}
-        </div>
+        <RosterRow
+          key={member.id}
+          member={member}
+          trailing={
+            member === ownRow && (
+              <Button variant="destructive" size="small" disabled={toggling} onClick={() => void toggle()}>
+                Leave
+              </Button>
+            )
+          }
+        />
       ))}
       {note && <div className="px-5 pb-2 pt-3 text-caption text-text-secondary">{note}</div>}
     </DialogShell>
