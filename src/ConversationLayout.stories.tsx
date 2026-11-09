@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconSquareRounded } from '@tabler/icons-react'
 import { useState, type ReactNode } from 'react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
 import { ConversationHeading } from './ConversationHeading'
+import { KindIcon } from './KindIcon'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { ArchivedNotice } from './ArchivedNotice'
@@ -313,7 +313,7 @@ function MixedItems({ open, setOpen }: { open: string | undefined; setOpen: (id:
       <ConversationCard
         author={c.author}
         time={c.time}
-        heading={c.place ? <ConversationHeading icon={<IconSquareRounded size={16} stroke={1.5} />} name={c.place} onOpen={() => {}} /> : undefined}
+        heading={c.place ? <ConversationHeading icon={<KindIcon kind={c.place === 'Item one' ? 'file' : 'issue'} />} name={c.place} onOpen={() => {}} /> : undefined}
         about={c.quoted ? <QuotedLine words={c.quoted} /> : undefined}
         resolved={resolved[c.id]}
         onResolve={(note) => setResolved((r) => ({ ...r, [c.id]: { by: 'You', note: note || undefined } }))}

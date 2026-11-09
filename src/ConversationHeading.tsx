@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { isPlainClick } from './AppProvider'
 import { cn } from './cn'
 
 export interface ConversationHeadingProps {
@@ -8,7 +9,7 @@ export interface ConversationHeadingProps {
   name: string
   /** Pressing the name opens the place. Without it (and without `href`) the name is plain text. */
   onOpen?: () => void
-  /** Or a link to the place. */
+  /** Or a link to the place. With `onOpen` too, a plain click calls `onOpen` and the link only serves a new tab. */
   href?: string
   /** Placement only. */
   className?: string
@@ -24,7 +25,16 @@ const NAME = '-mx-1 min-w-0 truncate rounded px-1 text-left text-h4 text-text-pr
  */
 export function ConversationHeading({ icon, name, onOpen, href, className }: ConversationHeadingProps) {
   const label = href ? (
-    <a href={href} onClick={onOpen} className={cn(NAME, 'hover:bg-bg-hover')}>
+    <a
+      href={href}
+      // A plain click is the app's to route (onOpen); a new tab or window is the browser's.
+      onClick={(event) => {
+        if (!onOpen || !isPlainClick(event)) return
+        event.preventDefault()
+        onOpen()
+      }}
+      className={cn(NAME, 'hover:bg-bg-hover')}
+    >
       {name}
     </a>
   ) : onOpen ? (

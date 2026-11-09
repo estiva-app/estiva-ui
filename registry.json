@@ -3047,7 +3047,7 @@
           "name": "href",
           "takes": "text",
           "required": false,
-          "note": "Or a link to the place."
+          "note": "Or a link to the place. With `onOpen` too, a plain click calls `onOpen` and the link only serves a new tab."
         },
         {
           "name": "className",

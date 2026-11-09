@@ -42,9 +42,24 @@ describe('ConversationHeading', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('a link goes to the place', () => {
-    render(<ConversationHeading icon={ICON} name="Item one" href="/item/one" />)
-    expect(screen.getByRole('link', { name: 'Item one' }).getAttribute('href')).toBe('/item/one')
+  it('a link: a plain click goes to the app to route, never to the thread; a modified click goes to the browser', () => {
+    const onOpen = vi.fn()
+    const onClick = vi.fn()
+    render(
+      <ConversationCard author={{ name: 'Person one' }} time="11:08 AM" onClick={onClick} heading={<ConversationHeading icon={ICON} name="Item one" href="/item/one" onOpen={onOpen} />}>
+        The words
+      </ConversationCard>,
+    )
+    const link = screen.getByRole('link', { name: 'Item one' })
+    const plain = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+    link.dispatchEvent(plain)
+    expect(plain.defaultPrevented).toBe(true)
+    expect(onOpen).toHaveBeenCalledTimes(1)
+    const newTab = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    link.dispatchEvent(newTab)
+    expect(newTab.defaultPrevented).toBe(false)
+    expect(onOpen).toHaveBeenCalledTimes(1)
+    expect(onClick).not.toHaveBeenCalled()
   })
 
   it('with nothing to open, the name is plain text', () => {
