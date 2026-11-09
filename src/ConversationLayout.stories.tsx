@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState, type ReactNode } from 'react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
+import { ConversationHeading } from './ConversationHeading'
+import { KindIcon } from './KindIcon'
 import { ConversationLayout, type ConversationItem } from './ConversationLayout'
 import { ONE, SHORT, SOME, THREE, TWO, WORDS, WriteBox, YOU, useReactions } from './conversation.examples'
 import { ArchivedNotice } from './ArchivedNotice'
@@ -291,6 +293,64 @@ export const OneColumnBelow: Story = {
         </div>
       </>
     )
+  },
+}
+
+/** One list, three places: this place's own comments, and two other places' each under its name. */
+const MIXED = [
+  { id: 'm1', author: ONE, time: '9:02 AM', words: 'A comment on this place itself: no name above it.', replies: 1 },
+  { id: 'm2', author: TWO, time: '9:40 AM', words: WORDS, replies: 2, place: 'Item one', quoted: 'the words this comment is on' },
+  { id: 'm3', author: THREE, time: '10:15 AM', words: 'Resolved on its own place, so it is resolved here too.', replies: 1, place: 'Item two', resolved: { by: 'You', note: 'Done.' } },
+  { id: 'm4', author: YOU, time: '11:30 AM', words: 'Another on this place, in time order with the rest.', replies: 0 },
+  { id: 'm5', author: ONE, time: '12:05 PM', words: 'A second comment on the first other place.', replies: 0, place: 'Item one' },
+]
+
+function MixedItems({ open, setOpen }: { open: string | undefined; setOpen: (id: string | undefined) => void }) {
+  const [resolved, setResolved] = useState<Record<string, { by: string; note?: string } | undefined>>(() => Object.fromEntries(MIXED.map((c) => [c.id, c.resolved])))
+  const items: ConversationItem[] = MIXED.map((c) => ({
+    id: c.id,
+    card: (
+      <ConversationCard
+        author={c.author}
+        time={c.time}
+        heading={c.place ? <ConversationHeading icon={<KindIcon kind={c.place === 'Item one' ? 'file' : 'issue'} />} name={c.place} onOpen={() => {}} /> : undefined}
+        about={c.quoted ? <QuotedLine words={c.quoted} /> : undefined}
+        resolved={resolved[c.id]}
+        onResolve={(note) => setResolved((r) => ({ ...r, [c.id]: { by: 'You', note: note || undefined } }))}
+        onReopen={() => setResolved((r) => ({ ...r, [c.id]: undefined }))}
+        replies={c.replies ? { count: c.replies, faces: [TWO, YOU], last: '11:52 AM' } : undefined}
+      >
+        {c.words}
+      </ConversationCard>
+    ),
+    thread: (
+      <Thread start={{ author: c.author, time: c.time, words: c.words }} onClose={() => setOpen(undefined)} box={<WriteBox />}>
+        {c.replies ? <Replies /> : undefined}
+      </Thread>
+    ),
+  }))
+  return <ConversationLayout threads="beside" items={items} open={open} onOpenChange={setOpen} box={<WriteBox label="Message" />} />
+}
+
+/**
+ * Two columns mixing several places: comments said elsewhere sit in time order with this place's own, each under its
+ * place's name (`ConversationHeading` in the card's `heading`). A reply opened from one is that place's thread.
+ */
+export const SeveralPlaces: Story = {
+  name: 'Several places',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>()
+    return <MixedItems open={open} setOpen={setOpen} />
+  },
+}
+
+/** The same at phone width: the place's name is cut to the column. */
+export const SeveralPlacesNarrow: Story = {
+  name: 'Several places, narrow',
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>()
+    return <MixedItems open={open} setOpen={setOpen} />
   },
 }
 

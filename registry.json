@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.108.2",
-    "exports": 250,
-    "typeExports": 259,
+    "packageVersion": "0.109.0",
+    "exports": 251,
+    "typeExports": 260,
     "files": null
   },
   "storybook": {
@@ -2766,6 +2766,12 @@
       "purposeFrom": "page",
       "props": [
         {
+          "name": "heading",
+          "takes": "anything",
+          "required": false,
+          "note": "Where it was said, at the top of the card: a `ConversationHeading`, when one list mixes conversations from several places."
+        },
+        {
           "name": "deleted",
           "takes": "true/false",
           "required": false,
@@ -3009,6 +3015,59 @@
       "docPage": "src/ConversationCard.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "ConversationHeading",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ConversationHeading.tsx",
+      "purpose": "Which place a conversation is on, inside its card, when one list mixes conversations from several places.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": true,
+          "note": "What kind of place it is: a `KindIcon`, 16px."
+        },
+        {
+          "name": "name",
+          "takes": "text",
+          "required": true,
+          "note": "The place's name, cut to the column."
+        },
+        {
+          "name": "onOpen",
+          "takes": "a handler",
+          "required": false,
+          "note": "Pressing the name opens the place. Without it (and without `href`) the name is plain text."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Or a link to the place. With `onOpen` too, a plain click calls `onOpen` and the link only serves a new tab."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-conversationheading--docs",
+      "storyId": "conversation-conversationheading--on-a-card",
+      "docPage": "src/ConversationHeading.mdx",
+      "app": null,
+      "looks": [
+        "-mx-1 truncate rounded text-left text-h4 text-text-primary",
+        "-mx-1 truncate rounded text-left text-h4 text-text-primary hover:bg-bg-hover"
+      ]
     },
     {
       "name": "ConversationLayout",

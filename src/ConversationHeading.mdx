@@ -1,0 +1,52 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ConversationHeading.stories'
+
+<Meta of={Stories} />
+
+# ConversationHeading
+
+Which place a conversation is on, inside its card, when one list mixes conversations from several places.
+
+<Canvas of={Stories.OnACard} />
+
+## When
+
+- One list mixes this place's own conversations with conversations said on other places: each from elsewhere carries its place's icon and name at the top of its card, in the card's `heading`. This place's own carry none.
+
+<Canvas of={Stories.WithWhatItIsOn} />
+
+- A name longer than the column is cut.
+
+<Canvas of={Stories.LongName} />
+
+## When not
+
+- A conversation shown away from its place, with how it is related ("Mentioned in") above its card → **ConversationPlace**.
+- A comment on a part of the place: what it is on goes in the card's `about` → **QuotedLine**. Both can be on one card: the place, then the author, then the words it is on.
+
+## How
+
+```tsx
+import { ConversationCard, ConversationHeading, KindIcon } from '@estiva-app/ui'
+
+<ConversationCard
+  author={author}
+  time={time}
+  heading={place ? <ConversationHeading icon={<KindIcon kind={kindOf(place)} />} name={place.title} onOpen={() => openPlace(place)} /> : undefined}
+>
+  {words}
+</ConversationCard>
+```
+
+- `icon` is drawn in the face's column, so the name lines up with the author's. Give it 16px; it is hidden from screen readers, the name says it.
+- `onOpen`, or `href`, makes the name a button or a link. A press on it opens the place, never the thread: the card leaves a press on a button or a link alone, and the rest of the card still opens the thread.
+- A deleted comment keeps its heading: its replies still belong to that place.
+- In a `ConversationLayout`, pass it on every card from elsewhere; the layout puts them in your order (time order, mixed with this place's own).
+
+## What it owns
+
+Nothing. It only draws. Clicks and keys are yours.
+
+## Props
+
+<Controls />

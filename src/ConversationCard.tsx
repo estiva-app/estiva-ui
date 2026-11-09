@@ -95,6 +95,11 @@ export interface ConversationEntryProps {
 }
 
 export interface ConversationCardProps extends ConversationEntryProps {
+  /**
+   * Where it was said, at the top of the card: a `ConversationHeading`, when one list mixes conversations from several
+   * places. Drawn on a deleted one too: its replies still belong there.
+   */
+  heading?: ReactNode
   /** Deleted: "This comment was deleted.", and its replies stay. */
   deleted?: boolean
   /**
@@ -182,7 +187,10 @@ function useClearOfStrip(root: RefObject<HTMLDivElement | null>, strip: RefObjec
       return
     }
     const stop = strip.current.getBoundingClientRect().left - 8
-    const reach = Math.max(...Array.from(words.children, (part) => part.getBoundingClientRect().right))
+    // A heading above the face is the top row the strip stands over: its name fades at the same point.
+    const heading = root.current?.querySelector<HTMLElement>('[data-conversation-heading]')
+    const parts = [...Array.from(words.children), ...(heading ? Array.from(heading.children) : [])]
+    const reach = Math.max(...parts.map((part) => part.getBoundingClientRect().right))
     setEnd(reach > stop ? stop - words.getBoundingClientRect().left : undefined)
   }, [root, strip, shown])
   return end
@@ -300,9 +308,11 @@ function Reactions({ reactions, refused, readOnly }: { reactions?: ReactionRowPr
 }
 
 /** Being edited: the face beside the app's box, which holds the words, the files and the cards. */
-function Editing({ author, children }: { author: ConversationPerson; children: ReactNode }) {
+function Editing({ author, heading, children }: { author: ConversationPerson; heading?: ReactNode; children: ReactNode }) {
   return (
     <div className="p-2">
+      {/* Where it was said stays while it is edited: the card keeps its height and its place. */}
+      {!!heading && <div className="w-full pb-2">{heading}</div>}
       <div className="flex items-start gap-2">
         <Avatar size={24} src={author.picture} alt={author.name} bot={author.bot} className="mt-1 shrink-0" />
         <div className="min-w-0 flex-1">{children}</div>
@@ -383,7 +393,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, deleted: isDeleted = false, unseen = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, heading, deleted: isDeleted = false, unseen = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
   // Not shown is drawn as deleted, in its own words.
   const deleted = isDeleted || unseen
   const readOnly = (props.readOnly ?? false) || deleted
@@ -462,9 +472,18 @@ export function ConversationCard(props: ConversationCardProps) {
         }}
       >
         {isEditing ? (
-          <Editing author={author}>{editor(() => setEditing(false))}</Editing>
+          <Editing author={author} heading={heading}>
+            {editor(() => setEditing(false))}
+          </Editing>
         ) : (
           <div data-comment-body className="flex flex-col items-start px-2 pt-2">
+            {/* Where it was said, 8px over the face, inside the card (the Per-app prototype, 29 October). */}
+            {!!heading && (
+              // Faded clear of the strip, as the head's words are (useClearOfStrip).
+              <div className="w-full pb-2" style={wordsEnd === undefined ? undefined : { maskImage: fadeBefore(wordsEnd), WebkitMaskImage: fadeBefore(wordsEnd) }}>
+                {heading}
+              </div>
+            )}
             {deleted ? (
               <>
                 {/* What it was on stays, where the words start: its replies still talk about that place (Leaf's; Katerina, 3 November: every app). */}

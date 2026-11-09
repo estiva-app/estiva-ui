@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.109.0 — 2026-11-09
+
+A conversation that mixes several places can say which place each comment is on (TOPI-2; the Per-app prototype Miky
+approved on 29 October). Additive: nothing changes for an app that does not pass it.
+
+- **ConversationHeading**: the place's icon in the face's column and its name beside it, a button (`onOpen`) or a
+  link (`href`) that opens the place, never the thread.
+- **ConversationCard** takes `heading`: drawn at the top of the card, above the author, on a deleted comment too.
+- ConversationLayout's story **Several places** draws one list of three places, light, dark and narrow.
+
 ## 0.108.2 — 2026-11-09
 
 `CommentBox` takes `reply`: a box that answers a message. A send from it refused because that message was deleted
