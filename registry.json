@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.108.1",
+    "packageVersion": "0.108.2",
     "exports": 250,
     "typeExports": 259,
     "files": null
@@ -2297,6 +2297,12 @@
           "takes": "true/false",
           "required": false,
           "note": "The app shows a send before the relay answers: the box empties at once, and a refusal puts the words back."
+        },
+        {
+          "name": "reply",
+          "takes": "true/false",
+          "required": false,
+          "note": "The box answers a message, which can be deleted while you write: a send refused because it went says \"this message was deleted, or you can no longer write here\"."
         },
         {
           "name": "label",
