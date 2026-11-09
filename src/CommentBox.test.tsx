@@ -100,7 +100,25 @@ describe('sending, held until the relay answers', () => {
     expect(screen.queryByText(/262144|invalid:/)).toBeNull()
   })
 
-  it('a send refused as on a deleted message says you can no longer write here, not that a message was deleted', async () => {
+  it('a reply refused because its message was deleted says the message was deleted, and the text stays in the box', async () => {
+    render(<Box reply send={async () => ({ accepted: false, reason: 'invalid: reply parent not found in this team' })} />)
+    await type('Hello there')
+    await press('Enter')
+    await settle()
+    expect(editorOf().getText()).toBe('Hello there')
+    expect(screen.getByText('Not sent: this message was deleted, or you can no longer write here. Your text is back in the box.')).toBeTruthy()
+  })
+
+  it('a reply shown at once and refused because its message was deleted says so, with the text put back', async () => {
+    render(<Box reply showsAtOnce send={async () => ({ accepted: false, reason: 'invalid: reply parent not found in this team' })} />)
+    await type('Hello there')
+    await press('Enter')
+    await settle()
+    expect(editorOf().getText()).toBe('Hello there')
+    expect(screen.getByText('Not sent: this message was deleted, or you can no longer write here. Your text is back in the box.')).toBeTruthy()
+  })
+
+  it('a new message refused as on a deleted message says you can no longer write here, not that a message was deleted', async () => {
     render(<Box send={async () => ({ accepted: false, reason: 'invalid: reply target event not found' })} />)
     await type('Hello there')
     await press('Enter')

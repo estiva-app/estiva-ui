@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.108.2 — 2026-11-09
+
+`CommentBox` takes `reply`: a box that answers a message. A send from it refused because that message was deleted
+meanwhile now says "Not sent: this message was deleted, or you can no longer write here. Your text is back in the box."
+A box that starts something new keeps ONE-4's "Not sent: you can no longer write here." (ONE-10, Miky's call on
+9 November). 0.108.1 bundled the conversation release that reads the relay's refusal as a deleted message, but the box
+still said "you can no longer write here" for every send. Additive: an app passes `reply` on its reply boxes.
+
 ## 0.108.1 — 2026-11-06
 
 The comment box's "Not sent:" line names a reply refused because its comment was deleted meanwhile: "Not sent: this
