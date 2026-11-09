@@ -95,6 +95,11 @@ export interface ConversationEntryProps {
 }
 
 export interface ConversationCardProps extends ConversationEntryProps {
+  /**
+   * Where it was said, at the top of the card: a `ConversationHeading`, when one list mixes conversations from several
+   * places. Drawn on a deleted one too: its replies still belong there.
+   */
+  heading?: ReactNode
   /** Deleted: "This comment was deleted.", and its replies stay. */
   deleted?: boolean
   /**
@@ -383,7 +388,7 @@ function useEditing(editing: boolean | undefined, onEditingChange: ((editing: bo
  * The same card in every app, each in its own colours (the record that makes one conversation). Peek's, moved.
  */
 export function ConversationCard(props: ConversationCardProps) {
-  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, deleted: isDeleted = false, unseen = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
+  const { author, about, files, reactions, isNew = false, urgent = false, own = false, editor, heading, deleted: isDeleted = false, unseen = false, replies, onReply, resolved, noun = 'comment', onResolve, resolveHint, resolveRefused, onReopen, selected, onClick, onDelete, deleteNote, deleteRefused, menu, menuAfter, menuLabel, editLabel, deleteLabel, moreLabel = 'More actions', className, children } = props
   // Not shown is drawn as deleted, in its own words.
   const deleted = isDeleted || unseen
   const readOnly = (props.readOnly ?? false) || deleted
@@ -465,6 +470,8 @@ export function ConversationCard(props: ConversationCardProps) {
           <Editing author={author}>{editor(() => setEditing(false))}</Editing>
         ) : (
           <div data-comment-body className="flex flex-col items-start px-2 pt-2">
+            {/* Where it was said, 8px over the face, inside the card (the Per-app prototype, 29 October). */}
+            {!!heading && <div className="w-full pb-2">{heading}</div>}
             {deleted ? (
               <>
                 {/* What it was on stays, where the words start: its replies still talk about that place (Leaf's; Katerina, 3 November: every app). */}
