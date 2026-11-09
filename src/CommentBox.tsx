@@ -80,12 +80,13 @@ export interface BoxFile {
 }
 
 /**
- * Why a send was refused. "This message was deleted" is an edit's or a reaction's (Decided, ONE-4): a new message
- * refused the same way (a reply whose message went) is one you can no longer write here.
+ * Why a send was refused. "This message was deleted" is an edit's, a reaction's (Decided, ONE-4) and a reply's, whose
+ * message may have gone while it was written (Decided, ONE-10, 9 November); a new top-level message refused the same
+ * way is one you can no longer write here.
  */
-function sendRefusal(reason: unknown): string {
+function sendRefusal(reason: unknown, reply: boolean): string {
   const cause = refusalCause(reason)
-  return REFUSAL_REASONS[cause === 'gone' ? 'no-access' : cause]
+  return REFUSAL_REASONS[cause === 'gone' && !reply ? 'no-access' : cause]
 }
 
 /** A draft, in the box's terms — `@estiva-app/conversation`'s `composerDraft` is one. */
@@ -182,6 +183,11 @@ export interface CommentBoxProps {
    * until the answer.
    */
   showsAtOnce?: boolean
+  /**
+   * The box answers a message, which can be deleted while you write: a send refused because it went says "this message
+   * was deleted, or you can no longer write here". A box that starts something new says "you can no longer write here".
+   */
+  reply?: boolean
   /** The editor's accessible name: what the box is for. */
   label: string
   /** Said in the empty box. */
@@ -506,6 +512,7 @@ function OpenCommentBox({
   marked,
   onEditor,
   className,
+  reply = false,
 }: CommentBoxProps) {
   const [files, setFiles] = useState<BoxFile[]>(edit?.files ?? [])
   const [sending, setSending] = useState(false)
@@ -700,7 +707,7 @@ function OpenCommentBox({
           ed.commands.focus('end')
           setRemoved((now) => new Set([...now, ...took]))
           setFiles((all) => [...sent, ...all])
-          setRefused(sendRefusal(answer.reason))
+          setRefused(sendRefusal(answer.reason, reply))
         })
         return true
       }
@@ -710,7 +717,7 @@ function OpenCommentBox({
         setSending(false)
         if (!answer.accepted) {
           layout?.refused()
-          setRefused(sendRefusal(answer.reason))
+          setRefused(sendRefusal(answer.reason, reply))
           return
         }
         if (!ed.isDestroyed) ed.commands.clearContent(true)
@@ -721,7 +728,7 @@ function OpenCommentBox({
       })
       return false
     },
-    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused, layout],
+    [files, removed, underOf, showsAtOnce, send, draft, onSent, onRefused, layout, reply],
   )
 
   // An edit holding nothing, no words and no file, cannot be saved: Save is off, and nothing is said (Miky, 4 Nov). One
