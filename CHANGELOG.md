@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.111.0 — 2026-11-10
+
+**CornerMenu**: the "…" that floats over a row's or a card's top-right corner in a list the person arranges, where
+`AttachedCard`'s ✕ sits, taking no room. Its menu: Show as Row or Card (the look in use selected), then Remove. Peek
+draws a topic's files with it, as rows and cards, in place of the card's ✕ (TOPI-5; the topics level-up prototype Miky
+approved on 6 November). Without `menu` it draws only its child: no "…" where the person cannot arrange the list.
+Additive: `AttachedCard` and its ✕ are unchanged for every caller.
+
 ## 0.110.0 — 2026-11-10
 
 `QuotedLine` takes `href` (and `external`): the quoted words become the way to where they are in their file. Peek and

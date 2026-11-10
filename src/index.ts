@@ -129,6 +129,7 @@ export { LinkRow, LinkUnavailable, type LinkRowProps, type LinkUnavailableProps 
 export { LinkCard, LinkCardLoading, type LinkCardProps, type LinkCardLoadingProps } from './LinkCard'
 export { LinkPreview, LinkPreviewOpen, useCanHover, type LinkPreviewProps } from './LinkPreview'
 export { AttachedCard, type AttachedCardMemory, type AttachedCardProps } from './AttachedCard'
+export { CornerMenu, type CornerMenuLook, type CornerMenuOptions, type CornerMenuProps } from './CornerMenu'
 export { PartCard, type PartCardProps, type PartCardState } from './PartCard'
 export { Person, type PersonProps } from './Person'
 export { Rail, type RailProps } from './Rail'

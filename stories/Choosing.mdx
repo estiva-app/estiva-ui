@@ -140,6 +140,7 @@ The same conversation in every app; only its colours are each app's.
 | A link alone on its line | **LinkRow** — one 36px line for every kind; **LinkUnavailable** when it cannot be read |
 | A link's card: what a row cannot hold, with the pickers the reader may use | **LinkCard** — `onChange` on a picker only for a reader who may change it; **LinkCardLoading** at its height |
 | The one card attached to a piece of text, with the ✕ that removes it | **AttachedCard** — in a box, `CommentBox` places it with the files |
+| A row or a card in a list the person arranges: Show as Row or Card, and Remove, behind a `…` on its corner | **CornerMenu** around the **LinkRow** or **AttachedCard** (no `onRemove`); no `menu` where they cannot arrange it |
 | A link's card on hover, read only | **LinkPreview** — LinkChip and LinkRow already wrap themselves in it |
 | A part of something longer, shared live | **PartCard** — the app draws the blocks |
 | A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |
