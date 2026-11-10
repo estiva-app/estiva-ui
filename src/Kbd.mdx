@@ -22,6 +22,11 @@ content and never shrinking.
   the key that puts the cursor in it.
 - **In a shortcuts sheet**, where the key is the content rather than a hint.
 
+The key itself is bound with `useShortcut('Mod-O', onPress, enabled)`, in the
+same spelling `shortcutLabel` reads: it runs from anywhere on the page while
+its caller is on screen, and takes the key from the browser (Ctrl+O no longer
+opens a file). Show the hint with `shortcutLabel` of the same string.
+
 ## Naming the key
 
 The label is a word, never a symbol — `Cmd+K`, `Enter`, `Esc`, `Backspace`.

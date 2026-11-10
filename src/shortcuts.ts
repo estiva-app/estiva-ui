@@ -16,6 +16,8 @@
  * only the app knows which platform it is looking at.
  */
 
+import { useEffect, useRef } from 'react'
+
 /** Whether this machine calls the modifier Cmd rather than Ctrl. */
 export function isApplePlatform(): boolean {
   if (typeof navigator === 'undefined') return false
@@ -37,4 +39,42 @@ export function shortcutLabel(keys: string, apple = isApplePlatform()): string {
       return part
     })
     .join('+')
+}
+
+/** Whether a key press is the shortcut `keys` names, in the spelling above (`Mod-K`, `Mod-Shift-O`). */
+export function matchesShortcut(event: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>, keys: string): boolean {
+  // The key is what follows the last joining '-', so `Mod--` is Mod and '-'.
+  const at = keys.lastIndexOf('-', keys.length - 2)
+  const key = keys.slice(at + 1)
+  const mods = new Set(at < 0 ? [] : keys.slice(0, at).split('-'))
+  // Mod is Cmd or Ctrl on any machine, as the top bar's Ctrl+K always took either. Shift and Alt are exact: Mod-O is
+  // not Ctrl+Shift+O, which the browser keeps.
+  if (mods.has('Mod') ? !(event.metaKey || event.ctrlKey) : event.metaKey || event.ctrlKey) return false
+  if (mods.has('Shift') !== event.shiftKey || mods.has('Alt') !== event.altKey) return false
+  return event.key.toLowerCase() === key.toLowerCase()
+}
+
+/**
+ * A key that does something from anywhere on the page while the caller is on
+ * screen, such as `Mod-K` for search. The browser's own meaning of the key
+ * (Ctrl+O, open a file) is taken over: the press is consumed. Off while
+ * `enabled` is false. The latest `onPress` runs, so it need not be stable.
+ */
+export function useShortcut(keys: string, onPress: () => void, enabled = true): void {
+  const pressRef = useRef(onPress)
+  useEffect(() => {
+    pressRef.current = onPress
+  })
+  useEffect(() => {
+    if (!enabled) return
+    const onKey = (event: KeyboardEvent) => {
+      // Once per press, not per auto-repeat; and not a press something on the page already took, or an IME's.
+      if (event.repeat || event.defaultPrevented || event.isComposing || !matchesShortcut(event, keys)) return
+      event.preventDefault()
+      pressRef.current()
+    }
+    // @estiva-escape(no-hand-rolled-behaviour): the one listener for a page-wide shortcut, which no floating part owns; every app's shortcut goes through this hook
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [keys, enabled])
 }

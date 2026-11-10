@@ -1,9 +1,9 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
 import { Kbd } from './Kbd'
 import { FIELD_SHELL_CLASSES } from './looks'
-import { shortcutLabel } from './shortcuts'
+import { shortcutLabel, useShortcut } from './shortcuts'
 
 /**
  * The 52px top bar, in three manners:
@@ -58,24 +58,9 @@ export interface TopBarProps {
 
 export function TopBar({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder = 'Search…', right, className }: TopBarProps) {
   const floating = variant === 'floating'
-  // The latest handler, so the key listener is set once rather than on every render.
-  const searchRef = useRef(onSearch)
-  useEffect(() => {
-    searchRef.current = onSearch
-  })
-  const searches = onSearch !== undefined
-  useEffect(() => {
-    if (!searches) return
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        searchRef.current?.()
-      }
-    }
-    // @estiva-escape(no-hand-rolled-behaviour): Ctrl+K opens search from anywhere on the page, which is a page-wide shortcut and not a floating part; no part listens for a key across the page
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [searches])
+  // Ctrl+K opens search from anywhere on the page, and Ctrl+Shift+K as it always has.
+  useShortcut('Mod-K', () => onSearch?.(), onSearch !== undefined)
+  useShortcut('Mod-Shift-K', () => onSearch?.(), onSearch !== undefined)
   const centre =
     search ??
     (onSearch && (
