@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.110.0",
-    "exports": 251,
-    "typeExports": 260,
+    "packageVersion": "0.111.0",
+    "exports": 252,
+    "typeExports": 263,
     "files": null
   },
   "storybook": {
@@ -3379,6 +3379,40 @@
       "docPage": "src/ConversationPlace.mdx",
       "app": null,
       "looks": []
+    },
+    {
+      "name": "CornerMenu",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/CornerMenu.tsx",
+      "purpose": "The \"…\" over the top-right corner of a row or a card in a list the person arranges: Show as Row or Card, and Remove.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The row or the card the \"…\" floats over."
+        },
+        {
+          "name": "menu",
+          "takes": "CornerMenuOptions",
+          "required": false,
+          "note": "The \"…\" and its menu. Without it only `children` are drawn: where the person cannot arrange the list."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "links-references-cornermenu--docs",
+      "storyId": "links-references-cornermenu--card-and-row",
+      "docPage": "src/CornerMenu.mdx",
+      "app": null,
+      "looks": [
+        "-right-2 -top-2 rounded-md border border-border-strong bg-bg-elevated opacity-0 shadow-sm transition-opacity focus-within:opacity-100 [@media(hover:none)]:opacity-100"
+      ]
     },
     {
       "name": "deleteBlock",

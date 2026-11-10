@@ -1,0 +1,60 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as CornerMenuStories from './CornerMenu.stories'
+
+<Meta of={CornerMenuStories} />
+
+# CornerMenu
+
+The "…" over the top-right corner of a row or a card in a list the person arranges: Show as Row or Card, and Remove.
+
+<Canvas of={CornerMenuStories.CardAndRow} />
+
+## When
+
+- **with `menu`** — an item in a list the person may arrange: it shows as one line or as its card, and they can take it off.
+- **no `menu`** — the same list to someone who may not arrange it: the child alone, no "…".
+
+The "…" floats over the item's top-right corner, where `AttachedCard`'s ✕ sits, and takes no room of its own. It shows when the pointer is over the item, while it has focus or its menu is open, and always on a screen that cannot hover, so a tap reaches it.
+
+<Canvas of={CornerMenuStories.Open} />
+
+## When not
+
+- A card whose only action is taking it off → **AttachedCard** `onRemove`, the round ✕.
+- A link alone on its line in a document being written → **ReferenceMenu**, which offers the same Show as in the editor.
+- More than these actions on a row of a list in the sidebar → **NavItem** `menu`.
+
+## How
+
+```tsx
+import { AttachedCard, CornerMenu, LinkRow } from '@estiva-app/ui'
+
+<CornerMenu menu={canArrange ? { name: title, look, onLook: setLook, onRemove: remove } : undefined}>
+  {look === 'card' ? <AttachedCard link={link} /> : <LinkRow link={link} />}
+</CornerMenu>
+```
+
+- `name` is required: the "…" is announced as "More options for {name}".
+- `onLook` is called only with the look not in use; choosing the one in use closes the menu and asks for nothing.
+- Pass the card **no** `onRemove`: Remove is in the menu, and a card with both would draw the ✕ beside the "…".
+- It is at most 480px wide, as `AttachedCard`, so the "…" sits on the card's corner.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Floats the "…" over the item's top-right corner, taking no room | a positioned wrapper and a button |
+| Reveals it on hover, focus and while its menu is open, and always shows it on touch | a hover or touch check |
+| The menu: Show as Row or Card, the look in use ticked, and checked for a screen reader, then Remove | the words and the tick |
+
+## Keys
+
+| Key | Does |
+|---|---|
+| Tab | Reaches the "…", and shows it |
+| Enter | Opens the menu |
+| Escape | Closes the menu |
+
+## Props
+
+<Controls of={CornerMenuStories.NoMenu} />
