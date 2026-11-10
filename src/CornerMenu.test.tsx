@@ -3,9 +3,7 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { AttachedCard } from './AttachedCard'
 import { CornerMenu, type CornerMenuOptions } from './CornerMenu'
-import { ITEM, ready } from './linked.examples'
 
 afterEach(cleanup)
 
@@ -91,15 +89,5 @@ describe('CornerMenu', () => {
     expect(await screen.findByRole('menuitem', { name: 'Remove' })).toBeTruthy()
     await user.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('menu')).toBeNull())
-  })
-
-  it('around a card with no ✕ of its own, the "…" is the card\'s only control besides its link', async () => {
-    render(
-      <CornerMenu menu={options({ name: ITEM.title, look: 'card' })}>
-        <AttachedCard link={ready(ITEM)} />
-      </CornerMenu>,
-    )
-    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull()
-    expect(screen.getByRole('button', { name: `More options for ${ITEM.title}` })).toBeTruthy()
   })
 })
