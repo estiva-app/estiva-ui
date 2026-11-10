@@ -84,8 +84,8 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   /**
    * More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it —
    * such as a short list of what is new there. Unlike `tooltip`, it holds content the pointer can move into. The card
-   * opens on the whole row, the ⋮ included, so a dot the ⋮ steps aside for is not lost as the pointer arrives. Absent,
-   * no card.
+   * opens on the whole row, the ⋮ included, so a dot the ⋮ steps aside for is not lost as the pointer arrives. With a
+   * preview the label draws no `tooltip`: one surface per hover. Absent, no card.
    */
   preview?: ReactNode
   /** Rows under this one, folding under it: `NavItem`s. While the row is pointed at or focused, its icon becomes the arrow. */
@@ -193,9 +193,10 @@ export function NavItem({
           {icon}
         </span>
       )}
-      {tooltip?.trim() ? (
+      {tooltip?.trim() && preview == null ? (
         // On the label alone, not the row: the ⋮ and the action keep their
-        // own tooltips, and the two never stand up at once.
+        // own tooltips, and the two never stand up at once. A row with a
+        // preview card says more there, so the label has no tooltip beside it.
         <WithTooltip label={tooltip} inline wrapperClassName="flex min-w-0 flex-1">
           <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
         </WithTooltip>
@@ -248,7 +249,7 @@ export function NavItem({
   // The card's lines are rows with their own padding, so the card keeps only a 4px edge (the content's rhythm is the caller's).
   const card = (trigger: ReactNode) =>
     preview == null ? trigger : (
-      <PreviewCard content={preview} contentClassName="gap-0.5 p-1" wrapperClassName="block w-full">
+      <PreviewCard content={preview} contentClassName="gap-0.5 p-1" wrapperClassName="block w-full shrink-0">
         {trigger}
       </PreviewCard>
     )

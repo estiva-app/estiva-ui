@@ -34,6 +34,15 @@ describe('NavItem with a preview', () => {
     await waitFor(() => expect(screen.queryByText('What is new')).toBeNull())
   })
 
+  it('a row with a preview opens the card alone: the label’s tooltip does not stand up beside it', async () => {
+    const user = userEvent.setup()
+    render(<NavItem href="#one" label="Item one" tooltip="About item one" preview={<span>What is new</span>} />)
+    await user.hover(screen.getByText('Item one'))
+    // The tooltip's 300ms is shorter than the card's 350ms: had it been drawn, it would be up by now.
+    expect(await screen.findByText('What is new')).toBeTruthy()
+    expect(screen.queryByText('About item one')).toBeNull()
+  })
+
   it('a plain row with a preview opens it too', async () => {
     const user = userEvent.setup()
     render(<NavItem href="#one" label="Item one" preview={<span>What is new</span>} />)
