@@ -15,6 +15,34 @@ afterEach(cleanup)
 
 const arrow = (name: RegExp) => screen.getByRole('button', { name })
 
+/*
+  Real timers, as PreviewCard's own test: Base UI's hover card never opens under Vitest's fake timers in jsdom. The
+  waits are findBy/waitFor polling the screen, not sleeps.
+*/
+describe('NavItem with a preview', () => {
+  it('opens the card while the row is pointed at, and closes it when the pointer moves to a row under it', async () => {
+    const user = userEvent.setup()
+    render(
+      <NavItem href="#one" label="Item one" unread preview={<span>What is new</span>} menu={<span />}>
+        <NavItem href="#two" label="Item two" />
+      </NavItem>,
+    )
+    await user.hover(screen.getByText('Item one'))
+    expect(await screen.findByText('What is new')).toBeTruthy()
+    await user.unhover(screen.getByText('Item one'))
+    await user.hover(screen.getByText('Item two'))
+    await waitFor(() => expect(screen.queryByText('What is new')).toBeNull())
+  })
+
+  it('a plain row with a preview opens it too', async () => {
+    const user = userEvent.setup()
+    render(<NavItem href="#one" label="Item one" preview={<span>What is new</span>} />)
+    expect(screen.queryByText('What is new')).toBeNull()
+    await user.hover(screen.getByText('Item one'))
+    expect(await screen.findByText('What is new')).toBeTruthy()
+  })
+})
+
 describe('NavItem with rows under it', () => {
   const tree = (props: Partial<Parameters<typeof NavItem>[0]> = {}) => (
     <NavItem href="#one" label="Item one" {...props}>

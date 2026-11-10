@@ -59,6 +59,14 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.LabelTooltip} />
 
+- More about the row than a sentence (a short list of what is new there) is
+  `preview`: it opens the **PreviewCard** while the row itself is pointed at,
+  the ⋮ included, and never while a row under it is. Unlike `tooltip`, the
+  pointer can move into it. A screen with no hover never shows it either, so
+  the row must still make sense without it.
+
+<Canvas of={NavItemStories.RowPreview} />
+
 - Something new on the row is `unread`: its words and icon brighten, the
   label is set in medium, and the **UnreadDot** sits at the right.
   `urgent` with it draws the warning badge in the dot's place. Say "unread"
