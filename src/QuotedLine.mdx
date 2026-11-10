@@ -35,6 +35,9 @@ import { ConversationCard, QuotedLine } from '@estiva-app/ui'
 - Two lines at most; the whole words are in the tooltip.
 - A part with no words, a picture or a block: `label`, its name in your words, on the grey: the yellow is only for words still in the page.
 - Made for the card's `about`: the card puts it under the name, where the words start.
+- Read away from the page it quotes (another app, a list of comments from several pages): `href`, where the words are in that page, and the words are a **Link** (`quiet`) that opens it there, in place through the app's `navigate`, or in a new tab when `external`; a press on it never opens the card's thread around it. Beside the page itself, none.
+
+<Canvas of={Stories.Linked} />
 
 ## What it owns
 

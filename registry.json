@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.109.0",
+    "packageVersion": "0.110.0",
     "exports": 251,
     "typeExports": 260,
     "files": null
@@ -8916,6 +8916,18 @@
           "takes": "text",
           "required": false,
           "note": "A part with no words, a picture or a whole block: what it is, in the app's words (\"Picture: plan.png\")."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Where the words are in their file, when the reader is not looking at it: the words open it there."
+        },
+        {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "`href` is another app's: it opens in a new tab."
         }
       ],
       "variants": [
