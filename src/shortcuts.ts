@@ -43,13 +43,14 @@ export function shortcutLabel(keys: string, apple = isApplePlatform()): string {
 
 /** Whether a key press is the shortcut `keys` names, in the spelling above (`Mod-K`, `Mod-Shift-O`). */
 export function matchesShortcut(event: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>, keys: string): boolean {
-  const parts = keys.split('-')
-  const key = parts[parts.length - 1]!
-  const mods = new Set(parts.slice(0, -1))
-  // Mod is Cmd or Ctrl on any machine, as the top bar's Ctrl+K always took either. A Shift or Alt the shortcut names
-  // must be held; one it does not name is let through, as Ctrl+Shift+K always opened search too.
+  // The key is what follows the last joining '-', so `Mod--` is Mod and '-'.
+  const at = keys.lastIndexOf('-', keys.length - 2)
+  const key = keys.slice(at + 1)
+  const mods = new Set(at < 0 ? [] : keys.slice(0, at).split('-'))
+  // Mod is Cmd or Ctrl on any machine, as the top bar's Ctrl+K always took either. Shift and Alt are exact: Mod-O is
+  // not Ctrl+Shift+O, which the browser keeps.
   if (mods.has('Mod') ? !(event.metaKey || event.ctrlKey) : event.metaKey || event.ctrlKey) return false
-  if ((mods.has('Shift') && !event.shiftKey) || (mods.has('Alt') && !event.altKey)) return false
+  if (mods.has('Shift') !== event.shiftKey || mods.has('Alt') !== event.altKey) return false
   return event.key.toLowerCase() === key.toLowerCase()
 }
 
@@ -67,7 +68,8 @@ export function useShortcut(keys: string, onPress: () => void, enabled = true): 
   useEffect(() => {
     if (!enabled) return
     const onKey = (event: KeyboardEvent) => {
-      if (!matchesShortcut(event, keys)) return
+      // Once per press, not per auto-repeat; and not a press something on the page already took, or an IME's.
+      if (event.repeat || event.defaultPrevented || event.isComposing || !matchesShortcut(event, keys)) return
       event.preventDefault()
       pressRef.current()
     }

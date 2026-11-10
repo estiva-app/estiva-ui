@@ -34,12 +34,41 @@ describe('useShortcut', () => {
     expect(onPress).not.toHaveBeenCalled()
   })
 
-  it('needs the Shift it names', () => {
-    const onPress = vi.fn()
-    renderHook(() => useShortcut('Mod-Shift-O', onPress))
+  it('needs the Shift it names, and leaves one it does not name to the browser', () => {
+    const named = vi.fn()
+    const plain = vi.fn()
+    renderHook(() => useShortcut('Mod-Shift-O', named))
+    renderHook(() => useShortcut('Mod-O', plain))
     press({ ctrlKey: true, key: 'o' })
-    expect(onPress).not.toHaveBeenCalled()
+    expect(named).not.toHaveBeenCalled()
+    expect(plain).toHaveBeenCalledTimes(1)
     press({ ctrlKey: true, shiftKey: true, key: 'O' })
+    expect(named).toHaveBeenCalledTimes(1)
+    expect(plain).toHaveBeenCalledTimes(1)
+  })
+
+  it('runs once for a held key, not for each repeat', () => {
+    const onPress = vi.fn()
+    renderHook(() => useShortcut('Mod-O', onPress))
+    press({ ctrlKey: true, key: 'o' })
+    press({ ctrlKey: true, key: 'o', repeat: true })
+    press({ ctrlKey: true, key: 'o', repeat: true })
+    expect(onPress).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a press something on the page already took', () => {
+    const onPress = vi.fn()
+    renderHook(() => useShortcut('Mod-O', onPress))
+    const taken = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ctrlKey: true, key: 'o' })
+    taken.preventDefault()
+    window.dispatchEvent(taken)
+    expect(onPress).not.toHaveBeenCalled()
+  })
+
+  it('takes a minus as the key', () => {
+    const onPress = vi.fn()
+    renderHook(() => useShortcut('Mod--', onPress))
+    press({ ctrlKey: true, key: '-' })
     expect(onPress).toHaveBeenCalledTimes(1)
   })
 

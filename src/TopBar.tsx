@@ -58,8 +58,9 @@ export interface TopBarProps {
 
 export function TopBar({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder = 'Search…', right, className }: TopBarProps) {
   const floating = variant === 'floating'
-  // Ctrl+K opens search from anywhere on the page.
+  // Ctrl+K opens search from anywhere on the page, and Ctrl+Shift+K as it always has.
   useShortcut('Mod-K', () => onSearch?.(), onSearch !== undefined)
+  useShortcut('Mod-Shift-K', () => onSearch?.(), onSearch !== undefined)
   const centre =
     search ??
     (onSearch && (
