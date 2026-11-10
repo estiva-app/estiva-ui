@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.112.0",
+    "packageVersion": "0.113.0",
     "exports": 253,
     "typeExports": 263,
     "files": null
@@ -7659,6 +7659,12 @@
           "takes": "true/false",
           "required": false,
           "note": "With `unread`: the warning badge in the dot's place."
+        },
+        {
+          "name": "preview",
+          "takes": "anything",
+          "required": false,
+          "note": "More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it — such as a short list of what is new there."
         },
         {
           "name": "children",
