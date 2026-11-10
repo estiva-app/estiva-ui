@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.113.0 — 2026-11-10
+
+**NavItem** takes `preview`: a `PreviewCard` that opens while the row itself is pointed at, the ⋮ included, and never
+while a row under it is. Peek puts what is new on a lit topic, space, team chat or DM in it (ACT-3; the activity
+indicator prototype Miky approved on 10 November), where the rows of a topic's files hang under the topic's row.
+With a preview the label draws no `tooltip`, so one hover stands up one surface. Additive: nothing changes for a
+caller that does not pass it.
+
 ## 0.112.0 — 2026-11-10
 
 **useShortcut**: a key that does something from anywhere on the page while its caller is on screen, in the spelling

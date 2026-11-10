@@ -128,6 +128,21 @@ export const LabelTooltip: Story = {
   args: { icon: placeholder, action: REMOVE, tooltip: 'One sentence saying what this item is about, shown while its label is pointed at.' },
 }
 
+/** `preview`: rest the pointer on the row and a card opens beside it, holding content you can move into; the rows under it open nothing. */
+export const RowPreview: Story = {
+  args: {
+    icon: placeholder,
+    unread: true,
+    preview: (
+      <div className="flex flex-col gap-1 p-2 text-caption text-text-secondary">
+        <span>Line one of what the card holds.</span>
+        <span>Line two of what the card holds.</span>
+      </div>
+    ),
+    children: <NavItem href="#two" label="Item two" icon={placeholder} />,
+  },
+}
+
 /** A hint and a button: point at it and the chip shows, then the button — a row whose state is a word (here, archived) and which can be taken off the list. */
 export const WithActionAndHint: Story = {
   args: { label: 'An item whose label runs much longer than the column has room for', icon: placeholder, action: REMOVE, hint: <Chip type="neutral" label="Archived" /> },

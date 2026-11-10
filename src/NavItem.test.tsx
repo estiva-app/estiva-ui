@@ -15,6 +15,43 @@ afterEach(cleanup)
 
 const arrow = (name: RegExp) => screen.getByRole('button', { name })
 
+/*
+  Real timers, as PreviewCard's own test: Base UI's hover card never opens under Vitest's fake timers in jsdom. The
+  waits are findBy/waitFor polling the screen, not sleeps.
+*/
+describe('NavItem with a preview', () => {
+  it('opens the card while the row is pointed at, and closes it when the pointer moves to a row under it', async () => {
+    const user = userEvent.setup()
+    render(
+      <NavItem href="#one" label="Item one" unread preview={<span>What is new</span>} menu={<span />}>
+        <NavItem href="#two" label="Item two" />
+      </NavItem>,
+    )
+    await user.hover(screen.getByText('Item one'))
+    expect(await screen.findByText('What is new')).toBeTruthy()
+    await user.unhover(screen.getByText('Item one'))
+    await user.hover(screen.getByText('Item two'))
+    await waitFor(() => expect(screen.queryByText('What is new')).toBeNull())
+  })
+
+  it('a row with a preview opens the card alone: the label’s tooltip does not stand up beside it', async () => {
+    const user = userEvent.setup()
+    render(<NavItem href="#one" label="Item one" tooltip="About item one" preview={<span>What is new</span>} />)
+    await user.hover(screen.getByText('Item one'))
+    // The tooltip's 300ms is shorter than the card's 350ms: had it been drawn, it would be up by now.
+    expect(await screen.findByText('What is new')).toBeTruthy()
+    expect(screen.queryByText('About item one')).toBeNull()
+  })
+
+  it('a plain row with a preview opens it too', async () => {
+    const user = userEvent.setup()
+    render(<NavItem href="#one" label="Item one" preview={<span>What is new</span>} />)
+    expect(screen.queryByText('What is new')).toBeNull()
+    await user.hover(screen.getByText('Item one'))
+    expect(await screen.findByText('What is new')).toBeTruthy()
+  })
+})
+
 describe('NavItem with rows under it', () => {
   const tree = (props: Partial<Parameters<typeof NavItem>[0]> = {}) => (
     <NavItem href="#one" label="Item one" {...props}>

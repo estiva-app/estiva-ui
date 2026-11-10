@@ -8,6 +8,7 @@ import { useOpenFor } from './CollapsibleSection'
 import { COLLAPSIBLE_PANEL_CLASSES, COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } from './looks'
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
+import { PreviewCard } from './PreviewCard'
 import type { SectionAction } from './SectionHeader'
 import { UnreadDot } from './UnreadDot'
 import { WithTooltip } from './Tooltip'
@@ -80,6 +81,13 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   unread?: boolean
   /** With `unread`: the warning badge in the dot's place. */
   urgent?: boolean
+  /**
+   * More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it —
+   * such as a short list of what is new there. Unlike `tooltip`, it holds content the pointer can move into. The card
+   * opens on the whole row, the ⋮ included, so a dot the ⋮ steps aside for is not lost as the pointer arrives. With a
+   * preview the label draws no `tooltip`: one surface per hover. Absent, no card.
+   */
+  preview?: ReactNode
   /** Rows under this one, folding under it: `NavItem`s. While the row is pointed at or focused, its icon becomes the arrow. */
   children?: ReactNode
   /** With `children`: open unless told otherwise. */
@@ -117,6 +125,7 @@ export function NavItem({
   tooltip,
   unread = false,
   urgent = false,
+  preview,
   children,
   defaultOpen = true,
   open: openProp,
@@ -184,9 +193,10 @@ export function NavItem({
           {icon}
         </span>
       )}
-      {tooltip?.trim() ? (
+      {tooltip?.trim() && preview == null ? (
         // On the label alone, not the row: the ⋮ and the action keep their
-        // own tooltips, and the two never stand up at once.
+        // own tooltips, and the two never stand up at once. A row with a
+        // preview card says more there, so the label has no tooltip beside it.
         <WithTooltip label={tooltip} inline wrapperClassName="flex min-w-0 flex-1">
           <span className={cn('flex-1 truncate', unread && 'font-medium')}>{label}</span>
         </WithTooltip>
@@ -236,7 +246,14 @@ export function NavItem({
       ) : null}
     </a>
   )
-  if (!besides && hint == null) return row
+  // The card's lines are rows with their own padding, so the card keeps only a 4px edge (the content's rhythm is the caller's).
+  const card = (trigger: ReactNode) =>
+    preview == null ? trigger : (
+      <PreviewCard content={preview} contentClassName="gap-0.5 p-1" wrapperClassName="block w-full shrink-0">
+        {trigger}
+      </PreviewCard>
+    )
+  if (!besides && hint == null) return card(row)
   const name = menuLabel ?? `More options for ${label}`
   const line = (
     <div className="group/nav relative shrink-0">
@@ -287,10 +304,10 @@ export function NavItem({
       )}
     </div>
   )
-  if (!hasRows) return line
+  if (!hasRows) return card(line)
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen} className="flex shrink-0 flex-col">
-      {line}
+      {card(line)}
       {/* CollapsibleSection's slide, the same way: Base UI measures the panel
           and the height transitions, none under prefers-reduced-motion. */}
       <Collapsible.Panel
