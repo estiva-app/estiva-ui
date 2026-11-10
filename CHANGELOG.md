@@ -5,8 +5,7 @@
 **useShortcut**: a key that does something from anywhere on the page while its caller is on screen, in the spelling
 `shortcutLabel` reads (`Mod-O`), taking the key from the browser. Peek binds Ctrl/Cmd+O on a topic's page to Add to
 Open work with it (TOPI-7; the topics level-up prototype Miky approved on 6 November), the first app key after
-search's Ctrl+K. `TopBar`'s Ctrl+K now goes through it, unchanged: Cmd or Ctrl, Shift let through. `matchesShortcut`
-is exported beside it. Additive.
+search's Ctrl+K. `TopBar`'s Ctrl+K now goes through it, unchanged: Cmd or Ctrl, Shift let through. Additive.
 
 ## 0.111.0 — 2026-11-10
 
