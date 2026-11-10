@@ -1,7 +1,7 @@
 /**
  * The "…" that floats over a row's or a card's top-right corner in a list the
  * person arranges, and the menu it opens: Show as Row or Card, the one in use
- * selected, then Remove (Miky, 6 Nov, the topics level-up prototype).
+ * ticked, then Remove (Miky, 6 Nov, the topics level-up prototype).
  *
  * It sits where `AttachedCard`'s ✕ sits and takes no room of its own: shown
  * while the pointer is over the item, while the "…" has focus or its menu is
@@ -12,7 +12,7 @@
  * cannot arrange the list, the app passes nothing and no "…" is drawn.
  */
 import type { ReactNode } from 'react'
-import { IconDots } from '@tabler/icons-react'
+import { IconCheck, IconDotsVertical } from '@tabler/icons-react'
 import { IconButton } from './IconButton'
 import { Menu, MenuItem, MenuSection, MenuSeparator } from './Menu'
 
@@ -27,7 +27,7 @@ const LOOKS: { look: CornerMenuLook; label: string }[] = [
 export interface CornerMenuOptions {
   /** The item's name: the "…" is "More options for {name}". */
   name: string
-  /** How it shows now: selected under Show as. */
+  /** How it shows now: ticked under Show as. */
   look: CornerMenuLook
   /** Show as Row or Card was chosen: the other look than `look`. Choosing the one in use calls nothing. */
   onLook: (look: CornerMenuLook) => void
@@ -53,7 +53,7 @@ export function CornerMenu({ children, menu }: CornerMenuProps) {
             align="right"
             trigger={
               <IconButton tooltip="More options" aria-label={`More options for ${menu.name}`}>
-                <IconDots size={16} stroke={1.5} />
+                <IconDotsVertical size={16} stroke={1.5} />
               </IconButton>
             }
           >
@@ -64,7 +64,7 @@ export function CornerMenu({ children, menu }: CornerMenuProps) {
                   role="menuitemradio"
                   aria-checked={menu.look === look}
                   label={label}
-                  selected={menu.look === look}
+                  trailing={menu.look === look ? <IconCheck size={16} aria-hidden /> : undefined}
                   onClick={() => {
                     if (menu.look !== look) menu.onLook(look)
                   }}
