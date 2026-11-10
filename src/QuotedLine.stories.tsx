@@ -23,6 +23,9 @@ export const Reworded: Story = { name: 'Words changed', args: { state: 'reworded
 /** The part was deleted from the page: the words struck through, and "Deleted from the page". */
 export const Gone: Story = { name: 'Part deleted', args: { state: 'gone' } }
 
+/** Read away from the page it quotes: the words open that page where they are. */
+export const Linked: Story = { name: 'Words that open the page', args: { href: 'https://example.com/page#block-1' } }
+
 /** On a part with no words of its own, a picture: its name, in the app's words. */
 export const Part: Story = { name: 'No words', args: { words: undefined, label: 'Picture: plan-sketch.png' } }
 

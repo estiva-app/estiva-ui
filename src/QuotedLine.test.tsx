@@ -40,4 +40,17 @@ describe('QuotedLine', () => {
     expect(mark.className).toMatch(/\bbg-bg-inset\b/)
     expect(mark.className).not.toMatch(/\bline-through\b/)
   })
+
+  // A reader in another app reaches the sentence in one click, as the part card's link did (Miky, 10 November).
+  it('makes the words the link to where they are in their file, when given one', () => {
+    render(<QuotedLine words="brass fitting" href="https://ship.example/issue/x#block-b1" external />)
+    const link = screen.getByRole('link', { name: 'brass fitting' })
+    expect(link.getAttribute('href')).toBe('https://ship.example/issue/x#block-b1')
+    expect(link.getAttribute('target')).toBe('_blank')
+  })
+
+  it('draws the words as no link where the file is beside them', () => {
+    render(<QuotedLine words="brass fitting" />)
+    expect(screen.queryByRole('link')).toBeNull()
+  })
 })

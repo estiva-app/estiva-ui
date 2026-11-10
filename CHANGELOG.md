@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.110.0 — 2026-11-10
+
+`QuotedLine` takes `href` (and `external`): the quoted words become the way to where they are in their file. Peek and
+Ship show a comment written on a few words of an issue in Leaf as those words, where they drew the whole paragraph,
+and the paragraph card's link to that spot goes with them (ONE-12; Miky, 10 November). Leaf, which shows the page
+beside its comments, passes none. Additive: nothing changes for a caller that does not pass it.
+
 ## 0.109.0 — 2026-11-09
 
 A conversation that mixes several places can say which place each comment is on (TOPI-2; the Per-app prototype Miky
