@@ -73,24 +73,39 @@ const OPEN_DELAY = 350
 const CLOSE_DELAY = 200
 
 export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false }: PreviewCardProps) {
+  // Held here always, so turning `openOnTap` on or off never switches the card between controlled and not; without it
+  // every change is Base UI's own (hover, focus, Escape, a press outside), as before.
   const [open, setOpen] = useState(false)
-  // Whether it was open when the finger went down: a tap focuses a button inside, and focus opens it before the finger
-  // lifts, so the lift sets the opposite of what was there before the tap, not of what focus just did.
-  const openAtTouch = useRef(false)
-  // Held here only when a tap may open it; otherwise Base UI holds it, as before.
-  const held = openOnTap ? { open, onOpenChange: (next: boolean) => setOpen(next) } : {}
+  // The press the next click belongs to: its pointer type, and whether the card was open when it went down. A tap
+  // focuses a button inside, and focus may open the card before the click, so the click sets the opposite of what was
+  // there before the press, not of what focus just did. The click uses it up.
+  const press = useRef<{ pointerType: string; wasOpen: boolean } | undefined>(undefined)
+  // The last press's pointer type, which outlives the click: it says whether a focus that opens the card came from a tap.
+  const lastPointer = useRef<string | undefined>(undefined)
+  const onOpenChange = (next: boolean, details: BasePreviewCard.Root.ChangeEventDetails) => {
+    // Base UI opens on focus after its delay, on a timer a tap's close does not cancel: after a touch, a tapped-shut
+    // card would open again a moment later. On a touch screen only a tap opens it.
+    if (openOnTap && next && details.reason === 'trigger-focus' && lastPointer.current === 'touch') return
+    setOpen(next)
+  }
   const tapHandlers = openOnTap
     ? {
         onPointerDown: (event: PointerEvent) => {
-          if (event.pointerType !== 'mouse') openAtTouch.current = open
+          press.current = { pointerType: event.pointerType, wasOpen: open }
+          lastPointer.current = event.pointerType
         },
-        onPointerUp: (event: PointerEvent) => {
-          if (event.pointerType !== 'mouse') setOpen(!openAtTouch.current)
+        onClick: () => {
+          const last = press.current
+          press.current = undefined
+          // A mouse or a pen opens it by resting, as Base UI treats both as able to hover. A touch, or a click with no
+          // press before it (a screen reader's double-tap sends only the click), sets the opposite.
+          if (last?.pointerType === 'mouse' || last?.pointerType === 'pen') return
+          setOpen(!(last ? last.wasOpen : open))
         },
       }
     : {}
   return (
-    <BasePreviewCard.Root {...held}>
+    <BasePreviewCard.Root open={open} onOpenChange={onOpenChange}>
       {/* The part renders an `<a>` by default, which a row is not; `render`
           makes it the wrapper this component has always been, and the trigger
           inside keeps whatever element it already is. */}

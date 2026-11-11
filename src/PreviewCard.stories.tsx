@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
+import { IconButton } from './IconButton'
 import { MenuPanel } from './Menu'
 import { PreviewCard } from './PreviewCard'
 import { SkeletonBar } from './Skeleton'
@@ -114,6 +115,30 @@ export const OnARow: Story = {
   render: () => (
     <PreviewCard content={<Detail />} wrapperClassName="w-[320px]">
       <Row label="Item one" note="Label" />
+    </PreviewCard>
+  ),
+}
+
+/**
+ * Live, with `openOnTap`: on a touch screen a tap on the trigger opens the
+ * card and a second tap closes it; a mouse still opens it by resting. For a
+ * trigger that answers a tap with nothing of its own.
+ */
+export const OnATap: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <PreviewCard
+      openOnTap
+      content={
+        <span className="text-caption text-text-secondary">
+          This is the card. A tap on the button opened it, and another tap
+          closes it.
+        </span>
+      }
+    >
+      <IconButton aria-label="Item one">
+        <IconSquareRounded size={16} stroke={1.5} />
+      </IconButton>
     </PreviewCard>
   ),
 }

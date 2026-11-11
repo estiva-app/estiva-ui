@@ -2,8 +2,8 @@
 
 ## 0.114.0 — 2026-11-11
 
-**PreviewCard** takes `openOnTap`: on a touch screen a tap on the trigger opens the card and a second tap closes it;
-a mouse still opens it by resting. **UnreadDot** takes `quiet`: the same 6px as a ring, not marked `data-unread`.
+**PreviewCard** takes `openOnTap`: on a touch screen a tap on the trigger opens the card and a second tap closes it
+(a screen reader's double-tap too); a mouse or a pen still opens it by resting. **UnreadDot** takes `quiet`: the same 6px as a ring, not marked `data-unread`.
 Peek draws both as the dot beside a page's title, which opens the page's list of what lit it (ACT-4; the activity
 indicator prototype Miky approved on 10 November). Additive: nothing changes for a caller that passes neither.
 

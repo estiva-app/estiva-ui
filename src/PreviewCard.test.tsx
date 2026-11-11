@@ -7,12 +7,15 @@
  * tested beside itself. Placement is Floating UI's and is measured in a
  * browser — jsdom lays nothing out — so what is here is the behaviour.
  */
-import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PreviewCard } from './PreviewCard'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.useRealTimers()
+})
 
 describe('PreviewCard', () => {
   it('renders its trigger, and nothing of its content, until it opens', () => {
@@ -51,6 +54,47 @@ describe('PreviewCard', () => {
     await user.pointer({ keys: '[TouchA]', target: dot })
     expect(await screen.findByText('The rest of it')).toBeTruthy()
     await user.pointer({ keys: '[TouchA]', target: dot })
+    expect(screen.queryByText('The rest of it')).toBeNull()
+  })
+
+  it('with openOnTap on a button, a tap that closes the card stays closed: focus from the tap does not reopen it a moment later', async () => {
+    vi.useFakeTimers()
+    render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap>
+        <button type="button">A dot</button>
+      </PreviewCard>,
+    )
+    const dot = screen.getByRole('button', { name: 'A dot' })
+    // A finger's tap on a button, in the order a phone sends it: the press and the lift, then the mouse events made
+    // from them, focus on the button and the click. Fired by hand, because user-event waits on a clock this test fakes.
+    const tap = () => {
+      fireEvent.pointerDown(dot, { pointerType: 'touch' })
+      fireEvent.pointerUp(dot, { pointerType: 'touch' })
+      fireEvent.mouseDown(dot)
+      act(() => dot.focus())
+      fireEvent.mouseUp(dot)
+      fireEvent.click(dot)
+    }
+    tap()
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    tap()
+    expect(screen.queryByText('The rest of it')).toBeNull()
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(screen.queryByText('The rest of it')).toBeNull()
+  })
+
+  it('with openOnTap, a click with no press before it (a screen reader double-tap) opens the card, and another closes it', async () => {
+    render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap>
+        <button type="button">A dot</button>
+      </PreviewCard>,
+    )
+    const dot = screen.getByRole('button', { name: 'A dot' })
+    fireEvent.click(dot)
+    expect(screen.queryByText('The rest of it')).not.toBeNull()
+    fireEvent.click(dot)
     expect(screen.queryByText('The rest of it')).toBeNull()
   })
 
