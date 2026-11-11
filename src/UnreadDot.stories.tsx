@@ -11,6 +11,9 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
+/** Nothing new: the ring a dot that is always there draws, so the slot does not empty. */
+export const Quiet: Story = { args: { quiet: true } }
+
 /** Beside a line of text, as a list row draws it: the slot keeps the row's height. */
 export const InARow: Story = {
   render: (args) => (

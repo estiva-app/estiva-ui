@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { PreviewCard as BasePreviewCard } from '@base-ui/react/preview-card'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
@@ -46,6 +46,13 @@ export interface PreviewCardProps {
   contentClassName?: string
   /** Extra classes on the trigger wrapper — e.g. `block w-full` for a row. */
   wrapperClassName?: string
+  /**
+   * A tap on the trigger opens the card, and a second tap closes it, for a
+   * touch screen, where nothing hovers (ACT-4: the dot beside a page's title).
+   * A mouse still opens it by resting. Off by default: a row's card stays
+   * hover-only, because a tap on a row opens the row.
+   */
+  openOnTap?: boolean
 }
 
 /** The card's own numbers: 12px from the trigger, 8px clear of every screen
@@ -65,9 +72,40 @@ const OPEN_DELAY = 350
  *  here the card can be reached, so it can. */
 const CLOSE_DELAY = 200
 
-export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName }: PreviewCardProps) {
+export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false }: PreviewCardProps) {
+  // Held here always, so turning `openOnTap` on or off never switches the card between controlled and not; without it
+  // every change is Base UI's own (hover, focus, Escape, a press outside), as before.
+  const [open, setOpen] = useState(false)
+  // The press the next click belongs to: its pointer type, and whether the card was open when it went down. A tap
+  // focuses a button inside, and focus may open the card before the click, so the click sets the opposite of what was
+  // there before the press, not of what focus just did. The click uses it up.
+  const press = useRef<{ pointerType: string; wasOpen: boolean } | undefined>(undefined)
+  // The last press's pointer type, which outlives the click: it says whether a focus that opens the card came from a tap.
+  const lastPointer = useRef<string | undefined>(undefined)
+  const onOpenChange = (next: boolean, details: BasePreviewCard.Root.ChangeEventDetails) => {
+    // Base UI opens on focus after its delay, on a timer a tap's close does not cancel: after a touch, a tapped-shut
+    // card would open again a moment later. On a touch screen only a tap opens it.
+    if (openOnTap && next && details.reason === 'trigger-focus' && lastPointer.current === 'touch') return
+    setOpen(next)
+  }
+  const tapHandlers = openOnTap
+    ? {
+        onPointerDown: (event: PointerEvent) => {
+          press.current = { pointerType: event.pointerType, wasOpen: open }
+          lastPointer.current = event.pointerType
+        },
+        onClick: () => {
+          const last = press.current
+          press.current = undefined
+          // A mouse or a pen opens it by resting, as Base UI treats both as able to hover. A touch, or a click with no
+          // press before it (a screen reader's double-tap sends only the click), sets the opposite.
+          if (last?.pointerType === 'mouse' || last?.pointerType === 'pen') return
+          setOpen(!(last ? last.wasOpen : open))
+        },
+      }
+    : {}
   return (
-    <BasePreviewCard.Root>
+    <BasePreviewCard.Root open={open} onOpenChange={onOpenChange}>
       {/* The part renders an `<a>` by default, which a row is not; `render`
           makes it the wrapper this component has always been, and the trigger
           inside keeps whatever element it already is. */}
@@ -75,6 +113,7 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
         delay={delay}
         closeDelay={closeDelay}
         render={<span className={cn('inline-flex', wrapperClassName)} />}
+        {...tapHandlers}
       >
         {children}
       </BasePreviewCard.Trigger>

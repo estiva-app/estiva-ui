@@ -14,4 +14,9 @@ describe('UnreadDot', () => {
     expect(slot.className).toContain('w-6')
     expect((slot.firstElementChild as HTMLElement).className).toContain('w-1.5')
   })
+
+  it('a quiet dot, with nothing new, is not marked data-unread, so nothing reads it as unread', () => {
+    const { container } = render(<UnreadDot quiet />)
+    expect((container.firstElementChild as HTMLElement).hasAttribute('data-unread')).toBe(false)
+  })
 })
