@@ -1,4 +1,4 @@
-import { useState, type PointerEvent, type ReactNode } from 'react'
+import { useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { PreviewCard as BasePreviewCard } from '@base-ui/react/preview-card'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
@@ -74,13 +74,21 @@ const CLOSE_DELAY = 200
 
 export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false }: PreviewCardProps) {
   const [open, setOpen] = useState(false)
+  // Whether it was open when the finger went down: a tap focuses a button inside, and focus opens it before the finger
+  // lifts, so the lift sets the opposite of what was there before the tap, not of what focus just did.
+  const openAtTouch = useRef(false)
   // Held here only when a tap may open it; otherwise Base UI holds it, as before.
   const held = openOnTap ? { open, onOpenChange: (next: boolean) => setOpen(next) } : {}
-  const onTap = openOnTap
-    ? (event: PointerEvent) => {
-        if (event.pointerType !== 'mouse') setOpen((now) => !now)
+  const tapHandlers = openOnTap
+    ? {
+        onPointerDown: (event: PointerEvent) => {
+          if (event.pointerType !== 'mouse') openAtTouch.current = open
+        },
+        onPointerUp: (event: PointerEvent) => {
+          if (event.pointerType !== 'mouse') setOpen(!openAtTouch.current)
+        },
       }
-    : undefined
+    : {}
   return (
     <BasePreviewCard.Root {...held}>
       {/* The part renders an `<a>` by default, which a row is not; `render`
@@ -90,7 +98,7 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
         delay={delay}
         closeDelay={closeDelay}
         render={<span className={cn('inline-flex', wrapperClassName)} />}
-        {...(onTap ? { onPointerUp: onTap } : {})}
+        {...tapHandlers}
       >
         {children}
       </BasePreviewCard.Trigger>
