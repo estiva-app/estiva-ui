@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.113.0",
+    "packageVersion": "0.114.0",
     "exports": 253,
     "typeExports": 263,
     "files": null
@@ -8732,6 +8732,12 @@
           "takes": "text",
           "required": false,
           "note": "Extra classes on the trigger wrapper — e.g."
+        },
+        {
+          "name": "openOnTap",
+          "takes": "true/false",
+          "required": false,
+          "note": "A tap on the trigger opens the card, and a second tap closes it, for a touch screen, where nothing hovers (ACT-4: the dot beside a page's title)."
         }
       ],
       "variants": [
@@ -12359,6 +12365,12 @@
         {
           "name": "className",
           "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "quiet",
+          "takes": "true/false",
           "required": false,
           "note": null
         }
