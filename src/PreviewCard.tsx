@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type PointerEvent, type ReactNode } from 'react'
 import { PreviewCard as BasePreviewCard } from '@base-ui/react/preview-card'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
@@ -46,6 +46,13 @@ export interface PreviewCardProps {
   contentClassName?: string
   /** Extra classes on the trigger wrapper — e.g. `block w-full` for a row. */
   wrapperClassName?: string
+  /**
+   * A tap on the trigger opens the card, and a second tap closes it, for a
+   * touch screen, where nothing hovers (ACT-4: the dot beside a page's title).
+   * A mouse still opens it by resting. Off by default: a row's card stays
+   * hover-only, because a tap on a row opens the row.
+   */
+  openOnTap?: boolean
 }
 
 /** The card's own numbers: 12px from the trigger, 8px clear of every screen
@@ -65,9 +72,17 @@ const OPEN_DELAY = 350
  *  here the card can be reached, so it can. */
 const CLOSE_DELAY = 200
 
-export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName }: PreviewCardProps) {
+export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false }: PreviewCardProps) {
+  const [open, setOpen] = useState(false)
+  // Held here only when a tap may open it; otherwise Base UI holds it, as before.
+  const held = openOnTap ? { open, onOpenChange: (next: boolean) => setOpen(next) } : {}
+  const onTap = openOnTap
+    ? (event: PointerEvent) => {
+        if (event.pointerType !== 'mouse') setOpen((now) => !now)
+      }
+    : undefined
   return (
-    <BasePreviewCard.Root>
+    <BasePreviewCard.Root {...held}>
       {/* The part renders an `<a>` by default, which a row is not; `render`
           makes it the wrapper this component has always been, and the trigger
           inside keeps whatever element it already is. */}
@@ -75,6 +90,7 @@ export function PreviewCard({ content, children, side = 'right', delay = OPEN_DE
         delay={delay}
         closeDelay={closeDelay}
         render={<span className={cn('inline-flex', wrapperClassName)} />}
+        {...(onTap ? { onPointerUp: onTap } : {})}
       >
         {children}
       </BasePreviewCard.Trigger>

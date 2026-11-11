@@ -107,6 +107,11 @@ There is no keyboard trigger, by design — see above.
 | pointer moves into the card | it stays up, and can be scrolled |
 | pointer leaves both | closes after 200ms |
 | Escape | closes |
+| a tap on the trigger, with `openOnTap` | opens; a second tap closes it |
+
+A touch screen has no hover, so without `openOnTap` a tap opens nothing: a row's card stays hover-only, because a
+tap on a row opens the row. Pass `openOnTap` when the trigger opens nothing of its own, as a dot beside a page's
+title does.
 
 ## Props
 

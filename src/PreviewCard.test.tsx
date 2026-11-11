@@ -40,6 +40,31 @@ describe('PreviewCard', () => {
     expect(screen.queryByText('The rest of it')).toBeNull()
   })
 
+  it('with openOnTap, a tap on a touch screen opens the card and a second tap closes it', async () => {
+    const user = userEvent.setup()
+    render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap>
+        <span>A dot</span>
+      </PreviewCard>,
+    )
+    const dot = screen.getByText('A dot')
+    await user.pointer({ keys: '[TouchA]', target: dot })
+    expect(await screen.findByText('The rest of it')).toBeTruthy()
+    await user.pointer({ keys: '[TouchA]', target: dot })
+    expect(screen.queryByText('The rest of it')).toBeNull()
+  })
+
+  it('without openOnTap, a tap on a touch screen opens nothing, so a row tapped opens the row', async () => {
+    const user = userEvent.setup()
+    render(
+      <PreviewCard content={<span>The rest of it</span>}>
+        <span>A row</span>
+      </PreviewCard>,
+    )
+    await user.pointer({ keys: '[TouchA]', target: screen.getByText('A row') })
+    expect(screen.queryByText('The rest of it')).toBeNull()
+  })
+
   /*
    * Not here: "the pointer can move into the card, and it scrolls" — the one
    * claim that separates this from a tooltip.
