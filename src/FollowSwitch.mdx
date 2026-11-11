@@ -47,6 +47,11 @@ const level: 'all' | 'important' | undefined = 'important'
 - `backTo` is the name of the group whose default the viewer chose against.
   Leave it out when no default reaches them or they did not choose against it.
 - `people` draws people instead of circles, for a place that is a group's own.
+- `files` says whether the place lists files (a topic, a space; the default).
+  Each level's line then says what of them the place shows and what lights:
+  "Shows its own conversation. Lights for new conversations, replies in yours,
+  and what names you on its files." Pass `false` for a place with none (a
+  team's chat): the lines say only what lights, "Lights for every message".
 - `label` is the place's name. The button's accessible name says the level and
   what pressing it does: "You follow it at Important: change how you follow
   Item one".

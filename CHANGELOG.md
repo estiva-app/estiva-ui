@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.115.0 — 2026-11-11
+
+**FollowSwitch**'s three lines now say what the place shows at each level and what lights its dot: Important reads
+"Shows its own conversation. Lights for new conversations, replies in yours, and what names you on its files." (ACT-5;
+the activity indicator prototype Miky approved on 10 November — he had read the old line as what the topic shows). A
+new `files` prop, `true` by default, picks the words: a topic or a space lists files; pass `false` for a team's chat,
+whose lines say only what lights ("Lights for every message"). **Breaking:** `offDescription` is gone, the words are the
+switch's own. No caller passed it: Peek's `src/components/PlaceFollow.tsx` is the only one and it should pass
+`files={!chat}`; Ship and Leaf do not draw the switch.
+
 ## 0.114.0 — 2026-11-11
 
 **PreviewCard** takes `openOnTap`: on a touch screen a tap on the trigger opens the card and a second tap closes it

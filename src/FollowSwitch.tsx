@@ -46,9 +46,28 @@ export function LevelIcon({ level, people = false }: LevelIconProps) {
   return <IconCircleDashedPlus {...ICON} aria-hidden className="text-text-muted" />
 }
 
-const WORDS: Record<FollowLevel, { label: string; description: string }> = {
-  important: { label: 'Important', description: 'New conversations, and replies in the ones you are in' },
-  all: { label: 'All', description: 'Every new conversation and every reply' },
+const LABEL: Record<FollowLevel, string> = { important: 'Important', all: 'All' }
+
+/**
+ * The line under each level: what the place shows at it, and what lights its
+ * dot (ACT-5; the activity indicator prototype Miky approved on 10 November).
+ * A place that lists files (a topic, a space) says what of them it shows; a
+ * place with none (a team's chat) says only what lights. Important's third
+ * part restates the record on what names you on a listed file.
+ *
+ * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/at-important-what-names-you-on-a-listed-file-lights-the-topic.md
+ */
+const WORDS: Record<'files' | 'noFiles', Record<'off' | FollowLevel, string>> = {
+  files: {
+    off: 'Shows its own conversation. Nothing lights.',
+    important: 'Shows its own conversation. Lights for new conversations, replies in yours, and what names you on its files.',
+    all: 'Shows its files’ threads too. Lights for all of it.',
+  },
+  noFiles: {
+    off: 'Nothing lights.',
+    important: 'Lights for new conversations and replies in yours.',
+    all: 'Lights for every message.',
+  },
 }
 
 export interface FollowSwitchProps {
@@ -62,8 +81,12 @@ export interface FollowSwitchProps {
   readOnlyReason?: string
   /** People rather than circles, as `LevelIcon`'s `people`. */
   people?: boolean
-  /** The line under Not following. */
-  offDescription?: string
+  /**
+   * Whether the place lists files (a topic, a space): each level then says what of
+   * them it shows. `false` for a place with none (a team's chat): the levels say only
+   * what lights.
+   */
+  files?: boolean
   /**
    * The name of the group whose default reaches the viewer, when they chose
    * against it: offers "Back to <name>’s default". Leave it out otherwise.
@@ -73,12 +96,14 @@ export interface FollowSwitchProps {
 
 /**
  * The one switch on a place: Not following, Important or All, each with what
- * it lights, and "Back to <name>’s default" when the viewer chose against a
- * group's default. It sits before the place's title, drawn as `LevelIcon`.
+ * the place shows at it and what lights, and "Back to <name>’s default" when
+ * the viewer chose against a group's default. It sits before the place's
+ * title, drawn as `LevelIcon`.
  */
-export function FollowSwitch({ level, label, onChoose, readOnlyReason, people = false, offDescription = 'Nothing here lights for you', backTo }: FollowSwitchProps) {
+export function FollowSwitch({ level, label, onChoose, readOnlyReason, people = false, files = true, backTo }: FollowSwitchProps) {
   const [busy, setBusy] = useState(false)
-  const now = level ? `You follow it at ${WORDS[level].label}` : 'Not following'
+  const words = WORDS[files ? 'files' : 'noFiles']
+  const now = level ? `You follow it at ${LABEL[level]}` : 'Not following'
   const button = (
     <IconButton aria-label={`${now}: change how you follow ${label}`} tooltip={now} disabled={!onChoose || busy} disabledReason={onChoose ? undefined : readOnlyReason}>
       <LevelIcon level={level} people={people} />
@@ -113,9 +138,9 @@ export function FollowSwitch({ level, label, onChoose, readOnlyReason, people = 
   return (
     <Menu trigger={button}>
       <MenuSection label="How you follow it">
-        {item('off', 'Not following', offDescription, undefined)}
-        {item('important', WORDS.important.label, WORDS.important.description, 'important')}
-        {item('all', WORDS.all.label, WORDS.all.description, 'all')}
+        {item('off', 'Not following', words.off, undefined)}
+        {item('important', LABEL.important, words.important, 'important')}
+        {item('all', LABEL.all, words.all, 'all')}
       </MenuSection>
       {backTo && (
         <MenuSection label={`${backTo} gives you Important`}>

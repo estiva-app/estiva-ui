@@ -48,6 +48,26 @@ describe('FollowSwitch', () => {
     expect(onChoose).toHaveBeenCalledWith('default')
   })
 
+  it('says what the place shows and what lights at each level, by whether it lists files', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(<FollowSwitch level="important" label="Item one" onChoose={() => {}} />)
+    await user.click(screen.getByRole('button', { name: /change how you follow/ }))
+    // A topic or a space (the default): what of its files it shows, then what lights (ACT-5).
+    expect((await screen.findByRole('menuitem', { name: /^Not following/ })).textContent).toContain('Shows its own conversation. Nothing lights.')
+    expect(screen.getByRole('menuitem', { name: /^Important/ }).textContent).toContain(
+      'Shows its own conversation. Lights for new conversations, replies in yours, and what names you on its files.',
+    )
+    expect(screen.getByRole('menuitem', { name: /^All/ }).textContent).toContain('Shows its files’ threads too. Lights for all of it.')
+    await user.keyboard('{Escape}')
+    // A place with no files (a team's chat): only what lights.
+    rerender(<FollowSwitch level="important" label="Item one" onChoose={() => {}} files={false} people />)
+    await user.click(screen.getByRole('button', { name: /change how you follow/ }))
+    expect((await screen.findByRole('menuitem', { name: /^Not following/ })).textContent).toContain('Nothing lights.')
+    expect(screen.getByRole('menuitem', { name: /^Not following/ }).textContent).not.toContain('Shows')
+    expect(screen.getByRole('menuitem', { name: /^Important/ }).textContent).toContain('Lights for new conversations and replies in yours.')
+    expect(screen.getByRole('menuitem', { name: /^All/ }).textContent).toContain('Lights for every message.')
+  })
+
   it('cannot be changed without onChoose', () => {
     render(<FollowSwitch level={undefined} label="Item one" />)
     expect(screen.getByRole('button', { name: /Not following/ }).hasAttribute('disabled')).toBe(true)

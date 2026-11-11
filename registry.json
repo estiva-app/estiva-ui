@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.114.0",
+    "packageVersion": "0.115.0",
     "exports": 253,
     "typeExports": 263,
     "files": null
@@ -4685,10 +4685,10 @@
           "note": "People rather than circles, as `LevelIcon`'s `people`."
         },
         {
-          "name": "offDescription",
-          "takes": "text",
+          "name": "files",
+          "takes": "true/false",
           "required": false,
-          "note": "The line under Not following."
+          "note": "Whether the place lists files (a topic, a space): each level then says what of them it shows."
         },
         {
           "name": "backTo",
