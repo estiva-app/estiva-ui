@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.115.1 — 2026-11-13
+
+**FollowSwitch**'s Not following line no longer says "Nothing lights.": a message that names you still lights a place
+you do not follow, so it now reads "Shows its own conversation. Lights only when someone names you." on a topic or a
+space, and "Lights only when someone names you." on a team's chat (ACT-5; Miky, 13 November).
+
 ## 0.115.0 — 2026-11-11
 
 **FollowSwitch**'s three lines now say what the place shows at each level and what lights its dot: Important reads

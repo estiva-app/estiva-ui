@@ -53,18 +53,20 @@ const LABEL: Record<FollowLevel, string> = { important: 'Important', all: 'All' 
  * dot (ACT-5; the activity indicator prototype Miky approved on 10 November).
  * A place that lists files (a topic, a space) says what of them it shows; a
  * place with none (a team's chat) says only what lights. Important's third
- * part restates the record on what names you on a listed file.
+ * part restates the record on what names you on a listed file. Not following
+ * says a mention still lights: a message that names you lights a place at every
+ * level (`lightsOnPlace` in @estiva-app/conversation; Miky, 13 November).
  *
  * why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/at-important-what-names-you-on-a-listed-file-lights-the-topic.md
  */
 const WORDS: Record<'files' | 'noFiles', Record<'off' | FollowLevel, string>> = {
   files: {
-    off: 'Shows its own conversation. Nothing lights.',
+    off: 'Shows its own conversation. Lights only when someone names you.',
     important: 'Shows its own conversation. Lights for new conversations, replies in yours, and what names you on its files.',
     all: 'Shows its files’ threads too. Lights for all of it.',
   },
   noFiles: {
-    off: 'Nothing lights.',
+    off: 'Lights only when someone names you.',
     important: 'Lights for new conversations and replies in yours.',
     all: 'Lights for every message.',
   },
