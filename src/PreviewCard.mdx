@@ -14,8 +14,8 @@ and — unlike a tooltip — you can move into it, so what it holds can be long,
 can scroll, and can be read at your own pace.
 
 It is a **read**, not a control. Nothing in a preview card may be the only way
-to reach anything: there is no keyboard trigger, so a person who does not use a
-pointer never sees it.
+to reach anything: there is no keyboard trigger of its own, so a person who does
+not use a pointer may never see it.
 
 <Canvas of={PreviewCardStories.Default} />
 
@@ -96,14 +96,18 @@ It does these by itself. Write none of them around it.
 | Closes on a press outside | a click listener on the page | ✓ |
 | Opens after the pointer rests, and stays up while the pointer moves into it | a hover timer |  |
 | Closes on Escape | a key handler |  |
+| Tells `onOpenChange` once per open (`true`) and once per close (`false`), whatever opened it (pointer, focus, a tap), and `false` once if it is unmounted while open. "Seen" is the `false` after a `true`, never the `true` | open state of your own, or a listener on the trigger |  |
 
 ## Keys
 
-There is no keyboard trigger, by design — see above.
+There is no keyboard trigger of its own, by design — see above. Focus that
+lands on something focusable inside the trigger, such as a row's link, does
+open it after the same delay.
 
 | Input | What happens |
 |---|---|
 | pointer rests on the trigger | opens after 350ms |
+| focus on a link or button inside the trigger | opens after 350ms |
 | pointer moves into the card | it stays up, and can be scrolled |
 | pointer leaves both | closes after 200ms |
 | Escape | closes |

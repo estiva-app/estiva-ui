@@ -149,7 +149,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   MenuItem: ['size', 'selected', 'destructive'],
   MenuSub: ['selected'],
   MetaText: ['size'],
-  NavItem: ['active'],
+  NavItem: ['active', 'unreadTone'],
   Person: ['size'],
   ProgressBar: ['variant'],
   Property: ['layout'],
@@ -167,6 +167,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   Toolbar: ['surface'],
   ToolbarButton: ['variant', 'pressed', 'glow'],
   TopBar: ['variant'],
+  UnreadDot: ['tone'],
 }
 
 /** The class props of a part: `className`, and the ones for an inner box. */

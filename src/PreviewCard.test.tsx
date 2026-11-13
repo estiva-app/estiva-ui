@@ -43,6 +43,113 @@ describe('PreviewCard', () => {
     expect(screen.queryByText('The rest of it')).toBeNull()
   })
 
+  it('onOpenChange hears a hover open once and the close once, not on each render while it is open', () => {
+    vi.useFakeTimers()
+    const heard: boolean[] = []
+    const { rerender } = render(
+      <PreviewCard content={<span>The rest of it</span>} onOpenChange={(open) => heard.push(open)}>
+        <span>A row</span>
+      </PreviewCard>,
+    )
+    // The trigger is the wrapper, and Base UI listens there for the mouse arriving and leaving. Fired by hand, because
+    // user-event waits on a clock this test fakes.
+    const trigger = screen.getByText('A row').parentElement as HTMLElement
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.mouseEnter(trigger)
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    rerender(
+      <PreviewCard content={<span>The rest of it, again</span>} onOpenChange={(open) => heard.push(open)}>
+        <span>A row</span>
+      </PreviewCard>,
+    )
+    expect(heard).toEqual([true])
+    fireEvent.mouseLeave(trigger)
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    expect(screen.queryByText('The rest of it, again')).toBeNull()
+    expect(heard).toEqual([true, false])
+  })
+
+  it('onOpenChange hears a card opened by keyboard focus on what the trigger holds', () => {
+    vi.useFakeTimers()
+    const heard: boolean[] = []
+    render(
+      <PreviewCard content={<span>The rest of it</span>} onOpenChange={(open) => heard.push(open)}>
+        <a href="#one">A row</a>
+      </PreviewCard>,
+    )
+    act(() => screen.getByRole('link', { name: 'A row' }).focus())
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    expect(heard).toEqual([true])
+  })
+
+  it('onOpenChange hears one open when the card opened by the pointer is then focused into', () => {
+    vi.useFakeTimers()
+    const heard: boolean[] = []
+    render(
+      <PreviewCard content={<span>The rest of it</span>} onOpenChange={(open) => heard.push(open)}>
+        <a href="#one">A row</a>
+      </PreviewCard>,
+    )
+    const link = screen.getByRole('link', { name: 'A row' })
+    const trigger = link.parentElement as HTMLElement
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    fireEvent.mouseEnter(trigger)
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    act(() => link.focus())
+    act(() => {
+      vi.advanceTimersByTime(400)
+    })
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    expect(heard).toEqual([true])
+  })
+
+  it('onOpenChange hears the close once when the card is unmounted while open, so an open is never left unanswered', () => {
+    const heard: boolean[] = []
+    const { unmount } = render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap onOpenChange={(open) => heard.push(open)}>
+        <button type="button">A dot</button>
+      </PreviewCard>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'A dot' }))
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    unmount()
+    expect(heard).toEqual([true, false])
+  })
+
+  it('onOpenChange hears nothing when a card that never opened is unmounted', () => {
+    const heard: boolean[] = []
+    const { unmount } = render(
+      <PreviewCard content={<span>The rest of it</span>} onOpenChange={(open) => heard.push(open)}>
+        <span>A row</span>
+      </PreviewCard>,
+    )
+    unmount()
+    expect(heard).toEqual([])
+  })
+
+  it('with openOnTap, onOpenChange hears each tap: open, then closed', () => {
+    const heard: boolean[] = []
+    render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap onOpenChange={(open) => heard.push(open)}>
+        <button type="button">A dot</button>
+      </PreviewCard>,
+    )
+    const dot = screen.getByRole('button', { name: 'A dot' })
+    fireEvent.click(dot)
+    fireEvent.click(dot)
+    expect(heard).toEqual([true, false])
+  })
+
   it('with openOnTap, a tap on a touch screen opens the card and a second tap closes it', async () => {
     const user = userEvent.setup()
     render(

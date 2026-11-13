@@ -19,6 +19,11 @@ when one replaces the other.
   The 24px slot keeps the two the same size.
 - In a sidebar row, pass **NavItem** `unread` rather than placing it: the row
   draws it, and brightens its words.
+- `tone="reaction"` for a reaction to you. A row with both something new and
+  a reaction draws one blue dot, never two: the reaction's dot only when
+  nothing blue is there. Choosing the tone is yours.
+
+<Canvas of={UnreadDotStories.Reaction} />
 
 ## When not
 
@@ -52,9 +57,10 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | The 6px disc in a 24px slot | a sized box around a round div |  |
-| `data-unread`, the attribute tests and photo runs select on | a marker of your own |  |
+| `data-unread`, the attribute tests and photo runs select on, and `data-tone` (`blue` or `reaction`) beside it | a marker of your own |  |
 | Keeps its size in a tight row | `shrink-0` |  |
 | `quiet`: the same 6px as a ring, not marked `data-unread`, for a dot that is always there and has nothing new | a bordered div of your own |  |
+| `tone="reaction"`: a reaction to you, in the warning colour | a colour class on the dot |  |
 
 ## Props
 

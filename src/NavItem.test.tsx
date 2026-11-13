@@ -6,7 +6,7 @@
  * The reveal on hover and the slide are Chrome's to show.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppProvider } from './AppProvider'
 import { NavItem } from './NavItem'
@@ -41,6 +41,32 @@ describe('NavItem with a preview', () => {
     // The tooltip's 300ms is shorter than the card's 350ms: had it been drawn, it would be up by now.
     expect(await screen.findByText('What is new')).toBeTruthy()
     expect(screen.queryByText('About item one')).toBeNull()
+  })
+
+  it('onPreviewOpenChange hears the card open while the row is pointed at, and close when the pointer leaves', () => {
+    vi.useFakeTimers()
+    try {
+      const heard: boolean[] = []
+      const { container } = render(<NavItem href="#one" label="Item one" unread preview={<span>What is new</span>} onPreviewOpenChange={(open) => heard.push(open)} />)
+      // The card's trigger wraps the row; Base UI listens on it for the mouse. Fired by hand under fake timers (the
+      // tests above use real ones), so the 350ms and 200ms are stepped rather than waited for.
+      const trigger = container.firstElementChild as HTMLElement
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+      fireEvent.mouseEnter(trigger)
+      act(() => {
+        vi.advanceTimersByTime(400)
+      })
+      expect(screen.getByText('What is new')).toBeTruthy()
+      expect(heard).toEqual([true])
+      fireEvent.mouseLeave(trigger)
+      act(() => {
+        vi.advanceTimersByTime(300)
+      })
+      expect(screen.queryByText('What is new')).toBeNull()
+      expect(heard).toEqual([true, false])
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('a plain row with a preview opens it too', async () => {
@@ -141,6 +167,25 @@ describe('NavItem unread', () => {
     )
     expect(container.querySelector('[data-unread]')!.parentElement!.className.split(' ')).toContain('-mr-1')
     expect(container.querySelector('[data-urgent]')!.parentElement!.className.split(' ')).toContain('-mr-1')
+  })
+
+  it('unreadTone reaction draws the reaction’s dot; the default stays blue', () => {
+    const { container } = render(
+      <>
+        <NavItem href="#" label="Item one" unread />
+        <NavItem href="#" label="Item two" unread unreadTone="reaction" />
+      </>,
+    )
+    const dots = container.querySelectorAll('[data-unread]')
+    expect(dots.length).toBe(2)
+    expect(dots[0].getAttribute('data-tone')).toBe('blue')
+    expect(dots[1].getAttribute('data-tone')).toBe('reaction')
+  })
+
+  it('urgent still wins over a reaction’s dot: the badge, and no dot', () => {
+    const { container } = render(<NavItem href="#" label="Item one" unread urgent unreadTone="reaction" />)
+    expect(container.querySelector('[data-urgent]')).not.toBeNull()
+    expect(container.querySelector('[data-unread]')).toBeNull()
   })
 
   it('urgent without unread draws nothing', () => {

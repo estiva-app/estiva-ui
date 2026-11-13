@@ -101,6 +101,29 @@ export const Unread: Story = {
   args: { icon: placeholder, unread: true },
 }
 
+/** `unreadTone="reaction"`: the dot for a reaction to you, in the warning colour. */
+export const UnreadReaction: Story = {
+  args: { icon: placeholder, unread: true, unreadTone: 'reaction' },
+}
+
+/**
+ * Something new and a reaction on one row: it draws one blue dot, never two, and the reaction's dot only when nothing
+ * blue is there. The caller picks the tone; the card can still list both.
+ */
+export const UnreadBlueAndReaction: Story = {
+  args: {
+    icon: placeholder,
+    unread: true,
+    unreadTone: 'blue',
+    preview: (
+      <div className="flex flex-col gap-1 p-2 text-caption text-text-secondary">
+        <span>Line one: the blue kind of new.</span>
+        <span>Line two: a reaction to you.</span>
+      </div>
+    ),
+  },
+}
+
 /** Urgent and unread: the warning badge in the dot's place. */
 export const UnreadUrgent: Story = {
   args: { icon: placeholder, unread: true, urgent: true },

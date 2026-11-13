@@ -11,6 +11,9 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
+/** `tone="reaction"`: a reaction to you, drawn in the warning colour. */
+export const Reaction: Story = { args: { tone: 'reaction' } }
+
 /** Nothing new: the ring a dot that is always there draws, so the slot does not empty. */
 export const Quiet: Story = { args: { quiet: true } }
 
