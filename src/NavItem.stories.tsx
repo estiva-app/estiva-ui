@@ -101,6 +101,29 @@ export const Unread: Story = {
   args: { icon: placeholder, unread: true },
 }
 
+/** `unreadTone="orange"`: the dot in the warning colour, for a second kind of new, such as a reaction to what you wrote. */
+export const UnreadOrange: Story = {
+  args: { icon: placeholder, unread: true, unreadTone: 'orange' },
+}
+
+/**
+ * Both kinds of new on one row: it draws one blue dot, never two, and orange only when nothing blue is there. The
+ * caller picks the tone; the card can still list both.
+ */
+export const UnreadBlueAndOrange: Story = {
+  args: {
+    icon: placeholder,
+    unread: true,
+    unreadTone: 'blue',
+    preview: (
+      <div className="flex flex-col gap-1 p-2 text-caption text-text-secondary">
+        <span>Line one: the blue kind of new.</span>
+        <span>Line two: the orange kind of new.</span>
+      </div>
+    ),
+  },
+}
+
 /** Urgent and unread: the warning badge in the dot's place. */
 export const UnreadUrgent: Story = {
   args: { icon: placeholder, unread: true, urgent: true },

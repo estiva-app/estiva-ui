@@ -53,6 +53,12 @@ export interface PreviewCardProps {
    * hover-only, because a tap on a row opens the row.
    */
   openOnTap?: boolean
+  /**
+   * Called once each time the card opens (`true`) and once each time it closes (`false`), however it got there: a
+   * pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside. Never twice in a row with the
+   * same value, and never on a render, so a caller can treat each `true` as "the card was seen".
+   */
+  onOpenChange?: (open: boolean) => void
 }
 
 /** The card's own numbers: 12px from the trigger, 8px clear of every screen
@@ -72,10 +78,19 @@ const OPEN_DELAY = 350
  *  here the card can be reached, so it can. */
 const CLOSE_DELAY = 200
 
-export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false }: PreviewCardProps) {
+export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false, onOpenChange: onOpenChangeProp }: PreviewCardProps) {
   // Held here always, so turning `openOnTap` on or off never switches the card between controlled and not; without it
   // every change is Base UI's own (hover, focus, Escape, a press outside), as before.
-  const [open, setOpen] = useState(false)
+  const [open, setOpenState] = useState(false)
+  // What the caller was last told, so it hears each real open and close once: Base UI may report the same state again,
+  // and a tap may set what is already there.
+  const told = useRef(false)
+  const setOpen = (next: boolean) => {
+    setOpenState(next)
+    if (told.current === next) return
+    told.current = next
+    onOpenChangeProp?.(next)
+  }
   // The press the next click belongs to: its pointer type, and whether the card was open when it went down. A tap
   // focuses a button inside, and focus may open the card before the click, so the click sets the opposite of what was
   // there before the press, not of what focus just did. The click uses it up.

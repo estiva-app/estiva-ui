@@ -82,7 +82,7 @@ export { SkeletonBar, SkeletonConversation, SkeletonList, SkeletonRow } from './
 export { Breadcrumb, type BreadcrumbProps, type Crumb } from './Breadcrumb'
 export { EnterHint, Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSeparator, MenuSub, type MenuItemProps, type MenuPanelProps, type MenuProps, type MenuSubProps } from './Menu'
 export { NavItem, type NavItemProps } from './NavItem'
-export { UnreadDot } from './UnreadDot'
+export { UnreadDot, type UnreadDotTone } from './UnreadDot'
 export { NAV_TREE_PENDING_MS, NavTree, NavTreeSection, type NavTreeGroup, type NavTreeNode, type NavTreeProps, type NavTreeSectionProps } from './NavTree'
 export { Popover, type PopoverProps } from './Popover'
 export { SuggestionMenu, type SuggestionMenuHandle, type SuggestionMenuProps, type SuggestionMenuRow, type SuggestionMenuSection } from './SuggestionMenu'

@@ -66,7 +66,7 @@ fork freely, owe nothing back, mention it on the package's ticket.
 |---|---|
 | A list of verbs from a trigger | **Menu** — Escape, outside-click and the arrow keys come with it |
 | A panel of *content* from a trigger — a field, a toolbar, a small form | **Popover** — the menu's surface without a menu's keyboard |
-| More of a thing on hover | **PreviewCard** — unlike a tooltip, you can point at it; on a sidebar row, **NavItem** `preview` opens it; `openOnTap` when nothing else on the trigger answers a tap |
+| More of a thing on hover | **PreviewCard** — unlike a tooltip, you can point at it; on a sidebar row, **NavItem** `preview` opens it; `openOnTap` when nothing else on the trigger answers a tap; `onOpenChange` to hear it open and close |
 | A hint on hover or on keyboard focus | **Tooltip** / **WithTooltip** — one `TooltipProvider` at the app root shares the delay |
 | A strip of controls that act on one thing | **Toolbar** — one Tab stop for the row, arrow keys along it |
 | Reactions to choose from | **ReactionPicker** — the row; **Reaction** is the pill it produces |
@@ -120,7 +120,7 @@ The same conversation in every app; only its colours are each app's.
 | A box that can hold more than fits — a list that grows with its data counts, even when today's data fits | **ScrollArea** — its bar is drawn over the content and takes no width |
 | Text that can run long above things the reader needs, cut behind a fade | **ShowMore** — measures; what fits has no button |
 | A status, a count or a category, in a small pill | **Chip** — six colour types; the colour is the message, the label makes it legible |
-| Something new on a row or a card, no count | **UnreadDot** — the 6px dot in a 24px slot; in a sidebar row, **NavItem** `unread` draws it; `quiet` for a dot that is always there with nothing new |
+| Something new on a row or a card, no count | **UnreadDot** — the 6px dot in a 24px slot; in a sidebar row, **NavItem** `unread` draws it; `quiet` for a dot that is always there with nothing new; `tone="orange"` for a second kind of new (NavItem `unreadTone`) |
 | One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed, `onPress` when a press opens it |
 | A section heading, chevron, hover actions, a count beside the title | **SectionHeader** |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |

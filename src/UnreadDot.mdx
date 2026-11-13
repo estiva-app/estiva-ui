@@ -19,6 +19,11 @@ when one replaces the other.
   The 24px slot keeps the two the same size.
 - In a sidebar row, pass **NavItem** `unread` rather than placing it: the row
   draws it, and brightens its words.
+- `tone="orange"` for a second kind of new, such as a reaction to what you
+  wrote. A row with both kinds draws one blue dot, never two: orange only when
+  nothing blue is there. Choosing the tone is yours.
+
+<Canvas of={UnreadDotStories.Orange} />
 
 ## When not
 
@@ -55,6 +60,7 @@ It does these by itself. Write none of them around it.
 | `data-unread`, the attribute tests and photo runs select on | a marker of your own |  |
 | Keeps its size in a tight row | `shrink-0` |  |
 | `quiet`: the same 6px as a ring, not marked `data-unread`, for a dot that is always there and has nothing new | a bordered div of your own |  |
+| `tone="orange"`: the disc in the warning colour, marked `data-tone="orange"` beside `data-unread` | a colour class on the dot, a marker of your own |  |
 
 ## Props
 

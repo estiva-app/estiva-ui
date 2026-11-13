@@ -10,7 +10,7 @@ import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { PreviewCard } from './PreviewCard'
 import type { SectionAction } from './SectionHeader'
-import { UnreadDot } from './UnreadDot'
+import { UnreadDot, type UnreadDotTone } from './UnreadDot'
 import { WithTooltip } from './Tooltip'
 
 /**
@@ -50,7 +50,8 @@ import { WithTooltip } from './Tooltip'
  *
  * `unread` brightens the row's words and icon, sets the label in medium, and
  * draws the `UnreadDot` at the right; `urgent` with it draws the warning badge
- * in the dot's place (Katerina, 2 October: Peek's row, moved in). The ⋮ lands
+ * in the dot's place (Katerina, 2 October: Peek's row, moved in); `unreadTone`
+ * colours the dot, orange for a reaction (ACT-7). The ⋮ lands
  * on whatever is in that place, and with nothing there it takes no room until
  * the row is pointed at, so a label at rest keeps the row's whole width.
  *
@@ -81,6 +82,8 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   unread?: boolean
   /** With `unread`: the warning badge in the dot's place. */
   urgent?: boolean
+  /** With `unread`: the dot's colour, `UnreadDot`'s `tone`. Default blue; `urgent` still draws the badge instead. */
+  unreadTone?: UnreadDotTone
   /**
    * More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it —
    * such as a short list of what is new there. Unlike `tooltip`, it holds content the pointer can move into. The card
@@ -88,6 +91,8 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
    * preview the label draws no `tooltip`: one surface per hover. Absent, no card.
    */
   preview?: ReactNode
+  /** With `preview`: told each time the card opens (`true`) and closes (`false`), once each — `PreviewCard`'s `onOpenChange`. */
+  onPreviewOpenChange?: (open: boolean) => void
   /** Rows under this one, folding under it: `NavItem`s. While the row is pointed at or focused, its icon becomes the arrow. */
   children?: ReactNode
   /** With `children`: open unless told otherwise. */
@@ -125,7 +130,9 @@ export function NavItem({
   tooltip,
   unread = false,
   urgent = false,
+  unreadTone = 'blue',
   preview,
+  onPreviewOpenChange,
   children,
   defaultOpen = true,
   open: openProp,
@@ -151,7 +158,7 @@ export function NavItem({
   const buttons = (menu != null ? 1 : 0) + (action ? 1 : 0)
   const besides = buttons > 0 || hasRows
   // What sits at the right at rest, after the count: the dot, or the badge.
-  const mark = unread ? (urgent ? <UrgentMark /> : <UnreadDot />) : null
+  const mark = unread ? (urgent ? <UrgentMark /> : <UnreadDot tone={unreadTone} />) : null
   // Under the ⋮ while it shows: the count and the mark step aside for it.
   // "While it shows" is the pointer on the row or the keyboard in it
   // (`:focus-visible`), never any focus: a clicked row keeps its focus, and
@@ -249,7 +256,7 @@ export function NavItem({
   // The card's lines are rows with their own padding, so the card keeps only a 4px edge (the content's rhythm is the caller's).
   const card = (trigger: ReactNode) =>
     preview == null ? trigger : (
-      <PreviewCard content={preview} contentClassName="gap-0.5 p-1" wrapperClassName="block w-full shrink-0">
+      <PreviewCard content={preview} contentClassName="gap-0.5 p-1" wrapperClassName="block w-full shrink-0" onOpenChange={onPreviewOpenChange}>
         {trigger}
       </PreviewCard>
     )

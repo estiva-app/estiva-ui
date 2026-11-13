@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.115.1",
+    "packageVersion": "0.116.0",
     "exports": 253,
-    "typeExports": 263,
+    "typeExports": 264,
     "files": null
   },
   "storybook": {
@@ -7661,10 +7661,22 @@
           "note": "With `unread`: the warning badge in the dot's place."
         },
         {
+          "name": "unreadTone",
+          "takes": "UnreadDotTone",
+          "required": false,
+          "note": "With `unread`: the dot's colour, `UnreadDot`'s `tone`."
+        },
+        {
           "name": "preview",
           "takes": "anything",
           "required": false,
           "note": "More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it — such as a short list of what is new there."
+        },
+        {
+          "name": "onPreviewOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": "With `preview`: told each time the card opens (`true`) and closes (`false`), once each — `PreviewCard`'s `onOpenChange`."
         },
         {
           "name": "children",
@@ -8738,6 +8750,12 @@
           "takes": "true/false",
           "required": false,
           "note": "A tap on the trigger opens the card, and a second tap closes it, for a touch screen, where nothing hovers (ACT-4: the dot beside a page's title)."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": "Called once each time the card opens (`true`) and once each time it closes (`false`), however it got there: a pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside."
         }
       ],
       "variants": [
@@ -12373,9 +12391,23 @@
           "takes": "true/false",
           "required": false,
           "note": null
+        },
+        {
+          "name": "tone",
+          "takes": "blue | orange",
+          "required": false,
+          "note": null
         }
       ],
-      "variants": [],
+      "variants": [
+        {
+          "prop": "tone",
+          "values": [
+            "blue",
+            "orange"
+          ]
+        }
+      ],
       "ownsBehaviours": [],
       "status": "stable",
       "migrationStage": null,

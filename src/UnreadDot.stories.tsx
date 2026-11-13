@@ -11,6 +11,9 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {}
 
+/** `tone="orange"`: the warning colour, for a second kind of new, such as a reaction to what you wrote. */
+export const Orange: Story = { args: { tone: 'orange' } }
+
 /** Nothing new: the ring a dot that is always there draws, so the slot does not empty. */
 export const Quiet: Story = { args: { quiet: true } }
 

@@ -63,7 +63,9 @@ count — a muted mono number whose tooltip says what it counts.
   `preview`: it opens the **PreviewCard** while the row itself is pointed at,
   the ⋮ included, and never while a row under it is. Unlike `tooltip`, the
   pointer can move into it. A screen with no hover never shows it either, so
-  the row must still make sense without it.
+  the row must still make sense without it. `onPreviewOpenChange` is told
+  once each time the card opens (`true`) and closes (`false`), for an app
+  that counts what the card listed as seen.
 
 <Canvas of={NavItemStories.RowPreview} />
 
@@ -73,6 +75,14 @@ count — a muted mono number whose tooltip says what it counts.
   in the row's own accessible name too: a dot reads as nothing.
 
 <Canvas of={NavItemStories.Unread} />
+
+- `unreadTone="orange"` draws the dot orange, for a second kind of new such
+  as a reaction to what you wrote; `urgent` still draws the badge instead. A
+  row with both kinds passes blue: one blue dot, and the card lists both.
+
+<Canvas of={NavItemStories.UnreadOrange} />
+
+<Canvas of={NavItemStories.UnreadBlueAndOrange} />
 
 - A row the app opens its own way, with what it already knows — beside the
   list, in place — is `onPlainClick`: it runs on a plain click only, and the
@@ -143,7 +153,7 @@ It does these by itself. Write none of them around it.
 | Turns its icon into the arrow that folds `children` while pointed at or focused, and slides them | a positioned `IconButton` over the icon, open state, `group-hover` reveals, an indented box |  |
 | Tells assistive technology whether its rows are open | `aria-expanded`, `aria-controls` |  |
 | Shows `hint` only while pointed at or focused, and makes the label give way | a positioned chip over the row, `group-hover` reveals |  |
-| Draws the dot or the badge for `unread` and `urgent`, and brightens the row | an **UnreadDot** placed by hand, a weight or colour passed in |  |
+| Draws the dot or the badge for `unread` and `urgent`, in the colour `unreadTone` names, and brightens the row | an **UnreadDot** placed by hand, a weight or colour passed in |  |
 | Tells a plain click from one for a new tab, for `onPlainClick` | `event.button`, `event.metaKey`, `event.ctrlKey`… read by hand in an `onClick` |  |
 
 ## Keys

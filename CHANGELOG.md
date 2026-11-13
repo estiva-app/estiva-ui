@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.116.0 — 2026-11-13
+
+**UnreadDot** takes `tone`: `'orange'` fills the disc in the warning colour (the urgent mark's) and marks it
+`data-tone="orange"` beside `data-unread`; `'blue'`, the default, is the dot as before. **NavItem** takes `unreadTone`,
+passed to its dot (`urgent` still draws the badge instead), and `onPreviewOpenChange`, told when its `preview` card
+opens and closes. **PreviewCard** takes `onOpenChange`: once per open and once per close, whether a pointer, keyboard
+focus or a tap opened it. Peek turns a sidebar row's dot orange for a reaction to your message, blue winning when a row
+has both, and counts the reactions the card listed as seen when it opens (ACT-7; the activity indicator prototype Miky
+approved on 10 November). The PreviewCard page now says focus on a link inside the trigger opens it too, which was
+already so. Additive: nothing changes for a caller that passes none of them.
+
 ## 0.115.1 — 2026-11-13
 
 **FollowSwitch**'s Not following line no longer says "Nothing lights.": a message that names you still lights a place
