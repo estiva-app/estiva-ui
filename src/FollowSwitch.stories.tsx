@@ -23,8 +23,8 @@ export const NotFollowing: Story = { args: { level: undefined } }
 /** Chose against a group's default: "Back to Group one’s default" is offered under the levels. */
 export const AgainstADefault: Story = { args: { level: 'all', backTo: 'Group one' } }
 
-/** A group's own place: people rather than circles. */
-export const People: Story = { args: { level: 'important', people: true } }
+/** A group's own place: people rather than circles. With no files to list, each level says only what lights. */
+export const People: Story = { args: { level: 'important', people: true, files: false } }
 
 /** No `onChoose`: it shows the level and cannot be changed. */
 export const ReadOnly: Story = { args: { level: undefined, onChoose: undefined } }
