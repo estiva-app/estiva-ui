@@ -7664,7 +7664,7 @@
           "name": "unreadTone",
           "takes": "UnreadDotTone",
           "required": false,
-          "note": "With `unread`: the dot's colour, `UnreadDot`'s `tone`."
+          "note": "With `unread`: which kind of new the dot is, `UnreadDot`'s `tone`."
         },
         {
           "name": "preview",
@@ -8755,7 +8755,7 @@
           "name": "onOpenChange",
           "takes": "a handler",
           "required": false,
-          "note": "Called once each time the card opens (`true`) and once each time it closes (`false`), however it got there: a pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside."
+          "note": "Called once each time the card opens (`true`) and once each time it closes (`false`), however it got there: a pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside, or the card unmounted while open."
         }
       ],
       "variants": [
@@ -12394,7 +12394,7 @@
         },
         {
           "name": "tone",
-          "takes": "blue | orange",
+          "takes": "blue | reaction",
           "required": false,
           "note": null
         }
@@ -12404,7 +12404,7 @@
           "prop": "tone",
           "values": [
             "blue",
-            "orange"
+            "reaction"
           ]
         }
       ],

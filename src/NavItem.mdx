@@ -64,8 +64,9 @@ count — a muted mono number whose tooltip says what it counts.
   the ⋮ included, and never while a row under it is. Unlike `tooltip`, the
   pointer can move into it. A screen with no hover never shows it either, so
   the row must still make sense without it. `onPreviewOpenChange` is told
-  once each time the card opens (`true`) and closes (`false`), for an app
-  that counts what the card listed as seen.
+  once each time the card opens (`true`) and closes (`false`). For an app
+  that counts what the card listed as seen, the seen moment is the `false`
+  that follows a `true`: leaving the card after it was open, never the `true`.
 
 <Canvas of={NavItemStories.RowPreview} />
 
@@ -76,13 +77,14 @@ count — a muted mono number whose tooltip says what it counts.
 
 <Canvas of={NavItemStories.Unread} />
 
-- `unreadTone="orange"` draws the dot orange, for a second kind of new such
-  as a reaction to what you wrote; `urgent` still draws the badge instead. A
-  row with both kinds passes blue: one blue dot, and the card lists both.
+- `unreadTone="reaction"` draws the dot for a reaction to you, in the
+  warning colour; `urgent` still draws the badge instead. A row with both
+  something new and a reaction passes blue: one blue dot, and the card lists
+  both.
 
-<Canvas of={NavItemStories.UnreadOrange} />
+<Canvas of={NavItemStories.UnreadReaction} />
 
-<Canvas of={NavItemStories.UnreadBlueAndOrange} />
+<Canvas of={NavItemStories.UnreadBlueAndReaction} />
 
 - A row the app opens its own way, with what it already knows — beside the
   list, in place — is `onPlainClick`: it runs on a plain click only, and the

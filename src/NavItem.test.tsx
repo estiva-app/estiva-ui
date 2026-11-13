@@ -169,21 +169,21 @@ describe('NavItem unread', () => {
     expect(container.querySelector('[data-urgent]')!.parentElement!.className.split(' ')).toContain('-mr-1')
   })
 
-  it('unreadTone orange draws the orange dot; the default stays blue', () => {
+  it('unreadTone reaction draws the reaction’s dot; the default stays blue', () => {
     const { container } = render(
       <>
         <NavItem href="#" label="Item one" unread />
-        <NavItem href="#" label="Item two" unread unreadTone="orange" />
+        <NavItem href="#" label="Item two" unread unreadTone="reaction" />
       </>,
     )
     const dots = container.querySelectorAll('[data-unread]')
     expect(dots.length).toBe(2)
-    expect(dots[0].hasAttribute('data-tone')).toBe(false)
-    expect(dots[1].getAttribute('data-tone')).toBe('orange')
+    expect(dots[0].getAttribute('data-tone')).toBe('blue')
+    expect(dots[1].getAttribute('data-tone')).toBe('reaction')
   })
 
-  it('urgent still wins over an orange dot: the badge, and no dot', () => {
-    const { container } = render(<NavItem href="#" label="Item one" unread urgent unreadTone="orange" />)
+  it('urgent still wins over a reaction’s dot: the badge, and no dot', () => {
+    const { container } = render(<NavItem href="#" label="Item one" unread urgent unreadTone="reaction" />)
     expect(container.querySelector('[data-urgent]')).not.toBeNull()
     expect(container.querySelector('[data-unread]')).toBeNull()
   })

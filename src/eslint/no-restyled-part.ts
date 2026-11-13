@@ -149,7 +149,7 @@ export const PART_LOOK_PROPS: Record<string, string[]> = {
   MenuItem: ['size', 'selected', 'destructive'],
   MenuSub: ['selected'],
   MetaText: ['size'],
-  NavItem: ['active'],
+  NavItem: ['active', 'unreadTone'],
   Person: ['size'],
   ProgressBar: ['variant'],
   Property: ['layout'],

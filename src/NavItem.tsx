@@ -51,7 +51,7 @@ import { WithTooltip } from './Tooltip'
  * `unread` brightens the row's words and icon, sets the label in medium, and
  * draws the `UnreadDot` at the right; `urgent` with it draws the warning badge
  * in the dot's place (Katerina, 2 October: Peek's row, moved in); `unreadTone`
- * colours the dot, orange for a reaction (ACT-7). The ⋮ lands
+ * says which kind of new the dot is, `reaction` for a reaction to you (ACT-7). The ⋮ lands
  * on whatever is in that place, and with nothing there it takes no room until
  * the row is pointed at, so a label at rest keeps the row's whole width.
  *
@@ -82,7 +82,7 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
   unread?: boolean
   /** With `unread`: the warning badge in the dot's place. */
   urgent?: boolean
-  /** With `unread`: the dot's colour, `UnreadDot`'s `tone`. Default blue; `urgent` still draws the badge instead. */
+  /** With `unread`: which kind of new the dot is, `UnreadDot`'s `tone`. Default blue; `urgent` still draws the badge instead. */
   unreadTone?: UnreadDotTone
   /**
    * More about the row, in the package's `PreviewCard` while the row itself is pointed at — never the rows under it —
@@ -91,7 +91,11 @@ export interface NavItemProps extends Omit<ComponentPropsWithoutRef<'a'>, 'href'
    * preview the label draws no `tooltip`: one surface per hover. Absent, no card.
    */
   preview?: ReactNode
-  /** With `preview`: told each time the card opens (`true`) and closes (`false`), once each — `PreviewCard`'s `onOpenChange`. */
+  /**
+   * With `preview`: told each time the card opens (`true`) and closes (`false`), once each — `PreviewCard`'s
+   * `onOpenChange`. The moment the card's content counts as seen is the `false` that follows a `true`: leaving the
+   * card after it was open, never the `true`.
+   */
   onPreviewOpenChange?: (open: boolean) => void
   /** Rows under this one, folding under it: `NavItem`s. While the row is pointed at or focused, its icon becomes the arrow. */
   children?: ReactNode

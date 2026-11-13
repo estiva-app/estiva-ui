@@ -113,6 +113,30 @@ describe('PreviewCard', () => {
     expect(heard).toEqual([true])
   })
 
+  it('onOpenChange hears the close once when the card is unmounted while open, so an open is never left unanswered', () => {
+    const heard: boolean[] = []
+    const { unmount } = render(
+      <PreviewCard content={<span>The rest of it</span>} openOnTap onOpenChange={(open) => heard.push(open)}>
+        <button type="button">A dot</button>
+      </PreviewCard>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'A dot' }))
+    expect(screen.getByText('The rest of it')).toBeTruthy()
+    unmount()
+    expect(heard).toEqual([true, false])
+  })
+
+  it('onOpenChange hears nothing when a card that never opened is unmounted', () => {
+    const heard: boolean[] = []
+    const { unmount } = render(
+      <PreviewCard content={<span>The rest of it</span>} onOpenChange={(open) => heard.push(open)}>
+        <span>A row</span>
+      </PreviewCard>,
+    )
+    unmount()
+    expect(heard).toEqual([])
+  })
+
   it('with openOnTap, onOpenChange hears each tap: open, then closed', () => {
     const heard: boolean[] = []
     render(

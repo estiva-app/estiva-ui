@@ -101,16 +101,16 @@ export const Unread: Story = {
   args: { icon: placeholder, unread: true },
 }
 
-/** `unreadTone="orange"`: the dot in the warning colour, for a second kind of new, such as a reaction to what you wrote. */
-export const UnreadOrange: Story = {
-  args: { icon: placeholder, unread: true, unreadTone: 'orange' },
+/** `unreadTone="reaction"`: the dot for a reaction to you, in the warning colour. */
+export const UnreadReaction: Story = {
+  args: { icon: placeholder, unread: true, unreadTone: 'reaction' },
 }
 
 /**
- * Both kinds of new on one row: it draws one blue dot, never two, and orange only when nothing blue is there. The
- * caller picks the tone; the card can still list both.
+ * Something new and a reaction on one row: it draws one blue dot, never two, and the reaction's dot only when nothing
+ * blue is there. The caller picks the tone; the card can still list both.
  */
-export const UnreadBlueAndOrange: Story = {
+export const UnreadBlueAndReaction: Story = {
   args: {
     icon: placeholder,
     unread: true,
@@ -118,7 +118,7 @@ export const UnreadBlueAndOrange: Story = {
     preview: (
       <div className="flex flex-col gap-1 p-2 text-caption text-text-secondary">
         <span>Line one: the blue kind of new.</span>
-        <span>Line two: the orange kind of new.</span>
+        <span>Line two: a reaction to you.</span>
       </div>
     ),
   },

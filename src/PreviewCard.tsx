@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { PreviewCard as BasePreviewCard } from '@base-ui/react/preview-card'
 import { cn } from './cn'
 import { ScrollArea } from './ScrollArea'
@@ -55,8 +55,10 @@ export interface PreviewCardProps {
   openOnTap?: boolean
   /**
    * Called once each time the card opens (`true`) and once each time it closes (`false`), however it got there: a
-   * pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside. Never twice in a row with the
-   * same value, and never on a render, so a caller can treat each `true` as "the card was seen".
+   * pointer resting, keyboard focus, a tap with `openOnTap`, Escape, a press outside, or the card unmounted while
+   * open. Never twice in a row with the same value, and never on a render. For a caller that counts what the card
+   * held as seen, the seen moment is the `false` that follows a `true` — leaving the card after it was open — never
+   * the `true`.
    */
   onOpenChange?: (open: boolean) => void
 }
@@ -81,16 +83,19 @@ const CLOSE_DELAY = 200
 export function PreviewCard({ content, children, side = 'right', delay = OPEN_DELAY, closeDelay = CLOSE_DELAY, className, contentClassName, wrapperClassName, openOnTap = false, onOpenChange: onOpenChangeProp }: PreviewCardProps) {
   // Held here always, so turning `openOnTap` on or off never switches the card between controlled and not; without it
   // every change is Base UI's own (hover, focus, Escape, a press outside), as before.
-  const [open, setOpenState] = useState(false)
-  // What the caller was last told, so it hears each real open and close once: Base UI may report the same state again,
-  // and a tap may set what is already there.
-  const told = useRef(false)
-  const setOpen = (next: boolean) => {
-    setOpenState(next)
-    if (told.current === next) return
-    told.current = next
-    onOpenChangeProp?.(next)
-  }
+  const [open, setOpen] = useState(false)
+  // The caller hears the open state itself change, never a report of it: Base UI may report open again when focus
+  // lands in a card the pointer opened, and a tap may set what is already there, and neither changes `open`. The
+  // cleanup is the close, and it runs once whether the card closes or is unmounted while open.
+  const tell = useRef(onOpenChangeProp)
+  useEffect(() => {
+    tell.current = onOpenChangeProp
+  })
+  useEffect(() => {
+    if (!open) return
+    tell.current?.(true)
+    return () => tell.current?.(false)
+  }, [open])
   // The press the next click belongs to: its pointer type, and whether the card was open when it went down. A tap
   // focuses a button inside, and focus may open the card before the click, so the click sets the opposite of what was
   // there before the press, not of what focus just did. The click uses it up.

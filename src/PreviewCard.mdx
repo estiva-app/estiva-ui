@@ -96,7 +96,7 @@ It does these by itself. Write none of them around it.
 | Closes on a press outside | a click listener on the page | ✓ |
 | Opens after the pointer rests, and stays up while the pointer moves into it | a hover timer |  |
 | Closes on Escape | a key handler |  |
-| Tells `onOpenChange` once per open and once per close, whatever opened it (pointer, focus, a tap) | open state of your own, or a listener on the trigger |  |
+| Tells `onOpenChange` once per open (`true`) and once per close (`false`), whatever opened it (pointer, focus, a tap), and `false` once if it is unmounted while open. "Seen" is the `false` after a `true`, never the `true` | open state of your own, or a listener on the trigger |  |
 
 ## Keys
 
