@@ -48,7 +48,7 @@ export const Items: Story = {
 
 /** Rows of two lines: the icon beside the first line, a row with a `description` by default (Katerina, 16 November);
  *  `leadingAt="center"` keeps it centred on the whole row, and a row whose `children` run to two lines passes
- *  `leadingAt="first-line"`. */
+ *  `leadingAt="top"`. */
 export const TwoLines: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
@@ -59,7 +59,7 @@ export const TwoLines: Story = {
         <MenuItem label="Not following" description="You are only notified when someone names you." leading={icon(IconBellOff)} leadingAt="center" onClick={() => {}} />
       </MenuSection>
       <MenuSeparator />
-      <MenuItem leading={icon(IconCopy)} leadingAt="first-line" onClick={() => {}}>
+      <MenuItem leading={icon(IconCopy)} leadingAt="top" onClick={() => {}}>
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-body-2 text-text-primary">Rows of its own</span>
           <span className="truncate text-caption text-text-secondary">Its children run to a second line</span>

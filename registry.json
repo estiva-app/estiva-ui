@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.116.0",
+    "packageVersion": "0.117.0",
     "exports": 253,
     "typeExports": 264,
     "files": null
@@ -7081,7 +7081,7 @@
         },
         {
           "name": "leadingAt",
-          "takes": "center | first-line",
+          "takes": "center | top",
           "required": false,
           "note": "Where `leading` sits on a row of two lines: beside the first line, or centred on the whole row."
         },
@@ -7140,7 +7140,7 @@
           "prop": "leadingAt",
           "values": [
             "center",
-            "first-line"
+            "top"
           ]
         }
       ],

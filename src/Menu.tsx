@@ -363,9 +363,9 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
    * Where `leading` sits on a row of two lines: beside the first line, or centred on the whole row. Default: beside the
    * first line on a default-size row with a `description` (Katerina, 16 November: an icon centred between two lines
    * belongs to neither); centred otherwise, as a tall row's face is. A row whose `children` run to two lines passes
-   * `first-line`.
+   * `top`.
    */
-  leadingAt?: 'center' | 'first-line'
+  leadingAt?: 'center' | 'top'
   /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
   trailing?: ReactNode
   /**
@@ -452,7 +452,7 @@ export function menuItemClassName({ size, selected, shut = false, className }: {
 export function MenuItemBody({ label, children, size = 'default', description, aside, leading, leadingAt, trailing, hint, shortcut, submenu, destructive, selected, shut = false }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'leadingAt' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'> & { shut?: boolean }) {
   // Shut, its words in the disabled colour, a destructive one's too.
   const labelColour = shut ? 'text-text-disabled' : destructive ? 'text-error-default' : 'text-text-primary'
-  const firstLine = (leadingAt ?? (size === 'default' && description ? 'first-line' : 'center')) === 'first-line'
+  const firstLine = (leadingAt ?? (size === 'default' && description ? 'top' : 'center')) === 'top'
   const edge =
     trailing ??
     (shortcut ? (
