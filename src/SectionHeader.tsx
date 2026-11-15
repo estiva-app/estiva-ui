@@ -238,8 +238,9 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
               action.menu != null ? (
                 // `data-section-menu`, as the ⋮ has: the row stays lit while its menu is open.
                 <div key={action.tooltip} data-section-menu className="flex items-center">
+                  {/* Toward the page: its left edge under the button, spreading right (Katerina, 16 November). */}
                   <Menu
-                    align="right"
+                    align="left"
                     trigger={
                       <IconButton tooltip={action.tooltip} aria-label={action.tooltip}>
                         {action.icon}
@@ -257,8 +258,9 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
             )}
             {menu != null && (
               <div data-section-menu className="flex items-center">
+                {/* Toward the page, as a row's ⋮ opens (Katerina, 16 November). */}
                 <Menu
-                  align="right"
+                  align="left"
                   trigger={
                     <IconButton tooltip="More options" aria-label={menuLabel ?? `More options for ${title}`}>
                       <IconDotsVertical size={16} stroke={1.5} />

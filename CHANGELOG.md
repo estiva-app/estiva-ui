@@ -17,6 +17,13 @@ lines passes `top`. Story Menu/TwoLines. Moves, with no change by their callers:
 levels and its "Back to … default" row (Peek's `src/components/PlaceFollow.tsx`), and the `[` link menu's rows that
 carry a summary (`ComposerTriggers`, in every app's editor). The `@` rows are tall and do not move.
 
+**NavItem**'s ⋮ menu and **SectionHeader**'s menus open toward the page: their left edge under the button, spreading
+right over what a sidebar sits beside, where they hung from the button's right edge and spread back over the list and
+the rail (Katerina, 16 November: "why does the menu not open on the other side?"; Base UI flips only when a menu would
+not fit, so the side was ours). At the screen's right edge Base UI shifts one back in, as before. Moves, with no change
+by their callers: Peek's topic, team and people rows (`src/components/views/FileTreeView.tsx`,
+`src/components/ui/PersonItem.tsx`) and its section headings' sort and ⋮ menus. Ship and Leaf draw no row menus.
+
 ## 0.116.0 — 2026-11-13
 
 **UnreadDot** takes `tone`: `'reaction'`, a reaction to you, draws the disc in the warning colour (the urgent mark's;

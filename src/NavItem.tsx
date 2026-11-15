@@ -300,8 +300,12 @@ export function NavItem({
             </IconButton>
           )}
           {menu != null && (
+            /*
+              Toward the page: the menu's left edge under the ⋮, spreading right over what the column sits beside,
+              not back over the list and the rail (Katerina, 16 November). At the screen's edge Base UI shifts it in.
+            */
             <Menu
-              align="right"
+              align="left"
               trigger={
                 <IconButton tooltip="More options" aria-label={name}>
                   <IconDotsVertical size={16} stroke={1.5} />

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconBell, IconBellOff, IconBellRinging, IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
 import { Button } from './Button'
 import { IconButton } from './IconButton'
 import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSeparator, MenuSub } from './Menu'
@@ -53,15 +53,15 @@ export const TwoLines: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
     <MenuPanel className="w-80">
-      <MenuSection label="Notify me about">
-        <MenuItem label="All" description="Every message, including on its files" leading={icon(IconBellRinging)} onClick={() => {}} />
-        <MenuItem label="Important" description="New conversations, replies to you, and mentions" leading={icon(IconBell)} selected onClick={() => {}} />
-        <MenuItem label="Not following" description="You are only notified when someone names you." leading={icon(IconBellOff)} leadingAt="center" onClick={() => {}} />
+      <MenuSection label="Section">
+        <MenuItem label="Item one" description="A second line that says more about it" leading={icon(IconSquareRounded)} onClick={() => {}} />
+        <MenuItem label="Item two" description="A second line that says more about it" leading={icon(IconSquareRounded)} selected onClick={() => {}} />
+        <MenuItem label="Item three" description="leadingAt center: the icon centred on both lines" leading={icon(IconSquareRounded)} leadingAt="center" onClick={() => {}} />
       </MenuSection>
       <MenuSeparator />
-      <MenuItem leading={icon(IconCopy)} leadingAt="top" onClick={() => {}}>
+      <MenuItem leading={icon(IconSquareRounded)} leadingAt="top" onClick={() => {}}>
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-body-2 text-text-primary">Rows of its own</span>
+          <span className="truncate text-body-2 text-text-primary">Item four</span>
           <span className="truncate text-caption text-text-secondary">Its children run to a second line</span>
         </span>
       </MenuItem>
