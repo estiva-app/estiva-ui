@@ -5,7 +5,7 @@ import { DialogShell } from './DialogShell'
 import { EmptyState } from './EmptyState'
 import { AddPeopleLayer, AddRow, LEADING_CLASSES, RosterRow, type MembersDialogCandidate, type MembersDialogMember, type MembersDialogSelfAction } from './MembersDialog'
 import { MenuItem } from './Menu'
-import { SectionLabel } from './SectionLabel'
+import { SectionHeader } from './SectionHeader'
 
 export interface WhoFollowsDialogProps {
   /** The place's name: the title reads "Who follows <title>". */
@@ -77,13 +77,17 @@ export function WhoFollowsDialog({ title, all, important, candidates = [], onAdd
     )
   }
 
+  /*
+    A group: the kit's SectionHeader with its count beside the title (Katerina, 7 October: a heading over a list says its
+    count as a tab does), and "Nobody" when it is empty. The heading's own 8px and the empty line's own 8px are each
+    brought to the rows' 20px with 12px of margin, so title, "Nobody" and the faces start on one line (Katerina,
+    15 November: the empty line sat 8px in from the heading, inside a 20px box of its own).
+  */
   const group = (label: string, rows: MembersDialogMember[]) => (
     <div className="flex flex-col pt-2">
-      <SectionLabel tone="muted" className="px-5">{`${label} · ${rows.length}`}</SectionLabel>
+      <SectionHeader title={label} count={rows.length} hover="none" className="mx-3" />
       {rows.length === 0 ? (
-        <div className="px-5">
-          <EmptyState scope="rows" message="Nobody" />
-        </div>
+        <EmptyState scope="rows" message="Nobody" className="mx-3" />
       ) : (
         ownFirst(rows).map((m) => (
           <RosterRow
