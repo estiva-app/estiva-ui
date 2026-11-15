@@ -7080,6 +7080,12 @@
           "note": "Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face."
         },
         {
+          "name": "leadingAt",
+          "takes": "center | first-line",
+          "required": false,
+          "note": "Where `leading` sits on a row of two lines: beside the first line, or centred on the whole row."
+        },
+        {
           "name": "trailing",
           "takes": "anything",
           "required": false,
@@ -7128,6 +7134,13 @@
           "values": [
             "default",
             "tall"
+          ]
+        },
+        {
+          "prop": "leadingAt",
+          "values": [
+            "center",
+            "first-line"
           ]
         }
       ],

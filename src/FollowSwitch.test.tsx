@@ -112,13 +112,15 @@ describe('WhoFollowsDialog', () => {
   it('lists All then Important with their counts, and Nobody for an empty group', async () => {
     const { rerender } = render(<WhoFollowsDialog title="Item one" all={all} important={important} onClose={() => {}} />)
     const dialog = await screen.findByRole('dialog', { name: 'Who follows Item one' })
+    // Each group is a SectionHeader: its title, then its count beside it (no "·" between them in the text).
     const text = dialog.textContent!
-    expect(text.indexOf('All · 1')).toBeLessThan(text.indexOf('Ana Duarte'))
-    expect(text.indexOf('Ana Duarte')).toBeLessThan(text.indexOf('Important · 1'))
-    expect(text.indexOf('Important · 1')).toBeLessThan(text.indexOf('Ravi Mehta'))
+    expect(text.indexOf('All1')).toBeGreaterThan(-1)
+    expect(text.indexOf('All1')).toBeLessThan(text.indexOf('Ana Duarte'))
+    expect(text.indexOf('Ana Duarte')).toBeLessThan(text.indexOf('Important1'))
+    expect(text.indexOf('Important1')).toBeLessThan(text.indexOf('Ravi Mehta'))
     expect(text).toContain('Added by Ana Duarte')
     rerender(<WhoFollowsDialog title="Item one" all={[]} important={important} onClose={() => {}} />)
-    expect((await screen.findByRole('dialog')).textContent).toContain('All · 0Nobody')
+    expect((await screen.findByRole('dialog')).textContent).toContain('All0Nobody')
   })
 
   it('offers Add someone only with onAdd, and leaves everyone listed out of the picker', async () => {

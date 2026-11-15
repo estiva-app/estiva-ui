@@ -28,6 +28,9 @@ definition either way.
 - A picker fed by typing: rows are `MenuItem size="tall"` — content height
   with a 40px floor, room for a 32px face via `leading` and a `description`
   line — with an `EnterHint` on the highlighted row.
+- A row of two lines (a `description`) has its icon beside the first line, not centred
+  between the two; a tall row's face stays centred (`leadingAt` says either).
+  <Canvas of={MenuStories.TwoLines} />
 - Grouped choices where one is current: `MenuSection` over rows, `selected`
   on the chosen one.
 

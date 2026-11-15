@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
+import { IconBell, IconBellOff, IconBellRinging, IconCopy, IconDots, IconPencil, IconSquareRounded, IconTrash } from '@tabler/icons-react'
 import { Button } from './Button'
 import { IconButton } from './IconButton'
 import { Menu, MenuItem, MenuPanel, MenuRow, MenuSection, MenuSeparator, MenuSub } from './Menu'
@@ -42,6 +42,29 @@ export const Items: Story = {
       <MenuItem label="Duplicate" leading={icon(IconCopy)} shortcut="Ctrl+D" onClick={() => {}} />
       <MenuSeparator />
       <MenuItem label="Delete" destructive leading={<IconTrash size={16} stroke={1.5} className="text-error-default" />} onClick={() => {}} />
+    </MenuPanel>
+  ),
+}
+
+/** Rows of two lines: the icon beside the first line, a row with a `description` by default (Katerina, 16 November);
+ *  `leadingAt="center"` keeps it centred on the whole row, and a row whose `children` run to two lines passes
+ *  `leadingAt="first-line"`. */
+export const TwoLines: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <MenuPanel className="w-80">
+      <MenuSection label="Notify me about">
+        <MenuItem label="All" description="Every message, including on its files" leading={icon(IconBellRinging)} onClick={() => {}} />
+        <MenuItem label="Important" description="New conversations, replies to you, and mentions" leading={icon(IconBell)} selected onClick={() => {}} />
+        <MenuItem label="Not following" description="You are only notified when someone names you." leading={icon(IconBellOff)} leadingAt="center" onClick={() => {}} />
+      </MenuSection>
+      <MenuSeparator />
+      <MenuItem leading={icon(IconCopy)} leadingAt="first-line" onClick={() => {}}>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-body-2 text-text-primary">Rows of its own</span>
+          <span className="truncate text-caption text-text-secondary">Its children run to a second line</span>
+        </span>
+      </MenuItem>
     </MenuPanel>
   ),
 }
