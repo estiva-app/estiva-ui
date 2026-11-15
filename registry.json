@@ -12692,6 +12692,12 @@
           "note": "Adds the people chosen. With it, the \"Add someone\" row shows and opens the same add layer as `MembersDialog`'s."
         },
         {
+          "name": "self",
+          "takes": "a handler",
+          "required": false,
+          "note": "The viewer's own Join or Leave, as `MembersDialog`'s: Leave on their own row, which comes first in its group; with no row of their own (not in it, or in it at no level shown here), Join or Leave on top, beside \"Add someone\"."
+        },
+        {
           "name": "initialView",
           "takes": "list | add",
           "required": false,

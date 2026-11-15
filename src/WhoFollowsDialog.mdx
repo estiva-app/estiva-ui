@@ -46,6 +46,8 @@ const [open, setOpen] = useState(false)
 - A row is **MembersDialog**'s: `{ id, name, picture?, bot?, caption? }`. The
   caption says how they are in it ("Chose it", "Added by …").
 - Each group is drawn with its count, and "Nobody" when it is empty.
+- `self` gives the viewer their own Join or Leave, as **MembersDialog**'s: Leave on
+  their own row, first in its group; with no row of their own, Join or Leave on top.
 - `onAdd` shows **Add someone**, which opens the same add layer as
   **MembersDialog**'s, leaving out everyone listed by id. Return `false` to
   stay on it; otherwise it returns to the list.
