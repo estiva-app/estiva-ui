@@ -31,6 +31,27 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('img', { name: 'Private' })).toBeNull()
   })
 
+  it('sets several things after the title 8px apart, and a button with words 8px before the page’s buttons', () => {
+    render(
+      <PageHeader
+        title="Item one"
+        after={
+          <>
+            <a href="#">Group one</a>
+            <a href="#">Group two</a>
+          </>
+        }
+        button={<button>Join</button>}
+        actions={<button>More</button>}
+      />,
+    )
+    expect(screen.getByText('Group one').parentElement?.className).toContain('gap-2')
+    const join = screen.getByRole('button', { name: 'Join' }).parentElement as HTMLElement
+    expect(join.className).toContain('pr-1')
+    // The button comes before the page's buttons, in reading order.
+    expect(join.compareDocumentPosition(screen.getByRole('button', { name: 'More' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
   it('a private page has a lock named "Private" before its title', () => {
     const { container } = render(<PageHeader title="Item one" private />)
     const lock = screen.getByRole('img', { name: 'Private' })

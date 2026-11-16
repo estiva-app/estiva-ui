@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { Decorator, Meta, StoryObj } from '@storybook/react-vite'
-import { IconBox, IconDotsVertical, IconLayoutSidebarRight, IconLayoutSidebarRightFilled, IconSquareRounded } from '@tabler/icons-react'
+import { IconBox, IconDotsVertical, IconLayoutSidebarRight, IconLayoutSidebarRightFilled, IconSquareRounded, IconTarget } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Breadcrumb as Trail } from './Breadcrumb'
 import { Button } from './Button'
+import { InlineChip } from './InlineChip'
 import { MembersPill } from './MembersPill'
 import { Menu, MenuItem } from './Menu'
 import { PageHeader } from './PageHeader'
@@ -37,6 +38,7 @@ const meta = {
   argTypes: {
     leading: { control: false },
     after: { control: false },
+    button: { control: false },
     members: { control: false },
     actions: { control: false },
   },
@@ -90,6 +92,38 @@ export const AfterTheTitle: Story = {
         Open
       </Button>
     ),
+  },
+}
+
+/** Several things after the title, 8px apart, spaced by the bar: the places it is listed in, then a small button. */
+export const SeveralAfterTheTitle: Story = {
+  args: {
+    after: (
+      <>
+        <InlineChip href="#" icon={<IconTarget size={14} stroke={1.5} />}>
+          Group one
+        </InlineChip>
+        <InlineChip href="#" icon={<IconTarget size={14} stroke={1.5} />}>
+          Group two
+        </InlineChip>
+        <Button size="small" href="https://example.com" external leadingIcon={<IconSquareRounded size={14} stroke={1.5} />}>
+          Open
+        </Button>
+      </>
+    ),
+  },
+}
+
+/** A button with words before the page's buttons, 8px clear of them. */
+export const AButtonBeforeTheButtons: Story = {
+  args: {
+    members,
+    button: (
+      <Button size="small" variant="primary">
+        Join
+      </Button>
+    ),
+    actions,
   },
 }
 

@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
-import { IconArrowLeft } from '@tabler/icons-react'
 import { Button } from './Button'
 import { Chip } from './Chip'
 import { DialogShell } from './DialogShell'
-import { IconButton } from './IconButton'
 import { Field } from './Field'
 import { Form } from './Form'
 import { TextInput } from './TextInput'
@@ -72,8 +70,8 @@ export const ALongTitle: Story = {
 }
 
 /**
- * **`headerContent` replaces the title text** — a back button beside it, a
- * count after it — and the ✕ stays. The dialog is then named by its `title`
+ * **`headerContent` replaces the title text** — a count after it — and the
+ * ✕ stays. The dialog is then named by its `title`
  * anyway, since there is no longer a heading to point at.
  *
  * There used to be a `Confirmation` story here. It hand-built what
@@ -88,9 +86,6 @@ export const WithHeaderContent: Story = {
   args: {
     headerContent: (
       <div className="flex items-center gap-2">
-        <IconButton aria-label="Back" tooltip="Back">
-          <IconArrowLeft size={16} stroke={1.5} />
-        </IconButton>
         <span className="text-h4 text-text-primary">Item one</span>
         <Chip label="3" />
       </div>
@@ -102,6 +97,24 @@ export const WithHeaderContent: Story = {
       </>
     ),
     children: <p className="text-body-2 text-text-primary">The header is the caller's, and the ✕ is still the dialog's.</p>,
+  },
+}
+
+/**
+ * **A way back**, a second layer to its first: the bar's own arrow before the title, 16px in, its fill and ring whole.
+ * Point at it.
+ */
+export const WithBack: Story = {
+  args: {
+    title: 'Add items',
+    back: { label: 'Back to items', onClick: () => {} },
+    footer: (
+      <>
+        <Button variant="muted">Cancel</Button>
+        <Button variant="primary">Add</Button>
+      </>
+    ),
+    children: <p className="text-body-2 text-text-primary">The layer under the first one.</p>,
   },
 }
 

@@ -16,8 +16,14 @@ footer for the buttons. A dialog is just what goes in the three slots.
 - Anything with a title, a body, and buttons: a form, a picker, a roster.
 - `footer` absent removes the footer row entirely — a list that simply
   ends keeps the card's own bottom edge.
-- `headerContent` replaces the title text — a back button beside the
-  title, a count chip after it. The close button stays.
+- `headerContent` replaces the title text — a count chip after the
+  title. The close button stays.
+- `back`: a second layer's way back to its first (Add members back to the
+  list) — an arrow before the title, the bar's own. Never a button of your
+  own in `headerContent`: pulled out of the bar's box, its fill and ring
+  were cut off.
+
+<Canvas of={DialogShellStories.WithBack} />
 
 ## When not
 

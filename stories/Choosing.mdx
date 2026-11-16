@@ -109,6 +109,7 @@ The same conversation in every app; only its colours are each app's.
 | The strip on a pointed-at comment, and its ⋯ menu | **ConversationActions** and **ConversationMenu** — the cards draw both |
 | A time beside a name, "(edited)", urgent and new | **MetaText**, **EditedMarker**, **UrgentMark** |
 | How far back reactions were read | **ReactionHorizon** — draws nothing when every one was |
+| One thing that happened, in a list of what is new: who, what they did, when, where | **ActivityLine** — a menu row’s look, a link or a button; the mark beside the first line |
 
 ## Structure and wayfinding
 
@@ -123,6 +124,7 @@ The same conversation in every app; only its colours are each app's.
 | Something new on a row or a card, no count | **UnreadDot** — the 6px dot in a 24px slot; in a sidebar row, **NavItem** `unread` draws it; `quiet` for a dot that is always there with nothing new; `tone="reaction"` for a reaction to you (NavItem `unreadTone`) |
 | One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed, `onPress` when a press opens it |
 | A section heading, chevron, hover actions, a count beside the title | **SectionHeader** |
+| A list of things on a page, under column headings, each row a link | **ListTable** with **ListTableRow** — the columns give way by the list’s own width; `headings={false}` where the part’s heading names it |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |
 | The uppercase micro-label | **SectionLabel** |
 | A hairline, or a line with words in the middle | **Divider** — `label`; `look="section"` between stretches of a list, `sticky` while it scrolls |

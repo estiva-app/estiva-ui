@@ -22,6 +22,14 @@ describe('MembersDialog', () => {
     expect(dialog.textContent).toContain('2')
   })
 
+  it('draws Add members’ way back whole: the bar’s own arrow, not a button pulled out of the title’s clipping box', async () => {
+    render(<MembersDialog members={members} candidates={[{ id: 'ravi', label: 'Ravi Mehta' }]} onAdd={() => {}} initialView="add" onClose={() => {}} />)
+    const back = await screen.findByRole('button', { name: 'Back to members' })
+    // Its fill and ring were cut off: it sat inside the title's box, which clips, pulled 8px out by -ml-2 (Katerina, 16 November).
+    expect(back.closest('.overflow-hidden')?.className).toContain('h-12')
+    expect(back.className).not.toMatch(/-m[lx]-/)
+  })
+
   it('offers no Join, Leave or Add when none is given', async () => {
     render(<MembersDialog members={members} onClose={() => {}} />)
     await screen.findByRole('dialog')

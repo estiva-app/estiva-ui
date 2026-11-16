@@ -36,9 +36,14 @@ export interface DialogShellProps {
    *  unless `headerContent` replaces it. */
   title: string
   onClose: () => void
-  /** Replaces the title text in the header — a back button beside the title,
-   *  a count chip after it. The close button stays. */
+  /** Replaces the title text in the header — a count chip after it. The
+   *  close button stays. A way back is `back`, never drawn in here. */
   headerContent?: ReactNode
+  /**
+   * A way back to the layer before — an Add layer back to its list: an arrow before the title, the bar's own, whole
+   * (it was the dialog's own button pulled 8px out of the bar's box, its fill and ring cut off; Katerina, 16 November).
+   */
+  back?: { label: string; onClick: () => void }
   /** Absent: no footer row, and the body keeps the card's own bottom edge
    *  (a roster that simply ends). */
   footer?: ReactNode
@@ -67,7 +72,7 @@ export interface DialogShellProps {
   alert?: boolean
 }
 
-export function DialogShell({ title, onClose, headerContent, footer, children, bodyClassName, bodyMaxHeight, width = 502, alert = false }: DialogShellProps) {
+export function DialogShell({ title, onClose, back, headerContent, footer, children, bodyClassName, bodyMaxHeight, width = 502, alert = false }: DialogShellProps) {
   // The two families are the same parts with different dismiss rules, so the
   // chrome below is written once. AlertDialog re-exports Dialog's Backdrop,
   // Popup, Portal and Title types, which is why this substitutes cleanly.
@@ -119,8 +124,9 @@ export function DialogShell({ title, onClose, headerContent, footer, children, b
                 The title keeps to its one line and ends in "…": a long name wrapped to
                 two lines in the 48px bar and lost its top (Katerina, 1 October). */}
             {/* `pl-5`: a dialog's title stays 20px in, over its body and footer, which are. */}
+            {/* With a way back, the bar's own: the arrow 16px in, the title 8px after it (ContainerHeader's `back`). */}
             <ContainerHeader
-              className="pl-5"
+              {...(back ? { back } : { className: 'pl-5' })}
               title={
                 headerContent ?? (
                   <Parts.Title className="block truncate text-h4 text-text-primary" render={<span />}>

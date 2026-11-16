@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.118.0 — 2026-11-16
+
+From Katerina's review of the navigation prototype (16 November): the parts the apps drew by hand for want of one in
+the kit. She chose to release them all (16 November).
+
+**ListTable** and **ListTableRow** (new): a list of things on a page under column headings, each row a link, its end
+its own control. The columns give way by the list's own width, low ones first, not by the window's. The list takes
+the whole width it is given, as every page's body does; the name keeps at most 384px, so its facts sit beside it and
+the end stays at the right edge. A row's name and its line are 2px apart, as the kit's two-line rows are; every row
+with an end is one height, 40px, with its ⋮ or without. With no `columns` it draws no headings, only its rows;
+`headings={false}` hides the headings on screen where the part's own heading names the list, and assistive
+technology still reads them. Peek's, Ship's and Leaf's Explore pages drew this by hand, class for class, and cut
+names to two letters in a narrow window. Additive: no caller yet.
+
+**ActivityLine** (new): one thing that happened, in a menu row's look: the mark beside the first line, who, what they
+did and when; where, and the words, under it. A link or a button. Peek drew it twice by hand. Additive.
+
+**PageHeader** takes `button`: one button with words (or two given together, such as a team's Follow and Join),
+8px before the page's own buttons; several things given to `after` sit 8px apart.
+
+**CollapsibleSection**, **NavTreeSection** and **NavTree**'s groups take `count`, drawn as SectionHeader's beside the
+title; **NavTreeSection** takes `menuLabel`. "Other teams · 2" was typed into the title. Additive.
+
+**ContainerHeader** and **DialogShell** take `back`: a dialog's way back is the bar's own arrow, whole. Add members drew
+its back button inside the title's box, which clips, pulled 8px out by a negative margin, so its fill and focus ring
+were cut off. Moves, with no change by their callers: **MembersDialog**'s and **WhoFollowsDialog**'s Add view, in every
+app that opens Members or Who follows.
+
+**Button**'s page gains a line: one action, two weights by where it is (Join outlined on a list's rows, primary on a
+place's header).
+
 ## 0.117.0 — 2026-11-16
 
 **WhoFollowsDialog** takes `self`, the viewer's own Join or Leave, as **MembersDialog**'s: Leave on their own row, first

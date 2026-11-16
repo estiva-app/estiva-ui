@@ -56,6 +56,11 @@ export interface CollapsibleSectionProps {
   icon?: ReactNode
   /** Beside the title and always visible, before the actions — a count. `SectionHeader`'s. */
   trailing?: ReactNode
+  /**
+   * How many rows it holds, 8px after the title, shown open or shut — `SectionHeader`'s. Written into the title by
+   * hand ("Other teams · 2"), the number took the heading's own type (Katerina, 16 November).
+   */
+  count?: number
   /** Beside the title, revealed while the row is hovered or keyboard-focused — `SectionHeader`'s. */
   actions?: SectionAction[]
   /** Beside the actions, revealed with them: the section's "More options" menu, `MenuItem`s — `SectionHeader`'s. */
@@ -158,7 +163,7 @@ export function useRememberedOpen(storageKey: string | undefined, fallback: bool
   return [choice ?? fallback, setOpen]
 }
 
-export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, openFor, icon, trailing, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
+export function CollapsibleSection({ title, defaultOpen = true, open: openProp, onOpenChange, pending = false, storageKey, openFor, icon, trailing, count, actions, menu, menuLabel, showActions, look = 'heading', indent = false, children, className, contentClassName }: CollapsibleSectionProps) {
   // The section's default is the one it was drawn with: a later `defaultOpen` does not move it.
   const [initial] = useState(defaultOpen)
   const [openState, remember] = useRememberedOpen(storageKey, initial)
@@ -173,7 +178,7 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
   const shown = open && !pending
   return (
     <Collapsible.Root open={shown} onOpenChange={(next, details) => setOpen(pending && details.reason === 'trigger-press' ? !open : next)} className={cn('flex flex-col', className)}>
-      <SectionHeader title={title} chevron icon={icon} isExpanded={open} trailing={trailing} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger aria-expanded={open} aria-busy={pending && open ? true : undefined} />} />
+      <SectionHeader title={title} chevron icon={icon} isExpanded={open} trailing={trailing} {...(count != null ? { count } : {})} actions={actions} menu={menu} menuLabel={menuLabel} showActions={showActions} look={look} className="shrink-0" render={<Collapsible.Trigger aria-expanded={open} aria-busy={pending && open ? true : undefined} />} />
       {/* The slide: Base UI measures the panel and writes its height to a
           variable — `auto` again once the slide ends, so rows that arrive
           later are not clipped — and the panel is 0 high on its opening frame

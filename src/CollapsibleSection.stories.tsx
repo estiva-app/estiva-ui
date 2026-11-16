@@ -35,7 +35,10 @@ export const WithActions: Story = {
   args: { actions: [{ icon: <IconPlus size={16} stroke={1.5} />, tooltip: 'Add', onClick: () => {} }] },
 }
 
-/** A count beside the title, held on screen whether the section is open or closed. */
+/** How many rows it holds, 8px after the title, in a row's count style, open or shut. */
+export const WithCount: Story = { args: { title: 'Group', count: 2, defaultOpen: false } }
+
+/** Something at the row's end, held on screen whether the section is open or closed. */
 export const WithTrailing: Story = {
   args: { trailing: <Chip type="brand" label="2" /> },
 }

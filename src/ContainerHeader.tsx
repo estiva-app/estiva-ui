@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
-import { IconChevronDown } from '@tabler/icons-react'
+import { IconArrowLeft, IconChevronDown } from '@tabler/icons-react'
 import { Button as BaseButton } from '@base-ui/react/button'
 import { cn } from './cn'
+import { IconButton } from './IconButton'
 import { MENU_TRIGGER_CLASSES } from './looks'
 import { Menu } from './Menu'
 
@@ -31,15 +32,38 @@ export interface ContainerHeaderProps {
   titleMenu?: ReactNode
   /** The column's own buttons, at the right edge: IconButtons with tooltips, 4px apart. */
   actions?: ReactNode
+  /**
+   * A way back to the layer before, an arrow before the title, 8px from it — a dialog's Add members back to its list.
+   * The bar gives the button its room (12px in, so the arrow sits 16px in, where a title would) rather than the button
+   * reaching out of it with a negative margin, which cut its fill and its ring off (Katerina, 16 November).
+   */
+  back?: { label: string; onClick: () => void }
   className?: string
 }
 
-export function ContainerHeader({ title, chevron = false, titleMenu, actions, className }: ContainerHeaderProps) {
+export function ContainerHeader({ title, chevron = false, titleMenu, actions, back, className }: ContainerHeaderProps) {
   const text = typeof title === 'string'
   const name = (
     <div className={cn('flex items-center gap-1', text ? 'shrink-0' : 'min-w-0 flex-1')}>
       {text ? <span className="whitespace-nowrap text-body-2-strong text-text-primary">{title}</span> : <div className="min-w-0 flex-1">{title}</div>}
       {(chevron || titleMenu != null) && <IconChevronDown size={12} stroke={1.5} className="shrink-0 text-text-secondary" />}
+    </div>
+  )
+  const titleBox = (
+    <div className={cn('flex items-center gap-2 overflow-hidden', text && !back ? 'shrink-0' : 'min-w-0 flex-1')}>
+      {titleMenu != null ? (
+        <Menu
+          trigger={
+            <BaseButton type="button" className={cn('flex min-w-0 items-center px-1.5 py-1', MENU_TRIGGER_CLASSES)}>
+              {name}
+            </BaseButton>
+          }
+        >
+          {titleMenu}
+        </Menu>
+      ) : (
+        name
+      )}
     </div>
   )
   return (
@@ -50,22 +74,18 @@ export function ContainerHeader({ title, chevron = false, titleMenu, actions, cl
     // (Katerina, 5 October).
     // 12px between the title and the buttons, as between the right group's own parts: a cut title, and a button
     // after it, ran right up to them (Leaf's adoption review, 4 November). A bar whose title fits does not move.
-    <div className={cn('flex h-12 shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-border-subtle py-2 pr-4', titleMenu != null ? 'pl-2.5' : 'pl-4', className)}>
-      <div className={cn('flex items-center gap-2 overflow-hidden', text ? 'shrink-0' : 'min-w-0 flex-1')}>
-        {titleMenu != null ? (
-          <Menu
-            trigger={
-              <BaseButton type="button" className={cn('flex min-w-0 items-center px-1.5 py-1', MENU_TRIGGER_CLASSES)}>
-                {name}
-              </BaseButton>
-            }
-          >
-            {titleMenu}
-          </Menu>
-        ) : (
-          name
-        )}
-      </div>
+    <div className={cn('flex h-12 shrink-0 items-center justify-between gap-3 overflow-hidden border-b border-border-subtle py-2 pr-4', back ? 'pl-3' : titleMenu != null ? 'pl-2.5' : 'pl-4', className)}>
+      {back ? (
+        // The arrow outside the title's box, which clips: its fill and its ring stay whole; 8px to the title.
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <IconButton tooltip={back.label} aria-label={back.label} onClick={back.onClick}>
+            <IconArrowLeft size={16} stroke={1.5} />
+          </IconButton>
+          {titleBox}
+        </div>
+      ) : (
+        titleBox
+      )}
       {actions && (
         <div className="flex shrink-0 items-center justify-end gap-3">
           <div className="flex shrink-0 items-center gap-1">{actions}</div>

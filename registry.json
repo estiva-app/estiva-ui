@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.117.0",
-    "exports": 253,
-    "typeExports": 264,
+    "packageVersion": "0.118.0",
+    "exports": 256,
+    "typeExports": 270,
     "files": null
   },
   "storybook": {
@@ -15,6 +15,92 @@
     "devUrl": "http://localhost:6008"
   },
   "entries": [
+    {
+      "name": "ActivityLine",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ActivityLine.tsx",
+      "purpose": "One thing that happened, in a list of them: a mark for what kind of thing it is, who did it and what, when; under it where it was said and the words.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "person",
+          "takes": "{ name: string; picture?: string; bot?: boolean }",
+          "required": true,
+          "note": "Who did it: their face and name."
+        },
+        {
+          "name": "did",
+          "takes": "text",
+          "required": true,
+          "note": "What they did, after their name: \"replied to you\", \"reacted 👍 to your message\"."
+        },
+        {
+          "name": "time",
+          "takes": "text",
+          "required": true,
+          "note": "When, short: \"2h\", \"Fri 14:02\". At the right of the first line, in a count's type."
+        },
+        {
+          "name": "mark",
+          "takes": "anything",
+          "required": false,
+          "note": "What kind of thing it is, a 16px icon beside the first line: a reply, a mention, a reaction."
+        },
+        {
+          "name": "where",
+          "takes": "text",
+          "required": false,
+          "note": "Where it was said, before the words: \"Design › Brief\"."
+        },
+        {
+          "name": "words",
+          "takes": "text",
+          "required": false,
+          "note": "What they said, cut to one line."
+        },
+        {
+          "name": "seen",
+          "takes": "true/false",
+          "required": false,
+          "note": "Seen already: the name in the secondary text, as an Earlier line."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "Opens where it was said, as a link: Cmd- or Ctrl-click opens a new tab."
+        },
+        {
+          "name": "onClick",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": false,
+          "note": null
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "conversation-activityline--docs",
+      "storyId": "conversation-activityline--default",
+      "docPage": "src/ActivityLine.mdx",
+      "app": null,
+      "looks": []
+    },
     {
       "name": "AddReactionButton",
       "repo": "estiva-ui",
@@ -1765,6 +1851,12 @@
           "note": "Beside the title and always visible, before the actions — a count."
         },
         {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "How many rows it holds, 8px after the title, shown open or shut — `SectionHeader`'s."
+        },
+        {
           "name": "actions",
           "takes": "SectionAction[]",
           "required": false,
@@ -2651,6 +2743,12 @@
           "note": "The column's own buttons, at the right edge: IconButtons with tooltips, 4px apart."
         },
         {
+          "name": "back",
+          "takes": "a handler",
+          "required": false,
+          "note": "A way back to the layer before, an arrow before the title, 8px from it — a dialog's Add members back to its list."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3534,7 +3632,13 @@
           "name": "headerContent",
           "takes": "anything",
           "required": false,
-          "note": "Replaces the title text in the header — a back button beside the title, a count chip after it."
+          "note": "Replaces the title text in the header — a count chip after it."
+        },
+        {
+          "name": "back",
+          "takes": "a handler",
+          "required": false,
+          "note": "A way back to the layer before — an Add layer back to its list: an arrow before the title, the bar's own, whole (it was the dialog's own button pulled 8px out of the bar's box, its fill and ring cut off; Katerina, 16 November)."
         },
         {
           "name": "footer",
@@ -6623,6 +6727,132 @@
       "looks": []
     },
     {
+      "name": "ListTable",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ListTable.tsx",
+      "purpose": "A list of things on a page, under column headings: each row leads to its thing, a few short facts in columns, and an action at its end.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": true,
+          "note": "What the list is, to assistive technology: \"Initiatives\"."
+        },
+        {
+          "name": "nameLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The first column's heading. Default \"Name\"."
+        },
+        {
+          "name": "columns",
+          "takes": "ListTableColumn[]",
+          "required": true,
+          "note": "The columns after the name, in their order."
+        },
+        {
+          "name": "end",
+          "takes": "true/false",
+          "required": false,
+          "note": "The rows hold something at their end — a small `Button`, a dot and a ⋮ — and the list keeps 64px for it."
+        },
+        {
+          "name": "headings",
+          "takes": "true/false",
+          "required": false,
+          "note": "The column headings on screen. Default true."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The rows: `ListTableRow`s."
+        },
+        {
+          "name": "className",
+          "takes": "text",
+          "required": false,
+          "note": "Placement only."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-listtable--docs",
+      "storyId": "page-structure-listtable--default",
+      "docPage": "src/ListTable.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "ListTableRow",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ListTable.tsx",
+      "purpose": "One row of a `ListTable`: the whole row leads to its thing; its end stays its own control.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "href",
+          "takes": "text",
+          "required": true,
+          "note": "Where the row leads. The whole row is the link."
+        },
+        {
+          "name": "label",
+          "takes": "text",
+          "required": true,
+          "note": "Its name, one line, cut short with an ellipsis."
+        },
+        {
+          "name": "description",
+          "takes": "text",
+          "required": false,
+          "note": "Under the name, one line, cut short: what it is about."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": false,
+          "note": "16px, before the name: its kind."
+        },
+        {
+          "name": "cells",
+          "takes": "anything",
+          "required": true,
+          "note": "One per column, in the columns' order: words, or a part (`AvatarGroup`, `MetaText`)."
+        },
+        {
+          "name": "end",
+          "takes": "anything",
+          "required": false,
+          "note": "At the row's end, its own control: a small `Button` (Join), or the row's dot and ⋮."
+        },
+        {
+          "name": "onClick",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-listtable--docs",
+      "storyId": "page-structure-listtable--default",
+      "docPage": null,
+      "app": null,
+      "looks": [
+        "truncate text-body-2 font-medium text-text-primary"
+      ]
+    },
+    {
       "name": "loadingShapeOf",
       "repo": "estiva-ui",
       "kind": "helper",
@@ -7870,6 +8100,12 @@
           "note": "Beside the title, always shown: an `UnreadDot`, typically."
         },
         {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "How many rows it holds, 8px after the title, shown open or shut — `SectionHeader`'s."
+        },
+        {
           "name": "actions",
           "takes": "SectionAction[]",
           "required": false,
@@ -7880,6 +8116,12 @@
           "takes": "anything",
           "required": false,
           "note": "The group's \"More options\" menu, after its actions: `MenuItem`s."
+        },
+        {
+          "name": "menuLabel",
+          "takes": "text",
+          "required": false,
+          "note": "The ⋮'s accessible name, \"More for Group one\"."
         },
         {
           "name": "icon",
@@ -8028,7 +8270,7 @@
           "name": "after",
           "takes": "anything",
           "required": false,
-          "note": "Right after the title, 8px from it, and never cut short: a small `Button`, a `Chip`."
+          "note": "Right after the title, 8px from it, and never cut short: a small `Button`, a `Chip`, a `Link`."
         },
         {
           "name": "meta",
@@ -8047,6 +8289,12 @@
           "takes": "anything",
           "required": false,
           "note": "Who is in it: a `MembersPill`."
+        },
+        {
+          "name": "button",
+          "takes": "anything",
+          "required": false,
+          "note": "A button with words, before the page's buttons and 8px clear of them: Join, Add to Open work."
         },
         {
           "name": "actions",
