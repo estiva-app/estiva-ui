@@ -32,6 +32,13 @@ A list of things on a page, under column headings: each row leads to its thing, 
 
 <Canvas of={ListTableStories.NoColumns} />
 
+- `headings={false}`: its facts with no headings on screen, where the
+  heading over the part names the list and the facts read without a label
+  (faces and a number, "Yesterday"). Screen readers still read each cell's
+  heading.
+
+<Canvas of={ListTableStories.NoHeadings} />
+
 - `end`: the rows hold their own control at the end, and the list keeps 64px
   for it in every row, so the columns stay lined up.
 - A cell is words, or a part: an **AvatarGroup** with its number in

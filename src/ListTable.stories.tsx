@@ -116,6 +116,11 @@ export const NoColumns: Story = {
   ),
 }
 
+/** Its facts with no headings over them, under a heading that names the list: a team's page. Screen readers still read them. */
+export const NoHeadings: Story = {
+  args: { headings: false },
+}
+
 /** A dash in a cell not read yet. */
 export const NotReadYet: Story = {
   render: (args) => (

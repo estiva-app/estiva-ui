@@ -6760,6 +6760,12 @@
           "note": "The rows hold something at their end — a small `Button`, a dot and a ⋮ — and the list keeps 64px for it."
         },
         {
+          "name": "headings",
+          "takes": "true/false",
+          "required": false,
+          "note": "The column headings on screen. Default true."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,

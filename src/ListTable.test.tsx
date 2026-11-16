@@ -52,6 +52,28 @@ describe('ListTable', () => {
     expect(screen.getByRole('link', { name: 'Item one' })).toBeTruthy()
   })
 
+  it('hides its headings on screen with headings={false}, and still names every cell to assistive technology', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns} headings={false}>
+        <ListTableRow href="/one" label="Item one" cells={['Group one', 'Today']} />
+      </ListTable>,
+    )
+    const headers = screen.getAllByRole('columnheader')
+    expect(headers.map((cell) => cell.textContent)).toEqual(['Name', 'Team', 'Active'])
+    expect(headers[0]!.closest('[role=row]')!.className).toMatch(/\bsr-only\b/)
+    const row = screen.getByText('Item one').closest('[role=row]') as HTMLElement
+    expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['Item one', 'Group one', 'Today'])
+  })
+
+  it('shows its headings by default', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="/one" label="Item one" cells={['Group one', 'Today']} />
+      </ListTable>,
+    )
+    expect(screen.getAllByRole('columnheader')[0]!.closest('[role=row]')!.className).not.toMatch(/\bsr-only\b/)
+  })
+
   it('refuses a row outside a list', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<ListTableRow href="/one" label="Item one" cells={[]} />)).toThrow(/inside one/)

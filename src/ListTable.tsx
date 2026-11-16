@@ -24,6 +24,12 @@ export interface ListTableProps {
   columns: ListTableColumn[]
   /** The rows hold something at their end — a small `Button`, a dot and a ⋮ — and the list keeps 64px for it. */
   end?: boolean
+  /**
+   * The column headings on screen. Default true. `false` where the heading over the part already names the list and
+   * its facts read without a label — a team's page, under "Topics": faces and a number, "Yesterday" (Katerina,
+   * 16 November). Assistive technology still reads them, so each cell keeps its heading.
+   */
+  headings?: boolean
   /** The rows: `ListTableRow`s. */
   children: ReactNode
   /** Placement only. */
@@ -78,7 +84,7 @@ const widthOf = (columns: ListTableColumn[], end: boolean) =>
  * Peek's Explore topics, Ship's Topics and Leaf's Explore topics each drew this by hand, class for class, and their
  * columns hid only at the phone's width: in a narrow window the names were cut to two letters (Katerina, 16 November).
  */
-export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, end = false, children, className }: ListTableProps) {
+export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, end = false, headings = true, children, className }: ListTableProps) {
   const box = useRef<HTMLDivElement>(null)
   const [shown, setShown] = useState<Shown>('all')
   const measure = useCallback(() => {
@@ -101,7 +107,8 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
       <div ref={box} role="table" aria-label={label} className={cn('flex w-full flex-col gap-2', className)}>
         {/* With no columns there is nothing to head: the part's own heading names the list, and a lone "Name" said nothing (Katerina, 16 November). */}
         {columns.length > 0 && (
-          <div role="row" className="flex items-center gap-3 px-3 text-caption text-text-muted">
+          // Hidden, it is out of the flow too: the rows start where the list does, with no gap for it.
+          <div role="row" className={cn('flex items-center gap-3 px-3 text-caption text-text-muted', !headings && 'sr-only')}>
             {/* Over the name, past the icon; as wide as the names' cells. */}
             <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
               {nameLabel}
