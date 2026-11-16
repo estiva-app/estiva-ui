@@ -1,6 +1,6 @@
 import { useRef, type ReactNode } from 'react'
 import { cn } from './cn'
-import { useRevealCurrentRow } from './revealCurrentRow'
+import { ListPlaceContext, useListPlace, useRevealCurrentRow } from './revealCurrentRow'
 import { ContainerHeader } from './ContainerHeader'
 import { ErrorBoundary } from './ErrorBoundary'
 import { FOLDED_CLASSES, FOLD_MOTION_CLASSES, UNFOLDED_CLASSES } from './looks'
@@ -51,13 +51,20 @@ export interface ListColumnProps {
   collapsed?: boolean
   /** The rows, 2px apart. Groups are headed by a `CollapsibleSection` or a `SectionHeader`. */
   children: ReactNode
+  /**
+   * The list's name in the app (`teams`, `dms`): where it was scrolled is remembered by it in this tab, and the same
+   * column drawn again (on another page) goes back there, its open row still brought into sight when it is a new one.
+   * Without it, it opens at the top each time it is drawn.
+   */
+  rememberAs?: string
   /** Placement only. */
   className?: string
 }
 
-function Column({ title, chevron = false, titleMenu, actions, above, collapsed = false, children, className, broken = false }: ListColumnProps & { broken?: boolean }) {
+function Column({ title, chevron = false, titleMenu, actions, above, collapsed = false, children, rememberAs, className, broken = false }: ListColumnProps & { broken?: boolean }) {
   const rows = useRef<HTMLDivElement>(null)
-  useRevealCurrentRow(rows)
+  const place = useListPlace(rows, broken ? undefined : rememberAs)
+  useRevealCurrentRow(rows, undefined, place)
   return (
     <div
       className={cn(
@@ -78,7 +85,8 @@ function Column({ title, chevron = false, titleMenu, actions, above, collapsed =
         <div className="flex min-h-0 flex-1 flex-col px-3">{children}</div>
       ) : (
         <ScrollArea className="flex-1" viewportRef={rows} contentClassName="flex flex-col gap-0.5 px-3 pt-4 pb-3">
-          {children}
+          {/* A tree in it leaves bringing its open row into sight to the column, which knows where it was left. */}
+          <ListPlaceContext.Provider value={place}>{children}</ListPlaceContext.Provider>
         </ScrollArea>
       )}
     </div>
