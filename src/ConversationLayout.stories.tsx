@@ -12,6 +12,7 @@ import { QuotedLine } from './QuotedLine'
 import { SkeletonBar } from './Skeleton'
 import { useSeenOnScreen } from './seenOnScreen'
 import { Thread } from './Thread'
+import { Toolbar, ToolbarButton } from './Toolbar'
 
 /**
  * Where the cards sit. Two columns: the comments fill the page and an open thread stands beside them. One column:
@@ -183,6 +184,49 @@ export const TwoColumnsLong: Story = {
         rememberAs="story-long"
         items={items}
         box={<WriteBox label="Comment" onSend={(words) => setSaid((now) => [...now, { who: YOU, words: words || 'Your comment.' }])} />}
+      />
+    )
+  },
+}
+
+/**
+ * Two columns opened at a thread (Katerina, 17 November): a link to it, or a line in a list that names it, opens the
+ * conversation on that comment, in the middle and marked a moment, not at the newest, so the reader sees what they
+ * asked for. A thread opened from outside while it is open (the buttons above stand for those lines) lands on its
+ * comment too; a press on a comment opens its thread where it is, and nothing moves.
+ */
+export const TwoColumnsOpenedAtThread: Story = {
+  name: 'Two columns, opened at a thread',
+  render: function Render() {
+    const [open, setOpen] = useState<string | undefined>('t2')
+    const said = Array.from({ length: 14 }, (_, i) => ({ id: `t${i}`, who: [ONE, TWO, THREE][i % 3], words: i % 4 === 0 ? WORDS : `Comment ${i + 1} of a long conversation.` }))
+    const items: ConversationItem[] = said.map((c, i) => ({
+      id: c.id,
+      day: i < 7 ? 'Monday' : 'Today',
+      card: (
+        <ConversationCard author={c.who} time={`${8 + (i % 4)}:${i % 2 ? '30' : '05'} AM`}>
+          {c.words}
+        </ConversationCard>
+      ),
+      thread: <Thread start={{ author: c.who, time: '9:05 AM', words: c.words }} onClose={() => setOpen(undefined)} box={<WriteBox />} />,
+    }))
+    return (
+      <ConversationLayout
+        threads="beside"
+        items={items}
+        open={open}
+        onOpenChange={setOpen}
+        header={
+          <Toolbar aria-label="Open a thread from outside">
+            <ToolbarButton tooltip="Open comment 3's thread, as a line naming it does" aria-label="Open comment 3's thread" onClick={() => setOpen('t2')}>
+              3
+            </ToolbarButton>
+            <ToolbarButton tooltip="Open comment 12's thread, as a line naming it does" aria-label="Open comment 12's thread" onClick={() => setOpen('t11')}>
+              12
+            </ToolbarButton>
+          </Toolbar>
+        }
+        box={<WriteBox label="Comment" />}
       />
     )
   },

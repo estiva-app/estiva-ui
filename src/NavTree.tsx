@@ -4,6 +4,7 @@ import { EmptyState } from './EmptyState'
 import { NavItem } from './NavItem'
 import { SectionHeader, type SectionAction } from './SectionHeader'
 import { SkeletonList } from './Skeleton'
+import { REVEAL_MS, scrollToRow, useRevealCurrentRow } from './revealCurrentRow'
 
 /** One row of the tree, and the rows under it. */
 export interface NavTreeNode {
@@ -123,7 +124,7 @@ export interface NavTreeProps {
 export const NAV_TREE_INTENT_MS = 150
 
 /** How long the column waits to scroll to the current row: the rows above it slide open in 150ms. */
-export const NAV_TREE_REVEAL_MS = 200
+export const NAV_TREE_REVEAL_MS = REVEAL_MS
 
 /** How long a `pending` group waits shut for its rows before it opens on the skeleton (Peek's Folders, OPT-11: a cold read is ~0.9s). */
 export const NAV_TREE_PENDING_MS = 2000
@@ -161,22 +162,6 @@ function openingFor(groups: NavTreeGroup[], selected: string | undefined, select
     }
   }
   return null
-}
-
-/**
- * Scroll the column the row is in, and only that box — never the page, nor a
- * drawer that is shut — so the row is in sight. A row in sight stays put.
- * A group taller than the column keeps its top in sight, as the browser's
- * `block: 'nearest'` does (a row is never that tall).
- */
-function scrollToRow(row: HTMLElement) {
-  let box = row.parentElement
-  while (box && !(/(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight)) box = box.parentElement
-  if (!box || box === document.documentElement || box === document.body) return
-  const at = row.getBoundingClientRect()
-  const view = box.getBoundingClientRect()
-  if (at.top < view.top) box.scrollTop -= view.top - at.top
-  else if (at.bottom > view.bottom) box.scrollTop += Math.min(at.bottom - view.bottom, at.top - view.top)
 }
 
 /** A line in the rows' place: level with the rows, which pad themselves (Katerina, 14 September) — `EmptyState`'s `rows`, as an app draws it under its own rows. */
@@ -381,23 +366,12 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
  */
 export function NavTree({ title, titleActions, groups, children, selected, selectedParent, selectedGroup, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
   const opening = groups ? openingFor(groups, selected, selectedParent) : null
-  // Once per current row, when it is drawn and shown: a later draw, or a read landing, does not pull the column back to it.
+  /*
+    Once per current row, when it is drawn and shown, however late: a row a part inside the tree draws itself (a fold
+    that reads its rows once it opens) is seen too. A later draw, or a read landing, does not pull the column back to it.
+  */
   const box = useRef<HTMLDivElement>(null)
-  const scrolled = useRef<string | undefined>(undefined)
-  const waiting = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const latest = useRef(selected)
-  latest.current = selected
-  useEffect(() => {
-    if (selected === undefined || scrolled.current === selected || waiting.current !== undefined) return
-    waiting.current = setTimeout(() => {
-      waiting.current = undefined
-      const row = box.current?.querySelector<HTMLElement>('[aria-current="page"]')
-      if (!row || row.getBoundingClientRect().height === 0) return
-      scrolled.current = latest.current
-      scrollToRow(row)
-    }, NAV_TREE_REVEAL_MS)
-  })
-  useEffect(() => () => clearTimeout(waiting.current), [])
+  useRevealCurrentRow(box, selected)
   // Once per arrival, as soon as the group is drawn: its heading does not move as it opens, so nothing is waited for.
   const groupScrolled = useRef<string | undefined>(undefined)
   useEffect(() => {

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.119.0 — 2026-11-17
+
+From Katerina's review of the navigation build (17 November): "the selected message could be somewhere above or below
+the fold. It's a general problem we need to fix. Also in the left rail". She chose to release both (17 November).
+
+**ConversationLayout**, two columns, lands on the open thread's comment: opened at a thread (a link to it, a line in a
+list that names it), the comments open on that comment, in the middle and marked a moment (the kit's flash), not at
+the newest; a thread opened from outside while the conversation is open lands on its comment too; one opened by
+pressing its comment stays where it is. A comment not drawn yet (older than what is read) opens at the newest, as
+before. Until now an app's own scroll to it was undone by the layout's opening at the newest. No change by callers:
+every app's conversation that keeps `open` from its address gets it. Story: "Two columns, opened at a thread".
+
+**ListColumn** brings the open page's row (an active NavItem) into sight once it is drawn, however late, once for each
+new open page, and never pulls it back after the reader scrolls away; it did not at all before (Peek's DMs and Desk).
+**NavTree** does so too for a row drawn late by a part inside it (a fold that reads its own rows once it opens, as
+Peek's team Files); it used to look only when the tree itself drew again. One hook, `useRevealCurrentRow`.
+
 ## 0.118.0 — 2026-11-16
 
 From Katerina's review of the navigation prototype (16 November): the parts the apps drew by hand for want of one in

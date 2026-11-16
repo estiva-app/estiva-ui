@@ -59,6 +59,15 @@ function show(id: string, options: ShowOptions): boolean {
   const el = find(id, options)
   if (!el) return false
   el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  markShown(el)
+  return true
+}
+
+/**
+ * Marks one drawn comment or reply a moment (`data-shown`, the kit's flash): a show's mark, and the one a
+ * `ConversationLayout` gives the comment it lands on when it opens at a thread. The package's own, not exported.
+ */
+export function markShown(el: HTMLElement): void {
   const previous = owed.get(el)
   if (previous !== undefined) window.clearTimeout(previous)
   el.dataset.shown = 'true'
@@ -69,7 +78,6 @@ function show(id: string, options: ShowOptions): boolean {
       owed.delete(el)
     }, SHOWN_MS),
   )
-  return true
 }
 
 /**

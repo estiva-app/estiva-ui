@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSortDescending, IconSquareRounded } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './Button'
 import { CollapsibleSection } from './CollapsibleSection'
 import { Divider } from './Divider'
@@ -115,6 +115,58 @@ export const WithARowAbove: Story = {
 export const ManyRows: Story = {
   args: { title: 'Items', actions },
   render: (args) => <ListColumn {...args}>{rows(80)}</ListColumn>,
+}
+
+/** 80 rows, the open one at `open`: a click on a row opens it instead. */
+function OpenRows({ open: first, late = false }: { open: number; late?: boolean }) {
+  const [open, setOpen] = useState(first)
+  const [drawn, setDrawn] = useState(!late)
+  useEffect(() => {
+    if (!late) return
+    const timer = setTimeout(() => setDrawn(true), 1200)
+    return () => clearTimeout(timer)
+  }, [late])
+  if (!drawn) return <SkeletonList rows={8} />
+  return (
+    <>
+      {Array.from({ length: 80 }, (_, i) => (
+        <NavItem
+          key={i}
+          href="#"
+          label={`Item ${i + 1}`}
+          icon={icon}
+          active={i === open}
+          onClick={(event) => {
+            event.preventDefault()
+            setOpen(i)
+          }}
+        />
+      ))}
+    </>
+  )
+}
+
+/**
+ * Arriving on a page whose row is far down the list (a link, a card, another app): the column shows where it lives,
+ * bringing Item 62 into sight. Scroll away and it stays where you put it; open another row and that one is in sight.
+ */
+export const OpenRowFarDown: Story = {
+  args: { title: 'Items' },
+  render: (args) => (
+    <ListColumn {...args}>
+      <OpenRows open={61} />
+    </ListColumn>
+  ),
+}
+
+/** The same, its rows read a moment after the column is drawn, as a list whose read is still out: Item 62 is brought into sight once it is drawn. */
+export const OpenRowDrawnLate: Story = {
+  args: { title: 'Items' },
+  render: (args) => (
+    <ListColumn {...args}>
+      <OpenRows open={61} late />
+    </ListColumn>
+  ),
 }
 
 /** While the list is on its way: a skeleton shaped like the rows. */

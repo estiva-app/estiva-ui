@@ -21,6 +21,17 @@ export function isNearBottom(el: HTMLElement): boolean {
 }
 
 /**
+ * Puts one comment in the middle of the comments' box: where two columns land when a conversation opens at a thread, or
+ * is asked to show one from outside (Katerina, 17 November: "generalize it so that it works in every similar case").
+ * Measured against the box, which is what scrolls.
+ */
+export function landOn(el: HTMLElement, item: HTMLElement): void {
+  const box = el.getBoundingClientRect()
+  const at = item.getBoundingClientRect()
+  el.scrollTop += at.top - box.top - (el.clientHeight - at.height) / 2
+}
+
+/**
  * The comment at the top of a conversation's view, and how far below the view's top it is: what "the same spot" means
  * to the reader, whatever above it changed height.
  */

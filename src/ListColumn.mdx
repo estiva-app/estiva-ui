@@ -86,6 +86,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Draws the column: 290px, a line on its right, and a ContainerHeader on top | a width, a border and a header row of your own |  |
 | Scrolls its rows in a ScrollArea, 16px under the header, 12px in from each side | `overflow-auto`, or padding of your own around the rows |  |
+| Brings the open page's row (a **NavItem** that is `active`) into sight once it is drawn, however late, once for each new open page, and never pulls it back after the reader scrolls away | an effect that finds the active row and scrolls it into view |  |
 | Closes with the rail when `collapsed`: narrows to nothing and fades | a width transition of your own |  |
 | Keeps its 290px beside a main area that grows | `shrink-0` |  |
 | Keeps a crash inside itself: its title stays, the message and Try again sit in the middle of the room the list had | an error boundary of your own around it |  |
