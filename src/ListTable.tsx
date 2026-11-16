@@ -132,7 +132,8 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
       {/* At most 384px: a short name keeps its facts beside it, not across the page (Katerina, 16 November). */}
       <span role="cell" className="flex min-w-0 max-w-sm flex-1 items-center gap-3">
         {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
-        <Link href={href} variant="plain" cover className="flex min-w-0 flex-1 flex-col" {...(onClick ? { onClick } : {})}>
+        {/* 2px between the name and its line, as every two-line row in the kit (LinkCard, LinkRow, PartCard, a tall MenuItem); they touched (Katerina, 16 November). */}
+        <Link href={href} variant="plain" cover className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>
           <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
           {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
         </Link>
