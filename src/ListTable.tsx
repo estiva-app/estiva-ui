@@ -151,8 +151,9 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
       )}
       {table.end && (
         // After the covering link and `relative`, so what is here stays its own control.
-        // The room the name leaves goes before it: the end keeps the list's right edge.
-        <span role="cell" className="relative ml-auto flex w-16 shrink-0 items-center justify-end gap-1">
+        // The room the name leaves goes before it: the end keeps the list's right edge. A button's height (24px) in every
+        // row, so a row with nothing at its end is as tall as one with its ⋮ (40px; it was 36, Katerina, 16 November).
+        <span role="cell" className="relative ml-auto flex h-6 w-16 shrink-0 items-center justify-end gap-1">
           {end}
         </span>
       )}
