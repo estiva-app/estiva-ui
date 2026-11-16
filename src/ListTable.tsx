@@ -2,17 +2,26 @@ import { createContext, useCallback, useContext, useLayoutEffect, useRef, useSta
 import { cn } from './cn'
 import { Link } from './Link'
 
-/** One column after the name: its heading, how wide it is, and how long it stays when room runs short. */
+/** How wide a column is: `small` 80px (a number, a few faces), `medium` 96px (a date), `large` 112px (a name). */
+export type ListTableColumnWidth = 'small' | 'medium' | 'large'
+
+/** Which columns give way first when the list runs short of room: `low` ones, then `high` ones. */
+export type ListTableColumnKeep = 'high' | 'low'
+
+/**
+ * One column after the name: its heading, how wide it is, and how long it stays when room runs short. A column's
+ * fields are not the list's props, so their words are named types, not read by the registry as props' values.
+ */
 export interface ListTableColumn {
   /** Its heading: "Team", "Members", "Active". */
   label: string
   /** `small` 80px (a number, a few faces), `medium` 96px (a date), `large` 112px (a name). Default `medium`. */
-  width?: 'small' | 'medium' | 'large'
+  width?: ListTableColumnWidth
   /**
    * When the list runs short of room, which columns give way: `low` ones first, then `high` ones; the name and the
    * end never do. Default `high`.
    */
-  keep?: 'high' | 'low'
+  keep?: ListTableColumnKeep
 }
 
 export interface ListTableProps {

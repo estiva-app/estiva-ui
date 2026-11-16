@@ -6,7 +6,7 @@
     "package": "@estiva-app/ui",
     "packageVersion": "0.118.0",
     "exports": 256,
-    "typeExports": 268,
+    "typeExports": 270,
     "files": null
   },
   "storybook": {
