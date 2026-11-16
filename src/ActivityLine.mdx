@@ -1,0 +1,63 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ActivityLineStories from './ActivityLine.stories'
+
+<Meta of={ActivityLineStories} />
+
+# ActivityLine
+
+One thing that happened, in a list of them: a mark for what kind of thing it is, who did it and what, when; under it where it was said and the words.
+
+<Canvas of={ActivityLineStories.Default} />
+
+## When
+
+- A list of what happened, in a card, a popover or a page's dot: replies to
+  you, mentions, reactions to your messages.
+- `mark`: what kind of thing it is, a 16px icon beside the first line — the
+  face and the name — never centred on both lines.
+- `did`: what they did, after their name, in the app's words.
+- `where`: the place it was said, before the words, on a list that mixes
+  places; absent on the place's own list.
+- `seen`: an Earlier line — the name in the secondary text.
+
+<Canvas of={ActivityLineStories.Seen} />
+
+- `href`: it opens where it was said, as a link (Cmd- or Ctrl-click opens a
+  new tab). Absent, the line is a button and `onClick` acts.
+- New and Earlier: each a **MenuSection** of lines, so the headings and the
+  lines start on one edge.
+
+<Canvas of={ActivityLineStories.AList} />
+
+## When not
+
+- An action in a menu → **MenuItem**.
+- The message itself, with its replies and reactions → **ConversationCard**.
+- A row in a sidebar that leads to a place → **NavItem**.
+
+## How
+
+```tsx
+import { ActivityLine } from '@estiva-app/ui'
+
+<ActivityLine
+  person={{ name: person.name, picture: person.picture }}
+  did="replied to you"
+  time="2h"
+  mark={<IconArrowBackUp size={16} stroke={1.5} />}
+  where="Group one › Item one"
+  words={message.preview}
+  href={message.href}
+/>
+```
+
+- It is a menu row's look: a fill under the pointer and no edge, 8px
+  corners, 36px at the least. Write no card, edge or padding around a line.
+- Its words have their sizes: the name `body-2-strong`, what they did
+  `body-2`, the time in a count's type, the second line `caption`. Write no
+  type of your own.
+- `data-*` marks pass to the row, for the app's tests.
+
+## Props
+
+<Controls of={ActivityLineStories.Default} />

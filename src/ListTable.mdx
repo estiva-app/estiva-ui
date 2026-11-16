@@ -1,0 +1,98 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as ListTableStories from './ListTable.stories'
+
+<Meta of={ListTableStories} />
+
+# ListTable
+
+A list of things on a page, under column headings: each row leads to its thing, a few short facts in columns, and an action at its end.
+
+<Canvas of={ListTableStories.Default} />
+
+## When
+
+- **A page that lists things to find and open**: every topic, every team's
+  places, every project — each row its name and what it is about, then its
+  facts (its team, who is in it, when it was last active), then what you can
+  do from the list (Join).
+- `columns`: the facts after the name, each with its heading and its width —
+  `small` 80px (a number, a few faces), `medium` 96px (a date), `large`
+  112px (a name).
+- `keep`: which columns give way when the list runs short of room — `low`
+  ones first, then `high` ones. The name and the end never do. The list
+  measures **its own** width, not the window's: beside a sidebar it gives way
+  as it would in a small window.
+
+<Canvas of={ListTableStories.Narrow} />
+
+<Canvas of={ListTableStories.Narrowest} />
+
+- `end`: the rows hold their own control at the end, and the list keeps 64px
+  for it in every row, so the columns stay lined up.
+- A cell is words, or a part: an **AvatarGroup** with its number in
+  **MetaText**, 6px apart. A cell not read yet shows a dash.
+
+<Canvas of={ListTableStories.NotReadYet} />
+
+- On a wide page the list stops at 896px: stretched across the page, a short
+  name sat far from its facts.
+
+<Canvas of={ListTableStories.OnAWidePage} />
+
+## When not
+
+- The rows of a sidebar → **NavItem**, in a **Sidebar** or a **NavTree**.
+- The list beside the thing that is open → **ListColumn**.
+- A link alone on its line, in a file's text → **LinkRow**.
+- A table someone writes, in a document → the editor's table.
+
+## How
+
+```tsx
+import { Button, ListTable, ListTableRow } from '@estiva-app/ui'
+
+<ListTable
+  aria-label="Topics"
+  columns={[
+    { label: 'Team', width: 'large' },
+    { label: 'Members', width: 'small', keep: 'low' },
+    { label: 'Active', width: 'medium', keep: 'low' },
+  ]}
+  end
+>
+  {topics.map((topic) => (
+    <ListTableRow
+      key={topic.id}
+      href={topic.href}
+      label={topic.title}
+      description={topic.summary}
+      icon={<KindIcon kind="topic" />}
+      cells={[topic.team, topic.members, topic.active]}
+      end={topic.yours ? undefined : <Button size="small" variant="outlined" onClick={() => join(topic)}>Join</Button>}
+    />
+  ))}
+</ListTable>
+```
+
+- **The row is the link**: a click anywhere on it opens its thing, and the
+  keyboard ring goes round the whole row. What is in `end` stays its own
+  control, above the link.
+- It draws the headings, the row's look (8px corners, the fill under the
+  pointer, no edge), the widths, the dashes and the giving way. Write none of
+  them; give it words and parts.
+- Its headings line up with their cells because both come from `columns`:
+  never draw a heading row of your own over it.
+
+## What it owns
+
+| It does | So you never write |
+|---|---|
+| Draws the column headings over the cells | a row of headings by hand |
+| Hides columns by its own width, `low` first | `hidden sm:block` on a column |
+| Draws a row's fill, its 8px corners and no edge | `rounded-md hover:bg-bg-hover` on a row |
+| Makes the whole row the link, its end above it | a covering link and `relative` by hand |
+| Stops at 896px on a wide page | a width of your own on the name |
+
+## Props
+
+<Controls of={ListTableStories.Default} />

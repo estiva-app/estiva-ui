@@ -26,9 +26,13 @@ page's buttons, 4px apart.
 
 - `private`: a lock before the title, when only its members can open it.
 - `after`: something that belongs to the title, right after it — a small
-  `Button` that opens it elsewhere, a `Chip`.
+  `Button` that opens it elsewhere, a `Chip`, the places it is listed in as
+  **InlineChip**s. Several, given together, sit 8px apart: the bar spaces
+  them, so write no box around them.
 
 <Canvas of={PageHeaderStories.AfterTheTitle} />
+
+<Canvas of={PageHeaderStories.SeveralAfterTheTitle} />
 
 - `meta`: quiet counts at the right, a dot between them; `done: true`
   for words about what is finished.
@@ -46,6 +50,11 @@ page's buttons, 4px apart.
   one of them, its icon filled while the column is open.
 
 <Canvas of={PageHeaderStories.ColumnToggle} />
+
+- `button`: one button with words, before the page's buttons and 8px clear
+  of them — Join, Add to Open work. Never a second toolbar beside the first.
+
+<Canvas of={PageHeaderStories.AButtonBeforeTheButtons} />
 
 - A **Breadcrumb** in the title's place, for a page reached down a trail.
 
@@ -107,6 +116,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | Draws ContainerHeader's bar: 48px, the hairline under it, 16px in at each end | a header row of your own | ContainerHeader used on its own in an app |
 | Keeps the counts, the time and the members 12px apart, and 12px clear of the buttons | `gap-3`, `pr-2` of your own around them |  |
+| Sets several things after the title 8px apart, and a button with words 8px before the page's buttons | a `flex gap-2` box of your own around them |  |
 | Cuts a long string title short and keeps everything else whole | `truncate`, `min-w-0`, `shrink-0` |  |
 | Draws the counts in `MetaText`, a dot between them | a dot or a count style of your own |  |
 | Draws the time 12px italic, with the exact time in a tooltip | `text-caption italic` and a `WithTooltip` of your own |  |
@@ -116,7 +126,7 @@ It does these by itself. Write none of them around it.
 
 | Key | What it does |
 |---|---|
-| Tab | Moves through the bar in reading order: what is after the title, the members, then the buttons |
+| Tab | Moves through the bar in reading order: what is after the title, the members, the button with words, then the buttons |
 | Arrow keys | Move along the `Toolbar` of buttons, which is one Tab stop — the Toolbar's own keys |
 
 ## Props

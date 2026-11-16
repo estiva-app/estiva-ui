@@ -46,6 +46,17 @@ describe('CollapsibleSection', () => {
     expect(title().getAttribute('aria-expanded')).toBe('true')
   })
 
+  it('shows its count beside the title, shut as well as open, in the count style rather than the title', () => {
+    render(
+      <CollapsibleSection title="Section" count={2} defaultOpen={false}>
+        {rows}
+      </CollapsibleSection>,
+    )
+    const count = screen.getByText('2')
+    expect(screen.getByText('Section').textContent).toBe('Section')
+    expect(count.className).not.toBe(screen.getByText('Section').className)
+  })
+
   it('starts closed with defaultOpen false', () => {
     render(<CollapsibleSection title="Section" defaultOpen={false}>{rows}</CollapsibleSection>)
     expect(title().getAttribute('aria-expanded')).toBe('false')

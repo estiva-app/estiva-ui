@@ -66,6 +66,12 @@ rows to any depth.
 
 <Canvas of={NavTreeStories.WithActionsAndUnread} />
 
+- A group's `count` is how many rows it holds, 8px after its title, shown
+  open or shut — never written into the title ("Group · 2"), where it takes
+  the heading's type.
+
+<Canvas of={NavTreeStories.GroupCount} />
+
 - A group's `menu` is its "More options" ⋮, after its actions and its
   `trailing`: what acts on the whole group — a folder's Rename, Archive. A
   row's `menu` acts on that row.

@@ -50,10 +50,14 @@ export interface NavTreeGroup {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
+  /** How many rows it holds, 8px after the title, shown open or shut — `SectionHeader`'s. */
+  count?: number
   /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s — a folder's Rename, Archive. */
   menu?: ReactNode
+  /** The ⋮'s accessible name. Default "More options". */
+  menuLabel?: string
   /** 16px, before the title — a folder's; the arrow takes its place on hover. */
   icon?: ReactNode
   defaultOpen?: boolean
@@ -231,8 +235,10 @@ function Group({ group, selected, onSelect, opening, storageKey }: { group: NavT
       message={group.message}
       loading={group.nodes === null}
       trailing={group.trailing}
+      {...(group.count != null ? { count: group.count } : {})}
       actions={group.actions}
       menu={group.menu}
+      {...(group.menuLabel != null ? { menuLabel: group.menuLabel } : {})}
       icon={group.icon}
       defaultOpen={group.defaultOpen ?? holds(group.nodes, selected)}
       open={group.open}
@@ -254,10 +260,17 @@ export interface NavTreeSectionProps {
   message?: string
   /** Beside the title, always shown: an `UnreadDot`, typically. */
   trailing?: ReactNode
+  /**
+   * How many rows it holds, 8px after the title, shown open or shut — `SectionHeader`'s. Written into the title by
+   * hand ("Other teams · 2"), the number took the heading's own type (Katerina, 16 November).
+   */
+  count?: number
   /** Beside the title, shown while the row is hovered or keyboard-focused: "Open", typically. */
   actions?: SectionAction[]
   /** The group's "More options" menu, after its actions: `MenuItem`s. */
   menu?: ReactNode
+  /** The ⋮'s accessible name, "More for Group one". Default "More options". */
+  menuLabel?: string
   /** 16px, before the title; the arrow takes its place on hover. */
   icon?: ReactNode
   /** Open unless told otherwise. */
@@ -291,7 +304,7 @@ export interface NavTreeSectionProps {
  * `groups`; an app whose groups each read their own data draws them itself,
  * as `NavTree`'s children.
  */
-export function NavTreeSection({ id, title, message, loading = false, pending = false, trailing, actions, menu, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
+export function NavTreeSection({ id, title, message, loading = false, pending = false, trailing, count, actions, menu, menuLabel, icon, defaultOpen = true, open, onOpenChange, storageKey, openFor, onIntent, children }: NavTreeSectionProps) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => () => clearTimeout(timer.current), [])
   // Pending for too long: a slow read, drawn as `loading` is (OPT-11). Each new wait starts the time again.
@@ -333,8 +346,10 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
           storageKey={storageKey}
           openFor={openFor}
           trailing={trailing}
+          {...(count != null ? { count } : {})}
           actions={actions}
           menu={menu}
+          {...(menuLabel != null ? { menuLabel } : {})}
           icon={icon}
           className="shrink-0"
           // 2px between rows, as a list column's and a menu's (Katerina, 5 October).

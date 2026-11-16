@@ -36,6 +36,12 @@ toggle, and the rows under it, sliding shut and open.
   yet drawn: on a section already showing its rows, `pending` shuts them
   until it is false. The tests pin the state (open, busy, rows hidden); the
   single slide is Chrome's to show, measured in Peek (OPT-11).
+- `count` for how many rows it holds, 8px after the title, shown open or
+  shut — SectionHeader's. Never written into the title ("Group · 2"): there
+  it takes the heading's type, not a count's.
+
+<Canvas of={CollapsibleSectionStories.WithCount} />
+
 - `actions` for add, sort, filter beside the title — SectionHeader's,
   revealed while the row is hovered or keyboard-focused.
 - `look="row"` when the section is a row among rows — a folder in a

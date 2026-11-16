@@ -149,6 +149,20 @@ export const GroupIcons: Story = {
   },
 }
 
+/** A group that says how many rows it holds, 8px after its title, open or shut. */
+export const GroupCount: Story = {
+  args: {
+    groups: [
+      { id: 'n1', title: 'Group one', count: 2, defaultOpen: true, nodes: [
+        { id: 'n1a', label: 'Item one', href: '#', icon: placeholder },
+        { id: 'n1b', label: 'Item two', href: '#', icon: placeholder },
+      ] },
+      { id: 'n2', title: 'Group two', count: 1, defaultOpen: false, nodes: [{ id: 'n2a', label: 'Item three', href: '#', icon: placeholder }] },
+    ],
+    selected: undefined,
+  },
+}
+
 /** Read as it opens: a group still being read, a group with nothing in it, a row whose rows are read when it opens, and one that could not be read. */
 export const ReadAsItOpens: Story = {
   args: {

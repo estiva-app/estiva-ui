@@ -38,6 +38,24 @@ describe('NavTree', () => {
     expect(onSelect.mock.calls[0][0].id).toBe('c')
   })
 
+  it('a group says its count beside its title, and the title stays its own words; an app-drawn group the same', () => {
+    render(
+      <NavTree groups={[{ id: 'g', title: 'Group one', count: 2, defaultOpen: false, nodes: [{ id: 'a', label: 'Item one', href: '#' }] }]} />,
+    )
+    expect(screen.getByText('2')).toBeTruthy()
+    expect(screen.getByText('Group one').textContent).toBe('Group one')
+    cleanup()
+    render(
+      <NavTree>
+        <NavTreeSection title="Group two" count={3} menu={<MenuItem label="Rename" />} menuLabel="More for Group two">
+          <a href="#">Item two</a>
+        </NavTreeSection>
+      </NavTree>,
+    )
+    expect(screen.getByText('3')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'More for Group two' })).toBeTruthy()
+  })
+
   it('draws the quiet label when given one', () => {
     render(<NavTree title="Groups" groups={GROUPS} emptyMessage="Nothing here yet." />)
     expect(screen.getByText('Groups')).not.toBeNull()
