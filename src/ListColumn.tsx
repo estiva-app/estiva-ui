@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { cn } from './cn'
+import { useRevealCurrentRow } from './revealCurrentRow'
 import { ContainerHeader } from './ContainerHeader'
 import { ErrorBoundary } from './ErrorBoundary'
 import { FOLDED_CLASSES, FOLD_MOTION_CLASSES, UNFOLDED_CLASSES } from './looks'
@@ -20,6 +21,11 @@ import { ScrollArea } from './ScrollArea'
  * It scrolls its rows itself. A list column that did not was the first of the
  * eight mistakes on the page that led to UIG-15: the frame's card clips, so a
  * list that grew past the fold was simply cut off, with nothing to scroll.
+ *
+ * It shows where the open page lives: its row (a `NavItem` that is `active`)
+ * is brought into sight once it is drawn, however late, once for each new open
+ * page, and never pulled back after the reader scrolls away (Katerina, 17
+ * November: the selected row "could be somewhere above or below the fold").
  *
  * It keeps a crash inside itself (D1, D3): if its rows, its actions or the row
  * above break, the column keeps its title and shows `ErrorBoundary`'s message
@@ -50,6 +56,8 @@ export interface ListColumnProps {
 }
 
 function Column({ title, chevron = false, titleMenu, actions, above, collapsed = false, children, className, broken = false }: ListColumnProps & { broken?: boolean }) {
+  const rows = useRef<HTMLDivElement>(null)
+  useRevealCurrentRow(rows)
   return (
     <div
       className={cn(
@@ -69,7 +77,7 @@ function Column({ title, chevron = false, titleMenu, actions, above, collapsed =
         // The message takes the room the list had and centres itself in it (Katerina, 19 September).
         <div className="flex min-h-0 flex-1 flex-col px-3">{children}</div>
       ) : (
-        <ScrollArea className="flex-1" contentClassName="flex flex-col gap-0.5 px-3 pt-4 pb-3">
+        <ScrollArea className="flex-1" viewportRef={rows} contentClassName="flex flex-col gap-0.5 px-3 pt-4 pb-3">
           {children}
         </ScrollArea>
       )}

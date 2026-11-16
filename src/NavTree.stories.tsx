@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconSquareRounded } from '@tabler/icons-react'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { IconArrowUpRight, IconFolder, IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 import { Chip } from './Chip'
@@ -280,6 +280,66 @@ export const OpensOntoTheCurrentRow: Story = {
           <Button variant="outlined" size="small" onClick={() => setSelected('i31')}>Open Item 31</Button>
           <Button variant="outlined" size="small" onClick={() => setSelected('i10')}>Open Item 10</Button>
           <Button variant="outlined" size="small" onClick={() => setSelected('i2')}>Open Item 2</Button>
+        </Page>
+      </div>
+    )
+  },
+}
+
+/** A fold that reads its own rows once it opens, a moment later (a team's Files in Peek): its rows are drawn by it, not by the tree. */
+function FilesFold({ selected, onOpen }: { selected?: string; onOpen: (id: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [rows, setRows] = useState<string[] | null>(null)
+  useEffect(() => {
+    if (!open || rows) return
+    const timer = setTimeout(() => setRows(Array.from({ length: 12 }, (_, i) => `f${i + 1}`)), 1000)
+    return () => clearTimeout(timer)
+  }, [open, rows])
+  const holds = selected?.startsWith('f') === true
+  return (
+    <NavTreeSection title="Files" icon={folder} open={open} onOpenChange={setOpen} loading={open && !rows} {...(holds && selected ? { openFor: selected } : {})}>
+      {rows?.map((id) => (
+        <NavItem
+          key={id}
+          href="#"
+          label={`Project ${id.slice(1)}`}
+          icon={placeholder}
+          active={id === selected}
+          onClick={(event) => {
+            event.preventDefault()
+            onOpen(id)
+          }}
+        />
+      ))}
+    </NavTreeSection>
+  )
+}
+
+/**
+ * The current row is in a fold at the bottom that reads its rows only once it opens. Open Project 9 from the page: the
+ * fold opens, reads for a second, and the column scrolls to the row once the fold has drawn it (Katerina, 17 November:
+ * it stayed below the fold). Scroll away: it stays where you put it.
+ */
+export const CurrentRowDrawnLateByAFold: Story = {
+  render: function Render(args) {
+    const [selected, setSelected] = useState<string | undefined>(undefined)
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree title={args.title} selected={selected}>
+            {Array.from({ length: 6 }, (_, g) => (
+              <NavTreeSection key={g} title={`Group ${g + 1}`} icon={folder} defaultOpen>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <NavItem key={i} href="#" label={`Item ${g * 5 + i + 1}`} icon={placeholder} />
+                ))}
+              </NavTreeSection>
+            ))}
+            <FilesFold selected={selected} onOpen={setSelected} />
+          </NavTree>
+        </Sidebar>
+        <Page>
+          <Button variant="outlined" size="small" onClick={() => setSelected('f9')}>Open Project 9, in Files</Button>
+          <Button variant="outlined" size="small" onClick={() => setSelected(undefined)}>Close it</Button>
         </Page>
       </div>
     )
