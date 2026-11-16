@@ -35,6 +35,9 @@ export const WithTitleMenu: Story = {
 /** A string title, one line, alone. */
 export const Default: Story = {}
 
+/** A way back to the layer before: an arrow before the title, 8px from it, the bar giving it its room. */
+export const WithBack: Story = { args: { title: 'Add items', back: { label: 'Back to items', onClick: () => {} } } }
+
 /** A chevron after the title, for a title that opens something. */
 export const WithChevron: Story = { args: { title: 'All items', chevron: true } }
 

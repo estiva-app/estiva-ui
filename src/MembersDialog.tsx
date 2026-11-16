@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react'
-import { IconArrowLeft, IconUserMinus, IconUserPlus } from '@tabler/icons-react'
+import { IconUserMinus, IconUserPlus } from '@tabler/icons-react'
 import { Avatar } from './Avatar'
 import { Button } from './Button'
 import { Chip } from './Chip'
@@ -7,7 +7,6 @@ import { ChipInput, type ChipInputOption } from './ChipInput'
 import { DialogShell } from './DialogShell'
 import { Field } from './Field'
 import { Form } from './Form'
-import { IconButton } from './IconButton'
 import { MenuItem } from './Menu'
 
 /** One row of the roster: a face, a name, and an optional second line. */
@@ -129,14 +128,7 @@ export function AddPeopleLayer({
     <DialogShell
       title={title}
       onClose={onClose}
-      headerContent={
-        <div className="flex min-w-0 items-center gap-2">
-          <IconButton tooltip={backLabel} aria-label={backLabel} className="-ml-2" onClick={onBack}>
-            <IconArrowLeft size={16} stroke={1.5} />
-          </IconButton>
-          <span className="truncate text-h4 text-text-primary">{title}</span>
-        </div>
-      }
+      back={{ label: backLabel, onClick: onBack }}
       bodyClassName="flex flex-col gap-6"
       footer={
         <>

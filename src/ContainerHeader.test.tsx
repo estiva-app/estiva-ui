@@ -5,7 +5,7 @@
  * buttons sit at the right edge. The pixels are proved against Peek's own
  * (docs/GATES.md, UIG-13: A).
  */
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MenuItem } from './Menu'
@@ -14,6 +14,17 @@ import { ContainerHeader } from './ContainerHeader'
 afterEach(cleanup)
 
 describe('ContainerHeader', () => {
+  it('draws its way back before the title, outside the title’s clipping box, with no negative margin', async () => {
+    const onClick = vi.fn()
+    render(<ContainerHeader title="Add items" back={{ label: 'Back to items', onClick }} />)
+    const button = screen.getByRole('button', { name: 'Back to items' })
+    // Its fill and ring were cut off when it sat inside the box that clips the title, pulled out by -ml-2 (16 November).
+    expect(button.closest('.overflow-hidden')?.className).toContain('h-12')
+    expect(button.className).not.toMatch(/-m[lx]-/)
+    await userEvent.click(button)
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
   it('is the 48px bar with a hairline under it', () => {
     const { container } = render(<ContainerHeader title="Items" />)
     const bar = container.firstElementChild!.className.split(' ')

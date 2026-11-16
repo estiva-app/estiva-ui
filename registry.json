@@ -2743,6 +2743,12 @@
           "note": "The column's own buttons, at the right edge: IconButtons with tooltips, 4px apart."
         },
         {
+          "name": "back",
+          "takes": "a handler",
+          "required": false,
+          "note": "A way back to the layer before, an arrow before the title, 8px from it — a dialog's Add members back to its list."
+        },
+        {
           "name": "className",
           "takes": "text",
           "required": false,
@@ -3626,7 +3632,13 @@
           "name": "headerContent",
           "takes": "anything",
           "required": false,
-          "note": "Replaces the title text in the header — a back button beside the title, a count chip after it."
+          "note": "Replaces the title text in the header — a count chip after it."
+        },
+        {
+          "name": "back",
+          "takes": "a handler",
+          "required": false,
+          "note": "A way back to the layer before — an Add layer back to its list: an arrow before the title, the bar's own, whole (it was the dialog's own button pulled 8px out of the bar's box, its fill and ring cut off; Katerina, 16 November)."
         },
         {
           "name": "footer",

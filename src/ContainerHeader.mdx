@@ -22,6 +22,13 @@ with a hairline under it.
 
 <Canvas of={ContainerHeaderStories.WithTitleMenu} />
 
+- `back`: a way back to the layer before — an arrow before the title, 8px
+  from it. The bar gives it its room (12px in), so its fill and its ring
+  stay whole: never pull a button of your own out of the bar with a
+  negative margin, where the bar cuts it off.
+
+<Canvas of={ContainerHeaderStories.WithBack} />
+
 ## When not
 
 - One section inside a column → **SectionHeader**, the 32px row with a
