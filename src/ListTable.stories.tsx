@@ -69,7 +69,7 @@ type Story = StoryObj<typeof meta>
 /** Rows under column headings: each row leads to its item, its end is its own button. Point at a row: a fill, 8px corners, no edge. */
 export const Default: Story = {}
 
-/** On a wide page: the list stops at 896px, so a short name stays near its facts. */
+/** On a wide page: the name stops at 384px, its facts beside it, the end at the right edge. */
 export const OnAWidePage: Story = {
   render: (args) => (
     <div className="w-full bg-bg-surface p-6">

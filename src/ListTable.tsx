@@ -71,8 +71,9 @@ const widthOf = (columns: ListTableColumn[], end: boolean) =>
 /**
  * A list of things on a page, under column headings: each row leads to its thing, with its name and what it is about,
  * then a few short facts in columns, then an action at its end. The columns give way to the name by the list's own
- * width, not the window's — `low` ones first, then `high` ones — so a list beside a sidebar keeps its names. The list
- * is at most 896px wide, so on a wide screen a short name does not sit far from its facts.
+ * width, not the window's — `low` ones first, then `high` ones — so a list beside a sidebar keeps its names. The name
+ * is at most 384px and the facts sit beside it; the room left goes before the end, which keeps the list's right edge.
+ * The list is at most 896px wide.
  *
  * Peek's Explore topics, Ship's Topics and Leaf's Explore topics each drew this by hand, class for class, and their
  * columns hid only at the phone's width: in a narrow window the names were cut to two letters (Katerina, 16 November).
@@ -99,8 +100,8 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
     <ListTableContext.Provider value={{ columns, shown, end }}>
       <div ref={box} role="table" aria-label={label} className={cn('flex w-full max-w-4xl flex-col gap-2', className)}>
         <div role="row" className="flex items-center gap-3 px-3 text-caption text-text-muted">
-          {/* Over the name, past the icon. */}
-          <span role="columnheader" className="min-w-0 flex-1 pl-7">
+          {/* Over the name, past the icon; as wide as the names' cells. */}
+          <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
             {nameLabel}
           </span>
           {columns.map((column) =>
@@ -110,7 +111,7 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
               </span>
             ) : null,
           )}
-          {end && <span role="columnheader" aria-label="Actions" className="w-16 shrink-0" />}
+          {end && <span role="columnheader" aria-label="Actions" className="ml-auto w-16 shrink-0" />}
         </div>
         {/* 2px between rows, as a list column's and a menu's. */}
         <div role="rowgroup" className="flex flex-col gap-0.5">
@@ -128,7 +129,8 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
   return (
     // A row's look in every list: 8px corners, the fill under the pointer and no edge.
     <div role="row" className="relative flex min-w-0 items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
-      <span role="cell" className="flex min-w-0 flex-1 items-center gap-3">
+      {/* At most 384px: a short name keeps its facts beside it, not across the page (Katerina, 16 November). */}
+      <span role="cell" className="flex min-w-0 max-w-sm flex-1 items-center gap-3">
         {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
         <Link href={href} variant="plain" cover className="flex min-w-0 flex-1 flex-col" {...(onClick ? { onClick } : {})}>
           <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
@@ -145,7 +147,8 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
       )}
       {table.end && (
         // After the covering link and `relative`, so what is here stays its own control.
-        <span role="cell" className="relative flex w-16 shrink-0 items-center justify-end gap-1">
+        // The room the name leaves goes before it: the end keeps the list's right edge.
+        <span role="cell" className="relative ml-auto flex w-16 shrink-0 items-center justify-end gap-1">
           {end}
         </span>
       )}

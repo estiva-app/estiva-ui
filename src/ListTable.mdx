@@ -34,8 +34,9 @@ A list of things on a page, under column headings: each row leads to its thing, 
 
 <Canvas of={ListTableStories.NotReadYet} />
 
-- On a wide page the list stops at 896px: stretched across the page, a short
-  name sat far from its facts.
+- The name is at most 384px and its facts sit beside it; the room left goes
+  before the end, which keeps the list's right edge. The list stops at
+  896px. A name stretched across the page sat far from its facts.
 
 <Canvas of={ListTableStories.OnAWidePage} />
 
@@ -91,7 +92,7 @@ import { Button, ListTable, ListTableRow } from '@estiva-app/ui'
 | Hides columns by its own width, `low` first | `hidden sm:block` on a column |
 | Draws a row's fill, its 8px corners and no edge | `rounded-md hover:bg-bg-hover` on a row |
 | Makes the whole row the link, its end above it | a covering link and `relative` by hand |
-| Stops at 896px on a wide page | a width of your own on the name |
+| Keeps the name at most 384px, the facts beside it, the end at the right | a width of your own on the name |
 
 ## Props
 
