@@ -204,7 +204,7 @@ export const TwoColumnsOpenedAtThread: Story = {
       id: c.id,
       day: i < 7 ? 'Monday' : 'Today',
       card: (
-        <ConversationCard author={c.who} time={`${8 + (i % 7)}:${i % 2 ? '30' : '05'} AM`}>
+        <ConversationCard author={c.who} time={`${8 + (i % 4)}:${i % 2 ? '30' : '05'} AM`}>
           {c.words}
         </ConversationCard>
       ),
