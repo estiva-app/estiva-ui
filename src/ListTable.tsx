@@ -73,7 +73,7 @@ const widthOf = (columns: ListTableColumn[], end: boolean) =>
  * then a few short facts in columns, then an action at its end. The columns give way to the name by the list's own
  * width, not the window's — `low` ones first, then `high` ones — so a list beside a sidebar keeps its names. The name
  * is at most 384px and the facts sit beside it; the room left goes before the end, which keeps the list's right edge.
- * The list is at most 896px wide.
+ * The list takes the whole width it is given, as every page's body does (Katerina, 16 November).
  *
  * Peek's Explore topics, Ship's Topics and Leaf's Explore topics each drew this by hand, class for class, and their
  * columns hid only at the phone's width: in a narrow window the names were cut to two letters (Katerina, 16 November).
@@ -98,7 +98,7 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
   }, [measure])
   return (
     <ListTableContext.Provider value={{ columns, shown, end }}>
-      <div ref={box} role="table" aria-label={label} className={cn('flex w-full max-w-4xl flex-col gap-2', className)}>
+      <div ref={box} role="table" aria-label={label} className={cn('flex w-full flex-col gap-2', className)}>
         <div role="row" className="flex items-center gap-3 px-3 text-caption text-text-muted">
           {/* Over the name, past the icon; as wide as the names' cells. */}
           <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
