@@ -8276,7 +8276,7 @@
           "name": "button",
           "takes": "anything",
           "required": false,
-          "note": "One button with words, before the page's buttons and 8px clear of them: Join, Add to Open work."
+          "note": "A button with words, before the page's buttons and 8px clear of them: Join, Add to Open work."
         },
         {
           "name": "actions",

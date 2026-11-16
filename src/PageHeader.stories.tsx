@@ -114,7 +114,7 @@ export const SeveralAfterTheTitle: Story = {
   },
 }
 
-/** One button with words before the page's buttons, 8px clear of them. */
+/** A button with words before the page's buttons, 8px clear of them. */
 export const AButtonBeforeTheButtons: Story = {
   args: {
     members,

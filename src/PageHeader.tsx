@@ -49,8 +49,9 @@ export interface PageHeaderProps {
   /** Who is in it: a `MembersPill`. */
   members?: ReactNode
   /**
-   * One button with words, before the page's buttons and 8px clear of them: Join, Add to Open work. Peek drew it in a
-   * box of its own beside the toolbar, 8px from it, for want of this place (Katerina, 16 November).
+   * A button with words, before the page's buttons and 8px clear of them: Join, Add to Open work. Two, given together
+   * (Follow and Join), sit 8px apart. Peek drew them in a box of its own beside the toolbar, for want of this place
+   * (Katerina, 16 November).
    */
   button?: ReactNode
   /** The page's own buttons, at the right edge: a `Toolbar` with `surface={false}` of `ToolbarButton`s, or one `IconButton`. */
@@ -107,7 +108,7 @@ export function PageHeader({ title, leading, private: locked = false, after, met
           </div>
         )}
         {/* The bar sets its parts 4px apart; the other 4px keep the words 8px clear of the icons. */}
-        {button != null && <span className={cn('flex shrink-0 items-center', actions != null && 'pr-1')}>{button}</span>}
+        {button != null && <span className={cn('flex shrink-0 items-center gap-2', actions != null && 'pr-1')}>{button}</span>}
         {actions}
       </>
     ) : undefined
