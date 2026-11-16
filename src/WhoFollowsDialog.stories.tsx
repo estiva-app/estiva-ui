@@ -38,3 +38,22 @@ export const ListOnly: Story = { args: { onAdd: undefined } }
 
 /** Opened from a menu's "Add someone…": straight on the add layer, whose back arrow returns to the list. */
 export const Adding: Story = { args: { initialView: 'add' } }
+
+/** `self` leave: your own row comes first in its group, with Leave on it. */
+export const WithLeave: Story = { args: { self: { action: 'leave', id: 'me', onToggle: () => {} } } }
+
+/** `self` join: not in it, so Join sits on top, above "Add someone". */
+export const NotIn: Story = {
+  args: {
+    important: [{ id: 'ravi', name: 'Ravi Mehta', caption: 'Added by Ana Duarte' }],
+    self: { action: 'join', id: 'me', onToggle: () => {} },
+  },
+}
+
+/** `self` leave with no row of your own (in it at a level not listed here): Leave on top, as Join is. */
+export const LeaveOnTop: Story = {
+  args: {
+    important: [{ id: 'ravi', name: 'Ravi Mehta', caption: 'Added by Ana Duarte' }],
+    self: { action: 'leave', id: 'me', onToggle: () => {} },
+  },
+}

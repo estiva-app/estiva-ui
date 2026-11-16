@@ -174,3 +174,19 @@ describe('SectionHeader, the trailing slot', () => {
     expect(count.previousElementSibling?.textContent).toBe('Section')
   })
 })
+
+describe('SectionHeader, the words it shows', () => {
+  it('shows only its title and count as words, whatever menus and actions it carries', async () => {
+    const { container } = render(
+      <SectionHeader
+        title="Item"
+        count={3}
+        actions={[{ icon: <svg aria-hidden />, tooltip: 'Sort', menu: <MenuItem label="Newest first" onClick={() => {}} /> }]}
+        menu={<MenuItem label="Rename" onClick={() => {}} />}
+      />,
+    )
+    await screen.findByRole('button', { name: 'More options for Item' })
+    // A stray line of code in the markup draws as text beside the title, and squeezes it (Katerina, 16 November).
+    expect(container.textContent).toBe('Item3')
+  })
+})

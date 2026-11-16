@@ -46,6 +46,29 @@ export const Items: Story = {
   ),
 }
 
+/** Rows of two lines: the icon beside the first line, a row with a `description` by default (Katerina, 16 November);
+ *  `leadingAt="center"` keeps it centred on the whole row, and a row whose `children` run to two lines passes
+ *  `leadingAt="top"`. */
+export const TwoLines: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <MenuPanel className="w-80">
+      <MenuSection label="Section">
+        <MenuItem label="Item one" description="A second line that says more about it" leading={icon(IconSquareRounded)} onClick={() => {}} />
+        <MenuItem label="Item two" description="A second line that says more about it" leading={icon(IconSquareRounded)} selected onClick={() => {}} />
+        <MenuItem label="Item three" description="leadingAt center: the icon centred on both lines" leading={icon(IconSquareRounded)} leadingAt="center" onClick={() => {}} />
+      </MenuSection>
+      <MenuSeparator />
+      <MenuItem leading={icon(IconSquareRounded)} leadingAt="top" onClick={() => {}}>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-body-2 text-text-primary">Item four</span>
+          <span className="truncate text-caption text-text-secondary">Its children run to a second line</span>
+        </span>
+      </MenuItem>
+    </MenuPanel>
+  ),
+}
+
 /** Groups under headings, with a divider between them. The divider runs the
  *  width of the rows it separates, not the width of the panel's text. */
 export const Sections: Story = {

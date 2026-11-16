@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.116.0",
+    "packageVersion": "0.117.0",
     "exports": 253,
     "typeExports": 264,
     "files": null
@@ -7080,6 +7080,12 @@
           "note": "Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face."
         },
         {
+          "name": "leadingAt",
+          "takes": "center | top",
+          "required": false,
+          "note": "Where `leading` sits on a row of two lines: beside the first line, or centred on the whole row."
+        },
+        {
           "name": "trailing",
           "takes": "anything",
           "required": false,
@@ -7128,6 +7134,13 @@
           "values": [
             "default",
             "tall"
+          ]
+        },
+        {
+          "prop": "leadingAt",
+          "values": [
+            "center",
+            "top"
           ]
         }
       ],
@@ -12690,6 +12703,12 @@
           "takes": "a handler",
           "required": false,
           "note": "Adds the people chosen. With it, the \"Add someone\" row shows and opens the same add layer as `MembersDialog`'s."
+        },
+        {
+          "name": "self",
+          "takes": "a handler",
+          "required": false,
+          "note": "The viewer's own Join or Leave, as `MembersDialog`'s: Leave on their own row, which comes first in its group; with no row of their own (not in it, or in it at no level shown here), Join or Leave on top, beside \"Add someone\"."
         },
         {
           "name": "initialView",

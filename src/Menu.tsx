@@ -359,6 +359,13 @@ export interface MenuItemProps extends Omit<ComponentPropsWithRef<'button'>, 'ch
   aside?: string
   /** Before the label: a 16px icon (stroke 1.5, secondary), or an Avatar, for rows led by a face. */
   leading?: ReactNode
+  /**
+   * Where `leading` sits on a row of two lines: beside the first line, or centred on the whole row. Default: beside the
+   * first line on a default-size row with a `description` (Katerina, 16 November: an icon centred between two lines
+   * belongs to neither); centred otherwise, as a tall row's face is. A row whose `children` run to two lines passes
+   * `top`.
+   */
+  leadingAt?: 'center' | 'top'
   /** At the right edge: a hint, a value — anything. Wins over `shortcut` and `submenu`. */
   trailing?: ReactNode
   /**
@@ -442,9 +449,10 @@ export function menuItemClassName({ size, selected, shut = false, className }: {
 /** Everything inside the row — written once, for the same reason. Shared
  *  inside the package like `menuItemClassName`: `CommandPalette` draws it
  *  inside Base UI's `Autocomplete.Item`. Not exported from the index. */
-export function MenuItemBody({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, shut = false }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'> & { shut?: boolean }) {
+export function MenuItemBody({ label, children, size = 'default', description, aside, leading, leadingAt, trailing, hint, shortcut, submenu, destructive, selected, shut = false }: Pick<MenuItemProps, 'label' | 'children' | 'size' | 'description' | 'aside' | 'leading' | 'leadingAt' | 'trailing' | 'hint' | 'shortcut' | 'submenu' | 'destructive' | 'selected'> & { shut?: boolean }) {
   // Shut, its words in the disabled colour, a destructive one's too.
   const labelColour = shut ? 'text-text-disabled' : destructive ? 'text-error-default' : 'text-text-primary'
+  const firstLine = (leadingAt ?? (size === 'default' && description ? 'top' : 'center')) === 'top'
   const edge =
     trailing ??
     (shortcut ? (
@@ -454,7 +462,8 @@ export function MenuItemBody({ label, children, size = 'default', description, a
     ) : null)
   return (
     <>
-      {leading && <span className="flex shrink-0 items-center">{leading}</span>}
+      {/* Beside the first line: the 20px of a body-2 line, from the row's top, so a 16px icon is centred on that line. */}
+      {leading && <span className={cn('flex shrink-0 items-center', firstLine && 'h-5 self-start')}>{leading}</span>}
       {/* Sizes are arbitrary values (the body-2 and caption tokens): these
           lists merge with a colour, and tw-merge drops a token size beside a
           colour. Ship's copy said `text-sm`, which was never the ramp. */}
@@ -495,7 +504,7 @@ export function MenuItemBody({ label, children, size = 'default', description, a
   )
 }
 
-export function MenuItem({ label, children, size = 'default', description, aside, leading, trailing, hint, shortcut, submenu, destructive, selected, disabledReason, className, ...props }: MenuItemProps) {
+export function MenuItem({ label, children, size = 'default', description, aside, leading, leadingAt, trailing, hint, shortcut, submenu, destructive, selected, disabledReason, className, ...props }: MenuItemProps) {
   const shut = !!disabledReason
   const body = (
     <MenuItemBody
@@ -504,6 +513,7 @@ export function MenuItem({ label, children, size = 'default', description, aside
       description={description}
       aside={aside}
       leading={leading}
+      {...(leadingAt ? { leadingAt } : {})}
       trailing={trailing}
       hint={hint}
       shortcut={shortcut}

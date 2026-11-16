@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.117.0 — 2026-11-16
+
+**WhoFollowsDialog** takes `self`, the viewer's own Join or Leave, as **MembersDialog**'s: Leave on their own row, first
+in its group; with no row of their own, Join or Leave on top beside "Add someone" (Katerina, 15 November, on the
+navigation prototype: "of course I need to leave"). Its group headings are **SectionHeader**s with their `count` beside
+the title (her 7 October rule) in place of "All · 1" typed into a SectionLabel, and "Nobody" now starts on the same
+line as the headings and the faces: it sat in a 20px box of its own on top of EmptyState's own 8px, measured 29px
+against 21px (Katerina, 15 November). The text reads "All1" where it read "All · 1"; no app's test reads it.
+Caller: Peek's `src/components/PlaceFollow.tsx` (no change needed; pass `self` to offer Leave in the dialog).
+
+**MenuItem** takes `leadingAt`, `'center'` or `'top'` (beside the first line). A default-size row with a `description` now draws its
+icon beside the first line rather than centred between the two lines (Katerina, 16 November: "an icon centred between
+two lines belongs to neither"); a tall row, whose leading is a face, stays centred; a row whose `children` run to two
+lines passes `top`. Story Menu/TwoLines. Moves, with no change by their callers: **FollowSwitch**'s three
+levels and its "Back to … default" row (Peek's `src/components/PlaceFollow.tsx`), and the `[` link menu's rows that
+carry a summary (`ComposerTriggers`, in every app's editor). The `@` rows are tall and do not move.
+
+**NavItem**'s ⋮ menu and **SectionHeader**'s menus open toward the page: their left edge under the button, spreading
+right over what a sidebar sits beside, where they hung from the button's right edge and spread back over the list and
+the rail (Katerina, 16 November: "why does the menu not open on the other side?"; Base UI flips only when a menu would
+not fit, so the side was ours). At the screen's right edge Base UI shifts one back in, as before. Moves, with no change
+by their callers: Peek's topic, team and people rows (`src/components/views/FileTreeView.tsx`,
+`src/components/ui/PersonItem.tsx`) and its section headings' sort and ⋮ menus. Ship and Leaf draw no row menus.
+
 ## 0.116.0 — 2026-11-13
 
 **UnreadDot** takes `tone`: `'reaction'`, a reaction to you, draws the disc in the warning colour (the urgent mark's;
