@@ -4,12 +4,13 @@ import { Chip } from './Chip'
 import { CollapsibleSection } from './CollapsibleSection'
 import { cn } from './cn'
 import { ContainerHeader } from './ContainerHeader'
-import { anchorIn, cardIn, isNearBottom, places, sendsInLayout, useSteadyScroll } from './conversationScroll'
+import { anchorIn, cardIn, isNearBottom, landOn, places, sendsInLayout, useSteadyScroll } from './conversationScroll'
 import { Divider } from './Divider'
 import { EmptyState } from './EmptyState'
 import { ErrorBoundary } from './ErrorBoundary'
 import { Panel } from './Panel'
 import { ScrollArea } from './ScrollArea'
+import { markShown } from './showInConversation'
 import { useWatchSeen, type SeenOnScreen } from './seenOnScreen'
 import { SkeletonConversation } from './Skeleton'
 import { caretOnOpen, InConversationItem, InThreadCard, LineByLayout, SHOWN_CLASSES, useFaceLine, type ConversationItemState } from './threadCard'
@@ -278,6 +279,9 @@ export function ConversationLayout({
   // A comment is read by being seen (Peek's way, Katerina, 30 October): each one in the list is watched.
   useWatchSeen(seen, body, 'data-conversation-item')
   const pressed = useRef<{ id: string; top: number } | null>(null)
+  // The thread was opened by a press on its comment, which is in view: it stays where it is. Any other opening came from
+  // outside (a link, a line naming it) and lands on it.
+  const byPress = useRef(false)
   const itemAt = (id: string) => body.current?.querySelector<HTMLElement>(`[data-conversation-item="${CSS.escape(id)}"]`) ?? null
   // A thread that opens puts the caret in its box (Katerina, 31 October); the one open when the page is drawn does not.
   const [caret, setCaret] = useState(0)
@@ -290,6 +294,7 @@ export function ConversationLayout({
         }
         const item = threads === 'under' ? itemAt(id) : null
         pressed.current = item ? { id, top: item.getBoundingClientRect().top } : null
+        byPress.current = true
         onOpenChange(next)
       }
     : undefined
@@ -338,7 +343,19 @@ export function ConversationLayout({
     const el = body.current
     if (!el) return
     const left = rememberAs ? places.get(rememberAs) : undefined
-    if (left && !left.atBottom) {
+    /*
+      Opened at a thread — a link to it, a line in a list that names it — it lands on that comment, in the middle and
+      marked a moment, not at the newest, so the reader sees what they asked for (Katerina, 17 November: "if the
+      conversation is not visible, I don't see anything selected … generalize it so that it works in every similar
+      case"). A comment not drawn (older than what is read) leaves it to land as before.
+    */
+    const opened = open !== undefined ? itemAt(open) : null
+    if (opened) {
+      landOn(el, opened)
+      markShown(opened)
+      nearBottom.current = isNearBottom(el)
+      if (rememberAs) places.set(rememberAs, { atBottom: nearBottom.current, offset: el.scrollTop, anchor: anchorIn(el), leftAt: Date.now() })
+    } else if (left && !left.atBottom) {
       // That comment back at the same height, not the same offset: what is above it can change height while the
       // reader is away (a "new reply" mark cleared once read, a reactions line).
       el.scrollTop = left.offset
@@ -351,7 +368,21 @@ export function ConversationLayout({
       if (rememberAs) places.set(rememberAs, { atBottom: true, offset: el.scrollTop, leftAt: Date.now() })
     }
     placedFor.current = placeKey
+    // `open` is read as it is when it places; once placed, a change is the landing below.
   }, [beside, placeKey, rememberAs, loading])
+  // A thread opened from outside once it is placed (a line naming it, while the conversation is already open): two
+  // columns land on its comment too. A press on a comment leaves it where it is: it is in view.
+  useLayoutEffect(() => {
+    const pressedIt = byPress.current
+    byPress.current = false
+    if (!beside || pressedIt || open === undefined || placedFor.current !== placeKey) return
+    const el = body.current
+    const item = itemAt(open)
+    if (!el || !item) return
+    landOn(el, item)
+    markShown(item)
+    nearBottom.current = isNearBottom(el)
+  }, [open])
   // From there, it stays where the reader is while its cards, chips and pictures fill in (Peek's OPT-10).
   const placed = useCallback(() => placedFor.current === placeKey, [placeKey])
   useSteadyScroll(body, nearBottom, placed, loading, beside)

@@ -6,7 +6,7 @@
  * down to the reader's own comment as it is sent. A thread opens at its newest reply and goes to each new one. jsdom
  * has no layout: every box here says the same heights, and only the scrolling box's offset is read.
  */
-import { useContext, type ReactNode } from 'react'
+import { useContext, useState, type ReactNode } from 'react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ConversationCard, ReplyCard } from './ConversationCard'
@@ -191,6 +191,67 @@ describe('ConversationLayout, two columns, where it scrolls', () => {
     heights.scroll = 1200
     rerender(<Under n={9} />)
     expect(box.current!.scrollTop).toBe(0)
+  })
+})
+
+/*
+  Opened at a thread — a link to it, a line in a list that names it — two columns land on its comment, in the middle and
+  marked a moment, not at the newest (Katerina, 17 November: "the selected message could be somewhere above or below the
+  fold. It's a general problem we need to fix"). jsdom has no layout, so the box and the comment say where they are.
+*/
+describe('ConversationLayout, two columns, opened at a thread', () => {
+  /** The box sits 100px down the page, 400px tall; comment c3 is 900px down, 100px tall, when the box is at the top. */
+  const where = (box: { current: HTMLDivElement | null }) =>
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const top = this === box.current ? 100 : this.getAttribute('data-conversation-item') === 'c3' ? 900 - (box.current?.scrollTop ?? 0) : 0
+      const height = this === box.current ? 400 : 100
+      return { top, height, bottom: top + height, left: 0, right: 0, width: 0, x: 0, y: top, toJSON: () => ({}) } as DOMRect
+    })
+  afterEach(() => vi.restoreAllMocks())
+  const comment = (id: string) => document.querySelector<HTMLElement>(`[data-conversation-item="${id}"]`)!
+
+  it('opens on the open thread’s comment, in the middle and marked, not at the newest', () => {
+    // A long conversation: the comment lands far from its newest, where following what arrives does not move it.
+    heights.scroll = 3000
+    const box = { current: null as HTMLDivElement | null }
+    where(box)
+    const { rerender } = render(<ConversationLayout threads="beside" items={[]} loading open="c3" bodyRef={box} />)
+    rerender(<ConversationLayout threads="beside" items={many(8)} open="c3" bodyRef={box} />)
+    // 900 down the page, less the box's 100, less what centres a 100px comment in 400px: 650.
+    expect(box.current!.scrollTop).toBe(650)
+    expect(comment('c3').dataset.shown).toBe('true')
+  })
+
+  it('a thread opened from outside while it is open lands on its comment too', () => {
+    heights.scroll = 3000
+    const box = { current: null as HTMLDivElement | null }
+    const { rerender } = render(<ConversationLayout threads="beside" items={many(8)} bodyRef={box} />)
+    expect(box.current!.scrollTop).toBe(3000)
+    scrollTo(box.current!, 0)
+    where(box)
+    rerender(<ConversationLayout threads="beside" items={many(8)} open="c3" bodyRef={box} />)
+    expect(box.current!.scrollTop).toBe(650)
+    expect(comment('c3').dataset.shown).toBe('true')
+  })
+
+  it('a press on a comment opens its thread where it is: nothing moves, nothing is marked', () => {
+    const box = { current: null as HTMLDivElement | null }
+    function Pressed() {
+      const [open, setOpen] = useState<string | undefined>(undefined)
+      return <ConversationLayout threads="beside" items={many(8)} open={open} onOpenChange={setOpen} bodyRef={box} />
+    }
+    render(<Pressed />)
+    scrollTo(box.current!, 300)
+    where(box)
+    fireEvent.click(screen.getByText('Comment c3'))
+    expect(box.current!.scrollTop).toBe(300)
+    expect(comment('c3').dataset.shown).toBeUndefined()
+  })
+
+  it('a thread whose comment is not drawn (older than what is read) opens at the newest, as before', () => {
+    const box = { current: null as HTMLDivElement | null }
+    render(<ConversationLayout threads="beside" items={many(8)} open="not-read" bodyRef={box} />)
+    expect(box.current!.scrollTop).toBe(1000)
   })
 })
 
