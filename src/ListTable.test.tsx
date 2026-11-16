@@ -42,6 +42,16 @@ describe('ListTable', () => {
     expect(row.className).not.toMatch(/\bborder\b/)
   })
 
+  it('draws no headings when it has no columns, only the rows', () => {
+    render(
+      <ListTable aria-label="Items" columns={[]}>
+        <ListTableRow href="/one" label="Item one" cells={[]} />
+      </ListTable>,
+    )
+    expect(screen.queryAllByRole('columnheader')).toHaveLength(0)
+    expect(screen.getByRole('link', { name: 'Item one' })).toBeTruthy()
+  })
+
   it('refuses a row outside a list', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<ListTableRow href="/one" label="Item one" cells={[]} />)).toThrow(/inside one/)

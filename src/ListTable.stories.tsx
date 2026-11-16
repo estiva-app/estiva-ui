@@ -102,6 +102,20 @@ export const Narrowest: Story = {
   ),
 }
 
+/** No facts to show: no headings, only the rows, each its own control at the end. A heading over the part names the list. */
+export const NoColumns: Story = {
+  args: { columns: [] },
+  render: (args) => (
+    <div className="bg-bg-surface p-6">
+      <ListTable {...args}>
+        {rows.map((row) => (
+          <ListTableRow key={row.id} href="#" label={row.title} icon={icon} cells={[]} end={row.join ? <Button size="small" variant="outlined">Join</Button> : undefined} />
+        ))}
+      </ListTable>
+    </div>
+  ),
+}
+
 /** A dash in a cell not read yet. */
 export const NotReadYet: Story = {
   render: (args) => (

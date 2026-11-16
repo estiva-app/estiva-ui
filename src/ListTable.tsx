@@ -20,7 +20,7 @@ export interface ListTableProps {
   'aria-label': string
   /** The first column's heading. Default "Name". */
   nameLabel?: string
-  /** The columns after the name, in their order. */
+  /** The columns after the name, in their order. None: no headings, only the rows — a list with no facts to show. */
   columns: ListTableColumn[]
   /** The rows hold something at their end — a small `Button`, a dot and a ⋮ — and the list keeps 64px for it. */
   end?: boolean
@@ -99,20 +99,23 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
   return (
     <ListTableContext.Provider value={{ columns, shown, end }}>
       <div ref={box} role="table" aria-label={label} className={cn('flex w-full flex-col gap-2', className)}>
-        <div role="row" className="flex items-center gap-3 px-3 text-caption text-text-muted">
-          {/* Over the name, past the icon; as wide as the names' cells. */}
-          <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
-            {nameLabel}
-          </span>
-          {columns.map((column) =>
-            showsColumn(column, shown) ? (
-              <span key={column.label} role="columnheader" className={cn('shrink-0 truncate', WIDTH_CLASSES[sizeOf(column)])}>
-                {column.label}
-              </span>
-            ) : null,
-          )}
-          {end && <span role="columnheader" aria-label="Actions" className="ml-auto w-16 shrink-0" />}
-        </div>
+        {/* With no columns there is nothing to head: the part's own heading names the list, and a lone "Name" said nothing (Katerina, 16 November). */}
+        {columns.length > 0 && (
+          <div role="row" className="flex items-center gap-3 px-3 text-caption text-text-muted">
+            {/* Over the name, past the icon; as wide as the names' cells. */}
+            <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
+              {nameLabel}
+            </span>
+            {columns.map((column) =>
+              showsColumn(column, shown) ? (
+                <span key={column.label} role="columnheader" className={cn('shrink-0 truncate', WIDTH_CLASSES[sizeOf(column)])}>
+                  {column.label}
+                </span>
+              ) : null,
+            )}
+            {end && <span role="columnheader" aria-label="Actions" className="ml-auto w-16 shrink-0" />}
+          </div>
+        )}
         {/* 2px between rows, as a list column's and a menu's. */}
         <div role="rowgroup" className="flex flex-col gap-0.5">
           {children}

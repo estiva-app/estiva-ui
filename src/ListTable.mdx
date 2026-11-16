@@ -27,6 +27,11 @@ A list of things on a page, under column headings: each row leads to its thing, 
 
 <Canvas of={ListTableStories.Narrowest} />
 
+- No `columns` (`[]`): a list with no facts to show — the rows alone, with
+  no headings; the heading over the part names the list.
+
+<Canvas of={ListTableStories.NoColumns} />
+
 - `end`: the rows hold their own control at the end, and the list keeps 64px
   for it in every row, so the columns stay lined up.
 - A cell is words, or a part: an **AvatarGroup** with its number in
