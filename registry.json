@@ -7129,6 +7129,12 @@
           "note": "Opens the list — usually a `MembersDialog`."
         },
         {
+          "name": "readOnly",
+          "takes": "true/false",
+          "required": false,
+          "note": "Says who is in it and is nothing to press: the pill's own look, not greyed as a disabled one — in a list's row, which opens its thing (Katerina, 17 November: \"clicking on the pill should not show the members list."
+        },
+        {
           "name": "label",
           "takes": "text",
           "required": false,
@@ -7150,6 +7156,7 @@
       "docPage": "src/MembersPill.mdx",
       "app": null,
       "looks": [
+        "rounded-md border border-border-default font-sans font-medium text-btn-default text-text-primary",
         "text-caption text-text-secondary signal:font-mono signal:text-small signal:tabular-nums"
       ]
     },

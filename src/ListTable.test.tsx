@@ -13,6 +13,23 @@ afterEach(cleanup)
 const columns = [{ label: 'Team', width: 'large' as const }, { label: 'Active', keep: 'low' as const }]
 
 describe('ListTable', () => {
+  // "Everything is crammed together on the left … names/desc at the left and the rest on the right" (Katerina, 17 November).
+  it('gives the name the room on the left and puts the facts together on the right, 24px apart', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="/one" label="Item one" cells={['Group one', undefined]} />
+      </ListTable>,
+    )
+    const row = screen.getByText('Item one').closest('[role=row]') as HTMLElement
+    const name = within(row).getAllByRole('cell')[0]!
+    expect(name.className.split(' ')).toContain('flex-1')
+    expect(name.className.split(' ')).not.toContain('max-w-sm')
+    expect(row.className.split(' ')).toContain('gap-6')
+    const heads = screen.getAllByRole('columnheader')[0]!.parentElement!
+    expect(heads.className.split(' ')).toContain('gap-6')
+    expect(screen.getAllByRole('columnheader')[0]!.className.split(' ')).not.toContain('max-w-sm')
+  })
+
   it('heads its columns, and each row has one cell per heading, a dash where it is not read', () => {
     render(
       <ListTable aria-label="Items" columns={columns}>
