@@ -59,6 +59,8 @@ export interface LinkedSource {
   archived?: unknown
   /** When it last changed, in seconds (interop 0.64). */
   changedAt?: number
+  /** How far along it is, as interop counts it for every app (interop 0.102): done over every child not dropped. */
+  progress?: { done: number; total: number }
 }
 
 /** `T` is the app's own object type (interop's `ForeignObject`), so `hrefOf` takes it as it is. */
@@ -186,11 +188,13 @@ function childrenOf<T extends LinkedSource>(object: T, options: LinkedFromOption
 }
 
 /**
- * How far along it is, when every item has a status: the green ones over all
- * of them, listed or not. A cancelled issue is muted, so it counts in the total
- * and not as done (Miky, 21 Oct).
+ * How far along it is, when every item has a status: interop's count, the one
+ * every app draws — done over every item not cancelled, so a finished project
+ * reads full (Miky, 17 Nov; interop 0.102's `progress`). From an older interop,
+ * the green ones over all of them, as before.
  */
 function doneOf(object: LinkedSource): { done: number; total: number } | undefined {
+  if (object.progress) return object.progress
   const children = object.children
   if (!children?.length || children.some((child) => !child.slots.status)) return undefined
   return { done: children.filter((child) => child.slots.status?.colour === 'green').length, total: children.length }
@@ -200,9 +204,16 @@ function statusOf(object: LinkedSource, onAct: LinkedFromOptions['onAct']): Link
   const { slots } = object
   const action = object.actions.find((one) => one.control === 'select' && one.field && one.field === slots.status?.field)
   if (action) {
+    const offered = (action.options ?? []).map((option) => ({ value: option.value, label: option.label, colour: colourOf(option.colour) }))
+    // A status no listing names (a company's own, another app's) is the current value all the same: shown by its id,
+    // greyed and not offered, above the statuses on offer (Miky, 30 Oct), in the neutral grey (Katerina, 30 Oct).
+    const unlisted =
+      action.current && !offered.some((option) => option.value === action.current)
+        ? [{ value: action.current, label: action.current, colour: 'neutral' as const, disabled: true }]
+        : []
     return {
       value: action.current,
-      options: (action.options ?? []).map((option) => ({ value: option.value, label: option.label, colour: colourOf(option.colour) })),
+      options: [...unlisted, ...offered],
       ...(onAct ? { onChange: (value: string) => onAct(action.id, value) } : {}),
     }
   }

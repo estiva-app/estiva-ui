@@ -109,9 +109,33 @@ describe('a card built from interop’s projection', () => {
     expect(rows).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6', 'Item 7'])
   })
 
-  it('counts every item in its ring, listed or not, a dropped one in the total and not as done', () => {
+  it('counts every item in its ring, listed or not, a dropped one in the total and not as done, from an interop that does not count', () => {
     render(<LinkCard link={linkStateFrom(GROUP, UNREAD, options())} />)
     expect(screen.getByText('3/9')).toBeTruthy()
+  })
+
+  it('draws the progress interop counts, the one every app draws: a dropped item out of both numbers', () => {
+    render(<LinkCard link={linkStateFrom({ ...GROUP, progress: { done: 3, total: 8 } }, UNREAD, options())} />)
+    expect(screen.getByText('3/8')).toBeTruthy()
+  })
+
+  it('shows a status no listing names as the current value, by its id, greyed and not pickable, above the rest', async () => {
+    const user = userEvent.setup()
+    const onAct = vi.fn()
+    const blocked = { ...GROUP, actions: [{ ...GROUP.actions[0], current: 'blocked' }, GROUP.actions[1]] }
+    render(<LinkCard link={linkStateFrom(blocked, UNREAD, options({ onAct }))} />)
+    const status = screen.getByRole('combobox', { name: 'Status' })
+    expect(status.textContent).toContain('blocked')
+    await user.click(status)
+    const listed = await screen.findAllByRole('option')
+    // The first is the current value, so it carries the chosen row's ✓.
+    expect(listed[0].textContent).toMatch(/^blocked/)
+    expect(listed.slice(1).map((option) => option.textContent)).toEqual(['Todo', 'Doing', 'Done', 'Dropped'])
+    expect(listed[0].getAttribute('aria-disabled')).toBe('true')
+    await user.click(listed[0])
+    expect(onAct).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('option', { name: /Doing/ }))
+    expect(onAct).toHaveBeenCalledWith('set-status', 'doing')
   })
 
   it('shows its key before its title, in the card and in the chip', () => {

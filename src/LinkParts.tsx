@@ -193,7 +193,7 @@ export function LinkPickers({ status, owner, ownerLabel = 'Owner', readOnly = fa
             onChange={(value) => status.onChange?.(value)}
             ariaLabel="Status"
             disabledReason={disabledReason}
-            options={status.options.map((option) => ({ value: option.value, label: option.label, leading: option.colour && <StatusIcon colour={option.colour} /> }))}
+            options={status.options.map((option) => ({ value: option.value, label: option.label, leading: option.colour && <StatusIcon colour={option.colour} />, ...(option.disabled ? { disabled: true } : {}) }))}
           />
         ))}
       {owner &&

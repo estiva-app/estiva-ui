@@ -57,6 +57,22 @@ describe('Select', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('a disabled option is shown as the current value but cannot be picked; another one can', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    const options = [{ value: 'item', label: 'Item one', disabled: true }, ...STATUSES]
+    render(<Select value="item" onChange={onChange} options={options} ariaLabel="Status" />)
+    const trigger = screen.getByRole('combobox', { name: 'Status' })
+    expect(trigger.textContent).toContain('Item one')
+    await user.click(trigger)
+    const shut = await screen.findByRole('option', { name: /Item one/ })
+    expect(shut.getAttribute('aria-disabled')).toBe('true')
+    await user.click(shut)
+    expect(onChange).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('option', { name: 'Done' }))
+    expect(onChange).toHaveBeenCalledWith('done')
+  })
+
   it('disabledReason: held shut, reachable by Tab, and it says why', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
