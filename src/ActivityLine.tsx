@@ -58,7 +58,12 @@ export function ActivityLine({ person, did, time, mark, where, words, seen = fal
       </span>
     </MenuItemBody>
   )
-  const row = menuItemClassName({ size: 'default', className })
+  /*
+    A new line wears the accent's wash, the open replies row's tint, so what is new reads apart from what was seen at a
+    glance, under its "New" heading too (Katerina, 6 November: "We also need to have new stuff with bg color"; 16
+    November: "let's use background color on new items"). Seen, it is plain. The pointer's fill still shows over it.
+  */
+  const row = menuItemClassName({ size: 'default', className: cn(!seen && 'bg-accent-wash', className) })
   if (href) {
     return (
       <Link href={href} variant="plain" className={row} {...(onClick ? { onClick } : {})} {...rest}>
