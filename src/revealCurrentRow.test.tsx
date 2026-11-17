@@ -6,12 +6,12 @@
  * back after the reader scrolls away.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { useEffect, useState } from 'react'
 import { ListColumn } from './ListColumn'
 import { NavItem } from './NavItem'
 import { NavTree } from './NavTree'
-import { REVEAL_MS } from './revealCurrentRow'
+import { forgetListPlaces, REVEAL_MS } from './revealCurrentRow'
 
 afterEach(cleanup)
 beforeEach(() => vi.useFakeTimers())
@@ -164,5 +164,121 @@ describe('a list column brings its current row into sight (DMs, the Desk)', () =
     } finally {
       layout.restore()
     }
+  })
+})
+
+/*
+  The same column drawn again on another page (Peek's Teams column on a team's page, then on a topic's): it goes back
+  to where the reader left it, by the name the app gives it, and a row it already brought into sight is not brought
+  back (Katerina, 17 November: "I have scrolled down a little and then click on something and it scrolls up back to
+  top"). A new open row still comes into sight.
+*/
+describe('a list column drawn again goes back to where it was left (rememberAs)', () => {
+  afterEach(() => forgetListPlaces())
+  function Named({ open, name }: { open: string; name?: string }) {
+    return (
+      <ListColumn title="DMs" {...(name ? { rememberAs: name } : {})}>
+        {Array.from({ length: 30 }, (_, i) => `Person ${i}`).map((person) => (
+          <NavItem key={person} href={`#${person}`} label={person} active={person === open} />
+        ))}
+      </ListColumn>
+    )
+  }
+  const viewport = () => document.querySelector<HTMLElement>('[data-id$="-viewport"]') ?? document.querySelector<HTMLElement>('[style*="overflow"]')!
+
+  /** Draws it, lets it bring its open row into sight, and the reader scrolls to `to`; then it is taken away. */
+  async function leaveAt(to: number, open = 'Person 25', name = 'dms') {
+    const first = render(<Named open={open} name={name} />)
+    const layout = lay(viewport(), { 'Person 25': 800, 'Person 2': 64 })
+    await act(async () => vi.advanceTimersByTime(REVEAL_MS + 10))
+    layout.scroll(to)
+    fireEvent.scroll(viewport())
+    first.unmount()
+    layout.restore()
+  }
+
+  it('drawn again under the same name, it opens where the reader left it, and does not pull them back to its open row', async () => {
+    await leaveAt(300)
+    render(<Named open="Person 25" name="dms" />)
+    expect(viewport().scrollTop).toBe(300)
+    const layout = lay(viewport(), { 'Person 25': 800, 'Person 2': 64 })
+    layout.scroll(300)
+    try {
+      await act(async () => vi.advanceTimersByTime(REVEAL_MS + 10))
+      expect(layout.scrolled()).toBe(300)
+    } finally {
+      layout.restore()
+    }
+  })
+
+  it('a new open row still comes into sight', async () => {
+    await leaveAt(300)
+    render(<Named open="Person 2" name="dms" />)
+    const layout = lay(viewport(), { 'Person 25': 800, 'Person 2': 64 })
+    layout.scroll(300)
+    try {
+      await act(async () => vi.advanceTimersByTime(REVEAL_MS + 10))
+      expect(layout.scrolled()).toBe(64)
+    } finally {
+      layout.restore()
+    }
+  })
+
+  it('a new open row is brought into sight at once, even when the place it was left at can no longer be reached', async () => {
+    await leaveAt(900)
+    // The list is shorter now (a fold that was open is shut): it scrolls no further than 300.
+    const tops = new WeakMap<HTMLElement, number>()
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return tops.get(this) ?? 0
+      },
+      set(this: HTMLElement, next: number) {
+        tops.set(this, Math.max(0, Math.min(next, 300)))
+      },
+    })
+    try {
+      render(<Named open="Person 2" name="dms" />)
+      expect(viewport().scrollTop).toBe(300)
+      const layout = lay(viewport(), { 'Person 25': 800, 'Person 2': 64 })
+      layout.scroll(300)
+      try {
+        // At the reveal's moment, not once going back gives up (RESTORE_MS).
+        await act(async () => vi.advanceTimersByTime(REVEAL_MS + 10))
+        expect(layout.scrolled()).toBe(64)
+      } finally {
+        layout.restore()
+      }
+    } finally {
+      delete (HTMLElement.prototype as { scrollTop?: number }).scrollTop
+    }
+  })
+
+  // Smooth (Katerina, 17 November, "lets smooth it"): no stop at the old place first, then a move 200ms later.
+  it('drawn again with a new open row already drawn, it is at its one place as soon as it is drawn', async () => {
+    await leaveAt(300)
+    // Laid out before it is drawn: the box 100px tall at the page's top; Person 2 64px down the list, the rest at its top.
+    const box = (y: number, height: number) => ({ top: y, bottom: y + height, height, left: 0, right: 0, width: 0, x: 0, y, toJSON: () => ({}) }) as DOMRect
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const scroller = viewport()
+      if (this === scroller) return box(0, 100)
+      return this.textContent?.trim() === 'Person 2' ? box(64 - (scroller?.scrollTop ?? 0), 32) : box(0, 32)
+    })
+    try {
+      render(<Named open="Person 2" name="dms" />)
+      // Back at 300, the row is above the view: the least move shows it, before any timer has run.
+      expect(viewport().scrollTop).toBe(64)
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
+  it('without a name, or under another, it opens at the top', async () => {
+    await leaveAt(300)
+    const unnamed = render(<Named open="Person 1" />)
+    expect(viewport().scrollTop).toBe(0)
+    unnamed.unmount()
+    render(<Named open="Person 1" name="desk" />)
+    expect(viewport().scrollTop).toBe(0)
   })
 })

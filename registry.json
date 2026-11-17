@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.119.0",
+    "packageVersion": "0.120.0",
     "exports": 256,
     "typeExports": 270,
     "files": null
@@ -6708,6 +6708,12 @@
           "takes": "anything",
           "required": true,
           "note": "The rows, 2px apart. Groups are headed by a `CollapsibleSection` or a `SectionHeader`."
+        },
+        {
+          "name": "rememberAs",
+          "takes": "text",
+          "required": false,
+          "note": "The list's name in the app (`teams`, `dms`): where it was scrolled is remembered by it in this tab, and the same column drawn again (on another page) goes back there, its open row still brought into sight when it is a new one."
         },
         {
           "name": "className",

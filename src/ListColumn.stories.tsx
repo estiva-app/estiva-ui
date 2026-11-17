@@ -132,7 +132,8 @@ function OpenRows({ open: first, late = false }: { open: number; late?: boolean 
       {Array.from({ length: 80 }, (_, i) => (
         <NavItem
           key={i}
-          href="#"
+          // Each its own address, as an app's rows are: a list knows its open row by it.
+          href={`#item-${i + 1}`}
           label={`Item ${i + 1}`}
           icon={icon}
           active={i === open}
@@ -167,6 +168,30 @@ export const OpenRowDrawnLate: Story = {
       <OpenRows open={61} late />
     </ListColumn>
   ),
+}
+
+/**
+ * Drawn again where it was left (`rememberAs`): scroll down, then "Another page" draws the column anew, as an app does
+ * when it moves to another page that shows the same column. It opens where you left it, not at the top, and its open
+ * row, already brought into sight once, is not brought back.
+ */
+export const DrawnAgainWhereItWasLeft: Story = {
+  args: { title: 'Items' },
+  render: function Render(args) {
+    const [page, setPage] = useState(0)
+    return (
+      <div className="flex h-full">
+        <ListColumn key={page} {...args} rememberAs="story-items">
+          <OpenRows open={5} />
+        </ListColumn>
+        <div className="p-4">
+          <Button size="small" onClick={() => setPage((n) => n + 1)}>
+            Another page
+          </Button>
+        </div>
+      </div>
+    )
+  },
 }
 
 /** While the list is on its way: a skeleton shaped like the rows. */

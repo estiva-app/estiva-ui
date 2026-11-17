@@ -65,6 +65,11 @@ import { ListColumn, Toolbar, ToolbarButton } from '@estiva-app/ui'
   side.
 - The rows are yours. It scrolls them, so a list that grows with its data is
   never cut off at the fold, even when today's data fits.
+- Give the column its name in the app, `rememberAs` (`teams`, `dms`): where it
+  was scrolled is remembered by it in this tab, and the same column drawn again
+  on another page opens where the reader left it, not at the top. An open row it
+  already brought into sight is not brought back; a new one is. Without a name,
+  it opens at the top each time it is drawn.
 - **Planned:** dragging its edge to resize it, with `SplitLayout` in
   `@estiva-app/ui/layout` (migration stage 8). The 380px column beside a
   conversation gets the same treatment then.
