@@ -93,6 +93,28 @@ describe('CollapsibleSection', () => {
 })
 
 /** Opened before its rows are in (0.65.1, OPT-11): the title says open, the panel waits. */
+// The tree's line, as a row's (Katerina, 17 November).
+describe('CollapsibleSection, its rows', () => {
+  it('a row-look fold draws the tree’s line beside its rows, 24px in', () => {
+    render(
+      <CollapsibleSection look="row" title="Files">
+        <a href="#one">One</a>
+      </CollapsibleSection>,
+    )
+    const classes = screen.getByRole('link', { name: 'One' }).parentElement!.className.split(' ')
+    expect(classes).toEqual(expect.arrayContaining(['border-l', 'border-border-default', 'ml-[15px]', 'pl-2']))
+  })
+
+  it('a heading draws no line: its rows are level with its title', () => {
+    render(
+      <CollapsibleSection title="Starred">
+        <a href="#one">One</a>
+      </CollapsibleSection>,
+    )
+    expect(screen.getByRole('link', { name: 'One' }).parentElement!.className.split(' ')).not.toContain('border-l')
+  })
+})
+
 describe('CollapsibleSection, pending', () => {
   it('the title says open and busy while the rows stay shut, then they open', () => {
     const { rerender } = render(<CollapsibleSection title="Section" open pending>{rows}</CollapsibleSection>)

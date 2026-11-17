@@ -142,7 +142,7 @@ import { NavItem } from '@estiva-app/ui'
   place for that row; another site's address, a `target` and a `download` stay
   the browser's.
 
-- A row is 32px tall, 8px in on each side, 8px between the icon and the label,
+- A row is 28px tall (32px until 17 November), 8px in on each side, 8px between the icon and the label,
   the label 14px regular (medium when unread), 8px corners as a **MenuItem**'s.
 
 ## What it owns
@@ -152,7 +152,7 @@ It does these by itself. Write none of them around it.
 | It does | So you never write | Refused when written by hand |
 |---|---|---|
 | Marks the current place for assistive technology when `active` | `aria-current` |  |
-| Keeps its 32px in a scrolling column | `shrink-0` |  |
+| Keeps its 28px in a scrolling column | `shrink-0` |  |
 | Shows a ⋮ over the count while pointed at, focused or open, and keeps the row's hover look under it | a positioned `IconButton` + `Menu` over the row, `group-hover` reveals |  |
 | Turns its icon into the arrow that folds `children` while pointed at or focused, and slides them | a positioned `IconButton` over the icon, open state, `group-hover` reveals, an indented box |  |
 | Tells assistive technology whether its rows are open | `aria-expanded`, `aria-controls` |  |

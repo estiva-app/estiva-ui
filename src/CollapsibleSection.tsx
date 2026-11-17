@@ -191,7 +191,8 @@ export function CollapsibleSection({ title, defaultOpen = true, open: openProp, 
       >
         {/* A row's rows start under its title: the 16px chevron and its 8px gap
             (pl-6). An indented heading's: the same — its arrow is a row's now (5 October). */}
-        <div className={cn('flex flex-col pt-0.5', (look === 'row' || indent) && 'pl-6', contentClassName)}>{children}</div>
+        {/* The tree's line, as NavItem's (Katerina, 17 November): under the arrow's middle, the rows 24px in as before. */}
+        <div className={cn('flex flex-col', look === 'row' || indent ? 'ml-[15px] mt-0.5 border-l border-border-default pl-2' : 'pt-0.5', contentClassName)}>{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )

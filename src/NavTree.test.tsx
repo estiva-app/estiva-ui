@@ -9,6 +9,7 @@ import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MenuItem } from './Menu'
 import { NAV_TREE_PENDING_MS, NavTree, NavTreeSection, type NavTreeGroup } from './NavTree'
+import { NavItem } from './NavItem'
 
 afterEach(cleanup)
 
@@ -176,6 +177,31 @@ describe('NavTree spaces its groups', () => {
     // The selector's own terms: the first group follows the title, which is no group.
     expect(boxes[0].previousElementSibling!.className.split(' ')).not.toContain('[&+&]:mt-1')
     expect(boxes[1].previousElementSibling).toBe(boxes[0])
+  })
+})
+
+// "A bit more spacing between the parent expandable items" (Katerina, 17 November): Peek's teams.
+describe('NavTree spaced', () => {
+  it('puts 8px above each item the app draws but the first', () => {
+    const { container } = render(
+      <NavTree spaced>
+        <NavItem href="#one" label="One" />
+        <NavItem href="#two" label="Two" />
+      </NavTree>,
+    )
+    const box = screen.getByRole('link', { name: 'One' }).closest('div[class*="mt-2"]')
+    expect(box?.className.split(' ')).toEqual(expect.arrayContaining(['contents', '[&>*+*]:mt-2']))
+    expect(container.querySelectorAll('[class*="[&>*+*]:mt-2"]')).toHaveLength(1)
+  })
+
+  it('without it, nothing is put between them, as before', () => {
+    const { container } = render(
+      <NavTree>
+        <NavItem href="#one" label="One" />
+        <NavItem href="#two" label="Two" />
+      </NavTree>,
+    )
+    expect(container.querySelector('[class*="[&>*+*]:mt-2"]')).toBeNull()
   })
 })
 

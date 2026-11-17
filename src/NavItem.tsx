@@ -177,10 +177,11 @@ export function NavItem({
       href={href}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        // shrink-0: the row keeps its 32px inside an overflowing flex column
+        // shrink-0: the row keeps its 28px inside an overflowing flex column
         // — without it the list compresses instead of scrolling (the missing-
         // shrink-0 family; Katerina, 2026-09-02).
-        'flex h-8 min-w-0 shrink-0 items-center gap-2 px-2 text-body-2',
+        // 28px (Katerina, 17 November: "what if we make the height of the items 28px"); 32px until then.
+        'flex h-7 min-w-0 shrink-0 items-center gap-2 px-2 text-body-2',
         SIDEBAR_ROW_CLASSES,
         active ? 'bg-bg-nav-active text-text-primary' : cn(unread ? 'text-text-primary' : SIDEBAR_ROW_TEXT_CLASSES, 'hover:bg-bg-hover'),
         // With a menu the ⋮ sits beside the link, so the row keeps its hover
@@ -330,8 +331,12 @@ export function NavItem({
         hiddenUntilFound
         className={COLLAPSIBLE_PANEL_CLASSES}
       >
-        {/* `pl-6`: past the 16px icon and its 8px gap, so the rows' icons start under this row's label. */}
-        <div className="flex flex-col gap-0.5 pt-0.5 pl-6">{children}</div>
+        {/*
+          The tree's line (Katerina, 17 November: "show some vertical line for the tree", "a little stronger just a
+          bit"): 1px down from the middle of this row's icon (8px in, 16px wide), and the rows past it 24px in, as
+          before, their icons under this row's label (the indent she kept: "i dont like the indentation change").
+        */}
+        <div className="ml-[15px] mt-0.5 flex flex-col gap-0.5 border-l border-border-default pl-2">{children}</div>
       </Collapsible.Panel>
     </Collapsible.Root>
   )

@@ -46,13 +46,16 @@ toggle, and the rows under it, sliding shut and open.
   revealed while the row is hovered or keyboard-focused.
 - `look="row"` when the section is a row among rows — a folder in a
   sidebar, under a quiet label: the title at a row's weight, and its rows
-  indented under it, past the chevron.
+  indented under it, past the chevron, the tree's line beside them, 1px
+  down from the chevron's middle (Katerina, 17 November), as a **NavItem**'s
+  rows have it.
 
 <Canvas of={CollapsibleSectionStories.AsARow} />
 
 - `indent` with the standard heading: its rows start under its title, past
-  the chevron — a group in a sidebar whose rows read as inside it. **NavTree**
-  draws its groups this way.
+  the chevron, the tree's line beside them — a group in a sidebar whose rows
+  read as inside it. **NavTree** draws its groups this way. The standard
+  heading without `indent` has no line: its rows are level with its title.
 
 <Canvas of={CollapsibleSectionStories.Indented} />
 

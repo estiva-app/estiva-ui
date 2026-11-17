@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.120.0",
+    "packageVersion": "0.121.0",
     "exports": 256,
     "typeExports": 270,
     "files": null
@@ -8060,6 +8060,12 @@
           "takes": "text",
           "required": false,
           "note": "Remember each group open or closed in this browser, under this key and the group's id."
+        },
+        {
+          "name": "spaced",
+          "takes": "true/false",
+          "required": false,
+          "note": "8px between the items an app draws as `children`, none above the first: a tree whose items are each a place with rows under it — Peek's teams (Katerina, 17 November: \"a bit more spacing between the parent expandable items\")."
         }
       ],
       "variants": [],
@@ -10437,7 +10443,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/SectionHeader.tsx",
-      "purpose": "The 32px row a section starts with: a SectionLabel, and actions that appear while the row is hovered or keyboard-focused, as IconButtons with tooltips — always, on a screen with no hover.",
+      "purpose": "The 28px row a section starts with, a list row's height: a SectionLabel, and actions that appear while the row is hovered or keyboard-focused, as IconButtons with tooltips — always, on a screen with no hover.",
       "purposeFrom": "page",
       "props": [
         {
@@ -11206,7 +11212,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/Skeleton.tsx",
-      "purpose": "A 32px row: a 16px square and a bar, like a row with a face and a name.",
+      "purpose": "A 28px row, a list row's height: a 16px square and a bar, like a row with a face and a name.",
       "purposeFrom": "comment",
       "props": [
         {
