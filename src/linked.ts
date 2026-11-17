@@ -48,6 +48,12 @@ export interface PickerOption {
   picture?: string
   /** An agent: its face is a robot, as Avatar's `bot`. */
   bot?: boolean
+  /**
+   * Shown but not offered: the current value when the picker cannot offer it,
+   * a status no listing names. Greyed, above the rest; picking another replaces
+   * it (Miky, 30 Oct, EAC-2).
+   */
+  disabled?: boolean
 }
 
 /**

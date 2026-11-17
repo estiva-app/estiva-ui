@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.123.0 — 2026-11-17
+
+From EAC-2 ("Each company sets its own statuses"): every app counts a project's progress the same way, and a status no
+listing names is shown, not lost.
+
+**linkStateFrom**: a card's ring draws the `progress` interop 0.102 counts for every app (done over every item not
+dropped, so a finished project reads full; Miky, 17 November). From an older interop it counts as before, the green
+ones over all. The status picker shows a current value its app does not offer (a company's own status) first, by its
+id, in the neutral grey (Katerina, 30 October), greyed and not pickable; picking another replaces it (Miky, 30 October).
+
+**Select**: an option may be `disabled`: shown as a shut menu row, the arrow, no fill, its words and icon greyed, and not
+pickable. Additive; no caller changes.
+
 ## 0.122.0 — 2026-11-17
 
 From Katerina's review of Peek's navigation build (17 November). Both were tried in Peek first; she chose to release

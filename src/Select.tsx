@@ -40,6 +40,8 @@ export interface SelectOption {
   label: string
   /** Drawn before the label, 16px — an Avatar, an icon. */
   leading?: ReactNode
+  /** Shown, greyed, and not pickable: a current value the select cannot offer (a status no listing names). */
+  disabled?: boolean
 }
 
 export interface SelectProps {
@@ -201,6 +203,7 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
               <BaseSelect.Item
                 key={option.value}
                 value={option.value}
+                disabled={option.disabled}
                 /* The highlight is Base UI's `data-highlighted` — pointer and
                    keyboard set the same attribute, so what the DOM says and
                    what the row looks like cannot disagree. It used to be an
@@ -211,11 +214,12 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
                    Select adds is its own: the ✓ at the end, and the chosen
                    row in medium weight. No fade on the highlight, as in every
                    menu (Katerina, 2026-09-05). */
-                className={cn(menuItemClassName({ size: 'default' }), 'justify-between data-[selected]:font-medium')}
+                // A disabled option is a shut row, as a MenuItem with its reason: the arrow, no fill, its words and icon greyed.
+                className={cn(menuItemClassName({ size: 'default', shut: option.disabled }), 'justify-between data-[selected]:font-medium')}
               >
                 <span className="flex min-w-0 items-center gap-2">
                   {option.leading && <span className="flex shrink-0 items-center">{option.leading}</span>}
-                  <BaseSelect.ItemText className="truncate text-body-2 text-text-primary">{option.label}</BaseSelect.ItemText>
+                  <BaseSelect.ItemText className={cn('truncate text-body-2', option.disabled ? 'text-text-disabled' : 'text-text-primary')}>{option.label}</BaseSelect.ItemText>
                 </span>
                 <BaseSelect.ItemIndicator
                   render={<IconCheck size={16} stroke={1.5} className="shrink-0 text-text-secondary" />}

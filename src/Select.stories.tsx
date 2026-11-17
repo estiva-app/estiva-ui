@@ -85,6 +85,17 @@ export const WithLeading: Story = {
   ),
 }
 
+/** A current value the select cannot offer: shown first and greyed, as a shut menu row; picking another replaces it. */
+export const ACurrentValueNotOffered: Story = {
+  render: (args) => (
+    <Demo
+      {...args}
+      initial="item"
+      options={[{ value: 'item', label: 'item', disabled: true }, ...args.options]}
+    />
+  ),
+}
+
 /** In a `Field`, which is how a select appears in a form. */
 export const InAField: Story = {
   render: (args) => (
