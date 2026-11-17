@@ -81,6 +81,16 @@ rows to any depth.
 - A group folds with a row's arrow, 16px — every folding heading does — so a
   group and the rows under it fold with the same arrow; its title starts 8px
   after it, as a row's label.
+- Rows under a row, or under a group, have the tree's line beside them: 1px,
+  a step above the quietest border, down from the middle of the icon or the
+  arrow above them; the rows stay 24px in (Katerina, 17 November).
+- `spaced` puts 8px between the items the app draws as `children`, none
+  above the first: a tree whose items are each a place with rows under it,
+  as Peek's teams are ("a bit more spacing between the parent expandable
+  items", Katerina, 17 November). Groups from `groups` keep their 4px.
+
+<Canvas of={NavTreeStories.Spaced} />
+
 - A group's `icon` sits before its title — a folder's — and the arrow takes
   its place under the pointer, as a row's icon turns into its arrow. Its rows
   then start under the title, past the icon.

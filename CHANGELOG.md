@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.121.0 — 2026-11-17
+
+From Katerina's trial in Peek's navigation build (17 November): "what if we make the height of the items 28px",
+"show some vertical line for the tree", "a little stronger just a bit", "a bit more spacing between the parent
+expandable items"; the indent she kept ("i dont like the indentation change"). "I think i like this design."
+
+A list row is 28px tall, 32px until now: **NavItem**, **SectionHeader** (every heading and every fold, a row among rows
+or the standard heading), and **SkeletonRow**, so a list being read and the list it becomes stand at the same height.
+
+Rows under a row have the tree's line beside them: 1px, `border-default` (a step above the quietest border), down from
+the middle of the icon above them — a **NavItem**'s rows, a **CollapsibleSection**'s with `look="row"` or `indent`, and
+so a **NavTree** group's. The rows stay 24px in, their icons under the label above. The standard heading without
+`indent` has none: its rows are level with its title.
+
+**NavTree** takes `spaced`: 8px between the items the app draws as its children, none above the first — a tree whose
+items are each a place with rows under it, as Peek's teams are. Groups drawn from `groups` keep their 4px. Story:
+"Spaced".
+
 ## 0.120.0 — 2026-11-17
 
 From Katerina's review of the navigation build (17 November): "I have scrolled down a little and then click on

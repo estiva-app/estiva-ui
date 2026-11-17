@@ -85,6 +85,14 @@ describe('NavItem with rows under it', () => {
     </NavItem>
   )
 
+  // "Show some vertical line for the tree", "a little stronger just a bit"; the indent kept (Katerina, 17 November).
+  it('draws the tree’s line beside its rows: 1px, a step above the quietest border, under the middle of its icon, the rows 24px in', () => {
+    render(tree())
+    const rows = screen.getByText('Item two').closest('a')!.parentElement!.closest('div[class*="border-l"]')!
+    const classes = rows.className.split(' ')
+    expect(classes).toEqual(expect.arrayContaining(['border-l', 'border-border-default', 'ml-[15px]', 'pl-2']))
+  })
+
   it('starts open: the arrow says so and names what it folds, and the rows are there', () => {
     render(tree())
     const button = arrow(/Hide what is under Item one/)
@@ -288,7 +296,8 @@ describe('NavItem with a tooltip', () => {
     render(<NavItem href="#" label="Item one" tooltip="A sentence about item one." />)
     const link = screen.getByRole('link', { name: 'Item one' })
     expect(link.contains(screen.getByText('Item one'))).toBe(true)
-    expect(link.className.split(' ')).toContain('h-8')
+    // 28px (Katerina, 17 November); 32px until then.
+    expect(link.className.split(' ')).toContain('h-7')
     expect(screen.getByText('Item one').className.split(' ')).toContain('truncate')
   })
 

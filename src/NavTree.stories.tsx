@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { IconArrowUpRight, IconFolder, IconPlus } from '@tabler/icons-react'
 import { Button } from './Button'
 import { Chip } from './Chip'
+import { CollapsibleSection } from './CollapsibleSection'
 import { UnreadDot } from './UnreadDot'
 import { MenuItem, MenuSeparator } from './Menu'
 import { NavItem } from './NavItem'
@@ -194,6 +195,38 @@ export const AppDrawnGroups: Story = {
             </NavTreeSection>
             <NavTreeSection title="Group two" loading />
             <NavTreeSection title="Group three" message="Nothing in this yet." />
+          </NavTree>
+        </Sidebar>
+      </div>
+    )
+  },
+}
+
+/**
+ * `spaced`: 8px between the items the app draws, none above the first — a tree whose items are each a place with rows
+ * under it, as Peek's teams are (Katerina, 17 November). The tree's line runs beside each one's rows.
+ */
+export const Spaced: Story = {
+  args: { groups: undefined },
+  render: function Render() {
+    return (
+      <div className="flex h-screen bg-bg-base">
+        <Sidebar>
+          <NavTree spaced>
+            <NavItem href="#" label="Team one" icon={placeholder}>
+              <NavItem href="#" label="Item one" icon={placeholder} />
+              <NavItem href="#" label="Item two" icon={placeholder} active />
+              <CollapsibleSection look="row" title="A fold" icon={placeholder} defaultOpen>
+                <NavItem href="#" label="Item three" icon={placeholder} />
+              </CollapsibleSection>
+            </NavItem>
+            <NavItem href="#" label="Team two" icon={placeholder}>
+              <NavItem href="#" label="Item four" icon={placeholder} />
+            </NavItem>
+            <CollapsibleSection look="row" title="The rest" count={2} defaultOpen={false}>
+              <NavItem href="#" label="Team three" icon={placeholder} />
+              <NavItem href="#" label="Team four" icon={placeholder} />
+            </CollapsibleSection>
           </NavTree>
         </Sidebar>
       </div>

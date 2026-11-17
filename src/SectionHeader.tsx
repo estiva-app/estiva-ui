@@ -205,7 +205,8 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
     <div
       className={cn(
         // `relative`: a dot in the last button's place is placed against the row.
-        'group relative flex h-[32px] shrink-0 items-center gap-1 px-2',
+        // 28px, a row's height (Katerina, 17 November); 32px until then.
+        'group relative flex h-[28px] shrink-0 items-center gap-1 px-2',
         !row && 'transition-colors',
         // A row is NavItem's shape and colour: 6px corners, secondary words that brighten on hover.
         row ? cn(SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES) : 'rounded-lg',

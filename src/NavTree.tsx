@@ -118,6 +118,12 @@ export interface NavTreeProps {
   emptyMessage?: string
   /** Remember each group open or closed in this browser, under this key and the group's id. The app prefixes it. */
   storageKey?: string
+  /**
+   * 8px between the items an app draws as `children`, none above the first: a tree whose items are each a place with
+   * rows under it — Peek's teams (Katerina, 17 November: "a bit more spacing between the parent expandable items").
+   * Groups drawn from `groups` keep their own 4px.
+   */
+  spaced?: boolean
 }
 
 /** How long the pointer rests on a group before `onIntent` (Peek's FolderTree, 150ms). */
@@ -364,7 +370,7 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
  * and the column scrolls to it. Groups the app draws itself take `openFor`
  * for that; the scroll is the tree's either way.
  */
-export function NavTree({ title, titleActions, groups, children, selected, selectedParent, selectedGroup, onSelect, emptyMessage = '', storageKey }: NavTreeProps) {
+export function NavTree({ title, titleActions, groups, children, selected, selectedParent, selectedGroup, onSelect, emptyMessage = '', storageKey, spaced = false }: NavTreeProps) {
   const opening = groups ? openingFor(groups, selected, selectedParent) : null
   /*
     Once per current row, when it is drawn and shown, however late: a row a part inside the tree draws itself (a fold
@@ -391,7 +397,8 @@ export function NavTree({ title, titleActions, groups, children, selected, selec
       <groupLinked.Provider value={selectedGroup}>
         {title && <SectionHeader title={title} look="quiet" showActions="always" actions={titleActions} className="mt-4 shrink-0" />}
         {groups === undefined ? (
-          children
+          // `contents` again: the items stay the column's own; the margin is on each one that follows another.
+          spaced ? <div className="contents [&>*+*]:mt-2">{children}</div> : children
         ) : groups === null ? (
           <SkeletonList rows={5} />
         ) : groups.length === 0 ? (

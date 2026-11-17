@@ -28,12 +28,19 @@ const classes = (el: Element | null) => (el?.getAttribute('class') ?? '').split(
 describe('a part with a set height keeps it in a scrolling column', () => {
   it('SectionHeader: shrink-0', () => {
     const { container } = render(<SectionHeader title="Group" />)
-    expect(classes(container.querySelector('[class*="h-[32px]"]'))).toContain('shrink-0')
+    expect(classes(container.querySelector('[class*="h-[28px]"]'))).toContain('shrink-0')
   })
 
   it('SkeletonRow: shrink-0', () => {
     const { container } = render(<SkeletonRow />)
     expect(classes(container.firstElementChild)).toContain('shrink-0')
+  })
+
+  // 28px, a list row's height, for the three that stand in one list (Katerina, 17 November): 32px until then.
+  it('a row, a heading and a loading row are each 28px', () => {
+    const row = render(<SectionHeader title="Group" />).container
+    expect(classes(row.firstElementChild)).toContain('h-[28px]')
+    expect(classes(render(<SkeletonRow />).container.firstElementChild)).toContain('h-[28px]')
   })
 
   it('RailItem: a set 48px, and shrink-0', () => {

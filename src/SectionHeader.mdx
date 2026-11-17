@@ -5,7 +5,7 @@ import * as SectionHeaderStories from './SectionHeader.stories'
 
 # SectionHeader
 
-The 32px row a section starts with: a SectionLabel, and actions that
+The 28px row a section starts with, a list row's height: a SectionLabel, and actions that
 appear while the row is hovered or keyboard-focused, as IconButtons with
 tooltips — always, on a screen with no hover. It is also the
 header of a **CollapsibleSection**, which draws the chevron and makes the
@@ -83,7 +83,7 @@ import { IconPlus } from '@tabler/icons-react'
   actions are always shown (`showActions="always"`), where the buttons light up
   on their own. The default, `fill`, lights a row that toggles or has actions.
 
-- The row is 32px tall, 8px in on each side, 4px between the title and the
+- The row is 28px tall (32px until 17 November), 8px in on each side, 4px between the title and the
   actions, with 8px corners.
 
 ## What it owns
@@ -94,7 +94,7 @@ It does these by itself. Write none of them around it.
 |---|---|---|
 | With `chevron`, its title is a button that calls `onToggle` on a click, Enter or Space, and says whether it is open | a button of your own, or `aria-expanded` |  |
 | Shows its actions while the keyboard is in the row — on the title or on one of them — and always on a screen with no hover | a focus style of your own |  |
-| Keeps its 32px in a scrolling column | `shrink-0` |  |
+| Keeps its 28px in a scrolling column | `shrink-0` |  |
 | Keeps a long title on one line, cut short with "…", in every look | `truncate` around the title |  |
 
 ## Keys
