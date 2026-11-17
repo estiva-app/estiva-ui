@@ -128,14 +128,16 @@ export function useRevealCurrentRow(box: RefObject<HTMLElement | null>, current?
     let timer: ReturnType<typeof setTimeout> | undefined
     const look = () => {
       timer = undefined
-      // Still going back to where it was left: look again in a moment, so the two never pull against each other.
-      if (place?.restoring.current) return soon()
       const row = root.querySelector<HTMLElement>('[aria-current="page"]')
       if (!row) return
       const key = current ?? row.getAttribute('href') ?? row.textContent ?? ''
+      // The row it showed last: the list goes back to where it was left, and the row stays where the reader put it.
       if (was() === key) return
       // Not drawn yet, or inside a fold that is shut: whatever opens it changes the list, and it is looked for again.
       if (row.getBoundingClientRect().height === 0) return
+      // A new open row wins at once, the reader asked for it: going back to where the list was left stops here, even
+      // when that place can no longer be reached (a fold that was open is shut).
+      if (place) place.restoring.current = false
       showing(key)
       scrollToRow(row)
     }

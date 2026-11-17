@@ -224,6 +224,36 @@ describe('a list column drawn again goes back to where it was left (rememberAs)'
     }
   })
 
+  it('a new open row is brought into sight at once, even when the place it was left at can no longer be reached', async () => {
+    await leaveAt(900)
+    // The list is shorter now (a fold that was open is shut): it scrolls no further than 300.
+    const tops = new WeakMap<HTMLElement, number>()
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return tops.get(this) ?? 0
+      },
+      set(this: HTMLElement, next: number) {
+        tops.set(this, Math.max(0, Math.min(next, 300)))
+      },
+    })
+    try {
+      render(<Named open="Person 2" name="dms" />)
+      expect(viewport().scrollTop).toBe(300)
+      const layout = lay(viewport(), { 'Person 25': 800, 'Person 2': 64 })
+      layout.scroll(300)
+      try {
+        // At the reveal's moment, not once going back gives up (RESTORE_MS).
+        await act(async () => vi.advanceTimersByTime(REVEAL_MS + 10))
+        expect(layout.scrolled()).toBe(64)
+      } finally {
+        layout.restore()
+      }
+    } finally {
+      delete (HTMLElement.prototype as { scrollTop?: number }).scrollTop
+    }
+  })
+
   it('without a name, or under another, it opens at the top', async () => {
     await leaveAt(300)
     const unnamed = render(<Named open="Person 1" />)
