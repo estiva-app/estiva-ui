@@ -90,8 +90,8 @@ export const ACurrentValueNotOffered: Story = {
   render: (args) => (
     <Demo
       {...args}
-      initial="item"
-      options={[{ value: 'item', label: 'item', disabled: true }, ...args.options]}
+      initial="blocked"
+      options={[{ value: 'blocked', label: 'blocked', disabled: true }, ...args.options]}
     />
   ),
 }
