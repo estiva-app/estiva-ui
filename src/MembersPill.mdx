@@ -35,6 +35,12 @@ const [open, setOpen] = useState(false)
 - `count` is the number beside the faces when it is not `members.length` —
   pass three faces and the real total.
 - No `onClick` disables it; no members draws nothing.
+- `readOnly` says who is in it and is nothing to press: the same pixels, not
+  greyed as a disabled pill — in a list's row, which opens its thing; the row
+  is what is pressed (Katerina, 17 November: "clicking on the pill should not
+  show the members list").
+
+<Canvas of={MembersPillStories.ReadOnly} />
 
 ## What it owns
 

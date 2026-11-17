@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.122.0 — 2026-11-17
+
+From Katerina's review of Peek's navigation build (17 November). Both were tried in Peek first; she chose to release
+them.
+
+**ActivityLine**: a line not yet `seen` (under New) wears the accent's wash, `bg-accent-wash`; a seen one (under
+Earlier) wears none, and either takes the hover fill under the pointer (U-06).
+
+**ListTable**: the name and what it is about take the room on the left, and the facts sit together on the right
+before the end, 24px apart and 24px from the name (12px until now): "Everything is crammed together on the left … we
+need air for them to breathe … the names/desc at the left and the rest on the right was a more correct way". The 384px
+cap on the name from 16 November goes.
+
+**MembersPill** takes `readOnly`: who is in it and nothing to press, in the outlined pill's own look, not greyed as a
+disabled one — in a list's row, which opens its thing ("clicking on the pill should not show the members list. And we
+need to use the estiva ui component for the members pill"). Story: "Read only".
+
 ## 0.121.0 — 2026-11-17
 
 From Katerina's trial in Peek's navigation build (17 November): "what if we make the height of the items 28px",

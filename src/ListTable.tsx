@@ -71,8 +71,8 @@ const DEFAULT_WIDTH = 'medium'
 const sizeOf = (column: ListTableColumn) => column.width ?? DEFAULT_WIDTH
 /** The row's 12px either side, the icon and its 12px gap. */
 const ROW_FRAME_PX = 24 + 16 + 12
-/** Each column's 12px gap before it. */
-const GAP_PX = 12
+/** Each column's 24px gap before it: room between the facts (Katerina, 17 November: "we need air for them to breathe"). */
+const GAP_PX = 24
 const END_PX = 64
 
 type Shown = 'all' | 'high' | 'none'
@@ -87,8 +87,10 @@ const widthOf = (columns: ListTableColumn[], end: boolean) =>
  * A list of things on a page, under column headings: each row leads to its thing, with its name and what it is about,
  * then a few short facts in columns, then an action at its end. The columns give way to the name by the list's own
  * width, not the window's — `low` ones first, then `high` ones — so a list beside a sidebar keeps its names. The name
- * is at most 384px and the facts sit beside it; the room left goes before the end, which keeps the list's right edge.
- * The list takes the whole width it is given, as every page's body does (Katerina, 16 November).
+ * and what it is about take the room on the left, the facts sit together on the right before the end, 24px apart
+ * (Katerina, 17 November: "everything is crammed together on the left … the names/desc at the left and the rest on the
+ * right was a more correct way"; from 16 November the name was capped at 384px with the facts beside it). The list
+ * takes the whole width it is given, as every page's body does (16 November).
  *
  * Peek's Explore topics, Ship's Topics and Leaf's Explore topics each drew this by hand, class for class, and their
  * columns hid only at the phone's width: in a narrow window the names were cut to two letters (Katerina, 16 November).
@@ -117,9 +119,9 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
         {/* With no columns there is nothing to head: the part's own heading names the list, and a lone "Name" said nothing (Katerina, 16 November). */}
         {columns.length > 0 && (
           // Hidden, it is out of the flow too: the rows start where the list does, with no gap for it.
-          <div role="row" className={cn('flex items-center gap-3 px-3 text-caption text-text-muted', !headings && 'sr-only')}>
+          <div role="row" className={cn('flex items-center gap-6 px-3 text-caption text-text-muted', !headings && 'sr-only')}>
             {/* Over the name, past the icon; as wide as the names' cells. */}
-            <span role="columnheader" className="min-w-0 max-w-sm flex-1 pl-7">
+            <span role="columnheader" className="min-w-0 flex-1 pl-7">
               {nameLabel}
             </span>
             {columns.map((column) =>
@@ -147,9 +149,10 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
   if (!table) throw new Error('ListTableRow is a row of a ListTable: put it inside one.')
   return (
     // A row's look in every list: 8px corners, the fill under the pointer and no edge.
-    <div role="row" className="relative flex min-w-0 items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
-      {/* At most 384px: a short name keeps its facts beside it, not across the page (Katerina, 16 November). */}
-      <span role="cell" className="flex min-w-0 max-w-sm flex-1 items-center gap-3">
+    // 24px between the name and each fact, and before the end (Katerina, 17 November): they touched at 12.
+    <div role="row" className="relative flex min-w-0 items-center gap-6 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
+      {/* The name takes the room left, so the facts sit together on the right (Katerina, 17 November). */}
+      <span role="cell" className="flex min-w-0 flex-1 items-center gap-3">
         {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
         {/* 2px between the name and its line, as every two-line row in the kit (LinkCard, LinkRow, PartCard, a tall MenuItem); they touched (Katerina, 16 November). */}
         <Link href={href} variant="plain" cover className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>

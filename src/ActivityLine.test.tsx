@@ -44,4 +44,13 @@ describe('ActivityLine', () => {
     expect(row.className).toContain('rounded-lg')
     expect(row.className).not.toMatch(/\bborder\b/)
   })
+
+  it('a new line wears the accent’s wash, a seen one none; the pointer’s fill still shows over it (Katerina, 16 November)', () => {
+    const { rerender } = render(<ActivityLine {...line} />)
+    const row = () => screen.getByRole('button')
+    expect(row().className).toContain('bg-accent-wash')
+    expect(row().className).toContain('hover:bg-bg-hover')
+    rerender(<ActivityLine {...line} seen />)
+    expect(row().className).not.toContain('bg-accent-wash')
+  })
 })

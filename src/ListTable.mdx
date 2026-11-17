@@ -46,10 +46,12 @@ A list of things on a page, under column headings: each row leads to its thing, 
 
 <Canvas of={ListTableStories.NotReadYet} />
 
-- It takes the whole width it is given. The name is at most 384px and its
-  facts sit beside it; the room left goes before the end, which keeps the
-  list's right edge. A name stretched across the page sat far from its
-  facts.
+- It takes the whole width it is given. The name and what it is about take
+  the room on the left; the facts sit together on the right, before the end,
+  24px apart, as are the name and the first fact (Katerina, 17 November:
+  "everything is crammed together on the left … we need air for them to
+  breathe"). From 16 November the name was capped at 384px with the facts
+  beside it; they read as one crammed block.
 
 <Canvas of={ListTableStories.OnAWidePage} />
 
@@ -105,7 +107,7 @@ import { Button, ListTable, ListTableRow } from '@estiva-app/ui'
 | Hides columns by its own width, `low` first | `hidden sm:block` on a column |
 | Draws a row's fill, its 8px corners and no edge | `rounded-md hover:bg-bg-hover` on a row |
 | Makes the whole row the link, its end above it | a covering link and `relative` by hand |
-| Keeps the name at most 384px, the facts beside it, the end at the right | a width of your own on the name |
+| Gives the name the room on the left and puts the facts together on the right, 24px apart | a width of your own on the name, a gap by hand |
 
 ## Props
 
