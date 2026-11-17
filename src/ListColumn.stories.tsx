@@ -132,7 +132,8 @@ function OpenRows({ open: first, late = false }: { open: number; late?: boolean 
       {Array.from({ length: 80 }, (_, i) => (
         <NavItem
           key={i}
-          href="#"
+          // Each its own address, as an app's rows are: a list knows its open row by it.
+          href={`#item-${i + 1}`}
           label={`Item ${i + 1}`}
           icon={icon}
           active={i === open}

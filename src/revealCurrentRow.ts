@@ -26,11 +26,19 @@ export function scrollToRow(row: HTMLElement) {
   let box = row.parentElement
   while (box && !(/(auto|scroll)/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight)) box = box.parentElement
   if (!box || box === document.documentElement || box === document.body) return
+  scrollRowInto(box, row)
+}
+
+/** Brings a row into a box's sight by the least move: to its top edge from above, to its bottom edge from below. */
+function scrollRowInto(box: HTMLElement, row: HTMLElement) {
   const at = row.getBoundingClientRect()
   const view = box.getBoundingClientRect()
   if (at.top < view.top) box.scrollTop -= view.top - at.top
   else if (at.bottom > view.bottom) box.scrollTop += Math.min(at.bottom - view.bottom, at.top - view.top)
 }
+
+/** The key a list's open row is known by, from one drawing to the next: what a reveal compares. */
+const keyOf = (row: HTMLElement, current?: string) => current ?? row.getAttribute('href') ?? row.textContent ?? ''
 
 /**
  * Brings the current row inside `box` into sight, once per current row. `current` names it when the caller knows it
@@ -85,6 +93,19 @@ export function useListPlace(box: RefObject<HTMLElement | null>, name: string | 
       if (Math.abs(el.scrollTop - want) < 1) finish()
     }
     restore()
+    /*
+      A new open row already drawn is brought into sight in the same moment, before the column is painted, so the reader
+      sees one place: where they left it, or the least move from it that shows the row (Katerina, 17 November: "lets
+      smooth it"). The row it showed last stays where they put it; one drawn later is the reveal's.
+    */
+    const open = el.querySelector<HTMLElement>('[aria-current="page"]')
+    const key = open && open.getBoundingClientRect().height > 0 ? keyOf(open) : undefined
+    if (open && key !== undefined && key !== places.get(name)?.shown) {
+      finish()
+      places.set(name, { ...places.get(name), shown: key })
+      scrollRowInto(el, open)
+      set = el.scrollTop
+    }
     const grows = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(restore)
     if (el.firstElementChild) grows?.observe(el.firstElementChild)
     const until = setTimeout(finish, RESTORE_MS)
@@ -130,7 +151,7 @@ export function useRevealCurrentRow(box: RefObject<HTMLElement | null>, current?
       timer = undefined
       const row = root.querySelector<HTMLElement>('[aria-current="page"]')
       if (!row) return
-      const key = current ?? row.getAttribute('href') ?? row.textContent ?? ''
+      const key = keyOf(row, current)
       // The row it showed last: the list goes back to where it was left, and the row stays where the reader put it.
       if (was() === key) return
       // Not drawn yet, or inside a fold that is shut: whatever opens it changes the list, and it is looked for again.

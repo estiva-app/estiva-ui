@@ -254,6 +254,25 @@ describe('a list column drawn again goes back to where it was left (rememberAs)'
     }
   })
 
+  // Smooth (Katerina, 17 November, "lets smooth it"): no stop at the old place first, then a move 200ms later.
+  it('drawn again with a new open row already drawn, it is at its one place as soon as it is drawn', async () => {
+    await leaveAt(300)
+    // Laid out before it is drawn: the box 100px tall at the page's top; Person 2 64px down the list, the rest at its top.
+    const box = (y: number, height: number) => ({ top: y, bottom: y + height, height, left: 0, right: 0, width: 0, x: 0, y, toJSON: () => ({}) }) as DOMRect
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      const scroller = viewport()
+      if (this === scroller) return box(0, 100)
+      return this.textContent?.trim() === 'Person 2' ? box(64 - (scroller?.scrollTop ?? 0), 32) : box(0, 32)
+    })
+    try {
+      render(<Named open="Person 2" name="dms" />)
+      // Back at 300, the row is above the view: the least move shows it, before any timer has run.
+      expect(viewport().scrollTop).toBe(64)
+    } finally {
+      rect.mockRestore()
+    }
+  })
+
   it('without a name, or under another, it opens at the top', async () => {
     await leaveAt(300)
     const unnamed = render(<Named open="Person 1" />)
