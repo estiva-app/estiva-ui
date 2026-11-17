@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.120.0 — 2026-11-17
+
+From Katerina's review of the navigation build (17 November): "I have scrolled down a little and then click on
+something and it scrolls up back to top". She chose to release it (17 November).
+
+**ListColumn** takes `rememberAs`, the column's name in the app (`teams`, `dms`): where its list was scrolled is
+remembered by it in this tab, and the same column drawn again (on another page, as Peek's Teams column on a team's
+page and then on a topic's) opens where the reader left it, not at the top. While its rows are still being drawn it
+keeps trying, up to 2 seconds, until the reader scrolls or a row is brought into sight. Its open row: one it already
+brought into sight is not brought back; a new one is brought into sight in the same moment it goes back, before it is
+painted, so the reader sees one place, not the old one and a move after it. A **NavTree** inside a ListColumn leaves
+bringing its open row into sight to the column, so the two never pull against each other. Without a name, a column
+opens at the top each time it is drawn, as before. Story: "Drawn again where it was left".
+
 ## 0.119.0 — 2026-11-17
 
 From Katerina's review of the navigation build (17 November): "the selected message could be somewhere above or below
