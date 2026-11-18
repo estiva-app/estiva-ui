@@ -7,7 +7,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ToastProvider, useToast, type ToastOptions } from './Toast'
+import { ToastProvider, reportFailuresTo, useToast, type ToastOptions } from './Toast'
 
 afterEach(() => {
   cleanup()
@@ -133,5 +133,38 @@ describe('ToastProvider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<Grab />)).toThrow('useToast must be used within ToastProvider')
     spy.mockRestore()
+  })
+})
+
+describe('reportFailuresTo', () => {
+  afterEach(() => reportFailuresTo(undefined))
+
+  it('reports an error toast by its failure, or by none, and never its label', () => {
+    const reported: Array<string | undefined> = []
+    reportFailuresTo((failure) => reported.push(failure))
+    mount()
+    show({ label: 'Not sent in plantedtitle board offsite', type: 'error', failure: 'not-sent' })
+    show({ label: 'Could not rename it. Try again.', type: 'error' })
+    expect(reported).toEqual(['not-sent', undefined])
+  })
+
+  it('reports a warning only when it names its failure, and nothing else', () => {
+    const reported: Array<string | undefined> = []
+    reportFailuresTo((failure) => reported.push(failure))
+    mount()
+    show({ label: 'Moved, but not all of it', type: 'warning', failure: 'not-moved' })
+    show({ label: 'You are offline', type: 'warning' })
+    show({ label: 'Changes saved', type: 'success' })
+    show({ label: 'Copied' })
+    expect(reported).toEqual(['not-moved'])
+  })
+
+  it('a reporter that throws never stops the toast', () => {
+    reportFailuresTo(() => {
+      throw new Error('reporter broke')
+    })
+    mount()
+    show({ label: 'That did not go through', type: 'error' })
+    expect(screen.getByRole('alert').textContent).toContain('That did not go through')
   })
 })
