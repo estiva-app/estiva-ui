@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
-import { ErrorBoundary } from './ErrorBoundary'
+import { ErrorBoundary, reportCrashesTo } from './ErrorBoundary'
 
 afterEach(cleanup)
 
@@ -75,5 +75,25 @@ describe('ErrorBoundary', () => {
   it('says what crashed in the console line', () => {
     render(<Harness />)
     expect(vi.mocked(console.error).mock.calls.some((call) => String(call[0]).startsWith('test panel crashed:'))).toBe(true)
+  })
+
+  describe('reporting the crash', () => {
+    afterEach(() => reportCrashesTo(undefined))
+
+    it('hands the error it caught to the reporter the app set', () => {
+      const reported: unknown[] = []
+      reportCrashesTo((error) => reported.push(error))
+      render(<Harness />)
+      expect(reported).toHaveLength(1)
+      expect((reported[0] as Error).message).toBe('boom')
+    })
+
+    it('still shows the message when the reporter itself throws', () => {
+      reportCrashesTo(() => {
+        throw new Error('reporter broke')
+      })
+      render(<Harness />)
+      expect(screen.getByText(/Something went wrong in the test panel/)).toBeTruthy()
+    })
   })
 })

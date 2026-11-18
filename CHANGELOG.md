@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.123.1 — 2026-11-18
+
+From PROD-2 ("A crash in Peek is reported, and nothing a person wrote leaves the browser"): a crash a part of the page
+catches can be reported.
+
+**reportCrashesTo**: an app sets, once, where every `ErrorBoundary` sends the error it caught (Peek passes its error
+reporter from `@estiva-app/platform`). Nothing on screen changes; a reporter that throws never breaks the message.
+Additive: no caller changes.
+
 ## 0.123.0 — 2026-11-17
 
 From EAC-2 ("Each company sets its own statuses"): every app counts a project's progress the same way, and a status no
