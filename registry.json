@@ -5946,7 +5946,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/KindIcon.tsx",
-      "purpose": "The icon before a thing's name that says what kind of thing it is: a topic, a project, an issue, another app's file, or a message.",
+      "purpose": "The icon before a thing's name that says what kind of thing it is: an initiative (`kind=\"topic\"`, ◎), a project, an issue, another app's file, or a message.",
       "purposeFrom": "page",
       "props": [
         {

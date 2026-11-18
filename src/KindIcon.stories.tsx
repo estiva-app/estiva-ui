@@ -14,7 +14,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const KINDS: { kind: ThingKind; name: string }[] = [
-  { kind: 'topic', name: 'Topic' },
+  { kind: 'topic', name: 'Initiative' },
   { kind: 'project', name: 'Project' },
   { kind: 'issue', name: 'Issue' },
   { kind: 'file', name: 'Another app’s file' },
