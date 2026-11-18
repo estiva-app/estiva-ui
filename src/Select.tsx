@@ -198,7 +198,7 @@ export function Select({ value, onChange, options, size = 'default', fill = 'fie
              *
              * `gap-0.5`: 2px between the options, as between a menu's rows —
              * they touched, while every menu had moved to 2px (0.56.0). */}
-            <ScrollArea viewportClassName="max-h-[min(288px,var(--available-height))]" contentClassName="flex flex-col gap-0.5 p-2">
+            <ScrollArea focusable={false} viewportClassName="max-h-[min(288px,var(--available-height))]" contentClassName="flex flex-col gap-0.5 p-2">
             {options.map((option) => (
               <BaseSelect.Item
                 key={option.value}

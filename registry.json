@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.123.1",
+    "packageVersion": "0.123.2",
     "exports": 257,
     "typeExports": 270,
     "files": null
@@ -10381,6 +10381,12 @@
           "takes": "UIEventHandler<HTMLDivElement>",
           "required": false,
           "note": "Fires as the viewport scrolls — the unread policy's input, beside `viewportRef`."
+        },
+        {
+          "name": "focusable",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether the scrolling box can take keyboard focus."
         },
         {
           "name": "children",

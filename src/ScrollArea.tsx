@@ -66,13 +66,24 @@ export interface ScrollAreaProps {
   viewportRef?: Ref<HTMLDivElement>
   /** Fires as the viewport scrolls — the unread policy's input, beside `viewportRef`. */
   onScroll?: UIEventHandler<HTMLDivElement>
+  /**
+   * Whether the scrolling box can take keyboard focus. Default true: Base UI
+   * puts a box that overflows in the Tab order, so a keyboard can scroll it.
+   *
+   * `false` for a box that sits between a list and its rows (a menu, a
+   * select's options). There the arrow keys move a highlight and the
+   * highlight scrolls the box. A focusable box in between stops being
+   * transparent to a screen reader, and the menu reads as holding one plain
+   * box instead of its rows (axe's aria-required-children, UIG-41).
+   */
+  focusable?: boolean
   children: ReactNode
 }
 
 const BAR = 'z-10 flex touch-none select-none rounded-full opacity-0 transition-opacity delay-300 data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[scrolling]:opacity-100 data-[scrolling]:delay-0'
 const THUMB = 'rounded-full bg-border-strong'
 
-export function ScrollArea({ orientation = 'vertical', className, viewportClassName, contentClassName, viewportRef, onScroll, children }: ScrollAreaProps) {
+export function ScrollArea({ orientation = 'vertical', className, viewportClassName, contentClassName, viewportRef, onScroll, focusable = true, children }: ScrollAreaProps) {
   const vertical = orientation !== 'horizontal'
   const horizontal = orientation !== 'vertical'
   return (
@@ -91,6 +102,9 @@ export function ScrollArea({ orientation = 'vertical', className, viewportClassN
       <BaseScrollArea.Viewport
         ref={viewportRef}
         onScroll={onScroll}
+        // An explicit undefined, not -1: Base UI's own tabIndex gives way to ours, and a
+        // tabindex of -1 still makes the box focusable, which is what breaks the list.
+        {...(focusable ? {} : { tabIndex: undefined })}
         className={cn(
           'h-full w-full outline-none data-[has-overflow-x]:overscroll-x-contain data-[has-overflow-y]:overscroll-y-contain',
           viewportClassName,
