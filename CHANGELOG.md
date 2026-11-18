@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.124.0 — 2026-11-18
+
+From PROD-5 ("A failure a person is told about … is reported in every app"): an app hears about a failure it showed,
+not only a crash. Nothing on screen changes.
+
+**Toast**: `failure` names what failed in the app's own short words (`not-saved`), and `reportFailuresTo(reporter)` sets
+where every `error` toast, and every `warning` toast that names its `failure`, is reported when it is shown. The reporter
+is told the `failure`, never the label, which may name a title or a person. Additive; no caller changes.
+
 ## 0.123.2 — 2026-11-18
 
 From UIG-41 ("Accessibility pass"): the `a11y` job on `main` had failed on every merge since 24 September, so nothing

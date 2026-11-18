@@ -139,6 +139,35 @@ export interface ToastOptions {
    * wait — the write happens here, unless the Undo was pressed first.
    */
   onClose?: () => void
+  /**
+   * Names what failed, in the app's own short words (`not-saved`), for the
+   * reporter set by {@link reportFailuresTo}; never the label, which may name
+   * a title or a person. An `error` toast is reported with or without it; a
+   * `warning` only when it names one.
+   */
+  failure?: string
+}
+
+let failureReporter: ((failure: string | undefined) => void) | undefined
+
+/**
+ * Where every `error` toast, and every `warning` toast that names its
+ * `failure`, is reported when it is shown, set once by the app at start (its
+ * error reporter, `@estiva-app/platform`). It is told the toast's `failure`,
+ * never its label. Pass nothing to stop. A reporter that throws never stops
+ * the toast.
+ */
+export function reportFailuresTo(reporter: ((failure: string | undefined) => void) | undefined): void {
+  failureReporter = reporter
+}
+
+function reportFailure(type: ToastType, failure: string | undefined): void {
+  if (type !== 'error' && !(type === 'warning' && failure)) return
+  try {
+    failureReporter?.(failure)
+  } catch {
+    // The toast still shows.
+  }
 }
 
 interface ToastValue {
@@ -169,8 +198,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const manager = useMemo(() => BaseToast.createToastManager<ToastData>(), [])
   const value = useMemo<ToastValue>(
     () => ({
-      showToast: ({ label, type = 'neutral', leadingIcon = true, actionLabel, onAction, durationMs = 5000, onClose }) =>
-        manager.add({
+      showToast: ({ label, type = 'neutral', leadingIcon = true, actionLabel, onAction, durationMs = 5000, onClose, failure }) => {
+        reportFailure(type, failure)
+        return manager.add({
           title: label,
           type,
           timeout: durationMs,
@@ -178,7 +208,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           // A failure interrupts; everything else waits for a pause.
           priority: type === 'error' ? 'high' : 'low',
           data: { leadingIcon, actionLabel, onAction },
-        }),
+        })
+      },
       dismissToast: (id) => manager.close(id),
     }),
     [manager],

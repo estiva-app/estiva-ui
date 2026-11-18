@@ -176,6 +176,6 @@ export { ListTable, ListTableRow, type ListTableColumn, type ListTableColumnKeep
 export { CollapsibleSection, useRememberedOpen, type CollapsibleSectionProps } from './CollapsibleSection'
 export { SectionLabel } from './SectionLabel'
 export { Tabs, type TabDef, type TabsProps } from './Tabs'
-export { Toast, ToastProvider, useToast, type ToastOptions, type ToastProps, type ToastType } from './Toast'
+export { Toast, ToastProvider, reportFailuresTo, useToast, type ToastOptions, type ToastProps, type ToastType } from './Toast'
 export { cn } from './cn'
 export { isApplePlatform, shortcutLabel, useShortcut } from './shortcuts'
