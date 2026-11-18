@@ -214,7 +214,13 @@ export function SuggestionMenu<T>({ rect, editorElement, ariaLabel, width, maxHe
       <div ref={keepFocus} id={listboxId} role="listbox" aria-label={ariaLabel} className="flex flex-col gap-0.5">
         {shown.map((section, i) => (
           <div key={section.label ?? i} className="contents">
-            {i > 0 && <MenuSeparator />}
+            {/* Hidden from a screen reader: a listbox holds only options and groups, and the
+                groups already say where one section ends (UIG-41). The line is for the eye. */}
+            {i > 0 && (
+              <div aria-hidden="true" className="contents">
+                <MenuSeparator />
+              </div>
+            )}
             {section.label ? (
               <div role="group" aria-label={section.label}>
                 <MenuSection label={section.label} className={section.className}>

@@ -250,7 +250,7 @@ export function Menu({ trigger, align = 'left', openOnHover = false, open, onOpe
              * sentence was written at 0.12.6 and the prop was not: a `p-1` on
              * `className` added 4px to these 8px instead of replacing them
              * (PLAN Finding 60). The prop exists now. */}
-            <ScrollArea viewportClassName="max-h-[var(--available-height)]" contentClassName={cn('flex flex-col gap-0.5 p-2', contentClassName)}>
+            <ScrollArea focusable={false} viewportClassName="max-h-[var(--available-height)]" contentClassName={cn('flex flex-col gap-0.5 p-2', contentClassName)}>
               <MenuContext.Provider value={{ openOnHover }}>
                 <DividerInPanel.Provider value={true}>{children}</DividerInPanel.Provider>
               </MenuContext.Provider>

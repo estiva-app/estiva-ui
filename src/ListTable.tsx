@@ -131,7 +131,12 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
                 </span>
               ) : null,
             )}
-            {end && <span role="columnheader" aria-label="Actions" className="ml-auto w-16 shrink-0" />}
+            {/* Its name as text only a screen reader reads: a column heading named by aria-label alone counts as empty (axe's empty-table-header, UIG-41). */}
+            {end && (
+              <span role="columnheader" className="ml-auto w-16 shrink-0">
+                <span className="sr-only">Actions</span>
+              </span>
+            )}
           </div>
         )}
         {/* 2px between rows, as a list column's and a menu's. */}

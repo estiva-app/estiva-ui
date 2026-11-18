@@ -153,7 +153,13 @@ const preview: Preview = {
     // `npm run test:a11y` fails on them, in the addon's own vocabulary. The gate's
     // `npm run test:stories` only draws them (R19): vitest.config.ts defines
     // __ESTIVA_DRAW_ONLY__ for that project alone, and axe is off there.
-    a11y: { test: typeof __ESTIVA_DRAW_ONLY__ !== 'undefined' && __ESTIVA_DRAW_ONLY__ ? 'off' : 'error' },
+    a11y: {
+      test: typeof __ESTIVA_DRAW_ONLY__ !== 'undefined' && __ESTIVA_DRAW_ONLY__ ? 'off' : 'error',
+      // Base UI's focus guards are hidden spans a Tab lands on for an instant, to send focus back
+      // into an open popup or on past it. They are how its focus trap works, never content, so
+      // aria-hidden-focus skips them and still checks every other hidden element (UIG-41).
+      config: { rules: [{ id: 'aria-hidden-focus', selector: '[aria-hidden="true"]:not([data-base-ui-focus-guard])' }] },
+    },
     docs: { theme: themes.dark, container: ThemedDocsContainer },
     options: {
       storySort: { order: ['Start here', ['Introduction', 'Getting started', 'Choosing a component', 'Design Tokens'], 'App frame', ['AppProvider', 'AppShell', 'EntryShell', 'IdentityMenu', 'NavItem', 'NavTree', 'Rail', 'RailItem', 'Sidebar', 'TopBar'], 'Page structure', ['Breadcrumb', 'Card', 'CollapsibleSection', 'ContainerHeader', 'Divider', 'ListColumn', 'Panel', 'Property', 'ScrollArea', 'SectionHeader', 'SectionLabel', 'ShowMore', 'Tabs'], 'Buttons & links', ['Button', 'IconButton', 'Kbd', 'Link', 'Toolbar'], 'Forms & fields', ['Checkbox', 'ChipInput', 'EditableText', 'Field', 'Field line', 'FilePicker', 'Form', 'SearchInput', 'Select', 'Textarea', 'TextInput'], 'Menus & windows', ['CommandPalette', 'ConfirmDialog', 'DialogShell', 'Lightbox', 'Menu', 'MenuItem', 'Popover', 'PreviewCard', 'Tooltip'], 'Status & feedback', ['Banner', 'Chip', 'EmptyState', 'ErrorBoundary', 'ProgressBar', 'Skeleton', 'Toast', 'UnreadDot'], 'People', ['Avatar', 'AvatarGroup', 'MembersDialog', 'MembersPill', 'Person', 'PersonTrigger'], 'Writing', ['BlockHandle', 'BlockNodes', 'CodeBlockColours', 'CommentBox', 'CommentHighlights', 'ComposerTriggers', 'DocumentEditor', 'EditorBlockHandle', 'EditorTableControls', 'InlineText', 'LinkChips', 'LinkPlaces', 'PastedImages', 'PastedMarkdown', 'ReferenceMenu', 'RichText', 'SelectionToolbar', 'SuggestionMenu'], 'Links & references', ['AttachedCard', 'AttachmentCard', 'InlineChip', 'KindIcon', 'LinkCard', 'LinkChip', 'LinkParts', 'LinkPreview', 'LinkRow', 'PartCard'], 'Conversation', ['Reaction', 'ReactionPicker', 'ReactionRow']] },

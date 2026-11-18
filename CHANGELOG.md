@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.123.2 — 2026-11-18
+
+From UIG-41 ("Accessibility pass"): the `a11y` job on `main` had failed on every merge since 24 September, so nothing
+new it found was seen. Miky chose to fix the failures that are not a colour now (18 November). Nothing on screen
+changes. What is left is the Signal theme's muted grey, whose value Katerina picks.
+
+**Menu, Select**: the box that scrolls a long menu or option list no longer takes keyboard focus. A focusable box between
+the list and its rows hid the rows' structure from a screen reader. The arrow keys still move the highlight, and the
+highlight still scrolls the box.
+
+**ScrollArea**: `focusable` (default `true`). `false` keeps the scrolling box out of focus, for a box between a list and
+its rows. Additive; no caller changes.
+
+**SuggestionMenu**: the line between two sections is hidden from a screen reader. A list of options may hold only
+options and groups, and the groups already name each section.
+
+**ListTable**: the heading over the row actions is named in text a screen reader reads, not by `aria-label` alone,
+which counted as an empty heading.
+
+**Storybook's accessibility check**: Base UI's focus guards (hidden spans that keep focus inside an open popup) are no
+longer reported as hidden-but-focusable. Every other hidden element still is.
+
 ## 0.123.1 — 2026-11-18
 
 From PROD-2 ("A crash in Peek is reported, and nothing a person wrote leaves the browser"): a crash a part of the page

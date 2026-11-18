@@ -10383,6 +10383,12 @@
           "note": "Fires as the viewport scrolls — the unread policy's input, beside `viewportRef`."
         },
         {
+          "name": "focusable",
+          "takes": "true/false",
+          "required": false,
+          "note": "Whether the scrolling box can take keyboard focus."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
