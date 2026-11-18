@@ -24,6 +24,17 @@ interface ErrorBoundaryState {
   hasError: boolean
 }
 
+let crashReporter: ((error: unknown) => void) | undefined
+
+/**
+ * Where every ErrorBoundary sends the crash it caught, set once by the app at
+ * start (Peek passes its error reporter, `@estiva-app/platform`). Pass nothing
+ * to stop. A reporter that throws never breaks the message on screen.
+ */
+export function reportCrashesTo(reporter: ((error: unknown) => void) | undefined): void {
+  crashReporter = reporter
+}
+
 /** Keeps a crash inside what it holds: the rest of the page keeps working, and Try again draws it again. */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false }
@@ -34,6 +45,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: unknown, info: { componentStack?: string | null }) {
     console.error(`${this.props.label ?? 'part of the page'} crashed:`, error, info.componentStack ?? '')
+    try {
+      crashReporter?.(error)
+    } catch {
+      // Reporting a crash must never become a second one.
+    }
   }
 
   render() {
