@@ -158,6 +158,8 @@ const preview: Preview = {
       // Base UI's focus guards are hidden spans a Tab lands on for an instant, to send focus back
       // into an open popup or on past it. They are how its focus trap works, never content, so
       // aria-hidden-focus skips them and still checks every other hidden element (UIG-41).
+      // Storybook replaces an array when it merges parameters: a story that sets its own
+      // `a11y.config.rules` drops this one, so a story of an open popup that does repeats it.
       config: { rules: [{ id: 'aria-hidden-focus', selector: '[aria-hidden="true"]:not([data-base-ui-focus-guard])' }] },
     },
     docs: { theme: themes.dark, container: ThemedDocsContainer },
