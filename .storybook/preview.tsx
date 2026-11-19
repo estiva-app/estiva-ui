@@ -161,6 +161,8 @@ const preview: Preview = {
       // aria-hidden-focus skips them and still checks every other hidden element (UIG-41).
       // Storybook replaces an array when it merges parameters: a story that sets its own
       // `a11y.config.rules` drops this one, so a story of an open popup that does repeats it.
+      // The same goes for the Signal contrast park below: a story's own list must keep
+      // color-contrast off too (every one today does), or it fails on the parked grey.
       //
       // Colour contrast is parked in the Signal theme only, until Katerina's accessibility pass
       // ("Leave accessibility for later please", 18 November, UIG-41). Its one failure is the muted grey,
