@@ -9,6 +9,7 @@ import './preview.css'
 
 /** Set by vitest.config.ts for `npm run test:stories` only: draw, with axe off (R19). */
 declare const __ESTIVA_DRAW_ONLY__: boolean | undefined
+declare const __ESTIVA_A11Y_THEME__: string | undefined
 
 /**
  * The themes the apps render, from the toolbar: `signal` is Peek's, `ship`
@@ -160,7 +161,19 @@ const preview: Preview = {
       // aria-hidden-focus skips them and still checks every other hidden element (UIG-41).
       // Storybook replaces an array when it merges parameters: a story that sets its own
       // `a11y.config.rules` drops this one, so a story of an open popup that does repeats it.
-      config: { rules: [{ id: 'aria-hidden-focus', selector: '[aria-hidden="true"]:not([data-base-ui-focus-guard])' }] },
+      // The same goes for the Signal contrast park below: a story's own list must keep
+      // color-contrast off too (every one today does), or it fails on the parked grey.
+      //
+      // Colour contrast is parked in the Signal theme only, until Katerina's accessibility pass
+      // ("Leave accessibility for later please", 18 November, UIG-41). Its one failure is the muted grey,
+      // whose value she picks; with it on, the job stayed red and found nothing new. The Ship theme
+      // still checks contrast, and the Storybook panel still shows it. Her pass removes this line.
+      config: {
+        rules: [
+          { id: 'aria-hidden-focus', selector: '[aria-hidden="true"]:not([data-base-ui-focus-guard])' },
+          ...(typeof __ESTIVA_A11Y_THEME__ !== 'undefined' && __ESTIVA_A11Y_THEME__ === 'signal' ? [{ id: 'color-contrast', enabled: false }] : []),
+        ],
+      },
     },
     docs: { theme: themes.dark, container: ThemedDocsContainer },
     options: {

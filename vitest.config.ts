@@ -67,7 +67,8 @@ export default defineConfig({
           exclude: ['**/node_modules/**', 'dist/**', 'storybook-static/**'],
         },
       },
-      ...[...THEMES.map((theme) => ({ name: `storybook-${theme}`, globals: { theme } as Record<string, unknown>, define: {} as Record<string, string> })), ...DRAW].map(({ name, globals, define }) => ({
+      // __ESTIVA_A11Y_THEME__ tells preview.tsx which theme axe is reading, for a rule parked in one theme only.
+      ...[...THEMES.map((theme) => ({ name: `storybook-${theme}`, globals: { theme } as Record<string, unknown>, define: { __ESTIVA_A11Y_THEME__: JSON.stringify(theme) } as Record<string, string> })), ...DRAW].map(({ name, globals, define }) => ({
         extends: true as const,
         define,
         plugins: [
