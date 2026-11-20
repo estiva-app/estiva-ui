@@ -246,6 +246,11 @@ export interface CommandPaletteSearchProps {
    * The caller decides when the words stopped being a search.
    */
   prompt?: CommandPalettePrompt
+  /**
+   * What a prompt written here would be about, named in a chip above the
+   * field. Not the back `chip`: it scopes nothing and goes nowhere.
+   */
+  about?: string
 }
 
 export interface CommandPalettePrompt {
@@ -253,8 +258,6 @@ export interface CommandPalettePrompt {
   onSubmit: () => void
   /** The footer's word for what Enter does — "ask". */
   submitWord: string
-  /** What the prompt is about, named above the field. */
-  about?: string
 }
 
 type ListGroup = { value: string; items: CommandPaletteRow[] }
@@ -262,7 +265,7 @@ type ListGroup = { value: string; items: CommandPaletteRow[] }
 /** The palette as a search: a query field, rows in labelled groups walked with
  *  the arrow keys, and what to show while nothing has arrived and when nothing
  *  matches. */
-export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children, prompt }: CommandPaletteSearchProps) {
+export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children, prompt, about }: CommandPaletteSearchProps) {
   const { modKey, popupRef } = usePalette('CommandPaletteSearch')
   const back = useBack(chip, popupRef)
   /*
@@ -272,12 +275,17 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
     way to clear a highlight, but it drops one whose row is gone — so the list
     is empty for the one render in which the mode turns, and the rows come
     back, unlit, before anything is painted.
+
+    The same one render takes a prompt's highlight away when ↑ leaves the
+    first row (`unlighting`), which is the way back to Enter sending the words.
   */
   const [settledPrompt, setSettledPrompt] = useState(!!prompt)
-  const turning = !!prompt && !settledPrompt
+  const [unlighting, setUnlighting] = useState(false)
+  const turning = (!!prompt && !settledPrompt) || unlighting
   useLayoutEffect(() => {
     if (settledPrompt !== !!prompt) setSettledPrompt(!!prompt)
-  }, [prompt, settledPrompt])
+    if (unlighting) setUnlighting(false)
+  }, [prompt, settledPrompt, unlighting])
   const items = useMemo<ListGroup[]>(
     () => (turning ? [] : groups.filter((g) => g.rows.length > 0).map((g) => ({ value: g.label, items: g.rows }))),
     [groups, turning],
@@ -342,6 +350,11 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
         never writes a line break there. As a prompt, Shift+Enter does, and
         Enter with no row lit sends the words.
       */
+      // The Enter that confirms an input method's word belongs to the input method.
+      if (e.nativeEvent.isComposing) {
+        e.preventBaseUIHandler()
+        return
+      }
       if (prompt && e.shiftKey) {
         e.preventBaseUIHandler()
         return
@@ -354,6 +367,21 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
       }
       if (!lit || e.shiftKey) e.preventDefault()
       return
+    }
+    if (prompt && e.key === 'ArrowUp' && !e.shiftKey) {
+      // In a prompt ↑ walks back out of the rows: from the first one to the
+      // words, where Enter sends again; and with no row lit it moves the text
+      // cursor up a line, never down to the last row.
+      if (!lit) {
+        e.preventBaseUIHandler()
+        return
+      }
+      if (rows[0]?.id === lit.id) {
+        e.preventDefault()
+        e.preventBaseUIHandler()
+        setUnlighting(true)
+        return
+      }
     }
     if (e.key === 'Home' || e.key === 'End') {
       // Home and End move the text cursor and nothing else (the key list).
@@ -421,7 +449,9 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
          the highlight stays where it is when the pointer leaves; and the
          arrows stop at the ends rather than wrapping (the key list). */
       autoHighlight={prompt ? false : 'always'}
-      keepHighlight
+      /* In a prompt a row the pointer only passed over goes dark again, or
+         Enter would open it instead of sending the words. */
+      keepHighlight={!prompt}
       loopFocus={false}
       onItemHighlighted={(row, details) => {
         const id = (row as CommandPaletteRow | undefined)?.id
@@ -430,9 +460,9 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
         setLitId(id)
       }}
     >
-      {prompt?.about && (
+      {about && (
         <div className="flex shrink-0 px-5 pt-3">
-          <Chip label={prompt.about} />
+          <Chip label={about} />
         </div>
       )}
       <div className={cn('flex shrink-0 gap-3 border-b border-border-subtle px-5', prompt ? 'items-start py-3' : 'h-12 items-center')}>

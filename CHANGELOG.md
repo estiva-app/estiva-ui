@@ -6,10 +6,11 @@ From the Ship issue "In Peek's ⌘K, a third word turns the search into a prompt
 approved the shape on Peek's `concept/intelligence-next` prototype on 5 November). Peek needs it first; Leaf and Ship
 mount the same box later.
 
-**CommandPaletteSearch**: `prompt` (`{ onSubmit, submitWord, about? }`). While it is passed, the field is three lines
-with the sparkles in place of the magnifier, no row is lit until ↑ / ↓ lights one, Enter with no row lit calls
-`onSubmit`, Shift+Enter is a new line, the footer names Enter with `submitWord`, and `about` is named in a chip above
-the field. Additive; no caller changes.
+**CommandPaletteSearch**: `prompt` (`{ onSubmit, submitWord }`). While it is passed, the field is three lines
+with the sparkles in place of the magnifier, no row is lit until ↓ lights one, Enter with no row lit calls
+`onSubmit`, Shift+Enter is a new line, and the footer names Enter with `submitWord`. ↑ from the first row, or writing
+on, leaves the rows again; a row the pointer only passed over does not stay lit. `about` names what a prompt written
+here would be about, in a chip above the field, whether or not the field is a prompt yet. Additive; no caller changes.
 
 **CommandPaletteSearch, changed for every caller**: the field is now a `<textarea>` at one line, so that it can grow
 without being swapped for another element mid-word. It looks and behaves as the one-line input did: Enter never writes

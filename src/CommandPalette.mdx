@@ -80,11 +80,14 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
   that builds its rows again on every render still runs the handler of the row
   on screen.
 - **`prompt` when the words stopped being a search.** The app decides when
-  (after a third word, say) and passes `{ onSubmit, submitWord, about? }`: the
+  (after a third word, say) and passes `{ onSubmit, submitWord }`: the
   field grows from one line to three, the sparkles replace the magnifier, and
   no row is lit, so Enter sends the words and the footer says so with
-  `submitWord`. `about` names what the prompt is about, above the field. The
-  rows stay what they were: things to open or do, reached with ↑ / ↓.
+  `submitWord`. The rows stay what they were: things to open or do, reached
+  with ↓; ↑ from the first row, or writing on, goes back to the words.
+- **`about` names what a prompt written here would be about**, in a chip above
+  the field. Pass it from the start, not only once the field is a prompt, or
+  the line being typed on moves down under the person's hands.
 - **`pending` while rows are still on their way; `empty` only once none are.**
   Pass `empty` while a search is running and the page says "nothing" before it
   knows.
@@ -136,7 +139,8 @@ It does these by itself. Write none of them around it.
 | | → at the end of the text | goes in, on a row that leads somewhere; anywhere else it moves the cursor |
 | | Ctrl+Backspace | forgets the lit row, if it can be forgotten; otherwise deletes a word |
 | | Home / End | move the text cursor; the lit row stays |
-| a prompt | Enter, with no row lit | sends the words (`prompt.onSubmit`); no row is lit until ↑ / ↓ lights one, and then Enter is that row's |
+| a prompt | Enter, with no row lit | sends the words (`prompt.onSubmit`); no row is lit until ↓ lights one, and then Enter is that row's |
+| | ↑ on the first row, or writing on | no row is lit again, so Enter sends the words |
 | | Shift+Enter | a new line; in a search it writes nothing |
 | inside a level | Backspace at the start of the field, or the chip's ✕ | back, with focus in the field |
 | a form | Tab / Shift+Tab | between the fields, never out of the window |
@@ -154,7 +158,7 @@ It does these by itself. Write none of them around it.
 **`CommandPaletteSearch`** — `query` and `onQueryChange` (the field, controlled),
 `placeholder` (also the field's name), `groups` (`{ label, rows }`, a group
 with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`, `notes?`,
-`empty?`, `prompt?` (`{ onSubmit, submitWord, about? }`), and `children` for what sits above the rows.
+`empty?`, `prompt?` (`{ onSubmit, submitWord }`), `about?`, and `children` for what sits above the rows.
 
 **A row** — `id`, `label`, `description?`, `icon?` or `leading?`, `onSelect`,
 `onGoIn?`, `onForget?`.

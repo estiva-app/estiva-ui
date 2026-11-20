@@ -465,7 +465,8 @@ function Prompting({ rows, onSubmit, about }: { rows: CommandPaletteRow[]; onSub
         onQueryChange={setQuery}
         placeholder="Search"
         groups={[{ label: 'Group', rows }]}
-        prompt={isPrompt ? { onSubmit: () => onSubmit(query), submitWord: 'send', about } : undefined}
+        about={about}
+        prompt={isPrompt ? { onSubmit: () => onSubmit(query), submitWord: 'send' } : undefined}
       />
     </CommandPalette>
   )
@@ -546,13 +547,54 @@ describe('CommandPaletteSearch — the field as a prompt', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('names what the prompt is about above the field, only while it is a prompt', async () => {
+  it('names what a prompt would be about above the field, before and after the field turns', async () => {
     const user = userEvent.setup()
     render(<Prompting rows={[]} onSubmit={() => {}} about="Item one" />)
     await focusedField()
-    expect(screen.queryByText('Item one')).toBeNull()
+    expect(screen.getByText('Item one')).toBeTruthy()
     await user.keyboard('one two three')
     expect(screen.getByText('Item one')).toBeTruthy()
+  })
+
+  it('opens a lit row on Enter without writing a line break into the field, as a search and as a prompt', async () => {
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect })]} onSubmit={() => {}} />)
+    await focusedField()
+    await user.keyboard('one')
+    await waitFor(() => expect(lit()).toBe('One'))
+    await user.keyboard('{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(field().value).toBe('one')
+    await user.keyboard(' two three{ArrowDown}{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(2)
+    expect(field().value).toBe('one two three')
+  })
+
+  it('goes back to sending on Enter once the person writes on after lighting a row', async () => {
+    const onSubmit = vi.fn()
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect }), row('Two')]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one two three{ArrowDown}')
+    expect(lit()).toBe('One')
+    await user.keyboard(' four')
+    expect(lit()).toBeNull()
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith('one two three four')
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
+  it('leaves the rows on ArrowUp from the first one, so Enter sends again', async () => {
+    const onSubmit = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One'), row('Two')]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one two three{ArrowDown}{ArrowUp}')
+    expect(lit()).toBeNull()
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledTimes(1)
   })
 })
 

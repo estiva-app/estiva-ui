@@ -2268,6 +2268,12 @@
           "takes": "CommandPalettePrompt",
           "required": false,
           "note": "The field as a prompt rather than a search: it grows to three lines, the sparkles lead it, and no row is lit until an arrow key lights one — so Enter sends what was written (`onSubmit`), and Shift+Enter is a new line."
+        },
+        {
+          "name": "about",
+          "takes": "text",
+          "required": false,
+          "note": "What a prompt written here would be about, named in a chip above the field."
         }
       ],
       "variants": [],
