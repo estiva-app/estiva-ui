@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.125.0 — 2026-11-20
+
+From the Ship issue "In Peek's ⌘K, a third word turns the search into a prompt" (project "⌘K in every app"; Miky
+approved the shape on Peek's `concept/intelligence-next` prototype on 5 November). Peek needs it first; Leaf and Ship
+mount the same box later.
+
+**CommandPaletteSearch**: `prompt` (`{ onSubmit, submitWord }`). While it is passed, the field is three lines
+with the sparkles in place of the magnifier, no row is lit until ↓ lights one, Enter with no row lit calls
+`onSubmit`, Shift+Enter is a new line, and the footer names Enter with `submitWord`. ↑ from the first row, or writing
+on, leaves the rows again; a row the pointer only passed over does not stay lit. `about` names what a prompt written
+here would be about, in a chip above the field, whether or not the field is a prompt yet. Additive; no caller changes.
+
+**CommandPaletteSearch, changed for every caller**: the field is now a `<textarea>` at one line, so that it can grow
+without being swapped for another element mid-word. It looks and behaves as the one-line input did: Enter never writes
+a line break in a search, and a pasted line break becomes a space. A caller or a test that selected the field as
+`input` must select it by its role (`combobox`) or by `[data-command-palette-field]`. Callers read from the apps:
+`peek/src/components/CommandLauncher.tsx` (its tests find the field by role and placeholder). Ship and Leaf have none.
+
 ## 0.124.0 — 2026-11-18
 
 From PROD-5 ("A failure a person is told about … is reported in every app"): an app hears about a failure it showed,

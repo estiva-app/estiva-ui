@@ -454,3 +454,147 @@ describe('what sits above the rows', () => {
   })
 })
 
+/** A field that is a search up to two words and a prompt from the third, as a caller would wire it. */
+function Prompting({ rows, onSubmit, about }: { rows: CommandPaletteRow[]; onSubmit: (text: string) => void; about?: string }) {
+  const [query, setQuery] = useState('')
+  const isPrompt = query.trim().split(/\s+/).filter(Boolean).length > 2
+  return (
+    <CommandPalette open onOpenChange={() => {}} label="Palette">
+      <CommandPaletteSearch
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Search"
+        groups={[{ label: 'Group', rows }]}
+        about={about}
+        prompt={isPrompt ? { onSubmit: () => onSubmit(query), submitWord: 'send' } : undefined}
+      />
+    </CommandPalette>
+  )
+}
+
+describe('CommandPaletteSearch — the field as a prompt', () => {
+  it('grows from one line to three and keeps the focus and the words while it does', async () => {
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One')]} onSubmit={() => {}} />)
+    const before = await focusedField()
+    expect((before as unknown as HTMLTextAreaElement).rows).toBe(1)
+    await user.keyboard('one two three')
+    const after = field() as unknown as HTMLTextAreaElement
+    expect(after.rows).toBe(3)
+    expect(after.value).toBe('one two three')
+    expect(document.activeElement).toBe(after)
+    // The same element, not a second field swapped in mid-word.
+    expect(after).toBe(before)
+  })
+
+  it('sends the words on Enter, and opens no row, until an arrow lights one', async () => {
+    const onSubmit = vi.fn()
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect })]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one two three')
+    expect(lit()).toBeNull()
+    expect(footer()).toContain('send')
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith('one two three')
+    expect(onSelect).not.toHaveBeenCalled()
+
+    await user.keyboard('{ArrowDown}')
+    expect(lit()).toBe('One')
+    expect(footer()).toContain('open')
+    await user.keyboard('{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('lights no row when the words arrive all at once, as a paste does, and Enter sends them', async () => {
+    const onSubmit = vi.fn()
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect })]} onSubmit={onSubmit} />)
+    await focusedField()
+    // The search face has its first row lit; the prompt must not inherit it.
+    await waitFor(() => expect(lit()).toBe('One'))
+    await user.paste('one two three')
+    await waitFor(() => expect(lit()).toBeNull())
+    expect(screen.getByRole('option').textContent).toContain('One')
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith('one two three')
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
+  it('lights the first row again once the words are a search again', async () => {
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One')]} onSubmit={() => {}} />)
+    await focusedField()
+    await user.paste('one two three')
+    await waitFor(() => expect(lit()).toBeNull())
+    await user.keyboard('{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}')
+    expect(field().value).toBe('one two')
+    await waitFor(() => expect(lit()).toBe('One'))
+  })
+
+  it('writes a new line on Shift+Enter as a prompt, and never as a search', async () => {
+    const onSubmit = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one{Shift>}{Enter}{/Shift}{Enter}')
+    expect(field().value).toBe('one')
+    await user.keyboard(' two three{Shift>}{Enter}{/Shift}four')
+    expect(field().value).toBe('one two three\nfour')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('names what a prompt would be about above the field, before and after the field turns', async () => {
+    const user = userEvent.setup()
+    render(<Prompting rows={[]} onSubmit={() => {}} about="Item one" />)
+    await focusedField()
+    expect(screen.getByText('Item one')).toBeTruthy()
+    await user.keyboard('one two three')
+    expect(screen.getByText('Item one')).toBeTruthy()
+  })
+
+  it('opens a lit row on Enter without writing a line break into the field, as a search and as a prompt', async () => {
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect })]} onSubmit={() => {}} />)
+    await focusedField()
+    await user.keyboard('one')
+    await waitFor(() => expect(lit()).toBe('One'))
+    await user.keyboard('{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(field().value).toBe('one')
+    await user.keyboard(' two three{ArrowDown}{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(2)
+    expect(field().value).toBe('one two three')
+  })
+
+  it('goes back to sending on Enter once the person writes on after lighting a row', async () => {
+    const onSubmit = vi.fn()
+    const onSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One', { onSelect }), row('Two')]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one two three{ArrowDown}')
+    expect(lit()).toBe('One')
+    await user.keyboard(' four')
+    expect(lit()).toBeNull()
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith('one two three four')
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+
+  it('leaves the rows on ArrowUp from the first one, so Enter sends again', async () => {
+    const onSubmit = vi.fn()
+    const user = userEvent.setup()
+    render(<Prompting rows={[row('One'), row('Two')]} onSubmit={onSubmit} />)
+    await focusedField()
+    await user.keyboard('one two three{ArrowDown}{ArrowUp}')
+    expect(lit()).toBeNull()
+    await user.keyboard('{Enter}')
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+})
+
