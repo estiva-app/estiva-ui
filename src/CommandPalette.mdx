@@ -79,6 +79,12 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 - **`id` is unique in the level.** The lit row is followed by it, so a caller
   that builds its rows again on every render still runs the handler of the row
   on screen.
+- **`prompt` when the words stopped being a search.** The app decides when
+  (after a third word, say) and passes `{ onSubmit, submitWord, about? }`: the
+  field grows from one line to three, the sparkles replace the magnifier, and
+  no row is lit, so Enter sends the words and the footer says so with
+  `submitWord`. `about` names what the prompt is about, above the field. The
+  rows stay what they were: things to open or do, reached with ↑ / ↓.
 - **`pending` while rows are still on their way; `empty` only once none are.**
   Pass `empty` while a search is running and the page says "nothing" before it
   knows.
@@ -130,6 +136,8 @@ It does these by itself. Write none of them around it.
 | | → at the end of the text | goes in, on a row that leads somewhere; anywhere else it moves the cursor |
 | | Ctrl+Backspace | forgets the lit row, if it can be forgotten; otherwise deletes a word |
 | | Home / End | move the text cursor; the lit row stays |
+| a prompt | Enter, with no row lit | sends the words (`prompt.onSubmit`); no row is lit until ↑ / ↓ lights one, and then Enter is that row's |
+| | Shift+Enter | a new line; in a search it writes nothing |
 | inside a level | Backspace at the start of the field, or the chip's ✕ | back, with focus in the field |
 | a form | Tab / Shift+Tab | between the fields, never out of the window |
 | | Enter in a text field | nothing; Enter in a text area is a new line |
@@ -146,7 +154,7 @@ It does these by itself. Write none of them around it.
 **`CommandPaletteSearch`** — `query` and `onQueryChange` (the field, controlled),
 `placeholder` (also the field's name), `groups` (`{ label, rows }`, a group
 with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`, `notes?`,
-`empty?`, and `children` for what sits above the rows.
+`empty?`, `prompt?` (`{ onSubmit, submitWord, about? }`), and `children` for what sits above the rows.
 
 **A row** — `id`, `label`, `description?`, `icon?` or `leading?`, `onSelect`,
 `onGoIn?`, `onForget?`.

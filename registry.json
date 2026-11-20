@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.124.0",
+    "packageVersion": "0.125.0",
     "exports": 258,
     "typeExports": 270,
     "files": null
@@ -2262,6 +2262,12 @@
           "takes": "anything",
           "required": false,
           "note": "Above the rows: a `CommandPaletteWorking`, `CommandPaletteAnswer` or `CommandPaletteQuote`."
+        },
+        {
+          "name": "prompt",
+          "takes": "CommandPalettePrompt",
+          "required": false,
+          "note": "The field as a prompt rather than a search: it grows to three lines, the sparkles lead it, and no row is lit until an arrow key lights one — so Enter sends what was written (`onSubmit`), and Shift+Enter is a new line."
         }
       ],
       "variants": [],
@@ -2286,7 +2292,8 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "bg-transparent text-input-value text-text-primary outline-none placeholder:text-text-muted"
+        "resize-none bg-transparent text-input-value text-text-primary outline-none transition-[height] duration-200 placeholder:text-text-muted",
+        "resize-none bg-transparent text-input-value text-text-primary outline-none transition-[height] duration-200 placeholder:text-text-muted overflow-hidden whitespace-nowrap"
       ]
     },
     {

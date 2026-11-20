@@ -13,11 +13,12 @@ import {
 import { Dialog } from '@base-ui/react/dialog'
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import type { BaseUIEvent } from '@base-ui/react/types'
-import { IconLoader2, IconSearch } from '@tabler/icons-react'
+import { IconLoader2, IconSearch, IconSparkles } from '@tabler/icons-react'
 import { cn } from './cn'
 import { MONO_CAPTION_CLASSES } from './looks'
 import { Button } from './Button'
 import { Card } from './Card'
+import { Chip } from './Chip'
 import { InputChip } from './ChipInput'
 import { EmptyState } from './EmptyState'
 import { FieldLine } from './Field'
@@ -238,6 +239,22 @@ export interface CommandPaletteSearchProps {
   empty?: string
   /** Above the rows: a `CommandPaletteWorking`, `CommandPaletteAnswer` or `CommandPaletteQuote`. */
   children?: ReactNode
+  /**
+   * The field as a prompt rather than a search: it grows to three lines, the
+   * sparkles lead it, and no row is lit until an arrow key lights one — so
+   * Enter sends what was written (`onSubmit`), and Shift+Enter is a new line.
+   * The caller decides when the words stopped being a search.
+   */
+  prompt?: CommandPalettePrompt
+}
+
+export interface CommandPalettePrompt {
+  /** Enter, with no row lit. */
+  onSubmit: () => void
+  /** The footer's word for what Enter does — "ask". */
+  submitWord: string
+  /** What the prompt is about, named above the field. */
+  about?: string
 }
 
 type ListGroup = { value: string; items: CommandPaletteRow[] }
@@ -245,10 +262,26 @@ type ListGroup = { value: string; items: CommandPaletteRow[] }
 /** The palette as a search: a query field, rows in labelled groups walked with
  *  the arrow keys, and what to show while nothing has arrived and when nothing
  *  matches. */
-export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children }: CommandPaletteSearchProps) {
+export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children, prompt }: CommandPaletteSearchProps) {
   const { modKey, popupRef } = usePalette('CommandPaletteSearch')
   const back = useBack(chip, popupRef)
-  const items = useMemo<ListGroup[]>(() => groups.filter((g) => g.rows.length > 0).map((g) => ({ value: g.label, items: g.rows })), [groups])
+  /*
+    The moment the field becomes a prompt, the search's first row is still lit:
+    Base UI lit it for the change that brought the third word (a paste brings
+    all three at once), before it was told to light nothing. It has no public
+    way to clear a highlight, but it drops one whose row is gone — so the list
+    is empty for the one render in which the mode turns, and the rows come
+    back, unlit, before anything is painted.
+  */
+  const [settledPrompt, setSettledPrompt] = useState(!!prompt)
+  const turning = !!prompt && !settledPrompt
+  useLayoutEffect(() => {
+    if (settledPrompt !== !!prompt) setSettledPrompt(!!prompt)
+  }, [prompt, settledPrompt])
+  const items = useMemo<ListGroup[]>(
+    () => (turning ? [] : groups.filter((g) => g.rows.length > 0).map((g) => ({ value: g.label, items: g.rows }))),
+    [groups, turning],
+  )
   const rows = items.flatMap((g) => g.items)
 
   /*
@@ -275,6 +308,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
     the lit row is simply the first one, and a row that arrives above it — a
     thread's own rows, a moment after opening — becomes the first one.
   */
+  // Base UI types its field as an input; it is drawn as a textarea (below), and only what the two share is used.
   const inputRef = useRef<HTMLInputElement>(null)
   const reported = useRef<{ id?: string; reason?: string }>({})
   const settled = useRef<{ id?: string; query: string; level?: string } | null>(null)
@@ -301,6 +335,26 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
   })
 
   const onKeyDown = (e: BaseUIEvent<KeyboardEvent<HTMLInputElement>>) => {
+    if (e.key === 'Enter') {
+      /*
+        The field is a textarea so that it can grow without being swapped for
+        another element mid-word. As a search it is still one line: Enter
+        never writes a line break there. As a prompt, Shift+Enter does, and
+        Enter with no row lit sends the words.
+      */
+      if (prompt && e.shiftKey) {
+        e.preventBaseUIHandler()
+        return
+      }
+      if (prompt && !lit) {
+        e.preventDefault()
+        e.preventBaseUIHandler()
+        prompt.onSubmit()
+        return
+      }
+      if (!lit || e.shiftKey) e.preventDefault()
+      return
+    }
     if (e.key === 'Home' || e.key === 'End') {
       // Home and End move the text cursor and nothing else (the key list).
       // Base UI also sends the highlight to the first or last row (measured),
@@ -341,7 +395,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
 
   const keys: Key[] = [
     ...(rows.length > 1 ? ([['↑↓', 'move']] as Key[]) : []),
-    ...(lit ? ([lit.onGoIn ? ['Tab', 'go in'] : ['Enter', 'open']] as Key[]) : []),
+    ...(lit ? ([lit.onGoIn ? ['Tab', 'go in'] : ['Enter', 'open']] as Key[]) : prompt ? ([['Enter', prompt.submitWord]] as Key[]) : []),
     ...(lit?.onForget ? ([[`${modKey}+Backspace`, 'forget']] as Key[]) : []),
     // Backspace goes back from the start of the field; it is named while the
     // field is empty, when that is what it will do.
@@ -359,13 +413,14 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
       onValueChange={(value, details) => {
         // Pressing a row would write the row's name into the field.
         if (details.reason === 'item-press') return
-        onQueryChange(value)
+        // A search is one line, whatever was pasted into it.
+        onQueryChange(prompt ? value : value.replace(/\s*\n\s*/g, ' '))
       }}
       itemToStringValue={(row) => (row as CommandPaletteRow).label}
       /* The first row is always lit, so Enter always has something to do;
          the highlight stays where it is when the pointer leaves; and the
          arrows stop at the ends rather than wrapping (the key list). */
-      autoHighlight="always"
+      autoHighlight={prompt ? false : 'always'}
       keepHighlight
       loopFocus={false}
       onItemHighlighted={(row, details) => {
@@ -375,8 +430,17 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
         setLitId(id)
       }}
     >
-      <div className="flex h-12 shrink-0 items-center gap-3 border-b border-border-subtle px-5">
-        <IconSearch size={16} stroke={1.5} className="shrink-0 text-text-secondary" />
+      {prompt?.about && (
+        <div className="flex shrink-0 px-5 pt-3">
+          <Chip label={prompt.about} />
+        </div>
+      )}
+      <div className={cn('flex shrink-0 gap-3 border-b border-border-subtle px-5', prompt ? 'items-start py-3' : 'h-12 items-center')}>
+        {prompt ? (
+          <IconSparkles size={16} stroke={1.5} className="mt-1 shrink-0 text-text-secondary" />
+        ) : (
+          <IconSearch size={16} stroke={1.5} className="shrink-0 text-text-secondary" />
+        )}
         {chip && <LevelChip chip={chip} onBack={back} />}
         {/* @estiva-escape(no-copied-look): A5 (Katerina, 24 September: leave CommandPalette alone): the palette's search field keeps its own classes */}
         <Autocomplete.Input
@@ -388,7 +452,13 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
              on a fallback (ChipInput's field lost its name to one, Finding 6). */
           aria-label={placeholder}
           onKeyDown={onKeyDown}
-          className="min-w-0 flex-1 bg-transparent text-input-value text-text-primary outline-none placeholder:text-text-muted"
+          /* A textarea at one line or three, never an input swapped for one:
+             the caret and the focus stay where they are as the field grows. */
+          render={<textarea rows={prompt ? 3 : 1} />}
+          className={cn(
+            'min-w-0 flex-1 resize-none bg-transparent text-input-value text-text-primary outline-none transition-[height] duration-200 placeholder:text-text-muted',
+            prompt ? 'h-[4.5rem]' : 'h-6 overflow-hidden whitespace-nowrap',
+          )}
         />
       </div>
 
