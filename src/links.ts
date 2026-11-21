@@ -1,4 +1,4 @@
-import { Extension, type Mark } from '@tiptap/core'
+import { Extension, type JSONContent, type Mark } from '@tiptap/core'
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import StarterKit from '@tiptap/starter-kit'
@@ -62,12 +62,57 @@ export const PasteOverWords = Extension.create({
   },
 })
 
-/** StarterKit with a link that ends where its words end: what is typed after linked words is not linked (Peek's `inclusive: false`). */
+/** The headings a message's text can spell (SPEC §13.2: `# ` and `## `). */
+const BOX_HEADING_LEVELS = [1, 2] as const
+/** What StarterKit draws and a message's text has no spelling for: a divider and struck words. */
+const NOT_IN_A_MESSAGE = new Set(['horizontalRule', 'strike'])
+
+/**
+ * StarterKit for a box that sends a message, with a link that ends where its
+ * words end: what is typed after linked words is not linked (Peek's
+ * `inclusive: false`).
+ *
+ * A box draws only what a message can hold (Miky, 21 November 2026, PEE-83).
+ * A message is text (SPEC §13.2), which has no divider, no struck words and
+ * headings of two levels only. With those on, `---`, `~~a~~` and `### ` drew
+ * in the box and reached every reader as the characters. Off, they stay the
+ * characters typed, and a paste holding one comes in as its words.
+ */
 export const BoxKit = StarterKit.extend({
   addExtensions() {
-    return (this.parent?.() ?? []).map((extension) => (extension.name === 'link' ? extension.extend({ inclusive: () => false }) : extension))
+    return (this.parent?.() ?? [])
+      .filter((extension) => !NOT_IN_A_MESSAGE.has(extension.name))
+      .map((extension) => {
+        if (extension.name === 'link') return extension.extend({ inclusive: () => false })
+        if (extension.name === 'heading') return extension.configure({ levels: [...BOX_HEADING_LEVELS] })
+        return extension
+      })
   },
 })
+
+/**
+ * What a box opens with, held to what {@link BoxKit} draws. A draft kept by a
+ * box from before PEE-83 may hold a divider, a deeper heading or struck words;
+ * given as it is, the editor refuses the whole document and the box opens
+ * empty. Each becomes what the same keys write now: `---`, `### words`, the
+ * words unstruck.
+ */
+export function boxContent<T extends JSONContent | undefined>(content: T): T {
+  if (!content) return content
+  const one = (node: JSONContent): JSONContent => {
+    if (node.type === 'horizontalRule') return { type: 'paragraph', content: [{ type: 'text', text: '---' }] }
+    const level = node.type === 'heading' && typeof node.attrs?.level === 'number' ? node.attrs.level : 0
+    const next: JSONContent = { ...node }
+    if (node.marks) next.marks = node.marks.filter((mark) => mark.type !== 'strike')
+    if (node.content) next.content = node.content.map(one)
+    if (level > BOX_HEADING_LEVELS.length) {
+      const { attrs: _attrs, ...rest } = next
+      return { ...rest, type: 'paragraph', content: [{ type: 'text', text: `${'#'.repeat(level)} ` }, ...(next.content ?? [])] }
+    }
+    return next
+  }
+  return one(content) as T
+}
 
 /**
  * {@link BoxKit} for a document: the same link, which also keeps `extra` —

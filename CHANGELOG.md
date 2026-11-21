@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.125.1 — 2026-11-21
+
+From the Ship issue "A divider typed in a comment box arrives as ---" (Miky, 21 November: a box draws only what a
+message can hold).
+
+**CommentBox**: typing `---` no longer draws a divider, `### ` and deeper no longer draw a heading, and `~~words~~`
+no longer strikes the words. A message is sent as text, which has none of the three, so readers saw the characters
+while the writer saw the drawing. Now the box shows the characters too. `# ` and `## ` headings and every other
+format are unchanged. A paste holding one comes in as its words, and a draft an earlier box kept with one opens with
+every word (`---`, `### words`, the words unstruck). No prop changes; every caller gets it with the bump:
+`peek/src/components/ConversationBox.tsx`, `ship/src/conversations/ConversationBox.tsx`,
+`leaf/src/comments/CommentsColumn.tsx`.
+
 ## 0.125.0 — 2026-11-20
 
 From the Ship issue "In Peek's ⌘K, a third word turns the search into a prompt" (project "⌘K in every app"; Miky

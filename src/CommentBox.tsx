@@ -30,7 +30,7 @@ import { IconButton } from './IconButton'
 import { inTheBox } from './linked'
 import { LinkedIcon } from './LinkParts'
 import { linkedKindOfReference } from './LinkPlaces'
-import { BoxKit, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
+import { BoxKit, boxContent, LINK_MARK_ATTRIBUTES, PasteOverWords } from './links'
 import { PastedImages } from './PastedImages'
 import { KeptSelection } from './SelectionToolbar'
 import { isSuggestionOpen } from './suggestionPopup'
@@ -374,7 +374,7 @@ interface Held {
 
 function buildBox(app: BoxApp, options: Partial<EditorOptions>): Held {
   const hold: BoxHold = { current: { people: [], attach: () => false }, sections: [] }
-  return { editor: new Editor({ ...options, extensions: boxExtensions(hold, app) }), hold }
+  return { editor: new Editor({ ...options, content: boxContent(options.content as JSONContent | undefined), extensions: boxExtensions(hold, app) }), hold }
 }
 
 /*
