@@ -6,8 +6,10 @@ From the Ship issue "A divider typed in a comment box arrives as ---" (Miky, 21 
 message can hold).
 
 **CommentBox**: typing `---` no longer draws a divider, `### ` and deeper no longer draw a heading, and `~~words~~`
-no longer strikes the words. A message is sent as text, which has none of the three, so readers saw the characters
-while the writer saw the drawing. Now the box shows the characters too. `# ` and `## ` headings and every other
+no longer strikes the words. A message is sent as text, which has none of the three, so the writer saw a drawing
+its readers never got: they saw `---` and `### words` as characters, and struck words unstruck. Now the box shows
+the characters too. **One change for readers:** `~~words~~` now reaches them as typed, tildes included, where the
+words used to arrive plain. `# ` and `## ` headings and every other
 format are unchanged. A paste holding one comes in as its words, and a draft an earlier box kept with one opens with
 every word (`---`, `### words`, the words unstruck). No prop changes; every caller gets it with the bump:
 `peek/src/components/ConversationBox.tsx`, `ship/src/conversations/ConversationBox.tsx`,

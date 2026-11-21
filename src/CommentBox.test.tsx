@@ -984,7 +984,8 @@ describe('the box draws only what a message can hold (PEE-83)', () => {
   it('a pasted divider, deep heading and struck words come in as their words', async () => {
     render(<Box />)
     await act(async () => {
-      editorOf().commands.insertContent('<p>one</p><hr><h4>two</h4><p><s>three</s></p>')
+      // jsdom has no ClipboardEvent for the view to make: it is given the event.
+      editorOf().view.pasteHTML('<p>one</p><hr><h4>two</h4><p><s>three</s></p>', new Event('paste') as ClipboardEvent)
     })
     expect(box().querySelector('hr, h4, s')).toBeNull()
     expect(editorOf().getText({ blockSeparator: ' ' }).replace(/\s+/g, ' ').trim()).toBe('one two three')
