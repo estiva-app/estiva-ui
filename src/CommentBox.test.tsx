@@ -936,3 +936,75 @@ describe('a long draft', () => {
     }
   })
 })
+
+/** Types as a keyboard does: each character goes through the box's typing rules, as `type` (an insert) does not. */
+async function keys(text: string) {
+  for (const ch of text) {
+    await act(async () => {
+      const { view } = editorOf()
+      const { from, to } = view.state.selection
+      const handled = view.someProp('handleTextInput', (handle) => handle(view, from, to, ch, () => view.state.tr.insertText(ch, from, to)))
+      if (!handled) view.dispatch(view.state.tr.insertText(ch, from, to))
+    })
+  }
+}
+
+describe('the box draws only what a message can hold (PEE-83)', () => {
+  const box = () => document.querySelector('.ProseMirror')!
+
+  it.each([
+    ['---', 'hr'],
+    ['___ ', 'hr'],
+    ['### small', 'h3'],
+    ['~~gone~~ ', 's'],
+  ])('%j stays the characters typed, in the box and in what is sent', async (typed, drawn) => {
+    const send = vi.fn<CommentBoxProps['send']>(async () => ({ accepted: true }))
+    render(<Box send={send} />)
+    await keys(typed)
+    expect(box().querySelector(`${drawn}, h1, h2`)).toBeNull()
+    expect(editorOf().getText()).toBe(typed)
+    await press('Enter')
+    expect(send).toHaveBeenCalledTimes(1)
+    const sent = send.mock.calls[0][0]
+    expect(sent.content!.map((block) => block.type)).toEqual(['paragraph'])
+    expect(textOf(sent)).toBe(typed)
+    expect(JSON.stringify(sent)).not.toContain('strike')
+  })
+
+  it('still draws the two headings a message has', async () => {
+    render(<Box />)
+    await keys('# big')
+    expect(box().querySelector('h1')?.textContent).toBe('big')
+    cleanup()
+    render(<Box />)
+    await keys('## smaller')
+    expect(box().querySelector('h2')?.textContent).toBe('smaller')
+  })
+
+  it('a pasted divider, deep heading and struck words come in as their words', async () => {
+    render(<Box />)
+    await act(async () => {
+      // jsdom has no ClipboardEvent for the view to make: it is given the event.
+      editorOf().view.pasteHTML('<p>one</p><hr><h4>two</h4><p><s>three</s></p>', new Event('paste') as ClipboardEvent)
+    })
+    expect(box().querySelector('hr, h4, s')).toBeNull()
+    expect(editorOf().getText({ blockSeparator: ' ' }).replace(/\s+/g, ' ').trim()).toBe('one two three')
+  })
+
+  it('a draft an earlier box kept with a divider, a deep heading and struck words opens with every word', async () => {
+    const kept: JSONContent = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'before' }] },
+        { type: 'horizontalRule' },
+        { type: 'heading', attrs: { level: 3 }, content: [{ type: 'text', text: 'small' }] },
+        { type: 'paragraph', content: [{ type: 'text', text: 'gone', marks: [{ type: 'strike' }, { type: 'bold' }] }] },
+      ],
+    }
+    const draft: CommentBoxDraft = { read: () => kept, write: () => {}, clear: () => {} }
+    render(<Box draft={draft} />)
+    expect(box().querySelector('hr, h3, s')).toBeNull()
+    expect(editorOf().getText({ blockSeparator: '|' })).toBe('before|---|### small|gone')
+    expect(box().querySelector('strong')?.textContent).toBe('gone')
+  })
+})
