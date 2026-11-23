@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.127.0",
+    "packageVersion": "0.128.0",
     "exports": 264,
     "typeExports": 279,
     "files": null
@@ -2056,7 +2056,7 @@
       "docPage": "src/CommandPalette.mdx",
       "app": null,
       "looks": [
-        "overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg outline-none"
+        "overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg"
       ]
     },
     {
