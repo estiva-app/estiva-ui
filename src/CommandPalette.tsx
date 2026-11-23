@@ -57,6 +57,7 @@ import { SkeletonBar } from './Skeleton'
 interface PaletteContextValue {
   where?: string
   modKey: string
+  escWord: string
   popupRef: RefObject<HTMLDivElement | null>
 }
 
@@ -81,6 +82,12 @@ export interface CommandPaletteProps {
    * does not guess the platform, the app says it.
    */
   modKey?: string
+  /**
+   * What the footer says Esc does. Default "close". An app that keeps what the palette holds when it is dismissed,
+   * and shows it again on the next open, says "hide" while there is something to keep. The word only: Esc and a
+   * click outside call `onOpenChange(false)` either way, and what is kept is the app's.
+   */
+  escWord?: string
   /** One level: a `CommandPaletteSearch` or a `CommandPaletteForm`. */
   children: ReactNode
 }
@@ -95,7 +102,7 @@ function firstControl(popup: HTMLElement | null): HTMLElement | null {
   return popup.querySelector<HTMLElement>('[data-command-palette-fields]')?.querySelector<HTMLElement>(CONTROL) ?? null
 }
 
-export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctrl', children }: CommandPaletteProps) {
+export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctrl', escWord = 'close', children }: CommandPaletteProps) {
   const popupRef = useRef<HTMLDivElement>(null)
 
   /*
@@ -119,7 +126,7 @@ export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctr
     return () => cancelAnimationFrame(frame)
   })
 
-  const context = useMemo(() => ({ where, modKey, popupRef }), [where, modKey])
+  const context = useMemo(() => ({ where, modKey, escWord, popupRef }), [where, modKey, escWord])
 
   return (
     <Dialog.Root open={open} onOpenChange={(next) => onOpenChange(next)}>
@@ -266,7 +273,7 @@ type ListGroup = { value: string; items: CommandPaletteRow[] }
  *  the arrow keys, and what to show while nothing has arrived and when nothing
  *  matches. */
 export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups, chip, pending, notes = [], empty, children, prompt, about }: CommandPaletteSearchProps) {
-  const { modKey, popupRef } = usePalette('CommandPaletteSearch')
+  const { modKey, escWord, popupRef } = usePalette('CommandPaletteSearch')
   const back = useBack(chip, popupRef)
   /*
     The moment the field becomes a prompt, the search's first row is still lit:
@@ -428,7 +435,7 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
     // Backspace goes back from the start of the field; it is named while the
     // field is empty, when that is what it will do.
     ...(chip && query === '' ? ([['Backspace', 'back']] as Key[]) : []),
-    ['Esc', 'close'],
+    ['Esc', escWord],
   ]
 
   return (
@@ -593,7 +600,7 @@ function isTextField(el: Element | null): el is HTMLInputElement | HTMLTextAreaE
  *  in run Base UI's field check. It shows what it is working on and what failed,
  *  and sends focus to the first field that needs something. */
 export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWaits, working, error, children }: CommandPaletteFormProps) {
-  const { modKey, popupRef } = usePalette('CommandPaletteForm')
+  const { modKey, escWord, popupRef } = usePalette('CommandPaletteForm')
   const back = useBack(chip, popupRef)
   const frameRef = useRef<HTMLDivElement>(null)
   const busy = !!working
@@ -656,7 +663,7 @@ export function CommandPaletteForm({ chip, icon, submitLabel, onSubmit, submitWa
   const keys: Key[] = [
     ...(!busy && !submitWaits ? ([[`${modKey}+Enter`, lowerFirst(submitLabel)]] as Key[]) : []),
     ...(backNamed ? ([['Backspace', 'back']] as Key[]) : []),
-    ['Esc', 'close'],
+    ['Esc', escWord],
   ]
 
   return (

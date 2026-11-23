@@ -14,6 +14,10 @@ Without the prop nothing changes. A `search` of the caller's own draws no dot. T
 not an `UnreadDot`: that one says something new sits on a row and marks itself unread, which a working search is not.
 New type `TopBarSearchStatus`; new animation `animate-working` in the preset. No caller changes: additive.
 
+**CommandPalette**: a new optional `escWord`, the word the footer puts beside Esc. Default "close", as before. An
+app that keeps what the palette holds when it is dismissed passes "hide" while there is something to keep. The word
+only: Esc and a click outside still call `onOpenChange(false)`.
+
 ## 0.125.1 — 2026-11-21
 
 From the Ship issue "A divider typed in a comment box arrives as ---" (Miky, 21 November: a box draws only what a

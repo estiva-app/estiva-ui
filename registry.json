@@ -1989,6 +1989,12 @@
           "note": "How the footer spells the modifier in `Ctrl+Backspace` and `Ctrl+Enter` — `Cmd` on a Mac."
         },
         {
+          "name": "escWord",
+          "takes": "text",
+          "required": false,
+          "note": "What the footer says Esc does. Default \"close\"."
+        },
+        {
           "name": "children",
           "takes": "anything",
           "required": true,
