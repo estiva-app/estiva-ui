@@ -147,7 +147,8 @@ The same conversation in every app; only its colours are each app's.
 | A part of something longer, shared live | **PartCard** — the app draws the blocks |
 | A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |
 | A person or a thing named inside a sentence | **InlineChip** — one line high, level with the words; `href` makes it a link |
-| What kind of thing a name stands for — a topic, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; `thingKindOf` turns an event kind into one |
+| What kind of thing a name stands for — an initiative, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; an initiative is `kind="topic"`, ◎; `thingKindOf` turns an event kind into one |
+| Which team a page's thing belongs to, after its name | **TeamChip** — in **PageHeader**'s `after`, the one chip there; `href` where the app has a team page, none where it has not |
 | Formatted text: headings, lists, a quote, code, a table, links | **RichText** — pass the parsed tree; `small` inside a card |
 | The key that does this too | **Kbd** — or the `shortcut` prop on **MenuItem**, **Tooltip** and **SearchInput** |
 
