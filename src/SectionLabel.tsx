@@ -18,9 +18,11 @@ import { cn } from './cn'
  * long label short with an ellipsis where its row has no room, as a date line in
  * a narrow panel must.
  *
- * `folds` is the title of a group that opens and closes: in Leaf it keeps
- * Ship's type rather than taking Signal's micro-label, so a folder reads as
- * a name (Katerina, 2 October). Every other Leaf label keeps Signal's.
+ * `folds` is the title of a sidebar tree's group that opens and closes: in
+ * Leaf it keeps Ship's type rather than taking Signal's micro-label, so a
+ * folder reads as a name (Katerina, 2 October). Every other Leaf label keeps
+ * Signal's — a page's section that folds too (23 November: Leaf's "Archived"
+ * under "PAGES" read as another voice).
  *
  * Deliberately NOT the same thing as Property's stacked field label (the
  * 9px `menu`-token one): they were merged for a day and unmerged by

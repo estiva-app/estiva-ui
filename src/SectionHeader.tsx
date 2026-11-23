@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { IconChevronRight, IconDotsVertical } from '@tabler/icons-react'
 import { useRender } from '@base-ui/react/use-render'
 import { cn } from './cn'
@@ -6,6 +6,14 @@ import { COUNT_TEXT_CLASSES, SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_TEXT_CLASSES } fro
 import { IconButton } from './IconButton'
 import { Menu } from './Menu'
 import { SectionLabel } from './SectionLabel'
+
+/**
+ * A sidebar tree's group: its folding title names a thing — a folder, a team — and so keeps a name's type in Leaf rather
+ * than Leaf's micro-label (Katerina, 2 October). Not exported from the package: only `NavTreeSection` sets it. Any
+ * other heading that folds is one of a page's sections and reads exactly as its sibling headings do, in every theme
+ * (Katerina, 23 November: Leaf's "Archived" fold under "PAGES").
+ */
+export const FoldNamesAThing = createContext(false)
 
 /**
  * The 32px row a section starts with (Peek's SectionHeader, 2026-09-01):
@@ -116,6 +124,7 @@ export interface SectionHeaderProps {
 
 export function SectionHeader({ title, chevron = false, icon, isExpanded = true, onToggle, trailing, count, actions, menu, menuLabel, showActions = 'hover', hover = 'fill', look = 'heading', render, className }: SectionHeaderProps) {
   const row = look === 'row'
+  const namesAThing = useContext(FoldNamesAThing)
   /*
     One arrow for everything that folds, a NavItem's 16px, and the title 8px
     after it as a row's label is (Katerina, 5 October: a folder heading and
@@ -190,7 +199,8 @@ export function SectionHeader({ title, chevron = false, icon, isExpanded = true,
             <span className="min-w-0 flex-1 truncate text-body-2">{title}</span>
           ) : (
             // One line, as the other looks and a NavItem's label: a Folder named by its id ran onto two (Katerina, 3 November).
-            <SectionLabel folds={chevron} truncate>
+            // A tree's folding group names a thing (Leaf, 2 October); a page's fold is a section, as the headings beside it (23 November).
+            <SectionLabel folds={chevron && namesAThing} truncate>
               {title}
             </SectionLabel>
           )}
