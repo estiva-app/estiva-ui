@@ -1,6 +1,10 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useId, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { Collapsible } from '@base-ui/react/collapsible'
+import { IconChevronRight } from '@tabler/icons-react'
 import { cn } from './cn'
+import { IconButton } from './IconButton'
 import { Link } from './Link'
+import { COLLAPSIBLE_PANEL_CLASSES } from './looks'
 
 /** How wide a column is: `small` 80px (a number, a few faces), `medium` 96px (a date), `large` 112px (a name). */
 export type ListTableColumnWidth = 'small' | 'medium' | 'large'
@@ -54,8 +58,28 @@ export interface ListTableRowProps {
   description?: string
   /** 16px, before the name: its kind. */
   icon?: ReactNode
-  /** One per column, in the columns' order: words, or a part (`AvatarGroup`, `MetaText`). Absent, a dash: not read yet. */
+  /**
+   * One per column, in the columns' order: words, or a part (`AvatarGroup`, `MetaText`). Absent (`undefined`), a
+   * dash: not read yet. An empty string, nothing: a fact this row's kind does not have, so a page listing several kinds
+   * keeps one set of columns (Ship's team and initiative pages, 18 November).
+   */
   cells: ReactNode[]
+  /**
+   * Another app's or site's: the row opens in a new tab, with `noopener noreferrer`, as the kit's `Link` `external`
+   * does (a Leaf document listed in Ship, Katerina 23 November).
+   */
+  external?: boolean
+  /**
+   * Rows under this one: `ListTableRow`s in the same columns, shut until opened. While the row is pointed at or
+   * focused its icon turns into the arrow, and only the arrow folds — `NavItem`'s fold; the row itself still opens its
+   * thing. The rows sit 24px in, under the tree's line (a document's pages, Katerina 23 November).
+   */
+  children?: ReactNode
+  /** With `children`: open at first. Default shut. */
+  defaultOpen?: boolean
+  /** With `children`: the caller owns the state. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   /** At the row's end, its own control: a small `Button` (Join), or the row's dot and ⋮. Never covered by the row's link. */
   end?: ReactNode
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
@@ -148,22 +172,48 @@ export function ListTable({ 'aria-label': label, nameLabel = 'Name', columns, en
   )
 }
 
-/** One row of a `ListTable`: the whole row leads to its thing; its end stays its own control. */
-export function ListTableRow({ href, label, description, icon, cells, end, onClick, ...rest }: ListTableRowProps) {
+/** One row of a `ListTable`: the whole row leads to its thing; its end stays its own control; rows may fold under it. */
+export function ListTableRow({ href, label, description, icon, cells, end, onClick, external = false, children, defaultOpen = false, open: openProp, onOpenChange, ...rest }: ListTableRowProps) {
   const table = useContext(ListTableContext)
+  const [openState, setOpenState] = useState(defaultOpen)
+  const panelId = useId()
   if (!table) throw new Error('ListTableRow is a row of a ListTable: put it inside one.')
-  return (
+  const hasRows = children != null && children !== false
+  const open = openProp ?? openState
+  const setOpen = (next: boolean) => {
+    setOpenState(next)
+    onOpenChange?.(next)
+  }
+  const row = (
     // A row's look in every list: 8px corners, the fill under the pointer and no edge.
     // 24px between the name and each fact, and before the end (Katerina, 17 November): they touched at 12.
-    <div role="row" className="relative flex min-w-0 items-center gap-6 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
+    <div role="row" className="group/row relative flex min-w-0 items-center gap-6 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
       {/* The name takes the room left, so the facts sit together on the right (Katerina, 17 November). */}
       <span role="cell" className="flex min-w-0 flex-1 items-center gap-3">
-        {icon != null && <span className="flex shrink-0 items-center text-text-secondary">{icon}</span>}
+        {(icon != null || hasRows) && (
+          // With rows under it the slot is kept even with no icon, and the icon gives way to the arrow in its place (NavItem's).
+          <span className={cn('flex min-w-4 shrink-0 items-center text-text-secondary', hasRows && 'transition-opacity group-hover/row:opacity-0 group-has-[:focus-visible]/row:opacity-0')}>{icon}</span>
+        )}
         {/* 2px between the name and its line, as every two-line row in the kit (LinkCard, LinkRow, PartCard, a tall MenuItem); they touched (Katerina, 16 November). */}
-        <Link href={href} variant="plain" cover className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>
+        <Link href={href} variant="plain" cover external={external} className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>
           <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
           {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
         </Link>
+        {hasRows && (
+          // After the covering link, so the arrow stays its own button. `left-2`: the 24px button's 16px arrow lands where
+          // the icon sits (the row's 12px), so the icon turns into the arrow in place, as a NavItem's does.
+          <span className="absolute inset-y-0 left-2 flex items-center opacity-0 transition-opacity group-hover/row:opacity-100 group-has-[:focus-visible]/row:opacity-100">
+            <IconButton
+              tooltip={open ? 'Collapse' : 'Expand'}
+              aria-label={open ? `Hide what is under ${label}` : `Show what is under ${label}`}
+              aria-expanded={open}
+              aria-controls={panelId}
+              onClick={() => setOpen(!open)}
+            >
+              <IconChevronRight size={16} stroke={1.5} className={cn('transition-transform duration-150', open && 'rotate-90')} />
+            </IconButton>
+          </span>
+        )}
       </span>
       {table.columns.map((column, i) =>
         showsColumn(column, table.shown) ? (
@@ -182,5 +232,22 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
         </span>
       )}
     </div>
+  )
+  if (!hasRows) return row
+  return (
+    <Collapsible.Root open={open} onOpenChange={setOpen} className="flex flex-col">
+      {row}
+      {/* CollapsibleSection's and NavItem's slide; hidden until found, so the browser's find still opens it. */}
+      <Collapsible.Panel id={panelId} hiddenUntilFound className={COLLAPSIBLE_PANEL_CLASSES}>
+        {/*
+          NavItem's tree line and indent, for this row's 12px: 1px down from the middle of its icon (12px in, 16px wide),
+          and the rows past it 24px in, their icons under its name. Only the name gives the room: the facts keep their
+          columns, since every row's facts sit at the right.
+        */}
+        <div role="presentation" className="ml-[19px] mt-0.5 flex flex-col gap-0.5 border-l border-border-default pl-1">
+          {children}
+        </div>
+      </Collapsible.Panel>
+    </Collapsible.Root>
   )
 }

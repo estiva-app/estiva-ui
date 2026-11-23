@@ -6838,7 +6838,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/ListTable.tsx",
-      "purpose": "One row of a `ListTable`: the whole row leads to its thing; its end stays its own control.",
+      "purpose": "One row of a `ListTable`: the whole row leads to its thing; its end stays its own control; rows may fold under it.",
       "purposeFrom": "comment",
       "props": [
         {
@@ -6872,6 +6872,36 @@
           "note": "One per column, in the columns' order: words, or a part (`AvatarGroup`, `MetaText`)."
         },
         {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "Another app's or site's: the row opens in a new tab, with `noopener noreferrer`, as the kit's `Link` `external` does (a Leaf document listed in Ship, Katerina 23 November)."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Rows under this one: `ListTableRow`s in the same columns, shut until opened."
+        },
+        {
+          "name": "defaultOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: open at first. Default shut."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: the caller owns the state."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
           "name": "end",
           "takes": "anything",
           "required": false,
@@ -6885,7 +6915,12 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "page-structure-listtable--docs",
@@ -6893,7 +6928,8 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "truncate text-body-2 font-medium text-text-primary"
+        "truncate text-body-2 font-medium text-text-primary",
+        "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
       ]
     },
     {
