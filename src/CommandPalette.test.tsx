@@ -9,9 +9,9 @@
  * not want — Home and End moving the highlight, a late row taking it — the
  * test is the measured case.
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
   CommandPalette,
@@ -613,6 +613,108 @@ describe('CommandPaletteSearch — the field as a prompt', () => {
     expect(lit()).toBeNull()
     await user.keyboard('{Enter}')
     expect(onSubmit).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('CommandPaletteSearch — a lit row’s preview (KIN-3)', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  const pane = () => document.querySelector('[data-command-palette-preview]')
+  /** A preview that counts its mounts: a mount is what would read the thing it shows. */
+  function counted(name: string, mounts: string[]) {
+    function Card() {
+      useEffect(() => {
+        mounts.push(name)
+      }, [])
+      return <p>Card of {name}</p>
+    }
+    return <Card />
+  }
+  const pause = async () => act(async () => void vi.advanceTimersByTime(250))
+
+  it('draws the lit row’s preview beside the box after a pause, inside the dialog, so a click on it closes nothing', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const onOpenChange = vi.fn()
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    render(<Search groups={[{ label: 'Group', rows: [row('One', { preview: <p>Card of One</p> })] }]} onOpenChange={onOpenChange} />)
+    expect(pane()).toBeNull()
+    await focusedField()
+    await pause()
+    expect(pane()?.textContent).toBe('Card of One')
+    expect(screen.getByRole('dialog', { name: 'Palette' }).contains(pane())).toBe(true)
+    await user.click(screen.getByText('Card of One'))
+    expect(onOpenChange).not.toHaveBeenCalled()
+  })
+
+  it('mounts no preview for a row the arrows only passed, and none for a row that has no preview', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const mounts: string[] = []
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const rows = [row('One', { preview: counted('One', mounts) }), row('Two', { preview: counted('Two', mounts) }), row('Three', { preview: counted('Three', mounts) }), row('Four')]
+    render(<Search groups={[{ label: 'Group', rows }]} />)
+    await focusedField()
+    await user.keyboard('{ArrowDown}{ArrowDown}')
+    await pause()
+    expect(lit()).toBe('Three')
+    expect(mounts).toEqual(['Three'])
+    expect(pane()?.textContent).toBe('Card of Three')
+    await user.keyboard('{ArrowDown}')
+    expect(lit()).toBe('Four')
+    expect(pane()).toBeNull()
+    await pause()
+    expect(pane()).toBeNull()
+    // Back to a row whose preview was shown: it waits its pause again.
+    await user.keyboard('{ArrowUp}')
+    expect(lit()).toBe('Three')
+    expect(pane()).toBeNull()
+    await pause()
+    expect(pane()?.textContent).toBe('Card of Three')
+  })
+
+  it('takes the preview away once the field is a prompt, a row lit by the arrows there included', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const groups = [{ label: 'Group', rows: [row('One', { preview: <p>Card of One</p> })] }]
+    const palette = (prompt: boolean) => (
+      <CommandPalette open onOpenChange={() => {}} label="Palette">
+        <CommandPaletteSearch query={prompt ? 'one two three' : 'one'} onQueryChange={() => {}} placeholder="Search" groups={groups} prompt={prompt ? { onSubmit: () => {}, submitWord: 'send' } : undefined} />
+      </CommandPalette>
+    )
+    const { rerender } = render(palette(false))
+    await focusedField()
+    await pause()
+    expect(pane()?.textContent).toBe('Card of One')
+    rerender(palette(true))
+    expect(pane()).toBeNull()
+    await user.keyboard('{ArrowDown}')
+    await pause()
+    expect(lit()).toBe('One')
+    expect(pane()).toBeNull()
+  })
+
+  it('takes the preview away when the window narrows below room for it beside the box', async () => {
+    let wide = true
+    const listeners = new Set<() => void>()
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      get matches() {
+        return wide
+      },
+      media: query,
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+    }))
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    render(<Search groups={[{ label: 'Group', rows: [row('One', { preview: <p>Card of One</p> })] }]} />)
+    await focusedField()
+    await pause()
+    expect(pane()?.textContent).toBe('Card of One')
+    wide = false
+    act(() => listeners.forEach((fn) => fn()))
+    expect(lit()).toBe('One')
+    expect(pane()).toBeNull()
   })
 })
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.127.0 — 2026-11-23
+
+From the Ship issue "In Peek's ⌘K, a lit file or project shows a preview beside the box" (project "⌘K in every
+app"; the pane is on Miky's approved `concept/intelligence-next` prototype, story `AFile`, 5 November).
+
+**CommandPalette**: a row takes a new optional `preview`, drawn beside the box while the row is lit, in the
+package's one elevated box (`MenuPanel`), 280px wide, 12px from the box, level with its top, and scrolling past the
+box's tallest (504px). It is mounted only
+once the row has stayed lit for 200ms, so arrowing past rows draws and reads nothing for them; it goes the moment
+the row is not lit, once the field is a prompt, and whenever the window is narrower than 1280px. The pane sits
+inside the dialog, so a click on it is not a click outside. The palette's window is now a box inside the popup
+rather than the popup itself, to leave room beside it: same classes, same look. No caller changes: additive.
+
 ## 0.126.0 — 2026-11-23
 
 From the Ship issue "In Peek's ⌘K, Escape keeps your sentence and the answer, and the search shows a dot while it

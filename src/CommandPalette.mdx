@@ -27,8 +27,16 @@ form — and the app keeps the levels.
   offers to make before anything is made: a card with where it would be made
   (`source`, with the app's `mark`), then what it would be. The rows under it
   say what happens next.
+- **A row's `preview`** — what the lit row stands for, beside the box, so a
+  person can tell two similar rows apart without opening either: the card a
+  link to it draws (`LinkCard` `bare` `readOnly`). Drawn 200ms after the row
+  is lit, and only then mounted, so rows the arrows pass read nothing; never
+  in a prompt; never below a 1280px window, where there is no room beside
+  the box.
 
 <Canvas of={CommandPaletteStories.Proposal} />
+
+<Canvas of={CommandPaletteStories.PreviewBesideTheBox} />
 
 <Canvas of={CommandPaletteStories.Answer} />
 
@@ -165,7 +173,7 @@ with no rows is not drawn), `chip?` (`{ label, leading?, onBack }`), `pending?`,
 `empty?`, `prompt?` (`{ onSubmit, submitWord }`), `about?`, and `children` for what sits above the rows.
 
 **A row** — `id`, `label`, `description?`, `icon?` or `leading?`, `onSelect`,
-`onGoIn?`, `onForget?`.
+`onGoIn?`, `onForget?`, `preview?`.
 
 **`CommandPaletteForm`** — `chip`, `icon?`, `submitLabel`, `onSubmit`,
 `submitWaits?`, `working?` (`{ button, line }`), `error?`, and the fields as

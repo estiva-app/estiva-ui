@@ -6,10 +6,13 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
   type ReactNode,
   type RefObject,
 } from 'react'
+// @estiva-escape(no-hand-rolled-behaviour): a lit row's preview goes beside the window, inside the dialog (LitPreview, below)
+import { createPortal } from 'react-dom'
 import { Dialog } from '@base-ui/react/dialog'
 import { Autocomplete } from '@base-ui/react/autocomplete'
 import type { BaseUIEvent } from '@base-ui/react/types'
@@ -24,7 +27,7 @@ import { EmptyState } from './EmptyState'
 import { FieldLine } from './Field'
 import { FIELDS_CLASSES, Form } from './Form'
 import { Kbd } from './Kbd'
-import { EnterHint, MenuItemBody, menuItemClassName } from './Menu'
+import { EnterHint, MenuItemBody, MenuPanel, menuItemClassName } from './Menu'
 import { ScrollArea } from './ScrollArea'
 import { SectionLabel } from './SectionLabel'
 import { SkeletonBar } from './Skeleton'
@@ -59,6 +62,8 @@ interface PaletteContextValue {
   modKey: string
   escWord: string
   popupRef: RefObject<HTMLDivElement | null>
+  /** Beside the box, where a lit row's `preview` is drawn. */
+  previewSlot: HTMLDivElement | null
 }
 
 const PaletteContext = createContext<PaletteContextValue | null>(null)
@@ -126,14 +131,14 @@ export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctr
     return () => cancelAnimationFrame(frame)
   })
 
-  const context = useMemo(() => ({ where, modKey, escWord, popupRef }), [where, modKey, escWord])
+  const [previewSlot, setPreviewSlot] = useState<HTMLDivElement | null>(null)
+  const context = useMemo(() => ({ where, modKey, escWord, popupRef, previewSlot }), [where, modKey, escWord, previewSlot])
 
   return (
     <Dialog.Root open={open} onOpenChange={(next) => onOpenChange(next)}>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-scrim" />
         <Dialog.Viewport className="fixed inset-0 z-50 flex items-start justify-center pt-[16vh]">
-          {/* @estiva-escape(no-copied-look): A3 (Katerina, 24 September: leave CommandPalette alone): the palette's window keeps its own border */}
           <Dialog.Popup
             ref={popupRef}
             aria-label={label}
@@ -142,10 +147,17 @@ export function CommandPalette({ open, onOpenChange, label, where, modKey = 'Ctr
               if (e.target === popupRef.current) firstControl(popupRef.current)?.focus()
             }}
             /* `outline-none`: the box is a programmatic focus target, not a
-               Tab stop — the same reason as DialogShell's card. */
-            className="flex w-[658px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg outline-none"
+               Tab stop — the same reason as DialogShell's card. The window is
+               the box inside it, so a preview can sit beside the box and still
+               be inside the dialog: a click on it is not a click outside. */
+            className="relative flex w-[658px] max-w-[calc(100vw-32px)] outline-none"
           >
-            <PaletteContext.Provider value={context}>{children}</PaletteContext.Provider>
+            {/* @estiva-escape(no-copied-look): A3 (Katerina, 24 September: leave CommandPalette alone): the palette's window keeps its own border */}
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg">
+              <PaletteContext.Provider value={context}>{children}</PaletteContext.Provider>
+            </div>
+            {/* The lit row's preview: 12px to the right of the box, level with its top (KIN-3, Miky's 5 November prototype). */}
+            <div ref={setPreviewSlot} className="absolute left-full top-0 ml-3 flex w-[280px] flex-col empty:hidden" />
           </Dialog.Popup>
         </Dialog.Viewport>
       </Dialog.Portal>
@@ -218,6 +230,12 @@ export interface CommandPaletteRow {
   onGoIn?: () => void
   /** The row is the person's own history: Ctrl+Backspace forgets it. */
   onForget?: () => void
+  /**
+   * What the row stands for, drawn beside the box while the row is lit — the card a link to it draws, read only.
+   * Mounted only once the row has stayed lit for a moment, so arrowing past a row draws (and reads) nothing for it;
+   * never in a prompt, and never where the window has no room beside the box.
+   */
+  preview?: ReactNode
 }
 
 export interface CommandPaletteGroup {
@@ -556,7 +574,67 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
       </ScrollArea>
 
       <Footer keys={keys} />
+      <LitPreview row={prompt || turning ? undefined : lit} />
     </Autocomplete.Root>
+  )
+}
+
+/** How long a row stays lit before its preview is drawn: arrowing through a list passes rows faster than this. */
+const PREVIEW_PAUSE_MS = 200
+/**
+ * The narrowest window with room for the 280px preview and its 12px gap beside the centred 658px box. Asked in
+ * script, not a class: a preview hidden by CSS would still mount, and read what it shows.
+ */
+const ROOM_BESIDE = '(min-width: 1280px)'
+
+function subscribeRoom(onChange: () => void) {
+  if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+  const query = window.matchMedia(ROOM_BESIDE)
+  query.addEventListener('change', onChange)
+  return () => query.removeEventListener('change', onChange)
+}
+
+/** Whether the window has room beside the box. Without `matchMedia` (a test, a server) it is taken to. */
+function useRoomBeside(): boolean {
+  return useSyncExternalStore(
+    subscribeRoom,
+    () => (typeof window === 'undefined' || !window.matchMedia ? true : window.matchMedia(ROOM_BESIDE).matches),
+    () => true,
+  )
+}
+
+/**
+ * The lit row's preview, beside the box. Drawn after the row has stayed lit for a pause, and gone the moment it is not
+ * lit — never the card of a row that was lit a moment ago. Where the window is too narrow it is not drawn at all, rather
+ * than covering the box or pushing it aside.
+ */
+function LitPreview({ row }: { row: CommandPaletteRow | undefined }) {
+  const { previewSlot } = usePalette('CommandPaletteSearch')
+  const room = useRoomBeside()
+  const id = row?.preview != null ? row.id : undefined
+  const [shownId, setShownId] = useState<string | undefined>()
+  // A row lit again waits its pause like any other: what was shown is forgotten the moment the lit row changes.
+  const [litBefore, setLitBefore] = useState(id)
+  if (litBefore !== id) {
+    setLitBefore(id)
+    setShownId(undefined)
+  }
+  useEffect(() => {
+    if (id === undefined) return
+    const timer = setTimeout(() => setShownId(id), PREVIEW_PAUSE_MS)
+    return () => clearTimeout(timer)
+  }, [id])
+  if (!room || !previewSlot || id === undefined || shownId !== id) return null
+  /*
+    504px: the box at its tallest — the 48px field, the rows' 420px and the 36px footer — so a long card scrolls
+    rather than hanging below the box.
+  */
+  // @estiva-escape(no-hand-rolled-behaviour): the pane sits beside the window, outside its clipped box but inside the dialog, so a click on it is not a click outside; no Base UI part draws a pane beside a popup
+  return createPortal(
+    <MenuPanel data-command-palette-preview="" className="w-full p-0">
+      <ScrollArea viewportClassName="max-h-[504px]">{row?.preview}</ScrollArea>
+    </MenuPanel>,
+    previewSlot,
   )
 }
 
