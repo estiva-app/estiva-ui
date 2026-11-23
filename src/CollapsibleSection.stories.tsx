@@ -4,6 +4,7 @@ import { Chip } from './Chip'
 import { CollapsibleSection, useRememberedOpen } from './CollapsibleSection'
 import { MenuItem } from './Menu'
 import { NavItem } from './NavItem'
+import { SectionHeader } from './SectionHeader'
 
 /** A section that opens and closes: the header's title is the toggle, and the rows slide. */
 const meta = {
@@ -85,4 +86,25 @@ export const WithMenu: Story = {
 /** `indent`: the heading look, its rows starting under its title, past the chevron — a folder in a sidebar. */
 export const Indented: Story = {
   args: { title: 'Group', indent: true },
+}
+
+/**
+ * On a page, under a `SectionHeader`'s heading: a fold among a page's sections reads as one of them, in every theme —
+ * the same type, size, case and colour as the heading above it (Katerina, 23 November). A group in a sidebar tree that
+ * names a folder keeps its own voice (`NavTreeSection`, 2 October). Switch the theme from the toolbar.
+ */
+export const BesideASectionHeading: Story = {
+  decorators: [(Story) => <div className="flex w-96 flex-col gap-6"><Story /></div>],
+  render: () => (
+    <>
+      <div className="flex flex-col gap-1">
+        <SectionHeader title="Items" count={2} hover="none" />
+        <NavItem href="#" label="Item one" />
+        <NavItem href="#" label="Item two" />
+      </div>
+      <CollapsibleSection title="Archived" count={1} defaultOpen={false}>
+        <NavItem href="#" label="Item three" />
+      </CollapsibleSection>
+    </>
+  ),
 }

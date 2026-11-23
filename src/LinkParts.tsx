@@ -24,7 +24,7 @@ const STATUS_ICON: Record<StatusColour, { Icon: typeof IconCircle; tone: string 
 }
 
 /** A status's shape alone, beside words that already name it. */
-function StatusIcon({ colour }: { colour: StatusColour }) {
+export function StatusIcon({ colour }: { colour: StatusColour }) {
   const { Icon, tone } = STATUS_ICON[colour]
   return <Icon size={14} stroke={1.5} className={cn('shrink-0', tone)} aria-hidden />
 }

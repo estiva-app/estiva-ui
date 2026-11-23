@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.128.0 — 2026-11-23
+
+From the navigation round for Ship and Leaf (Katerina, 18 and 23 November): the initiatives Peek shows since
+16 November, drawn the same way in Ship and Leaf.
+
+**KindIcon, changed for every caller**: `kind="topic"`, the code's name for an initiative, draws ◎ (`IconTarget`),
+the icon Peek's rail and rows draw by hand, no longer the dashed circle (Katerina, 18 November, B1). It supersedes
+ruling C14 (the dashed circle as the Todo status shape); the kit's other dashed circles keep their meaning
+(Important in FollowSwitch, Reopen, a neutral status). No prop changes. Callers read from the apps:
+`peek/src/components/TopicFiles.tsx`, `views/ExploreTopics.tsx`, `views/TeamPage.tsx`, `views/useFilePane.tsx` and
+the rest that pass `topic`; `ship/src/components/FileTopics.tsx`, `TopicRow.tsx`, `views/TopicView.tsx`;
+`leaf/src/pages/FileTopics.tsx`, `TopicPage.tsx`, `topics/TopicRow.tsx`. An app that drew ◎ by hand can take the
+kit's now.
+
+**ListTableRow**: three additions, nothing changes for a row that passes none of them.
+- `external`: the row's link opens in a new tab with noopener noreferrer, as `Link`'s `external`. For a file another
+  app opens (Ship's initiative page lists Leaf's documents).
+- `children`: rows under a row, in the same columns, shut unless `defaultOpen` (or `open` with `onOpenChange`). The
+  row's icon gives way to an arrow under the pointer or focus, as `NavItem`'s fold, and only the arrow folds; the rows
+  sit 24px in, under the tree's line.
+- `href` is optional: a row with nowhere to open is its name in plain words, with no link and no fill under the
+  pointer.
+- Written down, as the apps already use it: a cell given `''` draws nothing (a fact this kind has not); a cell left
+  out draws the dash (not read yet).
+
+**CollapsibleSection**: a fold on a page reads like the `SectionHeader`s beside it. In Leaf's theme its title was
+Geist 12px beside the headings' Geist Mono 10px capitals (Leaf's initiative page: "PAGES" over "Archived"); now it is
+the same as the headings. The 12px name stays a sidebar tree's own, inside `NavTreeSection`. Peek's and Ship's themes
+draw both the same as before. Leaf's main has no fold yet.
+
+**TeamChip**: new. The team a page's thing belongs to, the one chip after its name in `PageHeader`'s `after`
+(Katerina, 17 November). `name`, and `href` with `onClick` where the app has a team page; without `href` it opens
+nothing. The same Chip and team icon at 12px that Peek (`views/useFilePane.tsx`), Ship (`components/TeamChip.tsx`,
+on its navigation branch) and Leaf (`pages/TeamChip.tsx`, the same) drew by hand. Additive.
+
+**ItemList**: new. Items of several kinds on one page, each list in the same four columns, Status, People, Progress
+and When, so each fact stays in one column down the page (Katerina, 18 November: "relevant items are aligned").
+Each row's fact is given (drawn), `null` (this kind has none: an empty cell) or left out (not read yet: the
+dash). Its status is the kit's words, the shape and the label 4px apart, as `LinkPickers` writes a status it
+cannot change (23 November: one status part in both apps' lists). Ship (`components/WorkList.tsx`) and Leaf
+(`pages/TopicPage.tsx`, `FileRows`) each built it on `ListTable`. `StatusIcon` is exported from `LinkParts`
+for it, not from the package. Additive.
+
+**ListSection**: new. A list under its heading on a page, with its count: `SectionHeader` with nothing on it to
+act on, and the list 4px under it. The `section` every app wrapped by hand (Peek's team page, Ship's team and
+initiative pages, Leaf's initiative page). Additive.
+
+**ExploreList**: new, with `exploreWords` and `findsByWordStart`. A page to browse every place of one kind and
+join one: the panel and its title, tabs All, Yours, Others and Archived with their counts, the search beside them,
+Team, Members and Active, and Join on a live one you are not in, waiting while it is on its way. `exploreWords`
+makes every word from what it lists (`{ one: 'initiative', many: 'initiatives', a: 'an' }` says Peek's
+words); `findsByWordStart` is the search everywhere, every typed word starting a word of the name. Peek
+(`views/ExploreTopics.tsx`), Ship (`views/TopicsView.tsx`) and Leaf (`pages/ExploreTopicsPage.tsx`) each drew it.
+Additive. `ExploreList` and `ListSection` join the parts whose `title` is their own heading (`no-native-title`).
+
 ## 0.127.0 — 2026-11-23
 
 From the Ship issue "In Peek's ⌘K, a lit file or project shows a preview beside the box" (project "⌘K in every

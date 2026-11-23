@@ -1,0 +1,81 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ItemList.stories'
+
+<Meta of={Stories} />
+
+# ItemList
+
+Items in four columns, Status, People, Progress and When, the same for every kind, so like facts line up down a page.
+
+<Canvas of={Stories.Default} />
+
+## When
+
+- **A page holding several lists of different kinds**, each under its
+  heading: every list keeps the same four columns, so each fact stays in one
+  column down the whole page.
+
+<Canvas of={Stories.SeveralOnAPage} />
+
+- **A fact not read yet** is left out of the row: the dash, until it lands.
+  A fact the row's kind does not have is `null`: an empty cell.
+
+<Canvas of={Stories.NotReadYet} />
+
+- **Rows under a row** (`rows`): shut until the row's arrow opens them, in
+  the same columns. `external` opens a row in a new tab.
+
+<Canvas of={Stories.RowsUnderARow} />
+
+## When not
+
+- Other columns than these four, or Join at a row's end → **ListTable** with
+  **ListTableRow**.
+- Places to find and join, with their tabs and search → **ExploreList**.
+- The rows of a sidebar → **NavItem** in a **NavTree**.
+
+## How
+
+```tsx
+import { ItemList, KindIcon, ListSection } from '@estiva-app/ui'
+
+<ListSection title={heading} count={rows.length}>
+  <ItemList
+    aria-label={heading}
+    rows={rows.map((row) => ({
+      id: row.id,
+      label: row.name,
+      icon: <KindIcon kind={row.kind} />,
+      href: row.href,
+      status: row.status ?? null,                 // { label, colour }
+      people: row.owner ? { person: row.owner } : null,
+      progress: row.progress ?? null,             // { done, total }
+      when: row.edited,                           // "Ana, 1h ago"
+    }))}
+  />
+</ListSection>
+```
+
+- **Three states per fact**: given, it is drawn; `null`, an empty cell (this
+  kind has none); left out, the dash (not read yet). Never write `''` or a
+  dash yourself.
+- `people` is one face (`{ person }`) or the people in a place
+  (`{ members: { faces, count } }`): the members pill, up to three faces and
+  the number; 0 says `0`.
+- `when` is the app's own words, who and when ("Ana, 1h ago").
+- No headings on screen: put it under a **ListSection**, whose heading names
+  the list. `aria-label` names it to a screen reader.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The four columns, their widths and which give way first | a `columns` array per list |  |
+| A status as its shape and its words, 4px apart | a status label of your own |  |
+| One face at 16px, or the members pill | an avatar or a pill per cell |  |
+| Progress as the small ring | a ring or a bar |  |
+| The dash for a fact not read yet, nothing for one the kind has not | `''` and `undefined` in cells |  |
+
+## Props
+
+<Controls />

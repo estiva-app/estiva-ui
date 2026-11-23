@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.127.0",
-    "exports": 258,
-    "typeExports": 270,
+    "packageVersion": "0.128.0",
+    "exports": 264,
+    "typeExports": 279,
     "files": null
   },
   "storybook": {
@@ -4579,6 +4579,142 @@
       "looks": []
     },
     {
+      "name": "ExploreList",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ExploreList.tsx",
+      "purpose": "Every place you can open, to find one and join it: tabs with their counts, a search, and Join on a live one you are not in.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "lists",
+          "takes": "ExploreLists",
+          "required": true,
+          "note": "The lists by tab, or what stands in their place."
+        },
+        {
+          "name": "tab",
+          "takes": "all | yours | others | archived",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onTab",
+          "takes": "a handler",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "onRetry",
+          "takes": "a handler",
+          "required": true,
+          "note": "Try again, on a page that did not load."
+        },
+        {
+          "name": "onJoin",
+          "takes": "a handler",
+          "required": true,
+          "note": "Join a live place you are not in."
+        },
+        {
+          "name": "joining",
+          "takes": "ReadonlySet<string>",
+          "required": false,
+          "note": "The ids whose Join is on its way: their button waits."
+        },
+        {
+          "name": "words",
+          "takes": "ExploreWords",
+          "required": true,
+          "note": "Every word it says: `exploreWords` makes them from what it lists."
+        },
+        {
+          "name": "title",
+          "takes": "text",
+          "required": false,
+          "note": "The bar's title, when it is not `words.title` (\"Team one · Initiatives\")."
+        },
+        {
+          "name": "icon",
+          "takes": "anything",
+          "required": true,
+          "note": "Each row's icon, its kind's: the one the column beside the page draws for it."
+        },
+        {
+          "name": "query",
+          "takes": "text",
+          "required": false,
+          "note": "What the search starts with, for a story."
+        }
+      ],
+      "variants": [
+        {
+          "prop": "tab",
+          "values": [
+            "all",
+            "yours",
+            "others",
+            "archived"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-explorelist--docs",
+      "storyId": "page-structure-explorelist--default",
+      "docPage": "src/ExploreList.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "exploreWords",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ExploreList.tsx",
+      "purpose": "Every word of the page from what it lists, one and many, and the article before one: `exploreWords({ one: 'item', many: 'items', a: 'an' })` says \"Explore items\", \"Your items\", \"Find an item\", \"No item matches “…”.\" and the rest.",
+      "purposeFrom": "comment",
+      "props": [
+        {
+          "name": "one",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "many",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "a",
+          "takes": "a | an",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [
+        {
+          "prop": "a",
+          "values": [
+            "a",
+            "an"
+          ]
+        }
+      ],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-explorelist--docs",
+      "storyId": "page-structure-explorelist--default",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Field",
       "repo": "estiva-ui",
       "kind": "component",
@@ -4783,6 +4919,25 @@
       "migrationStage": null,
       "docsId": "writing-linkchips--docs",
       "storyId": "writing-linkchips--in-an-editor",
+      "docPage": null,
+      "app": null,
+      "looks": []
+    },
+    {
+      "name": "findsByWordStart",
+      "repo": "estiva-ui",
+      "kind": "helper",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ExploreList.tsx",
+      "purpose": "Found when every typed word starts a word of its name, in any order: search matches word starts only, everywhere (Miky, 19 October). why: https://github.com/estiva-app/estiva-docs/blob/main/decisions/search-matches-every-word-as-a-word-start.md",
+      "purposeFrom": "comment",
+      "props": [],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-explorelist--docs",
+      "storyId": "page-structure-explorelist--default",
       "docPage": null,
       "app": null,
       "looks": []
@@ -5819,6 +5974,38 @@
       "looks": []
     },
     {
+      "name": "ItemList",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ItemList.tsx",
+      "purpose": "Items in four columns, Status, People, Progress and When, the same for every kind, so like facts line up down a page.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "aria-label",
+          "takes": "text",
+          "required": true,
+          "note": null
+        },
+        {
+          "name": "rows",
+          "takes": "ItemListRow[]",
+          "required": true,
+          "note": null
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-itemlist--docs",
+      "storyId": "page-structure-itemlist--default",
+      "docPage": "src/ItemList.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "Kbd",
       "repo": "estiva-ui",
       "kind": "component",
@@ -5946,7 +6133,7 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/KindIcon.tsx",
-      "purpose": "The icon before a thing's name that says what kind of thing it is: a topic, a project, an issue, another app's file, or a message.",
+      "purpose": "The icon before a thing's name that says what kind of thing it is: an initiative (`kind=\"topic\"`, ◎), a project, an issue, another app's file, or a message.",
       "purposeFrom": "page",
       "props": [
         {
@@ -6771,6 +6958,44 @@
       "looks": []
     },
     {
+      "name": "ListSection",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/ListSection.tsx",
+      "purpose": "A list under its heading on a page, with its count.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "title",
+          "takes": "text",
+          "required": true,
+          "note": "The heading: what the list under it holds."
+        },
+        {
+          "name": "count",
+          "takes": "number",
+          "required": false,
+          "note": "How many it holds, beside the heading. Leave it out while the list is read: a count that is not known yet is not 0."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": true,
+          "note": "The list: a `ListTable`, `ItemList`, or the skeleton or empty line in its place."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "page-structure-listsection--docs",
+      "storyId": "page-structure-listsection--default",
+      "docPage": "src/ListSection.mdx",
+      "app": null,
+      "looks": []
+    },
+    {
       "name": "ListTable",
       "repo": "estiva-ui",
       "kind": "component",
@@ -6838,13 +7063,13 @@
       "kind": "component",
       "importPath": "@estiva-app/ui",
       "sourceFile": "src/ListTable.tsx",
-      "purpose": "One row of a `ListTable`: the whole row leads to its thing; its end stays its own control.",
+      "purpose": "One row of a `ListTable`: the whole row leads to its thing; its end stays its own control; rows may fold under it.",
       "purposeFrom": "comment",
       "props": [
         {
           "name": "href",
           "takes": "text",
-          "required": true,
+          "required": false,
           "note": "Where the row leads. The whole row is the link."
         },
         {
@@ -6872,6 +7097,36 @@
           "note": "One per column, in the columns' order: words, or a part (`AvatarGroup`, `MetaText`)."
         },
         {
+          "name": "external",
+          "takes": "true/false",
+          "required": false,
+          "note": "Another app's or site's: the row opens in a new tab, with `noopener noreferrer`, as the kit's `Link` `external` does (a Leaf document listed in Ship, Katerina 23 November)."
+        },
+        {
+          "name": "children",
+          "takes": "anything",
+          "required": false,
+          "note": "Rows under this one: `ListTableRow`s in the same columns, shut until opened."
+        },
+        {
+          "name": "defaultOpen",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: open at first. Default shut."
+        },
+        {
+          "name": "open",
+          "takes": "true/false",
+          "required": false,
+          "note": "With `children`: the caller owns the state."
+        },
+        {
+          "name": "onOpenChange",
+          "takes": "a handler",
+          "required": false,
+          "note": null
+        },
+        {
           "name": "end",
           "takes": "anything",
           "required": false,
@@ -6885,7 +7140,12 @@
         }
       ],
       "variants": [],
-      "ownsBehaviours": [],
+      "ownsBehaviours": [
+        {
+          "id": "base-ui",
+          "behaviour": "Is built on Base UI"
+        }
+      ],
       "status": "stable",
       "migrationStage": null,
       "docsId": "page-structure-listtable--docs",
@@ -6893,7 +7153,8 @@
       "docPage": null,
       "app": null,
       "looks": [
-        "truncate text-body-2 font-medium text-text-primary"
+        "truncate text-body-2 font-medium text-text-primary",
+        "overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
       ]
     },
     {
@@ -11673,6 +11934,44 @@
       "looks": [
         "font-mono text-caption tabular-nums text-text-secondary"
       ]
+    },
+    {
+      "name": "TeamChip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/TeamChip.tsx",
+      "purpose": "The chip after a page's name saying which team its thing belongs to.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "name",
+          "takes": "text",
+          "required": true,
+          "note": "The team's name, as its page says it."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "The team's page. Leave it out where the app has no team page: the chip then opens nothing."
+        },
+        {
+          "name": "onClick",
+          "takes": "MouseEventHandler<HTMLAnchorElement>",
+          "required": false,
+          "note": "With `href`: a router app takes the click here, like `Chip`'s."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "links-references-teamchip--docs",
+      "storyId": "links-references-teamchip--default",
+      "docPage": "src/TeamChip.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "Textarea",

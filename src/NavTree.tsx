@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type MouseEvent
 import { CollapsibleSection, sectionLinked } from './CollapsibleSection'
 import { EmptyState } from './EmptyState'
 import { NavItem } from './NavItem'
-import { SectionHeader, type SectionAction } from './SectionHeader'
+import { FoldNamesAThing, SectionHeader, type SectionAction } from './SectionHeader'
 import { SkeletonList } from './Skeleton'
 import { REVEAL_MS, scrollToRow, useRevealCurrentRow } from './revealCurrentRow'
 
@@ -327,6 +327,8 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
       onFocus={intent}
     >
       <sectionLinked.Provider value={linked}>
+        {/* Its title names a thing (a folder, a team): a name's type in Leaf, never the micro-label (Katerina, 2 October). */}
+        <FoldNamesAThing.Provider value={true}>
         <CollapsibleSection
           title={title}
           indent
@@ -347,8 +349,11 @@ export function NavTreeSection({ id, title, message, loading = false, pending = 
           contentClassName="gap-0.5"
         >
           {/* The link is this section's alone: nothing folding inside its rows takes it. */}
-          <sectionLinked.Provider value={undefined}>{message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}</sectionLinked.Provider>
+          <sectionLinked.Provider value={undefined}>
+            <FoldNamesAThing.Provider value={false}>{message !== undefined ? <Line message={message} /> : loading || slow ? <SkeletonList rows={3} /> : children}</FoldNamesAThing.Provider>
+          </sectionLinked.Provider>
         </CollapsibleSection>
+        </FoldNamesAThing.Provider>
       </sectionLinked.Provider>
     </div>
   )

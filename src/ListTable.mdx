@@ -99,6 +99,42 @@ import { Button, ListTable, ListTableRow } from '@estiva-app/ui'
 - Its headings line up with their cells because both come from `columns`:
   never draw a heading row of your own over it.
 
+
+### Cells a row has no fact for
+
+A list of several kinds keeps one set of columns, so like facts line up down
+the page. A cell is one of three things:
+
+- **Words or a part**: the fact.
+- **An empty string**: nothing. This row's kind has no such fact (a team has
+  no progress).
+- **Absent** (`undefined`): a dash. The fact is not read yet.
+
+<Canvas of={ListTableStories.FactsARowDoesNotHave} />
+
+### Another app's row
+
+`external` opens the row in a new tab, with `noopener noreferrer`, as `Link`
+does: a file another app opens, listed here.
+
+With no `href` a row leads nowhere: its name is plain words and it has no fill
+under the pointer, so nothing looks like a link that is not (a file whose app
+gave no address to open it at).
+
+<Canvas of={ListTableStories.OpensInANewTab} />
+
+### Rows under a row
+
+Give a row `children`, more `ListTableRow`s, and they fold under it in the
+same columns: a document's pages under the document. Shut until opened
+(`defaultOpen`, or `open` with `onOpenChange` to own it). Under the pointer
+the row's icon turns into the arrow, and only the arrow folds, as a
+`NavItem`'s does; the row still opens its own thing. Its rows sit 24px in,
+under the tree's line; only the name gives the room, so the facts keep their
+columns.
+
+<Canvas of={ListTableStories.RowsUnderARow} />
+
 ## What it owns
 
 | It does | So you never write |
@@ -108,6 +144,8 @@ import { Button, ListTable, ListTableRow } from '@estiva-app/ui'
 | Draws a row's fill, its 8px corners and no edge | `rounded-md hover:bg-bg-hover` on a row |
 | Makes the whole row the link, its end above it | a covering link and `relative` by hand |
 | Gives the name the room on the left and puts the facts together on the right, 24px apart | a width of your own on the name, a gap by hand |
+| Folds a row's rows under it, its icon turning into the arrow, in the same columns | a nested list, an arrow or an indent by hand |
+| Opens another app's row in a new tab, safely | `target` and `rel` by hand |
 
 ## Props
 

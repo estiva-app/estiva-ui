@@ -91,6 +91,84 @@ describe('ListTable', () => {
     expect(screen.getAllByRole('columnheader')[0]!.closest('[role=row]')!.className).not.toMatch(/\bsr-only\b/)
   })
 
+  // A Leaf document listed in Ship opens in Leaf, beside Ship (Katerina, 23 November).
+  it('opens another app’s row in a new tab, as the kit’s Link external does', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="https://leaf.example/doc" label="A document" cells={['Group one', 'Today']} external />
+        <ListTableRow href="/one" label="Item one" cells={['Group one', 'Today']} />
+      </ListTable>,
+    )
+    const outside = screen.getByRole('link', { name: 'A document' })
+    expect(outside.getAttribute('target')).toBe('_blank')
+    expect(outside.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(screen.getByRole('link', { name: 'Item one' }).getAttribute('target')).toBeNull()
+  })
+
+  // A document's pages under it, as Ship's initiative page folds them (Katerina, 23 November).
+  it('holds rows under a row, shut until its arrow opens them, in the same columns', async () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="/doc" label="A document" cells={['Group one', 'Today']}>
+          <ListTableRow href="/page" label="A page" cells={['Group one', 'Yesterday']} />
+        </ListTableRow>
+      </ListTable>,
+    )
+    // Shut: the page is not offered, and the arrow says so.
+    expect(screen.queryByRole('link', { name: 'A page' })).toBeNull()
+    const arrow = screen.getByRole('button', { name: 'Show what is under A document' })
+    expect(arrow.getAttribute('aria-expanded')).toBe('false')
+    // The row itself still opens its own thing.
+    expect(screen.getByRole('link', { name: 'A document' }).getAttribute('href')).toBe('/doc')
+    await userEvent.click(arrow)
+    const page = screen.getByRole('link', { name: 'A page' })
+    expect(screen.getByRole('button', { name: 'Hide what is under A document' }).getAttribute('aria-expanded')).toBe('true')
+    // Its own row, with the list's columns: the name, then a cell per column.
+    const pageRow = page.closest('[role=row]') as HTMLElement
+    expect(within(pageRow).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['A page', 'Group one', 'Yesterday'])
+  })
+
+  it('lets the caller own whether a row’s rows are open', async () => {
+    const onOpenChange = vi.fn()
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="/doc" label="A document" cells={['Group one', 'Today']} open onOpenChange={onOpenChange}>
+          <ListTableRow href="/page" label="A page" cells={['Group one', 'Yesterday']} />
+        </ListTableRow>
+      </ListTable>,
+    )
+    expect(screen.getByRole('link', { name: 'A page' })).toBeTruthy()
+    await userEvent.click(screen.getByRole('button', { name: 'Hide what is under A document' }))
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  // Ship's lists of several kinds keep one set of columns: a fact a kind does not have is nothing, one not read is a dash.
+  it('draws nothing for an empty cell and a dash for one not read yet', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow href="/one" label="Item one" cells={['', undefined]} />
+      </ListTable>,
+    )
+    const row = screen.getByText('Item one').closest('[role=row]') as HTMLElement
+    expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['Item one', '', '–'])
+  })
+
+  // Ship's old document row: "Nowhere to open it: no link that would look like a link".
+  it('draws a row with nowhere to open as words, not a link', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow label="A file with no address" cells={['Group one', 'Today']} />
+      </ListTable>,
+    )
+    expect(screen.getByText('A file with no address')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+    const row = screen.getByText('A file with no address').closest('[role=row]') as HTMLElement
+    // No anchor at all, and no fill under the pointer: nothing on it looks like something to press.
+    expect(row.querySelector('a')).toBeNull()
+    expect(row.className.split(' ')).not.toContain('hover:bg-bg-hover')
+    expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['A file with no address', 'Group one', 'Today'])
+  })
+
   it('refuses a row outside a list', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<ListTableRow href="/one" label="Item one" cells={[]} />)).toThrow(/inside one/)

@@ -1,0 +1,52 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './TeamChip.stories'
+
+<Meta of={Stories} />
+
+# TeamChip
+
+The chip after a page's name saying which team its thing belongs to.
+
+<Canvas of={Stories.AfterAPageName} />
+
+## When
+
+- **Right after a page's name**, in `PageHeader`'s `after`: an initiative's
+  page, a project's, an issue's, a document's, another app's file. One chip
+  there, the team (Katerina, 17 November).
+- **Where the app has no team page** (Leaf), leave out `href`: the chip names
+  the team and opens nothing.
+
+<Canvas of={Stories.WithNoClick} />
+
+## When not
+
+- An initiative or a file named in a sentence → **InlineChip** with its
+  **KindIcon**.
+- Where a page sits, from the top → **Breadcrumb**.
+- A status, a count or a label → **Chip**.
+- Who is in a place → **MembersPill**.
+
+## How
+
+```tsx
+import { PageHeader, TeamChip } from '@estiva-app/ui'
+
+<PageHeader title={name} after={<TeamChip name={team.name} href={teamPath(team.id)} />} />
+<PageHeader title={name} after={<TeamChip name={team.name} />} />  // no team page to open
+```
+
+- Give `name` the team's name as its own page says it.
+- With `href`, a router app takes the click through `AppProvider`'s
+  `navigate`, or its own `onClick`.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The team icon at a chip's 12px, stroke 1.5, before the name | the icon and its size |  |
+| A real link to the team's page, round like the chip | an anchor around a chip |  |
+
+## Props
+
+<Controls />

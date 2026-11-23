@@ -131,3 +131,56 @@ export const NotReadYet: Story = {
     </div>
   ),
 }
+
+/** Where a row opens: another app or site in a new tab (`external`), as the kit's `Link` does; here; or nowhere (no `href`), its name plain words. */
+export const OpensInANewTab: Story = {
+  parameters: { layout: 'padded' },
+  render: (args) => (
+    <div className="w-full bg-bg-surface p-6">
+      <ListTable {...args} end={false}>
+        <ListTableRow href="https://example.com/item" external label="Item from another place" icon={icon} cells={['Group one', '', '2 hours ago']} />
+        <ListTableRow href="#" label="Item here" icon={icon} cells={['Group one', '', 'Yesterday']} />
+        <ListTableRow label="Item with nowhere to open" icon={icon} cells={['Group one', '', 'Last week']} />
+      </ListTable>
+    </div>
+  ),
+}
+
+/**
+ * Rows under a row, in the same columns, shut until opened. Point at "Item one": its icon turns into the arrow, and only
+ * the arrow folds; the row still opens its own thing. "Item two" starts open, its rows 24px in under the tree's line.
+ */
+export const RowsUnderARow: Story = {
+  parameters: { layout: 'padded' },
+  render: (args) => (
+    <div className="w-full bg-bg-surface p-6">
+      <ListTable {...args} end={false}>
+        <ListTableRow href="#" label="Item one" icon={icon} cells={['Group one', '', '2 hours ago']}>
+          <ListTableRow href="#" label="Part one" icon={icon} cells={['Group one', '', '3 hours ago']} />
+          <ListTableRow href="#" label="Part two" icon={icon} cells={['Group one', '', 'Yesterday']} />
+        </ListTableRow>
+        <ListTableRow href="#" label="Item two" icon={icon} cells={['Group two', '', 'Yesterday']} defaultOpen>
+          <ListTableRow href="#" label="Part three" icon={icon} cells={['Group two', '', '4 days ago']} />
+        </ListTableRow>
+        <ListTableRow href="#" label="Item three" icon={icon} cells={['Group one', '', 'Last week']} />
+      </ListTable>
+    </div>
+  ),
+}
+
+/**
+ * Several kinds in one set of columns: an empty string is a fact this row's kind does not have, drawn as nothing; an
+ * absent cell is a fact not read yet, drawn as a dash.
+ */
+export const FactsARowDoesNotHave: Story = {
+  parameters: { layout: 'padded' },
+  render: (args) => (
+    <div className="w-full bg-bg-surface p-6">
+      <ListTable {...args} end={false}>
+        <ListTableRow href="#" label="Item with every fact" icon={icon} cells={['Group one', '3', '2 hours ago']} />
+        <ListTableRow href="#" label="Item of a kind with no members" icon={icon} cells={['Group one', '', '2 hours ago']} />
+        <ListTableRow href="#" label="Item not read yet" icon={icon} cells={[undefined, undefined, undefined]} />
+      </ListTable>
+    </div>
+  ),
+}

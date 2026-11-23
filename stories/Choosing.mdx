@@ -125,6 +125,9 @@ The same conversation in every app; only its colours are each app's.
 | One thing — a conversation, a project, an object — as a box you can pick | **Card** — the fill by what it sits on; `href` for a link, `hover="fill"` in a feed, `onPress` when a press opens it |
 | A section heading, chevron, hover actions, a count beside the title | **SectionHeader** |
 | A list of things on a page, under column headings, each row a link | **ListTable** with **ListTableRow** — the columns give way by the list’s own width; `headings={false}` where the part’s heading names it |
+| A list under its heading on a page, with its count | **ListSection** — leave `count` out while the list is read |
+| Items of several kinds on one page, each list in the same columns: Status, People, Progress and When | **ItemList**, each under a **ListSection** — `null` for a fact a kind has not, left out for one not read yet |
+| A page to browse every place of one kind and join one: tabs with counts, a search, Join | **ExploreList** — `exploreWords` makes its words from what it lists |
 | A group of rows that opens and closes, and stays how you left it | **CollapsibleSection** — `storageKey` remembers |
 | The uppercase micro-label | **SectionLabel** |
 | A hairline, or a line with words in the middle | **Divider** — `label`; `look="section"` between stretches of a list, `sticky` while it scrolls |
@@ -147,7 +150,8 @@ The same conversation in every app; only its colours are each app's.
 | A part of something longer, shared live | **PartCard** — the app draws the blocks |
 | A status and an owner changed in place, a conversation count with its unread dot, a ring | **LinkParts** — `LinkPickers`, `CommentCount`, `StatusMark`, `ProgressRing` |
 | A person or a thing named inside a sentence | **InlineChip** — one line high, level with the words; `href` makes it a link |
-| What kind of thing a name stands for — a topic, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; `thingKindOf` turns an event kind into one |
+| What kind of thing a name stands for — an initiative, a project, an issue, a file, a message | **KindIcon** — before the name in a row, or inside an **InlineChip**; an initiative is `kind="topic"`, ◎; `thingKindOf` turns an event kind into one |
+| Which team a page's thing belongs to, after its name | **TeamChip** — in **PageHeader**'s `after`, the one chip there; `href` where the app has a team page, none where it has not |
 | Formatted text: headings, lists, a quote, code, a table, links | **RichText** — pass the parsed tree; `small` inside a card |
 | The key that does this too | **Kbd** — or the `shortcut` prop on **MenuItem**, **Tooltip** and **SearchInput** |
 

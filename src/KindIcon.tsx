@@ -1,18 +1,22 @@
-import { IconBox, IconCircleDashed, IconFile, IconListDetails, IconMessage } from '@tabler/icons-react'
+import { IconBox, IconFile, IconListDetails, IconMessage, IconTarget } from '@tabler/icons-react'
 import { cn } from './cn'
 
 /**
- * What a thing is, as the apps name it: a topic, a project, an issue, another
- * app's file, or a message.
+ * What a thing is, as the apps name it: an initiative, a project, an issue,
+ * another app's file, or a message.
  *
  * The one part that names Estiva's own kinds of thing (Katerina, 8 October):
  * every app draws the same icon for the same kind, so the table lives here once
  * instead of in each app.
+ *
+ * `topic` is the code's name for an initiative, the word every app shows since
+ * 16 November. It wears ◎, as Peek's rail and rows do (Katerina, 18 November);
+ * until then it was the dashed circle.
  */
 export type ThingKind = 'topic' | 'project' | 'issue' | 'file' | 'message'
 
 const ICONS = {
-  topic: IconCircleDashed,
+  topic: IconTarget,
   project: IconBox,
   issue: IconListDetails,
   file: IconFile,

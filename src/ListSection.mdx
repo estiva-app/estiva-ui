@@ -1,0 +1,56 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ListSection.stories'
+
+<Meta of={Stories} />
+
+# ListSection
+
+A list under its heading on a page, with its count.
+
+<Canvas of={Stories.Default} />
+
+## When
+
+- **Each list on a page** that holds several: the heading names what is under
+  it, the count says how many, nothing on the heading to press. The list sits
+  4px under it; stack the sections 24px apart in the page's column.
+- **While the list is read**: leave `count` out, and put the skeleton in the
+  list's place. A count not known yet is not 0.
+
+<Canvas of={Stories.BeingRead} />
+
+- **Nothing in it**: the empty line in the list's place.
+
+<Canvas of={Stories.Empty} />
+
+## When not
+
+- A heading with actions on it, or one that folds → **SectionHeader**, or
+  **CollapsibleSection**.
+- A list in its own column, with a bar over it → **ListColumn**.
+- A panel's title over a body that scrolls → **Panel**.
+
+## How
+
+```tsx
+import { ItemList, ListSection, SkeletonList } from '@estiva-app/ui'
+
+<div className="flex flex-col gap-6">
+  <ListSection title={heading} {...(rows ? { count: rows.length } : {})}>
+    {rows ? <ItemList aria-label={heading} rows={rows} /> : <SkeletonList rows={3} />}
+  </ListSection>
+</div>
+```
+
+- `data-*` marks go on the section, for the app's own tests.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The heading, its count, no fill under the pointer | `SectionHeader hover="none"` |  |
+| 4px between the heading and its list | a `section` with `flex flex-col gap-1` |  |
+
+## Props
+
+<Controls />
