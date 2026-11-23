@@ -85,6 +85,24 @@ describe('CommandPalette — the window', () => {
     await user.keyboard('abc{Escape}')
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false))
   })
+
+  it('says Esc closes, or the word the app gives when it keeps what the palette holds', async () => {
+    const { unmount } = render(<Search groups={[{ label: 'Group', rows: [row('One')] }]} />)
+    expect(footer()).toContain('Esc close')
+    unmount()
+    const onOpenChange = vi.fn()
+    const user = userEvent.setup()
+    render(
+      <CommandPalette open onOpenChange={onOpenChange} label="Palette" escWord="hide">
+        <CommandPaletteSearch query="abc" onQueryChange={() => {}} placeholder="Search" groups={[]} />
+      </CommandPalette>,
+    )
+    expect(footer()).toContain('Esc hide')
+    expect(footer()).not.toContain('close')
+    await focusedField()
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false))
+  })
 })
 
 describe('CommandPaletteSearch — rows', () => {

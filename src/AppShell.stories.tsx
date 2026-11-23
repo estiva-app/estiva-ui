@@ -178,6 +178,15 @@ export const Floating: Story = {
   ),
 }
 
+/** What the search opens was hidden while it worked on something you sent: the bar's field carries its dot (`TopBar`'s `searchStatus`). */
+export const FloatingSearchWorking: Story = {
+  render: (args) => (
+    <AppShell {...args} variant="floating" logo="Estiva" onSearch={() => {}} searchStatus="working" searchStatusLabel="working on what you sent" identity={identity} nav={rail}>
+      <EmptyState message="Nothing here yet." />
+    </AppShell>
+  ),
+}
+
 /** The rail folds as the sidebar does, to the 16px the card keeps from the window's edge. */
 export const FloatingFolds: Story = {
   render: function Render(args) {

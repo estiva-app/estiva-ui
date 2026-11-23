@@ -16,6 +16,22 @@ import { Sidebar } from './Sidebar'
 afterEach(cleanup)
 
 describe('AppShell', () => {
+  it('hands what the search is doing to the top bar’s field, in the floating manner an app frames itself with', () => {
+    const { rerender } = render(
+      <AppShell variant="floating" nav={<nav>Nav</nav>} onSearch={() => {}} searchPlaceholder="Search" searchStatus="working" searchStatusLabel="working on it">
+        <p>Page</p>
+      </AppShell>,
+    )
+    const field = screen.getByRole('button', { name: /Search.*working on it/ })
+    expect(field.getAttribute('data-search-status')).toBe('working')
+    rerender(
+      <AppShell variant="floating" nav={<nav>Nav</nav>} onSearch={() => {}} searchPlaceholder="Search">
+        <p>Page</p>
+      </AppShell>,
+    )
+    expect(screen.getByRole('button', { name: /Search/ }).getAttribute('data-search-status')).toBeNull()
+  })
+
   it('puts the page inside the frame’s scrolling region in the solid manner', () => {
     render(
       <AppShell nav={<nav>Nav</nav>}>

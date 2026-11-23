@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.125.1",
+    "packageVersion": "0.126.0",
     "exports": 258,
     "typeExports": 270,
     "files": null
@@ -320,6 +320,18 @@
           "note": "The words in the top bar's search field."
         },
         {
+          "name": "searchStatus",
+          "takes": "working | waiting",
+          "required": false,
+          "note": "What the top bar's search says it is doing while what it opens is hidden: a dot on the field (`TopBar`'s `searchStatus`)."
+        },
+        {
+          "name": "searchStatusLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears for `searchStatus`, in the app's words (`TopBar`'s `searchStatusLabel`)."
+        },
+        {
           "name": "identity",
           "takes": "anything",
           "required": false,
@@ -363,6 +375,13 @@
             "solid",
             "floating",
             "inset"
+          ]
+        },
+        {
+          "prop": "searchStatus",
+          "values": [
+            "working",
+            "waiting"
           ]
         }
       ],
@@ -1981,6 +2000,12 @@
           "takes": "text",
           "required": false,
           "note": "How the footer spells the modifier in `Ctrl+Backspace` and `Ctrl+Enter` — `Cmd` on a Mac."
+        },
+        {
+          "name": "escWord",
+          "takes": "text",
+          "required": false,
+          "note": "What the footer says Esc does. Default \"close\"."
         },
         {
           "name": "children",
@@ -12547,6 +12572,18 @@
           "note": "The words in the bar's own search field."
         },
         {
+          "name": "searchStatus",
+          "takes": "working | waiting",
+          "required": false,
+          "note": "What the search is doing for the person while what it opens is hidden: `working` on something they sent, or `waiting` with an answer they have not looked at."
+        },
+        {
+          "name": "searchStatusLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears for `searchStatus`, in the app's words: \"working on your question\", \"an answer is waiting\"."
+        },
+        {
           "name": "right",
           "takes": "anything",
           "required": false,
@@ -12566,6 +12603,13 @@
             "solid",
             "floating",
             "inset"
+          ]
+        },
+        {
+          "prop": "searchStatus",
+          "values": [
+            "working",
+            "waiting"
           ]
         }
       ],
@@ -12591,7 +12635,9 @@
       "app": null,
       "looks": [
         "cursor-pointer bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors",
-        "truncate text-left text-input-value text-text-muted"
+        "truncate text-left text-input-value text-text-muted",
+        "-right-1 -top-1 rounded-full bg-accent-primary",
+        "-right-1 -top-1 rounded-full bg-accent-primary animate-working motion-reduce:animate-none"
       ]
     },
     {

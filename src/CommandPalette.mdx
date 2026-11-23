@@ -65,6 +65,10 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
 - **The app opens it.** The palette listens to nothing outside its own window:
   bind the shortcut in the app, pass `open`, and give `modKey` the platform's
   spelling (`Cmd` on a Mac). The keys answer to Ctrl and Cmd either way.
+- **An app that keeps what the palette holds says so.** Esc and a click
+  outside only ever call `onOpenChange(false)`. If the app shows the same
+  words again on the next open, pass `escWord="hide"` while there is
+  something to keep, and the footer says "Esc hide" instead of "Esc close".
 - **One level at a time, and the app keeps the stack.** Render a
   `CommandPaletteSearch` or a `CommandPaletteForm` as the only child, and keep
   each level's query yourself, so going back puts back the text that was there.

@@ -84,6 +84,29 @@ export const Search: Story = {
   },
 }
 
+/**
+ * What the search opens was hidden while it worked on something you sent: the
+ * field carries a dot that breathes. Still under reduced motion.
+ */
+export const SearchWorking: Story = {
+  render: (args) => (
+    <div className="flex h-40 flex-col overflow-hidden bg-bg-base">
+      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus="working" searchStatusLabel="working on what you sent" right={face} />
+      <div className="flex flex-1 items-center justify-center text-body-2 text-text-secondary">Hidden, and still working.</div>
+    </div>
+  ),
+}
+
+/** It finished, and you have not looked yet: the dot holds still until you open the search. */
+export const SearchWaiting: Story = {
+  render: (args) => (
+    <div className="flex h-40 flex-col overflow-hidden bg-bg-base">
+      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus="waiting" searchStatusLabel="an answer is waiting" right={face} />
+      <div className="flex flex-1 items-center justify-center text-body-2 text-text-secondary">Hidden, with an answer you have not seen.</div>
+    </div>
+  ),
+}
+
 /** No search yet: the centre slot holds its place, so it drops in later without moving anything. */
 export const SolidNoSearch: Story = {
   render: (args) => (

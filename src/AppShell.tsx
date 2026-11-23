@@ -43,6 +43,10 @@ export interface AppShellProps {
   onSearch?: () => void
   /** The words in the top bar's search field. */
   searchPlaceholder?: string
+  /** What the top bar's search says it is doing while what it opens is hidden: a dot on the field (`TopBar`'s `searchStatus`). */
+  searchStatus?: 'working' | 'waiting'
+  /** What a screen reader hears for `searchStatus`, in the app's words (`TopBar`'s `searchStatusLabel`). */
+  searchStatusLabel?: string
   /** The top bar's right cluster — an `IdentityMenu`. */
   identity?: ReactNode
   /** A `Banner`, or nothing — drawn at the top of the content area. */
@@ -60,7 +64,7 @@ export interface AppShellProps {
   children: ReactNode
 }
 
-export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, identity, banner, nav, navOpen = true, onNavOpenChange, children }: AppShellProps) {
+export function AppShell({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder, searchStatus, searchStatusLabel, identity, banner, nav, navOpen = true, onNavOpenChange, children }: AppShellProps) {
   const fold = onNavOpenChange && (
     <IconButton
       tooltip={navOpen ? 'Hide the sidebar' : 'Show the sidebar'}
@@ -72,7 +76,7 @@ export function AppShell({ variant = 'solid', menu, logo, search, onSearch, sear
       {navOpen ? <IconLayoutSidebarLeftCollapse size={16} stroke={1.5} /> : <IconLayoutSidebarLeftExpand size={16} stroke={1.5} />}
     </IconButton>
   )
-  const bar = <TopBar variant={variant} menu={menu ?? fold} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} right={identity} />
+  const bar = <TopBar variant={variant} menu={menu ?? fold} logo={logo} search={search} onSearch={onSearch} searchPlaceholder={searchPlaceholder} searchStatus={searchStatus} searchStatusLabel={searchStatusLabel} right={identity} />
   const inset = variant === 'inset'
 
   /* Folding, in every manner, as Peek's rail did (Katerina, 31 October): the navigation narrows and fades in 300ms,

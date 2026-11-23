@@ -19,6 +19,34 @@ const press = (init: KeyboardEventInit) => {
   return event
 }
 
+describe('TopBar search status', () => {
+  it('says nothing about a status it was not given', () => {
+    render(<TopBar onSearch={() => {}} />)
+    const field = screen.getByRole('button', { name: /Search…/ })
+    expect(field.getAttribute('data-search-status')).toBeNull()
+    expect(field.textContent).not.toMatch(/working|waiting/)
+  })
+
+  it.each(['working', 'waiting'] as const)('carries a dot and says "%s" in the app\'s words, and still opens the search', async (state) => {
+    const onSearch = vi.fn()
+    render(<TopBar onSearch={onSearch} searchStatus={state} searchStatusLabel={`the search is ${state}`} />)
+    const field = screen.getByRole('button', { name: new RegExp(`Search….*the search is ${state}`) })
+    expect(field.getAttribute('data-search-status')).toBe(state)
+    await userEvent.click(field)
+    expect(onSearch).toHaveBeenCalledTimes(1)
+  })
+
+  it('draws no dot beside a search field of the caller\'s own', () => {
+    render(<TopBar search={<div>own field</div>} searchStatus="working" />)
+    expect(document.querySelector('[data-search-status]')).toBeNull()
+  })
+
+  it('says the status’s own word when the app gives no words for it', () => {
+    render(<TopBar onSearch={() => {}} searchStatus="waiting" />)
+    expect(screen.getByRole('button', { name: /Search….*waiting/ })).toBeTruthy()
+  })
+})
+
 describe('TopBar search', () => {
   it('draws a search field that opens the search', async () => {
     const onSearch = vi.fn()

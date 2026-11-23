@@ -250,12 +250,19 @@ export default {
           '0%, 45%': { backgroundColor: 'var(--accent-wash)' },
           '100%': { backgroundColor: 'transparent' },
         },
+        // The dot on the top bar's search while what it opens is working on something the person sent (TopBar's
+        // `searchStatus`): it breathes, as Peek's prototype drew it (Miky, 5 November). Still under reduced motion.
+        working: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.35' },
+        },
       },
       animation: {
         // Delayed reveal for loading skeletons: invisible for the first 150ms
         // so fast loads never flash a skeleton (Peek's rule, 2026-07-08).
         'skeleton-in': 'skeleton-in 0.2s ease-out 0.15s both',
         shown: 'shown 1.8s ease-out',
+        working: 'working 1.6s ease-in-out infinite',
       },
     },
   },
