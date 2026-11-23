@@ -15,6 +15,8 @@ import {
   type CommandPaletteRow,
 } from './CommandPalette'
 import { Field } from './Field'
+import { LinkCard } from './LinkCard'
+import { GROUP, ITEM, ready } from './linked.examples'
 import { Select } from './Select'
 import { TextInput } from './TextInput'
 import { Textarea } from './Textarea'
@@ -497,4 +499,36 @@ export const Prompt: Story = {
 /** The same field with two words: one line, the magnifier, the first row lit. Type a third to watch it grow. */
 export const BeforeThePrompt: Story = {
   render: (args) => <PromptDemo label={args.label} where={args.where} modKey={args.modKey} initial="place" />,
+}
+
+function PreviewDemo({ label, where, modKey }: { label: string; where?: string; modKey?: string }) {
+  const [query, setQuery] = useState('item')
+  const isPrompt = query.trim().split(/\s+/).filter(Boolean).length > 2
+  const rows = [
+    { id: 'item', label: ITEM.title, description: ITEM.summary, icon, onSelect: () => {}, preview: <LinkCard link={ready(ITEM)} bare readOnly /> },
+    { id: 'group', label: GROUP.title, description: GROUP.summary, icon, onSelect: () => {}, preview: <LinkCard link={ready(GROUP)} bare readOnly /> },
+    { id: 'place', label: PLACES[0], icon, onSelect: () => {} },
+  ]
+  return (
+    <div className="flex h-screen flex-col items-start bg-bg-base p-6">
+      <CommandPalette open onOpenChange={() => {}} label={label} where={where} modKey={modKey}>
+        <CommandPaletteSearch
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Search, or write a sentence"
+          groups={[{ label: 'Found', rows }]}
+          prompt={isPrompt ? { onSubmit: () => {}, submitWord: 'send' } : undefined}
+        />
+      </CommandPalette>
+    </div>
+  )
+}
+
+/**
+ * A lit row with a `preview` shows it beside the box, after a moment, so arrowing past rows draws nothing for them.
+ * ↓ to the third row: it has none, and the pane goes. A third word makes the field a prompt, and the pane goes too.
+ * Below 1280px there is no room beside the box, and no pane.
+ */
+export const PreviewBesideTheBox: Story = {
+  render: (args) => <PreviewDemo label={args.label} where={args.where} modKey={args.modKey} />,
 }
