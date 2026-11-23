@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.126.0 — 2026-11-23
+
+From the Ship issue "In Peek's ⌘K, Escape keeps your sentence and the answer, and the search shows a dot while it
+works" (project "⌘K in every app"; Miky approved the dot on Peek's `concept/intelligence-next` prototype on
+5 November, and on 23 November decided it means an answer not yet looked at). Peek needs it first; Leaf and Ship get
+it when their search lands.
+
+**TopBar** and **AppShell**: a new optional `searchStatus`, `{ state: 'working' | 'waiting', label }`. The bar's own
+search field then carries an accent dot on its corner, breathing while `working` (still under reduced motion) and
+still while `waiting`, marks itself `data-search-status`, and a screen reader hears `label` after the field's name.
+Without the prop nothing changes. A `search` of the caller's own draws no dot. The dot is the search field's own and
+not an `UnreadDot`: that one says something new sits on a row and marks itself unread, which a working search is not.
+New type `TopBarSearchStatus`; new animation `animate-working` in the preset. No caller changes: additive.
+
 ## 0.125.1 — 2026-11-21
 
 From the Ship issue "A divider typed in a comment box arrives as ---" (Miky, 21 November: a box draws only what a

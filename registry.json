@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.125.1",
+    "packageVersion": "0.126.0",
     "exports": 258,
-    "typeExports": 270,
+    "typeExports": 271,
     "files": null
   },
   "storybook": {
@@ -318,6 +318,12 @@
           "takes": "text",
           "required": false,
           "note": "The words in the top bar's search field."
+        },
+        {
+          "name": "searchStatus",
+          "takes": "TopBarSearchStatus",
+          "required": false,
+          "note": "What the top bar's search says it is doing while what it opens is hidden: a dot on the field (`TopBar`'s `searchStatus`)."
         },
         {
           "name": "identity",
@@ -12547,6 +12553,12 @@
           "note": "The words in the bar's own search field."
         },
         {
+          "name": "searchStatus",
+          "takes": "TopBarSearchStatus",
+          "required": false,
+          "note": "What the search is doing for the person while what it opens is hidden: `working` on something they sent, or `waiting` with an answer they have not looked at."
+        },
+        {
           "name": "right",
           "takes": "anything",
           "required": false,
@@ -12591,7 +12603,9 @@
       "app": null,
       "looks": [
         "cursor-pointer bg-bg-field border border-border-field shadow-field hover:border-border-strong rounded-lg transition-colors",
-        "truncate text-left text-input-value text-text-muted"
+        "truncate text-left text-input-value text-text-muted",
+        "-right-1 -top-1 rounded-full bg-accent-primary",
+        "-right-1 -top-1 rounded-full bg-accent-primary animate-working motion-reduce:animate-none"
       ]
     },
     {
