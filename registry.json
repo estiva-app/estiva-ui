@@ -4,9 +4,9 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.127.0",
-    "exports": 258,
-    "typeExports": 270,
+    "packageVersion": "0.126.0",
+    "exports": 259,
+    "typeExports": 271,
     "files": null
   },
   "storybook": {
@@ -2056,7 +2056,7 @@
       "docPage": "src/CommandPalette.mdx",
       "app": null,
       "looks": [
-        "overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg"
+        "overflow-hidden rounded-lg border border-border-default bg-bg-elevated shadow-lg outline-none"
       ]
     },
     {
@@ -11709,6 +11709,44 @@
       "looks": [
         "font-mono text-caption tabular-nums text-text-secondary"
       ]
+    },
+    {
+      "name": "TeamChip",
+      "repo": "estiva-ui",
+      "kind": "component",
+      "importPath": "@estiva-app/ui",
+      "sourceFile": "src/TeamChip.tsx",
+      "purpose": "The chip after a page's name saying which team its thing belongs to.",
+      "purposeFrom": "page",
+      "props": [
+        {
+          "name": "name",
+          "takes": "text",
+          "required": true,
+          "note": "The team's name, as its page says it."
+        },
+        {
+          "name": "href",
+          "takes": "text",
+          "required": false,
+          "note": "The team's page. Leave it out where the app has no team page: the chip then opens nothing."
+        },
+        {
+          "name": "onClick",
+          "takes": "MouseEventHandler<HTMLAnchorElement>",
+          "required": false,
+          "note": "With `href`: a router app takes the click here, like `Chip`'s."
+        }
+      ],
+      "variants": [],
+      "ownsBehaviours": [],
+      "status": "stable",
+      "migrationStage": null,
+      "docsId": "links-references-teamchip--docs",
+      "storyId": "links-references-teamchip--default",
+      "docPage": "src/TeamChip.mdx",
+      "app": null,
+      "looks": []
     },
     {
       "name": "Textarea",

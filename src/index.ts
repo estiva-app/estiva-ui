@@ -59,6 +59,7 @@ export { RichText, richTextClassName, calloutLook, type RichTextProps, type Rich
 export { IconButton, type IconButtonProps, type IconButtonVariant } from './IconButton'
 export { Kbd, type KbdProps } from './Kbd'
 export { KindIcon, thingKindOf, type KindIconProps, type ThingKind } from './KindIcon'
+export { TeamChip, type TeamChipProps } from './TeamChip'
 export { IdentityMenu, IdentityPanel, type Identity, type IdentityMenuProps, type IdentityPanelProps } from './IdentityMenu'
 export { Tooltip, TooltipProvider, WithTooltip, type TooltipProps, type TooltipProviderProps, type WithTooltipProps } from './Tooltip'
 export { Field, FieldLine, type FieldLineProps, type FieldLineTone, type FieldProps } from './Field'
