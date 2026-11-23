@@ -1,0 +1,76 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks'
+import * as Stories from './ExploreList.stories'
+
+<Meta of={Stories} />
+
+# ExploreList
+
+Every place you can open, to find one and join it: tabs with their counts, a search, and Join on a live one you are not in.
+
+<Canvas of={Stories.Default} />
+
+## When
+
+- **A page to browse every place of one kind** and join one, as a browse
+  page does. It opens on All; Yours, Others and Archived beside it, each
+  with its count.
+- **Search** finds a name by the starts of its words, in any order, in the
+  open tab. Nothing found says so, with what was asked.
+
+<Canvas of={Stories.NoMatch} />
+
+- **Join** only on a live place you are not in. While it is on its way
+  (`joining`), its button waits.
+
+<Canvas of={Stories.Joining} />
+
+- **Nothing listed**, **loading**, **failed** (with Try again) and **signed
+  out** each say so in words.
+
+<Canvas of={Stories.Failed} />
+
+## When not
+
+- Items of several kinds in Status, People, Progress and When → **ItemList**.
+- Other columns, or no tabs → **ListTable** with **ListTableRow**.
+- Tabs alone → **Tabs**.
+
+## How
+
+```tsx
+import { ExploreList, exploreWords, KindIcon } from '@estiva-app/ui'
+
+const words = exploreWords({ one: 'item', many: 'items', a: 'an' })
+
+<ExploreList
+  words={words}
+  icon={<KindIcon kind={kind} />}
+  lists={lists}              // { all, yours, others, archived }, or 'loading' | 'failed' | 'signedOut'
+  tab={tab}
+  onTab={setTab}
+  onRetry={retry}
+  onJoin={(row) => join(row.id)}
+  joining={joining}          // the ids whose Join is on its way
+/>
+```
+
+- `exploreWords` makes every word of the page from what it lists: the title,
+  the tabs, the search, the empty lines and the failure.
+- `title` replaces the bar's title where the page is one team's.
+- Each row: its `team`, its `members` (`{ faces, count }`) and `active`, in
+  the app's words ("2h ago"). One left out is the dash.
+- It draws the page's **Panel**: give it the page's column, full height.
+
+## What it owns
+
+| It does | So you never write | Refused when written by hand |
+|---|---|---|
+| The panel with its title, 24px in and 24px between its parts | a `Panel` and its padding |  |
+| The tabs and the search on one row, the search 256px | a hand-laid row of `Tabs` and `SearchInput` |  |
+| Search by the starts of words | a filter of your own |  |
+| Team, Members and Active, and Join at the row's end | `ListTable` columns and a `Button` per row |  |
+| Empty, no match, loading, failed and signed out | `EmptyState` and `SkeletonList` per state |  |
+
+## Props
+
+<Controls />
