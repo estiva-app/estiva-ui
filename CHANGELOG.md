@@ -7,12 +7,13 @@ works" (project "⌘K in every app"; Miky approved the dot on Peek's `concept/in
 5 November, and on 23 November decided it means an answer not yet looked at). Peek needs it first; Leaf and Ship get
 it when their search lands.
 
-**TopBar** and **AppShell**: a new optional `searchStatus`, `{ state: 'working' | 'waiting', label }`. The bar's own
+**TopBar** and **AppShell**: a new optional `searchStatus`, `'working' | 'waiting'`, and `searchStatusLabel`. The bar's own
 search field then carries an accent dot on its corner, breathing while `working` (still under reduced motion) and
-still while `waiting`, marks itself `data-search-status`, and a screen reader hears `label` after the field's name.
+still while `waiting`, marks itself `data-search-status`, and a screen reader hears `searchStatusLabel` after the
+field's name (the status's own word without it).
 Without the prop nothing changes. A `search` of the caller's own draws no dot. The dot is the search field's own and
 not an `UnreadDot`: that one says something new sits on a row and marks itself unread, which a working search is not.
-New type `TopBarSearchStatus`; new animation `animate-working` in the preset. No caller changes: additive.
+New animation `animate-working` in the preset. No caller changes: additive.
 
 **CommandPalette**: a new optional `escWord`, the word the footer puts beside Esc. Default "close", as before. An
 app that keeps what the palette holds when it is dismissed passes "hide" while there is something to keep. The word

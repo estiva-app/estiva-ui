@@ -91,7 +91,7 @@ export const Search: Story = {
 export const SearchWorking: Story = {
   render: (args) => (
     <div className="flex h-40 flex-col overflow-hidden bg-bg-base">
-      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus={{ state: 'working', label: 'working on what you sent' }} right={face} />
+      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus="working" searchStatusLabel="working on what you sent" right={face} />
       <div className="flex flex-1 items-center justify-center text-body-2 text-text-secondary">Hidden, and still working.</div>
     </div>
   ),
@@ -101,7 +101,7 @@ export const SearchWorking: Story = {
 export const SearchWaiting: Story = {
   render: (args) => (
     <div className="flex h-40 flex-col overflow-hidden bg-bg-base">
-      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus={{ state: 'waiting', label: 'an answer is waiting' }} right={face} />
+      <TopBar {...args} logo="Estiva" onSearch={() => {}} searchStatus="waiting" searchStatusLabel="an answer is waiting" right={face} />
       <div className="flex flex-1 items-center justify-center text-body-2 text-text-secondary">Hidden, with an answer you have not seen.</div>
     </div>
   ),

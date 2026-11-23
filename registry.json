@@ -6,7 +6,7 @@
     "package": "@estiva-app/ui",
     "packageVersion": "0.126.0",
     "exports": 258,
-    "typeExports": 271,
+    "typeExports": 270,
     "files": null
   },
   "storybook": {
@@ -321,9 +321,15 @@
         },
         {
           "name": "searchStatus",
-          "takes": "TopBarSearchStatus",
+          "takes": "working | waiting",
           "required": false,
           "note": "What the top bar's search says it is doing while what it opens is hidden: a dot on the field (`TopBar`'s `searchStatus`)."
+        },
+        {
+          "name": "searchStatusLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears for `searchStatus`, in the app's words (`TopBar`'s `searchStatusLabel`)."
         },
         {
           "name": "identity",
@@ -369,6 +375,13 @@
             "solid",
             "floating",
             "inset"
+          ]
+        },
+        {
+          "prop": "searchStatus",
+          "values": [
+            "working",
+            "waiting"
           ]
         }
       ],
@@ -12560,9 +12573,15 @@
         },
         {
           "name": "searchStatus",
-          "takes": "TopBarSearchStatus",
+          "takes": "working | waiting",
           "required": false,
           "note": "What the search is doing for the person while what it opens is hidden: `working` on something they sent, or `waiting` with an answer they have not looked at."
+        },
+        {
+          "name": "searchStatusLabel",
+          "takes": "text",
+          "required": false,
+          "note": "What a screen reader hears for `searchStatus`, in the app's words: \"working on your question\", \"an answer is waiting\"."
         },
         {
           "name": "right",
@@ -12584,6 +12603,13 @@
             "solid",
             "floating",
             "inset"
+          ]
+        },
+        {
+          "prop": "searchStatus",
+          "values": [
+            "working",
+            "waiting"
           ]
         }
       ],

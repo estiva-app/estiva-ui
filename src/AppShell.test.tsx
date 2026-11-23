@@ -18,7 +18,7 @@ afterEach(cleanup)
 describe('AppShell', () => {
   it('hands what the search is doing to the top bar’s field, in the floating manner an app frames itself with', () => {
     const { rerender } = render(
-      <AppShell variant="floating" nav={<nav>Nav</nav>} onSearch={() => {}} searchPlaceholder="Search" searchStatus={{ state: 'working', label: 'working on it' }}>
+      <AppShell variant="floating" nav={<nav>Nav</nav>} onSearch={() => {}} searchPlaceholder="Search" searchStatus="working" searchStatusLabel="working on it">
         <p>Page</p>
       </AppShell>,
     )

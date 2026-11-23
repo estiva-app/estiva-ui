@@ -33,11 +33,12 @@ bar ignores the pointer so the content underneath stays reachable.
   button showing `searchPlaceholder` ("Search…") and the shortcut. A click on
   it, and Ctrl+K (Cmd+K on a Mac) anywhere on the page, call `onSearch`.
 - `searchStatus` is what the search is doing for the person while what it
-  opens is hidden: `{ state: 'working', label }` while it works on something
-  they sent, `{ state: 'waiting', label }` once an answer they have not looked
-  at is there. The field carries an accent dot on its corner, breathing while
-  working (still under reduced motion) and still while waiting, and a screen
-  reader hears `label` after the field's name. Leave it out when there is
+  opens is hidden: `working` while it works on something they sent, `waiting`
+  once an answer they have not looked at is there. The field carries an accent
+  dot on its corner, breathing while working (still under reduced motion) and
+  still while waiting, and a screen reader hears `searchStatusLabel` after the
+  field's name: the app's words for it, or the status's own word without
+  them. Leave it out when there is
   nothing to say: the dot answers what the person asked for and is never a
   notification. It is not **UnreadDot**, which says something new sits on a
   row. With a `search` of your own the prop does nothing. Not covered by a

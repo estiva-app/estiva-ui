@@ -54,24 +54,22 @@ export interface TopBarProps {
   /**
    * What the search is doing for the person while what it opens is hidden: `working` on something they sent, or
    * `waiting` with an answer they have not looked at. The bar's own field then carries an accent dot on its corner,
-   * pulsing while working and still while waiting, and says `label` after its name. Leave it out for nothing to say:
-   * the dot is for what the person asked for, never for anything else. It is drawn on the bar's own field only: with
-   * a `search` of the caller's own it does nothing, and that field says its own state.
+   * pulsing while working and still while waiting, and a screen reader hears it after the field's name. Leave it out
+   * for nothing to say: the dot is for what the person asked for, never for anything else. It is drawn on the bar's
+   * own field only: with a `search` of the caller's own it does nothing, and that field says its own state.
    */
-  searchStatus?: TopBarSearchStatus
+  searchStatus?: 'working' | 'waiting'
+  /**
+   * What a screen reader hears for `searchStatus`, in the app's words: "working on your question", "an answer is
+   * waiting". Without it, the status's own word.
+   */
+  searchStatusLabel?: string
   /** The right cluster — an `IdentityMenu` and its neighbours. */
   right?: ReactNode
   className?: string
 }
 
-/** What the bar's search field says it is doing: the state, and the words a screen reader hears for it. */
-export interface TopBarSearchStatus {
-  state: 'working' | 'waiting'
-  /** In the app's words, read after the field's name: "working on your question", "an answer is waiting". */
-  label: string
-}
-
-export function TopBar({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder = 'Search…', searchStatus, right, className }: TopBarProps) {
+export function TopBar({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder = 'Search…', searchStatus, searchStatusLabel, right, className }: TopBarProps) {
   const floating = variant === 'floating'
   // Ctrl+K opens search from anywhere on the page, and Ctrl+Shift+K as it always has.
   useShortcut('Mod-K', () => onSearch?.(), onSearch !== undefined)
@@ -84,19 +82,19 @@ export function TopBar({ variant = 'solid', menu, logo, search, onSearch, search
         onMouseDown={(event) => event.preventDefault()}
         onClick={onSearch}
         className={cn('relative flex w-[290px] cursor-pointer items-center gap-2 px-3 py-2', FIELD_SHELL_CLASSES)}
-        {...(searchStatus ? { 'data-search-status': searchStatus.state } : {})}
+        {...(searchStatus ? { 'data-search-status': searchStatus } : {})}
       >
         <span className="min-w-0 flex-1 truncate text-left text-input-value text-text-muted">{searchPlaceholder}</span>
         <Kbd>{shortcutLabel('Mod-K')}</Kbd>
         {searchStatus && (
           <>
             {/* The dot is a drawing; the words beside it are what a screen reader hears, after the field's own. */}
-            <span className="sr-only">{searchStatus.label}</span>
+            <span className="sr-only">{searchStatusLabel ?? searchStatus}</span>
             <span
               aria-hidden
               className={cn(
                 'absolute -right-1 -top-1 h-2 w-2 rounded-full bg-accent-primary',
-                searchStatus.state === 'working' && 'animate-working motion-reduce:animate-none',
+                searchStatus === 'working' && 'animate-working motion-reduce:animate-none',
               )}
             />
           </>
