@@ -581,7 +581,10 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
 
 /** How long a row stays lit before its preview is drawn: arrowing through a list passes rows faster than this. */
 const PREVIEW_PAUSE_MS = 200
-/** The narrowest window with room for the 280px preview and its 12px gap beside the centred 658px box. */
+/**
+ * The narrowest window with room for the 280px preview and its 12px gap beside the centred 658px box. Asked in
+ * script, not a class: a preview hidden by CSS would still mount, and read what it shows.
+ */
 const ROOM_BESIDE = '(min-width: 1280px)'
 
 function subscribeRoom(onChange: () => void) {
@@ -610,6 +613,12 @@ function LitPreview({ row }: { row: CommandPaletteRow | undefined }) {
   const room = useRoomBeside()
   const id = row?.preview != null ? row.id : undefined
   const [shownId, setShownId] = useState<string | undefined>()
+  // A row lit again waits its pause like any other: what was shown is forgotten the moment the lit row changes.
+  const [litBefore, setLitBefore] = useState(id)
+  if (litBefore !== id) {
+    setLitBefore(id)
+    setShownId(undefined)
+  }
   useEffect(() => {
     if (id === undefined) return
     const timer = setTimeout(() => setShownId(id), PREVIEW_PAUSE_MS)

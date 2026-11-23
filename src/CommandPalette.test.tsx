@@ -640,8 +640,8 @@ describe('CommandPaletteSearch — a lit row’s preview (KIN-3)', () => {
     const onOpenChange = vi.fn()
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     render(<Search groups={[{ label: 'Group', rows: [row('One', { preview: <p>Card of One</p> })] }]} onOpenChange={onOpenChange} />)
-    await focusedField()
     expect(pane()).toBeNull()
+    await focusedField()
     await pause()
     expect(pane()?.textContent).toBe('Card of One')
     expect(screen.getByRole('dialog', { name: 'Palette' }).contains(pane())).toBe(true)
@@ -666,6 +666,12 @@ describe('CommandPaletteSearch — a lit row’s preview (KIN-3)', () => {
     expect(pane()).toBeNull()
     await pause()
     expect(pane()).toBeNull()
+    // Back to a row whose preview was shown: it waits its pause again.
+    await user.keyboard('{ArrowUp}')
+    expect(lit()).toBe('Three')
+    expect(pane()).toBeNull()
+    await pause()
+    expect(pane()?.textContent).toBe('Card of Three')
   })
 
   it('takes the preview away once the field is a prompt, a row lit by the arrows there included', async () => {
