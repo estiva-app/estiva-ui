@@ -39,13 +39,6 @@ import { shortcutLabel, useShortcut } from './shortcuts'
  * you were typing in and its selection — and taking focus would leave it
  * nothing. Tab still reaches the field, and Enter or Space presses it.
  */
-/** What the bar's search field says it is doing: the state, and the words a screen reader hears for it. */
-export interface TopBarSearchStatus {
-  state: 'working' | 'waiting'
-  /** In the app's words, read after the field's name: "working on your question", "an answer is waiting". */
-  label: string
-}
-
 export interface TopBarProps {
   variant?: 'solid' | 'floating' | 'inset'
   /** Far left: the menu button, in an app whose navigation folds. Inside an `AppShell`, the frame's own fold. */
@@ -62,12 +55,20 @@ export interface TopBarProps {
    * What the search is doing for the person while what it opens is hidden: `working` on something they sent, or
    * `waiting` with an answer they have not looked at. The bar's own field then carries an accent dot on its corner,
    * pulsing while working and still while waiting, and says `label` after its name. Leave it out for nothing to say:
-   * the dot is for what the person asked for, never for anything else.
+   * the dot is for what the person asked for, never for anything else. It is drawn on the bar's own field only: with
+   * a `search` of the caller's own it does nothing, and that field says its own state.
    */
   searchStatus?: TopBarSearchStatus
   /** The right cluster — an `IdentityMenu` and its neighbours. */
   right?: ReactNode
   className?: string
+}
+
+/** What the bar's search field says it is doing: the state, and the words a screen reader hears for it. */
+export interface TopBarSearchStatus {
+  state: 'working' | 'waiting'
+  /** In the app's words, read after the field's name: "working on your question", "an answer is waiting". */
+  label: string
 }
 
 export function TopBar({ variant = 'solid', menu, logo, search, onSearch, searchPlaceholder = 'Search…', searchStatus, right, className }: TopBarProps) {

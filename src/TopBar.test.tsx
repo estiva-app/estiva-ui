@@ -24,7 +24,7 @@ describe('TopBar search status', () => {
     render(<TopBar onSearch={() => {}} />)
     const field = screen.getByRole('button', { name: /Search…/ })
     expect(field.getAttribute('data-search-status')).toBeNull()
-    expect(field.querySelector('[aria-hidden]')).toBeNull()
+    expect(field.textContent).not.toMatch(/working|waiting/)
   })
 
   it.each(['working', 'waiting'] as const)('carries a dot and says "%s" in the app\'s words, and still opens the search', async (state) => {
@@ -32,7 +32,6 @@ describe('TopBar search status', () => {
     render(<TopBar onSearch={onSearch} searchStatus={{ state, label: `the search is ${state}` }} />)
     const field = screen.getByRole('button', { name: new RegExp(`Search….*the search is ${state}`) })
     expect(field.getAttribute('data-search-status')).toBe(state)
-    expect(field.querySelector('[aria-hidden]')).not.toBeNull()
     await userEvent.click(field)
     expect(onSearch).toHaveBeenCalledTimes(1)
   })

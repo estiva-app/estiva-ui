@@ -40,7 +40,9 @@ bar ignores the pointer so the content underneath stays reachable.
   reader hears `label` after the field's name. Leave it out when there is
   nothing to say: the dot answers what the person asked for and is never a
   notification. It is not **UnreadDot**, which says something new sits on a
-  row.
+  row. With a `search` of your own the prop does nothing. Not covered by a
+  test: that the dot holds still under reduced motion (the test environment
+  has no motion preference).
 
 <Canvas of={TopBarStories.SearchWorking} />
 <Canvas of={TopBarStories.SearchWaiting} />
