@@ -153,6 +153,22 @@ describe('ListTable', () => {
     expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['Item one', '', '–'])
   })
 
+  // Ship's old document row: "Nowhere to open it: no link that would look like a link".
+  it('draws a row with nowhere to open as words, not a link', () => {
+    render(
+      <ListTable aria-label="Items" columns={columns}>
+        <ListTableRow label="A file with no address" cells={['Group one', 'Today']} />
+      </ListTable>,
+    )
+    expect(screen.getByText('A file with no address')).toBeTruthy()
+    expect(screen.queryByRole('link')).toBeNull()
+    const row = screen.getByText('A file with no address').closest('[role=row]') as HTMLElement
+    // No anchor at all, and no fill under the pointer: nothing on it looks like something to press.
+    expect(row.querySelector('a')).toBeNull()
+    expect(row.className.split(' ')).not.toContain('hover:bg-bg-hover')
+    expect(within(row).getAllByRole('cell').map((cell) => cell.textContent)).toEqual(['A file with no address', 'Group one', 'Today'])
+  })
+
   it('refuses a row outside a list', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<ListTableRow href="/one" label="Item one" cells={[]} />)).toThrow(/inside one/)

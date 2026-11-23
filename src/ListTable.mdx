@@ -117,6 +117,10 @@ the page. A cell is one of three things:
 `external` opens the row in a new tab, with `noopener noreferrer`, as `Link`
 does: a file another app opens, listed here.
 
+With no `href` a row leads nowhere: its name is plain words and it has no fill
+under the pointer, so nothing looks like a link that is not (a file whose app
+gave no address to open it at).
+
 <Canvas of={ListTableStories.OpensInANewTab} />
 
 ### Rows under a row

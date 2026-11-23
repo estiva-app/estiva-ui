@@ -6844,7 +6844,7 @@
         {
           "name": "href",
           "takes": "text",
-          "required": true,
+          "required": false,
           "note": "Where the row leads. The whole row is the link."
         },
         {

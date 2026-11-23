@@ -50,8 +50,11 @@ export interface ListTableProps {
 }
 
 export interface ListTableRowProps {
-  /** Where the row leads. The whole row is the link. */
-  href: string
+  /**
+   * Where the row leads. The whole row is the link. Absent: the row leads nowhere — its name is plain words, with no
+   * fill under the pointer, so nothing looks like a link that is not (a file whose app gave no address to open it at).
+   */
+  href?: string
   /** Its name, one line, cut short with an ellipsis. */
   label: string
   /** Under the name, one line, cut short: what it is about. */
@@ -187,7 +190,7 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
   const row = (
     // A row's look in every list: 8px corners, the fill under the pointer and no edge.
     // 24px between the name and each fact, and before the end (Katerina, 17 November): they touched at 12.
-    <div role="row" className="group/row relative flex min-w-0 items-center gap-6 rounded-lg px-3 py-2 hover:bg-bg-hover" {...rest}>
+    <div role="row" className={cn('group/row relative flex min-w-0 items-center gap-6 rounded-lg px-3 py-2', href !== undefined && 'hover:bg-bg-hover')} {...rest}>
       {/* The name takes the room left, so the facts sit together on the right (Katerina, 17 November). */}
       <span role="cell" className="flex min-w-0 flex-1 items-center gap-3">
         {(icon != null || hasRows) && (
@@ -195,10 +198,17 @@ export function ListTableRow({ href, label, description, icon, cells, end, onCli
           <span className={cn('flex min-w-4 shrink-0 items-center text-text-secondary', hasRows && 'transition-opacity group-hover/row:opacity-0 group-has-[:focus-visible]/row:opacity-0')}>{icon}</span>
         )}
         {/* 2px between the name and its line, as every two-line row in the kit (LinkCard, LinkRow, PartCard, a tall MenuItem); they touched (Katerina, 16 November). */}
-        <Link href={href} variant="plain" cover external={external} className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>
-          <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
-          {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
-        </Link>
+        {href !== undefined ? (
+          <Link href={href} variant="plain" cover external={external} className="flex min-w-0 flex-1 flex-col gap-0.5" {...(onClick ? { onClick } : {})}>
+            <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
+            {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
+          </Link>
+        ) : (
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="truncate text-body-2 font-medium text-text-primary">{label}</span>
+            {description && <span className="truncate text-caption text-text-secondary">{description}</span>}
+          </span>
+        )}
         {hasRows && (
           // After the covering link, so the arrow stays its own button. `left-2`: the 24px button's 16px arrow lands where
           // the icon sits (the row's 12px), so the icon turns into the arrow in place, as a NavItem's does.

@@ -132,7 +132,7 @@ export const NotReadYet: Story = {
   ),
 }
 
-/** A row from another app or site: it opens in a new tab (`external`), as the kit's `Link` does. */
+/** Where a row opens: another app or site in a new tab (`external`), as the kit's `Link` does; here; or nowhere (no `href`), its name plain words. */
 export const OpensInANewTab: Story = {
   parameters: { layout: 'padded' },
   render: (args) => (
@@ -140,6 +140,7 @@ export const OpensInANewTab: Story = {
       <ListTable {...args} end={false}>
         <ListTableRow href="https://example.com/item" external label="Item from another place" icon={icon} cells={['Group one', '', '2 hours ago']} />
         <ListTableRow href="#" label="Item here" icon={icon} cells={['Group one', '', 'Yesterday']} />
+        <ListTableRow label="Item with nowhere to open" icon={icon} cells={['Group one', '', 'Last week']} />
       </ListTable>
     </div>
   ),
