@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.128.1 — 2026-11-27
+
+From Miky's ⌘K issue (KIN-10, 24 November: "4 words still fits one row, so expanding the height feels weird").
+
+**CommandPaletteSearch, `prompt`**: the field no longer jumps to three lines when it becomes a prompt. It stays
+one line, the search's 48px header included, and gains a line as the words wrap or Shift+Enter starts one, up to
+six lines, then scrolls inside; it shrinks back as words go. The height eases as before. No prop changes; every
+caller (the launcher in `@estiva/launcher`, mounted by Peek, Leaf and Ship) gets it on the bump.
+
 ## 0.128.0 — 2026-11-23
 
 From the navigation round for Ship and Leaf (Katerina, 18 and 23 November): the initiatives Peek shows since

@@ -97,6 +97,10 @@ export interface CommandPaletteProps {
   children: ReactNode
 }
 
+/** A prompt's height: never under the search's one line (`h-6`), never over this many lines. */
+const PROMPT_MIN = 24
+const PROMPT_LINES = 6
+
 /** The field a level starts on: the search field, or the form's first control. */
 const CONTROL = 'input:not([type="hidden"]):not([tabindex="-1"]), textarea, button:not([tabindex="-1"]), [role="combobox"]'
 
@@ -265,7 +269,8 @@ export interface CommandPaletteSearchProps {
   /** Above the rows: a `CommandPaletteWorking`, `CommandPaletteAnswer` or `CommandPaletteQuote`. */
   children?: ReactNode
   /**
-   * The field as a prompt rather than a search: it grows to three lines, the
+   * The field as a prompt rather than a search: it starts one line tall and
+   * gains a line as the words need one, up to six, then scrolls; the
    * sparkles lead it, and no row is lit until an arrow key lights one — so
    * Enter sends what was written (`onSubmit`), and Shift+Enter is a new line.
    * The caller decides when the words stopped being a search.
@@ -343,6 +348,37 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
   */
   // Base UI types its field as an input; it is drawn as a textarea (below), and only what the two share is used.
   const inputRef = useRef<HTMLInputElement>(null)
+  /*
+    A prompt starts as tall as the search it was (one line) and gains a line
+    only when the words wrap or Shift+Enter starts one, up to PROMPT_LINES; past
+    that it scrolls (KIN-10, Miky: four words still fit one row, so jumping to
+    three lines "feels weird"). The height depends on the words, so it is
+    measured here, not written in the class list. Measuring needs the field at
+    no height for a moment; it is put back first, with the transition off, so
+    the height eases from where it was to where it goes.
+  */
+  useLayoutEffect(() => {
+    const el = inputRef.current as unknown as HTMLTextAreaElement | null
+    if (!el) return
+    if (!prompt) {
+      el.style.height = ''
+      el.style.overflowY = ''
+      return
+    }
+    const line = parseFloat(getComputedStyle(el).lineHeight) || PROMPT_MIN
+    const most = line * PROMPT_LINES
+    const was = el.style.height
+    const top = el.scrollTop
+    el.style.transition = 'none'
+    el.style.height = '0px'
+    const content = el.scrollHeight
+    el.style.height = was || `${PROMPT_MIN}px`
+    void el.offsetHeight
+    el.style.transition = ''
+    el.style.height = `${Math.min(Math.max(content, PROMPT_MIN), most)}px`
+    el.style.overflowY = content > most ? 'auto' : 'hidden'
+    el.scrollTop = top
+  }, [prompt, query])
   const reported = useRef<{ id?: string; reason?: string }>({})
   const settled = useRef<{ id?: string; query: string; level?: string } | null>(null)
   /** The person has moved the highlight since the text or the level last changed. */
@@ -490,7 +526,15 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
           <Chip label={about} />
         </div>
       )}
-      <div className={cn('flex shrink-0 gap-3 border-b border-border-subtle px-5', prompt ? 'items-start py-3' : 'h-12 items-center')}>
+      {/* A prompt of one line is the search's 48px, its border included, so
+          the third word moves nothing but the icon (KIN-10). */}
+      <div
+        className={cn(
+          'flex shrink-0 gap-3 border-b border-border-subtle px-5',
+          // eslint-disable-next-line token-spacing/no-restricted-classes -- @estiva-escape: 12px above, 11px below, so one line and the 1px border make the search's 48px
+          prompt ? 'items-start pb-[11px] pt-3' : 'h-12 items-center',
+        )}
+      >
         {prompt ? (
           <IconSparkles size={16} stroke={1.5} className="mt-1 shrink-0 text-text-secondary" />
         ) : (
@@ -507,12 +551,13 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
              on a fallback (ChipInput's field lost its name to one, Finding 6). */
           aria-label={placeholder}
           onKeyDown={onKeyDown}
-          /* A textarea at one line or three, never an input swapped for one:
-             the caret and the focus stay where they are as the field grows. */
-          render={<textarea rows={prompt ? 3 : 1} />}
+          /* A textarea, never an input swapped for one: the caret and the
+             focus stay where they are as the field grows. As a prompt its
+             height follows the words (the layout effect above). */
+          render={<textarea rows={1} />}
           className={cn(
-            'min-w-0 flex-1 resize-none bg-transparent text-input-value text-text-primary outline-none transition-[height] duration-200 placeholder:text-text-muted',
-            prompt ? 'h-[4.5rem]' : 'h-6 overflow-hidden whitespace-nowrap',
+            'h-6 min-w-0 flex-1 resize-none bg-transparent text-input-value text-text-primary outline-none transition-[height] duration-200 placeholder:text-text-muted',
+            !prompt && 'overflow-hidden whitespace-nowrap',
           )}
         />
       </div>
