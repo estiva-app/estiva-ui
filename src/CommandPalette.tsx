@@ -357,28 +357,42 @@ export function CommandPaletteSearch({ query, onQueryChange, placeholder, groups
     no height for a moment; it is put back first, with the transition off, so
     the height eases from where it was to where it goes.
   */
+  const isPrompt = !!prompt
   useLayoutEffect(() => {
     const el = inputRef.current as unknown as HTMLTextAreaElement | null
     if (!el) return
-    if (!prompt) {
+    if (!isPrompt) {
       el.style.height = ''
       el.style.overflowY = ''
       return
     }
-    const line = parseFloat(getComputedStyle(el).lineHeight) || PROMPT_MIN
-    const most = line * PROMPT_LINES
-    const was = el.style.height
-    const top = el.scrollTop
-    el.style.transition = 'none'
-    el.style.height = '0px'
-    const content = el.scrollHeight
-    el.style.height = was || `${PROMPT_MIN}px`
-    void el.offsetHeight
-    el.style.transition = ''
-    el.style.height = `${Math.min(Math.max(content, PROMPT_MIN), most)}px`
-    el.style.overflowY = content > most ? 'auto' : 'hidden'
-    el.scrollTop = top
-  }, [prompt, query])
+    const measure = () => {
+      const line = parseFloat(getComputedStyle(el).lineHeight) || PROMPT_MIN
+      // Whole pixels: scrollHeight is rounded, so six lines of 19.6px measure 118, not 117.6.
+      const most = Math.ceil(line * PROMPT_LINES)
+      const was = el.style.height
+      const top = el.scrollTop
+      el.style.transition = 'none'
+      el.style.height = '0px'
+      const content = el.scrollHeight
+      el.style.height = was || `${PROMPT_MIN}px`
+      void el.offsetHeight
+      el.style.transition = ''
+      el.style.height = `${Math.min(Math.max(content, PROMPT_MIN), most)}px`
+      el.style.overflowY = content > most + 1 ? 'auto' : 'hidden'
+      el.scrollTop = top
+    }
+    measure()
+    // The same words take more lines in a narrower field: a resized window, a box reopened on a kept sentence.
+    let width = el.clientWidth
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(() => {
+      if (el.clientWidth === width) return
+      width = el.clientWidth
+      measure()
+    })
+    observer?.observe(el)
+    return () => observer?.disconnect()
+  }, [isPrompt, query])
   const reported = useRef<{ id?: string; reason?: string }>({})
   const settled = useRef<{ id?: string; query: string; level?: string } | null>(null)
   /** The person has moved the highlight since the text or the level last changed. */
