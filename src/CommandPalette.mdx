@@ -93,7 +93,8 @@ import { CommandPalette, CommandPaletteSearch } from '@estiva-app/ui'
   on screen.
 - **`prompt` when the words stopped being a search.** The app decides when
   (after a third word, say) and passes `{ onSubmit, submitWord }`: the
-  field grows from one line to three, the sparkles replace the magnifier, and
+  field stays one line and gains one as the words wrap or Shift+Enter starts
+  one (up to six, then it scrolls), the sparkles replace the magnifier, and
   no row is lit, so Enter sends the words and the footer says so with
   `submitWord`. The rows stay what they were: things to open or do, reached
   with ↓; ↑ from the first row, or writing on, goes back to the words.

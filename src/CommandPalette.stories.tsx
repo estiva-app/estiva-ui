@@ -491,7 +491,7 @@ function PromptDemo({ label, where, modKey, initial }: { label: string; where?: 
   )
 }
 
-/** A search until the third word, then a prompt: the field grows to three lines, the sparkles lead it, no row is lit, and Enter sends the words. ↑ ↓ light a row, and Enter is then that row's. */
+/** A search until the third word, then a prompt: the field stays one line and gains a line as the words wrap or Shift+Enter starts one (up to six, then it scrolls), the sparkles lead it, no row is lit, and Enter sends the words. ↑ ↓ light a row, and Enter is then that row's. */
 export const Prompt: Story = {
   render: (args) => <PromptDemo label={args.label} where={args.where} modKey={args.modKey} initial="Write three words" />,
 }

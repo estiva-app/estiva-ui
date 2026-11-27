@@ -10,7 +10,7 @@
  * test is the measured case.
  */
 import { useEffect, useState } from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
@@ -491,18 +491,56 @@ function Prompting({ rows, onSubmit, about }: { rows: CommandPaletteRow[]; onSub
 }
 
 describe('CommandPaletteSearch — the field as a prompt', () => {
-  it('grows from one line to three and keeps the focus and the words while it does', async () => {
+  it('stays one line at the third word and keeps the focus and the words', async () => {
     const user = userEvent.setup()
     render(<Prompting rows={[row('One')]} onSubmit={() => {}} />)
     const before = await focusedField()
-    expect((before as unknown as HTMLTextAreaElement).rows).toBe(1)
     await user.keyboard('one two three')
     const after = field() as unknown as HTMLTextAreaElement
-    expect(after.rows).toBe(3)
+    expect(after.style.height).toBe('24px')
     expect(after.value).toBe('one two three')
     expect(document.activeElement).toBe(after)
     // The same element, not a second field swapped in mid-word.
     expect(after).toBe(before)
+  })
+
+  describe('with lines the words take', () => {
+    /* jsdom lays nothing out: here a field's content is 20px a line, one line
+       per line break, as a browser measures it at no height. */
+    const LINE = 20
+    let restore: () => void
+    beforeEach(() => {
+      const proto = HTMLTextAreaElement.prototype
+      const scroll = Object.getOwnPropertyDescriptor(proto, 'scrollHeight') ?? Object.getOwnPropertyDescriptor(Element.prototype, 'scrollHeight')
+      Object.defineProperty(proto, 'scrollHeight', { configurable: true, get(this: HTMLTextAreaElement) { return this.value.split('\n').length * LINE } })
+      restore = () => {
+        if (scroll) Object.defineProperty(proto, 'scrollHeight', scroll)
+        else delete (proto as unknown as Record<string, unknown>).scrollHeight
+      }
+    })
+    afterEach(() => restore())
+
+    it('gains a line as the words need one, stops at six and scrolls, and shrinks back as they go', async () => {
+      const user = userEvent.setup()
+      render(<Prompting rows={[row('One')]} onSubmit={() => {}} />)
+      const el = (await focusedField()) as unknown as HTMLTextAreaElement
+      // The line height the field's text style gives it in a browser, which jsdom does not compute.
+      el.style.lineHeight = `${LINE}px`
+      await user.keyboard('one two three')
+      expect(el.style.height).toBe('24px')
+      await user.keyboard('{Shift>}{Enter}{/Shift}four')
+      expect(el.style.height).toBe('40px')
+      expect(el.style.overflowY).toBe('hidden')
+      await user.keyboard('{Shift>}{Enter}{/Shift}5{Shift>}{Enter}{/Shift}6{Shift>}{Enter}{/Shift}7{Shift>}{Enter}{/Shift}8{Shift>}{Enter}{/Shift}9')
+      expect(el.style.height).toBe('120px')
+      expect(el.style.overflowY).toBe('auto')
+      await user.keyboard('{Backspace>15/}')
+      expect(el.value).toBe('one two three')
+      expect(el.style.height).toBe('24px')
+      await user.keyboard('{Backspace>6/}')
+      expect(el.value).toBe('one two')
+      expect(el.style.height).toBe('')
+    })
   })
 
   it('sends the words on Enter, and opens no row, until an arrow lights one', async () => {
