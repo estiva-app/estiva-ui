@@ -4,7 +4,7 @@
     "kind": "package",
     "repo": "estiva-ui",
     "package": "@estiva-app/ui",
-    "packageVersion": "0.128.0",
+    "packageVersion": "0.128.1",
     "exports": 264,
     "typeExports": 279,
     "files": null
@@ -2292,7 +2292,7 @@
           "name": "prompt",
           "takes": "CommandPalettePrompt",
           "required": false,
-          "note": "The field as a prompt rather than a search: it grows to three lines, the sparkles lead it, and no row is lit until an arrow key lights one — so Enter sends what was written (`onSubmit`), and Shift+Enter is a new line."
+          "note": "The field as a prompt rather than a search: it starts one line tall and gains a line as the words need one, up to six, then scrolls; the sparkles lead it, and no row is lit until an arrow key lights one — so Enter sends what was written (`onSubmit`), and Shift+Enter is a new line."
         },
         {
           "name": "about",
